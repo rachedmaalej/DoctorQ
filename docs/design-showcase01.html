@@ -1,0 +1,2072 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DoctorQ Design System - Pastel Rainbow Palette</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  <style>
+    /* ============================================
+       DESIGN SYSTEM TOKENS
+       Pastel Rainbow Color Palette
+       ============================================ */
+    :root {
+      /* Primary - Periwinkle (Sidebar) */
+      --primary-dark: #bdb2ff;
+      --primary-darker: #a99bef;
+      --primary-text: #4a4178;
+
+      /* Accent - Powder Blush */
+      --accent-pink: #ffadad;
+      --accent-pink-hover: #ff9999;
+      --accent-pink-light: #fff0f0;
+
+      /* Secondary Colors - Pastel Rainbow */
+      --apricot-cream: #ffd6a5;
+      --apricot-light: #fff4e6;
+      --cream-yellow: #fdffb6;
+      --cream-light: #fefff0;
+      --tea-green: #caffbf;
+      --tea-green-light: #f0fff0;
+      --electric-aqua: #9bf6ff;
+      --aqua-light: #e6fdff;
+      --baby-blue: #a0c4ff;
+      --baby-blue-light: #e8f2ff;
+      --mauve: #ffc6ff;
+      --mauve-light: #fff0ff;
+
+      /* Warm Neutrals */
+      --porcelain: #fffffc;
+      --porcelain-warm: #fefef8;
+
+      /* Success/Fresh */
+      --success-green: #caffbf;
+      --success-green-dark: #7dd87d;
+      --success-light: #f0fff0;
+
+      /* Background */
+      --bg-cream: #fffffc;
+      --bg-warm: #fefef8;
+      --bg-page: #fefefe;
+
+      /* Neutrals */
+      --white: #FFFFFF;
+      --gray-50: #FAFAFA;
+      --gray-100: #F5F5F5;
+      --gray-200: #EEEEEE;
+      --gray-300: #E0E0E0;
+      --gray-400: #BDBDBD;
+      --gray-500: #9E9E9E;
+      --gray-600: #757575;
+      --gray-700: #616161;
+      --gray-800: #424242;
+      --gray-900: #212121;
+
+      /* Semantic */
+      --success: #7dd87d;
+      --success-soft: #caffbf;
+      --warning: #ffd6a5;
+      --warning-dark: #e5a55a;
+      --error: #ffadad;
+      --error-dark: #e58a8a;
+      --info: #a0c4ff;
+      --info-dark: #7aa8e8;
+
+      /* Typography */
+      --font-display: 'Poppins', sans-serif;
+      --font-body: 'Inter', sans-serif;
+
+      /* Shadows */
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.03);
+      --shadow-md: 0 4px 6px rgba(0,0,0,0.05);
+      --shadow-lg: 0 10px 25px rgba(0,0,0,0.08);
+      --shadow-card: 0 2px 12px rgba(189, 178, 255, 0.15);
+
+      /* Border Radius */
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 24px;
+      --radius-full: 9999px;
+
+      /* Showcase specific */
+      --showcase-bg: #1a1a1f;
+      --showcase-card: #242428;
+      --showcase-border: rgba(255,255,255,0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--showcase-bg);
+      color: var(--white);
+      line-height: 1.6;
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+
+    /* ============================================
+       SHOWCASE LAYOUT
+       ============================================ */
+    .showcase-header {
+      text-align: center;
+      padding: 4rem 2rem 3rem;
+      background: linear-gradient(180deg, #252530 0%, var(--showcase-bg) 100%);
+    }
+
+    .showcase-header h1 {
+      font-family: var(--font-display);
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, var(--accent-pink), var(--mauve), var(--baby-blue), var(--tea-green));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .showcase-header p {
+      color: var(--gray-400);
+      font-size: 1.125rem;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    /* Design System Preview */
+    .design-system-preview {
+      background: var(--showcase-card);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      margin: 2rem auto;
+      max-width: 900px;
+      border: 1px solid var(--showcase-border);
+    }
+
+    .color-palette {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      justify-content: center;
+    }
+
+    .color-swatch {
+      text-align: center;
+    }
+
+    .color-swatch-box {
+      width: 60px;
+      height: 60px;
+      border-radius: var(--radius-md);
+      margin-bottom: 0.5rem;
+      border: 2px solid rgba(255,255,255,0.1);
+    }
+
+    .color-swatch-label {
+      font-size: 0.7rem;
+      color: var(--gray-400);
+    }
+
+    /* Navigation */
+    .nav-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      padding: 1rem 2rem;
+      position: sticky;
+      top: 0;
+      background: rgba(26, 26, 31, 0.95);
+      backdrop-filter: blur(10px);
+      z-index: 100;
+      border-bottom: 1px solid var(--showcase-border);
+    }
+
+    .nav-tab {
+      padding: 0.75rem 1.5rem;
+      border-radius: var(--radius-full);
+      background: transparent;
+      border: 1px solid var(--showcase-border);
+      color: var(--gray-400);
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 600;
+      font-family: var(--font-display);
+      transition: all 0.2s;
+    }
+
+    .nav-tab:hover {
+      background: rgba(255,255,255,0.05);
+      color: var(--white);
+    }
+
+    .nav-tab.active {
+      background: var(--primary-dark);
+      border-color: var(--primary-dark);
+      color: var(--primary-text);
+    }
+
+    /* Section */
+    .section {
+      padding: 3rem 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .section-subtitle {
+      color: var(--gray-400);
+      margin-bottom: 2rem;
+    }
+
+    /* Design Cards Grid */
+    .designs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+      gap: 2rem;
+    }
+
+    @media (max-width: 520px) {
+      .designs-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .design-card {
+      background: var(--showcase-card);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      border: 1px solid var(--showcase-border);
+    }
+
+    .design-card-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--showcase-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .design-card-title {
+      font-family: var(--font-display);
+      font-size: 1.125rem;
+      font-weight: 600;
+    }
+
+    .design-card-tag {
+      padding: 0.25rem 0.75rem;
+      border-radius: var(--radius-full);
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .tag-primary { background: rgba(189, 178, 255, 0.3); color: var(--primary-dark); }
+    .tag-warm { background: rgba(255, 214, 165, 0.3); color: var(--apricot-cream); }
+    .tag-fresh { background: rgba(202, 255, 191, 0.3); color: var(--tea-green); }
+    .tag-pink { background: rgba(255, 173, 173, 0.3); color: var(--accent-pink); }
+
+    .design-preview {
+      height: 400px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .design-description {
+      padding: 1.25rem 1.5rem;
+      border-top: 1px solid var(--showcase-border);
+    }
+
+    .design-description p {
+      color: var(--gray-400);
+      font-size: 0.875rem;
+      margin-bottom: 1rem;
+    }
+
+    .design-features {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .feature-tag {
+      padding: 0.25rem 0.625rem;
+      background: rgba(255,255,255,0.05);
+      border-radius: var(--radius-sm);
+      font-size: 0.75rem;
+      color: var(--gray-400);
+    }
+
+    /* Divider */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--showcase-border), transparent);
+      margin: 3rem 0;
+    }
+
+    /* Patient Flow Section */
+    .patient-flow {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    @media (max-width: 900px) {
+      .patient-flow {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .flow-step {
+      text-align: center;
+    }
+
+    .flow-step-label {
+      font-size: 0.75rem;
+      color: var(--gray-400);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    .flow-step-preview {
+      background: var(--showcase-card);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      height: 420px;
+      border: 1px solid var(--showcase-border);
+    }
+
+    /* ============================================
+       DASHBOARD DESIGN - PASTEL RAINBOW STYLE
+       ============================================ */
+    .dash-inspired {
+      font-family: var(--font-body);
+      font-size: 10px;
+    }
+
+    .dash-inspired-container {
+      display: flex;
+      height: 400px;
+      background: var(--porcelain);
+    }
+
+    /* Sidebar */
+    .dash-inspired .sidebar {
+      width: 180px;
+      background: var(--primary-dark);
+      color: var(--primary-text);
+      padding: 1em;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .dash-inspired .logo {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 1.6em;
+      margin-bottom: 2em;
+      display: flex;
+      align-items: center;
+      gap: 0.5em;
+    }
+
+    .dash-inspired .logo-icon {
+      width: 2.2em;
+      height: 2.2em;
+      background: var(--accent-pink);
+      border-radius: 0.5em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .dash-inspired .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 0.8em;
+      padding: 0.9em 1em;
+      border-radius: var(--radius-md);
+      margin-bottom: 0.3em;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 500;
+      color: var(--primary-text);
+      opacity: 0.7;
+    }
+
+    .dash-inspired .nav-item:hover {
+      background: rgba(255,255,255,0.3);
+      opacity: 1;
+    }
+
+    .dash-inspired .nav-item.active {
+      background: var(--accent-pink);
+      color: var(--white);
+      opacity: 1;
+    }
+
+    .dash-inspired .sidebar-footer {
+      margin-top: auto;
+      padding-top: 1em;
+      border-top: 1px solid rgba(74, 65, 120, 0.2);
+    }
+
+    .dash-inspired .user-info {
+      display: flex;
+      align-items: center;
+      gap: 0.8em;
+    }
+
+    .dash-inspired .user-avatar {
+      width: 3em;
+      height: 3em;
+      border-radius: 50%;
+      background: var(--mauve);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.2em;
+      color: var(--primary-text);
+    }
+
+    .dash-inspired .user-name {
+      font-weight: 600;
+      font-size: 0.95em;
+    }
+
+    .dash-inspired .user-email {
+      font-size: 0.8em;
+      opacity: 0.7;
+    }
+
+    /* Main Content */
+    .dash-inspired .main-content {
+      flex: 1;
+      padding: 1.5em;
+      overflow-y: auto;
+    }
+
+    /* Header */
+    .dash-inspired .content-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5em;
+    }
+
+    .dash-inspired .greeting {
+      font-family: var(--font-display);
+    }
+
+    .dash-inspired .greeting h1 {
+      font-size: 1.8em;
+      font-weight: 800;
+      color: var(--primary-text);
+      margin-bottom: 0.2em;
+    }
+
+    .dash-inspired .greeting p {
+      color: var(--gray-600);
+      font-size: 1em;
+    }
+
+    .dash-inspired .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 1em;
+    }
+
+    .dash-inspired .search-bar {
+      display: flex;
+      align-items: center;
+      background: var(--white);
+      border-radius: var(--radius-full);
+      padding: 0.6em 1.2em;
+      gap: 0.5em;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--gray-200);
+    }
+
+    .dash-inspired .search-bar input {
+      border: none;
+      outline: none;
+      font-size: 0.95em;
+      width: 150px;
+      background: transparent;
+    }
+
+    .dash-inspired .user-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5em;
+      background: var(--baby-blue-light);
+      padding: 0.5em 1em;
+      border-radius: var(--radius-full);
+    }
+
+    .dash-inspired .user-badge img {
+      width: 2.5em;
+      height: 2.5em;
+      border-radius: 50%;
+      background: var(--gray-300);
+    }
+
+    .dash-inspired .user-badge-text {
+      font-size: 0.85em;
+    }
+
+    .dash-inspired .user-badge-name {
+      font-weight: 700;
+      color: var(--primary-text);
+    }
+
+    /* Stats Cards Row */
+    .dash-inspired .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1em;
+      margin-bottom: 1.5em;
+    }
+
+    .dash-inspired .stat-card {
+      border-radius: var(--radius-lg);
+      padding: 1.2em;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .dash-inspired .stat-card.baby-blue {
+      background: linear-gradient(135deg, var(--baby-blue) 0%, var(--electric-aqua) 100%);
+    }
+
+    .dash-inspired .stat-card.tea-green {
+      background: linear-gradient(135deg, var(--tea-green) 0%, var(--cream-yellow) 100%);
+    }
+
+    .dash-inspired .stat-card.apricot {
+      background: linear-gradient(135deg, var(--apricot-cream) 0%, var(--accent-pink) 100%);
+    }
+
+    .dash-inspired .stat-card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5em;
+      margin-bottom: 0.8em;
+    }
+
+    .dash-inspired .stat-card-icon {
+      width: 2.2em;
+      height: 2.2em;
+      background: rgba(255, 255, 255, 0.4);
+      border-radius: 0.5em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary-text);
+    }
+
+    .dash-inspired .stat-card-title {
+      font-weight: 600;
+      color: var(--primary-text);
+      font-size: 0.95em;
+    }
+
+    .dash-inspired .stat-card-value {
+      font-family: var(--font-display);
+      font-size: 2.8em;
+      font-weight: 700;
+      color: var(--primary-text);
+      line-height: 1;
+    }
+
+    .dash-inspired .stat-card-change {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3em;
+      background: rgba(255,255,255,0.4);
+      padding: 0.3em 0.6em;
+      border-radius: var(--radius-full);
+      font-size: 0.85em;
+      color: var(--primary-text);
+      margin-top: 0.5em;
+    }
+
+    .dash-inspired .stat-card-illustration {
+      position: absolute;
+      right: 0.5em;
+      bottom: 0.5em;
+      font-size: 4em;
+      opacity: 0.3;
+    }
+
+    /* Content Grid */
+    .dash-inspired .content-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1em;
+    }
+
+    /* Queue Section */
+    .dash-inspired .queue-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card);
+      overflow: hidden;
+    }
+
+    .dash-inspired .queue-header {
+      padding: 1em;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.2em;
+      color: var(--primary-text);
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    .dash-inspired .queue-item {
+      display: flex;
+      align-items: center;
+      padding: 0.8em 1em;
+      border-bottom: 1px solid var(--gray-100);
+      gap: 0.8em;
+    }
+
+    .dash-inspired .queue-item:last-child {
+      border-bottom: none;
+    }
+
+    .dash-inspired .queue-item.active {
+      background: linear-gradient(90deg, var(--tea-green-light) 0%, transparent 100%);
+    }
+
+    .dash-inspired .queue-avatar {
+      width: 3em;
+      height: 3em;
+      border-radius: 50%;
+      background: var(--baby-blue-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5em;
+    }
+
+    .dash-inspired .queue-info {
+      flex: 1;
+    }
+
+    .dash-inspired .queue-name {
+      font-weight: 600;
+      color: var(--primary-text);
+    }
+
+    .dash-inspired .queue-time {
+      font-size: 0.85em;
+      color: var(--gray-500);
+    }
+
+    .dash-inspired .queue-status {
+      padding: 0.4em 0.8em;
+      border-radius: var(--radius-full);
+      font-size: 0.85em;
+      font-weight: 600;
+    }
+
+    .dash-inspired .queue-status.consulting {
+      background: var(--tea-green);
+      color: var(--primary-text);
+    }
+
+    .dash-inspired .queue-status.notified {
+      background: var(--apricot-cream);
+      color: var(--primary-text);
+    }
+
+    .dash-inspired .queue-status.waiting {
+      background: var(--baby-blue);
+      color: var(--primary-text);
+    }
+
+    /* Schedule Section */
+    .dash-inspired .schedule-card {
+      background: var(--mauve-light);
+      border-radius: var(--radius-lg);
+      padding: 1em;
+    }
+
+    .dash-inspired .schedule-header {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.2em;
+      color: var(--primary-text);
+      margin-bottom: 1em;
+    }
+
+    .dash-inspired .schedule-item {
+      background: var(--white);
+      border-radius: var(--radius-md);
+      padding: 1em;
+      margin-bottom: 0.8em;
+      border-left: 4px solid var(--primary-dark);
+    }
+
+    .dash-inspired .schedule-time {
+      font-size: 0.9em;
+      color: var(--gray-500);
+      margin-bottom: 0.3em;
+    }
+
+    .dash-inspired .schedule-name {
+      font-weight: 600;
+      color: var(--primary-text);
+    }
+
+    .dash-inspired .schedule-type {
+      display: inline-block;
+      margin-top: 0.5em;
+      padding: 0.3em 0.6em;
+      background: var(--baby-blue-light);
+      border-radius: var(--radius-sm);
+      font-size: 0.8em;
+      color: var(--primary-text);
+    }
+
+    .dash-inspired .schedule-payment {
+      background: var(--primary-dark);
+      color: var(--primary-text);
+      border-radius: var(--radius-md);
+      padding: 0.8em 1em;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 0.5em;
+    }
+
+    .dash-inspired .schedule-payment-label {
+      font-size: 0.85em;
+      opacity: 0.9;
+    }
+
+    .dash-inspired .schedule-payment-btn {
+      background: var(--white);
+      color: var(--primary-text);
+      padding: 0.5em 1em;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      font-size: 0.9em;
+    }
+
+    /* FAB */
+    .dash-inspired .fab {
+      position: absolute;
+      bottom: 1.5em;
+      right: 1.5em;
+      background: linear-gradient(135deg, var(--accent-pink) 0%, var(--mauve) 100%);
+      color: var(--white);
+      padding: 1em 1.5em;
+      border-radius: var(--radius-full);
+      font-weight: 700;
+      font-family: var(--font-display);
+      display: flex;
+      align-items: center;
+      gap: 0.5em;
+      box-shadow: 0 4px 15px rgba(255, 173, 173, 0.4);
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .dash-inspired .fab:hover {
+      transform: translateY(-2px);
+    }
+
+    /* ============================================
+       PATIENT CHECK-IN PAGE - PASTEL RAINBOW STYLE
+       ============================================ */
+    .checkin-inspired {
+      font-family: var(--font-body);
+      font-size: 11px;
+    }
+
+    .checkin-inspired-container {
+      min-height: 400px;
+      background: var(--porcelain);
+      padding: 1.5em;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .checkin-inspired .lang-switch {
+      align-self: flex-end;
+      margin-bottom: 1em;
+    }
+
+    .checkin-inspired .lang-btn {
+      background: var(--white);
+      border: none;
+      padding: 0.5em 1em;
+      border-radius: var(--radius-full);
+      font-weight: 600;
+      color: var(--primary-text);
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .checkin-inspired .clinic-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.8em;
+      background: var(--white);
+      padding: 0.8em 1.2em;
+      border-radius: var(--radius-full);
+      box-shadow: var(--shadow-card);
+      margin-bottom: 1.5em;
+    }
+
+    .checkin-inspired .clinic-icon {
+      width: 2.5em;
+      height: 2.5em;
+      background: var(--primary-dark);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+    }
+
+    .checkin-inspired .clinic-name {
+      font-weight: 700;
+      color: var(--primary-text);
+    }
+
+    .checkin-inspired .welcome-card {
+      background: var(--white);
+      border-radius: var(--radius-xl);
+      padding: 2em;
+      width: 100%;
+      max-width: 320px;
+      box-shadow: var(--shadow-lg);
+      text-align: center;
+    }
+
+    .checkin-inspired .welcome-icon {
+      width: 5em;
+      height: 5em;
+      background: linear-gradient(135deg, var(--baby-blue) 0%, var(--primary-dark) 100%);
+      border-radius: 50%;
+      margin: 0 auto 1em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .checkin-inspired .welcome-title {
+      font-family: var(--font-display);
+      font-size: 1.8em;
+      font-weight: 800;
+      color: var(--primary-text);
+      margin-bottom: 0.3em;
+    }
+
+    .checkin-inspired .welcome-subtitle {
+      color: var(--gray-600);
+      margin-bottom: 1.5em;
+    }
+
+    .checkin-inspired .form-field {
+      margin-bottom: 1em;
+      text-align: left;
+    }
+
+    .checkin-inspired .form-label {
+      display: block;
+      font-weight: 600;
+      color: var(--primary-text);
+      margin-bottom: 0.4em;
+      font-size: 0.95em;
+    }
+
+    .checkin-inspired .form-input {
+      width: 100%;
+      padding: 1em;
+      border: 2px solid var(--gray-200);
+      border-radius: var(--radius-md);
+      font-size: 1em;
+      transition: border-color 0.2s;
+    }
+
+    .checkin-inspired .form-input:focus {
+      outline: none;
+      border-color: var(--primary-dark);
+    }
+
+    .checkin-inspired .submit-btn {
+      width: 100%;
+      padding: 1em;
+      background: var(--primary-dark);
+      color: var(--white);
+      border: none;
+      border-radius: var(--radius-md);
+      font-weight: 700;
+      font-family: var(--font-display);
+      font-size: 1.1em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5em;
+      transition: background 0.2s;
+    }
+
+    .checkin-inspired .submit-btn:hover {
+      background: var(--primary-darker);
+    }
+
+    .checkin-inspired .sms-note {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5em;
+      margin-top: 1.2em;
+      color: var(--gray-500);
+      font-size: 0.9em;
+    }
+
+    /* ============================================
+       PATIENT STATUS PAGE - PASTEL RAINBOW STYLE
+       ============================================ */
+    .status-inspired {
+      font-family: var(--font-body);
+      font-size: 11px;
+    }
+
+    .status-inspired-container {
+      min-height: 400px;
+      background: var(--porcelain);
+      padding: 1.5em;
+    }
+
+    .status-inspired .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5em;
+    }
+
+    .status-inspired .clinic-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5em;
+      font-weight: 600;
+      color: var(--primary-text);
+    }
+
+    .status-inspired .clinic-badge-icon {
+      width: 2em;
+      height: 2em;
+      background: var(--primary-dark);
+      border-radius: 0.5em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+    }
+
+    .status-inspired .lang-btn {
+      background: var(--white);
+      border: none;
+      padding: 0.5em 0.8em;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      font-size: 0.9em;
+      color: var(--primary-text);
+      cursor: pointer;
+    }
+
+    .status-inspired .ticket-card {
+      background: var(--white);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      max-width: 320px;
+      margin: 0 auto;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .status-inspired .ticket-header {
+      background: linear-gradient(135deg, var(--baby-blue) 0%, var(--primary-dark) 100%);
+      padding: 1.5em;
+      text-align: center;
+      position: relative;
+    }
+
+    .status-inspired .ticket-header::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 15px solid transparent;
+      border-right: 15px solid transparent;
+      border-top: 10px solid var(--primary-dark);
+    }
+
+    .status-inspired .ticket-status-label {
+      font-weight: 600;
+      color: var(--white);
+      font-size: 0.95em;
+      margin-bottom: 0.5em;
+    }
+
+    .status-inspired .ticket-position {
+      font-family: var(--font-display);
+      font-size: 5em;
+      font-weight: 800;
+      color: var(--white);
+      line-height: 1;
+    }
+
+    .status-inspired .ticket-position-label {
+      color: rgba(255,255,255,0.8);
+      font-size: 0.95em;
+    }
+
+    .status-inspired .ticket-body {
+      padding: 2em 1.5em;
+      text-align: center;
+    }
+
+    .status-inspired .patient-greeting {
+      font-family: var(--font-display);
+      font-size: 1.3em;
+      font-weight: 700;
+      color: var(--primary-text);
+      margin-bottom: 0.5em;
+    }
+
+    .status-inspired .patient-message {
+      color: var(--gray-600);
+      margin-bottom: 1.5em;
+    }
+
+    .status-inspired .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1em;
+    }
+
+    .status-inspired .info-item {
+      background: var(--baby-blue-light);
+      padding: 1em;
+      border-radius: var(--radius-md);
+      text-align: center;
+    }
+
+    .status-inspired .info-value {
+      font-family: var(--font-display);
+      font-size: 1.6em;
+      font-weight: 700;
+      color: var(--primary-text);
+    }
+
+    .status-inspired .info-label {
+      font-size: 0.85em;
+      color: var(--gray-500);
+    }
+
+    .status-inspired .ticket-footer {
+      background: var(--baby-blue-light);
+      padding: 1em;
+      text-align: center;
+    }
+
+    .status-inspired .footer-message {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5em;
+      color: var(--primary-text);
+      font-weight: 500;
+    }
+
+    /* Status variations - Urgent */
+    .status-inspired.urgent .ticket-header {
+      background: linear-gradient(135deg, var(--apricot-cream) 0%, var(--accent-pink) 100%);
+    }
+
+    .status-inspired.urgent .ticket-header::after {
+      border-top-color: var(--accent-pink);
+    }
+
+    .status-inspired.urgent .ticket-position {
+      color: var(--white);
+    }
+
+    .status-inspired.urgent .ticket-footer {
+      background: var(--accent-pink-light);
+    }
+
+    .status-inspired.urgent .footer-message {
+      color: var(--error-dark);
+    }
+
+    .status-inspired.urgent .info-item {
+      background: var(--accent-pink-light);
+    }
+
+    .status-inspired.urgent .info-value {
+      color: var(--error-dark);
+    }
+
+    /* Status variations - Your Turn */
+    .status-inspired.your-turn .ticket-header {
+      background: linear-gradient(135deg, var(--tea-green) 0%, var(--success-green-dark) 100%);
+    }
+
+    .status-inspired.your-turn .ticket-header::after {
+      border-top-color: var(--success-green-dark);
+    }
+
+    .status-inspired.your-turn .ticket-position {
+      color: var(--white);
+      font-size: 3em;
+    }
+
+    .status-inspired.your-turn .ticket-status-label {
+      color: var(--white);
+      font-size: 1.5em;
+      font-weight: 800;
+    }
+
+    .status-inspired.your-turn .ticket-footer {
+      background: var(--tea-green-light);
+    }
+
+    .status-inspired.your-turn .footer-message {
+      color: var(--success-green-dark);
+      font-weight: 700;
+    }
+
+    /* Confetti for celebration */
+    .confetti {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      animation: confetti-fall 3s ease-out forwards;
+    }
+
+    @keyframes confetti-fall {
+      0% {
+        transform: translateY(-20px) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(400px) rotate(720deg);
+        opacity: 0;
+      }
+    }
+
+    /* Heat map chart */
+    .dash-inspired .heatmap-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 1em;
+      box-shadow: var(--shadow-card);
+    }
+
+    .dash-inspired .heatmap-title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      margin-bottom: 0.8em;
+      color: var(--primary-text);
+    }
+
+    .dash-inspired .heatmap-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 3px;
+    }
+
+    .dash-inspired .heatmap-cell {
+      aspect-ratio: 1;
+      border-radius: 3px;
+      background: var(--baby-blue-light);
+    }
+
+    .dash-inspired .heatmap-cell.level-1 { background: var(--baby-blue); opacity: 0.4; }
+    .dash-inspired .heatmap-cell.level-2 { background: var(--baby-blue); opacity: 0.6; }
+    .dash-inspired .heatmap-cell.level-3 { background: var(--baby-blue); opacity: 0.8; }
+    .dash-inspired .heatmap-cell.level-4 { background: var(--primary-dark); }
+
+    /* Donut chart */
+    .dash-inspired .donut-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 1em;
+      box-shadow: var(--shadow-card);
+    }
+
+    .dash-inspired .donut-title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      margin-bottom: 0.5em;
+      color: var(--primary-text);
+    }
+
+    .dash-inspired .donut-subtitle {
+      font-size: 0.85em;
+      color: var(--gray-500);
+      margin-bottom: 1em;
+    }
+
+    .dash-inspired .donut-container {
+      display: flex;
+      align-items: center;
+      gap: 1em;
+    }
+
+    .dash-inspired .donut-chart {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: conic-gradient(
+        var(--primary-dark) 0% 32%,
+        var(--baby-blue) 32% 73%,
+        var(--accent-pink) 73% 100%
+      );
+      position: relative;
+    }
+
+    .dash-inspired .donut-chart::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 50px;
+      height: 50px;
+      background: var(--white);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .dash-inspired .donut-chart-icon {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1;
+      background: var(--primary-dark);
+      width: 2em;
+      height: 2em;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+    }
+
+    .dash-inspired .donut-legend {
+      flex: 1;
+    }
+
+    .dash-inspired .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5em;
+      margin-bottom: 0.4em;
+      font-size: 0.9em;
+    }
+
+    .dash-inspired .legend-color {
+      width: 0.8em;
+      height: 0.8em;
+      border-radius: 2px;
+    }
+
+    .dash-inspired .legend-color.periwinkle { background: var(--primary-dark); }
+    .dash-inspired .legend-color.baby-blue { background: var(--baby-blue); }
+    .dash-inspired .legend-color.pink { background: var(--accent-pink); }
+    .dash-inspired .legend-color.green { background: var(--tea-green); }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="showcase-header">
+    <h1>DoctorQ Design System</h1>
+    <p>A soft, playful design system featuring a pastel rainbow palette. Gentle colors create a calming, approachable medical interface.</p>
+
+    <!-- Color Palette Preview -->
+    <div class="design-system-preview">
+      <h3 style="margin-bottom: 1rem; font-family: var(--font-display);">Pastel Rainbow Palette</h3>
+      <div class="color-palette">
+        <div class="color-swatch">
+          <div class="color-swatch-box" style="background: var(--accent-pink);"></div>
+          <div class="color-swatch-label">Powder Blush</div>
+        </div>
+        <div class="color-swatch">
+          <div class="color-swatch-box" style="background: var(--apricot-cream);"></div>
+          <div class="color-swatch-label">Apricot Cream</div>
+        </div>
+        <div class="color-swatch">
+          <div class="color-swatch-box" style="background: var(--cream-yellow);"></div>
+          <div class="color-swatch-label">Cream</div>
+        </div>
+        <div class="color-swatch">
+          <div class="color-swatch-box" style="background: var(--tea-green);"></div>
+          <div class="color-swatch-label">Tea Green</div>
+        </div>
+        <div class="color-swatch">
+          <div class="color-swatch-box" style="background: var(--electric-aqua);"></div>
+          <div class="color-swatch-label">Electric Aqua</div>
+        </div>
+        <div class="color-swatch">
+          <div class="color-swatch-box" style="background: var(--baby-blue);"></div>
+          <div class="color-swatch-label">Baby Blue Ice</div>
+        </div>
+        <div class="color-swatch">
+          <div class="color-swatch-box" style="background: var(--primary-dark);"></div>
+          <div class="color-swatch-label">Periwinkle</div>
+        </div>
+        <div class="color-swatch">
+          <div class="color-swatch-box" style="background: var(--mauve);"></div>
+          <div class="color-swatch-label">Mauve</div>
+        </div>
+        <div class="color-swatch">
+          <div class="color-swatch-box" style="background: var(--porcelain); border: 1px solid var(--gray-300);"></div>
+          <div class="color-swatch-label">Porcelain</div>
+        </div>
+      </div>
+      <p style="color: var(--gray-400); font-size: 0.875rem;">Typography: Poppins (display) + Inter (body) | Rounded corners | Soft shadows | Playful pastels</p>
+    </div>
+  </header>
+
+  <!-- Navigation -->
+  <nav class="nav-tabs">
+    <button class="nav-tab active" onclick="scrollToSection('dashboards')">Dashboard</button>
+    <button class="nav-tab" onclick="scrollToSection('patient-checkin')">Patient Check-in</button>
+    <button class="nav-tab" onclick="scrollToSection('patient-status')">Patient Status</button>
+    <button class="nav-tab" onclick="scrollToSection('patient-journey')">Full Journey</button>
+  </nav>
+
+  <!-- Dashboard Section -->
+  <section id="dashboards" class="section">
+    <h2 class="section-title">Dashboard Design</h2>
+    <p class="section-subtitle">A soft, inviting dashboard with periwinkle sidebar navigation, pastel rainbow stat cards, and gentle color transitions.</p>
+
+    <div class="designs-grid">
+      <!-- Main Dashboard Design -->
+      <div class="design-card" style="grid-column: span 2;">
+        <div class="design-card-header">
+          <span class="design-card-title">Clinic Management Dashboard</span>
+          <span class="design-card-tag tag-primary">Pastel Rainbow</span>
+        </div>
+        <div class="design-preview" style="height: 500px;">
+          <div class="dash-inspired dash-inspired-container" style="position: relative; height: 100%;">
+            <!-- Sidebar -->
+            <div class="sidebar">
+              <div class="logo">
+                <div class="logo-icon">
+                  <span class="material-symbols-outlined" style="font-size: 1.2em; color: white;">medical_services</span>
+                </div>
+                <span>DoctorQ</span>
+              </div>
+
+              <div class="nav-item active">
+                <span class="material-symbols-outlined">dashboard</span>
+                <span>Dashboard</span>
+              </div>
+              <div class="nav-item">
+                <span class="material-symbols-outlined">group</span>
+                <span>Queue</span>
+              </div>
+              <div class="nav-item">
+                <span class="material-symbols-outlined">calendar_month</span>
+                <span>Schedule</span>
+              </div>
+              <div class="nav-item">
+                <span class="material-symbols-outlined">analytics</span>
+                <span>Analytics</span>
+              </div>
+              <div class="nav-item">
+                <span class="material-symbols-outlined">settings</span>
+                <span>Settings</span>
+              </div>
+
+              <div class="sidebar-footer">
+                <div class="nav-item" style="margin-bottom: 0.5em;">
+                  <span class="material-symbols-outlined">settings</span>
+                  <span>Settings</span>
+                </div>
+                <div class="nav-item">
+                  <span class="material-symbols-outlined">logout</span>
+                  <span>Logout</span>
+                </div>
+                <div class="user-info" style="margin-top: 1em;">
+                  <div class="user-avatar">DA</div>
+                  <div>
+                    <div class="user-name">Dr. Ahmed</div>
+                    <div class="user-email">ahmed@clinic.tn</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="main-content">
+              <!-- Header -->
+              <div class="content-header">
+                <div class="greeting">
+                  <h1>Good Morning!</h1>
+                  <p>Here's today's overview for your patients.</p>
+                </div>
+                <div class="header-actions">
+                  <div class="search-bar">
+                    <span class="material-symbols-outlined" style="color: var(--gray-400);">search</span>
+                    <input type="text" placeholder="Search...">
+                  </div>
+                  <div class="user-badge">
+                    <div style="width: 2.5em; height: 2.5em; background: var(--primary-dark); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700;">DA</div>
+                    <div class="user-badge-text">
+                      <div style="font-size: 0.75em; color: var(--gray-500);">welcome back</div>
+                      <div class="user-badge-name">DR. AHMED</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Stats Row -->
+              <div class="stats-row">
+                <div class="stat-card baby-blue">
+                  <div class="stat-card-header">
+                    <div class="stat-card-icon">
+                      <span class="material-symbols-outlined">schedule</span>
+                    </div>
+                    <span class="stat-card-title">Waiting Today</span>
+                  </div>
+                  <div class="stat-card-value">8</div>
+                  <div class="stat-card-change">
+                    <span class="material-symbols-outlined" style="font-size: 1em;">trending_up</span>
+                    10% vs last week
+                  </div>
+                  <div class="stat-card-illustration">&#128587;</div>
+                </div>
+
+                <div class="stat-card tea-green">
+                  <div class="stat-card-header">
+                    <div class="stat-card-icon">
+                      <span class="material-symbols-outlined">check_circle</span>
+                    </div>
+                    <span class="stat-card-title">Seen Today</span>
+                  </div>
+                  <div class="stat-card-value">12</div>
+                  <div class="stat-card-change">
+                    <span class="material-symbols-outlined" style="font-size: 1em;">trending_up</span>
+                    10% vs last week
+                  </div>
+                  <div class="stat-card-illustration">&#128170;</div>
+                </div>
+
+                <div class="stat-card apricot">
+                  <div class="stat-card-header">
+                    <div class="stat-card-icon">
+                      <span class="material-symbols-outlined">avg_time</span>
+                    </div>
+                    <span class="stat-card-title">Avg. Wait Time</span>
+                  </div>
+                  <div class="stat-card-value">18m</div>
+                  <div class="stat-card-change">
+                    <span class="material-symbols-outlined" style="font-size: 1em;">trending_down</span>
+                    5% vs last week
+                  </div>
+                  <div class="stat-card-illustration">&#9201;</div>
+                </div>
+              </div>
+
+              <!-- Content Grid -->
+              <div class="content-grid">
+                <!-- Queue Card -->
+                <div class="queue-card">
+                  <div class="queue-header">Current Queue</div>
+                  <div class="queue-item active">
+                    <div class="queue-avatar">&#128104;&#8205;&#9877;</div>
+                    <div class="queue-info">
+                      <div class="queue-name">Ahmed Mansouri</div>
+                      <div class="queue-time">In consultation since 09:15</div>
+                    </div>
+                    <div class="queue-status consulting">Consulting</div>
+                  </div>
+                  <div class="queue-item">
+                    <div class="queue-avatar">&#128105;</div>
+                    <div class="queue-info">
+                      <div class="queue-name">Fatma Ben Ali</div>
+                      <div class="queue-time">Notified - Ready to enter</div>
+                    </div>
+                    <div class="queue-status notified">Notified</div>
+                  </div>
+                  <div class="queue-item">
+                    <div class="queue-avatar">&#128104;</div>
+                    <div class="queue-info">
+                      <div class="queue-name">Mohamed Trabelsi</div>
+                      <div class="queue-time">Waiting since 09:45</div>
+                    </div>
+                    <div class="queue-status waiting">Waiting</div>
+                  </div>
+                  <div class="queue-item">
+                    <div class="queue-avatar">&#128103;</div>
+                    <div class="queue-info">
+                      <div class="queue-name">Sara Bouazizi</div>
+                      <div class="queue-time">Waiting since 09:52</div>
+                    </div>
+                    <div class="queue-status waiting">Waiting</div>
+                  </div>
+                </div>
+
+                <!-- Schedule Card -->
+                <div class="schedule-card">
+                  <div class="schedule-header">Today's Schedule</div>
+                  <div class="schedule-item">
+                    <div class="schedule-time">06:30 AM - 07:00 AM</div>
+                    <div class="schedule-name">Bella Mansouri</div>
+                    <div style="font-size: 0.85em; color: var(--gray-500);">General consultation and checkup</div>
+                    <span class="schedule-type">Checkup</span>
+                  </div>
+                  <div class="schedule-item" style="border-left-color: var(--accent-pink);">
+                    <div class="schedule-time">07:00 AM - 07:30 AM</div>
+                    <div class="schedule-name">Sadie Sniffles</div>
+                    <div style="font-size: 0.85em; color: var(--gray-500);">Follow-up visit</div>
+                    <span class="schedule-type" style="background: var(--accent-pink-light); color: var(--error-dark);">Follow-up</span>
+                  </div>
+                  <div class="schedule-payment">
+                    <div>
+                      <div class="schedule-payment-label">Total Today</div>
+                      <div style="font-weight: 700; font-size: 1.3em;">540 TND</div>
+                    </div>
+                    <div class="schedule-payment-btn">View All</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- FAB -->
+            <div class="fab">
+              <span class="material-symbols-outlined">play_arrow</span>
+              Call Next Patient
+            </div>
+          </div>
+        </div>
+        <div class="design-description">
+          <p>A soft dashboard featuring the Pastel Rainbow palette. Periwinkle sidebar with pink accents, gradient stat cards in baby blue, tea green, and apricot create a calming, approachable medical interface.</p>
+          <div class="design-features">
+            <span class="feature-tag">Periwinkle Sidebar</span>
+            <span class="feature-tag">Pastel Cards</span>
+            <span class="feature-tag">Soft Gradients</span>
+            <span class="feature-tag">Playful</span>
+            <span class="feature-tag">Welcome Banner</span>
+            <span class="feature-tag">Schedule View</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- Patient Check-in Section -->
+  <section id="patient-checkin" class="section">
+    <h2 class="section-title">Patient Check-in</h2>
+    <p class="section-subtitle">A gentle, calming check-in experience with soft blue-violet tones.</p>
+
+    <div class="designs-grid">
+      <!-- Check-in Design -->
+      <div class="design-card">
+        <div class="design-card-header">
+          <span class="design-card-title">Welcome to the Queue</span>
+          <span class="design-card-tag tag-primary">Calming</span>
+        </div>
+        <div class="design-preview">
+          <div class="checkin-inspired checkin-inspired-container">
+            <div class="lang-switch">
+              <button class="lang-btn">FR / AR</button>
+            </div>
+
+            <div class="clinic-badge">
+              <div class="clinic-icon">
+                <span class="material-symbols-outlined" style="font-size: 1.2em;">medical_services</span>
+              </div>
+              <span class="clinic-name">Cabinet Dr. Ahmed Ben Salah</span>
+            </div>
+
+            <div class="welcome-card">
+              <div class="welcome-icon">
+                <span class="material-symbols-outlined" style="font-size: 2.5em; color: var(--white);">door_front</span>
+              </div>
+              <div class="welcome-title">Bienvenue!</div>
+              <div class="welcome-subtitle">Join the virtual queue and relax while you wait</div>
+
+              <div class="form-field">
+                <label class="form-label">Your Phone Number</label>
+                <input class="form-input" type="tel" placeholder="+216 XX XXX XXX">
+              </div>
+
+              <div class="form-field">
+                <label class="form-label">Your Name (optional)</label>
+                <input class="form-input" type="text" placeholder="How should we call you?">
+              </div>
+
+              <button class="submit-btn">
+                <span class="material-symbols-outlined">confirmation_number</span>
+                Take My Place
+              </button>
+
+              <div class="sms-note">
+                <span class="material-symbols-outlined" style="font-size: 1.2em;">sms</span>
+                We'll SMS you when your turn approaches
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="design-description">
+          <p>A calming check-in page featuring baby blue and periwinkle gradients with a porcelain background. The soft colors create a welcoming, stress-free atmosphere.</p>
+          <div class="design-features">
+            <span class="feature-tag">Soft Blues</span>
+            <span class="feature-tag">Clear CTA</span>
+            <span class="feature-tag">SMS Promise</span>
+            <span class="feature-tag">Bilingual</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alternative Check-in -->
+      <div class="design-card">
+        <div class="design-card-header">
+          <span class="design-card-title">Minimal Check-in</span>
+          <span class="design-card-tag tag-pink">Playful</span>
+        </div>
+        <div class="design-preview">
+          <div class="checkin-inspired checkin-inspired-container" style="background: linear-gradient(180deg, var(--primary-dark) 0%, var(--primary-dark) 35%, var(--porcelain) 35%);">
+            <div class="lang-switch">
+              <button class="lang-btn" style="background: rgba(255,255,255,0.3); color: var(--primary-text);">FR / AR</button>
+            </div>
+
+            <div style="text-align: center; margin-bottom: 1.5em;">
+              <div style="font-family: var(--font-display); font-size: 2em; font-weight: 800; color: var(--white); margin-bottom: 0.2em;">Welcome to the Saf!</div>
+              <div style="color: rgba(255,255,255,0.8);">Dr. Ahmed's Cabinet</div>
+            </div>
+
+            <div class="welcome-card" style="padding: 1.5em;">
+              <div style="display: flex; align-items: center; gap: 0.8em; margin-bottom: 1.2em;">
+                <div style="width: 3em; height: 3em; background: var(--baby-blue-light); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                  <span class="material-symbols-outlined" style="color: var(--primary-text);">phone_iphone</span>
+                </div>
+                <div style="flex: 1;">
+                  <div style="font-weight: 600; color: var(--primary-text); font-size: 0.9em;">Phone Number</div>
+                  <input class="form-input" type="tel" placeholder="+216 XX XXX XXX" style="padding: 0.8em; margin-top: 0.3em;">
+                </div>
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 0.8em; margin-bottom: 1.5em;">
+                <div style="width: 3em; height: 3em; background: var(--mauve-light); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                  <span class="material-symbols-outlined" style="color: var(--primary-text);">person</span>
+                </div>
+                <div style="flex: 1;">
+                  <div style="font-weight: 600; color: var(--primary-text); font-size: 0.9em;">Your Name</div>
+                  <input class="form-input" type="text" placeholder="Optional" style="padding: 0.8em; margin-top: 0.3em;">
+                </div>
+              </div>
+
+              <button class="submit-btn" style="background: var(--accent-pink);">
+                <span class="material-symbols-outlined">queue</span>
+                Join the Queue
+              </button>
+
+              <div style="text-align: center; margin-top: 1em; padding: 0.8em; background: var(--tea-green-light); border-radius: var(--radius-md);">
+                <span class="material-symbols-outlined" style="font-size: 1.2em; color: var(--success-green-dark); vertical-align: middle;">notifications_active</span>
+                <span style="color: var(--success-green-dark); font-size: 0.9em;"> You'll be notified when it's time</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="design-description">
+          <p>A split-screen design with the clinic branding in the periwinkle header area. Icon-led form fields with soft pastel backgrounds make the input requirements crystal clear.</p>
+          <div class="design-features">
+            <span class="feature-tag">Split Layout</span>
+            <span class="feature-tag">Icon Fields</span>
+            <span class="feature-tag">Pink CTA</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- Patient Status Section -->
+  <section id="patient-status" class="section">
+    <h2 class="section-title">Patient Status</h2>
+    <p class="section-subtitle">Real-time status updates with calming blues for waiting and warm pastels for urgent alerts.</p>
+
+    <div class="designs-grid">
+      <!-- Status: Waiting -->
+      <div class="design-card">
+        <div class="design-card-header">
+          <span class="design-card-title">Waiting State</span>
+          <span class="design-card-tag tag-primary">Relaxed</span>
+        </div>
+        <div class="design-preview">
+          <div class="status-inspired status-inspired-container">
+            <div class="header">
+              <div class="clinic-badge">
+                <div class="clinic-badge-icon">
+                  <span class="material-symbols-outlined" style="font-size: 1em;">medical_services</span>
+                </div>
+                <span>Dr. Ahmed's Cabinet</span>
+              </div>
+              <button class="lang-btn">FR / AR</button>
+            </div>
+
+            <div class="ticket-card">
+              <div class="ticket-header">
+                <div class="ticket-status-label">Your Position</div>
+                <div class="ticket-position">#5</div>
+                <div class="ticket-position-label">in the queue</div>
+              </div>
+
+              <div class="ticket-body">
+                <div class="patient-greeting">Hi Fatma!</div>
+                <div class="patient-message">Relax, we're watching your turn. You'll get an SMS when it's almost time.</div>
+
+                <div class="info-grid">
+                  <div class="info-item">
+                    <div class="info-value">4</div>
+                    <div class="info-label">Ahead of you</div>
+                  </div>
+                  <div class="info-item">
+                    <div class="info-value">~60m</div>
+                    <div class="info-label">Est. wait</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="ticket-footer">
+                <div class="footer-message">
+                  <span class="material-symbols-outlined">schedule</span>
+                  Plenty of time for a coffee!
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="design-description">
+          <p>A calm, baby blue-themed status display for patients who are still far in the queue. Soft pastel gradients create a serene, relaxing atmosphere.</p>
+          <div class="design-features">
+            <span class="feature-tag">Ticket Style</span>
+            <span class="feature-tag">Baby Blue</span>
+            <span class="feature-tag">Friendly Copy</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Status: Almost -->
+      <div class="design-card">
+        <div class="design-card-header">
+          <span class="design-card-title">Almost Your Turn</span>
+          <span class="design-card-tag tag-warm">Urgent</span>
+        </div>
+        <div class="design-preview">
+          <div class="status-inspired urgent status-inspired-container">
+            <div class="header">
+              <div class="clinic-badge">
+                <div class="clinic-badge-icon">
+                  <span class="material-symbols-outlined" style="font-size: 1em;">medical_services</span>
+                </div>
+                <span>Dr. Ahmed's Cabinet</span>
+              </div>
+              <button class="lang-btn">FR / AR</button>
+            </div>
+
+            <div class="ticket-card" style="border: 3px solid var(--accent-pink); animation: pulse 2s infinite;">
+              <div class="ticket-header">
+                <div class="ticket-status-label" style="color: var(--white);">Almost Your Turn!</div>
+                <div class="ticket-position">#2</div>
+                <div class="ticket-position-label" style="color: rgba(255,255,255,0.9);">Get ready!</div>
+              </div>
+
+              <div class="ticket-body">
+                <div class="patient-greeting">Fatma, heads up!</div>
+                <div class="patient-message">Only <strong>1 patient</strong> ahead of you. Please head to the clinic now if you're not nearby.</div>
+
+                <div class="info-grid">
+                  <div class="info-item">
+                    <div class="info-value">1</div>
+                    <div class="info-label">Ahead of you</div>
+                  </div>
+                  <div class="info-item">
+                    <div class="info-value">~15m</div>
+                    <div class="info-label">Est. wait</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="ticket-footer">
+                <div class="footer-message">
+                  <span class="material-symbols-outlined">directions_walk</span>
+                  Head to the clinic now!
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="design-description">
+          <p>A warm, attention-grabbing state with apricot and powder blush colors and a pulsing border. Clear call-to-action to head to the clinic.</p>
+          <div class="design-features">
+            <span class="feature-tag">Pulsing Border</span>
+            <span class="feature-tag">Warm Peach</span>
+            <span class="feature-tag">Urgent Message</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Status: Your Turn -->
+      <div class="design-card">
+        <div class="design-card-header">
+          <span class="design-card-title">It's Your Turn!</span>
+          <span class="design-card-tag tag-fresh">Celebration</span>
+        </div>
+        <div class="design-preview">
+          <div class="status-inspired your-turn status-inspired-container" style="position: relative; overflow: hidden;">
+            <!-- Confetti -->
+            <div class="confetti" style="background: var(--accent-pink); left: 10%; animation-delay: 0s;"></div>
+            <div class="confetti" style="background: var(--baby-blue); left: 25%; animation-delay: 0.2s;"></div>
+            <div class="confetti" style="background: var(--tea-green); left: 40%; animation-delay: 0.4s;"></div>
+            <div class="confetti" style="background: var(--mauve); left: 55%; animation-delay: 0.1s;"></div>
+            <div class="confetti" style="background: var(--apricot-cream); left: 70%; animation-delay: 0.3s;"></div>
+            <div class="confetti" style="background: var(--primary-dark); left: 85%; animation-delay: 0.5s;"></div>
+
+            <div class="header">
+              <div class="clinic-badge">
+                <div class="clinic-badge-icon" style="background: var(--tea-green);">
+                  <span class="material-symbols-outlined" style="font-size: 1em; color: var(--primary-text);">celebration</span>
+                </div>
+                <span>Dr. Ahmed's Cabinet</span>
+              </div>
+              <button class="lang-btn">FR / AR</button>
+            </div>
+
+            <div class="ticket-card" style="border: 3px solid var(--tea-green);">
+              <div class="ticket-header">
+                <div class="ticket-status-label">IT'S YOUR TURN!</div>
+                <div class="ticket-position" style="font-size: 3em;">&#127881;</div>
+                <div class="ticket-position-label" style="color: var(--white);">Please enter now</div>
+              </div>
+
+              <div class="ticket-body">
+                <div class="patient-greeting" style="color: var(--success-green-dark);">Fatma, the doctor is ready!</div>
+                <div class="patient-message">Please proceed to the consultation room. The doctor is waiting for you.</div>
+
+                <div style="background: var(--tea-green-light); padding: 1em; border-radius: var(--radius-md); margin-top: 1em;">
+                  <div style="display: flex; align-items: center; justify-content: center; gap: 0.5em; color: var(--success-green-dark); font-weight: 700;">
+                    <span class="material-symbols-outlined">door_open</span>
+                    Enter the office
+                  </div>
+                </div>
+              </div>
+
+              <div class="ticket-footer">
+                <div class="footer-message">
+                  <span class="material-symbols-outlined">check_circle</span>
+                  Thank you for waiting!
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="design-description">
+          <p>A celebratory state with rainbow confetti animation, tea green success colors, and a clear call-to-action to enter the doctor's office.</p>
+          <div class="design-features">
+            <span class="feature-tag">Rainbow Confetti</span>
+            <span class="feature-tag">Tea Green</span>
+            <span class="feature-tag">Celebration</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- Complete Patient Journey -->
+  <section id="patient-journey" class="section">
+    <h2 class="section-title">Complete Patient Journey</h2>
+    <p class="section-subtitle">See the full patient experience from check-in to consultation.</p>
+
+    <div class="patient-flow">
+      <div class="flow-step">
+        <div class="flow-step-label">Step 1: Check-in</div>
+        <div class="flow-step-preview">
+          <div class="checkin-inspired checkin-inspired-container" style="height: 100%; padding: 1em;">
+            <div class="clinic-badge" style="margin-bottom: 1em;">
+              <div class="clinic-icon" style="width: 2em; height: 2em;">
+                <span class="material-symbols-outlined" style="font-size: 1em;">medical_services</span>
+              </div>
+              <span class="clinic-name" style="font-size: 0.9em;">Dr. Ahmed</span>
+            </div>
+
+            <div class="welcome-card" style="padding: 1.2em;">
+              <div class="welcome-icon" style="width: 3em; height: 3em; margin-bottom: 0.8em;">
+                <span class="material-symbols-outlined" style="font-size: 1.5em; color: var(--white);">door_front</span>
+              </div>
+              <div class="welcome-title" style="font-size: 1.4em;">Welcome!</div>
+              <div class="welcome-subtitle" style="font-size: 0.85em; margin-bottom: 1em;">Join the virtual queue</div>
+
+              <div class="form-field" style="margin-bottom: 0.8em;">
+                <input class="form-input" type="tel" placeholder="+216 XX XXX XXX" style="padding: 0.7em; font-size: 0.9em;">
+              </div>
+
+              <button class="submit-btn" style="padding: 0.8em; font-size: 0.95em;">
+                <span class="material-symbols-outlined" style="font-size: 1em;">confirmation_number</span>
+                Take My Place
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-step-label">Step 2: Waiting</div>
+        <div class="flow-step-preview">
+          <div class="status-inspired status-inspired-container" style="height: 100%; padding: 1em;">
+            <div class="header" style="margin-bottom: 1em;">
+              <div class="clinic-badge">
+                <div class="clinic-badge-icon" style="width: 1.5em; height: 1.5em;">
+                  <span class="material-symbols-outlined" style="font-size: 0.8em;">medical_services</span>
+                </div>
+                <span style="font-size: 0.85em;">Dr. Ahmed</span>
+              </div>
+            </div>
+
+            <div class="ticket-card">
+              <div class="ticket-header" style="padding: 1em;">
+                <div class="ticket-status-label" style="font-size: 0.85em;">Your Position</div>
+                <div class="ticket-position" style="font-size: 3.5em;">#4</div>
+              </div>
+
+              <div class="ticket-body" style="padding: 1em;">
+                <div class="patient-greeting" style="font-size: 1.1em;">Hi Fatma!</div>
+                <div class="patient-message" style="font-size: 0.85em; margin-bottom: 1em;">Relax, we'll notify you soon.</div>
+
+                <div class="info-grid" style="gap: 0.8em;">
+                  <div class="info-item" style="padding: 0.8em;">
+                    <div class="info-value" style="font-size: 1.3em;">3</div>
+                    <div class="info-label" style="font-size: 0.75em;">Ahead</div>
+                  </div>
+                  <div class="info-item" style="padding: 0.8em;">
+                    <div class="info-value" style="font-size: 1.3em;">~45m</div>
+                    <div class="info-label" style="font-size: 0.75em;">Wait</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-step-label">Step 3: Your Turn!</div>
+        <div class="flow-step-preview">
+          <div class="status-inspired your-turn status-inspired-container" style="height: 100%; padding: 1em; position: relative; overflow: hidden;">
+            <div class="confetti" style="background: var(--accent-pink); left: 15%; animation-delay: 0s;"></div>
+            <div class="confetti" style="background: var(--tea-green); left: 50%; animation-delay: 0.2s;"></div>
+            <div class="confetti" style="background: var(--baby-blue); left: 80%; animation-delay: 0.4s;"></div>
+
+            <div class="header" style="margin-bottom: 1em;">
+              <div class="clinic-badge">
+                <div class="clinic-badge-icon" style="width: 1.5em; height: 1.5em; background: var(--tea-green);">
+                  <span class="material-symbols-outlined" style="font-size: 0.8em; color: var(--primary-text);">celebration</span>
+                </div>
+                <span style="font-size: 0.85em;">Dr. Ahmed</span>
+              </div>
+            </div>
+
+            <div class="ticket-card" style="border: 2px solid var(--tea-green);">
+              <div class="ticket-header" style="padding: 1em;">
+                <div class="ticket-status-label" style="font-size: 1em;">IT'S YOUR TURN!</div>
+                <div class="ticket-position" style="font-size: 2.5em;">&#127881;</div>
+              </div>
+
+              <div class="ticket-body" style="padding: 1em;">
+                <div class="patient-greeting" style="font-size: 1.1em; color: var(--success-green-dark);">The doctor awaits!</div>
+                <div class="patient-message" style="font-size: 0.85em; margin-bottom: 1em;">Please proceed to the consultation room.</div>
+
+                <div style="background: var(--tea-green-light); padding: 0.8em; border-radius: var(--radius-md);">
+                  <div style="display: flex; align-items: center; justify-content: center; gap: 0.3em; color: var(--success-green-dark); font-weight: 600; font-size: 0.9em;">
+                    <span class="material-symbols-outlined" style="font-size: 1.2em;">door_open</span>
+                    Enter now
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <style>
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(255, 173, 173, 0.4); }
+      50% { box-shadow: 0 0 0 10px rgba(255, 173, 173, 0); }
+    }
+  </style>
+
+  <script>
+    function scrollToSection(id) {
+      document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+
+      // Update active tab
+      document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+      event.target.classList.add('active');
+    }
+
+    // Update active tab on scroll
+    window.addEventListener('scroll', () => {
+      const sections = ['dashboards', 'patient-checkin', 'patient-status', 'patient-journey'];
+      const tabs = document.querySelectorAll('.nav-tab');
+
+      let current = '';
+      sections.forEach(id => {
+        const section = document.getElementById(id);
+        if (section && window.scrollY >= section.offsetTop - 200) {
+          current = id;
+        }
+      });
+
+      tabs.forEach((tab, i) => {
+        tab.classList.remove('active');
+        if (sections[i] === current) {
+          tab.classList.add('active');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
