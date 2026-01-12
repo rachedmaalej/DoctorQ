@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DoctorQ Dashboard - Petal Garden Palette</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  <style>
+    :root {
+      /* Petal Garden Color Palette */
+      --petal-rouge: #e27396;
+      --pink-mist: #ea9ab2;
+      --petal-frost: #efcfe3;
+      --beige: #eaf2d7;
+      --light-blue: #b3dee2;
+
+      /* Derived colors */
+      --petal-rouge-light: #eb94ae;
+      --petal-rouge-dark: #c95a7d;
+      --pink-mist-light: #f0b4c6;
+      --pink-mist-dark: #d87a9a;
+      --petal-frost-light: #f7e4f0;
+      --petal-frost-dark: #e0b5d0;
+      --beige-light: #f3f8e6;
+      --beige-dark: #d8e5bc;
+      --light-blue-light: #c8e8eb;
+      --light-blue-dark: #8fc9cf;
+
+      /* Semantic colors */
+      --bg-primary: var(--beige-light);
+      --bg-secondary: #ffffff;
+      --bg-accent: var(--petal-rouge);
+      --text-primary: #4a4a5a;
+      --text-secondary: #6a6a7a;
+      --text-muted: #8a8a9a;
+      --text-on-accent: #ffffff;
+      --border-color: #e0e0e8;
+      --border-accent: var(--pink-mist);
+
+      /* Status colors */
+      --status-waiting: var(--light-blue-dark);
+      --status-waiting-bg: #e5f4f6;
+      --status-notified: var(--pink-mist);
+      --status-notified-bg: #fdf0f4;
+      --status-consultation: var(--petal-rouge);
+      --status-consultation-bg: #fce8ef;
+      --status-success: #7cb97c;
+      --status-success-bg: #e8f5e8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'IBM Plex Sans', system-ui, sans-serif;
+      background: linear-gradient(135deg, var(--beige-light) 0%, var(--petal-frost-light) 50%, var(--beige) 100%);
+      background-attachment: fixed;
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, var(--petal-rouge) 0%, var(--pink-mist) 50%, var(--petal-frost) 100%);
+      color: white;
+      padding: 1rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 20px rgba(226, 115, 150, 0.25);
+      position: relative;
+    }
+
+    .header::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 20px;
+      background: var(--bg-secondary);
+      border-radius: 0 0 30px 30px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    .logo-icon {
+      background: white;
+      color: var(--petal-rouge);
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(255,255,255,0.3);
+    }
+
+    .clinic-name {
+      font-size: 0.875rem;
+      opacity: 0.95;
+      padding-left: 1rem;
+      border-left: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .header-btn {
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.875rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s;
+      backdrop-filter: blur(4px);
+    }
+
+    .header-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Main Content */
+    .main {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 6rem;
+    }
+
+    .page-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--petal-rouge-dark);
+      margin-bottom: 0.5rem;
+    }
+
+    .page-subtitle {
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+    }
+
+    /* Grid Layout */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 1024px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* QR Code Card */
+    .qr-card {
+      background: var(--bg-secondary);
+      border-radius: 24px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 20px rgba(226, 115, 150, 0.08);
+      border: 1px solid var(--border-color);
+      position: sticky;
+      top: 1.5rem;
+    }
+
+    .qr-card-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .qr-code-container {
+      background: linear-gradient(135deg, var(--petal-frost-light) 0%, var(--beige-light) 100%);
+      border: 2px dashed var(--pink-mist);
+      border-radius: 20px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .qr-code-placeholder {
+      width: 160px;
+      height: 160px;
+      background: linear-gradient(45deg, var(--petal-rouge) 25%, transparent 25%),
+                  linear-gradient(-45deg, var(--petal-rouge) 25%, transparent 25%),
+                  linear-gradient(45deg, transparent 75%, var(--petal-rouge) 75%),
+                  linear-gradient(-45deg, transparent 75%, var(--petal-rouge) 75%);
+      background-size: 16px 16px;
+      background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+      border-radius: 12px;
+      opacity: 0.15;
+    }
+
+    .qr-instructions {
+      text-align: center;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    .qr-actions {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1rem;
+      width: 100%;
+    }
+
+    .qr-btn {
+      flex: 1;
+      padding: 0.625rem 1rem;
+      border-radius: 12px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.2s;
+    }
+
+    .qr-btn-primary {
+      background: linear-gradient(135deg, var(--petal-rouge) 0%, var(--pink-mist) 100%);
+      color: white;
+      border: none;
+      box-shadow: 0 2px 8px rgba(226, 115, 150, 0.3);
+    }
+
+    .qr-btn-primary:hover {
+      box-shadow: 0 4px 12px rgba(226, 115, 150, 0.4);
+      transform: translateY(-1px);
+    }
+
+    .qr-btn-secondary {
+      background: transparent;
+      color: var(--petal-rouge);
+      border: 1.5px solid var(--petal-rouge);
+    }
+
+    .qr-btn-secondary:hover {
+      background: var(--status-consultation-bg);
+    }
+
+    /* Right Column */
+    .right-column {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* Stats Row */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    @media (max-width: 640px) {
+      .stats-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .stat-card {
+      background: var(--bg-secondary);
+      border-radius: 20px;
+      padding: 1.25rem;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+    }
+
+    .stat-card.waiting::before {
+      background: linear-gradient(90deg, var(--light-blue), var(--light-blue-dark));
+    }
+
+    .stat-card.seen::before {
+      background: linear-gradient(90deg, var(--status-success), #5a9a5a);
+    }
+
+    .stat-card.avg::before {
+      background: linear-gradient(90deg, var(--pink-mist), var(--petal-rouge));
+    }
+
+    .stat-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .stat-icon.waiting {
+      background: var(--status-waiting-bg);
+      color: var(--light-blue-dark);
+    }
+
+    .stat-icon.seen {
+      background: var(--status-success-bg);
+      color: var(--status-success);
+    }
+
+    .stat-icon.avg {
+      background: var(--status-notified-bg);
+      color: var(--petal-rouge);
+    }
+
+    .stat-content {
+      flex: 1;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    /* Action Bar */
+    .action-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .action-btn {
+      padding: 0.75rem 1.25rem;
+      border-radius: 14px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s;
+    }
+
+    .action-btn-tonal {
+      background: var(--status-waiting-bg);
+      color: var(--light-blue-dark);
+      border: none;
+    }
+
+    .action-btn-tonal:hover {
+      background: #d0eaed;
+    }
+
+    .action-btn-text {
+      background: transparent;
+      color: var(--petal-rouge);
+      border: none;
+    }
+
+    .action-btn-text:hover {
+      background: var(--status-consultation-bg);
+    }
+
+    /* Queue Table */
+    .queue-card {
+      background: var(--bg-secondary);
+      border-radius: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+      border: 1px solid var(--border-color);
+      overflow: hidden;
+    }
+
+    .queue-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .queue-table thead {
+      background: linear-gradient(90deg, var(--petal-frost-light) 0%, var(--beige-light) 50%, var(--light-blue-light) 100%);
+    }
+
+    .queue-table th {
+      padding: 1rem;
+      text-align: left;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .queue-table td {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border-color);
+      vertical-align: middle;
+    }
+
+    .queue-table tbody tr {
+      transition: all 0.2s;
+    }
+
+    .queue-table tbody tr:hover {
+      background: var(--beige-light);
+    }
+
+    .queue-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Row status styles */
+    .row-consultation {
+      background: var(--status-consultation-bg) !important;
+    }
+
+    .row-notified {
+      background: var(--status-notified-bg) !important;
+    }
+
+    /* Position Badge */
+    .position-badge {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--petal-rouge);
+    }
+
+    .position-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--petal-rouge) 0%, var(--pink-mist) 100%);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 3px 10px rgba(226, 115, 150, 0.3);
+    }
+
+    /* Patient Info */
+    .patient-name {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .patient-phone {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    /* Status Badge */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.4rem 0.85rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .status-waiting {
+      background: var(--status-waiting-bg);
+      color: var(--light-blue-dark);
+    }
+
+    .status-notified {
+      background: var(--status-notified-bg);
+      color: var(--pink-mist-dark);
+    }
+
+    .status-consultation {
+      background: var(--status-consultation-bg);
+      color: var(--petal-rouge-dark);
+    }
+
+    /* Time */
+    .time-text {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    /* Action Buttons */
+    .table-action {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .table-action-view {
+      color: var(--light-blue-dark);
+    }
+
+    .table-action-view:hover {
+      background: var(--status-waiting-bg);
+    }
+
+    .table-action-delete {
+      color: var(--petal-rouge);
+    }
+
+    .table-action-delete:hover {
+      background: var(--status-consultation-bg);
+    }
+
+    /* FAB */
+    .fab {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: linear-gradient(135deg, var(--petal-rouge) 0%, var(--pink-mist) 100%);
+      color: white;
+      border: none;
+      border-radius: 20px;
+      padding: 1rem 1.75rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      box-shadow: 0 6px 24px rgba(226, 115, 150, 0.4);
+      transition: all 0.2s;
+      z-index: 100;
+    }
+
+    .fab:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 30px rgba(226, 115, 150, 0.5);
+    }
+
+    .fab:active {
+      transform: translateY(-1px);
+    }
+
+    .fab .material-symbols-outlined {
+      font-size: 1.5rem;
+    }
+
+    /* Decorative flower */
+    .fab::before {
+      content: '';
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      width: 16px;
+      height: 16px;
+      background: var(--beige);
+      border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    /* Color Palette Display */
+    .palette-display {
+      background: var(--bg-secondary);
+      border-radius: 24px;
+      padding: 1.5rem;
+      margin-top: 2rem;
+      border: 1px solid var(--border-color);
+    }
+
+    .palette-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+
+    .palette-subtitle {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+      font-style: italic;
+    }
+
+    .palette-colors {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .palette-color {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .palette-swatch {
+      width: 60px;
+      height: 60px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .palette-name {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      text-align: center;
+    }
+
+    .palette-hex {
+      font-size: 0.625rem;
+      color: var(--text-muted);
+      font-family: monospace;
+    }
+
+    /* Material Symbols */
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+
+    /* Decorative elements */
+    .petal-decoration {
+      position: fixed;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      opacity: 0.1;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .petal-1 {
+      top: 20%;
+      right: 5%;
+      background: var(--petal-rouge);
+    }
+
+    .petal-2 {
+      bottom: 30%;
+      left: 3%;
+      background: var(--pink-mist);
+      width: 150px;
+      height: 150px;
+    }
+
+    .petal-3 {
+      top: 60%;
+      right: 10%;
+      background: var(--light-blue);
+      width: 100px;
+      height: 100px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Decorative petals -->
+  <div class="petal-decoration petal-1"></div>
+  <div class="petal-decoration petal-2"></div>
+  <div class="petal-decoration petal-3"></div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <div class="logo">
+        <div class="logo-icon">
+          <span class="material-symbols-outlined">queue</span>
+        </div>
+        <span>DoctorQ</span>
+      </div>
+      <div class="clinic-name">Cabinet Dr. Ahmed Ben Salah</div>
+    </div>
+    <div class="header-right">
+      <button class="header-btn">
+        <span class="material-symbols-outlined">translate</span>
+        FR
+      </button>
+      <button class="header-btn">
+        <span class="material-symbols-outlined">logout</span>
+        Deconnexion
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main">
+    <h1 class="page-title">File d'Attente</h1>
+    <p class="page-subtitle">Cabinet Dr. Ahmed Ben Salah - La Marsa</p>
+
+    <div class="dashboard-grid">
+      <!-- Left Column - QR Code -->
+      <aside>
+        <div class="qr-card">
+          <div class="qr-card-title">
+            <span class="material-symbols-outlined">qr_code_2</span>
+            QR Code d'Enregistrement
+          </div>
+          <div class="qr-code-container">
+            <div class="qr-code-placeholder"></div>
+            <p class="qr-instructions">Scanner ce QR code pour rejoindre la file d'attente</p>
+          </div>
+          <div class="qr-actions">
+            <button class="qr-btn qr-btn-primary">
+              <span class="material-symbols-outlined">content_copy</span>
+              Copier
+            </button>
+            <button class="qr-btn qr-btn-secondary">
+              <span class="material-symbols-outlined">share</span>
+              Partager
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Right Column -->
+      <div class="right-column">
+        <!-- Stats Row -->
+        <div class="stats-row">
+          <div class="stat-card waiting">
+            <div class="stat-icon waiting">
+              <span class="material-symbols-outlined">hourglass_top</span>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">8</div>
+              <div class="stat-label">En attente</div>
+            </div>
+          </div>
+          <div class="stat-card seen">
+            <div class="stat-icon seen">
+              <span class="material-symbols-outlined">check_circle</span>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">12</div>
+              <div class="stat-label">Vus aujourd'hui</div>
+            </div>
+          </div>
+          <div class="stat-card avg">
+            <div class="stat-icon avg">
+              <span class="material-symbols-outlined">schedule</span>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">18 min</div>
+              <div class="stat-label">Attente moyenne</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Bar -->
+        <div class="action-bar">
+          <button class="action-btn action-btn-tonal">
+            <span class="material-symbols-outlined">person_add</span>
+            Ajouter un Patient
+          </button>
+          <button class="action-btn action-btn-text">
+            <span class="material-symbols-outlined">delete_sweep</span>
+            Vider la file
+          </button>
+        </div>
+
+        <!-- Queue Table -->
+        <div class="queue-card">
+          <table class="queue-table">
+            <thead>
+              <tr>
+                <th>Position</th>
+                <th>Patient</th>
+                <th>Statut</th>
+                <th>Arrivee</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="row-consultation">
+                <td>
+                  <div class="position-icon">
+                    <span class="material-symbols-outlined">medical_services</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="patient-name">Ahmed Mansouri</div>
+                  <div class="patient-phone">+216 98 765 432</div>
+                </td>
+                <td>
+                  <span class="status-badge status-consultation">
+                    <span class="material-symbols-outlined" style="font-size: 14px;">stethoscope</span>
+                    En Consultation
+                  </span>
+                </td>
+                <td><span class="time-text">09:15</span></td>
+                <td>
+                  <button class="table-action table-action-view">
+                    <span class="material-symbols-outlined">open_in_new</span>
+                  </button>
+                  <button class="table-action table-action-delete">
+                    <span class="material-symbols-outlined">delete</span>
+                  </button>
+                </td>
+              </tr>
+              <tr class="row-notified">
+                <td><span class="position-badge">#1</span></td>
+                <td>
+                  <div class="patient-name">Fatma Ben Ali</div>
+                  <div class="patient-phone">+216 55 123 456</div>
+                </td>
+                <td>
+                  <span class="status-badge status-notified">
+                    <span class="material-symbols-outlined" style="font-size: 14px;">notifications_active</span>
+                    Notifie
+                  </span>
+                </td>
+                <td><span class="time-text">09:32</span></td>
+                <td>
+                  <button class="table-action table-action-view">
+                    <span class="material-symbols-outlined">open_in_new</span>
+                  </button>
+                  <button class="table-action table-action-delete">
+                    <span class="material-symbols-outlined">delete</span>
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td><span class="position-badge">#2</span></td>
+                <td>
+                  <div class="patient-name">Mohamed Trabelsi</div>
+                  <div class="patient-phone">+216 22 987 654</div>
+                </td>
+                <td>
+                  <span class="status-badge status-waiting">
+                    <span class="material-symbols-outlined" style="font-size: 14px;">hourglass_top</span>
+                    En Attente
+                  </span>
+                </td>
+                <td><span class="time-text">09:45</span></td>
+                <td>
+                  <button class="table-action table-action-view">
+                    <span class="material-symbols-outlined">open_in_new</span>
+                  </button>
+                  <button class="table-action table-action-delete">
+                    <span class="material-symbols-outlined">delete</span>
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td><span class="position-badge">#3</span></td>
+                <td>
+                  <div class="patient-name">Sara Bouazizi</div>
+                  <div class="patient-phone">+216 50 456 789</div>
+                </td>
+                <td>
+                  <span class="status-badge status-waiting">
+                    <span class="material-symbols-outlined" style="font-size: 14px;">hourglass_top</span>
+                    En Attente
+                  </span>
+                </td>
+                <td><span class="time-text">09:58</span></td>
+                <td>
+                  <button class="table-action table-action-view">
+                    <span class="material-symbols-outlined">open_in_new</span>
+                  </button>
+                  <button class="table-action table-action-delete">
+                    <span class="material-symbols-outlined">delete</span>
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td><span class="position-badge">#4</span></td>
+                <td>
+                  <div class="patient-name">Karim Jebali</div>
+                  <div class="patient-phone">+216 29 111 222</div>
+                </td>
+                <td>
+                  <span class="status-badge status-waiting">
+                    <span class="material-symbols-outlined" style="font-size: 14px;">hourglass_top</span>
+                    En Attente
+                  </span>
+                </td>
+                <td><span class="time-text">10:12</span></td>
+                <td>
+                  <button class="table-action table-action-view">
+                    <span class="material-symbols-outlined">open_in_new</span>
+                  </button>
+                  <button class="table-action table-action-delete">
+                    <span class="material-symbols-outlined">delete</span>
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td><span class="position-badge">#5</span></td>
+                <td>
+                  <div class="patient-name">Leila Chaabane</div>
+                  <div class="patient-phone">+216 93 333 444</div>
+                </td>
+                <td>
+                  <span class="status-badge status-waiting">
+                    <span class="material-symbols-outlined" style="font-size: 14px;">hourglass_top</span>
+                    En Attente
+                  </span>
+                </td>
+                <td><span class="time-text">10:25</span></td>
+                <td>
+                  <button class="table-action table-action-view">
+                    <span class="material-symbols-outlined">open_in_new</span>
+                  </button>
+                  <button class="table-action table-action-delete">
+                    <span class="material-symbols-outlined">delete</span>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Color Palette Reference -->
+        <div class="palette-display">
+          <div class="palette-title">Petal Garden - Color Palette Reference</div>
+          <div class="palette-subtitle">A soft, feminine palette inspired by spring blossoms and gentle pastels</div>
+          <div class="palette-colors">
+            <div class="palette-color">
+              <div class="palette-swatch" style="background: #e27396;"></div>
+              <div class="palette-name">Petal Rouge</div>
+              <div class="palette-hex">#e27396</div>
+            </div>
+            <div class="palette-color">
+              <div class="palette-swatch" style="background: #ea9ab2;"></div>
+              <div class="palette-name">Pink Mist</div>
+              <div class="palette-hex">#ea9ab2</div>
+            </div>
+            <div class="palette-color">
+              <div class="palette-swatch" style="background: #efcfe3;"></div>
+              <div class="palette-name">Petal Frost</div>
+              <div class="palette-hex">#efcfe3</div>
+            </div>
+            <div class="palette-color">
+              <div class="palette-swatch" style="background: #eaf2d7;"></div>
+              <div class="palette-name">Beige</div>
+              <div class="palette-hex">#eaf2d7</div>
+            </div>
+            <div class="palette-color">
+              <div class="palette-swatch" style="background: #b3dee2;"></div>
+              <div class="palette-name">Light Blue</div>
+              <div class="palette-hex">#b3dee2</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Call Next FAB -->
+  <button class="fab">
+    <span class="material-symbols-outlined">directions_walk</span>
+    Appeler Suivant
+  </button>
+</body>
+</html>

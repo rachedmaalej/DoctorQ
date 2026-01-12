@@ -1,0 +1,1406 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DoctorQ - Patient View Simplified (3 Alternatives)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&family=Poppins:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Rounded" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(180deg, #F7F2FA 0%, #ECE6F0 100%);
+            min-height: 100vh;
+            padding: 32px 16px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .page-header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1C1B1F;
+            margin-bottom: 8px;
+        }
+
+        .page-header p {
+            font-size: 16px;
+            color: #49454F;
+        }
+
+        .alternative-section {
+            margin-bottom: 64px;
+        }
+
+        .alternative-header {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 32px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.3), 0 1px 3px 1px rgba(0,0,0,0.15);
+        }
+
+        .alternative-header h2 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1C1B1F;
+            margin-bottom: 8px;
+        }
+
+        .alternative-header p {
+            font-size: 14px;
+            color: #49454F;
+            line-height: 1.6;
+        }
+
+        .screens-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+            gap: 32px;
+            justify-items: center;
+        }
+
+        /* Phone Frame */
+        .phone-frame {
+            background: #1C1B1F;
+            border-radius: 40px;
+            padding: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            width: 380px;
+        }
+
+        .phone-screen {
+            background: white;
+            border-radius: 32px;
+            overflow: hidden;
+            height: 720px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .phone-notch {
+            background: #1C1B1F;
+            width: 150px;
+            height: 30px;
+            margin: 0 auto;
+            border-radius: 0 0 20px 20px;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+        }
+
+        .screen-label {
+            text-align: center;
+            color: #1C1B1F;
+            margin-top: 16px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .material-symbols-rounded {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .material-symbols-rounded.filled {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        /* ============================================
+           ALTERNATIVE 1: MINIMALIST CLEAN
+           Simple, spacious, clear hierarchy
+           ============================================ */
+
+        .alt1-screen {
+            background: #FAFAFA;
+        }
+
+        /* Header */
+        .alt1-header {
+            padding: 56px 24px 24px;
+            background: white;
+            text-align: center;
+            border-bottom: 1px solid #E0E0E0;
+        }
+
+        .alt1-doctor-name {
+            font-size: 18px;
+            font-weight: 500;
+            color: #1C1B1F;
+        }
+
+        .alt1-clinic-label {
+            font-size: 12px;
+            color: #757575;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        /* Central Area */
+        .alt1-central {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 32px;
+        }
+
+        .alt1-position-label {
+            font-size: 14px;
+            color: #757575;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+            font-weight: 500;
+        }
+
+        .alt1-position-number {
+            font-size: 108px;
+            font-weight: 300;
+            color: #6750A4;
+            line-height: 0.9;
+            letter-spacing: -4px;
+        }
+
+        .alt1-position-suffix {
+            font-size: 42px;
+            font-weight: 300;
+            color: #9E9E9E;
+            vertical-align: super;
+        }
+
+        .alt1-wait-time {
+            font-size: 18px;
+            color: #424242;
+            font-weight: 400;
+        }
+
+        .alt1-wait-label {
+            font-size: 12px;
+            color: #9E9E9E;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Progress Bar - Alternative 1 */
+        .alt1-progress-container {
+            width: 100%;
+            max-width: 280px;
+            margin-top: 48px;
+        }
+
+        .alt1-progress-label {
+            font-size: 11px;
+            color: #9E9E9E;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .alt1-progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #E0E0E0;
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .alt1-progress-fill {
+            height: 100%;
+            background: #6750A4;
+            transition: width 0.6s ease;
+            border-radius: 4px;
+        }
+
+        .alt1-progress-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 11px;
+            color: #9E9E9E;
+        }
+
+        /* Progress Bar State Colors - Alternative 1 */
+        .alt1-screen.state-waiting .alt1-progress-fill {
+            background: #6750A4;
+        }
+
+        .alt1-screen.state-almost .alt1-progress-fill {
+            background: #F57C00;
+        }
+
+        .alt1-screen.state-your-turn .alt1-progress-fill {
+            background: #2E7D32;
+        }
+
+        /* Footer */
+        .alt1-footer {
+            padding: 32px 24px;
+            background: white;
+            border-top: 1px solid #E0E0E0;
+        }
+
+        .alt1-footer-icon {
+            text-align: center;
+            margin-bottom: 12px;
+            color: #6750A4;
+            font-size: 32px;
+        }
+
+        .alt1-footer-text {
+            text-align: center;
+            font-size: 15px;
+            line-height: 1.5;
+            color: #424242;
+        }
+
+        /* State Colors - Alternative 1 */
+        .alt1-screen.state-waiting .alt1-position-number {
+            color: #6750A4;
+        }
+
+        .alt1-screen.state-waiting .alt1-footer-icon {
+            color: #6750A4;
+        }
+
+        .alt1-screen.state-almost .alt1-position-number {
+            color: #F57C00;
+        }
+
+        .alt1-screen.state-almost .alt1-footer-icon {
+            color: #F57C00;
+        }
+
+        .alt1-screen.state-almost .alt1-central {
+            background: #FFF8E1;
+        }
+
+        .alt1-screen.state-your-turn .alt1-position-number {
+            color: #2E7D32;
+        }
+
+        .alt1-screen.state-your-turn .alt1-footer-icon {
+            color: #2E7D32;
+        }
+
+        .alt1-screen.state-your-turn .alt1-central {
+            background: #E8F5E9;
+        }
+
+        /* ============================================
+           ALTERNATIVE 2: BOLD CENTERED
+           Large typography, strong visual hierarchy
+           ============================================ */
+
+        .alt2-screen {
+            background: linear-gradient(180deg, #6750A4 0%, #6750A4 140px, #FFFFFF 140px);
+        }
+
+        /* Header */
+        .alt2-header {
+            padding: 56px 24px 32px;
+            text-align: center;
+            color: white;
+        }
+
+        .alt2-clinic-label {
+            font-size: 11px;
+            opacity: 0.8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+
+        .alt2-doctor-name {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        /* Central Area */
+        .alt2-central {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 64px 32px;
+            background: white;
+        }
+
+        .alt2-position-container {
+            background: white;
+            border-radius: 32px;
+            padding: 48px 32px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            text-align: center;
+            min-width: 280px;
+        }
+
+        .alt2-position-label {
+            font-size: 13px;
+            color: #757575;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+
+        .alt2-position-number {
+            font-size: 120px;
+            font-weight: 700;
+            line-height: 0.85;
+            letter-spacing: -5px;
+            color: #6750A4;
+        }
+
+        .alt2-position-suffix {
+            font-size: 48px;
+            font-weight: 600;
+            color: #6750A4;
+            vertical-align: super;
+        }
+
+        .alt2-divider {
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #6750A4, transparent);
+            margin: 24px auto;
+        }
+
+        .alt2-wait-time {
+            font-size: 22px;
+            color: #1C1B1F;
+            font-weight: 600;
+        }
+
+        .alt2-wait-label {
+            font-size: 13px;
+            color: #9E9E9E;
+            margin-bottom: 8px;
+        }
+
+        /* Progress Bar - Alternative 2 */
+        .alt2-progress-container {
+            width: 100%;
+            margin-top: 32px;
+        }
+
+        .alt2-progress-label {
+            font-size: 12px;
+            color: #757575;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .alt2-progress-bar {
+            width: 100%;
+            height: 12px;
+            background: #F5F5F5;
+            border-radius: 24px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
+        }
+
+        .alt2-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #6750A4, #8B7AB8);
+            transition: width 0.6s ease;
+            border-radius: 24px;
+            position: relative;
+        }
+
+        .alt2-progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background: linear-gradient(180deg, rgba(255,255,255,0.3), transparent);
+            border-radius: 24px;
+        }
+
+        .alt2-progress-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 12px;
+            font-size: 12px;
+            color: #757575;
+            font-weight: 600;
+        }
+
+        /* Progress Bar State Colors - Alternative 2 */
+        .alt2-screen.state-waiting .alt2-progress-fill {
+            background: linear-gradient(90deg, #6750A4, #8B7AB8);
+        }
+
+        .alt2-screen.state-almost .alt2-progress-fill {
+            background: linear-gradient(90deg, #F57C00, #FB8C00);
+        }
+
+        .alt2-screen.state-your-turn .alt2-progress-fill {
+            background: linear-gradient(90deg, #2E7D32, #43A047);
+        }
+
+        /* Footer */
+        .alt2-footer {
+            padding: 32px 24px 40px;
+            background: white;
+        }
+
+        .alt2-footer-card {
+            background: #F5F5F5;
+            border-radius: 20px;
+            padding: 24px;
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .alt2-footer-icon {
+            font-size: 28px;
+            color: #6750A4;
+            flex-shrink: 0;
+        }
+
+        .alt2-footer-text {
+            font-size: 15px;
+            line-height: 1.6;
+            color: #424242;
+            font-weight: 400;
+        }
+
+        /* State Colors - Alternative 2 */
+        .alt2-screen.state-waiting {
+            background: linear-gradient(180deg, #6750A4 0%, #6750A4 140px, #FFFFFF 140px);
+        }
+
+        .alt2-screen.state-waiting .alt2-position-number,
+        .alt2-screen.state-waiting .alt2-position-suffix,
+        .alt2-screen.state-waiting .alt2-divider,
+        .alt2-screen.state-waiting .alt2-footer-icon {
+            background: linear-gradient(90deg, transparent, #6750A4, transparent);
+            color: #6750A4;
+        }
+
+        .alt2-screen.state-almost {
+            background: linear-gradient(180deg, #F57C00 0%, #F57C00 140px, #FFFFFF 140px);
+        }
+
+        .alt2-screen.state-almost .alt2-position-number,
+        .alt2-screen.state-almost .alt2-position-suffix,
+        .alt2-screen.state-almost .alt2-footer-icon {
+            color: #F57C00;
+        }
+
+        .alt2-screen.state-almost .alt2-divider {
+            background: linear-gradient(90deg, transparent, #F57C00, transparent);
+        }
+
+        .alt2-screen.state-almost .alt2-footer-card {
+            background: #FFF3E0;
+        }
+
+        .alt2-screen.state-your-turn {
+            background: linear-gradient(180deg, #2E7D32 0%, #2E7D32 140px, #FFFFFF 140px);
+        }
+
+        .alt2-screen.state-your-turn .alt2-position-number,
+        .alt2-screen.state-your-turn .alt2-position-suffix,
+        .alt2-screen.state-your-turn .alt2-footer-icon {
+            color: #2E7D32;
+        }
+
+        .alt2-screen.state-your-turn .alt2-divider {
+            background: linear-gradient(90deg, transparent, #2E7D32, transparent);
+        }
+
+        .alt2-screen.state-your-turn .alt2-footer-card {
+            background: #E8F5E9;
+        }
+
+        /* ============================================
+           ALTERNATIVE 3: CARD-BASED MODERN
+           Floating cards, soft shadows, modern spacing
+           ============================================ */
+
+        .alt3-screen {
+            background: #F3EDF7;
+        }
+
+        /* Header */
+        .alt3-header {
+            padding: 56px 20px 16px;
+            background: transparent;
+        }
+
+        .alt3-header-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .alt3-clinic-label {
+            font-size: 11px;
+            color: #79747E;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .alt3-doctor-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1C1B1F;
+        }
+
+        /* Central Area */
+        .alt3-central {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 20px;
+        }
+
+        .alt3-position-card {
+            background: white;
+            border-radius: 28px;
+            padding: 40px 32px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 100%;
+            max-width: 320px;
+        }
+
+        .alt3-position-badge {
+            display: inline-block;
+            background: #E9D5FF;
+            color: #6750A4;
+            padding: 6px 16px;
+            border-radius: 24px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+        }
+
+        .alt3-position-display {
+            margin-bottom: 16px;
+        }
+
+        .alt3-position-number {
+            font-size: 96px;
+            font-weight: 800;
+            line-height: 0.85;
+            letter-spacing: -3px;
+            color: #6750A4;
+        }
+
+        .alt3-position-suffix {
+            font-size: 38px;
+            font-weight: 700;
+            color: #A855F7;
+            vertical-align: super;
+        }
+
+        .alt3-wait-container {
+            background: #F3EDF7;
+            border-radius: 16px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .alt3-wait-icon {
+            font-size: 24px;
+            color: #6750A4;
+        }
+
+        .alt3-wait-content {
+            text-align: left;
+        }
+
+        .alt3-wait-label {
+            font-size: 11px;
+            color: #79747E;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .alt3-wait-time {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1C1B1F;
+        }
+
+        /* Progress Bar - Alternative 3 */
+        .alt3-progress-container {
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .alt3-progress-label {
+            font-size: 11px;
+            color: #79747E;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .alt3-progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #F3EDF7;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(103, 80, 164, 0.1);
+        }
+
+        .alt3-progress-fill {
+            height: 100%;
+            background: #6750A4;
+            transition: width 0.6s ease;
+            border-radius: 20px;
+            box-shadow: 0 0 8px rgba(103, 80, 164, 0.3);
+        }
+
+        .alt3-progress-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .alt3-progress-stat {
+            font-size: 11px;
+            color: #79747E;
+        }
+
+        .alt3-progress-stat-value {
+            font-weight: 700;
+            color: #1C1B1F;
+            font-size: 13px;
+        }
+
+        .alt3-progress-percentage {
+            font-size: 18px;
+            font-weight: 800;
+            color: #6750A4;
+        }
+
+        /* Progress Bar State Colors - Alternative 3 */
+        .alt3-screen.state-waiting .alt3-progress-fill {
+            background: #6750A4;
+            box-shadow: 0 0 8px rgba(103, 80, 164, 0.3);
+        }
+
+        .alt3-screen.state-waiting .alt3-progress-percentage {
+            color: #6750A4;
+        }
+
+        .alt3-screen.state-almost .alt3-progress-fill {
+            background: #F57C00;
+            box-shadow: 0 0 8px rgba(245, 124, 0, 0.3);
+        }
+
+        .alt3-screen.state-almost .alt3-progress-percentage {
+            color: #F57C00;
+        }
+
+        .alt3-screen.state-almost .alt3-progress-bar {
+            background: #FFF8F0;
+            border-color: rgba(245, 124, 0, 0.1);
+        }
+
+        .alt3-screen.state-your-turn .alt3-progress-fill {
+            background: #2E7D32;
+            box-shadow: 0 0 8px rgba(46, 125, 50, 0.3);
+        }
+
+        .alt3-screen.state-your-turn .alt3-progress-percentage {
+            color: #2E7D32;
+        }
+
+        .alt3-screen.state-your-turn .alt3-progress-bar {
+            background: #F1F8F4;
+            border-color: rgba(46, 125, 50, 0.1);
+        }
+
+        /* Footer */
+        .alt3-footer {
+            padding: 16px 20px 20px;
+            background: transparent;
+        }
+
+        .alt3-footer-card {
+            background: white;
+            border-radius: 20px;
+            padding: 18px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            display: flex;
+            gap: 14px;
+            align-items: center;
+        }
+
+        .alt3-footer-icon-container {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: #E9D5FF;
+            color: #6750A4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .alt3-footer-icon {
+            font-size: 24px;
+        }
+
+        .alt3-footer-text {
+            font-size: 13px;
+            line-height: 1.4;
+            color: #424242;
+            flex: 1;
+        }
+
+        /* State Colors - Alternative 3 */
+        .alt3-screen.state-waiting .alt3-position-badge {
+            background: #E9D5FF;
+            color: #6750A4;
+        }
+
+        .alt3-screen.state-waiting .alt3-position-number {
+            color: #6750A4;
+        }
+
+        .alt3-screen.state-waiting .alt3-position-suffix {
+            color: #A855F7;
+        }
+
+        .alt3-screen.state-waiting .alt3-wait-icon,
+        .alt3-screen.state-waiting .alt3-footer-icon {
+            color: #6750A4;
+        }
+
+        .alt3-screen.state-waiting .alt3-footer-icon-container {
+            background: #E9D5FF;
+            color: #6750A4;
+        }
+
+        .alt3-screen.state-almost .alt3-position-badge {
+            background: #FFE0B2;
+            color: #E65100;
+        }
+
+        .alt3-screen.state-almost .alt3-position-number {
+            color: #F57C00;
+        }
+
+        .alt3-screen.state-almost .alt3-position-suffix {
+            color: #FB8C00;
+        }
+
+        .alt3-screen.state-almost .alt3-wait-icon,
+        .alt3-screen.state-almost .alt3-footer-icon {
+            color: #F57C00;
+        }
+
+        .alt3-screen.state-almost .alt3-footer-icon-container {
+            background: #FFE0B2;
+            color: #E65100;
+        }
+
+        .alt3-screen.state-almost .alt3-wait-container {
+            background: #FFF8F0;
+        }
+
+        .alt3-screen.state-your-turn .alt3-position-badge {
+            background: #C8E6C9;
+            color: #1B5E20;
+        }
+
+        .alt3-screen.state-your-turn .alt3-position-number {
+            color: #2E7D32;
+        }
+
+        .alt3-screen.state-your-turn .alt3-position-suffix {
+            color: #43A047;
+        }
+
+        .alt3-screen.state-your-turn .alt3-wait-icon,
+        .alt3-screen.state-your-turn .alt3-footer-icon {
+            color: #2E7D32;
+        }
+
+        .alt3-screen.state-your-turn .alt3-footer-icon-container {
+            background: #C8E6C9;
+            color: #1B5E20;
+        }
+
+        .alt3-screen.state-your-turn .alt3-wait-container {
+            background: #F1F8F4;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="page-header">
+            <h1>DoctorQ - Vue Patient Simplifiée</h1>
+            <p>3 alternatives avec structure simplifiée: En-tête, Zone centrale (position), Pied de page (action)</p>
+        </div>
+
+        <!-- ============================================
+             ALTERNATIVE 1: MINIMALIST CLEAN
+             ============================================ -->
+        <div class="alternative-section">
+            <div class="alternative-header">
+                <h2>Alternative 1: Minimalist Clean</h2>
+                <p><strong>Style:</strong> Design épuré et spacieux avec typographie ultra-légère (300 weight). Fond blanc/gris clair, bordures fines, hiérarchie claire.</p>
+                <p><strong>Éléments:</strong> En-tête blanc avec bordure, zone centrale avec grand numéro léger, pied de page avec icône centrée.</p>
+            </div>
+
+            <div class="screens-grid">
+                <!-- Position 4 -->
+                <div class="phone-frame">
+                    <div class="phone-screen alt1-screen state-waiting">
+                        <div class="phone-notch"></div>
+
+                        <!-- Header -->
+                        <div class="alt1-header">
+                            <div class="alt1-clinic-label">Cabinet Médical</div>
+                            <div class="alt1-doctor-name">Dr. Kamel Ben Ahmed</div>
+                        </div>
+
+                        <!-- Central Area -->
+                        <div class="alt1-central">
+                            <div class="alt1-position-label">Votre position</div>
+                            <div>
+                                <span class="alt1-position-number">4</span><span class="alt1-position-suffix">ème</span>
+                            </div>
+                            <div style="margin-top: 40px;">
+                                <div class="alt1-wait-label">Temps d'attente estimé</div>
+                                <div class="alt1-wait-time">~45 minutes</div>
+                            </div>
+
+                            <!-- Progress Bar -->
+                            <div class="alt1-progress-container">
+                                <div class="alt1-progress-label">Progression dans la file</div>
+                                <div class="alt1-progress-bar">
+                                    <div class="alt1-progress-fill" style="width: 33%;"></div>
+                                </div>
+                                <div class="alt1-progress-stats">
+                                    <span>Début: 6ème</span>
+                                    <span>Actuel: 4ème</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="alt1-footer">
+                            <div class="alt1-footer-icon">
+                                <span class="material-symbols-rounded">coffee</span>
+                            </div>
+                            <div class="alt1-footer-text">
+                                Vous pouvez faire d'autres choses. On vous notifiera quand votre tour approchera.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="screen-label">Position 4ème</div>
+                </div>
+
+                <!-- Position 2 -->
+                <div class="phone-frame">
+                    <div class="phone-screen alt1-screen state-almost">
+                        <div class="phone-notch"></div>
+
+                        <!-- Header -->
+                        <div class="alt1-header">
+                            <div class="alt1-clinic-label">Cabinet Médical</div>
+                            <div class="alt1-doctor-name">Dr. Kamel Ben Ahmed</div>
+                        </div>
+
+                        <!-- Central Area -->
+                        <div class="alt1-central">
+                            <div class="alt1-position-label">Votre position</div>
+                            <div>
+                                <span class="alt1-position-number">2</span><span class="alt1-position-suffix">ème</span>
+                            </div>
+                            <div style="margin-top: 40px;">
+                                <div class="alt1-wait-label">Temps d'attente estimé</div>
+                                <div class="alt1-wait-time">~15 minutes</div>
+                            </div>
+
+                            <!-- Progress Bar -->
+                            <div class="alt1-progress-container">
+                                <div class="alt1-progress-label">Progression dans la file</div>
+                                <div class="alt1-progress-bar">
+                                    <div class="alt1-progress-fill" style="width: 67%;"></div>
+                                </div>
+                                <div class="alt1-progress-stats">
+                                    <span>Début: 6ème</span>
+                                    <span>Actuel: 2ème</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="alt1-footer">
+                            <div class="alt1-footer-icon">
+                                <span class="material-symbols-rounded">warning</span>
+                            </div>
+                            <div class="alt1-footer-text">
+                                Presque votre tour. Plus qu'un seul patient avant vous. Merci de vous rapprocher du cabinet.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="screen-label">Position 2ème</div>
+                </div>
+
+                <!-- Your Turn -->
+                <div class="phone-frame">
+                    <div class="phone-screen alt1-screen state-your-turn">
+                        <div class="phone-notch"></div>
+
+                        <!-- Header -->
+                        <div class="alt1-header">
+                            <div class="alt1-clinic-label">Cabinet Médical</div>
+                            <div class="alt1-doctor-name">Dr. Kamel Ben Ahmed</div>
+                        </div>
+
+                        <!-- Central Area -->
+                        <div class="alt1-central">
+                            <div class="alt1-position-label">C'est maintenant</div>
+                            <div>
+                                <span class="alt1-position-number">1</span><span class="alt1-position-suffix">er</span>
+                            </div>
+                            <div style="margin-top: 40px;">
+                                <div class="alt1-wait-label">Temps d'attente</div>
+                                <div class="alt1-wait-time">0 minute</div>
+                            </div>
+
+                            <!-- Progress Bar -->
+                            <div class="alt1-progress-container">
+                                <div class="alt1-progress-label">Progression dans la file</div>
+                                <div class="alt1-progress-bar">
+                                    <div class="alt1-progress-fill" style="width: 100%;"></div>
+                                </div>
+                                <div class="alt1-progress-stats">
+                                    <span>Début: 6ème</span>
+                                    <span>Actuel: 1er</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="alt1-footer">
+                            <div class="alt1-footer-icon">
+                                <span class="material-symbols-rounded filled">celebration</span>
+                            </div>
+                            <div class="alt1-footer-text">
+                                C'est votre tour ! Veuillez vous présenter immédiatement à l'accueil du cabinet médical.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="screen-label">C'est votre tour</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
+             ALTERNATIVE 2: BOLD CENTERED
+             ============================================ -->
+        <div class="alternative-section">
+            <div class="alternative-header">
+                <h2>Alternative 2: Bold Centered</h2>
+                <p><strong>Style:</strong> En-tête coloré en dégradé, typographie bold et imposante (700 weight). Zone centrale avec carte flottante ombrée.</p>
+                <p><strong>Éléments:</strong> En-tête immersif coloré, grande carte centrale avec numéro XXL, pied de page avec carte texte.</p>
+            </div>
+
+            <div class="screens-grid">
+                <!-- Position 4 -->
+                <div class="phone-frame">
+                    <div class="phone-screen alt2-screen state-waiting">
+                        <div class="phone-notch"></div>
+
+                        <!-- Header -->
+                        <div class="alt2-header">
+                            <div class="alt2-clinic-label">Cabinet Médical</div>
+                            <div class="alt2-doctor-name">Dr. Kamel Ben Ahmed</div>
+                        </div>
+
+                        <!-- Central Area -->
+                        <div class="alt2-central">
+                            <div class="alt2-position-container">
+                                <div class="alt2-position-label">Votre position</div>
+                                <div class="alt2-position-display">
+                                    <span class="alt2-position-number">4</span><span class="alt2-position-suffix">ème</span>
+                                </div>
+                                <div class="alt2-divider"></div>
+                                <div class="alt2-wait-label">Temps d'attente estimé</div>
+                                <div class="alt2-wait-time">~45 min</div>
+
+                                <!-- Progress Bar -->
+                                <div class="alt2-progress-container">
+                                    <div class="alt2-progress-label">Progression</div>
+                                    <div class="alt2-progress-bar">
+                                        <div class="alt2-progress-fill" style="width: 33%;"></div>
+                                    </div>
+                                    <div class="alt2-progress-stats">
+                                        <span>6ème → 4ème</span>
+                                        <span>33%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="alt2-footer">
+                            <div class="alt2-footer-card">
+                                <span class="material-symbols-rounded alt2-footer-icon">coffee</span>
+                                <div class="alt2-footer-text">
+                                    Vous pouvez faire d'autres choses. On vous notifiera quand votre tour approchera.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="screen-label">Position 4ème</div>
+                </div>
+
+                <!-- Position 2 -->
+                <div class="phone-frame">
+                    <div class="phone-screen alt2-screen state-almost">
+                        <div class="phone-notch"></div>
+
+                        <!-- Header -->
+                        <div class="alt2-header">
+                            <div class="alt2-clinic-label">Cabinet Médical</div>
+                            <div class="alt2-doctor-name">Dr. Kamel Ben Ahmed</div>
+                        </div>
+
+                        <!-- Central Area -->
+                        <div class="alt2-central">
+                            <div class="alt2-position-container">
+                                <div class="alt2-position-label">Votre position</div>
+                                <div class="alt2-position-display">
+                                    <span class="alt2-position-number">2</span><span class="alt2-position-suffix">ème</span>
+                                </div>
+                                <div class="alt2-divider"></div>
+                                <div class="alt2-wait-label">Temps d'attente estimé</div>
+                                <div class="alt2-wait-time">~15 min</div>
+
+                                <!-- Progress Bar -->
+                                <div class="alt2-progress-container">
+                                    <div class="alt2-progress-label">Progression</div>
+                                    <div class="alt2-progress-bar">
+                                        <div class="alt2-progress-fill" style="width: 67%;"></div>
+                                    </div>
+                                    <div class="alt2-progress-stats">
+                                        <span>6ème → 2ème</span>
+                                        <span>67%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="alt2-footer">
+                            <div class="alt2-footer-card">
+                                <span class="material-symbols-rounded alt2-footer-icon">warning</span>
+                                <div class="alt2-footer-text">
+                                    Presque votre tour. Plus qu'un seul patient avant vous. Merci de vous rapprocher du cabinet.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="screen-label">Position 2ème</div>
+                </div>
+
+                <!-- Your Turn -->
+                <div class="phone-frame">
+                    <div class="phone-screen alt2-screen state-your-turn">
+                        <div class="phone-notch"></div>
+
+                        <!-- Header -->
+                        <div class="alt2-header">
+                            <div class="alt2-clinic-label">Cabinet Médical</div>
+                            <div class="alt2-doctor-name">Dr. Kamel Ben Ahmed</div>
+                        </div>
+
+                        <!-- Central Area -->
+                        <div class="alt2-central">
+                            <div class="alt2-position-container">
+                                <div class="alt2-position-label">C'est maintenant</div>
+                                <div class="alt2-position-display">
+                                    <span class="alt2-position-number">1</span><span class="alt2-position-suffix">er</span>
+                                </div>
+                                <div class="alt2-divider"></div>
+                                <div class="alt2-wait-label">Temps d'attente</div>
+                                <div class="alt2-wait-time">0 min</div>
+
+                                <!-- Progress Bar -->
+                                <div class="alt2-progress-container">
+                                    <div class="alt2-progress-label">Progression</div>
+                                    <div class="alt2-progress-bar">
+                                        <div class="alt2-progress-fill" style="width: 100%;"></div>
+                                    </div>
+                                    <div class="alt2-progress-stats">
+                                        <span>6ème → 1er</span>
+                                        <span>100%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="alt2-footer">
+                            <div class="alt2-footer-card">
+                                <span class="material-symbols-rounded filled alt2-footer-icon">celebration</span>
+                                <div class="alt2-footer-text">
+                                    C'est votre tour ! Veuillez vous présenter immédiatement à l'accueil du cabinet médical.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="screen-label">C'est votre tour</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
+             ALTERNATIVE 3: CARD-BASED MODERN
+             ============================================ -->
+        <div class="alternative-section">
+            <div class="alternative-header">
+                <h2>Alternative 3: Card-Based Modern</h2>
+                <p><strong>Style:</strong> Design moderne avec toutes les sections en cartes flottantes. Fond coloré doux, ombres portées, typographie semi-bold (600-800).</p>
+                <p><strong>Éléments:</strong> Carte en-tête, grande carte centrale avec badge de statut, carte pied de page avec icône carrée.</p>
+            </div>
+
+            <div class="screens-grid">
+                <!-- Position 4 -->
+                <div class="phone-frame">
+                    <div class="phone-screen alt3-screen state-waiting">
+                        <div class="phone-notch"></div>
+
+                        <!-- Header -->
+                        <div class="alt3-header">
+                            <div class="alt3-header-card">
+                                <div class="alt3-clinic-label">Cabinet Médical</div>
+                                <div class="alt3-doctor-name">Dr. Kamel Ben Ahmed</div>
+                            </div>
+                        </div>
+
+                        <!-- Central Area -->
+                        <div class="alt3-central">
+                            <div class="alt3-position-card">
+                                <div class="alt3-position-badge">Votre position</div>
+                                <div class="alt3-position-display">
+                                    <span class="alt3-position-number">4</span><span class="alt3-position-suffix">ème</span>
+                                </div>
+                                <div class="alt3-wait-container">
+                                    <span class="material-symbols-rounded alt3-wait-icon">schedule</span>
+                                    <div class="alt3-wait-content">
+                                        <div class="alt3-wait-label">Attente estimée</div>
+                                        <div class="alt3-wait-time">~45 min</div>
+                                    </div>
+                                </div>
+
+                                <!-- Progress Bar -->
+                                <div class="alt3-progress-container">
+                                    <div class="alt3-progress-label">Progression dans la file</div>
+                                    <div class="alt3-progress-bar">
+                                        <div class="alt3-progress-fill" style="width: 33%;"></div>
+                                    </div>
+                                    <div class="alt3-progress-stats">
+                                        <div class="alt3-progress-stat">
+                                            Début: <span class="alt3-progress-stat-value">6ème</span>
+                                        </div>
+                                        <div class="alt3-progress-percentage">33%</div>
+                                        <div class="alt3-progress-stat">
+                                            Actuel: <span class="alt3-progress-stat-value">4ème</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="alt3-footer">
+                            <div class="alt3-footer-card">
+                                <div class="alt3-footer-icon-container">
+                                    <span class="material-symbols-rounded alt3-footer-icon">coffee</span>
+                                </div>
+                                <div class="alt3-footer-text">
+                                    Vous pouvez faire d'autres choses. On vous notifiera quand votre tour approchera.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="screen-label">Position 4ème</div>
+                </div>
+
+                <!-- Position 2 -->
+                <div class="phone-frame">
+                    <div class="phone-screen alt3-screen state-almost">
+                        <div class="phone-notch"></div>
+
+                        <!-- Header -->
+                        <div class="alt3-header">
+                            <div class="alt3-header-card">
+                                <div class="alt3-clinic-label">Cabinet Médical</div>
+                                <div class="alt3-doctor-name">Dr. Kamel Ben Ahmed</div>
+                            </div>
+                        </div>
+
+                        <!-- Central Area -->
+                        <div class="alt3-central">
+                            <div class="alt3-position-card">
+                                <div class="alt3-position-badge">Votre position</div>
+                                <div class="alt3-position-display">
+                                    <span class="alt3-position-number">2</span><span class="alt3-position-suffix">ème</span>
+                                </div>
+                                <div class="alt3-wait-container">
+                                    <span class="material-symbols-rounded alt3-wait-icon">schedule</span>
+                                    <div class="alt3-wait-content">
+                                        <div class="alt3-wait-label">Attente estimée</div>
+                                        <div class="alt3-wait-time">~15 min</div>
+                                    </div>
+                                </div>
+
+                                <!-- Progress Bar -->
+                                <div class="alt3-progress-container">
+                                    <div class="alt3-progress-label">Progression dans la file</div>
+                                    <div class="alt3-progress-bar">
+                                        <div class="alt3-progress-fill" style="width: 67%;"></div>
+                                    </div>
+                                    <div class="alt3-progress-stats">
+                                        <div class="alt3-progress-stat">
+                                            Début: <span class="alt3-progress-stat-value">6ème</span>
+                                        </div>
+                                        <div class="alt3-progress-percentage">67%</div>
+                                        <div class="alt3-progress-stat">
+                                            Actuel: <span class="alt3-progress-stat-value">2ème</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="alt3-footer">
+                            <div class="alt3-footer-card">
+                                <div class="alt3-footer-icon-container">
+                                    <span class="material-symbols-rounded alt3-footer-icon">warning</span>
+                                </div>
+                                <div class="alt3-footer-text">
+                                    Presque votre tour. Plus qu'un seul patient avant vous. Merci de vous rapprocher du cabinet.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="screen-label">Position 2ème</div>
+                </div>
+
+                <!-- Your Turn -->
+                <div class="phone-frame">
+                    <div class="phone-screen alt3-screen state-your-turn">
+                        <div class="phone-notch"></div>
+
+                        <!-- Header -->
+                        <div class="alt3-header">
+                            <div class="alt3-header-card">
+                                <div class="alt3-clinic-label">Cabinet Médical</div>
+                                <div class="alt3-doctor-name">Dr. Kamel Ben Ahmed</div>
+                            </div>
+                        </div>
+
+                        <!-- Central Area -->
+                        <div class="alt3-central">
+                            <div class="alt3-position-card">
+                                <div class="alt3-position-badge">C'est maintenant</div>
+                                <div class="alt3-position-display">
+                                    <span class="alt3-position-number">1</span><span class="alt3-position-suffix">er</span>
+                                </div>
+                                <div class="alt3-wait-container">
+                                    <span class="material-symbols-rounded filled alt3-wait-icon">check_circle</span>
+                                    <div class="alt3-wait-content">
+                                        <div class="alt3-wait-label">Temps d'attente</div>
+                                        <div class="alt3-wait-time">0 min</div>
+                                    </div>
+                                </div>
+
+                                <!-- Progress Bar -->
+                                <div class="alt3-progress-container">
+                                    <div class="alt3-progress-label">Progression dans la file</div>
+                                    <div class="alt3-progress-bar">
+                                        <div class="alt3-progress-fill" style="width: 100%;"></div>
+                                    </div>
+                                    <div class="alt3-progress-stats">
+                                        <div class="alt3-progress-stat">
+                                            Début: <span class="alt3-progress-stat-value">6ème</span>
+                                        </div>
+                                        <div class="alt3-progress-percentage">100%</div>
+                                        <div class="alt3-progress-stat">
+                                            Actuel: <span class="alt3-progress-stat-value">1er</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="alt3-footer">
+                            <div class="alt3-footer-card">
+                                <div class="alt3-footer-icon-container">
+                                    <span class="material-symbols-rounded filled alt3-footer-icon">celebration</span>
+                                </div>
+                                <div class="alt3-footer-text">
+                                    C'est votre tour ! Veuillez vous présenter immédiatement à l'accueil du cabinet médical.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="screen-label">C'est votre tour</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

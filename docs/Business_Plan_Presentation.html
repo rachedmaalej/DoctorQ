@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DoctorQ - Business Plan Presentation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0F172A;
+            color: #E2E8F0;
+            overflow-x: hidden;
+        }
+
+        .presentation-container {
+            width: 100%;
+            height: 100vh;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+        }
+
+        .slide {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 80px 40px;
+            scroll-snap-align: start;
+            position: relative;
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+        }
+
+        .slide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 50%, rgba(103, 80, 164, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(168, 85, 247, 0.08) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .slide-content {
+            max-width: 1200px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        .slide-number {
+            position: absolute;
+            top: 40px;
+            right: 40px;
+            font-size: 14px;
+            color: #64748B;
+            font-weight: 600;
+        }
+
+        /* Title Slide */
+        .title-slide {
+            background: linear-gradient(135deg, #6750A4 0%, #8B7AB8 50%, #A855F7 100%);
+        }
+
+        .title-slide::before {
+            background: radial-gradient(circle at 30% 40%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 70%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+        }
+
+        .main-title {
+            font-size: 72px;
+            font-weight: 800;
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, #FFFFFF 0%, #E9D5FF 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.1;
+        }
+
+        .subtitle {
+            font-size: 28px;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 400;
+            margin-bottom: 16px;
+        }
+
+        .meta-info {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 40px;
+        }
+
+        /* Section Divider Slides */
+        .section-slide {
+            background: linear-gradient(135deg, #1E3A5F 0%, #2D4A6F 100%);
+        }
+
+        .section-number {
+            font-size: 120px;
+            font-weight: 800;
+            color: rgba(103, 80, 164, 0.3);
+            margin-bottom: 24px;
+            line-height: 1;
+        }
+
+        .section-title {
+            font-size: 56px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #FFFFFF;
+        }
+
+        .section-subtitle {
+            font-size: 24px;
+            color: #94A3B8;
+            font-weight: 400;
+        }
+
+        /* Content Slides */
+        h2 {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 40px;
+            color: #FFFFFF;
+            border-left: 6px solid #6750A4;
+            padding-left: 24px;
+        }
+
+        h3 {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            margin-top: 40px;
+            color: #A855F7;
+        }
+
+        .checklist {
+            display: grid;
+            gap: 16px;
+            margin-top: 32px;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #6750A4;
+            transition: all 0.3s ease;
+        }
+
+        .checklist-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateX(8px);
+        }
+
+        .checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #6750A4;
+            border-radius: 6px;
+            flex-shrink: 0;
+            margin-top: 2px;
+            background: rgba(103, 80, 164, 0.2);
+        }
+
+        .checklist-text {
+            font-size: 18px;
+            line-height: 1.6;
+            color: #CBD5E1;
+        }
+
+        .checklist-text strong {
+            color: #FFFFFF;
+            font-weight: 600;
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-top: 40px;
+        }
+
+        .metric-card {
+            background: rgba(103, 80, 164, 0.15);
+            border: 1px solid rgba(103, 80, 164, 0.3);
+            border-radius: 16px;
+            padding: 32px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            background: rgba(103, 80, 164, 0.25);
+            transform: translateY(-8px);
+        }
+
+        .metric-value {
+            font-size: 48px;
+            font-weight: 800;
+            color: #A855F7;
+            margin-bottom: 12px;
+        }
+
+        .metric-label {
+            font-size: 16px;
+            color: #94A3B8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .phase-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid #6750A4;
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+
+        .phase-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #A855F7;
+            margin-bottom: 16px;
+        }
+
+        .phase-description {
+            font-size: 18px;
+            color: #CBD5E1;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .key-points {
+            display: grid;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .key-point {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 16px;
+            color: #E2E8F0;
+        }
+
+        .key-point-icon {
+            width: 8px;
+            height: 8px;
+            background: #6750A4;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 40px;
+            margin-top: 40px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 12px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(180deg, #6750A4 0%, #A855F7 100%);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 32px;
+            padding-left: 32px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -28px;
+            top: 6px;
+            width: 16px;
+            height: 16px;
+            background: #6750A4;
+            border: 3px solid #0F172A;
+            border-radius: 50%;
+        }
+
+        .timeline-week {
+            font-size: 14px;
+            color: #6750A4;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .timeline-content {
+            font-size: 18px;
+            color: #CBD5E1;
+            line-height: 1.5;
+        }
+
+        .cta-box {
+            background: linear-gradient(135deg, #6750A4 0%, #8B7AB8 100%);
+            border-radius: 20px;
+            padding: 48px;
+            text-align: center;
+            margin-top: 48px;
+        }
+
+        .cta-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #FFFFFF;
+            margin-bottom: 20px;
+        }
+
+        .cta-text {
+            font-size: 20px;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+        }
+
+        .success-criteria {
+            display: grid;
+            gap: 16px;
+            margin-top: 32px;
+        }
+
+        .criteria-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 20px;
+            background: rgba(46, 125, 50, 0.1);
+            border-left: 4px solid #2E7D32;
+            border-radius: 12px;
+        }
+
+        .check-icon {
+            font-size: 24px;
+            color: #2E7D32;
+            flex-shrink: 0;
+        }
+
+        .criteria-text {
+            font-size: 17px;
+            color: #CBD5E1;
+            line-height: 1.6;
+        }
+
+        .risk-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-top: 32px;
+        }
+
+        .risk-card {
+            background: rgba(245, 124, 0, 0.1);
+            border-left: 4px solid #F57C00;
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .risk-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #FB8C00;
+            margin-bottom: 12px;
+        }
+
+        .risk-description {
+            font-size: 16px;
+            color: #94A3B8;
+            line-height: 1.5;
+        }
+
+        .highlight-box {
+            background: rgba(168, 85, 247, 0.15);
+            border: 2px solid #A855F7;
+            border-radius: 16px;
+            padding: 32px;
+            margin-top: 32px;
+        }
+
+        .highlight-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #A855F7;
+            margin-bottom: 16px;
+        }
+
+        .highlight-text {
+            font-size: 18px;
+            color: #E2E8F0;
+            line-height: 1.7;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            display: flex;
+            gap: 12px;
+            z-index: 100;
+        }
+
+        .nav-button {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-button:hover,
+        .nav-button.active {
+            background: #6750A4;
+            transform: scale(1.3);
+        }
+
+        @media (max-width: 768px) {
+            .main-title {
+                font-size: 48px;
+            }
+
+            .subtitle {
+                font-size: 20px;
+            }
+
+            h2 {
+                font-size: 32px;
+            }
+
+            .section-title {
+                font-size: 36px;
+            }
+
+            .slide {
+                padding: 60px 24px;
+            }
+
+            .metric-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container" id="presentation">
+
+        <!-- Slide 1: Title -->
+        <div class="slide title-slide">
+            <div class="slide-content">
+                <div class="main-title">DoctorQ</div>
+                <div class="subtitle">Business Plan Execution Checklist</div>
+                <div class="meta-info">
+                    From Draft to Investment-Ready in 6-10 Weeks (ACCELERATED!)<br>
+                    Tunisia Virtual Queue Management System<br>
+                    <strong style="color: #A855F7; margin-top: 16px; display: block;">🎯 PILOT CLINIC ALREADY SECURED</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: Overview -->
+        <div class="slide">
+            <div class="slide-number">2 / 21</div>
+            <div class="slide-content">
+                <h2>Plan Overview (UPDATED with Pilot Secured!)</h2>
+                <div class="metric-grid">
+                    <div class="metric-card">
+                        <div class="metric-value">11</div>
+                        <div class="metric-label">Phases (Added Phase 0!)</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">376</div>
+                        <div class="metric-label">Action Items</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">6-10</div>
+                        <div class="metric-label">Weeks (Accelerated!)</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">7</div>
+                        <div class="metric-label">Milestones (Added #0!)</div>
+                    </div>
+                </div>
+                <div class="highlight-box">
+                    <div class="highlight-title">🎯 MAJOR ADVANTAGE: Pilot Clinic Already Secured</div>
+                    <div class="highlight-text">
+                        Your cousin's ophthalmology practice has agreed to test DoctorQ. This eliminates pilot recruitment uncertainty, accelerates timeline by 2-3 weeks, and gives you REAL TRACTION from day one. Most entrepreneurs pitch ideas. You'll pitch RESULTS.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: The Problem with the Draft -->
+        <div class="slide">
+            <div class="slide-number">3 / 21</div>
+            <div class="slide-content">
+                <h2>10 Critical Weaknesses Identified</h2>
+                <div class="checklist">
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-text"><strong>Missing CAC Analysis:</strong> No customer acquisition cost data</div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-text"><strong>Weak Problem Statement:</strong> No quantitative validation from real doctors</div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-text"><strong>Unsupported Pricing:</strong> 60 TND/month not validated with customers</div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-text"><strong>Optimistic Churn:</strong> 0% assumption unrealistic (should be 3-5%)</div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-text"><strong>Unsupported Market Size:</strong> "3,000+ doctors" needs hard data</div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-text"><strong>Too-Low Fixed Costs:</strong> 180 TND/month missing labor, marketing, support</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Section - Phase 0 NEW! -->
+        <div class="slide section-slide">
+            <div class="slide-number">4 / 21</div>
+            <div class="slide-content">
+                <div class="section-number">00</div>
+                <div class="section-title">Pilot Baseline (NEW!)</div>
+                <div class="section-subtitle">Start with your cousin's practice</div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Phase 0 Details NEW! -->
+        <div class="slide">
+            <div class="slide-number">5 / 21</div>
+            <div class="slide-content">
+                <h2>Phase 0: Pilot Baseline (Week 1) - START HERE!</h2>
+                <div class="phase-box">
+                    <div class="phase-title">🎯 60-Minute Baseline Interview with Your Cousin</div>
+                    <div class="phase-description">
+                        This is NOT just another interview - this is your pilot clinic! Get deep baseline data from his ophthalmology practice.
+                    </div>
+                    <div class="key-points">
+                        <div class="key-point">
+                            <div class="key-point-icon"></div>
+                            <span>Patients per day (avg, min, max), current wait times, receptionist situation</span>
+                        </div>
+                        <div class="key-point">
+                            <div class="key-point-icon"></div>
+                            <span>Commit to pilot start date (4-6 weeks from now), duration (3-4 weeks)</span>
+                        </div>
+                        <div class="key-point">
+                            <div class="key-point-icon"></div>
+                            <span>Define success criteria from HIS perspective (what makes him want to pay 60 TND/month?)</span>
+                        </div>
+                        <div class="key-point">
+                            <div class="key-point-icon"></div>
+                            <span>Set expectations: You fix bugs in 24h, he gives honest feedback, weekly 15-min check-ins</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="highlight-box">
+                    <div class="highlight-title">⚡ KEY ADVANTAGE</div>
+                    <div class="highlight-text">
+                        Use insights from your cousin to refine interview questions for other doctors. He's your "free consultant" before you talk to strangers!
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Phase 1 Details -->
+        <div class="slide">
+            <div class="slide-number">6 / 21</div>
+            <div class="slide-content">
+                <h2>Phase 1: Customer Discovery (Weeks 1-2, Parallel!)</h2>
+                <div class="phase-box">
+                    <div class="phase-title">Interview 15-20 Doctors (Your Cousin = #1!)</div>
+                    <div class="phase-description">
+                        ADJUSTED: Reduced from 20 to 15-20 total (cousin counts!). Quality > quantity. Already piloting with Dr. [Cousin] = social proof.
+                    </div>
+                    <div class="key-points">
+                        <div class="key-point">
+                            <div class="key-point-icon"></div>
+                            <span>Target 4 specialties: General, Pediatrics, Dermatology, Gynecology (you already have Ophthalmology!)</span>
+                        </div>
+                        <div class="key-point">
+                            <div class="key-point-icon"></div>
+                            <span>Pitch with social proof: "Already piloting with Dr. [Cousin]"</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="phase-box">
+                    <div class="phase-title">Survey 50+ Patients (PRIMARY: Cousin's Waiting Room!)</div>
+                    <div class="phase-description">
+                        🎯 EASIEST 30-40 RESPONSES: Post QR code in your cousin's waiting room with 50 TND gift card incentive!
+                    </div>
+                    <div class="key-points">
+                        <div class="key-point">
+                            <div class="key-point-icon"></div>
+                            <span>These are the SAME people who'll use DoctorQ during pilot</span>
+                        </div>
+                        <div class="key-point">
+                            <div class="key-point-icon"></div>
+                            <span>Receptionist mentions survey: "Quick 5-min survey - helps us improve - win 50 TND"</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Section - Phase 2 -->
+        <div class="slide section-slide">
+            <div class="slide-number">7 / 21</div>
+            <div class="slide-content">
+                <div class="section-number">02</div>
+                <div class="section-title">Competitive Analysis</div>
+                <div class="section-subtitle">Understand the market & define your edge</div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Phase 2 Details -->
+        <div class="slide">
+            <div class="slide-number">8 / 21</div>
+            <div class="slide-content">
+                <h2>Phase 2: Competitive Analysis (Weeks 2-4)</h2>
+                <div class="checklist">
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-text"><strong>Research 5+ Competitors:</strong> Qless, Waitwhile, local Tunisia practice software</div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-text"><strong>Document Pricing:</strong> Monthly cost, setup fees, per-SMS charges</div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-text"><strong>Build Differentiation Matrix:</strong> Compare on price, Tunisia-specific features, ease of use</div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-text"><strong>Identify 3 Unique Advantages:</strong> What DoctorQ does better than ALL competitors</div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-text"><strong>Validate Pricing:</strong> Test 40 TND, 60 TND, 80 TND with different doctor segments</div>
+                    </div>
+                </div>
+                <div class="highlight-box">
+                    <div class="highlight-title">Deliverable</div>
+                    <div class="highlight-text">
+                        Competitive Analysis Report (3-4 pages) with comparison table, market gaps, unique positioning, and pricing justification.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Section - Phase 3 -->
+        <div class="slide section-slide">
+            <div class="slide-number">9 / 21</div>
+            <div class="slide-content">
+                <div class="section-number">03</div>
+                <div class="section-title">Pilot Program (SECURED!)</div>
+                <div class="section-subtitle">Your cousin's ophthalmology practice is ready</div>
+            </div>
+        </div>
+
+        <!-- Slide 10: Phase 3 Details -->
+        <div class="slide">
+            <div class="slide-number">10 / 21</div>
+            <div class="slide-content">
+                <h2>Phase 3: Pilot Program (Weeks 2-6) - YOUR COUSIN'S PRACTICE!</h2>
+                <div class="highlight-box" style="margin-bottom: 32px;">
+                    <div class="highlight-title">🎯 MAJOR ADVANTAGE: Pilot Clinic Already Secured</div>
+                    <div class="highlight-text">
+                        Your cousin's ophthalmology practice is committed. High-volume specialty (20-40 patients/day), family relationship = honest feedback, no recruitment delays!
+                    </div>
+                </div>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-week">Week 0-2: MVP Development</div>
+                        <div class="timeline-content">
+                            Build QR check-in, SMS notifications, dashboard. Your cousin is waiting - this creates healthy pressure to ship fast!
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-week">Week 2: Launch with Cousin</div>
+                        <div class="timeline-content">
+                            Install at cousin's practice. Train receptionist (15 min). Daily check-ins first week. Fix bugs within 24 hours.
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-week">Week 3-5: Active Monitoring</div>
+                        <div class="timeline-content">
+                            Track SMS delivery (>95%), patient engagement (>70%), receptionist time saved. Weekly calls. Honest family feedback.
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-week">Week 6: Results & Testimonials</div>
+                        <div class="timeline-content">
+                            Survey 20+ patients. Exit interview with cousin. CRITICAL: Would he pay 60 TND/month? Record video testimonial. Get 2-3 doctor referrals!
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: Pilot Success Metrics -->
+        <div class="slide">
+            <div class="slide-number">11 / 21</div>
+            <div class="slide-content">
+                <h2>Pilot Success Metrics (Most Critical Milestone!)</h2>
+                <div class="metric-grid">
+                    <div class="metric-card">
+                        <div class="metric-value">>60%</div>
+                        <div class="metric-label">Conversion Rate</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">>95%</div>
+                        <div class="metric-label">SMS Delivery</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">>70%</div>
+                        <div class="metric-label">Engagement Rate</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">>20%</div>
+                        <div class="metric-label">Wait Time Reduction</div>
+                    </div>
+                </div>
+                <div class="checklist" style="margin-top: 40px;">
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-text"><strong>Product-Market Fit Score:</strong> % of clinics who would pay after trial</div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-text"><strong>Real SMS Costs:</strong> Validate 9 TND/month assumption with actual data</div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-text"><strong>Receptionist Time Saved:</strong> Target >1 hour/day in interruptions avoided</div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-text"><strong>Testimonials:</strong> Video testimonial from cousin + receptionist, 3-5 patient quotes</div>
+                    </div>
+                </div>
+                <div class="highlight-box" style="margin-top: 32px;">
+                    <div class="highlight-title">⚠️ CRITICAL SUCCESS GATE</div>
+                    <div class="highlight-text">
+                        If pilot fails with family who wants you to succeed, the product has fundamental issues. This is your moment of truth: Does DoctorQ actually work?
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12: Section - Phase 4 -->
+        <div class="slide section-slide">
+            <div class="slide-number">12 / 21</div>
+            <div class="slide-content">
+                <div class="section-number">04</div>
+                <div class="section-title">Financial Model</div>
+                <div class="section-subtitle">Build realistic unit economics with REAL pilot data</div>
+            </div>
+        </div>
+
+        <!-- Slide 13: Phase 4 Details -->
+        <div class="slide">
+            <div class="slide-number">13 / 21</div>
+            <div class="slide-content">
+                <h2>Phase 4: Financial Model (Weeks 4-6) - Optimized CAC!</h2>
+                <div class="highlight-box" style="margin-bottom: 32px;">
+                    <div class="highlight-title">🎯 MAJOR CAC ADVANTAGE</div>
+                    <div class="highlight-text">
+                        <strong>Cousin's clinic CAC ≈ 0 TND</strong> (family favor!). Ask for 2-3 doctor referrals = <strong>Clinics #2-4 CAC: 20-60 TND</strong> vs original 400-600 TND estimate. First 10 clinics acquired at ~50% lower average CAC!
+                    </div>
+                </div>
+                <div class="phase-box">
+                    <div class="phase-title">CAC Strategy (Prioritize by Cost!)</div>
+                    <div class="phase-description">
+                        Test 4 acquisition channels, but START with referrals (lowest CAC!)
+                    </div>
+                    <div class="key-points">
+                        <div class="key-point">
+                            <div class="key-point-icon"></div>
+                            <span><strong>Channel 1 (BEST!):</strong> Cousin's doctor friends referrals (20-60 TND CAC)</span>
+                        </div>
+                        <div class="key-point">
+                            <div class="key-point-icon"></div>
+                            <span><strong>Channel 2:</strong> Direct sales with testimonial (200-400 TND)</span>
+                        </div>
+                        <div class="key-point">
+                            <div class="key-point-icon"></div>
+                            <span><strong>Channel 3:</strong> LinkedIn outreach with case study (150-300 TND)</span>
+                        </div>
+                        <div class="key-point">
+                            <div class="key-point-icon"></div>
+                            <span><strong>Channel 4:</strong> Facebook ads (test last, 300-600 TND)</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="phase-box">
+                    <div class="phase-title">Unit Economics</div>
+                    <div class="key-points">
+                        <div class="key-point">
+                            <div class="key-point-icon"></div>
+                            <span><strong>Revenue per clinic:</strong> 60 TND/month</span>
+                        </div>
+                        <div class="key-point">
+                            <div class="key-point-icon"></div>
+                            <span><strong>Variable cost per clinic:</strong> 20.5 TND/month (SMS + support + infrastructure)</span>
+                        </div>
+                        <div class="key-point">
+                            <div class="key-point-icon"></div>
+                            <span><strong>Contribution margin:</strong> 39.5 TND (66%)</span>
+                        </div>
+                        <div class="key-point">
+                            <div class="key-point-icon"></div>
+                            <span><strong>LTV:CAC Ratio:</strong> Target >3:1 (healthy SaaS benchmark)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14: Break-Even Reality -->
+        <div class="slide">
+            <div class="slide-number">14 / 21</div>
+            <div class="slide-content">
+                <h2>Break-Even Analysis (Improved by Lower CAC!)</h2>
+                <div class="metric-grid">
+                    <div class="metric-card">
+                        <div class="metric-value">10</div>
+                        <div class="metric-label">Clinics (Ignoring CAC)</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">50</div>
+                        <div class="metric-label">Clinics (Including CAC)</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">14</div>
+                        <div class="metric-label">Months (Base Case)</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">380</div>
+                        <div class="metric-label">TND Fixed Costs/Month</div>
+                    </div>
+                </div>
+                <div class="highlight-box">
+                    <div class="highlight-title">Reality Check</div>
+                    <div class="highlight-text">
+                        The draft assumed break-even at 10 clinics, but this ignored customer acquisition costs. With realistic CAC of 400 TND and ongoing acquisition, you need ~50 active clinics to break even during growth phase.
+                    </div>
+                </div>
+                <div class="checklist" style="margin-top: 32px;">
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-text"><strong>Model 3 Scenarios:</strong> Conservative (2 clinics/month, 5% churn), Base (4/month, 3% churn), Optimistic (6/month, 2% churn)</div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-text"><strong>12-Month Cash Flow:</strong> Track cumulative cash to identify funding needs and runway</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 15: Section - Phases 5-7 -->
+        <div class="slide section-slide">
+            <div class="slide-number">15 / 21</div>
+            <div class="slide-content">
+                <div class="section-number">05-07</div>
+                <div class="section-title">GTM, Operations & Risks</div>
+                <div class="section-subtitle">Leverage pilot traction in your strategy</div>
+            </div>
+        </div>
+
+        <!-- Slide 16: GTM Strategy -->
+        <div class="slide">
+            <div class="slide-number">16 / 21</div>
+            <div class="slide-content">
+                <h2>Phase 5: Go-To-Market Strategy (With Social Proof!)</h2>
+                <div class="highlight-box" style="margin-bottom: 32px;">
+                    <div class="highlight-title">🎯 You're NOT Launching Cold!</div>
+                    <div class="highlight-text">
+                        Landing page hero: <strong>"Join Dr. [Cousin's Name] using DoctorQ"</strong><br>
+                        Sales pitch: <strong>"Already working with Dr. [Name] with [X]% wait time reduction - here's his testimonial"</strong>
+                    </div>
+                </div>
+                <div class="phase-box">
+                    <div class="phase-title">Ideal Customer Profile (ICP)</div>
+                    <div class="key-points">
+                        <div class="key-point">
+                            <div class="key-point-icon"></div>
+                            <span>Solo doctor or 2-3 doctors, 20-30 patients/day (like your cousin!)</span>
+                        </div>
+                        <div class="key-point">
+                            <div class="key-point-icon"></div>
+                            <span>Same-day appointments (not timed slots)</span>
+                        </div>
+                        <div class="key-point">
+                            <div class="key-point-icon"></div>
+                            <span>Urban Tunis, has dedicated receptionist</span>
+                        </div>
+                        <div class="key-point">
+                            <div class="key-point-icon"></div>
+                            <span>Tech-savvy enough for basic web dashboards</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="phase-box">
+                    <div class="phase-title">Channel Strategy (Referrals FIRST!)</div>
+                    <div class="key-points">
+                        <div class="key-point">
+                            <div class="key-point-icon"></div>
+                            <span><strong>Primary (0-10 clinics):</strong> Cousin's referrals (20-60 TND), Direct sales WITH testimonial (200-400 TND)</span>
+                        </div>
+                        <div class="key-point">
+                            <div class="key-point-icon"></div>
+                            <span><strong>Secondary (10-30 clinics):</strong> LinkedIn with case study, Medical conferences with booth</span>
+                        </div>
+                        <div class="key-point">
+                            <div class="key-point-icon"></div>
+                            <span><strong>Tertiary (30+ clinics):</strong> Facebook ads with social proof, Self-service signup</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 17: Risk Analysis -->
+        <div class="slide">
+            <div class="slide-number">17 / 21</div>
+            <div class="slide-content">
+                <h2>Phase 7: Top 5 Risks & Mitigation (De-Risked by Pilot!)</h2>
+                <div class="risk-grid">
+                    <div class="risk-card">
+                        <div class="risk-title">1. Doctors Don't Pay (REDUCED RISK!)</div>
+                        <div class="risk-description">
+                            <strong>Mitigation:</strong> Cousin's pilot answers this! If he pays 60 TND after trial, pricing is validated. Interview 15+ more doctors to confirm.
+                        </div>
+                    </div>
+                    <div class="risk-card">
+                        <div class="risk-title">2. High CAC (REDUCED RISK!)</div>
+                        <div class="risk-description">
+                            <strong>Mitigation:</strong> Cousin = 0 TND CAC, his referrals = 20-60 TND. First 10 clinics at ~50% lower CAC than original 400-600 TND estimate!
+                        </div>
+                    </div>
+                    <div class="risk-card">
+                        <div class="risk-title">3. High Churn</div>
+                        <div class="risk-description">
+                            <strong>Mitigation:</strong> Exit interviews to understand reasons. Proactive outreach to at-risk clinics. Improve product based on feedback.
+                        </div>
+                    </div>
+                    <div class="risk-card">
+                        <div class="risk-title">4. Low Patient Adoption</div>
+                        <div class="risk-description">
+                            <strong>Mitigation:</strong> Pilot tracks QR vs manual check-in. Offer WhatsApp alternative. Ensure SMS-only works (no app required).
+                        </div>
+                    </div>
+                    <div class="risk-card">
+                        <div class="risk-title">5. Runway Runs Out</div>
+                        <div class="risk-description">
+                            <strong>Mitigation:</strong> Conservative cash flow modeling. Raise 20,000 TND if needed after pilot. Cut costs if behind revenue targets.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 18: Section - Phase 8 -->
+        <div class="slide section-slide">
+            <div class="slide-number">18 / 21</div>
+            <div class="slide-content">
+                <div class="section-number">08</div>
+                <div class="section-title">Business Plan Documentation</div>
+                <div class="section-subtitle">Pitch TRACTION, not just ideas</div>
+            </div>
+        </div>
+
+        <!-- Slide 19: Business Plan Structure -->
+        <div class="slide">
+            <div class="slide-number">19 / 21</div>
+            <div class="slide-content">
+                <h2>Phase 8: Final Business Plan (15-20 Pages WITH TRACTION!)</h2>
+                <div class="highlight-box" style="margin-bottom: 32px;">
+                    <div class="highlight-title">🎯 You're NOT Pitching an Idea</div>
+                    <div class="highlight-text">
+                        <strong>Before:</strong> "We believe DoctorQ will reduce wait times..."<br>
+                        <strong>After:</strong> "DoctorQ reduced wait times by [X]% at Dr. [Cousin's Name]'s practice. He's willing to pay 60 TND/month. Here's his video testimonial."
+                    </div>
+                </div>
+                <div class="checklist">
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-text"><strong>Executive Summary:</strong> LEAD with pilot traction, then problem, solution, market, projections, funding ask</div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-text"><strong>Problem Statement:</strong> Validated data from 15-20 doctor interviews + 50+ patient surveys (cousin's waiting room!)</div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-text"><strong>Market Analysis:</strong> TAM/SAM/SOM with hard data, ICP modeled on cousin's practice, trends</div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-text"><strong>Competitive Analysis:</strong> Matrix, UVP, competitive moat (ophthalmology pilot proves viability)</div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-text"><strong>🎯 Pilot Results (STAR SECTION!):</strong> Usage metrics, testimonials, before/after, conversion rate, video, referrals</div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-text"><strong>Financial Projections:</strong> Unit economics, 3 scenarios, cash flow, break-even, sensitivity analysis</div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-text"><strong>Go-To-Market:</strong> ICP, channels, sales playbook, 12-month roadmap</div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checkbox"></div>
+                        <div class="checklist-text"><strong>Risk Analysis:</strong> 15+ risks with mitigation, contingency plans</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 20: Success Criteria -->
+        <div class="slide">
+            <div class="slide-number">20 / 21</div>
+            <div class="slide-content">
+                <h2>Your Plan is SOLID When...</h2>
+                <div class="success-criteria">
+                    <div class="criteria-item">
+                        <div class="check-icon">✓</div>
+                        <div class="criteria-text">Problem validated with quantitative data from 15-20 doctors and 50+ patients (cousin's waiting room = easy 30-40 responses!)</div>
+                    </div>
+                    <div class="criteria-item">
+                        <div class="check-icon">✓</div>
+                        <div class="criteria-text">Solution PROVEN through pilot with cousin's practice showing measurable impact (wait time, receptionist time, patient satisfaction)</div>
+                    </div>
+                    <div class="criteria-item">
+                        <div class="check-icon">✓</div>
+                        <div class="criteria-text">Unit economics work: LTV:CAC > 3:1 and <12 month payback (boosted by referral CAC of 20-60 TND!)</div>
+                    </div>
+                    <div class="criteria-item">
+                        <div class="check-icon">✓</div>
+                        <div class="criteria-text">Financial projections are realistic with conservative assumptions + REAL pilot data (not estimates!)</div>
+                    </div>
+                    <div class="criteria-item">
+                        <div class="check-icon">✓</div>
+                        <div class="criteria-text">GTM strategy leads with social proof (cousin's testimonial, referrals, case study)</div>
+                    </div>
+                    <div class="criteria-item">
+                        <div class="check-icon">✓</div>
+                        <div class="criteria-text">Risks de-risked: Pilot recruitment (DONE!), willingness to pay (tested!), CAC (referrals first!)</div>
+                    </div>
+                    <div class="criteria-item">
+                        <div class="check-icon">✓</div>
+                        <div class="criteria-text">🎯 TRACTION demonstrated: Video testimonial, before/after metrics, 2-3 warm referrals from cousin's doctor friends</div>
+                    </div>
+                    <div class="criteria-item">
+                        <div class="check-icon">✓</div>
+                        <div class="criteria-text">Execution plan is accelerated: 6-10 weeks (not 8-12) thanks to pilot already secured</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 21: Call to Action -->
+        <div class="slide title-slide">
+            <div class="slide-number">21 / 21</div>
+            <div class="slide-content">
+                <div class="cta-box">
+                    <div class="cta-title">This is Not a Document to Read.</div>
+                    <div class="cta-text">
+                        This is a document to <strong>EXECUTE</strong>.<br><br>
+                        You have a MASSIVE head start: Your cousin's practice is waiting to pilot DoctorQ.<br><br>
+                        <strong>Do This Week:</strong><br>
+                        1. Schedule 60-min meeting with your cousin (baseline data)<br>
+                        2. Start customer discovery (5 interviews this week, cousin = #1)<br>
+                        3. Post patient survey QR in cousin's waiting room<br>
+                        4. Begin MVP development (your cousin is waiting!)<br><br>
+                        In 6-10 weeks, you'll have a business plan backed by REAL pilot data, proven product-market fit, validated unit economics, and your first paying customer already lined up.
+                    </div>
+                </div>
+                <div class="meta-info" style="margin-top: 48px;">
+                    <strong>Most entrepreneurs pitch ideas. You'll pitch RESULTS. Now go build DoctorQ. 🚀</strong><br>
+                    Full checklist: docs/Business_Plan_Checklist.md
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Navigation Dots -->
+    <div class="navigation" id="navigation">
+        <!-- Generated dynamically by JavaScript -->
+    </div>
+
+    <script>
+        // Generate navigation dots
+        const totalSlides = document.querySelectorAll('.slide').length;
+        const navigation = document.getElementById('navigation');
+
+        for (let i = 0; i < totalSlides; i++) {
+            const dot = document.createElement('div');
+            dot.className = 'nav-button';
+            if (i === 0) dot.classList.add('active');
+            dot.addEventListener('click', () => {
+                const slides = document.querySelectorAll('.slide');
+                slides[i].scrollIntoView({ behavior: 'smooth' });
+            });
+            navigation.appendChild(dot);
+        }
+
+        // Update active dot on scroll
+        const presentation = document.getElementById('presentation');
+        const slides = document.querySelectorAll('.slide');
+        const navButtons = document.querySelectorAll('.nav-button');
+
+        presentation.addEventListener('scroll', () => {
+            const scrollPosition = presentation.scrollTop;
+            const windowHeight = window.innerHeight;
+
+            slides.forEach((slide, index) => {
+                const slideTop = slide.offsetTop;
+                const slideBottom = slideTop + slide.offsetHeight;
+
+                if (scrollPosition >= slideTop - windowHeight / 2 && scrollPosition < slideBottom - windowHeight / 2) {
+                    navButtons.forEach(btn => btn.classList.remove('active'));
+                    navButtons[index].classList.add('active');
+                }
+            });
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            const activeIndex = Array.from(navButtons).findIndex(btn => btn.classList.contains('active'));
+
+            if (e.key === 'ArrowDown' && activeIndex < totalSlides - 1) {
+                slides[activeIndex + 1].scrollIntoView({ behavior: 'smooth' });
+            } else if (e.key === 'ArrowUp' && activeIndex > 0) {
+                slides[activeIndex - 1].scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    </script>
+</body>
+</html>

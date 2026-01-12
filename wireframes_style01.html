@@ -1,0 +1,2356 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DoctorQ - MVP Wireframes (Style 01)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Fredoka:wght@300;400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Purple Family (Primary Colors) */
+            --primary-900: #3B1A5F;
+            --primary-800: #4A2270;
+            --primary-700: #5B2D82;
+            --primary-600: #7C3AED;
+            --primary-500: #9333EA;
+            --primary-400: #A855F7;
+            --primary-300: #C084FC;
+            --primary-200: #E9D5FF;
+            --primary-100: #F3E8FF;
+
+            /* Orange Family (Warm Accents) */
+            --orange-900: #7C2D12;
+            --orange-800: #9A3412;
+            --orange-700: #C2410C;
+            --orange-600: #EA580C;
+            --orange-500: #F97316;
+            --orange-400: #FB923C;
+            --orange-300: #FDBA74;
+            --orange-200: #FED7AA;
+            --orange-100: #FFEDD5;
+
+            /* Pink Family */
+            --pink-900: #831843;
+            --pink-800: #9D174D;
+            --pink-700: #BE185D;
+            --pink-600: #DB2777;
+            --pink-500: #EC4899;
+            --pink-400: #F472B6;
+            --pink-300: #F9A8D4;
+            --pink-200: #FBCFE8;
+            --pink-100: #FCE7F3;
+
+            /* Lime/Green Family */
+            --lime-900: #365314;
+            --lime-800: #3F6212;
+            --lime-700: #4D7C0F;
+            --lime-600: #65A30D;
+            --lime-500: #84CC16;
+            --lime-400: #A3E635;
+            --lime-300: #BEF264;
+            --lime-200: #D9F99D;
+            --lime-100: #ECFCCB;
+
+            /* Neutral Colors */
+            --neutral-900: #1C0A00;
+            --neutral-800: #292524;
+            --neutral-700: #44403C;
+            --neutral-600: #57534E;
+            --neutral-500: #78716C;
+            --neutral-400: #A8A29E;
+            --neutral-300: #D6D3D1;
+            --neutral-200: #E7E5E4;
+            --neutral-100: #F5F5F4;
+            --neutral-50: #FAFAF9;
+
+            /* Semantic Colors */
+            --success: #16A34A;
+            --success-bg: #DCFCE7;
+            --warning: #EA580C;
+            --warning-bg: #FFEDD5;
+            --danger: #DC2626;
+            --danger-bg: #FEE2E2;
+
+            /* Gradients */
+            --gradient-purple: linear-gradient(135deg, #E9D5FF 0%, #F3E8FF 100%);
+            --gradient-orange: linear-gradient(135deg, #FDBA74 0%, #FED7AA 100%);
+            --gradient-pink: linear-gradient(135deg, #F9A8D4 0%, #FBCFE8 100%);
+            --gradient-lime: linear-gradient(135deg, #BEF264 0%, #D9F99D 100%);
+
+            /* Page Background */
+            --page-bg: linear-gradient(180deg, #F3E8FF 0%, #E9D5FF 50%, #C084FC 100%);
+
+            /* Border Radius */
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --radius-2xl: 24px;
+            --radius-3xl: 32px;
+            --radius-full: 9999px;
+
+            /* Shadows */
+            --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.12);
+            --shadow-2xl: 0 24px 64px rgba(0, 0, 0, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', 'IBM Plex Sans Arabic', sans-serif;
+            background: var(--page-bg);
+            min-height: 100vh;
+            color: var(--neutral-800);
+        }
+
+        /* Navigation */
+        .nav-header {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Fredoka', 'Poppins', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 900;
+            color: var(--primary-600);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            letter-spacing: 0.05em;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--primary-900);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.3rem;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 0.5rem;
+            background: var(--neutral-100);
+            padding: 6px;
+            border-radius: var(--radius-lg);
+        }
+
+        .nav-tab {
+            padding: 0.7rem 1.3rem;
+            border: none;
+            background: transparent;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--neutral-600);
+            transition: all 0.2s;
+        }
+
+        .nav-tab.active {
+            background: var(--orange-500);
+            color: white;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .nav-tab:hover:not(.active) {
+            background: rgba(0,0,0,0.03);
+            color: var(--neutral-800);
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .section-header {
+            text-align: center;
+            color: white;
+            margin-bottom: 2rem;
+        }
+
+        .section-header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .section-header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        /* Wireframe Container */
+        .wireframe-container {
+            display: none;
+        }
+
+        .wireframe-container.active {
+            display: block;
+        }
+
+        .screens-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        /* Phone Frame */
+        .phone-frame {
+            background: #1a1a1a;
+            border-radius: 40px;
+            padding: 12px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.4);
+            max-width: 380px;
+            margin: 0 auto;
+        }
+
+        .phone-screen {
+            background: white;
+            border-radius: 32px;
+            overflow: hidden;
+            min-height: 700px;
+        }
+
+        .phone-notch {
+            background: #1a1a1a;
+            width: 150px;
+            height: 30px;
+            margin: 0 auto;
+            border-radius: 0 0 20px 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Desktop Frame */
+        .desktop-frame {
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+        }
+
+        .desktop-header {
+            background: var(--gray-100);
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .window-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .window-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .window-dot.red { background: #EF4444; }
+        .window-dot.yellow { background: #F59E0B; }
+        .window-dot.green { background: #10B981; }
+
+        .desktop-content {
+            min-height: 500px;
+        }
+
+        /* Screen Label */
+        .screen-label {
+            text-align: center;
+            color: white;
+            margin-top: 1rem;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .screen-description {
+            text-align: center;
+            color: rgba(255,255,255,0.7);
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+        }
+
+        /* App Styles */
+        .app-header {
+            background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-700) 100%);
+            color: white;
+            padding: 1.25rem;
+            padding-top: 0.75rem;
+        }
+
+        .app-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .app-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .app-subtitle {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+        .header-icon {
+            width: 36px;
+            height: 36px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Stats Cards */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.25);
+            backdrop-filter: blur(10px);
+            border-radius: var(--radius-xl);
+            padding: 0.85rem;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stat-number {
+            font-size: 1.6rem;
+            font-weight: 800;
+        }
+
+        .stat-label {
+            font-size: 0.65rem;
+            opacity: 0.95;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        /* Queue List */
+        .queue-section {
+            padding: 1rem;
+        }
+
+        .section-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--gray-600);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .queue-item {
+            background: white;
+            border: none;
+            border-radius: var(--radius-xl);
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.2s;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .queue-item:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .queue-item.current {
+            background: var(--gradient-lime);
+            border: 2px solid var(--lime-500);
+        }
+
+        .queue-number {
+            width: 44px;
+            height: 44px;
+            background: var(--primary-200);
+            color: var(--primary-900);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.05rem;
+            flex-shrink: 0;
+        }
+
+        .queue-item.current .queue-number {
+            background: var(--lime-500);
+            color: var(--lime-900);
+        }
+
+        .queue-info {
+            flex: 1;
+        }
+
+        .queue-name {
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--neutral-900);
+        }
+
+        .queue-meta {
+            font-size: 0.8rem;
+            color: var(--neutral-500);
+            margin-top: 3px;
+        }
+
+        .queue-time {
+            text-align: right;
+        }
+
+        .queue-wait {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--gray-700);
+        }
+
+        .queue-arrived {
+            font-size: 0.7rem;
+            color: var(--gray-400);
+        }
+
+        /* Buttons */
+        .btn {
+            border: none;
+            border-radius: var(--radius-xl);
+            padding: 1rem 1.75rem;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--orange-500);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--orange-600);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(249, 115, 22, 0.4);
+        }
+
+        .btn-success {
+            background: var(--lime-500);
+            color: var(--lime-900);
+        }
+
+        .btn-success:hover {
+            background: var(--lime-600);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(132, 204, 22, 0.4);
+        }
+
+        .btn-outline {
+            background: white;
+            border: 2px solid var(--neutral-300);
+            color: var(--neutral-700);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--orange-500);
+            color: var(--orange-500);
+            transform: translateY(-1px);
+        }
+
+        .btn-block {
+            width: 100%;
+        }
+
+        .btn-lg {
+            padding: 1.1rem 2rem;
+            font-size: 1.1rem;
+        }
+
+        /* Call Next Button */
+        .call-next-section {
+            padding: 1rem;
+            background: var(--gray-50);
+            border-top: 1px solid var(--gray-200);
+            position: sticky;
+            bottom: 0;
+        }
+
+        /* Patient View Styles */
+        .patient-header {
+            background: linear-gradient(135deg, var(--primary-900) 0%, var(--primary-800) 100%);
+            color: white;
+            padding: 1.5rem;
+            padding-top: 1rem;
+            text-align: center;
+        }
+
+        .patient-clinic {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            margin-bottom: 0.5rem;
+        }
+
+        .patient-doctor {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .position-card {
+            background: white;
+            margin: -2rem 1rem 1rem;
+            border-radius: var(--radius-2xl);
+            padding: 2rem 1.5rem;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+        }
+
+        .position-label {
+            font-size: 0.9rem;
+            color: var(--neutral-500);
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .position-number {
+            font-size: 5rem;
+            font-weight: 900;
+            color: var(--primary-600);
+            line-height: 1;
+        }
+
+        .position-suffix {
+            font-size: 1.75rem;
+            color: var(--neutral-400);
+            font-weight: 600;
+        }
+
+        .wait-estimate {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--gray-200);
+        }
+
+        .wait-label {
+            font-size: 0.8rem;
+            color: var(--gray-500);
+        }
+
+        .wait-time {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--gray-800);
+        }
+
+        /* Progress Indicator */
+        .progress-section {
+            padding: 1rem;
+        }
+
+        .progress-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: white;
+            border-radius: 10px;
+            margin-bottom: 0.5rem;
+            border: 1px solid var(--gray-200);
+        }
+
+        .progress-item.done {
+            background: var(--gray-50);
+        }
+
+        .progress-item.active {
+            background: linear-gradient(135deg, var(--primary-light) 0%, #A7F3D0 100%);
+            border-color: var(--primary);
+        }
+
+        .progress-dot {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--gray-300);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.7rem;
+        }
+
+        .progress-item.done .progress-dot {
+            background: var(--success);
+        }
+
+        .progress-item.active .progress-dot {
+            background: var(--primary);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .progress-text {
+            font-size: 0.9rem;
+            color: var(--gray-600);
+        }
+
+        .progress-item.active .progress-text {
+            color: var(--gray-800);
+            font-weight: 600;
+        }
+
+        /* Notification Banner */
+        .notification-banner {
+            background: var(--gradient-orange);
+            color: var(--orange-900);
+            padding: 1.25rem;
+            margin: 1rem;
+            border-radius: var(--radius-2xl);
+            text-align: center;
+            box-shadow: var(--shadow-md);
+        }
+
+        .notification-banner.success {
+            background: var(--gradient-lime);
+            color: var(--lime-900);
+        }
+
+        .notification-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .notification-text {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .notification-subtext {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            margin-top: 0.25rem;
+        }
+
+        /* Desktop Dashboard */
+        .dashboard-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 600px;
+        }
+
+        .dashboard-sidebar {
+            background: var(--primary-900);
+            color: white;
+            padding: 2rem 1.5rem;
+        }
+
+        .sidebar-logo {
+            font-family: 'Fredoka', 'Poppins', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 900;
+            margin-bottom: 2.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            letter-spacing: 0.05em;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+        }
+
+        .sidebar-item {
+            padding: 1rem 1.25rem;
+            border-radius: var(--radius-lg);
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.2s;
+            font-size: 1rem;
+            font-weight: 500;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .sidebar-item:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .sidebar-item.active {
+            background: var(--orange-500);
+            color: white;
+        }
+
+        .dashboard-main {
+            padding: 1.5rem;
+            background: var(--gray-50);
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .dashboard-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--gray-800);
+        }
+
+        .dashboard-date {
+            color: var(--gray-500);
+            font-size: 0.9rem;
+        }
+
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .dashboard-stat {
+            background: var(--gradient-purple);
+            padding: 1.5rem;
+            border-radius: var(--radius-2xl);
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-stat:nth-child(2) {
+            background: var(--gradient-orange);
+        }
+
+        .dashboard-stat:nth-child(3) {
+            background: var(--gradient-pink);
+        }
+
+        .dashboard-stat:nth-child(4) {
+            background: var(--gradient-lime);
+        }
+
+        .dashboard-stat-label {
+            font-size: 0.85rem;
+            color: var(--neutral-700);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .dashboard-stat-value {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--primary-900);
+            margin-top: 0.5rem;
+            line-height: 1;
+        }
+
+        .dashboard-stat-change {
+            font-size: 0.85rem;
+            color: var(--success);
+            margin-top: 0.5rem;
+            font-weight: 600;
+        }
+
+        /* Queue Table */
+        .queue-table {
+            background: white;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .queue-table-header {
+            display: grid;
+            grid-template-columns: 60px 1fr 120px 120px 100px;
+            padding: 1rem;
+            background: var(--gray-50);
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: var(--gray-600);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .queue-table-row {
+            display: grid;
+            grid-template-columns: 60px 1fr 120px 120px 100px;
+            padding: 1rem;
+            border-bottom: 1px solid var(--gray-100);
+            align-items: center;
+            transition: all 0.2s;
+        }
+
+        .queue-table-row:hover {
+            background: var(--gray-50);
+        }
+
+        .queue-table-row.current {
+            background: linear-gradient(135deg, var(--primary-light) 0%, #A7F3D0 100%);
+        }
+
+        .row-number {
+            width: 32px;
+            height: 32px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+
+        .row-patient {
+            font-weight: 500;
+        }
+
+        .row-phone {
+            color: var(--gray-500);
+            font-size: 0.85rem;
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-2xl);
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-waiting {
+            background: var(--lime-300);
+            color: var(--lime-900);
+        }
+
+        .status-current {
+            background: var(--primary-900);
+            color: white;
+        }
+
+        .status-notified {
+            background: var(--orange-400);
+            color: var(--orange-900);
+        }
+
+        .row-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .action-btn.notify {
+            background: var(--accent);
+            color: white;
+        }
+
+        .action-btn.call {
+            background: var(--success);
+            color: white;
+        }
+
+        /* Check-in Screen */
+        .checkin-screen {
+            background: linear-gradient(135deg, var(--neutral-50) 0%, var(--neutral-100) 100%);
+            min-height: 100%;
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .checkin-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .checkin-logo {
+            width: 72px;
+            height: 72px;
+            background: var(--primary-600);
+            border-radius: var(--radius-xl);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            margin: 0 auto 1rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .checkin-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--neutral-900);
+        }
+
+        .checkin-subtitle {
+            font-size: 1rem;
+            color: var(--neutral-500);
+            margin-top: 0.5rem;
+        }
+
+        .qr-section {
+            background: white;
+            border-radius: var(--radius-2xl);
+            padding: 2rem;
+            text-align: center;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 2rem;
+        }
+
+        .qr-code {
+            width: 180px;
+            height: 180px;
+            background: var(--neutral-100);
+            margin: 0 auto 1.25rem;
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: var(--neutral-400);
+            border: 2px dashed var(--neutral-300);
+        }
+
+        .qr-instruction {
+            font-size: 0.9rem;
+            color: var(--gray-600);
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 1.5rem 0;
+        }
+
+        .divider-line {
+            flex: 1;
+            height: 1px;
+            background: var(--gray-300);
+        }
+
+        .divider-text {
+            padding: 0 1rem;
+            color: var(--gray-400);
+            font-size: 0.85rem;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--gray-700);
+            margin-bottom: 0.5rem;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 0.9rem 1rem;
+            border: 2px solid var(--gray-200);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        /* Flow Diagram */
+        .flow-container {
+            background: white;
+            border-radius: var(--radius);
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .flow-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--gray-800);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .flow-steps {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .flow-steps::before {
+            content: '';
+            position: absolute;
+            top: 30px;
+            left: 60px;
+            right: 60px;
+            height: 3px;
+            background: var(--gray-200);
+        }
+
+        .flow-step {
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            flex: 1;
+        }
+
+        .flow-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            margin: 0 auto 0.75rem;
+        }
+
+        .flow-label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--gray-800);
+        }
+
+        .flow-desc {
+            font-size: 0.75rem;
+            color: var(--gray-500);
+            margin-top: 0.25rem;
+        }
+
+        /* Spec Section */
+        .spec-section {
+            background: white;
+            border-radius: var(--radius);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .spec-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--gray-800);
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .spec-list {
+            list-style: none;
+        }
+
+        .spec-item {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--gray-100);
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .spec-check {
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        .spec-text {
+            color: var(--gray-700);
+        }
+
+        .spec-priority {
+            margin-left: auto;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .priority-must {
+            background: #FEE2E2;
+            color: #DC2626;
+        }
+
+        .priority-should {
+            background: #FEF3C7;
+            color: #D97706;
+        }
+
+        .priority-nice {
+            background: #DBEAFE;
+            color: #2563EB;
+        }
+
+        /* Info Cards */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .info-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        .info-card-title {
+            font-weight: 600;
+            color: var(--gray-800);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-card-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--primary-light);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-dark);
+        }
+
+        /* RTL Support Demo */
+        .rtl-demo {
+            direction: rtl;
+            text-align: right;
+        }
+
+        .rtl-demo .queue-item {
+            flex-direction: row-reverse;
+        }
+
+        .rtl-demo .queue-time {
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav-header">
+        <div class="nav-content">
+            <div class="logo">
+                <div class="logo-icon">Q</div>
+                DoctorQ MVP
+            </div>
+            <div class="nav-tabs">
+                <button class="nav-tab active" onclick="showSection('doctor')">👨‍⚕️ Doctor View</button>
+                <button class="nav-tab" onclick="showSection('patient')">🧑 Patient View</button>
+                <button class="nav-tab" onclick="showSection('checkin')">📱 Check-in</button>
+                <button class="nav-tab" onclick="showSection('desktop')">🖥️ Dashboard</button>
+                <button class="nav-tab" onclick="showSection('specs')">📋 Specs</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <!-- Doctor Mobile View -->
+        <div id="doctor-section" class="wireframe-container active">
+            <div class="section-header">
+                <h1>Doctor / Receptionist Mobile View</h1>
+                <p>Simple queue management from any smartphone</p>
+            </div>
+            
+            <div class="screens-grid">
+                <!-- Main Queue Screen -->
+                <div>
+                    <div class="phone-frame">
+                        <div class="phone-screen">
+                            <div class="phone-notch"></div>
+                            <div class="app-header">
+                                <div class="app-header-row">
+                                    <div>
+                                        <div class="app-title">Dr. Ahmed Consulting</div>
+                                        <div class="app-subtitle">Mardi 14 Janvier 2026</div>
+                                    </div>
+                                    <div class="header-icon">⚙️</div>
+                                </div>
+                                <div class="stats-row">
+                                    <div class="stat-card">
+                                        <div class="stat-number">12</div>
+                                        <div class="stat-label">En attente</div>
+                                    </div>
+                                    <div class="stat-card">
+                                        <div class="stat-number">8</div>
+                                        <div class="stat-label">Vus</div>
+                                    </div>
+                                    <div class="stat-card">
+                                        <div class="stat-number">~45m</div>
+                                        <div class="stat-label">Attente moy.</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="queue-section">
+                                <div class="section-title">
+                                    <span>File d'attente actuelle</span>
+                                    <span style="color: var(--primary);">+ Ajouter</span>
+                                </div>
+                                
+                                <div class="queue-item current">
+                                    <div class="queue-number">1</div>
+                                    <div class="queue-info">
+                                        <div class="queue-name">Fatma Ben Ali</div>
+                                        <div class="queue-meta">Contrôle • En consultation</div>
+                                    </div>
+                                    <div class="queue-time">
+                                        <div class="queue-wait" style="color: var(--success);">En cours</div>
+                                        <div class="queue-arrived">09:15</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="queue-item">
+                                    <div class="queue-number">2</div>
+                                    <div class="queue-info">
+                                        <div class="queue-name">Mohamed Trabelsi</div>
+                                        <div class="queue-meta">Nouvelle consultation</div>
+                                    </div>
+                                    <div class="queue-time">
+                                        <div class="queue-wait">~10 min</div>
+                                        <div class="queue-arrived">09:22</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="queue-item">
+                                    <div class="queue-number">3</div>
+                                    <div class="queue-info">
+                                        <div class="queue-name">Sonia Khelifi</div>
+                                        <div class="queue-meta">Suivi</div>
+                                    </div>
+                                    <div class="queue-time">
+                                        <div class="queue-wait">~25 min</div>
+                                        <div class="queue-arrived">09:35</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="queue-item">
+                                    <div class="queue-number">4</div>
+                                    <div class="queue-info">
+                                        <div class="queue-name">Karim Jaziri</div>
+                                        <div class="queue-meta">Résultats analyses</div>
+                                    </div>
+                                    <div class="queue-time">
+                                        <div class="queue-wait">~40 min</div>
+                                        <div class="queue-arrived">09:41</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="call-next-section">
+                                <button class="btn btn-success btn-block btn-lg">
+                                    ✓ Appeler Suivant
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="screen-label">Queue principale</div>
+                    <div class="screen-description">Vue en temps réel de la file d'attente</div>
+                </div>
+                
+                <!-- Arabic RTL Version -->
+                <div>
+                    <div class="phone-frame">
+                        <div class="phone-screen rtl-demo">
+                            <div class="phone-notch"></div>
+                            <div class="app-header">
+                                <div class="app-header-row">
+                                    <div class="header-icon">⚙️</div>
+                                    <div>
+                                        <div class="app-title">عيادة د. أحمد</div>
+                                        <div class="app-subtitle">الثلاثاء 14 جانفي 2026</div>
+                                    </div>
+                                </div>
+                                <div class="stats-row">
+                                    <div class="stat-card">
+                                        <div class="stat-number">12</div>
+                                        <div class="stat-label">في الانتظار</div>
+                                    </div>
+                                    <div class="stat-card">
+                                        <div class="stat-number">8</div>
+                                        <div class="stat-label">تم فحصهم</div>
+                                    </div>
+                                    <div class="stat-card">
+                                        <div class="stat-number">~45د</div>
+                                        <div class="stat-label">متوسط الانتظار</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="queue-section">
+                                <div class="section-title">
+                                    <span style="color: var(--primary);">+ إضافة</span>
+                                    <span>قائمة الانتظار الحالية</span>
+                                </div>
+                                
+                                <div class="queue-item current">
+                                    <div class="queue-time">
+                                        <div class="queue-wait" style="color: var(--success);">الآن</div>
+                                        <div class="queue-arrived">09:15</div>
+                                    </div>
+                                    <div class="queue-info">
+                                        <div class="queue-name">فاطمة بن علي</div>
+                                        <div class="queue-meta">فحص روتيني • في العيادة</div>
+                                    </div>
+                                    <div class="queue-number">1</div>
+                                </div>
+                                
+                                <div class="queue-item">
+                                    <div class="queue-time">
+                                        <div class="queue-wait">~10 دقائق</div>
+                                        <div class="queue-arrived">09:22</div>
+                                    </div>
+                                    <div class="queue-info">
+                                        <div class="queue-name">محمد الطرابلسي</div>
+                                        <div class="queue-meta">استشارة جديدة</div>
+                                    </div>
+                                    <div class="queue-number">2</div>
+                                </div>
+                                
+                                <div class="queue-item">
+                                    <div class="queue-time">
+                                        <div class="queue-wait">~25 دقيقة</div>
+                                        <div class="queue-arrived">09:35</div>
+                                    </div>
+                                    <div class="queue-info">
+                                        <div class="queue-name">سنية الخليفي</div>
+                                        <div class="queue-meta">متابعة</div>
+                                    </div>
+                                    <div class="queue-number">3</div>
+                                </div>
+                            </div>
+                            
+                            <div class="call-next-section">
+                                <button class="btn btn-success btn-block btn-lg">
+                                    ✓ استدعاء التالي
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="screen-label">Version Arabe (RTL)</div>
+                    <div class="screen-description">Support complet arabe/français</div>
+                </div>
+            </div>
+            
+            <!-- User Flow -->
+            <div class="flow-container">
+                <div class="flow-title">Flux Réceptionniste</div>
+                <div class="flow-steps">
+                    <div class="flow-step">
+                        <div class="flow-icon">📝</div>
+                        <div class="flow-label">Patient arrive</div>
+                        <div class="flow-desc">Scan QR ou ajout manuel</div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="flow-icon">📋</div>
+                        <div class="flow-label">Ajout à la file</div>
+                        <div class="flow-desc">Nom + motif (optionnel)</div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="flow-icon">📱</div>
+                        <div class="flow-label">Patient notifié</div>
+                        <div class="flow-desc">SMS/WhatsApp auto</div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="flow-icon">✓</div>
+                        <div class="flow-label">Appel suivant</div>
+                        <div class="flow-desc">Un seul bouton</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Patient Mobile View -->
+        <div id="patient-section" class="wireframe-container">
+            <div class="section-header">
+                <h1>Patient Mobile View</h1>
+                <p>Real-time queue position and wait time estimates</p>
+            </div>
+            
+            <div class="screens-grid">
+                <!-- Waiting State -->
+                <div>
+                    <div class="phone-frame">
+                        <div class="phone-screen">
+                            <div class="phone-notch"></div>
+                            <div class="patient-header">
+                                <div class="patient-clinic">Cabinet Médical</div>
+                                <div class="patient-doctor">Dr. Ahmed Ben Salem</div>
+                                <div style="font-size: 0.8rem; margin-top: 0.25rem; opacity: 0.8">Généraliste • La Marsa</div>
+                            </div>
+                            
+                            <div class="position-card">
+                                <div class="position-label">Votre position dans la file</div>
+                                <div class="position-number">4<span class="position-suffix">ème</span></div>
+                                <div class="wait-estimate">
+                                    <div class="wait-label">Temps d'attente estimé</div>
+                                    <div class="wait-time">≈ 45 minutes</div>
+                                </div>
+                            </div>
+                            
+                            <div class="progress-section">
+                                <div class="section-title">Progression</div>
+                                <div class="progress-item done">
+                                    <div class="progress-dot">✓</div>
+                                    <div class="progress-text">Enregistrement effectué</div>
+                                </div>
+                                <div class="progress-item done">
+                                    <div class="progress-dot">✓</div>
+                                    <div class="progress-text">3 patients avant vous</div>
+                                </div>
+                                <div class="progress-item active">
+                                    <div class="progress-dot">4</div>
+                                    <div class="progress-text">Votre tour approche...</div>
+                                </div>
+                                <div class="progress-item">
+                                    <div class="progress-dot">→</div>
+                                    <div class="progress-text">Consultation</div>
+                                </div>
+                            </div>
+                            
+                            <div style="padding: 1rem;">
+                                <button class="btn btn-outline btn-block">
+                                    🔔 Me notifier à 2 patients
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="screen-label">État d'attente</div>
+                    <div class="screen-description">Position #4 dans la file</div>
+                </div>
+                
+                <!-- Almost Turn -->
+                <div>
+                    <div class="phone-frame">
+                        <div class="phone-screen">
+                            <div class="phone-notch"></div>
+                            <div class="patient-header" style="background: linear-gradient(135deg, var(--accent) 0%, #D97706 100%);">
+                                <div class="patient-clinic">Cabinet Médical</div>
+                                <div class="patient-doctor">Dr. Ahmed Ben Salem</div>
+                            </div>
+                            
+                            <div class="notification-banner">
+                                <div class="notification-icon">⏰</div>
+                                <div class="notification-text">Préparez-vous !</div>
+                                <div class="notification-subtext">Votre tour arrive dans ~5 minutes</div>
+                            </div>
+                            
+                            <div class="position-card">
+                                <div class="position-label">Votre position</div>
+                                <div class="position-number" style="color: var(--accent);">2<span class="position-suffix">ème</span></div>
+                                <div class="wait-estimate">
+                                    <div class="wait-label">Temps restant estimé</div>
+                                    <div class="wait-time">≈ 5-10 minutes</div>
+                                </div>
+                            </div>
+                            
+                            <div class="progress-section">
+                                <div class="progress-item done">
+                                    <div class="progress-dot">✓</div>
+                                    <div class="progress-text">Enregistrement effectué</div>
+                                </div>
+                                <div class="progress-item done">
+                                    <div class="progress-dot">✓</div>
+                                    <div class="progress-text">1 patient avant vous</div>
+                                </div>
+                                <div class="progress-item active">
+                                    <div class="progress-dot">!</div>
+                                    <div class="progress-text">Veuillez vous rapprocher</div>
+                                </div>
+                            </div>
+                            
+                            <div style="padding: 1rem; text-align: center; color: var(--gray-500); font-size: 0.85rem;">
+                                📍 Merci de rester à proximité du cabinet
+                            </div>
+                        </div>
+                    </div>
+                    <div class="screen-label">Alerte proche</div>
+                    <div class="screen-description">2 patients restants</div>
+                </div>
+                
+                <!-- Your Turn -->
+                <div>
+                    <div class="phone-frame">
+                        <div class="phone-screen">
+                            <div class="phone-notch"></div>
+                            <div class="patient-header" style="background: linear-gradient(135deg, var(--success) 0%, #059669 100%);">
+                                <div class="patient-clinic">Cabinet Médical</div>
+                                <div class="patient-doctor">Dr. Ahmed Ben Salem</div>
+                            </div>
+                            
+                            <div class="notification-banner success" style="margin-top: 2rem;">
+                                <div class="notification-icon">🎉</div>
+                                <div class="notification-text">C'est votre tour !</div>
+                                <div class="notification-subtext">Veuillez vous présenter à l'accueil</div>
+                            </div>
+                            
+                            <div class="position-card">
+                                <div class="position-label">Statut</div>
+                                <div class="position-number" style="color: var(--success); font-size: 2.5rem;">Maintenant</div>
+                                <div class="wait-estimate">
+                                    <div class="wait-label">Le docteur vous attend</div>
+                                    <div class="wait-time">Salle 1</div>
+                                </div>
+                            </div>
+                            
+                            <div style="padding: 1rem;">
+                                <div style="background: var(--gray-50); border-radius: 12px; padding: 1rem; text-align: center;">
+                                    <div style="font-size: 0.85rem; color: var(--gray-500); margin-bottom: 0.5rem;">Temps d'attente total</div>
+                                    <div style="font-size: 1.5rem; font-weight: 600; color: var(--gray-800);">32 minutes</div>
+                                </div>
+                            </div>
+                            
+                            <div style="padding: 0 1rem;">
+                                <button class="btn btn-success btn-block btn-lg">
+                                    ✓ J'arrive
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="screen-label">C'est votre tour !</div>
+                    <div class="screen-description">Le patient est appelé</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Check-in Flow -->
+        <div id="checkin-section" class="wireframe-container">
+            <div class="section-header">
+                <h1>Complete Patient Journey Flow</h1>
+                <p>Multiple check-in methods with smart notification routing</p>
+            </div>
+
+            <!-- Journey Flow Diagram -->
+            <div class="flow-container" style="margin-bottom: 3rem;">
+                <div class="flow-title">Patient Journey: Check-in to Consultation</div>
+
+                <div style="background: white; border-radius: var(--radius); padding: 2rem; margin-top: 2rem;">
+                    <!-- Step 1: Arrival -->
+                    <div style="text-align: center; margin-bottom: 2rem;">
+                        <div style="display: inline-block; background: var(--gray-800); color: white; padding: 1rem 2rem; border-radius: 12px; font-weight: 600; font-size: 1.1rem;">
+                            1️⃣ PATIENT ARRIVES AT CLINIC
+                        </div>
+                    </div>
+
+                    <!-- Arrow Down -->
+                    <div style="text-align: center; margin: 1rem 0;">
+                        <div style="font-size: 2rem; color: var(--gray-300);">↓</div>
+                    </div>
+
+                    <!-- Step 2: Check-in Methods -->
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 2rem;">
+                        <!-- QR Code Method -->
+                        <div style="background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%); border: 2px solid #3B82F6; border-radius: 12px; padding: 1.5rem;">
+                            <div style="text-align: center; margin-bottom: 1rem;">
+                                <div style="width: 60px; height: 60px; background: #3B82F6; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.8rem; margin: 0 auto;">📱</div>
+                            </div>
+                            <div style="font-weight: 600; text-align: center; color: #1E40AF; margin-bottom: 0.5rem; font-size: 1rem;">QR CODE SCAN</div>
+                            <div style="font-size: 0.85rem; color: #64748B; text-align: center; line-height: 1.4;">
+                                Patient scans QR code<br>
+                                Enters phone number<br>
+                                Submits form
+                            </div>
+                            <div style="margin-top: 1rem; padding: 0.75rem; background: white; border-radius: 8px; text-align: center;">
+                                <div style="font-size: 0.75rem; color: #64748B; margin-bottom: 0.25rem;">checkInMethod:</div>
+                                <div style="font-weight: 600; color: #3B82F6; font-size: 0.9rem;">QR_CODE</div>
+                            </div>
+                        </div>
+
+                        <!-- WhatsApp Method -->
+                        <div style="background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%); border: 2px solid #10B981; border-radius: 12px; padding: 1.5rem;">
+                            <div style="text-align: center; margin-bottom: 1rem;">
+                                <div style="width: 60px; height: 60px; background: #10B981; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.8rem; margin: 0 auto;">💬</div>
+                            </div>
+                            <div style="font-weight: 600; text-align: center; color: #065F46; margin-bottom: 0.5rem; font-size: 1rem;">WHATSAPP</div>
+                            <div style="font-size: 0.85rem; color: #64748B; text-align: center; line-height: 1.4;">
+                                Patient sends WhatsApp<br>
+                                Types "ARRIVER"<br>
+                                Bot confirms
+                            </div>
+                            <div style="margin-top: 1rem; padding: 0.75rem; background: white; border-radius: 8px; text-align: center;">
+                                <div style="font-size: 0.75rem; color: #64748B; margin-bottom: 0.25rem;">checkInMethod:</div>
+                                <div style="font-weight: 600; color: #10B981; font-size: 0.9rem;">WHATSAPP</div>
+                            </div>
+                        </div>
+
+                        <!-- Manual Method -->
+                        <div style="background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%); border: 2px solid #F59E0B; border-radius: 12px; padding: 1.5rem;">
+                            <div style="text-align: center; margin-bottom: 1rem;">
+                                <div style="width: 60px; height: 60px; background: #F59E0B; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.8rem; margin: 0 auto;">👤</div>
+                            </div>
+                            <div style="font-weight: 600; text-align: center; color: #92400E; margin-bottom: 0.5rem; font-size: 1rem;">RECEPTIONIST</div>
+                            <div style="font-size: 0.85rem; color: #64748B; text-align: center; line-height: 1.4;">
+                                Receptionist adds<br>
+                                Enters phone + name<br>
+                                Clicks "Ajouter"
+                            </div>
+                            <div style="margin-top: 1rem; padding: 0.75rem; background: white; border-radius: 8px; text-align: center;">
+                                <div style="font-size: 0.75rem; color: #64748B; margin-bottom: 0.25rem;">checkInMethod:</div>
+                                <div style="font-weight: 600; color: #F59E0B; font-size: 0.9rem;">MANUAL</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Arrow Down -->
+                    <div style="text-align: center; margin: 1rem 0;">
+                        <div style="font-size: 2rem; color: var(--gray-300);">↓</div>
+                    </div>
+
+                    <!-- Step 3: Queue Entry Created -->
+                    <div style="text-align: center; margin-bottom: 2rem;">
+                        <div style="display: inline-block; background: var(--primary); color: white; padding: 1.5rem 2rem; border-radius: 12px; max-width: 700px;">
+                            <div style="font-weight: 600; font-size: 1.1rem; margin-bottom: 0.75rem;">2️⃣ ADDED TO QUEUE - Position #5</div>
+                            <div style="font-size: 0.9rem; opacity: 0.95; line-height: 1.5;">
+                                Notification sent immediately with link based on check-in method ↓
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notification Routing -->
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 2rem;">
+                        <!-- SMS for QR -->
+                        <div style="background: #F8FAFC; border: 2px dashed #3B82F6; border-radius: 12px; padding: 1.5rem;">
+                            <div style="text-align: center; margin-bottom: 1rem;">
+                                <div style="font-size: 2.5rem;">📱</div>
+                            </div>
+                            <div style="font-weight: 600; text-align: center; color: #3B82F6; margin-bottom: 0.75rem;">SMS SENT</div>
+                            <div style="background: white; padding: 1rem; border-radius: 8px; font-size: 0.8rem; color: var(--gray-700); line-height: 1.5; border: 1px solid #E2E8F0;">
+                                "Dr. Ahmed - Vous êtes #5 dans la file. Attente: ~35min. Suivi: https://q.doctorq.tn/abc123"
+                            </div>
+                            <div style="margin-top: 0.75rem; text-align: center; font-size: 0.75rem; color: #64748B;">
+                                → Sent to patient's phone
+                            </div>
+                        </div>
+
+                        <!-- WhatsApp for WhatsApp -->
+                        <div style="background: #F8FAFC; border: 2px dashed #10B981; border-radius: 12px; padding: 1.5rem;">
+                            <div style="text-align: center; margin-bottom: 1rem;">
+                                <div style="font-size: 2.5rem;">💬</div>
+                            </div>
+                            <div style="font-weight: 600; text-align: center; color: #10B981; margin-bottom: 0.75rem;">WHATSAPP SENT</div>
+                            <div style="background: #DCF8C6; padding: 1rem; border-radius: 8px; font-size: 0.8rem; color: var(--gray-700); line-height: 1.5; border: 1px solid #10B981;">
+                                "✅ Vous êtes #5 dans la file. Attente: ~35min. 🔗 https://q.doctorq.tn/abc123"
+                            </div>
+                            <div style="margin-top: 0.75rem; text-align: center; font-size: 0.75rem; color: #64748B;">
+                                → Same conversation thread
+                            </div>
+                        </div>
+
+                        <!-- SMS for Manual -->
+                        <div style="background: #F8FAFC; border: 2px dashed #F59E0B; border-radius: 12px; padding: 1.5rem;">
+                            <div style="text-align: center; margin-bottom: 1rem;">
+                                <div style="font-size: 2.5rem;">📱</div>
+                            </div>
+                            <div style="font-weight: 600; text-align: center; color: #F59E0B; margin-bottom: 0.75rem;">SMS SENT</div>
+                            <div style="background: white; padding: 1rem; border-radius: 8px; font-size: 0.8rem; color: var(--gray-700); line-height: 1.5; border: 1px solid #E2E8F0;">
+                                "Dr. Ahmed - Vous êtes #5 dans la file. Attente: ~35min. Suivi: https://q.doctorq.tn/abc123"
+                            </div>
+                            <div style="margin-top: 0.75rem; text-align: center; font-size: 0.75rem; color: #64748B;">
+                                → Sent to entered phone
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Arrow Down -->
+                    <div style="text-align: center; margin: 1rem 0;">
+                        <div style="font-size: 2rem; color: var(--gray-300);">↓</div>
+                    </div>
+
+                    <!-- Step 4: Patient Waits -->
+                    <div style="background: linear-gradient(135deg, #F1F5F9 0%, #E2E8F0 100%); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem;">
+                        <div style="text-align: center;">
+                            <div style="font-weight: 600; font-size: 1.1rem; color: var(--gray-800); margin-bottom: 1rem;">3️⃣ PATIENT WAITS (Can leave clinic)</div>
+                            <div style="display: flex; justify-content: center; gap: 2rem; align-items: center;">
+                                <div>
+                                    <div style="font-size: 0.85rem; color: var(--gray-600);">Opens link:</div>
+                                    <div style="font-weight: 600; color: var(--primary);">https://q.doctorq.tn/abc123</div>
+                                </div>
+                                <div style="font-size: 2rem; color: var(--gray-300);">→</div>
+                                <div>
+                                    <div style="font-size: 0.85rem; color: var(--gray-600);">Real-time updates via Socket.io:</div>
+                                    <div style="font-weight: 600; color: var(--gray-800);">Position: #5 → #4 → #3 → #2</div>
+                                </div>
+                                <div style="font-size: 2rem; color: var(--gray-300);">→</div>
+                                <div>
+                                    <div style="font-size: 0.85rem; color: var(--gray-600);">Wait estimate:</div>
+                                    <div style="font-weight: 600; color: var(--gray-800);">45min → 30min → 15min</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Arrow Down -->
+                    <div style="text-align: center; margin: 1rem 0;">
+                        <div style="font-size: 2rem; color: var(--gray-300);">↓</div>
+                    </div>
+
+                    <!-- Step 5: Almost Turn -->
+                    <div style="background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%); border: 2px solid var(--accent); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem;">
+                        <div style="text-align: center; margin-bottom: 1.5rem;">
+                            <div style="font-weight: 600; font-size: 1.1rem; color: #92400E; margin-bottom: 0.5rem;">4️⃣ ALMOST YOUR TURN - Position #2</div>
+                            <div style="font-size: 0.9rem; color: #78350F;">Auto notification sent via SAME channel as check-in</div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                            <div style="background: white; padding: 1rem; border-radius: 8px; text-align: center;">
+                                <div style="font-size: 0.75rem; color: var(--gray-500); margin-bottom: 0.5rem;">QR Scan →</div>
+                                <div style="font-weight: 600; color: #3B82F6;">📱 SMS</div>
+                                <div style="font-size: 0.8rem; margin-top: 0.5rem; color: var(--gray-700);">"⚠️ Plus que 2 patients!"</div>
+                            </div>
+                            <div style="background: white; padding: 1rem; border-radius: 8px; text-align: center;">
+                                <div style="font-size: 0.75rem; color: var(--gray-500); margin-bottom: 0.5rem;">WhatsApp →</div>
+                                <div style="font-weight: 600; color: #10B981;">💬 WhatsApp</div>
+                                <div style="font-size: 0.8rem; margin-top: 0.5rem; color: var(--gray-700);">"⚠️ Plus que 2 patients!"</div>
+                            </div>
+                            <div style="background: white; padding: 1rem; border-radius: 8px; text-align: center;">
+                                <div style="font-size: 0.75rem; color: var(--gray-500); margin-bottom: 0.5rem;">Receptionist →</div>
+                                <div style="font-weight: 600; color: #F59E0B;">📱 SMS</div>
+                                <div style="font-size: 0.8rem; margin-top: 0.5rem; color: var(--gray-700);">"⚠️ Plus que 2 patients!"</div>
+                            </div>
+                        </div>
+                        <div style="text-align: center; margin-top: 1rem; font-size: 0.85rem; color: #78350F;">
+                            → Status page turns ORANGE • Patient returns to clinic area
+                        </div>
+                    </div>
+
+                    <!-- Arrow Down -->
+                    <div style="text-align: center; margin: 1rem 0;">
+                        <div style="font-size: 2rem; color: var(--gray-300);">↓</div>
+                    </div>
+
+                    <!-- Step 6: Your Turn -->
+                    <div style="background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%); border: 2px solid var(--success); border-radius: 12px; padding: 1.5rem;">
+                        <div style="text-align: center; margin-bottom: 1.5rem;">
+                            <div style="font-weight: 600; font-size: 1.1rem; color: #065F46; margin-bottom: 0.5rem;">5️⃣ YOUR TURN! - Doctor calls next patient</div>
+                            <div style="font-size: 0.9rem; color: #047857;">Auto notification sent via SAME channel as check-in</div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                            <div style="background: white; padding: 1rem; border-radius: 8px; text-align: center;">
+                                <div style="font-size: 0.75rem; color: var(--gray-500); margin-bottom: 0.5rem;">QR Scan →</div>
+                                <div style="font-weight: 600; color: #3B82F6;">📱 SMS</div>
+                                <div style="font-size: 0.8rem; margin-top: 0.5rem; color: var(--gray-700);">"🎉 C'EST VOTRE TOUR!"</div>
+                            </div>
+                            <div style="background: white; padding: 1rem; border-radius: 8px; text-align: center;">
+                                <div style="font-size: 0.75rem; color: var(--gray-500); margin-bottom: 0.5rem;">WhatsApp →</div>
+                                <div style="font-weight: 600; color: #10B981;">💬 WhatsApp</div>
+                                <div style="font-size: 0.8rem; margin-top: 0.5rem; color: var(--gray-700);">"🎉 C'EST VOTRE TOUR!"</div>
+                            </div>
+                            <div style="background: white; padding: 1rem; border-radius: 8px; text-align: center;">
+                                <div style="font-size: 0.75rem; color: var(--gray-500); margin-bottom: 0.5rem;">Receptionist →</div>
+                                <div style="font-weight: 600; color: #F59E0B;">📱 SMS</div>
+                                <div style="font-size: 0.8rem; margin-top: 0.5rem; color: var(--gray-700);">"🎉 C'EST VOTRE TOUR!"</div>
+                            </div>
+                        </div>
+                        <div style="text-align: center; margin-top: 1rem; font-size: 0.85rem; color: #047857;">
+                            → Status page turns GREEN • Shows "Maintenant" • Patient goes to consultation room
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Key Principles -->
+                <div style="background: white; border-radius: var(--radius); padding: 2rem; margin-top: 2rem; border: 2px solid var(--primary);">
+                    <div style="font-weight: 600; font-size: 1.2rem; color: var(--gray-800); margin-bottom: 1.5rem; text-align: center;">
+                        🎯 Key Implementation Principles
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🔄</div>
+                            <div style="font-weight: 600; color: var(--gray-800); margin-bottom: 0.5rem;">Consistent Channel</div>
+                            <div style="font-size: 0.85rem; color: var(--gray-600);">All notifications use the same channel the patient checked in with</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 2rem; margin-bottom: 0.5rem;">💾</div>
+                            <div style="font-weight: 600; color: var(--gray-800); margin-bottom: 0.5rem;">Database Tracking</div>
+                            <div style="font-size: 0.85rem; color: var(--gray-600);">checkInMethod stored at queue entry creation time</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 2rem; margin-bottom: 0.5rem;">💰</div>
+                            <div style="font-weight: 600; color: var(--gray-800); margin-bottom: 0.5rem;">Cost Optimization</div>
+                            <div style="font-size: 0.85rem; color: var(--gray-600);">WhatsApp users don't consume SMS credits</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="screens-grid">
+                <!-- QR Scan -->
+                <div>
+                    <div class="phone-frame">
+                        <div class="phone-screen">
+                            <div class="phone-notch"></div>
+                            <div class="checkin-screen">
+                                <div class="checkin-header">
+                                    <div class="checkin-logo">Q</div>
+                                    <div class="checkin-title">Bienvenue</div>
+                                    <div class="checkin-subtitle">Cabinet Dr. Ahmed Ben Salem</div>
+                                </div>
+                                
+                                <div class="qr-section">
+                                    <div class="qr-code">
+                                        [QR CODE]<br>Scan to join
+                                    </div>
+                                    <div class="qr-instruction">
+                                        Scannez ce code avec votre téléphone<br>pour rejoindre la file d'attente
+                                    </div>
+                                </div>
+                                
+                                <div class="divider">
+                                    <div class="divider-line"></div>
+                                    <div class="divider-text">ou</div>
+                                    <div class="divider-line"></div>
+                                </div>
+                                
+                                <div class="input-group">
+                                    <label class="input-label">Votre numéro de téléphone</label>
+                                    <input type="tel" class="input-field" placeholder="+216 XX XXX XXX">
+                                </div>
+                                
+                                <div class="input-group">
+                                    <label class="input-label">Votre nom (optionnel)</label>
+                                    <input type="text" class="input-field" placeholder="Prénom Nom">
+                                </div>
+                                
+                                <button class="btn btn-primary btn-block">
+                                    Rejoindre la file →
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="screen-label">Check-in Screen</div>
+                    <div class="screen-description">QR code ou saisie manuelle</div>
+                </div>
+                
+                <!-- WhatsApp Flow -->
+                <div>
+                    <div class="phone-frame">
+                        <div class="phone-screen" style="background: #E5DDD5;">
+                            <div class="phone-notch"></div>
+                            <div style="background: #075E54; color: white; padding: 1rem; display: flex; align-items: center; gap: 0.75rem;">
+                                <div style="width: 40px; height: 40px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                    <span style="color: #075E54; font-weight: bold;">Q</span>
+                                </div>
+                                <div>
+                                    <div style="font-weight: 600;">Dr. Ahmed - File d'attente</div>
+                                    <div style="font-size: 0.75rem; opacity: 0.8;">en ligne</div>
+                                </div>
+                            </div>
+                            
+                            <div style="padding: 1rem; min-height: 400px;">
+                                <div style="background: white; padding: 0.75rem; border-radius: 0 10px 10px 10px; margin-bottom: 0.5rem; max-width: 80%; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">
+                                    <div style="font-size: 0.9rem;">👋 Bienvenue au cabinet du Dr. Ahmed!</div>
+                                    <div style="font-size: 0.9rem; margin-top: 0.5rem;">Envoyez <strong>ARRIVER</strong> pour rejoindre la file d'attente.</div>
+                                    <div style="font-size: 0.65rem; color: var(--gray-400); text-align: right; margin-top: 0.25rem;">09:30</div>
+                                </div>
+                                
+                                <div style="background: #DCF8C6; padding: 0.75rem; border-radius: 10px 0 10px 10px; margin-bottom: 0.5rem; max-width: 60%; margin-left: auto; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">
+                                    <div style="font-size: 0.9rem;">ARRIVER</div>
+                                    <div style="font-size: 0.65rem; color: var(--gray-400); text-align: right; margin-top: 0.25rem;">09:31 ✓✓</div>
+                                </div>
+                                
+                                <div style="background: white; padding: 0.75rem; border-radius: 0 10px 10px 10px; margin-bottom: 0.5rem; max-width: 85%; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">
+                                    <div style="font-size: 0.9rem;">✅ Vous êtes enregistré !</div>
+                                    <div style="font-size: 0.9rem; margin-top: 0.5rem;">📍 Position : <strong>#5</strong></div>
+                                    <div style="font-size: 0.9rem;">⏱️ Attente estimée : <strong>~35 min</strong></div>
+                                    <div style="font-size: 0.85rem; margin-top: 0.5rem; color: var(--gray-500);">Nous vous préviendrons quand ce sera votre tour.</div>
+                                    <div style="font-size: 0.65rem; color: var(--gray-400); text-align: right; margin-top: 0.25rem;">09:31</div>
+                                </div>
+                                
+                                <div style="background: white; padding: 0.75rem; border-radius: 0 10px 10px 10px; max-width: 85%; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">
+                                    <div style="font-size: 0.9rem;">⏰ <strong>RAPPEL</strong>: Plus que 2 patients avant vous!</div>
+                                    <div style="font-size: 0.85rem; margin-top: 0.25rem; color: var(--gray-500);">Merci de vous rapprocher du cabinet.</div>
+                                    <div style="font-size: 0.65rem; color: var(--gray-400); text-align: right; margin-top: 0.25rem;">10:05</div>
+                                </div>
+                            </div>
+                            
+                            <div style="background: #F0F0F0; padding: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <input type="text" placeholder="Tapez un message" style="flex: 1; padding: 0.75rem; border-radius: 20px; border: none; font-size: 0.9rem;">
+                                <div style="width: 40px; height: 40px; background: #075E54; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">📤</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="screen-label">WhatsApp Flow</div>
+                    <div class="screen-description">Interaction via WhatsApp Business</div>
+                </div>
+                
+                <!-- SMS Flow -->
+                <div>
+                    <div class="phone-frame">
+                        <div class="phone-screen" style="background: var(--gray-100);">
+                            <div class="phone-notch"></div>
+                            <div style="background: var(--gray-200); padding: 1rem; text-align: center;">
+                                <div style="font-weight: 600; color: var(--gray-800);">Messages</div>
+                            </div>
+                            
+                            <div style="padding: 1rem;">
+                                <div style="text-align: center; color: var(--gray-500); font-size: 0.8rem; margin-bottom: 1rem;">
+                                    Aujourd'hui
+                                </div>
+                                
+                                <div style="background: #007AFF; color: white; padding: 0.75rem 1rem; border-radius: 18px 18px 4px 18px; margin-bottom: 0.5rem; max-width: 70%; margin-left: auto;">
+                                    <div style="font-size: 0.9rem;">QUEUE</div>
+                                </div>
+                                
+                                <div style="background: var(--gray-200); padding: 0.75rem 1rem; border-radius: 18px 18px 18px 4px; margin-bottom: 0.5rem; max-width: 85%;">
+                                    <div style="font-size: 0.9rem; color: var(--gray-800);">
+                                        Dr. Ahmed - Vous êtes #5 dans la file.
+                                        Attente estimée: ~35min.
+                                        Répondez STATUT pour mise à jour.
+                                    </div>
+                                </div>
+                                
+                                <div style="text-align: center; color: var(--gray-400); font-size: 0.75rem; margin: 1rem 0;">
+                                    34 minutes plus tard
+                                </div>
+                                
+                                <div style="background: var(--gray-200); padding: 0.75rem 1rem; border-radius: 18px 18px 18px 4px; margin-bottom: 0.5rem; max-width: 85%;">
+                                    <div style="font-size: 0.9rem; color: var(--gray-800);">
+                                        ⚠️ Dr. Ahmed - Plus que 2 patients!
+                                        Merci de vous rapprocher.
+                                    </div>
+                                </div>
+                                
+                                <div style="background: var(--gray-200); padding: 0.75rem 1rem; border-radius: 18px 18px 18px 4px; max-width: 85%;">
+                                    <div style="font-size: 0.9rem; color: var(--gray-800);">
+                                        🎉 Dr. Ahmed - C'EST VOTRE TOUR!
+                                        Présentez-vous à l'accueil.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="screen-label">SMS Fallback</div>
+                    <div class="screen-description">Pour les téléphones sans WhatsApp</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Desktop Dashboard -->
+        <div id="desktop-section" class="wireframe-container">
+            <div class="section-header">
+                <h1>Desktop Dashboard</h1>
+                <p>Full queue management for larger practices</p>
+            </div>
+            
+            <div class="desktop-frame">
+                <div class="desktop-header">
+                    <div class="window-dots">
+                        <div class="window-dot red"></div>
+                        <div class="window-dot yellow"></div>
+                        <div class="window-dot green"></div>
+                    </div>
+                    <span style="color: var(--gray-500); font-size: 0.85rem; margin-left: 1rem;">DoctorQ Dashboard - Cabinet Dr. Ahmed</span>
+                </div>
+                <div class="desktop-content">
+                    <div class="dashboard-layout">
+                        <div class="dashboard-sidebar">
+                            <div class="sidebar-logo">
+                                <div style="width: 32px; height: 32px; background: var(--primary); border-radius: 8px; display: flex; align-items: center; justify-content: center;">Q</div>
+                                DoctorQ
+                            </div>
+                            <ul class="sidebar-nav">
+                                <li class="sidebar-item active">📋 File d'attente</li>
+                                <li class="sidebar-item">📊 Statistiques</li>
+                                <li class="sidebar-item">⚙️ Paramètres</li>
+                                <li class="sidebar-item">📱 QR Code</li>
+                                <li class="sidebar-item">❓ Aide</li>
+                            </ul>
+                            <div style="margin-top: auto; padding-top: 2rem;">
+                                <div style="padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 10px;">
+                                    <div style="font-size: 0.8rem; opacity: 0.8;">Plan Actuel</div>
+                                    <div style="font-weight: 600;">Standard</div>
+                                    <div style="font-size: 0.75rem; margin-top: 0.25rem;">50 TND/mois</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="dashboard-main">
+                            <div class="dashboard-header">
+                                <div>
+                                    <div class="dashboard-title">File d'attente</div>
+                                    <div class="dashboard-date">Mardi 14 Janvier 2026 • 10:45</div>
+                                </div>
+                                <button class="btn btn-primary">+ Ajouter patient</button>
+                            </div>
+                            
+                            <div class="dashboard-stats">
+                                <div class="dashboard-stat">
+                                    <div class="dashboard-stat-label">En attente</div>
+                                    <div class="dashboard-stat-value">12</div>
+                                </div>
+                                <div class="dashboard-stat">
+                                    <div class="dashboard-stat-label">Vus aujourd'hui</div>
+                                    <div class="dashboard-stat-value">8</div>
+                                    <div class="dashboard-stat-change">↑ vs hier</div>
+                                </div>
+                                <div class="dashboard-stat">
+                                    <div class="dashboard-stat-label">Attente moyenne</div>
+                                    <div class="dashboard-stat-value">42m</div>
+                                </div>
+                                <div class="dashboard-stat">
+                                    <div class="dashboard-stat-label">No-shows</div>
+                                    <div class="dashboard-stat-value">1</div>
+                                </div>
+                            </div>
+                            
+                            <div class="queue-table">
+                                <div class="queue-table-header">
+                                    <div>#</div>
+                                    <div>Patient</div>
+                                    <div>Arrivée</div>
+                                    <div>Statut</div>
+                                    <div>Actions</div>
+                                </div>
+                                <div class="queue-table-row current">
+                                    <div><div class="row-number">1</div></div>
+                                    <div>
+                                        <div class="row-patient">Fatma Ben Ali</div>
+                                        <div class="row-phone">+216 98 XXX XXX</div>
+                                    </div>
+                                    <div>09:15</div>
+                                    <div><span class="status-badge status-current">En cours</span></div>
+                                    <div class="row-actions">
+                                        <button class="action-btn call" title="Terminer">✓</button>
+                                    </div>
+                                </div>
+                                <div class="queue-table-row">
+                                    <div><div class="row-number">2</div></div>
+                                    <div>
+                                        <div class="row-patient">Mohamed Trabelsi</div>
+                                        <div class="row-phone">+216 55 XXX XXX</div>
+                                    </div>
+                                    <div>09:22</div>
+                                    <div><span class="status-badge status-notified">Notifié</span></div>
+                                    <div class="row-actions">
+                                        <button class="action-btn notify" title="Re-notifier">🔔</button>
+                                        <button class="action-btn call" title="Appeler">→</button>
+                                    </div>
+                                </div>
+                                <div class="queue-table-row">
+                                    <div><div class="row-number">3</div></div>
+                                    <div>
+                                        <div class="row-patient">Sonia Khelifi</div>
+                                        <div class="row-phone">+216 22 XXX XXX</div>
+                                    </div>
+                                    <div>09:35</div>
+                                    <div><span class="status-badge status-waiting">En attente</span></div>
+                                    <div class="row-actions">
+                                        <button class="action-btn notify" title="Notifier">🔔</button>
+                                    </div>
+                                </div>
+                                <div class="queue-table-row">
+                                    <div><div class="row-number">4</div></div>
+                                    <div>
+                                        <div class="row-patient">Karim Jaziri</div>
+                                        <div class="row-phone">+216 99 XXX XXX</div>
+                                    </div>
+                                    <div>09:41</div>
+                                    <div><span class="status-badge status-waiting">En attente</span></div>
+                                    <div class="row-actions">
+                                        <button class="action-btn notify" title="Notifier">🔔</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Specifications -->
+        <div id="specs-section" class="wireframe-container">
+            <div class="section-header">
+                <h1>MVP Feature Specifications</h1>
+                <p>Prioritized feature list for first release</p>
+            </div>
+            
+            <div class="info-grid">
+                <div class="spec-section">
+                    <div class="spec-title">🎯 MVP Core Features (Must Have)</div>
+                    <ul class="spec-list">
+                        <li class="spec-item">
+                            <span class="spec-check">✓</span>
+                            <span class="spec-text">Real-time queue display (position + estimated wait)</span>
+                            <span class="spec-priority priority-must">P0</span>
+                        </li>
+                        <li class="spec-item">
+                            <span class="spec-check">✓</span>
+                            <span class="spec-text">Patient check-in via QR code scan</span>
+                            <span class="spec-priority priority-must">P0</span>
+                        </li>
+                        <li class="spec-item">
+                            <span class="spec-check">✓</span>
+                            <span class="spec-text">SMS notifications (join queue + your turn)</span>
+                            <span class="spec-priority priority-must">P0</span>
+                        </li>
+                        <li class="spec-item">
+                            <span class="spec-check">✓</span>
+                            <span class="spec-text">One-button "Call Next Patient"</span>
+                            <span class="spec-priority priority-must">P0</span>
+                        </li>
+                        <li class="spec-item">
+                            <span class="spec-check">✓</span>
+                            <span class="spec-text">Manual patient add by receptionist</span>
+                            <span class="spec-priority priority-must">P0</span>
+                        </li>
+                        <li class="spec-item">
+                            <span class="spec-check">✓</span>
+                            <span class="spec-text">Arabic + French language support</span>
+                            <span class="spec-priority priority-must">P0</span>
+                        </li>
+                        <li class="spec-item">
+                            <span class="spec-check">✓</span>
+                            <span class="spec-text">Mobile-responsive web app (no app store)</span>
+                            <span class="spec-priority priority-must">P0</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="spec-section">
+                    <div class="spec-title">📱 Should Have (V1.1)</div>
+                    <ul class="spec-list">
+                        <li class="spec-item">
+                            <span class="spec-check">○</span>
+                            <span class="spec-text">WhatsApp Business API integration</span>
+                            <span class="spec-priority priority-should">P1</span>
+                        </li>
+                        <li class="spec-item">
+                            <span class="spec-check">○</span>
+                            <span class="spec-text">"2 patients away" auto-notification</span>
+                            <span class="spec-priority priority-should">P1</span>
+                        </li>
+                        <li class="spec-item">
+                            <span class="spec-check">○</span>
+                            <span class="spec-text">Basic analytics (patients/day, avg wait)</span>
+                            <span class="spec-priority priority-should">P1</span>
+                        </li>
+                        <li class="spec-item">
+                            <span class="spec-check">○</span>
+                            <span class="spec-text">Printable QR code poster</span>
+                            <span class="spec-priority priority-should">P1</span>
+                        </li>
+                        <li class="spec-item">
+                            <span class="spec-check">○</span>
+                            <span class="spec-text">Patient "I'm on my way" button</span>
+                            <span class="spec-priority priority-should">P1</span>
+                        </li>
+                        <li class="spec-item">
+                            <span class="spec-check">○</span>
+                            <span class="spec-text">No-show tracking</span>
+                            <span class="spec-priority priority-should">P1</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="spec-section">
+                    <div class="spec-title">✨ Nice to Have (Future)</div>
+                    <ul class="spec-list">
+                        <li class="spec-item">
+                            <span class="spec-check">○</span>
+                            <span class="spec-text">Predictive wait time (ML-based)</span>
+                            <span class="spec-priority priority-nice">P2</span>
+                        </li>
+                        <li class="spec-item">
+                            <span class="spec-check">○</span>
+                            <span class="spec-text">Waiting room TV display mode</span>
+                            <span class="spec-priority priority-nice">P2</span>
+                        </li>
+                        <li class="spec-item">
+                            <span class="spec-check">○</span>
+                            <span class="spec-text">Patient feedback after visit</span>
+                            <span class="spec-priority priority-nice">P2</span>
+                        </li>
+                        <li class="spec-item">
+                            <span class="spec-check">○</span>
+                            <span class="spec-text">Multi-doctor / clinic support</span>
+                            <span class="spec-priority priority-nice">P2</span>
+                        </li>
+                        <li class="spec-item">
+                            <span class="spec-check">○</span>
+                            <span class="spec-text">Online appointment booking</span>
+                            <span class="spec-priority priority-nice">P2</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="spec-section">
+                    <div class="spec-title">🚫 NOT in MVP</div>
+                    <ul class="spec-list">
+                        <li class="spec-item">
+                            <span class="spec-check" style="color: var(--danger);">✗</span>
+                            <span class="spec-text">Patient medical records</span>
+                        </li>
+                        <li class="spec-item">
+                            <span class="spec-check" style="color: var(--danger);">✗</span>
+                            <span class="spec-text">Payment processing</span>
+                        </li>
+                        <li class="spec-item">
+                            <span class="spec-check" style="color: var(--danger);">✗</span>
+                            <span class="spec-text">Teleconsultation / video</span>
+                        </li>
+                        <li class="spec-item">
+                            <span class="spec-check" style="color: var(--danger);">✗</span>
+                            <span class="spec-text">Native mobile apps</span>
+                        </li>
+                        <li class="spec-item">
+                            <span class="spec-check" style="color: var(--danger);">✗</span>
+                            <span class="spec-text">Complex appointment scheduling</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="info-grid" style="margin-top: 1rem;">
+                <div class="info-card">
+                    <div class="info-card-title">
+                        <div class="info-card-icon">⚙️</div>
+                        Tech Stack Recommendation
+                    </div>
+                    <ul style="list-style: none; font-size: 0.9rem; color: var(--gray-600);">
+                        <li style="padding: 0.4rem 0;"><strong>Frontend:</strong> React + Tailwind (PWA)</li>
+                        <li style="padding: 0.4rem 0;"><strong>Backend:</strong> Node.js + Express or Supabase</li>
+                        <li style="padding: 0.4rem 0;"><strong>Database:</strong> PostgreSQL</li>
+                        <li style="padding: 0.4rem 0;"><strong>Real-time:</strong> Socket.io or Supabase Realtime</li>
+                        <li style="padding: 0.4rem 0;"><strong>SMS:</strong> Twilio or local provider</li>
+                        <li style="padding: 0.4rem 0;"><strong>WhatsApp:</strong> WhatsApp Business API</li>
+                        <li style="padding: 0.4rem 0;"><strong>Hosting:</strong> Vercel + Railway/Render</li>
+                    </ul>
+                </div>
+                
+                <div class="info-card">
+                    <div class="info-card-title">
+                        <div class="info-card-icon">💰</div>
+                        Cost Estimates (Monthly)
+                    </div>
+                    <ul style="list-style: none; font-size: 0.9rem; color: var(--gray-600);">
+                        <li style="padding: 0.4rem 0;"><strong>Hosting:</strong> ~$20/month</li>
+                        <li style="padding: 0.4rem 0;"><strong>SMS (1000/month):</strong> ~$30/month</li>
+                        <li style="padding: 0.4rem 0;"><strong>WhatsApp API:</strong> ~$15/month base</li>
+                        <li style="padding: 0.4rem 0;"><strong>Domain + SSL:</strong> ~$15/year</li>
+                        <li style="padding: 0.4rem 0; border-top: 1px solid var(--gray-200); margin-top: 0.5rem; padding-top: 0.75rem;">
+                            <strong>Total per clinic:</strong> ~$65/month costs
+                        </li>
+                        <li style="padding: 0.4rem 0; color: var(--success);">
+                            <strong>Revenue at 50 TND:</strong> ~$16/clinic
+                        </li>
+                        <li style="padding: 0.4rem 0; color: var(--danger);">
+                            <strong>Break-even:</strong> ~5 clinics minimum
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="info-card">
+                    <div class="info-card-title">
+                        <div class="info-card-icon">📅</div>
+                        Development Timeline
+                    </div>
+                    <ul style="list-style: none; font-size: 0.9rem; color: var(--gray-600);">
+                        <li style="padding: 0.4rem 0;"><strong>Week 1-2:</strong> Core queue logic + doctor app</li>
+                        <li style="padding: 0.4rem 0;"><strong>Week 3:</strong> Patient check-in + SMS</li>
+                        <li style="padding: 0.4rem 0;"><strong>Week 4:</strong> Arabic support + testing</li>
+                        <li style="padding: 0.4rem 0;"><strong>Week 5:</strong> Pilot with 3 doctors</li>
+                        <li style="padding: 0.4rem 0;"><strong>Week 6-8:</strong> Iterate based on feedback</li>
+                        <li style="padding: 0.4rem 0; border-top: 1px solid var(--gray-200); margin-top: 0.5rem; padding-top: 0.75rem;">
+                            <strong>MVP Ready:</strong> ~8 weeks
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function showSection(section) {
+            // Update tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Update sections
+            document.querySelectorAll('.wireframe-container').forEach(container => {
+                container.classList.remove('active');
+            });
+            document.getElementById(section + '-section').classList.add('active');
+        }
+    </script>
+</body>
+</html>

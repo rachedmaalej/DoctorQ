@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zoom Pulse Intensity Variations - DoctorQ</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  <style>
+    /* ========================================
+       BASE: Scale + Fade Exit Animation
+       ======================================== */
+    @keyframes scale-fade-exit {
+      0% {
+        opacity: 1;
+        transform: scale(1);
+        max-height: 72px;
+      }
+      50% {
+        opacity: 0.5;
+        transform: scale(0.95);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(0.8);
+        max-height: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+      }
+    }
+
+    .exit-scale-fade {
+      animation: scale-fade-exit 400ms ease-in-out forwards;
+      overflow: hidden;
+      transform-origin: center;
+    }
+
+    /* ========================================
+       VARIATION 1: Subtle Zoom Pulse (1.5% scale)
+       Light, barely noticeable - professional
+       ======================================== */
+    @keyframes zoom-pulse-subtle {
+      0% {
+        transform: scale(1) translateY(0);
+      }
+      35% {
+        transform: scale(1.015) translateY(-1px);
+      }
+      70% {
+        transform: scale(1.005) translateY(0);
+      }
+      100% {
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    .queue-1 .shift-zoom-subtle {
+      animation: zoom-pulse-subtle 450ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    .queue-1 .queue-row:nth-child(1).shift-zoom-subtle { animation-delay: 0ms; }
+    .queue-1 .queue-row:nth-child(2).shift-zoom-subtle { animation-delay: 40ms; }
+    .queue-1 .queue-row:nth-child(3).shift-zoom-subtle { animation-delay: 80ms; }
+    .queue-1 .queue-row:nth-child(4).shift-zoom-subtle { animation-delay: 120ms; }
+
+    /* ========================================
+       VARIATION 2: Medium Zoom Pulse (3% scale)
+       Balanced - noticeable but not distracting
+       ======================================== */
+    @keyframes zoom-pulse-medium {
+      0% {
+        transform: scale(1) translateY(0);
+      }
+      30% {
+        transform: scale(1.03) translateY(-2px);
+      }
+      60% {
+        transform: scale(1.01) translateY(-1px);
+      }
+      100% {
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    .queue-2 .shift-zoom-medium {
+      animation: zoom-pulse-medium 500ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    .queue-2 .queue-row:nth-child(1).shift-zoom-medium { animation-delay: 0ms; }
+    .queue-2 .queue-row:nth-child(2).shift-zoom-medium { animation-delay: 50ms; }
+    .queue-2 .queue-row:nth-child(3).shift-zoom-medium { animation-delay: 100ms; }
+    .queue-2 .queue-row:nth-child(4).shift-zoom-medium { animation-delay: 150ms; }
+
+    /* ========================================
+       VARIATION 3: Strong Zoom Pulse (5% scale)
+       Bold, clearly visible - impactful
+       ======================================== */
+    @keyframes zoom-pulse-strong {
+      0% {
+        transform: scale(1) translateY(0);
+      }
+      25% {
+        transform: scale(1.05) translateY(-3px);
+      }
+      50% {
+        transform: scale(1.02) translateY(-1px);
+      }
+      75% {
+        transform: scale(1.01) translateY(0);
+      }
+      100% {
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    .queue-3 .shift-zoom-strong {
+      animation: zoom-pulse-strong 550ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    .queue-3 .queue-row:nth-child(1).shift-zoom-strong { animation-delay: 0ms; }
+    .queue-3 .queue-row:nth-child(2).shift-zoom-strong { animation-delay: 60ms; }
+    .queue-3 .queue-row:nth-child(3).shift-zoom-strong { animation-delay: 120ms; }
+    .queue-3 .queue-row:nth-child(4).shift-zoom-strong { animation-delay: 180ms; }
+
+    /* ========================================
+       BONUS: Extra Strong with Shadow (6% scale + shadow)
+       Maximum impact - dramatic effect
+       ======================================== */
+    @keyframes zoom-pulse-extra {
+      0% {
+        transform: scale(1) translateY(0);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      }
+      20% {
+        transform: scale(1.06) translateY(-4px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+      }
+      45% {
+        transform: scale(1.02) translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      }
+      70% {
+        transform: scale(1.01) translateY(-1px);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+      }
+      100% {
+        transform: scale(1) translateY(0);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      }
+    }
+
+    .queue-4 .shift-zoom-extra {
+      animation: zoom-pulse-extra 600ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    .queue-4 .queue-row:nth-child(1).shift-zoom-extra { animation-delay: 0ms; }
+    .queue-4 .queue-row:nth-child(2).shift-zoom-extra { animation-delay: 70ms; }
+    .queue-4 .queue-row:nth-child(3).shift-zoom-extra { animation-delay: 140ms; }
+    .queue-4 .queue-row:nth-child(4).shift-zoom-extra { animation-delay: 210ms; }
+
+    /* ========================================
+       Common Styles
+       ======================================== */
+    .queue-row {
+      will-change: transform, opacity, box-shadow;
+      transition: background-color 300ms ease;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 200ms;
+      box-shadow: 0 4px 14px rgba(13, 148, 136, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(13, 148, 136, 0.4);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-reset {
+      background: #f3f4f6;
+      color: #374151;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      border: 1px solid #e5e7eb;
+      cursor: pointer;
+      transition: all 150ms;
+    }
+
+    .btn-reset:hover {
+      background: #e5e7eb;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+    }
+
+    .recommendation-badge {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: #78350f;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .intensity-bar {
+      height: 8px;
+      border-radius: 4px;
+      background: #e5e7eb;
+      overflow: hidden;
+    }
+
+    .intensity-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 300ms ease;
+    }
+
+    .intensity-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      background: #f8fafc;
+      border-radius: 10px;
+      margin-bottom: 12px;
+    }
+
+    .scale-indicator {
+      font-family: monospace;
+      font-size: 13px;
+      padding: 4px 8px;
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen py-8">
+  <div class="max-w-6xl mx-auto px-4">
+
+    <!-- Header -->
+    <div class="text-center mb-10">
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">Zoom Pulse Intensity Variations</h1>
+      <p class="text-gray-600">Compare different intensities of the Zoom Pulse effect</p>
+      <p class="text-sm text-gray-500 mt-2">Watch how the scale amount affects the visual feedback</p>
+    </div>
+
+    <!-- Animation Options Grid -->
+    <div class="grid md:grid-cols-2 gap-8">
+
+      <!-- Variation 1: Subtle (1.5%) -->
+      <div class="card">
+        <div class="p-5 border-b border-gray-100">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-lg font-bold text-gray-900">Subtle</h2>
+            <span class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full font-medium">Minimal</span>
+          </div>
+
+          <div class="intensity-label">
+            <span class="text-sm font-medium text-gray-700">Intensity:</span>
+            <div class="intensity-bar flex-1">
+              <div class="intensity-bar-fill bg-gray-400" style="width: 25%"></div>
+            </div>
+            <span class="scale-indicator">1.5%</span>
+          </div>
+
+          <div class="flex items-center gap-2 text-sm text-gray-600">
+            <span class="material-symbols-outlined text-gray-400" style="font-size: 18px;">speed</span>
+            <span>450ms duration • 40ms stagger</span>
+          </div>
+        </div>
+
+        <div class="p-5">
+          <div class="queue-1 space-y-0" id="queue-1">
+            <!-- Queue rows will be generated by JS -->
+          </div>
+
+          <div class="flex gap-3 mt-5">
+            <button class="btn-primary flex-1" id="btn-1" onclick="triggerExit(1, 'shift-zoom-subtle')">
+              <span class="material-symbols-outlined align-middle mr-1" style="font-size: 20px;">directions_walk</span>
+              Call Next
+            </button>
+            <button class="btn-reset" onclick="resetQueue(1)">Reset</button>
+          </div>
+        </div>
+
+        <div class="bg-gray-50 px-5 py-3 border-t border-gray-100">
+          <p class="text-xs text-gray-600">
+            <strong>Best for:</strong> Minimal distraction. Users who prefer understated UI. Professional settings.
+          </p>
+        </div>
+      </div>
+
+      <!-- Variation 2: Medium (3%) - RECOMMENDED -->
+      <div class="card ring-2 ring-amber-400">
+        <div class="p-5 border-b border-gray-100">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-lg font-bold text-gray-900">Medium</h2>
+            <span class="recommendation-badge">Recommended</span>
+          </div>
+
+          <div class="intensity-label">
+            <span class="text-sm font-medium text-gray-700">Intensity:</span>
+            <div class="intensity-bar flex-1">
+              <div class="intensity-bar-fill bg-teal-500" style="width: 50%"></div>
+            </div>
+            <span class="scale-indicator">3%</span>
+          </div>
+
+          <div class="flex items-center gap-2 text-sm text-gray-600">
+            <span class="material-symbols-outlined text-gray-400" style="font-size: 18px;">speed</span>
+            <span>500ms duration • 50ms stagger</span>
+          </div>
+        </div>
+
+        <div class="p-5">
+          <div class="queue-2 space-y-0" id="queue-2">
+            <!-- Queue rows will be generated by JS -->
+          </div>
+
+          <div class="flex gap-3 mt-5">
+            <button class="btn-primary flex-1" id="btn-2" onclick="triggerExit(2, 'shift-zoom-medium')">
+              <span class="material-symbols-outlined align-middle mr-1" style="font-size: 20px;">directions_walk</span>
+              Call Next
+            </button>
+            <button class="btn-reset" onclick="resetQueue(2)">Reset</button>
+          </div>
+        </div>
+
+        <div class="bg-amber-50 px-5 py-3 border-t border-amber-100">
+          <p class="text-xs text-amber-800">
+            <strong>Why recommended:</strong> Perfect balance - noticeable enough to provide feedback, subtle enough not to distract.
+          </p>
+        </div>
+      </div>
+
+      <!-- Variation 3: Strong (5%) -->
+      <div class="card">
+        <div class="p-5 border-b border-gray-100">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-lg font-bold text-gray-900">Strong</h2>
+            <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">Bold</span>
+          </div>
+
+          <div class="intensity-label">
+            <span class="text-sm font-medium text-gray-700">Intensity:</span>
+            <div class="intensity-bar flex-1">
+              <div class="intensity-bar-fill bg-blue-500" style="width: 75%"></div>
+            </div>
+            <span class="scale-indicator">5%</span>
+          </div>
+
+          <div class="flex items-center gap-2 text-sm text-gray-600">
+            <span class="material-symbols-outlined text-gray-400" style="font-size: 18px;">speed</span>
+            <span>550ms duration • 60ms stagger</span>
+          </div>
+        </div>
+
+        <div class="p-5">
+          <div class="queue-3 space-y-0" id="queue-3">
+            <!-- Queue rows will be generated by JS -->
+          </div>
+
+          <div class="flex gap-3 mt-5">
+            <button class="btn-primary flex-1" id="btn-3" onclick="triggerExit(3, 'shift-zoom-strong')">
+              <span class="material-symbols-outlined align-middle mr-1" style="font-size: 20px;">directions_walk</span>
+              Call Next
+            </button>
+            <button class="btn-reset" onclick="resetQueue(3)">Reset</button>
+          </div>
+        </div>
+
+        <div class="bg-gray-50 px-5 py-3 border-t border-gray-100">
+          <p class="text-xs text-gray-600">
+            <strong>Best for:</strong> Clear visual feedback. Users who want obvious confirmation of action.
+          </p>
+        </div>
+      </div>
+
+      <!-- Bonus: Extra Strong (6% + shadow) -->
+      <div class="card">
+        <div class="p-5 border-b border-gray-100">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-lg font-bold text-gray-900">Extra Strong + Shadow</h2>
+            <span class="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full font-medium">Dramatic</span>
+          </div>
+
+          <div class="intensity-label">
+            <span class="text-sm font-medium text-gray-700">Intensity:</span>
+            <div class="intensity-bar flex-1">
+              <div class="intensity-bar-fill bg-purple-500" style="width: 100%"></div>
+            </div>
+            <span class="scale-indicator">6% + shadow</span>
+          </div>
+
+          <div class="flex items-center gap-2 text-sm text-gray-600">
+            <span class="material-symbols-outlined text-gray-400" style="font-size: 18px;">speed</span>
+            <span>600ms duration • 70ms stagger</span>
+          </div>
+        </div>
+
+        <div class="p-5">
+          <div class="queue-4 space-y-0" id="queue-4">
+            <!-- Queue rows will be generated by JS -->
+          </div>
+
+          <div class="flex gap-3 mt-5">
+            <button class="btn-primary flex-1" id="btn-4" onclick="triggerExit(4, 'shift-zoom-extra')">
+              <span class="material-symbols-outlined align-middle mr-1" style="font-size: 20px;">directions_walk</span>
+              Call Next
+            </button>
+            <button class="btn-reset" onclick="resetQueue(4)">Reset</button>
+          </div>
+        </div>
+
+        <div class="bg-gray-50 px-5 py-3 border-t border-gray-100">
+          <p class="text-xs text-gray-600">
+            <strong>Best for:</strong> Maximum impact. Includes shadow lift effect for 3D feel.
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Comparison Summary -->
+    <div class="card mt-10 p-6">
+      <h2 class="text-xl font-bold text-gray-900 mb-4">Intensity Comparison</h2>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-gray-200">
+              <th class="text-left py-3 px-4 font-semibold text-gray-700">Variation</th>
+              <th class="text-left py-3 px-4 font-semibold text-gray-700">Scale</th>
+              <th class="text-left py-3 px-4 font-semibold text-gray-700">Lift (Y)</th>
+              <th class="text-left py-3 px-4 font-semibold text-gray-700">Duration</th>
+              <th class="text-left py-3 px-4 font-semibold text-gray-700">Extra</th>
+              <th class="text-left py-3 px-4 font-semibold text-gray-700">Feel</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b border-gray-100">
+              <td class="py-3 px-4 font-medium">Subtle</td>
+              <td class="py-3 px-4"><code class="bg-gray-100 px-2 py-0.5 rounded">1.015</code></td>
+              <td class="py-3 px-4">-1px</td>
+              <td class="py-3 px-4">450ms</td>
+              <td class="py-3 px-4">-</td>
+              <td class="py-3 px-4 text-gray-600">Barely there</td>
+            </tr>
+            <tr class="border-b border-gray-100 bg-amber-50">
+              <td class="py-3 px-4 font-medium">Medium <span class="recommendation-badge ml-2">Best</span></td>
+              <td class="py-3 px-4"><code class="bg-amber-100 px-2 py-0.5 rounded">1.03</code></td>
+              <td class="py-3 px-4">-2px</td>
+              <td class="py-3 px-4">500ms</td>
+              <td class="py-3 px-4">-</td>
+              <td class="py-3 px-4 text-amber-800">Balanced</td>
+            </tr>
+            <tr class="border-b border-gray-100">
+              <td class="py-3 px-4 font-medium">Strong</td>
+              <td class="py-3 px-4"><code class="bg-gray-100 px-2 py-0.5 rounded">1.05</code></td>
+              <td class="py-3 px-4">-3px</td>
+              <td class="py-3 px-4">550ms</td>
+              <td class="py-3 px-4">-</td>
+              <td class="py-3 px-4 text-gray-600">Noticeable</td>
+            </tr>
+            <tr>
+              <td class="py-3 px-4 font-medium">Extra Strong</td>
+              <td class="py-3 px-4"><code class="bg-gray-100 px-2 py-0.5 rounded">1.06</code></td>
+              <td class="py-3 px-4">-4px</td>
+              <td class="py-3 px-4">600ms</td>
+              <td class="py-3 px-4">Shadow</td>
+              <td class="py-3 px-4 text-gray-600">Dramatic</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mt-6 p-4 bg-teal-50 rounded-lg border border-teal-200">
+        <h3 class="font-semibold text-teal-800 mb-2">My Recommendation: Medium (3% scale)</h3>
+        <ul class="text-sm text-teal-700 space-y-1">
+          <li>• <strong>Goldilocks zone:</strong> Not too subtle, not too dramatic</li>
+          <li>• <strong>Professional:</strong> Appropriate for a medical app context</li>
+          <li>• <strong>Clear feedback:</strong> Users will notice the animation happened</li>
+          <li>• <strong>Not distracting:</strong> Won't pull focus from the task at hand</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Implementation Code -->
+    <div class="card mt-8 p-6">
+      <h2 class="text-xl font-bold text-gray-900 mb-4">Implementation Code (CSS)</h2>
+
+      <div class="space-y-6">
+        <div>
+          <h3 class="font-semibold text-gray-800 mb-2 flex items-center gap-2">
+            Medium Intensity (Recommended)
+            <span class="recommendation-badge">Copy This</span>
+          </h3>
+          <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg text-sm overflow-x-auto"><code>/* Exit animation for the departing row */
+@keyframes row-exit {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+    max-height: 80px;
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.8);
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+}
+
+.queue-row-exit {
+  animation: row-exit 400ms ease-in-out forwards;
+  overflow: hidden;
+  transform-origin: center;
+}
+
+/* Shift animation - Medium intensity (3% scale) */
+@keyframes row-shift-pulse {
+  0% {
+    transform: scale(1) translateY(0);
+  }
+  30% {
+    transform: scale(1.03) translateY(-2px);
+  }
+  60% {
+    transform: scale(1.01) translateY(-1px);
+  }
+  100% {
+    transform: scale(1) translateY(0);
+  }
+}
+
+.queue-row-shift {
+  animation: row-shift-pulse 500ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Staggered delays for cascade effect */
+.queue-row:nth-child(1).queue-row-shift { animation-delay: 0ms; }
+.queue-row:nth-child(2).queue-row-shift { animation-delay: 50ms; }
+.queue-row:nth-child(3).queue-row-shift { animation-delay: 100ms; }
+.queue-row:nth-child(4).queue-row-shift { animation-delay: 150ms; }
+.queue-row:nth-child(5).queue-row-shift { animation-delay: 200ms; }</code></pre>
+        </div>
+
+        <!-- Quick reference for other intensities -->
+        <div class="grid md:grid-cols-3 gap-4">
+          <div class="p-4 bg-gray-50 rounded-lg">
+            <h4 class="font-medium text-gray-800 mb-2">Subtle (1.5%)</h4>
+            <code class="text-xs text-gray-600">scale(1.015) translateY(-1px)</code>
+          </div>
+          <div class="p-4 bg-gray-50 rounded-lg">
+            <h4 class="font-medium text-gray-800 mb-2">Strong (5%)</h4>
+            <code class="text-xs text-gray-600">scale(1.05) translateY(-3px)</code>
+          </div>
+          <div class="p-4 bg-gray-50 rounded-lg">
+            <h4 class="font-medium text-gray-800 mb-2">Extra (6% + shadow)</h4>
+            <code class="text-xs text-gray-600">scale(1.06) translateY(-4px) + box-shadow</code>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Sample patient data
+    const samplePatients = [
+      { id: 1, name: 'Ahmed B.', phone: '+216 98 XXX XXX', status: 'IN_CONSULTATION', time: '09:15' },
+      { id: 2, name: 'Fatma M.', phone: '+216 55 XXX XXX', status: 'NOTIFIED', time: '09:22' },
+      { id: 3, name: 'Mohamed K.', phone: '+216 22 XXX XXX', status: 'WAITING', time: '09:35' },
+      { id: 4, name: 'Sara L.', phone: '+216 97 XXX XXX', status: 'WAITING', time: '09:48' },
+    ];
+
+    // Track animation state per queue
+    const animating = { 1: false, 2: false, 3: false, 4: false };
+
+    function getStatusBadge(status) {
+      const configs = {
+        'IN_CONSULTATION': { bg: 'bg-green-100', text: 'text-green-800', label: 'In Consultation' },
+        'NOTIFIED': { bg: 'bg-yellow-100', text: 'text-yellow-800', label: 'Notified' },
+        'WAITING': { bg: 'bg-blue-100', text: 'text-blue-800', label: 'Waiting' },
+      };
+      const config = configs[status];
+      return `<span class="status-badge ${config.bg} ${config.text}">${config.label}</span>`;
+    }
+
+    function getPosition(status, index) {
+      if (status === 'IN_CONSULTATION') {
+        return `<span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-green-100 text-green-700">
+          <span class="material-symbols-outlined" style="font-size: 20px;">medical_services</span>
+        </span>`;
+      }
+      return `<span class="text-lg font-bold text-gray-700">#${index}</span>`;
+    }
+
+    function renderQueue(queueId) {
+      const container = document.getElementById(`queue-${queueId}`);
+      let positionCounter = 1;
+
+      container.innerHTML = samplePatients.map((patient, index) => {
+        const position = patient.status === 'IN_CONSULTATION' ? null : positionCounter++;
+        const rowBg = patient.status === 'IN_CONSULTATION' ? 'bg-green-50' :
+                      patient.status === 'NOTIFIED' ? 'bg-yellow-50' : 'bg-white';
+
+        return `
+          <div class="queue-row ${rowBg} border-b border-gray-100 last:border-b-0" data-id="${patient.id}">
+            <div class="flex items-center py-3 px-4 gap-4">
+              <div class="w-12 flex-shrink-0 position-display">
+                ${getPosition(patient.status, position)}
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="font-medium text-gray-900 truncate">${patient.name}</p>
+                <p class="text-sm text-gray-500">${patient.time}</p>
+              </div>
+              <div class="flex-shrink-0 status-display">
+                ${getStatusBadge(patient.status)}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Reset button state
+      const btn = document.getElementById(`btn-${queueId}`);
+      if (btn) btn.disabled = false;
+      animating[queueId] = false;
+    }
+
+    function triggerExit(queueId, shiftClass) {
+      if (animating[queueId]) return;
+      animating[queueId] = true;
+
+      const container = document.getElementById(`queue-${queueId}`);
+      const rows = container.querySelectorAll('.queue-row');
+      const firstRow = rows[0];
+
+      if (!firstRow || rows.length <= 1) {
+        animating[queueId] = false;
+        return;
+      }
+
+      // Disable button during animation
+      const btn = document.getElementById(`btn-${queueId}`);
+      if (btn) btn.disabled = true;
+
+      // Add exit animation to first row
+      firstRow.classList.add('exit-scale-fade');
+
+      // Add shift animation to remaining rows
+      rows.forEach((row, index) => {
+        if (index > 0) {
+          row.classList.add(shiftClass);
+        }
+      });
+
+      // After exit animation completes
+      setTimeout(() => {
+        // Remove the exited row
+        firstRow.remove();
+
+        // Get remaining rows
+        const remainingRows = container.querySelectorAll('.queue-row');
+
+        remainingRows.forEach((row, index) => {
+          // Remove shift animation class
+          row.classList.remove(shiftClass);
+
+          // Update row styling and content
+          if (index === 0) {
+            // This row becomes IN_CONSULTATION
+            row.classList.remove('bg-yellow-50', 'bg-white');
+            row.classList.add('bg-green-50');
+
+            const badge = row.querySelector('.status-display');
+            if (badge) {
+              badge.innerHTML = getStatusBadge('IN_CONSULTATION');
+            }
+
+            const posDiv = row.querySelector('.position-display');
+            if (posDiv) {
+              posDiv.innerHTML = getPosition('IN_CONSULTATION', null);
+            }
+          } else if (index === 1) {
+            // This row becomes NOTIFIED (#1)
+            row.classList.remove('bg-white');
+            row.classList.add('bg-yellow-50');
+
+            const badge = row.querySelector('.status-display');
+            if (badge) {
+              badge.innerHTML = getStatusBadge('NOTIFIED');
+            }
+
+            const posDiv = row.querySelector('.position-display');
+            if (posDiv) {
+              posDiv.innerHTML = `<span class="text-lg font-bold text-gray-700">#1</span>`;
+            }
+          } else {
+            // Update position numbers for WAITING patients
+            const posDiv = row.querySelector('.position-display');
+            if (posDiv) {
+              posDiv.innerHTML = `<span class="text-lg font-bold text-gray-700">#${index}</span>`;
+            }
+          }
+        });
+
+        // Re-enable button if there are still patients
+        if (remainingRows.length > 1 && btn) {
+          btn.disabled = false;
+        }
+        animating[queueId] = false;
+
+      }, 450);
+    }
+
+    function resetQueue(queueId) {
+      renderQueue(queueId);
+    }
+
+    // Initialize all queues on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      [1, 2, 3, 4].forEach(id => renderQueue(id));
+    });
+  </script>
+</body>
+</html>

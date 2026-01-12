@@ -1,0 +1,32 @@
+{
+  "name": "doctorq",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Virtual queue management system for Tunisian medical practices",
+  "scripts": {
+    "dev": "concurrently \"pnpm dev:api\" \"pnpm dev:web\"",
+    "dev:api": "pnpm --filter @doctorq/api dev",
+    "dev:web": "pnpm --filter @doctorq/web dev",
+    "build": "pnpm --filter @doctorq/api build && pnpm --filter @doctorq/web build",
+    "build:api": "pnpm --filter @doctorq/api build",
+    "build:web": "pnpm --filter @doctorq/web build",
+    "test": "pnpm --recursive test",
+    "test:api": "pnpm --filter @doctorq/api test",
+    "test:web": "pnpm --filter @doctorq/web test",
+    "lint": "pnpm --recursive lint",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "db:push": "pnpm --filter @doctorq/api db:push",
+    "db:migrate": "pnpm --filter @doctorq/api db:migrate",
+    "db:seed": "pnpm --filter @doctorq/api db:seed",
+    "db:studio": "pnpm --filter @doctorq/api db:studio"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "prettier": "^3.1.1",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=8.0.0"
+  }
+}

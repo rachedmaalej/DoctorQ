@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parcours Patient Complet - DoctorQ</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0D9488;
+            --primary-dark: #0F766E;
+            --primary-light: #5EEAD4;
+            --secondary: #1E3A5F;
+            --accent: #F59E0B;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --gray-50: #F9FAFB;
+            --gray-100: #F3F4F6;
+            --gray-200: #E5E7EB;
+            --gray-300: #D1D5DB;
+            --gray-400: #9CA3AF;
+            --gray-500: #6B7280;
+            --gray-600: #4B5563;
+            --gray-700: #374151;
+            --gray-800: #1F2937;
+            --gray-900: #111827;
+            --radius: 12px;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'IBM Plex Sans', 'IBM Plex Sans Arabic', sans-serif;
+            background: linear-gradient(135deg, #1E3A5F 0%, #0D9488 100%);
+            min-height: 100vh;
+            color: var(--gray-800);
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 3rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .header .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0 auto 1.5rem;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .flow-container {
+            background: white;
+            border-radius: var(--radius);
+            padding: 3rem 2rem;
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 2rem;
+        }
+
+        .flow-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--gray-800);
+            margin-bottom: 2rem;
+            text-align: center;
+            padding-bottom: 1rem;
+            border-bottom: 3px solid var(--primary);
+        }
+
+        .step-section {
+            margin-bottom: 2rem;
+        }
+
+        .step-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .step-badge {
+            display: inline-block;
+            background: var(--gray-800);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        .arrow-down {
+            text-align: center;
+            margin: 1.5rem 0;
+            font-size: 2.5rem;
+            color: var(--gray-300);
+        }
+
+        .methods-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .method-card {
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 2px solid;
+            text-align: center;
+        }
+
+        .method-card.qr {
+            background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
+            border-color: #3B82F6;
+        }
+
+        .method-card.whatsapp {
+            background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%);
+            border-color: #10B981;
+        }
+
+        .method-card.manual {
+            background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+            border-color: #F59E0B;
+        }
+
+        .method-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            margin: 0 auto 1rem;
+        }
+
+        .method-card.qr .method-icon {
+            background: #3B82F6;
+        }
+
+        .method-card.whatsapp .method-icon {
+            background: #10B981;
+        }
+
+        .method-card.manual .method-icon {
+            background: #F59E0B;
+        }
+
+        .method-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .method-card.qr .method-title {
+            color: #1E40AF;
+        }
+
+        .method-card.whatsapp .method-title {
+            color: #065F46;
+        }
+
+        .method-card.manual .method-title {
+            color: #92400E;
+        }
+
+        .method-description {
+            font-size: 0.9rem;
+            color: var(--gray-600);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .method-tag {
+            background: white;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        .method-tag-label {
+            font-size: 0.75rem;
+            color: var(--gray-500);
+            margin-bottom: 0.25rem;
+        }
+
+        .method-tag-value {
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .method-card.qr .method-tag-value {
+            color: #3B82F6;
+        }
+
+        .method-card.whatsapp .method-tag-value {
+            color: #10B981;
+        }
+
+        .method-card.manual .method-tag-value {
+            color: #F59E0B;
+        }
+
+        .queue-added {
+            background: var(--primary);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            margin: 0 auto;
+            max-width: 800px;
+        }
+
+        .queue-added-title {
+            font-weight: 700;
+            font-size: 1.3rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .queue-added-subtitle {
+            font-size: 1rem;
+            opacity: 0.95;
+            line-height: 1.6;
+        }
+
+        .notifications-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .notification-card {
+            background: #F8FAFC;
+            border: 2px dashed;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .notification-card.sms {
+            border-color: #3B82F6;
+        }
+
+        .notification-card.whatsapp {
+            border-color: #10B981;
+        }
+
+        .notification-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .notification-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .notification-card.sms .notification-title {
+            color: #3B82F6;
+        }
+
+        .notification-card.whatsapp .notification-title {
+            color: #10B981;
+        }
+
+        .notification-message {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: var(--gray-700);
+            line-height: 1.6;
+            border: 1px solid #E2E8F0;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: left;
+        }
+
+        .notification-card.whatsapp .notification-message {
+            background: #DCF8C6;
+            border-color: #10B981;
+        }
+
+        .notification-note {
+            margin-top: 0.75rem;
+            font-size: 0.8rem;
+            color: var(--gray-500);
+        }
+
+        .waiting-section {
+            background: linear-gradient(135deg, #F1F5F9 0%, #E2E8F0 100%);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .waiting-title {
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: var(--gray-800);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .waiting-flow {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .waiting-item {
+            text-align: center;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .waiting-label {
+            font-size: 0.9rem;
+            color: var(--gray-600);
+            margin-bottom: 0.5rem;
+        }
+
+        .waiting-value {
+            font-weight: 700;
+            color: var(--gray-800);
+            font-size: 1.05rem;
+        }
+
+        .waiting-value.primary {
+            color: var(--primary);
+        }
+
+        .flow-arrow {
+            font-size: 2rem;
+            color: var(--gray-400);
+        }
+
+        .alert-section {
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 2px solid;
+        }
+
+        .alert-section.warning {
+            background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+            border-color: var(--accent);
+        }
+
+        .alert-section.success {
+            background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%);
+            border-color: var(--success);
+        }
+
+        .alert-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .alert-title {
+            font-weight: 700;
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .alert-section.warning .alert-title {
+            color: #92400E;
+        }
+
+        .alert-section.success .alert-title {
+            color: #065F46;
+        }
+
+        .alert-subtitle {
+            font-size: 1rem;
+        }
+
+        .alert-section.warning .alert-subtitle {
+            color: #78350F;
+        }
+
+        .alert-section.success .alert-subtitle {
+            color: #047857;
+        }
+
+        .alert-channels {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .alert-channel {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .alert-channel-label {
+            font-size: 0.8rem;
+            color: var(--gray-500);
+            margin-bottom: 0.5rem;
+        }
+
+        .alert-channel-type {
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .alert-channel-message {
+            font-size: 0.85rem;
+            color: var(--gray-700);
+        }
+
+        .alert-footer {
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .alert-section.warning .alert-footer {
+            color: #78350F;
+        }
+
+        .alert-section.success .alert-footer {
+            color: #047857;
+        }
+
+        .principles-section {
+            background: white;
+            border-radius: var(--radius);
+            padding: 2rem;
+            border: 2px solid var(--primary);
+        }
+
+        .principles-title {
+            font-weight: 700;
+            font-size: 1.4rem;
+            color: var(--gray-800);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .principles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .principle-item {
+            text-align: center;
+        }
+
+        .principle-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .principle-title {
+            font-weight: 700;
+            color: var(--gray-800);
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .principle-description {
+            font-size: 0.9rem;
+            color: var(--gray-600);
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .flow-container {
+                padding: 2rem 1rem;
+            }
+
+            .methods-grid,
+            .notifications-grid,
+            .alert-channels,
+            .principles-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .waiting-flow {
+                flex-direction: column;
+            }
+
+            .flow-arrow {
+                transform: rotate(90deg);
+            }
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .flow-container {
+                box-shadow: none;
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">Q</div>
+            <h1>Parcours Patient Complet</h1>
+            <p class="subtitle">DoctorQ - Système de gestion de file d'attente virtuelle</p>
+        </div>
+
+        <div class="flow-container">
+            <h2 class="flow-title">Parcours Patient : De l'Enregistrement à la Consultation</h2>
+
+            <!-- Étape 1 : Arrivée -->
+            <div class="step-section">
+                <div class="step-header">
+                    <div class="step-badge">1️⃣ LE PATIENT ARRIVE À LA CLINIQUE</div>
+                </div>
+            </div>
+
+            <div class="arrow-down">↓</div>
+
+            <!-- Étape 2 : Méthodes d'enregistrement -->
+            <div class="step-section">
+                <div class="methods-grid">
+                    <!-- QR Code -->
+                    <div class="method-card qr">
+                        <div class="method-icon">📱</div>
+                        <div class="method-title">SCAN QR CODE</div>
+                        <div class="method-description">
+                            Le patient scanne le QR code<br>
+                            Saisit son numéro de téléphone<br>
+                            Soumet le formulaire
+                        </div>
+                        <div class="method-tag">
+                            <div class="method-tag-label">Méthode d'enregistrement :</div>
+                            <div class="method-tag-value">QR_CODE</div>
+                        </div>
+                    </div>
+
+                    <!-- WhatsApp -->
+                    <div class="method-card whatsapp">
+                        <div class="method-icon">💬</div>
+                        <div class="method-title">WHATSAPP</div>
+                        <div class="method-description">
+                            Le patient envoie un WhatsApp<br>
+                            Tape "ARRIVER"<br>
+                            Le bot confirme
+                        </div>
+                        <div class="method-tag">
+                            <div class="method-tag-label">Méthode d'enregistrement :</div>
+                            <div class="method-tag-value">WHATSAPP</div>
+                        </div>
+                    </div>
+
+                    <!-- Réceptionniste -->
+                    <div class="method-card manual">
+                        <div class="method-icon">👤</div>
+                        <div class="method-title">RÉCEPTIONNISTE</div>
+                        <div class="method-description">
+                            La réceptionniste ajoute<br>
+                            Saisit téléphone + nom<br>
+                            Clique sur "Ajouter"
+                        </div>
+                        <div class="method-tag">
+                            <div class="method-tag-label">Méthode d'enregistrement :</div>
+                            <div class="method-tag-value">MANUAL</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="arrow-down">↓</div>
+
+            <!-- Étape 3 : Ajouté à la file -->
+            <div class="step-section">
+                <div class="queue-added">
+                    <div class="queue-added-title">2️⃣ AJOUTÉ À LA FILE - Position #5</div>
+                    <div class="queue-added-subtitle">
+                        Notification envoyée immédiatement avec lien selon la méthode d'enregistrement ↓
+                    </div>
+                </div>
+            </div>
+
+            <div class="arrow-down">↓</div>
+
+            <!-- Routage des notifications -->
+            <div class="step-section">
+                <div class="notifications-grid">
+                    <!-- SMS pour QR -->
+                    <div class="notification-card sms">
+                        <div class="notification-icon">📱</div>
+                        <div class="notification-title">SMS ENVOYÉ</div>
+                        <div class="notification-message">
+                            "Dr. Ahmed - Vous êtes #5 dans la file. Attente : ~35min. Suivi : https://q.doctorq.tn/abc123"
+                        </div>
+                        <div class="notification-note">→ Envoyé au téléphone du patient</div>
+                    </div>
+
+                    <!-- WhatsApp pour WhatsApp -->
+                    <div class="notification-card whatsapp">
+                        <div class="notification-icon">💬</div>
+                        <div class="notification-title">WHATSAPP ENVOYÉ</div>
+                        <div class="notification-message">
+                            "✅ Vous êtes #5 dans la file. Attente : ~35min. 🔗 https://q.doctorq.tn/abc123"
+                        </div>
+                        <div class="notification-note">→ Même fil de conversation</div>
+                    </div>
+
+                    <!-- SMS pour Manuel -->
+                    <div class="notification-card sms">
+                        <div class="notification-icon">📱</div>
+                        <div class="notification-title">SMS ENVOYÉ</div>
+                        <div class="notification-message">
+                            "Dr. Ahmed - Vous êtes #5 dans la file. Attente : ~35min. Suivi : https://q.doctorq.tn/abc123"
+                        </div>
+                        <div class="notification-note">→ Envoyé au téléphone saisi</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="arrow-down">↓</div>
+
+            <!-- Étape 4 : Patient attend -->
+            <div class="step-section">
+                <div class="waiting-section">
+                    <div class="waiting-title">3️⃣ LE PATIENT ATTEND (Peut quitter la clinique)</div>
+                    <div class="waiting-flow">
+                        <div class="waiting-item">
+                            <div class="waiting-label">Ouvre le lien :</div>
+                            <div class="waiting-value primary">https://q.doctorq.tn/abc123</div>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="waiting-item">
+                            <div class="waiting-label">Mises à jour en temps réel via Socket.io :</div>
+                            <div class="waiting-value">Position : #5 → #4 → #3 → #2</div>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="waiting-item">
+                            <div class="waiting-label">Estimation d'attente :</div>
+                            <div class="waiting-value">45min → 30min → 15min</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="arrow-down">↓</div>
+
+            <!-- Étape 5 : Bientôt votre tour -->
+            <div class="step-section">
+                <div class="alert-section warning">
+                    <div class="alert-header">
+                        <div class="alert-title">4️⃣ BIENTÔT VOTRE TOUR - Position #2</div>
+                        <div class="alert-subtitle">Notification automatique envoyée via le MÊME canal d'enregistrement</div>
+                    </div>
+                    <div class="alert-channels">
+                        <div class="alert-channel">
+                            <div class="alert-channel-label">Scan QR →</div>
+                            <div class="alert-channel-type" style="color: #3B82F6;">📱 SMS</div>
+                            <div class="alert-channel-message">"⚠️ Plus que 2 patients !"</div>
+                        </div>
+                        <div class="alert-channel">
+                            <div class="alert-channel-label">WhatsApp →</div>
+                            <div class="alert-channel-type" style="color: #10B981;">💬 WhatsApp</div>
+                            <div class="alert-channel-message">"⚠️ Plus que 2 patients !"</div>
+                        </div>
+                        <div class="alert-channel">
+                            <div class="alert-channel-label">Réceptionniste →</div>
+                            <div class="alert-channel-type" style="color: #F59E0B;">📱 SMS</div>
+                            <div class="alert-channel-message">"⚠️ Plus que 2 patients !"</div>
+                        </div>
+                    </div>
+                    <div class="alert-footer">
+                        → Page de statut devient ORANGE • Le patient retourne à la clinique
+                    </div>
+                </div>
+            </div>
+
+            <div class="arrow-down">↓</div>
+
+            <!-- Étape 6 : C'est votre tour -->
+            <div class="step-section">
+                <div class="alert-section success">
+                    <div class="alert-header">
+                        <div class="alert-title">5️⃣ C'EST VOTRE TOUR ! - Le docteur appelle le patient suivant</div>
+                        <div class="alert-subtitle">Notification automatique envoyée via le MÊME canal d'enregistrement</div>
+                    </div>
+                    <div class="alert-channels">
+                        <div class="alert-channel">
+                            <div class="alert-channel-label">Scan QR →</div>
+                            <div class="alert-channel-type" style="color: #3B82F6;">📱 SMS</div>
+                            <div class="alert-channel-message">"🎉 C'EST VOTRE TOUR !"</div>
+                        </div>
+                        <div class="alert-channel">
+                            <div class="alert-channel-label">WhatsApp →</div>
+                            <div class="alert-channel-type" style="color: #10B981;">💬 WhatsApp</div>
+                            <div class="alert-channel-message">"🎉 C'EST VOTRE TOUR !"</div>
+                        </div>
+                        <div class="alert-channel">
+                            <div class="alert-channel-label">Réceptionniste →</div>
+                            <div class="alert-channel-type" style="color: #F59E0B;">📱 SMS</div>
+                            <div class="alert-channel-message">"🎉 C'EST VOTRE TOUR !"</div>
+                        </div>
+                    </div>
+                    <div class="alert-footer">
+                        → Page de statut devient VERTE • Affiche "Maintenant" • Le patient va en salle de consultation
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Principes clés -->
+        <div class="flow-container">
+            <div class="principles-section">
+                <h3 class="principles-title">🎯 Principes Clés d'Implémentation</h3>
+                <div class="principles-grid">
+                    <div class="principle-item">
+                        <div class="principle-icon">🔄</div>
+                        <div class="principle-title">Canal Cohérent</div>
+                        <div class="principle-description">
+                            Toutes les notifications utilisent le même canal que celui utilisé par le patient pour s'enregistrer
+                        </div>
+                    </div>
+                    <div class="principle-item">
+                        <div class="principle-icon">💾</div>
+                        <div class="principle-title">Suivi en Base de Données</div>
+                        <div class="principle-description">
+                            La méthode d'enregistrement (checkInMethod) est stockée lors de la création de l'entrée dans la file
+                        </div>
+                    </div>
+                    <div class="principle-item">
+                        <div class="principle-icon">💰</div>
+                        <div class="principle-title">Optimisation des Coûts</div>
+                        <div class="principle-description">
+                            Les utilisateurs WhatsApp ne consomment pas de crédits SMS, réduisant ainsi les coûts opérationnels
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

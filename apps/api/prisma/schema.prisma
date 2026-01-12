@@ -1,0 +1,96 @@
+// DoctorQ Database Schema
+// Virtual Queue Management for Tunisia Medical Practices
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Clinic {
+  id                  String       @id @default(uuid())
+  name                String
+  doctorName          String?
+  phone               String?
+  address             String?
+  language            String       @default("fr") // fr, ar
+  avgConsultationMins Int          @default(15)
+  isActive            Boolean      @default(true)
+
+  // Auth
+  email               String       @unique
+  passwordHash        String
+
+  // Settings
+  notifyAtPosition    Int          @default(2)  // Notify when X patients away
+  enableWhatsApp      Boolean      @default(false)
+
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+
+  queueEntries        QueueEntry[]
+  dailyStats          DailyStat[]
+
+  @@index([email])
+}
+
+model QueueEntry {
+  id            String        @id @default(uuid())
+  clinicId      String
+  clinic        Clinic        @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+
+  patientName   String?
+  patientPhone  String
+  position      Int
+
+  status        QueueStatus   @default(WAITING)
+  checkInMethod CheckInMethod @default(MANUAL)
+
+  arrivedAt     DateTime      @default(now())
+  notifiedAt    DateTime?     // When "almost your turn" sent
+  calledAt      DateTime?     // When called for consultation
+  completedAt   DateTime?
+
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([clinicId, status])
+  @@index([clinicId, arrivedAt])
+  @@index([clinicId, createdAt])
+}
+
+enum QueueStatus {
+  WAITING
+  NOTIFIED      // "Almost your turn" sent
+  IN_CONSULTATION
+  COMPLETED
+  NO_SHOW
+  CANCELLED
+}
+
+enum CheckInMethod {
+  QR_CODE
+  MANUAL
+  WHATSAPP
+  SMS
+}
+
+model DailyStat {
+  id            String   @id @default(uuid())
+  clinicId      String
+  clinic        Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+
+  date          DateTime @db.Date
+  totalPatients Int      @default(0)
+  avgWaitMins   Int?
+  noShows       Int      @default(0)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([clinicId, date])
+  @@index([clinicId, date])
+}
