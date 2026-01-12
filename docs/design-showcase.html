@@ -3,44 +3,42 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DoctorQ Design System - Inspired by Pet Care UI</title>
+  <title>DoctorQ Design System - Fiery Ocean Palette</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
   <style>
     /* ============================================
        DESIGN SYSTEM TOKENS
-       Based on UI Inspiration Images
+       Fiery Ocean Color Palette
        ============================================ */
     :root {
-      /* Primary - Deep Maroon/Burgundy (Sidebar) */
-      --primary-dark: #3D1414;
-      --primary-darker: #2D0F0F;
+      /* Primary - Molten Lava (Sidebar) */
+      --primary-dark: #780000;
+      --primary-darker: #5a0000;
 
-      /* Accent - Vibrant Orange */
-      --accent-orange: #FF9500;
-      --accent-orange-hover: #E88600;
-      --accent-orange-light: #FFF3E0;
+      /* Accent - Brick Red */
+      --accent-red: #c1121f;
+      --accent-red-hover: #a30f1a;
+      --accent-red-light: #fce8e9;
 
-      /* Secondary Colors */
-      --lavender: #E8D5FF;
-      --lavender-light: #F5EEFF;
-      --purple-deep: #5B3A8C;
-      --purple-text: #4A1F7C;
+      /* Secondary Colors - Ocean Blues */
+      --steel-blue: #669bbc;
+      --steel-blue-light: #e8f1f6;
+      --deep-space: #003049;
+      --deep-space-light: #e6edf2;
 
-      --pink-soft: #FFD5E5;
-      --pink-light: #FFF0F5;
+      /* Warm Neutrals */
+      --papaya-whip: #fdf0d5;
+      --papaya-whip-dark: #f5e4c3;
 
-      --lime-green: #C5D86D;
-      --lime-light: #F4F8E8;
-      --lime-dark: #8BA33D;
-
-      --peach: #FFD4A8;
-      --peach-light: #FFF5EB;
+      /* Success/Fresh - Derived from palette */
+      --success-teal: #2a9d8f;
+      --success-teal-light: #e8f5f3;
 
       /* Background */
-      --bg-cream: #FFF8E7;
-      --bg-warm: #FFFBF5;
-      --bg-page: #FEF9F3;
+      --bg-cream: #fdf0d5;
+      --bg-warm: #fef8ed;
+      --bg-page: #fefbf5;
 
       /* Neutrals */
       --white: #FFFFFF;
@@ -56,14 +54,14 @@
       --gray-900: #212121;
 
       /* Semantic */
-      --success: #4CAF50;
-      --success-light: #E8F5E9;
-      --warning: #FF9800;
-      --warning-light: #FFF3E0;
-      --error: #F44336;
-      --error-light: #FFEBEE;
-      --info: #2196F3;
-      --info-light: #E3F2FD;
+      --success: #2a9d8f;
+      --success-light: #e8f5f3;
+      --warning: #c1121f;
+      --warning-light: #fce8e9;
+      --error: #c1121f;
+      --error-light: #fce8e9;
+      --info: #669bbc;
+      --info-light: #e8f1f6;
 
       /* Typography */
       --font-display: 'Poppins', sans-serif;
@@ -73,7 +71,7 @@
       --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
       --shadow-md: 0 4px 6px rgba(0,0,0,0.07);
       --shadow-lg: 0 10px 25px rgba(0,0,0,0.1);
-      --shadow-card: 0 2px 12px rgba(61, 20, 20, 0.08);
+      --shadow-card: 0 2px 12px rgba(120, 0, 0, 0.08);
 
       /* Border Radius */
       --radius-sm: 8px;
@@ -119,7 +117,7 @@
       font-size: 2.5rem;
       font-weight: 800;
       margin-bottom: 1rem;
-      background: linear-gradient(135deg, var(--accent-orange), #FFD700, var(--accent-orange));
+      background: linear-gradient(135deg, var(--accent-red), #ff6b6b, var(--accent-red));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -199,8 +197,8 @@
     }
 
     .nav-tab.active {
-      background: var(--accent-orange);
-      border-color: var(--accent-orange);
+      background: var(--accent-red);
+      border-color: var(--accent-red);
       color: var(--white);
     }
 
@@ -264,9 +262,9 @@
       font-weight: 600;
     }
 
-    .tag-primary { background: rgba(255, 149, 0, 0.2); color: var(--accent-orange); }
-    .tag-warm { background: rgba(232, 213, 255, 0.2); color: var(--lavender); }
-    .tag-fresh { background: rgba(197, 216, 109, 0.2); color: var(--lime-green); }
+    .tag-primary { background: rgba(193, 18, 31, 0.2); color: var(--accent-red); }
+    .tag-warm { background: rgba(102, 155, 188, 0.2); color: var(--steel-blue); }
+    .tag-fresh { background: rgba(42, 157, 143, 0.2); color: var(--success-teal); }
 
     .design-preview {
       height: 400px;
@@ -342,8 +340,7 @@
     }
 
     /* ============================================
-       DASHBOARD DESIGN - INSPIRED STYLE
-       Dark sidebar, warm background, colorful cards
+       DASHBOARD DESIGN - FIERY OCEAN STYLE
        ============================================ */
     .dash-inspired {
       font-family: var(--font-body);
@@ -379,7 +376,7 @@
     .dash-inspired .logo-icon {
       width: 2.2em;
       height: 2.2em;
-      background: var(--accent-orange);
+      background: var(--accent-red);
       border-radius: 0.5em;
       display: flex;
       align-items: center;
@@ -405,7 +402,7 @@
     }
 
     .dash-inspired .nav-item.active {
-      background: var(--accent-orange);
+      background: var(--accent-red);
       color: var(--white);
     }
 
@@ -425,7 +422,7 @@
       width: 3em;
       height: 3em;
       border-radius: 50%;
-      background: var(--accent-orange);
+      background: var(--accent-red);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -465,7 +462,7 @@
     .dash-inspired .greeting h1 {
       font-size: 1.8em;
       font-weight: 800;
-      color: var(--accent-orange);
+      color: var(--primary-dark);
       margin-bottom: 0.2em;
     }
 
@@ -495,13 +492,14 @@
       outline: none;
       font-size: 0.95em;
       width: 150px;
+      background: transparent;
     }
 
     .dash-inspired .user-badge {
       display: flex;
       align-items: center;
       gap: 0.5em;
-      background: #FEF3C7;
+      background: var(--steel-blue-light);
       padding: 0.5em 1em;
       border-radius: var(--radius-full);
     }
@@ -519,7 +517,7 @@
 
     .dash-inspired .user-badge-name {
       font-weight: 700;
-      color: var(--gray-900);
+      color: var(--deep-space);
     }
 
     /* Stats Cards Row */
@@ -537,16 +535,16 @@
       overflow: hidden;
     }
 
-    .dash-inspired .stat-card.lavender {
-      background: linear-gradient(135deg, var(--lavender) 0%, #D4B8FF 100%);
+    .dash-inspired .stat-card.steel-blue {
+      background: linear-gradient(135deg, var(--steel-blue) 0%, #5a8aa8 100%);
     }
 
-    .dash-inspired .stat-card.peach {
-      background: linear-gradient(135deg, var(--peach) 0%, #FFBC75 100%);
+    .dash-inspired .stat-card.deep-space {
+      background: linear-gradient(135deg, var(--deep-space) 0%, #004466 100%);
     }
 
-    .dash-inspired .stat-card.pink {
-      background: linear-gradient(135deg, var(--pink-soft) 0%, #FFB8D4 100%);
+    .dash-inspired .stat-card.brick-red {
+      background: linear-gradient(135deg, var(--accent-red) 0%, #e63946 100%);
     }
 
     .dash-inspired .stat-card-header {
@@ -559,17 +557,17 @@
     .dash-inspired .stat-card-icon {
       width: 2.2em;
       height: 2.2em;
-      background: rgba(91, 58, 140, 0.2);
+      background: rgba(255, 255, 255, 0.2);
       border-radius: 0.5em;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: var(--purple-deep);
+      color: var(--white);
     }
 
     .dash-inspired .stat-card-title {
       font-weight: 600;
-      color: var(--purple-text);
+      color: var(--white);
       font-size: 0.95em;
     }
 
@@ -577,7 +575,7 @@
       font-family: var(--font-display);
       font-size: 2.8em;
       font-weight: 700;
-      color: var(--purple-text);
+      color: var(--white);
       line-height: 1;
     }
 
@@ -585,11 +583,11 @@
       display: inline-flex;
       align-items: center;
       gap: 0.3em;
-      background: rgba(255,255,255,0.5);
+      background: rgba(255,255,255,0.2);
       padding: 0.3em 0.6em;
       border-radius: var(--radius-full);
       font-size: 0.85em;
-      color: var(--purple-deep);
+      color: var(--white);
       margin-top: 0.5em;
     }
 
@@ -598,7 +596,7 @@
       right: 0.5em;
       bottom: 0.5em;
       font-size: 4em;
-      opacity: 0.9;
+      opacity: 0.3;
     }
 
     /* Content Grid */
@@ -621,7 +619,7 @@
       font-family: var(--font-display);
       font-weight: 700;
       font-size: 1.2em;
-      color: var(--gray-900);
+      color: var(--deep-space);
       border-bottom: 1px solid var(--gray-200);
     }
 
@@ -638,14 +636,14 @@
     }
 
     .dash-inspired .queue-item.active {
-      background: linear-gradient(90deg, var(--lime-light) 0%, transparent 100%);
+      background: linear-gradient(90deg, var(--success-teal-light) 0%, transparent 100%);
     }
 
     .dash-inspired .queue-avatar {
       width: 3em;
       height: 3em;
       border-radius: 50%;
-      background: var(--gray-200);
+      background: var(--steel-blue-light);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -658,7 +656,7 @@
 
     .dash-inspired .queue-name {
       font-weight: 600;
-      color: var(--gray-900);
+      color: var(--deep-space);
     }
 
     .dash-inspired .queue-time {
@@ -679,18 +677,18 @@
     }
 
     .dash-inspired .queue-status.notified {
-      background: var(--peach);
-      color: var(--gray-900);
+      background: var(--papaya-whip-dark);
+      color: var(--primary-dark);
     }
 
     .dash-inspired .queue-status.waiting {
-      background: var(--lime-green);
-      color: var(--gray-900);
+      background: var(--steel-blue);
+      color: var(--white);
     }
 
     /* Schedule Section */
     .dash-inspired .schedule-card {
-      background: var(--lime-light);
+      background: var(--steel-blue-light);
       border-radius: var(--radius-lg);
       padding: 1em;
     }
@@ -699,7 +697,7 @@
       font-family: var(--font-display);
       font-weight: 700;
       font-size: 1.2em;
-      color: var(--gray-900);
+      color: var(--deep-space);
       margin-bottom: 1em;
     }
 
@@ -708,7 +706,7 @@
       border-radius: var(--radius-md);
       padding: 1em;
       margin-bottom: 0.8em;
-      border-left: 4px solid var(--lime-green);
+      border-left: 4px solid var(--steel-blue);
     }
 
     .dash-inspired .schedule-time {
@@ -719,21 +717,21 @@
 
     .dash-inspired .schedule-name {
       font-weight: 600;
-      color: var(--gray-900);
+      color: var(--deep-space);
     }
 
     .dash-inspired .schedule-type {
       display: inline-block;
       margin-top: 0.5em;
       padding: 0.3em 0.6em;
-      background: var(--lime-light);
+      background: var(--steel-blue-light);
       border-radius: var(--radius-sm);
       font-size: 0.8em;
-      color: var(--lime-dark);
+      color: var(--deep-space);
     }
 
     .dash-inspired .schedule-payment {
-      background: var(--purple-deep);
+      background: var(--deep-space);
       color: var(--white);
       border-radius: var(--radius-md);
       padding: 0.8em 1em;
@@ -750,7 +748,7 @@
 
     .dash-inspired .schedule-payment-btn {
       background: var(--white);
-      color: var(--purple-deep);
+      color: var(--deep-space);
       padding: 0.5em 1em;
       border-radius: var(--radius-sm);
       font-weight: 600;
@@ -762,7 +760,7 @@
       position: absolute;
       bottom: 1.5em;
       right: 1.5em;
-      background: linear-gradient(135deg, var(--accent-orange) 0%, #FFB84D 100%);
+      background: linear-gradient(135deg, var(--accent-red) 0%, #e63946 100%);
       color: var(--white);
       padding: 1em 1.5em;
       border-radius: var(--radius-full);
@@ -771,7 +769,7 @@
       display: flex;
       align-items: center;
       gap: 0.5em;
-      box-shadow: 0 4px 15px rgba(255, 149, 0, 0.4);
+      box-shadow: 0 4px 15px rgba(193, 18, 31, 0.4);
       cursor: pointer;
       transition: transform 0.2s;
     }
@@ -781,7 +779,7 @@
     }
 
     /* ============================================
-       PATIENT CHECK-IN PAGE - INSPIRED STYLE
+       PATIENT CHECK-IN PAGE - FIERY OCEAN STYLE
        ============================================ */
     .checkin-inspired {
       font-family: var(--font-body);
@@ -808,7 +806,7 @@
       padding: 0.5em 1em;
       border-radius: var(--radius-full);
       font-weight: 600;
-      color: var(--gray-600);
+      color: var(--deep-space);
       cursor: pointer;
       box-shadow: var(--shadow-sm);
     }
@@ -832,12 +830,12 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      color: var(--accent-orange);
+      color: var(--papaya-whip);
     }
 
     .checkin-inspired .clinic-name {
       font-weight: 700;
-      color: var(--gray-900);
+      color: var(--deep-space);
     }
 
     .checkin-inspired .welcome-card {
@@ -853,7 +851,7 @@
     .checkin-inspired .welcome-icon {
       width: 5em;
       height: 5em;
-      background: linear-gradient(135deg, var(--lavender) 0%, var(--pink-soft) 100%);
+      background: linear-gradient(135deg, var(--steel-blue) 0%, var(--deep-space) 100%);
       border-radius: 50%;
       margin: 0 auto 1em;
       display: flex;
@@ -865,7 +863,7 @@
       font-family: var(--font-display);
       font-size: 1.8em;
       font-weight: 800;
-      color: var(--accent-orange);
+      color: var(--primary-dark);
       margin-bottom: 0.3em;
     }
 
@@ -882,7 +880,7 @@
     .checkin-inspired .form-label {
       display: block;
       font-weight: 600;
-      color: var(--gray-700);
+      color: var(--deep-space);
       margin-bottom: 0.4em;
       font-size: 0.95em;
     }
@@ -898,7 +896,7 @@
 
     .checkin-inspired .form-input:focus {
       outline: none;
-      border-color: var(--accent-orange);
+      border-color: var(--steel-blue);
     }
 
     .checkin-inspired .submit-btn {
@@ -934,7 +932,7 @@
     }
 
     /* ============================================
-       PATIENT STATUS PAGE - INSPIRED STYLE
+       PATIENT STATUS PAGE - FIERY OCEAN STYLE
        ============================================ */
     .status-inspired {
       font-family: var(--font-body);
@@ -959,7 +957,7 @@
       align-items: center;
       gap: 0.5em;
       font-weight: 600;
-      color: var(--gray-700);
+      color: var(--deep-space);
     }
 
     .status-inspired .clinic-badge-icon {
@@ -970,7 +968,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      color: var(--accent-orange);
+      color: var(--papaya-whip);
     }
 
     .status-inspired .lang-btn {
@@ -980,7 +978,7 @@
       border-radius: var(--radius-sm);
       font-weight: 600;
       font-size: 0.9em;
-      color: var(--gray-600);
+      color: var(--deep-space);
       cursor: pointer;
     }
 
@@ -994,7 +992,7 @@
     }
 
     .status-inspired .ticket-header {
-      background: linear-gradient(135deg, var(--lavender) 0%, var(--pink-soft) 100%);
+      background: linear-gradient(135deg, var(--steel-blue) 0%, var(--deep-space) 100%);
       padding: 1.5em;
       text-align: center;
       position: relative;
@@ -1010,12 +1008,12 @@
       height: 0;
       border-left: 15px solid transparent;
       border-right: 15px solid transparent;
-      border-top: 10px solid var(--pink-soft);
+      border-top: 10px solid var(--deep-space);
     }
 
     .status-inspired .ticket-status-label {
       font-weight: 600;
-      color: var(--purple-deep);
+      color: var(--papaya-whip);
       font-size: 0.95em;
       margin-bottom: 0.5em;
     }
@@ -1024,12 +1022,12 @@
       font-family: var(--font-display);
       font-size: 5em;
       font-weight: 800;
-      color: var(--purple-text);
+      color: var(--white);
       line-height: 1;
     }
 
     .status-inspired .ticket-position-label {
-      color: var(--purple-deep);
+      color: var(--papaya-whip);
       font-size: 0.95em;
     }
 
@@ -1042,7 +1040,7 @@
       font-family: var(--font-display);
       font-size: 1.3em;
       font-weight: 700;
-      color: var(--gray-900);
+      color: var(--deep-space);
       margin-bottom: 0.5em;
     }
 
@@ -1058,7 +1056,7 @@
     }
 
     .status-inspired .info-item {
-      background: var(--bg-cream);
+      background: var(--steel-blue-light);
       padding: 1em;
       border-radius: var(--radius-md);
       text-align: center;
@@ -1068,7 +1066,7 @@
       font-family: var(--font-display);
       font-size: 1.6em;
       font-weight: 700;
-      color: var(--purple-text);
+      color: var(--deep-space);
     }
 
     .status-inspired .info-label {
@@ -1077,7 +1075,7 @@
     }
 
     .status-inspired .ticket-footer {
-      background: var(--lime-light);
+      background: var(--steel-blue-light);
       padding: 1em;
       text-align: center;
     }
@@ -1087,48 +1085,65 @@
       align-items: center;
       justify-content: center;
       gap: 0.5em;
-      color: var(--lime-dark);
+      color: var(--deep-space);
       font-weight: 500;
     }
 
-    /* Status variations */
+    /* Status variations - Urgent */
     .status-inspired.urgent .ticket-header {
-      background: linear-gradient(135deg, var(--peach) 0%, #FFB875 100%);
+      background: linear-gradient(135deg, var(--accent-red) 0%, #e63946 100%);
+    }
+
+    .status-inspired.urgent .ticket-header::after {
+      border-top-color: #e63946;
     }
 
     .status-inspired.urgent .ticket-position {
-      color: #C45500;
+      color: var(--white);
     }
 
     .status-inspired.urgent .ticket-footer {
-      background: var(--warning-light);
+      background: var(--accent-red-light);
     }
 
     .status-inspired.urgent .footer-message {
-      color: #E65100;
+      color: var(--accent-red);
     }
 
+    .status-inspired.urgent .info-item {
+      background: var(--accent-red-light);
+    }
+
+    .status-inspired.urgent .info-value {
+      color: var(--accent-red);
+    }
+
+    /* Status variations - Your Turn */
     .status-inspired.your-turn .ticket-header {
-      background: linear-gradient(135deg, var(--lime-green) 0%, #A8E063 100%);
+      background: linear-gradient(135deg, var(--success-teal) 0%, #21867a 100%);
+    }
+
+    .status-inspired.your-turn .ticket-header::after {
+      border-top-color: #21867a;
     }
 
     .status-inspired.your-turn .ticket-position {
-      color: var(--lime-dark);
+      color: var(--white);
       font-size: 3em;
     }
 
     .status-inspired.your-turn .ticket-status-label {
-      color: var(--lime-dark);
+      color: var(--white);
       font-size: 1.5em;
       font-weight: 800;
     }
 
     .status-inspired.your-turn .ticket-footer {
-      background: var(--success-light);
+      background: var(--success-teal-light);
     }
 
     .status-inspired.your-turn .footer-message {
-      color: var(--success);
+      color: var(--success-teal);
       font-weight: 700;
     }
 
@@ -1152,7 +1167,7 @@
       }
     }
 
-    /* Heat map chart (inspired by the revenue chart) */
+    /* Heat map chart */
     .dash-inspired .heatmap-card {
       background: var(--white);
       border-radius: var(--radius-lg);
@@ -1164,7 +1179,7 @@
       font-family: var(--font-display);
       font-weight: 700;
       margin-bottom: 0.8em;
-      color: var(--gray-900);
+      color: var(--deep-space);
     }
 
     .dash-inspired .heatmap-grid {
@@ -1176,13 +1191,13 @@
     .dash-inspired .heatmap-cell {
       aspect-ratio: 1;
       border-radius: 3px;
-      background: var(--lavender-light);
+      background: var(--steel-blue-light);
     }
 
-    .dash-inspired .heatmap-cell.level-1 { background: var(--lavender); opacity: 0.4; }
-    .dash-inspired .heatmap-cell.level-2 { background: var(--lavender); opacity: 0.6; }
-    .dash-inspired .heatmap-cell.level-3 { background: var(--lavender); opacity: 0.8; }
-    .dash-inspired .heatmap-cell.level-4 { background: var(--purple-deep); }
+    .dash-inspired .heatmap-cell.level-1 { background: var(--steel-blue); opacity: 0.4; }
+    .dash-inspired .heatmap-cell.level-2 { background: var(--steel-blue); opacity: 0.6; }
+    .dash-inspired .heatmap-cell.level-3 { background: var(--steel-blue); opacity: 0.8; }
+    .dash-inspired .heatmap-cell.level-4 { background: var(--deep-space); }
 
     /* Donut chart */
     .dash-inspired .donut-card {
@@ -1196,7 +1211,7 @@
       font-family: var(--font-display);
       font-weight: 700;
       margin-bottom: 0.5em;
-      color: var(--gray-900);
+      color: var(--deep-space);
     }
 
     .dash-inspired .donut-subtitle {
@@ -1216,9 +1231,9 @@
       height: 80px;
       border-radius: 50%;
       background: conic-gradient(
-        var(--purple-deep) 0% 32%,
-        var(--peach) 32% 73%,
-        var(--pink-soft) 73% 100%
+        var(--deep-space) 0% 32%,
+        var(--steel-blue) 32% 73%,
+        var(--accent-red) 73% 100%
       );
       position: relative;
     }
@@ -1251,7 +1266,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      color: var(--accent-orange);
+      color: var(--papaya-whip);
     }
 
     .dash-inspired .donut-legend {
@@ -1272,56 +1287,48 @@
       border-radius: 2px;
     }
 
-    .dash-inspired .legend-color.purple { background: var(--purple-deep); }
-    .dash-inspired .legend-color.peach { background: var(--peach); }
-    .dash-inspired .legend-color.pink { background: var(--pink-soft); }
-    .dash-inspired .legend-color.lime { background: var(--lime-green); }
+    .dash-inspired .legend-color.deep-space { background: var(--deep-space); }
+    .dash-inspired .legend-color.steel-blue { background: var(--steel-blue); }
+    .dash-inspired .legend-color.brick-red { background: var(--accent-red); }
+    .dash-inspired .legend-color.teal { background: var(--success-teal); }
   </style>
 </head>
 <body>
   <!-- Header -->
   <header class="showcase-header">
     <h1>DoctorQ Design System</h1>
-    <p>A warm, friendly, and professional design system inspired by modern dashboard UI. Features a dark sidebar, colorful stat cards, and playful illustrations.</p>
+    <p>A bold, professional design system featuring the Fiery Ocean palette. Deep reds meet ocean blues for a striking yet trustworthy medical interface.</p>
 
     <!-- Color Palette Preview -->
     <div class="design-system-preview">
-      <h3 style="margin-bottom: 1rem; font-family: var(--font-display);">Color Palette</h3>
+      <h3 style="margin-bottom: 1rem; font-family: var(--font-display);">Fiery Ocean Palette</h3>
       <div class="color-palette">
         <div class="color-swatch">
           <div class="color-swatch-box" style="background: var(--primary-dark);"></div>
-          <div class="color-swatch-label">Primary Dark</div>
+          <div class="color-swatch-label">Molten Lava</div>
         </div>
         <div class="color-swatch">
-          <div class="color-swatch-box" style="background: var(--accent-orange);"></div>
-          <div class="color-swatch-label">Orange Accent</div>
+          <div class="color-swatch-box" style="background: var(--accent-red);"></div>
+          <div class="color-swatch-label">Brick Red</div>
         </div>
         <div class="color-swatch">
-          <div class="color-swatch-box" style="background: var(--lavender);"></div>
-          <div class="color-swatch-label">Lavender</div>
+          <div class="color-swatch-box" style="background: var(--papaya-whip);"></div>
+          <div class="color-swatch-label">Papaya Whip</div>
         </div>
         <div class="color-swatch">
-          <div class="color-swatch-box" style="background: var(--peach);"></div>
-          <div class="color-swatch-label">Peach</div>
+          <div class="color-swatch-box" style="background: var(--deep-space);"></div>
+          <div class="color-swatch-label">Deep Space</div>
         </div>
         <div class="color-swatch">
-          <div class="color-swatch-box" style="background: var(--pink-soft);"></div>
-          <div class="color-swatch-label">Soft Pink</div>
+          <div class="color-swatch-box" style="background: var(--steel-blue);"></div>
+          <div class="color-swatch-label">Steel Blue</div>
         </div>
         <div class="color-swatch">
-          <div class="color-swatch-box" style="background: var(--lime-green);"></div>
-          <div class="color-swatch-label">Lime Green</div>
-        </div>
-        <div class="color-swatch">
-          <div class="color-swatch-box" style="background: var(--bg-cream);"></div>
-          <div class="color-swatch-label">Cream BG</div>
-        </div>
-        <div class="color-swatch">
-          <div class="color-swatch-box" style="background: var(--purple-deep);"></div>
-          <div class="color-swatch-label">Deep Purple</div>
+          <div class="color-swatch-box" style="background: var(--success-teal);"></div>
+          <div class="color-swatch-label">Success Teal</div>
         </div>
       </div>
-      <p style="color: var(--gray-400); font-size: 0.875rem;">Typography: Poppins (display) + Inter (body) | Rounded corners | Soft shadows | Gradient stat cards</p>
+      <p style="color: var(--gray-400); font-size: 0.875rem;">Typography: Poppins (display) + Inter (body) | Rounded corners | Soft shadows | Bold contrast</p>
     </div>
   </header>
 
@@ -1336,14 +1343,14 @@
   <!-- Dashboard Section -->
   <section id="dashboards" class="section">
     <h2 class="section-title">Dashboard Design</h2>
-    <p class="section-subtitle">A warm, friendly dashboard with dark sidebar navigation, colorful stat cards, and clear queue management.</p>
+    <p class="section-subtitle">A bold, professional dashboard with deep red sidebar navigation, ocean blue stat cards, and clear queue management.</p>
 
     <div class="designs-grid">
       <!-- Main Dashboard Design -->
       <div class="design-card" style="grid-column: span 2;">
         <div class="design-card-header">
           <span class="design-card-title">Clinic Management Dashboard</span>
-          <span class="design-card-tag tag-primary">Inspired Design</span>
+          <span class="design-card-tag tag-primary">Fiery Ocean</span>
         </div>
         <div class="design-preview" style="height: 500px;">
           <div class="dash-inspired dash-inspired-container" style="position: relative; height: 100%;">
@@ -1410,7 +1417,7 @@
                     <input type="text" placeholder="Search...">
                   </div>
                   <div class="user-badge">
-                    <div style="width: 2.5em; height: 2.5em; background: var(--accent-orange); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700;">DA</div>
+                    <div style="width: 2.5em; height: 2.5em; background: var(--deep-space); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700;">DA</div>
                     <div class="user-badge-text">
                       <div style="font-size: 0.75em; color: var(--gray-500);">welcome back</div>
                       <div class="user-badge-name">DR. AHMED</div>
@@ -1421,7 +1428,7 @@
 
               <!-- Stats Row -->
               <div class="stats-row">
-                <div class="stat-card lavender">
+                <div class="stat-card steel-blue">
                   <div class="stat-card-header">
                     <div class="stat-card-icon">
                       <span class="material-symbols-outlined">schedule</span>
@@ -1436,30 +1443,30 @@
                   <div class="stat-card-illustration">&#128587;</div>
                 </div>
 
-                <div class="stat-card peach">
+                <div class="stat-card deep-space">
                   <div class="stat-card-header">
-                    <div class="stat-card-icon" style="background: rgba(194, 85, 0, 0.2); color: #C45500;">
+                    <div class="stat-card-icon">
                       <span class="material-symbols-outlined">check_circle</span>
                     </div>
-                    <span class="stat-card-title" style="color: #C45500;">Seen Today</span>
+                    <span class="stat-card-title">Seen Today</span>
                   </div>
-                  <div class="stat-card-value" style="color: #C45500;">12</div>
-                  <div class="stat-card-change" style="color: #C45500;">
+                  <div class="stat-card-value">12</div>
+                  <div class="stat-card-change">
                     <span class="material-symbols-outlined" style="font-size: 1em;">trending_up</span>
                     10% vs last week
                   </div>
                   <div class="stat-card-illustration">&#128170;</div>
                 </div>
 
-                <div class="stat-card pink">
+                <div class="stat-card brick-red">
                   <div class="stat-card-header">
-                    <div class="stat-card-icon" style="background: rgba(199, 21, 133, 0.2); color: #C71585;">
+                    <div class="stat-card-icon">
                       <span class="material-symbols-outlined">avg_time</span>
                     </div>
-                    <span class="stat-card-title" style="color: #C71585;">Avg. Wait Time</span>
+                    <span class="stat-card-title">Avg. Wait Time</span>
                   </div>
-                  <div class="stat-card-value" style="color: #C71585;">18m</div>
-                  <div class="stat-card-change" style="color: #C71585;">
+                  <div class="stat-card-value">18m</div>
+                  <div class="stat-card-change">
                     <span class="material-symbols-outlined" style="font-size: 1em;">trending_down</span>
                     5% vs last week
                   </div>
@@ -1515,11 +1522,11 @@
                     <div style="font-size: 0.85em; color: var(--gray-500);">General consultation and checkup</div>
                     <span class="schedule-type">Checkup</span>
                   </div>
-                  <div class="schedule-item" style="border-left-color: var(--peach);">
+                  <div class="schedule-item" style="border-left-color: var(--accent-red);">
                     <div class="schedule-time">07:00 AM - 07:30 AM</div>
                     <div class="schedule-name">Sadie Sniffles</div>
                     <div style="font-size: 0.85em; color: var(--gray-500);">Follow-up visit</div>
-                    <span class="schedule-type" style="background: var(--peach-light); color: #C45500;">Follow-up</span>
+                    <span class="schedule-type" style="background: var(--accent-red-light); color: var(--accent-red);">Follow-up</span>
                   </div>
                   <div class="schedule-payment">
                     <div>
@@ -1540,12 +1547,12 @@
           </div>
         </div>
         <div class="design-description">
-          <p>A comprehensive dashboard inspired by modern UI design. Features a dark maroon sidebar with orange accents, colorful gradient stat cards with playful illustrations, and a clean queue management interface. The warm cream background creates a welcoming atmosphere.</p>
+          <p>A bold dashboard featuring the Fiery Ocean palette. Deep molten lava sidebar with brick red accents, ocean blue stat cards, and warm papaya whip background create a professional yet inviting medical interface.</p>
           <div class="design-features">
-            <span class="feature-tag">Dark Sidebar</span>
-            <span class="feature-tag">Gradient Cards</span>
-            <span class="feature-tag">Warm Colors</span>
-            <span class="feature-tag">Playful Icons</span>
+            <span class="feature-tag">Dark Red Sidebar</span>
+            <span class="feature-tag">Ocean Blue Cards</span>
+            <span class="feature-tag">Bold Contrast</span>
+            <span class="feature-tag">Professional</span>
             <span class="feature-tag">Welcome Banner</span>
             <span class="feature-tag">Schedule View</span>
           </div>
@@ -1559,14 +1566,14 @@
   <!-- Patient Check-in Section -->
   <section id="patient-checkin" class="section">
     <h2 class="section-title">Patient Check-in</h2>
-    <p class="section-subtitle">A warm, inviting check-in experience that makes patients feel welcome when joining the queue.</p>
+    <p class="section-subtitle">A professional, trustworthy check-in experience with calming ocean blues.</p>
 
     <div class="designs-grid">
       <!-- Check-in Design -->
       <div class="design-card">
         <div class="design-card-header">
           <span class="design-card-title">Welcome to the Queue</span>
-          <span class="design-card-tag tag-warm">Welcoming</span>
+          <span class="design-card-tag tag-warm">Professional</span>
         </div>
         <div class="design-preview">
           <div class="checkin-inspired checkin-inspired-container">
@@ -1583,7 +1590,7 @@
 
             <div class="welcome-card">
               <div class="welcome-icon">
-                <span class="material-symbols-outlined" style="font-size: 2.5em; color: var(--purple-deep);">door_front</span>
+                <span class="material-symbols-outlined" style="font-size: 2.5em; color: var(--white);">door_front</span>
               </div>
               <div class="welcome-title">Bienvenue!</div>
               <div class="welcome-subtitle">Join the virtual queue and relax while you wait</div>
@@ -1611,9 +1618,9 @@
           </div>
         </div>
         <div class="design-description">
-          <p>A friendly check-in page with warm colors and clear instructions. The gradient welcome icon and playful button create an inviting atmosphere that reduces patient anxiety.</p>
+          <p>A professional check-in page featuring ocean blue gradients and warm papaya whip background. The deep space blue accents create trust while maintaining a welcoming atmosphere.</p>
           <div class="design-features">
-            <span class="feature-tag">Warm Colors</span>
+            <span class="feature-tag">Ocean Blues</span>
             <span class="feature-tag">Clear CTA</span>
             <span class="feature-tag">SMS Promise</span>
             <span class="feature-tag">Bilingual</span>
@@ -1634,49 +1641,49 @@
             </div>
 
             <div style="text-align: center; margin-bottom: 1.5em;">
-              <div style="font-family: var(--font-display); font-size: 2em; font-weight: 800; color: var(--accent-orange); margin-bottom: 0.2em;">Welcome to the Saf!</div>
+              <div style="font-family: var(--font-display); font-size: 2em; font-weight: 800; color: var(--papaya-whip); margin-bottom: 0.2em;">Welcome to the Saf!</div>
               <div style="color: rgba(255,255,255,0.8);">Dr. Ahmed's Cabinet</div>
             </div>
 
             <div class="welcome-card" style="padding: 1.5em;">
               <div style="display: flex; align-items: center; gap: 0.8em; margin-bottom: 1.2em;">
-                <div style="width: 3em; height: 3em; background: var(--lime-light); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                  <span class="material-symbols-outlined" style="color: var(--lime-dark);">phone_iphone</span>
+                <div style="width: 3em; height: 3em; background: var(--steel-blue-light); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                  <span class="material-symbols-outlined" style="color: var(--deep-space);">phone_iphone</span>
                 </div>
                 <div style="flex: 1;">
-                  <div style="font-weight: 600; color: var(--gray-700); font-size: 0.9em;">Phone Number</div>
+                  <div style="font-weight: 600; color: var(--deep-space); font-size: 0.9em;">Phone Number</div>
                   <input class="form-input" type="tel" placeholder="+216 XX XXX XXX" style="padding: 0.8em; margin-top: 0.3em;">
                 </div>
               </div>
 
               <div style="display: flex; align-items: center; gap: 0.8em; margin-bottom: 1.5em;">
-                <div style="width: 3em; height: 3em; background: var(--lavender-light); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                  <span class="material-symbols-outlined" style="color: var(--purple-deep);">person</span>
+                <div style="width: 3em; height: 3em; background: var(--deep-space-light); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                  <span class="material-symbols-outlined" style="color: var(--deep-space);">person</span>
                 </div>
                 <div style="flex: 1;">
-                  <div style="font-weight: 600; color: var(--gray-700); font-size: 0.9em;">Your Name</div>
+                  <div style="font-weight: 600; color: var(--deep-space); font-size: 0.9em;">Your Name</div>
                   <input class="form-input" type="text" placeholder="Optional" style="padding: 0.8em; margin-top: 0.3em;">
                 </div>
               </div>
 
-              <button class="submit-btn" style="background: var(--accent-orange);">
+              <button class="submit-btn" style="background: var(--accent-red);">
                 <span class="material-symbols-outlined">queue</span>
                 Join the Queue
               </button>
 
-              <div style="text-align: center; margin-top: 1em; padding: 0.8em; background: var(--lime-light); border-radius: var(--radius-md);">
-                <span class="material-symbols-outlined" style="font-size: 1.2em; color: var(--lime-dark); vertical-align: middle;">notifications_active</span>
-                <span style="color: var(--lime-dark); font-size: 0.9em;"> You'll be notified when it's time</span>
+              <div style="text-align: center; margin-top: 1em; padding: 0.8em; background: var(--success-teal-light); border-radius: var(--radius-md);">
+                <span class="material-symbols-outlined" style="font-size: 1.2em; color: var(--success-teal); vertical-align: middle;">notifications_active</span>
+                <span style="color: var(--success-teal); font-size: 0.9em;"> You'll be notified when it's time</span>
               </div>
             </div>
           </div>
         </div>
         <div class="design-description">
-          <p>A split-screen design with the clinic branding in the dark header area. Icon-led form fields make the input requirements crystal clear.</p>
+          <p>A split-screen design with the clinic branding in the deep red header area. Icon-led form fields make the input requirements crystal clear.</p>
           <div class="design-features">
             <span class="feature-tag">Split Layout</span>
             <span class="feature-tag">Icon Fields</span>
-            <span class="feature-tag">Orange CTA</span>
+            <span class="feature-tag">Red CTA</span>
           </div>
         </div>
       </div>
@@ -1688,7 +1695,7 @@
   <!-- Patient Status Section -->
   <section id="patient-status" class="section">
     <h2 class="section-title">Patient Status</h2>
-    <p class="section-subtitle">Real-time status updates that keep patients informed throughout their wait.</p>
+    <p class="section-subtitle">Real-time status updates with ocean blue calm states and fiery urgent alerts.</p>
 
     <div class="designs-grid">
       <!-- Status: Waiting -->
@@ -1742,10 +1749,10 @@
           </div>
         </div>
         <div class="design-description">
-          <p>A calm, lavender-themed status display for patients who are still far in the queue. Reassuring messaging encourages them to relax.</p>
+          <p>A calm, ocean blue-themed status display for patients who are still far in the queue. Steel blue gradients create a serene, trustworthy atmosphere.</p>
           <div class="design-features">
             <span class="feature-tag">Ticket Style</span>
-            <span class="feature-tag">Lavender Theme</span>
+            <span class="feature-tag">Ocean Blue</span>
             <span class="feature-tag">Friendly Copy</span>
           </div>
         </div>
@@ -1769,11 +1776,11 @@
               <button class="lang-btn">FR / AR</button>
             </div>
 
-            <div class="ticket-card" style="border: 3px solid var(--accent-orange); animation: pulse 2s infinite;">
+            <div class="ticket-card" style="border: 3px solid var(--accent-red); animation: pulse 2s infinite;">
               <div class="ticket-header">
-                <div class="ticket-status-label" style="color: #C45500;">Almost Your Turn!</div>
+                <div class="ticket-status-label" style="color: var(--white);">Almost Your Turn!</div>
                 <div class="ticket-position">#2</div>
-                <div class="ticket-position-label" style="color: #C45500;">Get ready!</div>
+                <div class="ticket-position-label" style="color: var(--papaya-whip);">Get ready!</div>
               </div>
 
               <div class="ticket-body">
@@ -1781,12 +1788,12 @@
                 <div class="patient-message">Only <strong>1 patient</strong> ahead of you. Please head to the clinic now if you're not nearby.</div>
 
                 <div class="info-grid">
-                  <div class="info-item" style="background: var(--warning-light);">
-                    <div class="info-value" style="color: #E65100;">1</div>
+                  <div class="info-item">
+                    <div class="info-value">1</div>
                     <div class="info-label">Ahead of you</div>
                   </div>
-                  <div class="info-item" style="background: var(--warning-light);">
-                    <div class="info-value" style="color: #E65100;">~15m</div>
+                  <div class="info-item">
+                    <div class="info-value">~15m</div>
                     <div class="info-label">Est. wait</div>
                   </div>
                 </div>
@@ -1802,10 +1809,10 @@
           </div>
         </div>
         <div class="design-description">
-          <p>An urgent, attention-grabbing state with orange/peach colors and a pulsing border. Clear call-to-action to head to the clinic.</p>
+          <p>An urgent, attention-grabbing state with fiery brick red colors and a pulsing border. Clear call-to-action to head to the clinic.</p>
           <div class="design-features">
             <span class="feature-tag">Pulsing Border</span>
-            <span class="feature-tag">Orange Theme</span>
+            <span class="feature-tag">Brick Red</span>
             <span class="feature-tag">Urgent Message</span>
           </div>
         </div>
@@ -1820,16 +1827,16 @@
         <div class="design-preview">
           <div class="status-inspired your-turn status-inspired-container" style="position: relative; overflow: hidden;">
             <!-- Confetti -->
-            <div class="confetti" style="background: var(--accent-orange); left: 10%; animation-delay: 0s;"></div>
-            <div class="confetti" style="background: var(--lavender); left: 25%; animation-delay: 0.2s;"></div>
-            <div class="confetti" style="background: var(--lime-green); left: 40%; animation-delay: 0.4s;"></div>
-            <div class="confetti" style="background: var(--pink-soft); left: 55%; animation-delay: 0.1s;"></div>
-            <div class="confetti" style="background: var(--purple-deep); left: 70%; animation-delay: 0.3s;"></div>
-            <div class="confetti" style="background: var(--peach); left: 85%; animation-delay: 0.5s;"></div>
+            <div class="confetti" style="background: var(--accent-red); left: 10%; animation-delay: 0s;"></div>
+            <div class="confetti" style="background: var(--steel-blue); left: 25%; animation-delay: 0.2s;"></div>
+            <div class="confetti" style="background: var(--success-teal); left: 40%; animation-delay: 0.4s;"></div>
+            <div class="confetti" style="background: var(--papaya-whip); left: 55%; animation-delay: 0.1s;"></div>
+            <div class="confetti" style="background: var(--deep-space); left: 70%; animation-delay: 0.3s;"></div>
+            <div class="confetti" style="background: var(--primary-dark); left: 85%; animation-delay: 0.5s;"></div>
 
             <div class="header">
               <div class="clinic-badge">
-                <div class="clinic-badge-icon" style="background: var(--success);">
+                <div class="clinic-badge-icon" style="background: var(--success-teal);">
                   <span class="material-symbols-outlined" style="font-size: 1em; color: white;">celebration</span>
                 </div>
                 <span>Dr. Ahmed's Cabinet</span>
@@ -1837,19 +1844,19 @@
               <button class="lang-btn">FR / AR</button>
             </div>
 
-            <div class="ticket-card" style="border: 3px solid var(--success);">
+            <div class="ticket-card" style="border: 3px solid var(--success-teal);">
               <div class="ticket-header">
                 <div class="ticket-status-label">IT'S YOUR TURN!</div>
                 <div class="ticket-position" style="font-size: 3em;">&#127881;</div>
-                <div class="ticket-position-label" style="color: var(--lime-dark);">Please enter now</div>
+                <div class="ticket-position-label" style="color: var(--white);">Please enter now</div>
               </div>
 
               <div class="ticket-body">
-                <div class="patient-greeting" style="color: var(--success);">Fatma, the doctor is ready!</div>
+                <div class="patient-greeting" style="color: var(--success-teal);">Fatma, the doctor is ready!</div>
                 <div class="patient-message">Please proceed to the consultation room. The doctor is waiting for you.</div>
 
-                <div style="background: var(--success-light); padding: 1em; border-radius: var(--radius-md); margin-top: 1em;">
-                  <div style="display: flex; align-items: center; justify-content: center; gap: 0.5em; color: var(--success); font-weight: 700;">
+                <div style="background: var(--success-teal-light); padding: 1em; border-radius: var(--radius-md); margin-top: 1em;">
+                  <div style="display: flex; align-items: center; justify-content: center; gap: 0.5em; color: var(--success-teal); font-weight: 700;">
                     <span class="material-symbols-outlined">door_open</span>
                     Enter the office
                   </div>
@@ -1866,10 +1873,10 @@
           </div>
         </div>
         <div class="design-description">
-          <p>A celebratory state with confetti animation, green success colors, and a clear call-to-action to enter the doctor's office.</p>
+          <p>A celebratory state with confetti animation, teal success colors, and a clear call-to-action to enter the doctor's office.</p>
           <div class="design-features">
             <span class="feature-tag">Confetti</span>
-            <span class="feature-tag">Green Theme</span>
+            <span class="feature-tag">Teal Success</span>
             <span class="feature-tag">Celebration</span>
           </div>
         </div>
@@ -1898,7 +1905,7 @@
 
             <div class="welcome-card" style="padding: 1.2em;">
               <div class="welcome-icon" style="width: 3em; height: 3em; margin-bottom: 0.8em;">
-                <span class="material-symbols-outlined" style="font-size: 1.5em; color: var(--purple-deep);">door_front</span>
+                <span class="material-symbols-outlined" style="font-size: 1.5em; color: var(--white);">door_front</span>
               </div>
               <div class="welcome-title" style="font-size: 1.4em;">Welcome!</div>
               <div class="welcome-subtitle" style="font-size: 0.85em; margin-bottom: 1em;">Join the virtual queue</div>
@@ -1959,31 +1966,31 @@
         <div class="flow-step-label">Step 3: Your Turn!</div>
         <div class="flow-step-preview">
           <div class="status-inspired your-turn status-inspired-container" style="height: 100%; padding: 1em; position: relative; overflow: hidden;">
-            <div class="confetti" style="background: var(--accent-orange); left: 15%; animation-delay: 0s;"></div>
-            <div class="confetti" style="background: var(--lime-green); left: 50%; animation-delay: 0.2s;"></div>
-            <div class="confetti" style="background: var(--lavender); left: 80%; animation-delay: 0.4s;"></div>
+            <div class="confetti" style="background: var(--accent-red); left: 15%; animation-delay: 0s;"></div>
+            <div class="confetti" style="background: var(--success-teal); left: 50%; animation-delay: 0.2s;"></div>
+            <div class="confetti" style="background: var(--steel-blue); left: 80%; animation-delay: 0.4s;"></div>
 
             <div class="header" style="margin-bottom: 1em;">
               <div class="clinic-badge">
-                <div class="clinic-badge-icon" style="width: 1.5em; height: 1.5em; background: var(--success);">
+                <div class="clinic-badge-icon" style="width: 1.5em; height: 1.5em; background: var(--success-teal);">
                   <span class="material-symbols-outlined" style="font-size: 0.8em; color: white;">celebration</span>
                 </div>
                 <span style="font-size: 0.85em;">Dr. Ahmed</span>
               </div>
             </div>
 
-            <div class="ticket-card" style="border: 2px solid var(--success);">
+            <div class="ticket-card" style="border: 2px solid var(--success-teal);">
               <div class="ticket-header" style="padding: 1em;">
                 <div class="ticket-status-label" style="font-size: 1em;">IT'S YOUR TURN!</div>
                 <div class="ticket-position" style="font-size: 2.5em;">&#127881;</div>
               </div>
 
               <div class="ticket-body" style="padding: 1em;">
-                <div class="patient-greeting" style="font-size: 1.1em; color: var(--success);">The doctor awaits!</div>
+                <div class="patient-greeting" style="font-size: 1.1em; color: var(--success-teal);">The doctor awaits!</div>
                 <div class="patient-message" style="font-size: 0.85em; margin-bottom: 1em;">Please proceed to the consultation room.</div>
 
-                <div style="background: var(--success-light); padding: 0.8em; border-radius: var(--radius-md);">
-                  <div style="display: flex; align-items: center; justify-content: center; gap: 0.3em; color: var(--success); font-weight: 600; font-size: 0.9em;">
+                <div style="background: var(--success-teal-light); padding: 0.8em; border-radius: var(--radius-md);">
+                  <div style="display: flex; align-items: center; justify-content: center; gap: 0.3em; color: var(--success-teal); font-weight: 600; font-size: 0.9em;">
                     <span class="material-symbols-outlined" style="font-size: 1.2em;">door_open</span>
                     Enter now
                   </div>
@@ -1998,8 +2005,8 @@
 
   <style>
     @keyframes pulse {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(255, 149, 0, 0.4); }
-      50% { box-shadow: 0 0 0 10px rgba(255, 149, 0, 0); }
+      0%, 100% { box-shadow: 0 0 0 0 rgba(193, 18, 31, 0.4); }
+      50% { box-shadow: 0 0 0 10px rgba(193, 18, 31, 0); }
     }
   </style>
 
