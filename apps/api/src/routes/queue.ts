@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { prisma } from '../lib/prisma.js';
 import { authMiddleware } from '../lib/auth.js';
 import { AuthRequest, QueueStats } from '../types/index.js';
-import { QueueStatus, CheckInMethod } from '@prisma/client';
+import { QueueStatus, CheckInMethod } from '../generated/prisma/index.js';
 import { emitToRoom } from '../lib/socket.js';
 
 const router = Router();
