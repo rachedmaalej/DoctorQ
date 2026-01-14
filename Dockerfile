@@ -27,6 +27,9 @@ COPY . .
 # Build the API
 RUN pnpm --filter @doctorq/api build
 
+# Verify build output exists
+RUN ls -la /app/apps/api/dist/ || echo "dist folder not found!"
+
 # Expose port
 EXPOSE 3001
 
