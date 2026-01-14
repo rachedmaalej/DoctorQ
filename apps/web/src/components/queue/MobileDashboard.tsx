@@ -465,7 +465,7 @@ export default function MobileDashboard({
             {t('queue.title')}
           </p>
           <div className="bg-white rounded-2xl shadow-sm divide-y divide-gray-100 overflow-hidden">
-            {waitingQueue.map((entry, index) => {
+            {waitingQueue.map((entry) => {
               // When doctor is present: position - 1 (since #1 is in consultation)
               // When doctor is absent: show actual position (first = #1)
               const displayPosition = isDoctorPresent ? entry.position - 1 : entry.position;

@@ -3,9 +3,15 @@ import cors from 'cors';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import dotenv from 'dotenv';
+import { fileURLToPath } from 'url';
+import { dirname, resolve } from 'path';
 
-// Load environment variables
-dotenv.config();
+// Get current directory for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Load environment variables from this app's .env file
+dotenv.config({ path: resolve(__dirname, '../.env') });
 
 // Import routes
 import doctorsRouter from './routes/doctors.js';

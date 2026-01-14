@@ -122,7 +122,7 @@ export default function PatientStatusPage() {
 
   // Helper to get personalized translation (uses Named variant if name exists)
   // Supports passing additional interpolation params
-  const tPersonal = (key: string, params: Record<string, any> = {}) => {
+  const tPersonal = (key: string, params: Record<string, unknown> = {}): string => {
     const name = entry?.patientName;
     if (name) {
       // Try the Named version first (e.g., "patient.yourTurnNowNamed")
@@ -130,11 +130,11 @@ export default function PatientStatusPage() {
       const namedResult = t(namedKey, { name, ...params });
       // If the Named key exists and was translated, use it
       if (namedResult !== namedKey) {
-        return namedResult;
+        return String(namedResult);
       }
     }
     // Fall back to regular key
-    return t(key, params);
+    return String(t(key, params));
   };
 
   // Memoize callbacks to prevent re-renders
@@ -241,7 +241,7 @@ export default function PatientStatusPage() {
   const queueState = getQueueState(entry.position, entry.status);
   const config = stateConfig[queueState];
   const displayPosition = getDisplayPosition(entry.position, entry.status);
-  const waitingAhead = getPatientsWaitingAhead(displayPosition);
+  // waitingAhead available for future use: getPatientsWaitingAhead(displayPosition)
 
   // Determine if we should show the ticket card
   const showTicket = ['far', 'closer', 'almost', 'next'].includes(queueState);
