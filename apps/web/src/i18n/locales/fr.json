@@ -131,7 +131,8 @@
     "leftQueueNamed": "{{name}}, vous avez quitté le Saf",
     "leftQueueMessage": "Vous n'êtes plus dans la file d'attente.",
     "rejoinQueue": "Reprendre ma place",
-    "yourAppointment": "Votre rendez-vous"
+    "yourAppointment": "Votre rendez-vous",
+    "doctorNotYetArrived": "Le médecin n'est pas encore arrivé"
   },
   "checkin": {
     "title": "Rejoignez le Saf",

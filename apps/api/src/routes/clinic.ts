@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { prisma } from '../lib/prisma.js';
 import { authMiddleware } from '../lib/auth.js';
 import { AuthRequest } from '../types/index.js';
+import { emitToRoom } from '../lib/socket.js';
 
 const router = Router();
 
@@ -27,6 +28,7 @@ router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {
         avgConsultationMins: true,
         notifyAtPosition: true,
         enableWhatsApp: true,
+        isDoctorPresent: true,
         email: true,
         isActive: true,
       },
@@ -90,6 +92,46 @@ router.patch('/', authMiddleware, async (req: AuthRequest, res: Response) => {
   }
 });
 
+// POST /api/clinic/doctor-presence - Toggle doctor presence
+router.post('/doctor-presence', authMiddleware, async (req: AuthRequest, res: Response) => {
+  try {
+    const clinicId = req.clinic?.id;
+    if (!clinicId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const { isDoctorPresent } = z.object({
+      isDoctorPresent: z.boolean(),
+    }).parse(req.body);
+
+    const updatedClinic = await prisma.clinic.update({
+      where: { id: clinicId },
+      data: { isDoctorPresent },
+      select: { id: true, isDoctorPresent: true },
+    });
+
+    // Broadcast to all patients in this clinic's room
+    emitToRoom(`clinic:${clinicId}:patients`, 'doctor:presence', {
+      clinicId,
+      isDoctorPresent,
+    });
+
+    // Also broadcast to the clinic dashboard (in case multiple tabs open)
+    emitToRoom(`clinic:${clinicId}`, 'doctor:presence', {
+      clinicId,
+      isDoctorPresent,
+    });
+
+    res.json({ data: updatedClinic });
+  } catch (error: any) {
+    console.error('Error updating doctor presence:', error);
+    if (error.name === 'ZodError') {
+      return res.status(400).json({ error: 'Invalid input', details: error.errors });
+    }
+    res.status(500).json({ error: 'Failed to update doctor presence' });
+  }
+});
+
 // GET /api/clinic/:clinicId/info - Public endpoint for clinic info (for check-in page)
 router.get('/:clinicId/info', async (req, res: Response) => {
   try {
@@ -101,6 +143,7 @@ router.get('/:clinicId/info', async (req, res: Response) => {
         id: true,
         name: true,
         avgConsultationMins: true,
+        isDoctorPresent: true,
       },
     });
 
@@ -123,6 +166,7 @@ router.get('/:clinicId/info', async (req, res: Response) => {
         name: clinic.name,
         waitingCount,
         avgConsultationMins: clinic.avgConsultationMins,
+        isDoctorPresent: clinic.isDoctorPresent,
       },
     });
   } catch (error: any) {

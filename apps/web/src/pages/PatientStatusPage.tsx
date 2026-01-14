@@ -14,9 +14,16 @@ import type { QueueEntry } from '@/types';
 type QueueState = 'far' | 'closer' | 'almost' | 'next' | 'yourTurn' | 'completed' | 'cancelled';
 
 // Calculate display position (backend position - 1, since IN_CONSULTATION is position 0)
-function getDisplayPosition(backendPosition: number, status: string): number {
+// When doctor is absent, the IN_CONSULTATION slot is "empty" so everyone moves up
+function getDisplayPosition(backendPosition: number, status: string, isDoctorPresent: boolean = true): number {
   if (status === 'IN_CONSULTATION') return 0; // Not really in queue anymore
-  return backendPosition - 1; // NOTIFIED (backend #2) becomes display #1, etc.
+  // When doctor is present: NOTIFIED (backend #2) becomes display #1
+  // When doctor is absent: No one is in consultation, so backend position = display position
+  if (isDoctorPresent) {
+    return backendPosition - 1;
+  }
+  // Doctor absent - display the actual queue position
+  return backendPosition;
 }
 
 // Determine queue state based on position and status
@@ -110,6 +117,7 @@ export default function PatientStatusPage() {
   const [showConfetti, setShowConfetti] = useState(false);
   const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
+  const [isDoctorPresent, setIsDoctorPresent] = useState(true); // Default to true until we know
 
   // Helper to get personalized translation (uses Named variant if name exists)
   // Supports passing additional interpolation params
@@ -149,9 +157,17 @@ export default function PatientStatusPage() {
     });
   }, []);
 
+  const handleDoctorPresence = useCallback((data: { clinicId: string; isDoctorPresent: boolean }) => {
+    // Only update if it's for our clinic
+    if (entry?.clinicId === data.clinicId || !entry) {
+      setIsDoctorPresent(data.isDoctorPresent);
+    }
+  }, [entry?.clinicId]);
+
   const { joinPatientRoom } = useSocket({
     onPatientCalled: handlePatientCalled,
     onPositionChanged: handlePositionChanged,
+    onDoctorPresence: handleDoctorPresence,
   });
 
   // Fetch patient status only once when entryId changes
@@ -163,6 +179,10 @@ export default function PatientStatusPage() {
       try {
         const data = await api.getPatientStatus(entryId);
         setEntry(data);
+        // Set doctor presence from the response
+        if ((data as any).isDoctorPresent !== undefined) {
+          setIsDoctorPresent((data as any).isDoctorPresent);
+        }
         // Show confetti if already in consultation when page loads
         if (data.status === 'IN_CONSULTATION') {
           setShowConfetti(true);
@@ -231,7 +251,7 @@ export default function PatientStatusPage() {
 
   const queueState = getQueueState(entry.position, entry.status);
   const config = stateConfig[queueState];
-  const displayPosition = getDisplayPosition(entry.position, entry.status);
+  const displayPosition = getDisplayPosition(entry.position, entry.status, isDoctorPresent);
   // waitingAhead available for future use: getPatientsWaitingAhead(displayPosition)
 
   // Determine if we should show the ticket card
@@ -248,6 +268,18 @@ export default function PatientStatusPage() {
       </div>
 
       <div className="max-w-md w-full space-y-4">
+
+        {/* Doctor Absent Banner */}
+        {!isDoctorPresent && queueState !== 'completed' && queueState !== 'cancelled' && (
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-center">
+            <div className="flex items-center justify-center gap-2 text-amber-800">
+              <span className="material-symbols-outlined text-lg">schedule</span>
+              <span className="text-sm font-medium">
+                {t('patient.doctorNotYetArrived') || 'Le médecin n\'est pas encore arrivé'}
+              </span>
+            </div>
+          </div>
+        )}
 
         {/* Title/Status Header */}
         <div className="text-center mb-2">

@@ -172,7 +172,7 @@ class ApiClient {
   }
 
   // Public clinic info (for check-in page)
-  async getClinicInfo(clinicId: string): Promise<{ name: string; waitingCount: number; avgConsultationMins: number }> {
+  async getClinicInfo(clinicId: string): Promise<{ name: string; waitingCount: number; avgConsultationMins: number; isDoctorPresent: boolean }> {
     return this.request(`/api/clinic/${clinicId}/info`);
   }
 
@@ -183,6 +183,14 @@ class ApiClient {
 
   async getQRCode(): Promise<{ url: string; qrCode: string; clinicName: string }> {
     return this.request('/api/clinic/qr');
+  }
+
+  // Update doctor presence
+  async setDoctorPresence(isDoctorPresent: boolean): Promise<{ id: string; isDoctorPresent: boolean }> {
+    return this.request('/api/clinic/doctor-presence', {
+      method: 'POST',
+      body: JSON.stringify({ isDoctorPresent }),
+    });
   }
 }
 

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/authStore';
 import { useQueueStore } from '@/stores/queueStore';
 import { useSocket } from '@/hooks/useSocket';
+import { api } from '@/lib/api';
 import QueueList from '@/components/queue/QueueList';
 import QueueStats from '@/components/queue/QueueStats';
 import QRCodeCard from '@/components/queue/QRCodeCard';
@@ -39,7 +40,11 @@ export default function DashboardPage() {
   const [isClearing, setIsClearing] = useState(false);
   const [isCallingNext, setIsCallingNext] = useState(false);
   const [exitingPatientId, setExitingPatientId] = useState<string | null>(null);
-  const [isDoctorPresent, setIsDoctorPresent] = useState(false);
+  const [isDoctorPresent, setIsDoctorPresent] = useState(() => {
+    // Initialize from clinic data if available
+    return (clinic as any)?.isDoctorPresent ?? false;
+  });
+  const [isTogglingPresence, setIsTogglingPresence] = useState(false);
   const [isFillingQueue, setIsFillingQueue] = useState(false);
 
   // Count waiting patients for FAB disabled state
@@ -57,6 +62,13 @@ export default function DashboardPage() {
     // Fetch initial queue data
     fetchQueue();
   }, []); // Only run once on mount
+
+  // Sync doctor presence from clinic data when it loads
+  useEffect(() => {
+    if ((clinic as any)?.isDoctorPresent !== undefined) {
+      setIsDoctorPresent((clinic as any).isDoctorPresent);
+    }
+  }, [(clinic as any)?.isDoctorPresent]);
 
   useEffect(() => {
     // Join clinic room for real-time updates
@@ -143,6 +155,27 @@ export default function DashboardPage() {
     setIsClearQueueModalOpen(false);
   };
 
+  // Toggle doctor presence (persists to backend)
+  const handleToggleDoctorPresent = async () => {
+    if (isTogglingPresence) return;
+
+    const newValue = !isDoctorPresent;
+    setIsTogglingPresence(true);
+
+    // Optimistic update
+    setIsDoctorPresent(newValue);
+
+    try {
+      await api.setDoctorPresence(newValue);
+    } catch (error) {
+      // Revert on error
+      setIsDoctorPresent(!newValue);
+      console.error('Failed to update doctor presence:', error);
+    } finally {
+      setIsTogglingPresence(false);
+    }
+  };
+
   // Fill queue with sample patients for demo
   const handleFillQueue = async () => {
     if (isFillingQueue) return;
@@ -182,7 +215,7 @@ export default function DashboardPage() {
           onFillQueue={handleFillQueue}
           isCallingNext={isCallingNext}
           isDoctorPresent={isDoctorPresent}
-          onToggleDoctorPresent={() => setIsDoctorPresent(!isDoctorPresent)}
+          onToggleDoctorPresent={handleToggleDoctorPresent}
           isFillingQueue={isFillingQueue}
         />
       </div>
@@ -224,8 +257,9 @@ export default function DashboardPage() {
 
                 {/* Doctor Present Toggle */}
                 <button
-                  onClick={() => setIsDoctorPresent(!isDoctorPresent)}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-full font-medium transition-all ${
+                  onClick={handleToggleDoctorPresent}
+                  disabled={isTogglingPresence}
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-full font-medium transition-all disabled:opacity-70 ${
                     isDoctorPresent
                       ? 'bg-green-100 text-green-800 border-2 border-green-300'
                       : 'bg-gray-100 text-gray-600 border-2 border-gray-200'

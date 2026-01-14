@@ -1021,6 +1021,7 @@ router.get('/patient/:entryId', async (req, res: Response) => {
           select: {
             name: true,
             avgConsultationMins: true,
+            isDoctorPresent: true,
           },
         },
       },
@@ -1048,6 +1049,7 @@ router.get('/patient/:entryId', async (req, res: Response) => {
         arrivedAt: entry.arrivedAt,
         estimatedWaitMins,
         clinicName: entry.clinic.name,
+        isDoctorPresent: entry.clinic.isDoctorPresent,
       },
     });
   } catch (error) {

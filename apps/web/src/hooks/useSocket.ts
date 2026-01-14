@@ -63,6 +63,7 @@ interface UseSocketOptions {
   onQueueUpdated?: (data: { queue: QueueEntry[]; stats: QueueStats }) => void;
   onPatientCalled?: (data: { position: number; status: string }) => void;
   onPositionChanged?: (data: { entryId: string; newPosition: number; estimatedWait: number }) => void;
+  onDoctorPresence?: (data: { clinicId: string; isDoctorPresent: boolean }) => void;
 }
 
 export function useSocket(options: UseSocketOptions = {}) {
@@ -72,13 +73,15 @@ export function useSocket(options: UseSocketOptions = {}) {
   const onQueueUpdatedRef = useRef(options.onQueueUpdated);
   const onPatientCalledRef = useRef(options.onPatientCalled);
   const onPositionChangedRef = useRef(options.onPositionChanged);
+  const onDoctorPresenceRef = useRef(options.onDoctorPresence);
 
   // Update refs when callbacks change
   useEffect(() => {
     onQueueUpdatedRef.current = options.onQueueUpdated;
     onPatientCalledRef.current = options.onPatientCalled;
     onPositionChangedRef.current = options.onPositionChanged;
-  }, [options.onQueueUpdated, options.onPatientCalled, options.onPositionChanged]);
+    onDoctorPresenceRef.current = options.onDoctorPresence;
+  }, [options.onQueueUpdated, options.onPatientCalled, options.onPositionChanged, options.onDoctorPresence]);
 
   // Set up event listeners
   useEffect(() => {
@@ -105,11 +108,17 @@ export function useSocket(options: UseSocketOptions = {}) {
       console.log('[Socket.io] Successfully joined patient room:', data.entryId);
     };
 
+    const handleDoctorPresence = (data: { clinicId: string; isDoctorPresent: boolean }) => {
+      console.log('[Socket.io] Received doctor:presence event', data);
+      onDoctorPresenceRef.current?.(data);
+    };
+
     socketInstance.on('queue:updated', handleQueueUpdated);
     socketInstance.on('patient:called', handlePatientCalled);
     socketInstance.on('position:changed', handlePositionChanged);
     socketInstance.on('joined:clinic', handleJoinedClinic);
     socketInstance.on('joined:patient', handleJoinedPatient);
+    socketInstance.on('doctor:presence', handleDoctorPresence);
 
     return () => {
       socketInstance.off('queue:updated', handleQueueUpdated);
@@ -117,6 +126,7 @@ export function useSocket(options: UseSocketOptions = {}) {
       socketInstance.off('position:changed', handlePositionChanged);
       socketInstance.off('joined:clinic', handleJoinedClinic);
       socketInstance.off('joined:patient', handleJoinedPatient);
+      socketInstance.off('doctor:presence', handleDoctorPresence);
     };
   }, [socketInstance]);
 

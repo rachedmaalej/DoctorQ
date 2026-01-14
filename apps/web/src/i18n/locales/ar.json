@@ -131,7 +131,8 @@
     "leftQueueNamed": "{{name}}، لقد غادرت الصف",
     "leftQueueMessage": "لم تعد في قائمة الانتظار.",
     "rejoinQueue": "استعادة مكاني",
-    "yourAppointment": "موعدك"
+    "yourAppointment": "موعدك",
+    "doctorNotYetArrived": "الطبيب لم يصل بعد"
   },
   "checkin": {
     "title": "انضم إلى الصف",

@@ -28,6 +28,7 @@ model Clinic {
   // Settings
   notifyAtPosition    Int          @default(2)  // Notify when X patients away
   enableWhatsApp      Boolean      @default(false)
+  isDoctorPresent     Boolean      @default(false)  // Track if doctor is currently seeing patients
 
   createdAt           DateTime     @default(now())
   updatedAt           DateTime     @updatedAt
