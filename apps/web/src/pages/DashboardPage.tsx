@@ -80,9 +80,11 @@ export default function DashboardPage() {
       try {
         // Fetch full clinic data which includes isDoctorPresent
         const clinicData = await api.getClinic();
-        console.log('[Doctor Presence] Fetched initial state:', (clinicData as any).isDoctorPresent);
-        if (!hasInitializedPresence.current) {
-          setIsDoctorPresent((clinicData as any).isDoctorPresent ?? false);
+        console.log('[Doctor Presence] API response:', clinicData);
+        if (clinicData && !hasInitializedPresence.current) {
+          const presence = clinicData.isDoctorPresent ?? false;
+          console.log('[Doctor Presence] Setting initial state to:', presence);
+          setIsDoctorPresent(presence);
           hasInitializedPresence.current = true;
         }
       } catch (err) {

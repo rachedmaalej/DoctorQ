@@ -49,6 +49,7 @@ export interface Clinic {
   language: string;
   avgConsultationMins: number;
   notifyAtPosition: number;
+  isDoctorPresent?: boolean;
 }
 
 export interface LoginCredentials {
