@@ -33,5 +33,5 @@ RUN ls -la /app/apps/api/dist/ || echo "dist folder not found!"
 # Expose port
 EXPOSE 3001
 
-# Start the API
-CMD ["pnpm", "--filter", "@doctorq/api", "start"]
+# Start the API with db push first (ensures schema is in sync)
+CMD cd apps/api && npx prisma db push --skip-generate && cd ../.. && pnpm --filter @doctorq/api start
