@@ -259,7 +259,7 @@ export default function PatientStatusPage() {
   const showTicket = ['far', 'closer', 'almost', 'next'].includes(queueState);
 
   return (
-    <div className={`min-h-screen ${config.bg} flex items-center justify-center p-4 relative`}>
+    <div className={`min-h-screen ${config.bg} flex items-center justify-center px-6 py-4 sm:p-4 relative`}>
       {/* Confetti animation for "Your Turn" */}
       {showConfetti && queueState === 'yourTurn' && <Confetti duration={4000} pieces={60} />}
 

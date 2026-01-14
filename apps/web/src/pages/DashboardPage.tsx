@@ -16,15 +16,26 @@ import { MD3FAB } from '@/components/md3/fab';
 import { MD3Button } from '@/components/md3/button';
 import type { AddPatientData } from '@/types';
 
-// Sample patients for demo
+// Helper to create today's date with specific time (HH:MM)
+function todayAt(time: string): string {
+  const [hours, minutes] = time.split(':').map(Number);
+  const date = new Date();
+  date.setHours(hours, minutes, 0, 0);
+  return date.toISOString();
+}
+
+// Sample patients for demo (ordered by arrival time)
 const SAMPLE_PATIENTS: AddPatientData[] = [
-  { patientName: 'Rached M', patientPhone: '+21626387742', appointmentTime: '10:00' },
-  { patientName: 'Hela B', patientPhone: '+21655234567', appointmentTime: '10:15' },
-  { patientName: 'Jalila F', patientPhone: '+21622222567', appointmentTime: '10:30' },
-  { patientName: 'Samira K', patientPhone: '+21621999888', appointmentTime: '10:45' },
-  { patientName: 'Mouna C', patientPhone: '+21620222111' },
-  { patientName: 'Amin K', patientPhone: '+21623555000', appointmentTime: '11:00' },
-  { patientName: 'Hejer K', patientPhone: '+21654414141', appointmentTime: '11:30' },
+  { patientName: 'Kamel T', patientPhone: '+21654678678', arrivedAt: todayAt('10:50') },
+  { patientName: 'Rached M', patientPhone: '+21626387742', appointmentTime: '10:00', arrivedAt: todayAt('10:55') },
+  { patientName: 'Hela B', patientPhone: '+21655234567', appointmentTime: '10:15', arrivedAt: todayAt('11:00') },
+  { patientName: 'Sandra M', patientPhone: '+21671233935', arrivedAt: todayAt('11:05') },
+  { patientName: 'Jalila F', patientPhone: '+21622222567', appointmentTime: '10:30', arrivedAt: todayAt('11:25') },
+  { patientName: 'Fethi B', patientPhone: '+21621999999', arrivedAt: todayAt('11:25') },
+  { patientName: 'Samira K', patientPhone: '+21621999888', appointmentTime: '10:45', arrivedAt: todayAt('11:30') },
+  { patientName: 'Mouna C', patientPhone: '+21620222111', arrivedAt: todayAt('11:50') },
+  { patientName: 'Amin K', patientPhone: '+21623555000', appointmentTime: '11:00', arrivedAt: todayAt('11:50') },
+  { patientName: 'Hejer K', patientPhone: '+21654414141', appointmentTime: '11:30', arrivedAt: todayAt('12:27') },
 ];
 
 export default function DashboardPage() {

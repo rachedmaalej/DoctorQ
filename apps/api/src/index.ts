@@ -4,6 +4,7 @@ import { Server } from 'socket.io';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { setSocketIO } from './lib/socket.js';
+import { prisma } from './lib/prisma.js';
 import authRoutes from './routes/auth.js';
 import queueRoutes from './routes/queue.js';
 import clinicRoutes from './routes/clinic.js';
@@ -84,11 +85,24 @@ io.on('connection', (socket) => {
   });
 
   // Join patient room (for patient status page)
-  socket.on('join:patient', ({ entryId }) => {
+  socket.on('join:patient', async ({ entryId }) => {
     try {
       const roomName = `patient:${entryId}`;
       socket.join(roomName);
       console.log(`[Socket.io] Client ${socket.id} joined room '${roomName}'`);
+
+      // Also join the clinic's patients room to receive doctor presence updates
+      const entry = await prisma.queueEntry.findUnique({
+        where: { id: entryId },
+        select: { clinicId: true },
+      });
+
+      if (entry?.clinicId) {
+        const clinicPatientsRoom = `clinic:${entry.clinicId}:patients`;
+        socket.join(clinicPatientsRoom);
+        console.log(`[Socket.io] Client ${socket.id} also joined room '${clinicPatientsRoom}'`);
+      }
+
       socket.emit('joined:patient', { entryId, success: true });
     } catch (error) {
       console.error('[Socket.io] Join patient error:', error);

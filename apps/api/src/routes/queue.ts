@@ -46,6 +46,7 @@ const addPatientSchema = z.object({
   patientName: z.string().optional(),
   checkInMethod: z.enum(['QR_CODE', 'MANUAL', 'WHATSAPP', 'SMS']).default('MANUAL'),
   appointmentTime: z.string().optional(), // HH:MM format for today's appointment
+  arrivedAt: z.string().optional(), // ISO string for demo/testing - defaults to now() if not provided
 });
 
 const updateStatusSchema = z.object({
@@ -244,7 +245,7 @@ router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {
 router.post('/', authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
     const clinicId = req.clinic!.id;
-    const { patientPhone, patientName, checkInMethod, appointmentTime } = addPatientSchema.parse(req.body);
+    const { patientPhone, patientName, checkInMethod, appointmentTime, arrivedAt } = addPatientSchema.parse(req.body);
 
     // Parse appointment time if provided (HH:MM format -> today's DateTime)
     let appointmentDateTime: Date | undefined;
@@ -254,6 +255,12 @@ router.post('/', authMiddleware, async (req: AuthRequest, res: Response) => {
         appointmentDateTime = new Date();
         appointmentDateTime.setHours(hours, minutes, 0, 0);
       }
+    }
+
+    // Parse arrivedAt if provided (for demo/testing), otherwise use current time
+    let arrivedAtDateTime: Date | undefined;
+    if (arrivedAt) {
+      arrivedAtDateTime = new Date(arrivedAt);
     }
 
     // Format phone number
@@ -312,6 +319,7 @@ router.post('/', authMiddleware, async (req: AuthRequest, res: Response) => {
         status: QueueStatus.WAITING,
         checkInMethod: checkInMethod as CheckInMethod,
         appointmentTime: appointmentDateTime,
+        ...(arrivedAtDateTime && { arrivedAt: arrivedAtDateTime }),
       },
     });
 

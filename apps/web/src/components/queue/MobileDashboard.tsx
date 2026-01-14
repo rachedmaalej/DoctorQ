@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import type { QueueEntry, QueueStats } from '@/types';
 import { QueueStatus } from '@/types';
 import { useAuthStore } from '@/stores/authStore';
+import Logo from '@/components/ui/Logo';
 
 interface MobileDashboardProps {
   queue: QueueEntry[];
@@ -99,7 +100,7 @@ export default function MobileDashboard({
       <header className="bg-white px-4 py-3 border-b border-gray-200">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-lg font-bold text-primary-700">DoctorQ</h1>
+            <Logo size="sm" />
             {clinic && (
               <p className="text-xs text-gray-600">{clinic.name}</p>
             )}

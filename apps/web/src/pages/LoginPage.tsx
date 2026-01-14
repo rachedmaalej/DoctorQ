@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/authStore';
+import Logo from '@/components/ui/Logo';
 
 export default function LoginPage() {
   const { t } = useTranslation();
@@ -42,7 +43,7 @@ export default function LoginPage() {
     <div className="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-50 flex items-center justify-center p-4">
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-primary-700 mb-2">DoctorQ</h1>
+          <Logo size="xl" className="mb-2 justify-center flex" />
           <p className="text-gray-600">{t('auth.login')}</p>
         </div>
 

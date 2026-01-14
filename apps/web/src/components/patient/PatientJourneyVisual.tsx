@@ -34,8 +34,9 @@ export default function PatientJourneyVisual({
   const { t } = useTranslation();
 
   // Calculate how many chairs to show (people ahead)
+  // On mobile, show fewer chairs to prevent overflow
   const peopleAhead = Math.max(0, displayPosition - 1);
-  const maxChairsToShow = 4;
+  const maxChairsToShow = 3; // Reduced from 4 to fit mobile screens
   const visibleChairs = Math.min(peopleAhead, maxChairsToShow);
   const hasOverflow = peopleAhead > maxChairsToShow;
 
@@ -96,80 +97,82 @@ export default function PatientJourneyVisual({
   const styles = stateStyles[queueState];
   const showPulse = queueState === 'almost' || queueState === 'next' || queueState === 'yourTurn';
 
+  // Calculate gap between icons based on position (closer as position decreases)
+  // Position 4+: full width, Position 3: 85%, Position 2: 65%, Position 1: 45%
+  const getContainerWidth = () => {
+    if (displayPosition >= 4) return '100%';
+    if (displayPosition === 3) return '85%';
+    if (displayPosition === 2) return '65%';
+    return '45%'; // Position 1 or yourTurn
+  };
+
   return (
-    <div className={`${styles.containerBg} backdrop-blur rounded-2xl p-4 sm:p-6`}>
-      {/* Journey visualization */}
-      <div className="flex items-center justify-center gap-2 sm:gap-3 mb-4">
-        {/* Patient's position (highlighted) */}
-        <div className="relative flex flex-col items-center">
-          {/* Pulsing effect for urgent states */}
-          {showPulse && (
+    <div className={`${styles.containerBg} backdrop-blur rounded-2xl p-4 sm:p-6 overflow-hidden`}>
+      {/* Journey visualization - centered with dynamic width */}
+      <div className="flex flex-col items-center mb-4">
+        <div
+          className="flex items-start justify-between transition-all duration-500 ease-out"
+          style={{ width: getContainerWidth() }}
+        >
+          {/* Left: Patient's position (highlighted) */}
+          <div className="relative flex flex-col items-center flex-shrink-0">
+            {/* Pulsing effect for urgent states */}
+            {showPulse && (
+              <div
+                className={`absolute inset-0 rounded-xl ${styles.patientRing} ring-2 animate-ping opacity-30`}
+                style={{ animationDuration: '1.5s' }}
+              />
+            )}
             <div
-              className={`absolute inset-0 rounded-xl ${styles.patientRing} ring-2 animate-ping opacity-30`}
-              style={{ animationDuration: '1.5s' }}
-            />
-          )}
-          <div
-            className={`relative flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-xl ${styles.patientBg} ring-2 ${styles.patientRing}`}
-          >
-            <span
-              className={`material-symbols-outlined text-2xl sm:text-3xl ${styles.patientIcon}`}
-              style={{ fontVariationSettings: "'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24" }}
+              className={`relative flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-xl ${styles.patientBg} ring-2 ${styles.patientRing}`}
             >
-              person
+              <span
+                className={`material-symbols-outlined text-2xl sm:text-3xl ${styles.patientIcon}`}
+                style={{ fontVariationSettings: "'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24" }}
+              >
+                person
+              </span>
+            </div>
+            <span className={`text-xs mt-1 font-medium ${styles.textColor}`}>
+              {patientName ? patientName.split(' ')[0] : t('checkin.yourSpotLabel')}
             </span>
           </div>
-          <span className={`text-xs mt-1 font-medium ${styles.textColor}`}>
-            {patientName ? patientName.split(' ')[0] : t('checkin.yourSpotLabel')}
-          </span>
-        </div>
 
-        {/* Path to chairs/door */}
-        {(visibleChairs > 0 || queueState === 'next' || queueState === 'yourTurn') && (
-          <div className={`w-4 sm:w-6 border-t-2 border-dashed ${styles.pathColor}`} />
-        )}
-
-        {/* Chairs (people ahead) */}
-        {visibleChairs > 0 && (
-          <>
-            {Array.from({ length: visibleChairs }).map((_, index) => (
-              <div key={`chair-${index}`} className="flex flex-col items-center">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-lg bg-white/50">
+          {/* Center: Chairs (people ahead) - aligned with icon boxes */}
+          {visibleChairs > 0 && (
+            <div className="flex items-center h-12 sm:h-14">
+              <div className="flex items-center gap-1 sm:gap-2">
+                {Array.from({ length: visibleChairs }).map((_, index) => (
                   <span
-                    className={`material-symbols-outlined text-xl sm:text-2xl ${styles.chairColor}`}
+                    key={`chair-${index}`}
+                    className={`material-symbols-outlined text-2xl sm:text-3xl ${styles.chairColor}`}
                     style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
                   >
                     event_seat
                   </span>
-                </div>
+                ))}
               </div>
-            ))}
 
-            {/* Overflow indicator */}
-            {hasOverflow && (
-              <div className={`flex items-center justify-center text-sm font-medium ${styles.chairColor}`}>
-                +{peopleAhead - maxChairsToShow}
-              </div>
-            )}
+              {/* Overflow indicator */}
+              {hasOverflow && (
+                <span className={`text-base font-semibold ${styles.chairColor} ml-2`}>
+                  +{peopleAhead - maxChairsToShow}
+                </span>
+              )}
+            </div>
+          )}
 
-            {/* Path to door */}
-            <div className={`w-4 sm:w-6 border-t-2 border-dashed ${styles.pathColor}`} />
-          </>
-        )}
-
-        {/* Doctor's door (destination) */}
-        <div className="flex flex-col items-center">
-          <div className={`w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center rounded-xl ${queueState === 'yourTurn' ? 'bg-green-200' : 'bg-gray-100'}`}>
-            <span
-              className={`material-symbols-outlined text-2xl sm:text-3xl ${styles.doorColor}`}
-              style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
-            >
-              {queueState === 'yourTurn' ? 'door_open' : 'door_front'}
-            </span>
+          {/* Right: Doctor's door (destination) */}
+          <div className="flex flex-col items-center flex-shrink-0">
+            <div className={`w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center rounded-xl ${queueState === 'yourTurn' ? 'bg-green-200' : 'bg-gray-100'}`}>
+              <span
+                className={`material-symbols-outlined text-2xl sm:text-3xl ${styles.doorColor}`}
+                style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
+              >
+                {queueState === 'yourTurn' ? 'door_open' : 'door_front'}
+              </span>
+            </div>
           </div>
-          <span className={`text-xs mt-1 ${styles.textColor} opacity-70`}>
-            {queueState === 'yourTurn' ? '' : ''}
-          </span>
         </div>
       </div>
 

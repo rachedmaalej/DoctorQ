@@ -66,6 +66,7 @@ export interface AddPatientData {
   patientPhone: string;
   patientName?: string;
   appointmentTime?: string;  // v0.3: HH:MM format
+  arrivedAt?: string;        // ISO string for demo/testing - defaults to now() if not provided
 }
 
 export interface UpdateStatusData {

@@ -74,16 +74,16 @@ export default function TicketCard({
   const styles = colorSchemeStyles[colorScheme];
 
   return (
-    <div className="flex justify-center">
-      <div className="relative">
+    <div className="flex justify-center px-0">
+      <div className="relative w-full">
         {/* Main ticket body */}
         <div
           className={clsx(
-            'bg-gradient-to-br rounded-lg shadow-xl overflow-hidden flex relative',
+            'bg-gradient-to-br rounded-lg shadow-xl overflow-hidden flex relative w-full',
             styles.card,
             animate && 'animate-pulse'
           )}
-          style={{ width: '340px', height: '160px' }}
+          style={{ height: '160px' }}
         >
           {/* Star pattern overlay */}
           <div

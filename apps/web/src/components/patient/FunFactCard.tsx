@@ -13,6 +13,7 @@ const FACT_DURATION = 18000; // 18 seconds per fact
 export default function FunFactCard() {
   const { t, i18n } = useTranslation();
   const facts = getEyeFunFacts(i18n.language);
+  const factsLengthRef = useRef(facts.length);
 
   const [factIndex, setFactIndex] = useState(() =>
     Math.floor(Math.random() * facts.length)
@@ -22,12 +23,16 @@ export default function FunFactCard() {
   const animationRef = useRef<number | null>(null);
   const startTimeRef = useRef<number>(Date.now());
 
+  // Update facts length ref when language changes
   useEffect(() => {
-    // Reset progress when fact changes
+    factsLengthRef.current = facts.length;
+  }, [facts.length]);
+
+  // Progress animation - restarts when factIndex changes
+  useEffect(() => {
     startTimeRef.current = Date.now();
     setProgress(0);
 
-    // Animate progress
     const animateProgress = () => {
       const elapsed = Date.now() - startTimeRef.current;
       const newProgress = Math.min((elapsed / FACT_DURATION) * 100, 100);
@@ -40,7 +45,15 @@ export default function FunFactCard() {
 
     animationRef.current = requestAnimationFrame(animateProgress);
 
-    // Rotate fact
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    };
+  }, [factIndex]);
+
+  // Fact rotation interval - runs once on mount
+  useEffect(() => {
     const interval = setInterval(() => {
       // Start fade out
       setIsTransitioning(true);
@@ -50,24 +63,18 @@ export default function FunFactCard() {
         setFactIndex((prev) => {
           let next;
           do {
-            next = Math.floor(Math.random() * facts.length);
-          } while (next === prev && facts.length > 1);
+            next = Math.floor(Math.random() * factsLengthRef.current);
+          } while (next === prev && factsLengthRef.current > 1);
           return next;
         });
         setIsTransitioning(false);
-        // Reset progress for new fact
-        startTimeRef.current = Date.now();
-        setProgress(0);
       }, 300);
     }, FACT_DURATION);
 
     return () => {
       clearInterval(interval);
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
     };
-  }, [facts.length]);
+  }, []);
 
   // SVG circle properties for progress indicator
   const size = 20;

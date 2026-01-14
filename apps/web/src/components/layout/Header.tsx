@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/authStore';
+import Logo from '@/components/ui/Logo';
 
 export default function Header() {
   const { t, i18n } = useTranslation();
@@ -22,7 +23,7 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
           <div>
-            <h1 className="text-2xl font-bold text-primary-700">DoctorQ</h1>
+            <Logo size="md" />
             {clinic && (
               <p className="text-sm text-gray-600">{clinic.name}</p>
             )}
