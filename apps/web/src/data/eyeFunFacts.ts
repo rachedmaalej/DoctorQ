@@ -1,0 +1,36 @@
+/**
+ * Fun facts about the eye - displayed to patients while waiting
+ * These facts are in French for the Tunisian medical practice audience
+ */
+export const eyeFunFacts: string[] = [
+  "L'œil humain peut distinguer environ 10 millions de couleurs différentes.",
+  "Vos yeux contiennent 107 millions de cellules sensibles à la lumière — 7 millions de cônes pour les couleurs et 100 millions de bâtonnets pour la vision nocturne.",
+  "L'œil humain peut détecter la flamme d'une bougie à près de 2 kilomètres de distance par une nuit claire.",
+  "Les empreintes de l'iris sont uniques — même les vrais jumeaux ont des iris différents, ce qui en fait un outil d'identification plus fiable que les empreintes digitales.",
+  "Vos yeux se concentrent sur environ 50 objets différents chaque seconde et peuvent traiter 36 000 informations par heure.",
+  "Votre cornée est le seul tissu de votre corps qui ne contient aucun vaisseau sanguin — elle reçoit l'oxygène directement de l'air.",
+  "Les yeux sont les organes les plus actifs du corps humain — les muscles qui contrôlent vos yeux sont les plus rapides de tout votre organisme.",
+  "Un œil humain pèse environ 7 grammes et mesure environ 2,5 cm de diamètre.",
+  "Les bébés naissent avec des yeux qui font déjà 75 % de leur taille adulte, c'est pourquoi leurs yeux paraissent si grands par rapport à leur visage.",
+  "Il est impossible d'éternuer les yeux ouverts — c'est un réflexe de protection automatique du corps.",
+  "Les yeux guérissent remarquablement vite : une égratignure mineure sur la cornée peut se réparer en seulement 24 à 48 heures.",
+  "Les pirates portaient un cache-œil pour garder un œil adapté à l'obscurité lorsqu'ils passaient du pont aux cales sombres du navire.",
+  "Environ 80 % de ce que nous apprenons passe par nos yeux.",
+  "Les yeux bleus n'existent que depuis environ 10 000 ans — avant cela, tous les humains avaient les yeux bruns.",
+  "Vos yeux utilisent environ 65 % des ressources de votre cerveau, plus que toute autre partie du corps.",
+  "Les carottes améliorent vraiment la vision nocturne grâce à la vitamine A, mais ce mythe a été exagéré par les Britanniques pendant la Seconde Guerre mondiale pour cacher l'existence du radar.",
+  "Vous clignez des yeux environ 15 à 20 fois par minute, soit environ 1 200 fois par heure et 10 millions de fois par an.",
+  "Les nouveau-nés ne produisent pas de larmes avant l'âge de 4 à 13 semaines, bien qu'ils puissent pleurer.",
+  "La couleur des yeux peut changer légèrement avec l'âge en raison de changements dans la quantité de mélanine.",
+  "L'ophtalmologie est l'une des plus anciennes spécialités médicales — les premières chirurgies de la cataracte remontent à l'Antiquité, il y a plus de 2 000 ans.",
+  "Les muscles de l'œil sont les plus actifs du corps humain, effectuant plus de 100 000 mouvements par jour.",
+  "La rétine perçoit les images à l'envers — c'est le cerveau qui les retourne pour que nous voyions correctement.",
+  "Les daltoniens ne voient pas en noir et blanc — la plupart confondent simplement certaines nuances de rouge et de vert.",
+  "Les yeux verts sont les plus rares au monde, présents chez seulement 2 % de la population mondiale.",
+  "Un clignement d'œil dure entre 100 et 150 millisecondes — vous pouvez cligner cinq fois en une seconde.",
+  "Les larmes sont composées de trois couches : une couche lipidique, une couche aqueuse et une couche de mucine.",
+  "La première greffe de cornée réussie a été réalisée en 1905 par le Dr Eduard Zirm en Autriche.",
+  "Les requins et les humains partagent une structure oculaire similaire, ce qui rend les cornées de requin potentiellement utilisables pour des greffes.",
+  "La presbytie (difficulté à voir de près avec l'âge) touche pratiquement tout le monde à partir de 45 ans — c'est un processus naturel du vieillissement.",
+  "Les astronautes peuvent souffrir de problèmes de vision dans l'espace en raison de la pression intracrânienne modifiée par la microgravité — un phénomène appelé syndrome neuro-oculaire associé aux vols spatiaux.",
+];

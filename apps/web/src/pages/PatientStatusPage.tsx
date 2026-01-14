@@ -8,6 +8,7 @@ import Confetti from '@/components/ui/Confetti';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 import TicketCard, { type TicketColorScheme } from '@/components/patient/TicketCard';
 import PatientJourneyVisual from '@/components/patient/PatientJourneyVisual';
+import FunFactCard from '@/components/patient/FunFactCard';
 import type { QueueEntry } from '@/types';
 
 // Queue state types based on patient's journey
@@ -429,45 +430,8 @@ export default function PatientStatusPage() {
           </div>
         )}
 
-        {/* Message Card - additional contextual guidance (only for states that need extra info) */}
-        {queueState === 'closer' && (
-          <div className="bg-teal-50 border border-teal-200 rounded-xl p-4 text-center">
-            <p className="text-teal-700">
-              {t('patient.stayNearby')}
-            </p>
-          </div>
-        )}
-
-        {queueState === 'far' && (
-          <div className="bg-white/80 backdrop-blur border border-gray-200 rounded-xl p-4 text-center">
-            <p className="text-gray-600">
-              {tPersonal('patient.watchingYourTurn')}
-            </p>
-          </div>
-        )}
-
-        {/* Progress Indicator */}
-        {queueState !== 'completed' && queueState !== 'cancelled' && queueState !== 'yourTurn' && (
-          <div className="bg-white/60 backdrop-blur rounded-xl p-4">
-            <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
-              <span>{t('patient.waitingInQueue')}</span>
-              <span>#{displayPosition}</span>
-            </div>
-            <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-              <div
-                className={`h-full rounded-full transition-all duration-500 ${
-                  queueState === 'almost' ? 'bg-amber-500' :
-                  queueState === 'next' ? 'bg-green-500' :
-                  queueState === 'closer' ? 'bg-teal-500' :
-                  'bg-primary-500'
-                }`}
-                style={{
-                  width: `${Math.min(100, Math.max(10, 100 - (displayPosition - 1) * 15))}%`
-                }}
-              />
-            </div>
-          </div>
-        )}
+        {/* Fun Fact Card - eye-related fun facts for waiting patients */}
+        {showTicket && <FunFactCard />}
 
         {/* Leave Queue Button - only show in active queue states */}
         {canLeaveQueue && (
