@@ -100,16 +100,6 @@ const stateConfig: Record<QueueState, {
   }
 };
 
-// Calculate patients waiting ahead (based on display position)
-// Display position 1 = next (0 waiting ahead)
-// Display position 2 = 1 waiting ahead
-// Display position 3+ = displayPosition - 1 waiting ahead
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function getPatientsWaitingAhead(displayPosition: number): number {
-  if (displayPosition <= 1) return 0;
-  return displayPosition - 1;
-}
-
 export default function PatientStatusPage() {
   const { t } = useTranslation();
   const { entryId } = useParams<{ entryId: string }>();
