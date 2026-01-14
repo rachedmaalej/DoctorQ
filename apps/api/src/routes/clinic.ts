@@ -40,7 +40,7 @@ router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ error: 'Clinic not found' });
     }
 
-    res.json(clinic);
+    res.json({ data: clinic });
   } catch (error: any) {
     console.error('Error fetching clinic:', error);
     res.status(500).json({ error: 'Failed to fetch clinic details' });
