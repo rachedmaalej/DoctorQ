@@ -49,9 +49,12 @@ class ApiClient {
 
       if (!response.ok) {
         console.error(`[API] Error response:`, data);
-        const error: ApiError = data.error || {
-          code: 'UNKNOWN_ERROR',
-          message: 'An unexpected error occurred',
+        const error: ApiError & { data?: any } = {
+          ...(data.error || {
+            code: 'UNKNOWN_ERROR',
+            message: 'An unexpected error occurred',
+          }),
+          data: data.data,  // Include data field for cases like ALREADY_CHECKED_IN
         };
         throw error;
       }

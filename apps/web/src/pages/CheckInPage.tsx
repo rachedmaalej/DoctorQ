@@ -137,7 +137,12 @@ export default function CheckInPage() {
     } catch (err: any) {
       console.error('Check-in error:', err);
 
-      if (err.code === 'ALREADY_CHECKED_IN') {
+      if (err.code === 'ALREADY_CHECKED_IN' && err.data?.id) {
+        // Redirect to existing patient's status page
+        navigate(`/patient/${err.data.id}`);
+        return;
+      } else if (err.code === 'ALREADY_CHECKED_IN') {
+        // Fallback if no entry ID returned (shouldn't happen)
         setError(t('checkin.alreadyCheckedIn') || 'You are already checked in');
       } else if (err.code === 'CLINIC_NOT_FOUND') {
         setError(t('checkin.clinicNotFound') || 'Clinic not found');
