@@ -1,11 +1,13 @@
 import { useEffect, useState, useCallback } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { api } from '@/lib/api';
 import { useSocket } from '@/hooks/useSocket';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import Confetti from '@/components/ui/Confetti';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 import TicketCard, { type TicketColorScheme } from '@/components/patient/TicketCard';
+import PatientJourneyVisual from '@/components/patient/PatientJourneyVisual';
 import type { QueueEntry } from '@/types';
 
 // Queue state types based on patient's journey
@@ -110,10 +112,13 @@ function getPatientsWaitingAhead(displayPosition: number): number {
 export default function PatientStatusPage() {
   const { t } = useTranslation();
   const { entryId } = useParams<{ entryId: string }>();
+  const navigate = useNavigate();
   const [entry, setEntry] = useState<QueueEntry | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
+  const [isLeaving, setIsLeaving] = useState(false);
 
   // Helper to get personalized translation (uses Named variant if name exists)
   // Supports passing additional interpolation params
@@ -188,6 +193,29 @@ export default function PatientStatusPage() {
     }
   }, [entryId, joinPatientRoom]);
 
+  // Handle leaving the queue
+  const handleLeaveQueue = async () => {
+    if (!entryId) return;
+
+    setIsLeaving(true);
+    try {
+      await api.leaveQueue(entryId);
+      // The socket will update the status, but we can also force a refresh
+      setIsLeaveModalOpen(false);
+    } catch (err: any) {
+      console.error('Failed to leave queue:', err);
+      // Still close modal - socket update will show correct state
+      setIsLeaveModalOpen(false);
+    } finally {
+      setIsLeaving(false);
+    }
+  };
+
+  // Can leave queue in these states
+  const canLeaveQueue = entry && ['far', 'closer', 'almost', 'next', 'yourTurn'].includes(
+    getQueueState(entry.position, entry.status)
+  );
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -214,7 +242,6 @@ export default function PatientStatusPage() {
   const config = stateConfig[queueState];
   const displayPosition = getDisplayPosition(entry.position, entry.status);
   const waitingAhead = getPatientsWaitingAhead(displayPosition);
-  const estimatedWaitMins = displayPosition * 15; // Based on display position
 
   // Determine if we should show the ticket card
   const showTicket = ['far', 'closer', 'almost', 'next'].includes(queueState);
@@ -267,11 +294,20 @@ export default function PatientStatusPage() {
             <h1 className={`text-xl font-bold ${config.accent} mb-1`}>
               {entry.status === 'NO_SHOW'
                 ? tPersonal('patient.noShow')
-                : tPersonal('patient.cancelled')
+                : tPersonal('patient.leftQueue')
               }
             </h1>
           )}
         </div>
+
+        {/* Visual Journey - shows patient's progress through queue */}
+        {showTicket && (
+          <PatientJourneyVisual
+            displayPosition={displayPosition}
+            queueState={queueState as 'far' | 'closer' | 'almost' | 'next' | 'yourTurn'}
+            patientName={entry.patientName || undefined}
+          />
+        )}
 
         {/* Ticket Card - for active queue states */}
         {showTicket && (
@@ -279,26 +315,38 @@ export default function PatientStatusPage() {
             position={displayPosition}
             colorScheme={getTicketColorScheme(queueState)}
             animate={queueState === 'almost'}
-            patientsAhead={waitingAhead}
-            estimatedWaitMins={queueState !== 'next' ? estimatedWaitMins : undefined}
           />
         )}
 
         {/* Your Turn Card */}
         {queueState === 'yourTurn' && (
-          <div className={`${config.card} rounded-2xl shadow-lg p-8 ${config.animate}`}>
-            <div className="text-center">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-300 mb-4">
-                <span className="material-symbols-outlined text-5xl text-green-800">celebration</span>
+          <>
+            {/* Visual Journey for yourTurn - patient at door */}
+            <PatientJourneyVisual
+              displayPosition={0}
+              queueState="yourTurn"
+              patientName={entry.patientName || undefined}
+            />
+
+            <div className={`${config.card} rounded-2xl shadow-lg p-8 ${config.animate}`}>
+              <div className="text-center">
+                <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-300 mb-4">
+                  <span
+                    className="material-symbols-outlined text-5xl text-green-800"
+                    style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 48" }}
+                  >
+                    celebration
+                  </span>
+                </div>
+                <p className="text-green-700 text-lg font-medium mb-2">
+                  {tPersonal('patient.doctorWaiting')}
+                </p>
+                <p className="text-green-600">
+                  {tPersonal('patient.enterOffice')}
+                </p>
               </div>
-              <p className="text-green-700 text-lg font-medium mb-2">
-                {tPersonal('patient.doctorWaiting')}
-              </p>
-              <p className="text-green-600">
-                {tPersonal('patient.enterOffice')}
-              </p>
             </div>
-          </div>
+          </>
         )}
 
         {/* Completed Card */}
@@ -315,13 +363,35 @@ export default function PatientStatusPage() {
           </div>
         )}
 
-        {/* Cancelled Card */}
+        {/* Cancelled / Left Queue Card */}
         {queueState === 'cancelled' && (
           <div className={`${config.card} rounded-2xl shadow-lg p-8`}>
-            <div className="text-center">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-200 mb-4">
-                <span className="material-symbols-outlined text-4xl text-gray-500">cancel</span>
+            <div className="text-center space-y-4">
+              {/* Icon */}
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gray-200 mb-2">
+                <span className="material-symbols-outlined text-4xl text-gray-500">
+                  {entry.status === 'NO_SHOW' ? 'cancel' : 'exit_to_app'}
+                </span>
               </div>
+
+              {/* Message */}
+              <p className="text-gray-600">
+                {entry.status === 'NO_SHOW'
+                  ? t('patient.noShow')
+                  : t('patient.leftQueueMessage')
+                }
+              </p>
+
+              {/* Rejoin Button - link to check-in page */}
+              {(entry as any).clinicId && (
+                <button
+                  onClick={() => navigate(`/checkin/${(entry as any).clinicId}`)}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-xl transition-colors"
+                >
+                  <span className="material-symbols-outlined">refresh</span>
+                  {t('patient.rejoinQueue')}
+                </button>
+              )}
             </div>
           </div>
         )}
@@ -387,12 +457,36 @@ export default function PatientStatusPage() {
           </div>
         )}
 
+        {/* Leave Queue Button - only show in active queue states */}
+        {canLeaveQueue && (
+          <button
+            onClick={() => setIsLeaveModalOpen(true)}
+            className="w-full py-3 px-4 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm"
+          >
+            <span className="material-symbols-outlined text-lg">logout</span>
+            {t('patient.leaveQueue')}
+          </button>
+        )}
+
         {/* Auto-refresh indicator */}
         <p className="text-center text-gray-500 text-sm flex items-center justify-center gap-2">
           <span className="material-symbols-outlined text-lg">sync</span>
           {t('patient.autoRefresh')}
         </p>
       </div>
+
+      {/* Leave Queue Confirmation Modal */}
+      <ConfirmModal
+        isOpen={isLeaveModalOpen}
+        onClose={() => setIsLeaveModalOpen(false)}
+        onConfirm={handleLeaveQueue}
+        title={t('patient.confirmLeaveTitle')}
+        message={t('patient.confirmLeaveMessage')}
+        confirmText={t('patient.confirmLeaveButton')}
+        cancelText={t('patient.cancelLeaveButton')}
+        variant="danger"
+        isLoading={isLeaving}
+      />
     </div>
   );
 }

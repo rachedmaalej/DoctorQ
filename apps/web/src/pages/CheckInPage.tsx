@@ -6,8 +6,7 @@ import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 
 // Format phone number as "+216 XX XXX XXX"
 function formatTunisianPhone(value: string): string {
-  // Remove all non-digit characters except the leading +
-  const hasPlus = value.startsWith('+');
+  // Remove all non-digit characters
   const digits = value.replace(/\D/g, '');
 
   // If user cleared everything, return the prefix
@@ -63,10 +62,17 @@ export default function CheckInPage() {
   const [error, setError] = useState<string | null>(null);
   const [clinicName, setClinicName] = useState<string>('');
 
-  // Fetch clinic name on mount
+  // Fetch clinic info
   useEffect(() => {
-    // For now, we'll set a default name. In production, we could fetch clinic info
-    setClinicName('Clinic');
+    if (clinicId) {
+      api.getClinicInfo(clinicId)
+        .then((info) => {
+          if (info.name) setClinicName(info.name);
+        })
+        .catch(() => {
+          // Silently fail - clinic name is optional display
+        });
+    }
   }, [clinicId]);
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -144,47 +150,45 @@ export default function CheckInPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-teal-50 flex items-center justify-center p-4 relative">
+    <div className="h-screen bg-gradient-to-br from-primary-50 to-teal-50 flex items-center justify-center p-3 relative overflow-hidden">
       {/* Language Switcher - Top corner */}
-      <div className="absolute top-4 ltr:right-4 rtl:left-4">
+      <div className="absolute top-3 ltr:right-3 rtl:left-3 z-10">
         <LanguageSwitcher />
       </div>
 
       <div className="max-w-md w-full">
-        {/* Clinic Header */}
+        {/* Clinic Name Header */}
         {clinicName && (
-          <div className="text-center mb-6">
-            <div className="inline-flex items-center gap-2 text-primary-700">
-              <span className="material-symbols-outlined text-2xl">local_hospital</span>
-              <span className="font-medium">{clinicName}</span>
-            </div>
+          <div className="flex items-center justify-center gap-2 mb-3 text-gray-600">
+            <span className="material-symbols-outlined text-xl text-primary-500">medical_services</span>
+            <span className="text-sm font-medium">{clinicName}</span>
           </div>
         )}
-
         {/* Welcome Card */}
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
           {/* Welcome Header */}
-          <div className="bg-gradient-to-r from-primary-500 to-teal-500 px-8 py-8 text-white text-center">
-            <div className="w-16 h-16 bg-white/20 backdrop-blur rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <span className="material-symbols-outlined text-4xl text-white">door_front</span>
+          <div className="bg-gradient-to-r from-primary-500 to-teal-500 px-5 py-4 text-white text-center">
+            {/* Clinic Icon Badge */}
+            <div className="w-11 h-11 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center mx-auto mb-2">
+              <span className="material-symbols-outlined text-2xl text-white">local_hospital</span>
             </div>
-            <h1 className="text-2xl font-bold mb-2">
+
+            {/* Title */}
+            <h1 className="text-xl font-bold">
               {t('checkin.title')}
             </h1>
-            <p className="text-white/90 text-sm">
-              {t('checkin.subtitle')}
-            </p>
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="p-8 space-y-6">
+          <form onSubmit={handleSubmit} className="px-5 py-4 space-y-3">
+
             {/* Phone Number Field */}
             <div>
               <label
                 htmlFor="patientPhone"
-                className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2"
+                className="flex items-center gap-1.5 text-sm font-medium text-gray-700 mb-1"
               >
-                <span className="material-symbols-outlined text-lg text-gray-500">phone</span>
+                <span className="material-symbols-outlined text-base text-gray-500">phone</span>
                 {t('checkin.phoneNumber')} *
               </label>
               <input
@@ -196,7 +200,7 @@ export default function CheckInPage() {
                 onKeyDown={handlePhoneKeyDown}
                 onFocus={handlePhoneFocus}
                 placeholder={t('checkin.phonePlaceholder')}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent text-lg tracking-wide"
+                className="w-full px-3 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent text-base tracking-wide"
                 required
                 disabled={isLoading}
                 autoComplete="tel"
@@ -207,9 +211,9 @@ export default function CheckInPage() {
             <div>
               <label
                 htmlFor="patientName"
-                className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2"
+                className="flex items-center gap-1.5 text-sm font-medium text-gray-700 mb-1"
               >
-                <span className="material-symbols-outlined text-lg text-gray-500">person</span>
+                <span className="material-symbols-outlined text-base text-gray-500">person</span>
                 {t('checkin.name')} <span className="text-gray-400 font-normal">{t('checkin.nameOptional')}</span>
               </label>
               <input
@@ -218,7 +222,7 @@ export default function CheckInPage() {
                 value={patientName}
                 onChange={(e) => setPatientName(e.target.value)}
                 placeholder={t('checkin.namePlaceholder')}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full px-3 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 disabled={isLoading}
                 autoComplete="name"
               />
@@ -226,8 +230,8 @@ export default function CheckInPage() {
 
             {/* Error Message */}
             {error && (
-              <div className="flex items-start gap-3 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
-                <span className="material-symbols-outlined text-xl flex-shrink-0">error</span>
+              <div className="flex items-start gap-2 bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-xl">
+                <span className="material-symbols-outlined text-lg flex-shrink-0">error</span>
                 <span className="text-sm">{error}</span>
               </div>
             )}
@@ -236,26 +240,24 @@ export default function CheckInPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-4 px-4 rounded-xl transition-colors flex items-center justify-center gap-2"
+              className="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-xl transition-colors flex items-center justify-center gap-2"
             >
               <span className="material-symbols-outlined text-xl">confirmation_number</span>
               {isLoading ? t('common.loading') : t('checkin.submitButton')}
             </button>
 
-            {/* SMS Promise */}
-            <div className="flex items-center gap-3 text-sm text-gray-600 bg-gray-50 px-4 py-3 rounded-xl">
-              <span className="material-symbols-outlined text-xl text-primary-500 flex-shrink-0">sms</span>
-              <span>{t('checkin.smsPromise')}</span>
+            {/* Privacy & Notification combined */}
+            <div className="flex items-center justify-center gap-4 text-xs text-gray-500 pt-1">
+              <span className="flex items-center gap-1">
+                <span className="material-symbols-outlined text-sm">lock</span>
+                {t('checkin.privacy')}
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="material-symbols-outlined text-sm text-primary-500">notifications_active</span>
+                {t('checkin.notificationPromise')}
+              </span>
             </div>
           </form>
-
-          {/* Privacy Note */}
-          <div className="px-8 pb-6">
-            <div className="flex items-center justify-center gap-2 text-xs text-gray-500">
-              <span className="material-symbols-outlined text-base">lock</span>
-              <span>{t('checkin.privacy')}</span>
-            </div>
-          </div>
         </div>
       </div>
     </div>

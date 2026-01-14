@@ -90,6 +90,47 @@ router.patch('/', authMiddleware, async (req: AuthRequest, res: Response) => {
   }
 });
 
+// GET /api/clinic/:clinicId/info - Public endpoint for clinic info (for check-in page)
+router.get('/:clinicId/info', async (req, res: Response) => {
+  try {
+    const { clinicId } = req.params;
+
+    const clinic = await prisma.clinic.findUnique({
+      where: { id: clinicId },
+      select: {
+        id: true,
+        name: true,
+        avgConsultationMins: true,
+      },
+    });
+
+    if (!clinic) {
+      return res.status(404).json({
+        error: { code: 'CLINIC_NOT_FOUND', message: 'Clinic not found' },
+      });
+    }
+
+    // Count waiting patients
+    const waitingCount = await prisma.queueEntry.count({
+      where: {
+        clinicId,
+        status: { in: ['WAITING', 'NOTIFIED'] },
+      },
+    });
+
+    res.json({
+      data: {
+        name: clinic.name,
+        waitingCount,
+        avgConsultationMins: clinic.avgConsultationMins,
+      },
+    });
+  } catch (error: any) {
+    console.error('Error fetching clinic info:', error);
+    res.status(500).json({ error: 'Failed to fetch clinic info' });
+  }
+});
+
 // GET /api/clinic/qr - Generate QR code for check-in
 router.get('/qr', authMiddleware, async (req: AuthRequest, res: Response) => {
   try {

@@ -29,7 +29,7 @@ export default function LoginPage() {
   const handleDevLogin = async () => {
     setIsSubmitting(true);
     try {
-      await login({ email: 'dr.ahmed@example.tn', password: 'password123' });
+      await login({ email: 'dr.skander@example.tn', password: 'password123' });
       navigate('/dashboard');
     } catch (error) {
       // Error is handled by the store
@@ -65,7 +65,7 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                placeholder="dr.ahmed@example.tn"
+                placeholder="dr.skander@example.tn"
               />
             </div>
 
@@ -100,15 +100,16 @@ export default function LoginPage() {
                 type="button"
                 onClick={handleDevLogin}
                 disabled={isSubmitting}
-                className="w-full bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                className="w-full bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center justify-center gap-2"
               >
-                🚀 Dev Login (Quick)
+                <span className="material-symbols-outlined text-lg">bolt</span>
+                Dev Login (Quick)
               </button>
             </div>
           )}
 
           <div className="mt-4 text-center text-sm text-gray-600">
-            <p>Test account: dr.ahmed@example.tn / password123</p>
+            <p>Test account: dr.skander@example.tn / password123</p>
           </div>
         </div>
       </div>

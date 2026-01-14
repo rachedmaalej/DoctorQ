@@ -6,6 +6,8 @@ import { useSocket } from '@/hooks/useSocket';
 import QueueList from '@/components/queue/QueueList';
 import QueueStats from '@/components/queue/QueueStats';
 import QRCodeCard from '@/components/queue/QRCodeCard';
+import QRCodeModal from '@/components/queue/QRCodeModal';
+import MobileDashboard from '@/components/queue/MobileDashboard';
 import AddPatientModal from '@/components/queue/AddPatientModal';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 import Header from '@/components/layout/Header';
@@ -17,6 +19,7 @@ export default function DashboardPage() {
   const { clinic } = useAuthStore();
   const { queue, stats, fetchQueue, callNext, removePatient, clearQueue, resetStats } = useQueueStore();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isQRModalOpen, setIsQRModalOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [isClearQueueModalOpen, setIsClearQueueModalOpen] = useState(false);
   const [patientToRemove, setPatientToRemove] = useState<string | null>(null);
@@ -128,9 +131,26 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-32 lg:pb-8">
-      <Header />
+      {/* Desktop Header - hidden on mobile since MobileDashboard has its own stats bar */}
+      <div className="hidden lg:block">
+        <Header />
+      </div>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      {/* Mobile Dashboard - visible only on small screens */}
+      <div className="lg:hidden">
+        <MobileDashboard
+          queue={queue}
+          stats={stats}
+          onCallNext={handleCallNext}
+          onAddPatient={() => setIsAddModalOpen(true)}
+          onRemovePatient={handleRemovePatient}
+          onShowQR={() => setIsQRModalOpen(true)}
+          isCallingNext={isCallingNext}
+        />
+      </div>
+
+      {/* Desktop Layout - hidden on mobile */}
+      <main className="hidden lg:block max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Header */}
         <div className="mb-6 sm:mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{t('queue.title')}</h1>
@@ -141,8 +161,8 @@ export default function DashboardPage() {
 
         {/* Main Grid Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-6">
-          {/* Left Column - QR Code Card (desktop only - shown at top on desktop) */}
-          <aside className="hidden lg:block lg:sticky lg:top-6 self-start">
+          {/* Left Column - QR Code Card */}
+          <aside className="lg:sticky lg:top-6 self-start">
             <QRCodeCard />
           </aside>
 
@@ -181,25 +201,22 @@ export default function DashboardPage() {
               exitingPatientId={exitingPatientId}
             />
           </div>
-
-          {/* QR Code Card - Mobile only (shown at bottom) */}
-          <div className="lg:hidden">
-            <QRCodeCard compact />
-          </div>
         </div>
       </main>
 
-      {/* Call Next FAB - Primary Action (Fixed Position) */}
-      <MD3FAB
-        variant="primary"
-        size="large"
-        icon={<span className="material-symbols-outlined">directions_walk</span>}
-        onClick={handleCallNext}
-        disabled={waitingCount === 0 || isCallingNext}
-        className="fixed bottom-6 end-6 z-50 lg:bottom-8 lg:end-8"
-        title={t('queue.callNext')}
-        aria-label={t('queue.callNext')}
-      />
+      {/* Call Next FAB - Primary Action (Fixed Position) - Desktop only */}
+      <div className="hidden lg:block">
+        <MD3FAB
+          variant="primary"
+          size="large"
+          icon={<span className="material-symbols-outlined">directions_walk</span>}
+          onClick={handleCallNext}
+          disabled={waitingCount === 0 || isCallingNext}
+          className="fixed bottom-6 end-6 z-50 lg:bottom-8 lg:end-8"
+          title={t('queue.callNext')}
+          aria-label={t('queue.callNext')}
+        />
+      </div>
 
       {/* Add patient modal */}
       <AddPatientModal
@@ -227,6 +244,12 @@ export default function DashboardPage() {
         message={t('queue.confirmClear') || 'Are you sure you want to remove all patients from the queue? This action cannot be undone.'}
         variant="danger"
         isLoading={isClearing}
+      />
+
+      {/* QR Code modal for mobile */}
+      <QRCodeModal
+        isOpen={isQRModalOpen}
+        onClose={() => setIsQRModalOpen(false)}
       />
     </div>
   );

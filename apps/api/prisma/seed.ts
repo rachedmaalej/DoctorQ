@@ -4,21 +4,25 @@ import bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Seeding database...');
+  console.log('Seeding database...');
 
-  // Create test clinic (Dr. Ahmed, La Marsa)
+  // Clean up old test data first
+  console.log('Cleaning up old test data...');
+  await prisma.dailyStat.deleteMany({});
+  await prisma.queueEntry.deleteMany({});
+  await prisma.clinic.deleteMany({});
+
+  // Create test clinic (Dr. Skander Kamoun)
   const passwordHash = await bcrypt.hash('password123', 10);
 
-  const clinic = await prisma.clinic.upsert({
-    where: { email: 'dr.ahmed@example.tn' },
-    update: {},
-    create: {
-      name: 'Cabinet Dr. Ahmed',
-      doctorName: 'Dr. Ahmed Ben Ali',
-      email: 'dr.ahmed@example.tn',
+  const clinic = await prisma.clinic.create({
+    data: {
+      name: 'Cabinet Dr Skander Kamoun',
+      doctorName: 'Dr. Skander Kamoun',
+      email: 'dr.skander@example.tn',
       passwordHash,
       phone: '+21671234567',
-      address: 'La Marsa, Tunis',
+      address: 'Tunis, Tunisia',
       language: 'fr',
       avgConsultationMins: 15,
       notifyAtPosition: 2,
@@ -26,7 +30,7 @@ async function main() {
     },
   });
 
-  console.log(`✅ Created test clinic: ${clinic.name}`);
+  console.log(`Created test clinic: ${clinic.name}`);
 
   // Create test queue entries with various statuses
   const now = new Date();
@@ -89,32 +93,20 @@ async function main() {
     },
   ];
 
-  // Delete existing queue entries for this clinic to avoid duplicates
-  await prisma.queueEntry.deleteMany({
-    where: { clinicId: clinic.id },
-  });
-
   // Create queue entries
   for (const entry of queueEntries) {
     await prisma.queueEntry.create({ data: entry });
   }
 
-  console.log(`✅ Created ${queueEntries.length} test queue entries`);
+  console.log(`Created ${queueEntries.length} test queue entries`);
 
   // Create some historical stats
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
   yesterday.setHours(0, 0, 0, 0);
 
-  await prisma.dailyStat.upsert({
-    where: {
-      clinicId_date: {
-        clinicId: clinic.id,
-        date: yesterday,
-      },
-    },
-    update: {},
-    create: {
+  await prisma.dailyStat.create({
+    data: {
       clinicId: clinic.id,
       date: yesterday,
       totalPatients: 28,
@@ -123,17 +115,17 @@ async function main() {
     },
   });
 
-  console.log('✅ Created historical stats');
+  console.log('Created historical stats');
 
-  console.log('\n🎉 Seeding complete!');
+  console.log('\nSeeding complete!');
   console.log('\nTest Credentials:');
-  console.log('Email: dr.ahmed@example.tn');
+  console.log('Email: dr.skander@example.tn');
   console.log('Password: password123');
 }
 
 main()
   .catch((e) => {
-    console.error('❌ Seeding failed:');
+    console.error('Seeding failed:');
     console.error(e);
     process.exit(1);
   })

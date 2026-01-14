@@ -146,11 +146,23 @@ class ApiClient {
     return this.request<QueueEntry>(`/api/queue/patient/${entryId}`);
   }
 
+  // Patient leave queue (public)
+  async leaveQueue(entryId: string): Promise<{ message: string; status: string }> {
+    return this.request(`/api/queue/patient/${entryId}/leave`, {
+      method: 'POST',
+    });
+  }
+
   async checkIn(clinicId: string, data: { patientPhone: string; patientName?: string }): Promise<QueueEntry & { clinicName: string; estimatedWaitMins: number }> {
     return this.request(`/api/queue/checkin/${clinicId}`, {
       method: 'POST',
       body: JSON.stringify(data),
     });
+  }
+
+  // Public clinic info (for check-in page)
+  async getClinicInfo(clinicId: string): Promise<{ name: string; waitingCount: number; avgConsultationMins: number }> {
+    return this.request(`/api/clinic/${clinicId}/info`);
   }
 
   // Clinic endpoints

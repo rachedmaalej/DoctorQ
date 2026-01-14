@@ -6,10 +6,8 @@ export type TicketColorScheme = 'calm' | 'teal' | 'amber' | 'green';
 interface TicketCardProps {
   position: number;
   clinicName?: string;
-  estimatedWaitMins?: number;
   colorScheme: TicketColorScheme;
   animate?: boolean;
-  patientsAhead?: number;
 }
 
 const colorSchemeStyles: Record<TicketColorScheme, {
@@ -47,10 +45,8 @@ const colorSchemeStyles: Record<TicketColorScheme, {
 export default function TicketCard({
   position,
   clinicName,
-  estimatedWaitMins,
   colorScheme,
   animate = false,
-  patientsAhead,
 }: TicketCardProps) {
   const { t } = useTranslation();
   const styles = colorSchemeStyles[colorScheme];
@@ -87,21 +83,6 @@ export default function TicketCard({
         <div className="space-y-2 text-center">
           {clinicName && (
             <p className={clsx('font-medium', styles.text)}>{clinicName}</p>
-          )}
-
-          {patientsAhead !== undefined && patientsAhead > 0 && (
-            <p className={clsx('text-sm', styles.text)}>
-              {t('patient.patientsAhead', { count: patientsAhead })}
-            </p>
-          )}
-
-          {estimatedWaitMins !== undefined && estimatedWaitMins > 0 && (
-            <div className={clsx('flex items-center justify-center gap-2', styles.accent)}>
-              <span className="material-symbols-outlined text-xl">schedule</span>
-              <span className="text-sm font-medium">
-                ~{estimatedWaitMins} {t('patient.minutes')}
-              </span>
-            </div>
           )}
         </div>
       </div>

@@ -719,6 +719,88 @@ router.post('/checkin/:clinicId', async (req, res: Response) => {
   }
 });
 
+// POST /api/queue/patient/:entryId/leave - Patient self-removal from queue (public)
+router.post('/patient/:entryId/leave', async (req, res: Response) => {
+  try {
+    const { entryId } = req.params;
+
+    // Find the queue entry
+    const entry = await prisma.queueEntry.findUnique({
+      where: { id: entryId },
+    });
+
+    if (!entry) {
+      return res.status(404).json({
+        error: {
+          code: 'ENTRY_NOT_FOUND',
+          message: 'Queue entry not found',
+        },
+      });
+    }
+
+    // Check if patient can leave (not already completed/cancelled/no-show)
+    const nonLeavableStatuses = [QueueStatus.COMPLETED, QueueStatus.CANCELLED, QueueStatus.NO_SHOW];
+    if (nonLeavableStatuses.includes(entry.status)) {
+      return res.status(400).json({
+        error: {
+          code: 'CANNOT_LEAVE',
+          message: 'Cannot leave queue in current status',
+        },
+      });
+    }
+
+    const clinicId = entry.clinicId;
+
+    // Update status to CANCELLED (patient chose to leave)
+    await prisma.queueEntry.update({
+      where: { id: entryId },
+      data: {
+        status: QueueStatus.CANCELLED,
+      },
+    });
+
+    // Recalculate positions and statuses for remaining patients
+    await recalculatePositionsAndStatuses(clinicId);
+
+    // Get ALL updated patients to emit real-time updates
+    const updatedPatients = await prisma.queueEntry.findMany({
+      where: {
+        clinicId,
+        status: {
+          in: [QueueStatus.WAITING, QueueStatus.NOTIFIED, QueueStatus.IN_CONSULTATION],
+        },
+      },
+      orderBy: { position: 'asc' },
+    });
+
+    // Emit real-time update to dashboard
+    await emitQueueUpdate(clinicId);
+
+    // Emit updates to EACH remaining patient's status page
+    for (const patient of updatedPatients) {
+      emitPatientUpdate(patient.id, patient.position, patient.status);
+    }
+
+    // Emit update to the leaving patient (so their page updates to cancelled state)
+    emitPatientUpdate(entryId, 0, QueueStatus.CANCELLED);
+
+    res.json({
+      data: {
+        message: 'Successfully left the queue',
+        status: QueueStatus.CANCELLED,
+      },
+    });
+  } catch (error) {
+    console.error('Patient leave queue error:', error);
+    res.status(500).json({
+      error: {
+        code: 'SERVER_ERROR',
+        message: 'Failed to leave queue',
+      },
+    });
+  }
+});
+
 // GET /api/queue/patient/:entryId - Get patient status (public)
 router.get('/patient/:entryId', async (req, res: Response) => {
   try {
@@ -751,6 +833,7 @@ router.get('/patient/:entryId', async (req, res: Response) => {
     res.json({
       data: {
         id: entry.id,
+        clinicId: entry.clinicId,
         patientName: entry.patientName,
         position: entry.position,
         status: entry.status,

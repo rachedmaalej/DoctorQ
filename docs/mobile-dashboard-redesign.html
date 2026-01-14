@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DoctorQ Mobile Dashboard - Redesign Alternatives</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            primary: {
+              50: '#e6f7f7',
+              100: '#ccefef',
+              200: '#99dfdf',
+              300: '#66cfcf',
+              400: '#33bfbf',
+              500: '#00afaf',
+              600: '#008c8c',
+              700: '#006969',
+              800: '#004646',
+              900: '#002323',
+            },
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .material-symbols-outlined.filled {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .phone-frame {
+      width: 375px;
+      height: 812px;
+      border: 12px solid #1a1a1a;
+      border-radius: 44px;
+      overflow: hidden;
+      position: relative;
+      background: white;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+    .phone-frame::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 150px;
+      height: 30px;
+      background: #1a1a1a;
+      border-radius: 0 0 20px 20px;
+      z-index: 100;
+    }
+    .phone-content {
+      height: 100%;
+      overflow-y: auto;
+      padding-top: 44px;
+    }
+    .scroll-shadow {
+      background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 100%);
+    }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen py-12 px-4">
+
+  <!-- Header -->
+  <div class="max-w-7xl mx-auto mb-12">
+    <h1 class="text-4xl font-bold text-gray-900 mb-4">DoctorQ Mobile Dashboard Redesign</h1>
+    <p class="text-xl text-gray-600 max-w-3xl">Three alternative approaches based on user needs analysis</p>
+  </div>
+
+  <!-- User Needs Analysis -->
+  <div class="max-w-7xl mx-auto mb-16 bg-white rounded-2xl p-8 shadow-lg">
+    <h2 class="text-2xl font-bold text-gray-900 mb-6">User Needs Analysis</h2>
+
+    <div class="grid md:grid-cols-2 gap-8">
+      <div>
+        <h3 class="text-lg font-semibold text-primary-700 mb-3 flex items-center gap-2">
+          <span class="material-symbols-outlined">visibility</span>
+          What I Need to See (Information Hierarchy)
+        </h3>
+        <ol class="space-y-2 text-gray-700">
+          <li class="flex items-start gap-2">
+            <span class="bg-primary-100 text-primary-700 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold flex-shrink-0">1</span>
+            <span><strong>Who's next?</strong> - The patient I'm about to call (most critical)</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="bg-primary-100 text-primary-700 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold flex-shrink-0">2</span>
+            <span><strong>Who's currently with the doctor?</strong> - Current consultation status</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="bg-primary-100 text-primary-700 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold flex-shrink-0">3</span>
+            <span><strong>How many are waiting?</strong> - Queue length at a glance</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="bg-primary-100 text-primary-700 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold flex-shrink-0">4</span>
+            <span><strong>The rest of the queue</strong> - Full list for context</span>
+          </li>
+        </ol>
+      </div>
+
+      <div>
+        <h3 class="text-lg font-semibold text-primary-700 mb-3 flex items-center gap-2">
+          <span class="material-symbols-outlined">touch_app</span>
+          Primary Actions (Frequency of Use)
+        </h3>
+        <ol class="space-y-2 text-gray-700">
+          <li class="flex items-start gap-2">
+            <span class="bg-green-100 text-green-700 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold flex-shrink-0">1</span>
+            <span><strong>Call Next Patient</strong> - Used 20-40x per day (most frequent)</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="bg-amber-100 text-amber-700 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold flex-shrink-0">2</span>
+            <span><strong>Add Patient</strong> - Walk-ins, phone appointments (~10x/day)</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="bg-gray-100 text-gray-700 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold flex-shrink-0">3</span>
+            <span><strong>View Patient Status Link</strong> - Help confused patients (~5x/day)</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="bg-red-100 text-red-700 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold flex-shrink-0">4</span>
+            <span><strong>Remove Patient</strong> - No-shows, cancellations (~3x/day)</span>
+          </li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="mt-8 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+      <h4 class="font-semibold text-amber-800 mb-2">Key Insight</h4>
+      <p class="text-amber-700">The QR code is for <strong>patient onboarding</strong>, not daily operations. It should be accessible but not dominate the screen. The receptionist's primary loop is: <em>See who's next → Call them → Repeat</em>.</p>
+    </div>
+  </div>
+
+  <!-- Three Designs -->
+  <div class="max-w-7xl mx-auto">
+    <div class="grid lg:grid-cols-3 gap-8 items-start">
+
+      <!-- Design A: Queue-First -->
+      <div class="space-y-6">
+        <div class="bg-white rounded-xl p-6 shadow-lg">
+          <div class="flex items-center gap-3 mb-4">
+            <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-semibold">Option A</span>
+            <h3 class="text-xl font-bold text-gray-900">Queue-First</h3>
+          </div>
+          <p class="text-gray-600 mb-4">Prioritizes the queue list above all else. Stats are condensed into a single row. "Call Next" is integrated into the first queue item.</p>
+          <div class="space-y-2 text-sm">
+            <div class="flex items-center gap-2 text-green-700">
+              <span class="material-symbols-outlined text-lg">check_circle</span>
+              <span>Maximum queue visibility</span>
+            </div>
+            <div class="flex items-center gap-2 text-green-700">
+              <span class="material-symbols-outlined text-lg">check_circle</span>
+              <span>Call action in context</span>
+            </div>
+            <div class="flex items-center gap-2 text-amber-600">
+              <span class="material-symbols-outlined text-lg">warning</span>
+              <span>Stats less prominent</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Phone Frame A -->
+        <div class="phone-frame mx-auto">
+          <div class="phone-content bg-gray-50">
+            <!-- Header -->
+            <div class="bg-white px-4 py-3 border-b border-gray-100 flex items-center justify-between sticky top-0 z-10">
+              <div>
+                <p class="text-primary-700 font-bold text-lg">DoctorQ</p>
+                <p class="text-gray-500 text-xs">Cabinet Dr Skander Kamoun</p>
+              </div>
+              <div class="flex items-center gap-3">
+                <button class="text-gray-500 text-sm">عربي</button>
+                <span class="material-symbols-outlined text-gray-400">logout</span>
+              </div>
+            </div>
+
+            <!-- Compact Stats Bar -->
+            <div class="bg-white px-4 py-3 border-b border-gray-100 flex items-center justify-around">
+              <div class="text-center">
+                <p class="text-2xl font-bold text-primary-700">3</p>
+                <p class="text-xs text-gray-500">En attente</p>
+              </div>
+              <div class="w-px h-8 bg-gray-200"></div>
+              <div class="text-center">
+                <p class="text-2xl font-bold text-green-600">1</p>
+                <p class="text-xs text-gray-500">En consultation</p>
+              </div>
+              <div class="w-px h-8 bg-gray-200"></div>
+              <div class="text-center">
+                <p class="text-2xl font-bold text-gray-400">12</p>
+                <p class="text-xs text-gray-500">Vus aujourd'hui</p>
+              </div>
+            </div>
+
+            <!-- Current Consultation - Highlighted -->
+            <div class="p-4">
+              <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">En consultation</p>
+              <div class="bg-green-50 border-2 border-green-200 rounded-2xl p-4">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-green-200 rounded-full flex items-center justify-center">
+                      <span class="material-symbols-outlined text-green-700 filled">person</span>
+                    </div>
+                    <div>
+                      <p class="font-semibold text-gray-900">Hela</p>
+                      <p class="text-sm text-green-600">Depuis 5 min</p>
+                    </div>
+                  </div>
+                  <span class="material-symbols-outlined text-green-600">stethoscope</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Next Patient - Call to Action -->
+            <div class="px-4 pb-4">
+              <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Prochain patient</p>
+              <div class="bg-primary-50 border-2 border-primary-300 rounded-2xl p-4">
+                <div class="flex items-center justify-between mb-3">
+                  <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-primary-200 rounded-full flex items-center justify-center">
+                      <span class="text-primary-700 font-bold">#1</span>
+                    </div>
+                    <div>
+                      <p class="font-semibold text-gray-900">Saif</p>
+                      <p class="text-sm text-primary-600">Notifié - Arrivé 10:44</p>
+                    </div>
+                  </div>
+                </div>
+                <button class="w-full bg-primary-600 text-white font-semibold py-3 rounded-xl flex items-center justify-center gap-2 active:bg-primary-700">
+                  <span class="material-symbols-outlined">directions_walk</span>
+                  Appeler Saif
+                </button>
+              </div>
+            </div>
+
+            <!-- Remaining Queue -->
+            <div class="px-4 pb-4">
+              <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">File d'attente</p>
+              <div class="bg-white rounded-2xl shadow-sm divide-y divide-gray-100">
+                <div class="p-4 flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <span class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-sm font-medium text-gray-600">#2</span>
+                    <div>
+                      <p class="font-medium text-gray-900">Khameyel</p>
+                      <p class="text-xs text-gray-500">10:44</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-gray-400 text-xl">open_in_new</span>
+                    <span class="material-symbols-outlined text-red-400 text-xl">delete</span>
+                  </div>
+                </div>
+                <div class="p-4 flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <span class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-sm font-medium text-gray-600">#3</span>
+                    <div>
+                      <p class="font-medium text-gray-900">Karim</p>
+                      <p class="text-xs text-gray-500">10:44</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-gray-400 text-xl">open_in_new</span>
+                    <span class="material-symbols-outlined text-red-400 text-xl">delete</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bottom Actions -->
+            <div class="px-4 pb-6 flex gap-3">
+              <button class="flex-1 bg-white border border-gray-200 text-gray-700 font-medium py-3 rounded-xl flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined text-xl">person_add</span>
+                Ajouter
+              </button>
+              <button class="bg-white border border-gray-200 text-gray-500 p-3 rounded-xl">
+                <span class="material-symbols-outlined text-xl">qr_code_2</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Design B: Card Stack -->
+      <div class="space-y-6">
+        <div class="bg-white rounded-xl p-6 shadow-lg">
+          <div class="flex items-center gap-3 mb-4">
+            <span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm font-semibold">Option B</span>
+            <h3 class="text-xl font-bold text-gray-900">Card Stack</h3>
+          </div>
+          <p class="text-gray-600 mb-4">Swipeable cards for each patient. Current and next patient are prominent. Swipe to see more queue. Inspired by mobile-first apps like Tinder/Deliveroo.</p>
+          <div class="space-y-2 text-sm">
+            <div class="flex items-center gap-2 text-green-700">
+              <span class="material-symbols-outlined text-lg">check_circle</span>
+              <span>Focus on current action</span>
+            </div>
+            <div class="flex items-center gap-2 text-green-700">
+              <span class="material-symbols-outlined text-lg">check_circle</span>
+              <span>Large touch targets</span>
+            </div>
+            <div class="flex items-center gap-2 text-amber-600">
+              <span class="material-symbols-outlined text-lg">warning</span>
+              <span>Limited queue overview</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Phone Frame B -->
+        <div class="phone-frame mx-auto">
+          <div class="phone-content bg-gradient-to-b from-primary-600 to-primary-700">
+            <!-- Header -->
+            <div class="px-4 py-3 flex items-center justify-between">
+              <div class="text-white">
+                <p class="font-bold text-lg">Cabinet Dr Skander</p>
+                <p class="text-primary-200 text-sm">4 patients aujourd'hui</p>
+              </div>
+              <div class="flex items-center gap-3">
+                <button class="text-primary-200 text-sm">عربي</button>
+                <span class="material-symbols-outlined text-primary-200">settings</span>
+              </div>
+            </div>
+
+            <!-- Stats Pills -->
+            <div class="px-4 py-2 flex gap-2">
+              <span class="bg-white/20 text-white px-3 py-1 rounded-full text-sm">
+                3 en attente
+              </span>
+              <span class="bg-green-400/30 text-green-100 px-3 py-1 rounded-full text-sm">
+                1 en consultation
+              </span>
+            </div>
+
+            <!-- Main Card Area -->
+            <div class="flex-1 px-4 pt-4 pb-6">
+              <!-- Current Patient Card (Prominent) -->
+              <div class="bg-white rounded-3xl shadow-2xl p-6 mb-4">
+                <div class="flex items-center justify-between mb-4">
+                  <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">En consultation</span>
+                  <span class="text-gray-400 text-sm">5 min</span>
+                </div>
+                <div class="flex items-center gap-4 mb-6">
+                  <div class="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center">
+                    <span class="material-symbols-outlined text-3xl text-green-600 filled">person</span>
+                  </div>
+                  <div>
+                    <p class="text-2xl font-bold text-gray-900">Hela</p>
+                    <p class="text-gray-500">Arrivée à 10:33</p>
+                  </div>
+                </div>
+                <div class="flex gap-3">
+                  <button class="flex-1 bg-gray-100 text-gray-700 font-medium py-3 rounded-xl flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined">open_in_new</span>
+                    Voir statut
+                  </button>
+                </div>
+              </div>
+
+              <!-- Next Patient Card (Secondary) -->
+              <div class="bg-white/95 rounded-3xl shadow-lg p-5 mb-3 border-2 border-primary-200">
+                <div class="flex items-center justify-between mb-3">
+                  <span class="bg-primary-100 text-primary-700 px-3 py-1 rounded-full text-sm font-medium">Prochain</span>
+                  <span class="text-primary-500 text-sm font-medium">#1 - Notifié</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-primary-100 rounded-xl flex items-center justify-center">
+                      <span class="material-symbols-outlined text-2xl text-primary-600 filled">person</span>
+                    </div>
+                    <div>
+                      <p class="text-xl font-bold text-gray-900">Saif</p>
+                      <p class="text-gray-500 text-sm">10:44</p>
+                    </div>
+                  </div>
+                  <button class="bg-primary-600 text-white p-4 rounded-2xl shadow-lg active:bg-primary-700">
+                    <span class="material-symbols-outlined text-2xl">directions_walk</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Queue Preview (Peek) -->
+              <div class="bg-white/80 rounded-2xl p-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="flex -space-x-2">
+                    <div class="w-8 h-8 bg-gray-200 rounded-full border-2 border-white flex items-center justify-center text-xs font-medium">K</div>
+                    <div class="w-8 h-8 bg-gray-200 rounded-full border-2 border-white flex items-center justify-center text-xs font-medium">K</div>
+                  </div>
+                  <p class="text-gray-600 text-sm">+2 en attente</p>
+                </div>
+                <span class="material-symbols-outlined text-gray-400">expand_more</span>
+              </div>
+            </div>
+
+            <!-- Bottom Actions Bar -->
+            <div class="bg-white/10 backdrop-blur px-4 py-4 flex justify-around">
+              <button class="flex flex-col items-center gap-1 text-white/80">
+                <span class="material-symbols-outlined text-2xl">person_add</span>
+                <span class="text-xs">Ajouter</span>
+              </button>
+              <button class="flex flex-col items-center gap-1 text-white/80">
+                <span class="material-symbols-outlined text-2xl">qr_code_2</span>
+                <span class="text-xs">QR Code</span>
+              </button>
+              <button class="flex flex-col items-center gap-1 text-white/80">
+                <span class="material-symbols-outlined text-2xl">list</span>
+                <span class="text-xs">Liste</span>
+              </button>
+              <button class="flex flex-col items-center gap-1 text-white/80">
+                <span class="material-symbols-outlined text-2xl">bar_chart</span>
+                <span class="text-xs">Stats</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Design C: Split View -->
+      <div class="space-y-6">
+        <div class="bg-white rounded-xl p-6 shadow-lg">
+          <div class="flex items-center gap-3 mb-4">
+            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold">Option C</span>
+            <h3 class="text-xl font-bold text-gray-900">Split Focus</h3>
+          </div>
+          <p class="text-gray-600 mb-4">Top half shows current state (who's in, who's next). Bottom half is a scrollable queue. Clear visual hierarchy with fixed action area.</p>
+          <div class="space-y-2 text-sm">
+            <div class="flex items-center gap-2 text-green-700">
+              <span class="material-symbols-outlined text-lg">check_circle</span>
+              <span>Clear mental model</span>
+            </div>
+            <div class="flex items-center gap-2 text-green-700">
+              <span class="material-symbols-outlined text-lg">check_circle</span>
+              <span>Always visible key info</span>
+            </div>
+            <div class="flex items-center gap-2 text-green-700">
+              <span class="material-symbols-outlined text-lg">check_circle</span>
+              <span>Full queue accessible</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Phone Frame C -->
+        <div class="phone-frame mx-auto">
+          <div class="phone-content bg-gray-50 flex flex-col">
+            <!-- Fixed Top Section -->
+            <div class="bg-white shadow-sm flex-shrink-0">
+              <!-- Mini Header -->
+              <div class="px-4 py-2 flex items-center justify-between border-b border-gray-100">
+                <p class="text-primary-700 font-bold">Dr Skander Kamoun</p>
+                <div class="flex items-center gap-2">
+                  <span class="bg-primary-100 text-primary-700 text-xs px-2 py-1 rounded-full font-medium">3 en attente</span>
+                  <span class="material-symbols-outlined text-gray-400 text-xl">more_vert</span>
+                </div>
+              </div>
+
+              <!-- Current State Panel -->
+              <div class="p-4">
+                <!-- Now / Next Split -->
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                  <!-- Currently In -->
+                  <div class="bg-green-50 rounded-2xl p-3 border border-green-100">
+                    <p class="text-xs text-green-600 font-medium mb-2 uppercase tracking-wide">Maintenant</p>
+                    <div class="flex items-center gap-2">
+                      <div class="w-10 h-10 bg-green-200 rounded-xl flex items-center justify-center">
+                        <span class="material-symbols-outlined text-green-700 filled">person</span>
+                      </div>
+                      <div>
+                        <p class="font-semibold text-gray-900">Hela</p>
+                        <p class="text-xs text-green-600">5 min</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Up Next -->
+                  <div class="bg-primary-50 rounded-2xl p-3 border border-primary-100">
+                    <p class="text-xs text-primary-600 font-medium mb-2 uppercase tracking-wide">Suivant</p>
+                    <div class="flex items-center gap-2">
+                      <div class="w-10 h-10 bg-primary-200 rounded-xl flex items-center justify-center">
+                        <span class="text-primary-700 font-bold text-sm">#1</span>
+                      </div>
+                      <div>
+                        <p class="font-semibold text-gray-900">Saif</p>
+                        <p class="text-xs text-primary-600">Notifié</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Call Next Button -->
+                <button class="w-full bg-primary-600 text-white font-semibold py-4 rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-primary-600/30 active:bg-primary-700 transition-colors">
+                  <span class="material-symbols-outlined text-2xl">directions_walk</span>
+                  Appeler Saif
+                </button>
+              </div>
+            </div>
+
+            <!-- Scrollable Queue Section -->
+            <div class="flex-1 overflow-y-auto">
+              <div class="px-4 py-3 sticky top-0 bg-gray-50 flex items-center justify-between">
+                <p class="text-sm font-medium text-gray-500">File d'attente</p>
+                <button class="text-primary-600 text-sm font-medium flex items-center gap-1">
+                  <span class="material-symbols-outlined text-lg">person_add</span>
+                  Ajouter
+                </button>
+              </div>
+
+              <div class="px-4 space-y-2 pb-4">
+                <!-- Queue Item - Notified -->
+                <div class="bg-white rounded-xl p-3 shadow-sm border-l-4 border-amber-400">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <span class="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center text-sm font-bold text-amber-700">#1</span>
+                      <div>
+                        <p class="font-medium text-gray-900">Saif</p>
+                        <div class="flex items-center gap-2">
+                          <span class="text-xs text-amber-600 font-medium">Notifié</span>
+                          <span class="text-xs text-gray-400">10:44</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-1">
+                      <button class="p-2 text-gray-400 hover:text-gray-600">
+                        <span class="material-symbols-outlined text-xl">open_in_new</span>
+                      </button>
+                      <button class="p-2 text-gray-400 hover:text-red-500">
+                        <span class="material-symbols-outlined text-xl">close</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Queue Item - Waiting -->
+                <div class="bg-white rounded-xl p-3 shadow-sm">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <span class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center text-sm font-bold text-gray-600">#2</span>
+                      <div>
+                        <p class="font-medium text-gray-900">Khameyel</p>
+                        <div class="flex items-center gap-2">
+                          <span class="text-xs text-gray-500">En attente</span>
+                          <span class="text-xs text-gray-400">10:44</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-1">
+                      <button class="p-2 text-gray-400 hover:text-gray-600">
+                        <span class="material-symbols-outlined text-xl">open_in_new</span>
+                      </button>
+                      <button class="p-2 text-gray-400 hover:text-red-500">
+                        <span class="material-symbols-outlined text-xl">close</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Queue Item - Waiting -->
+                <div class="bg-white rounded-xl p-3 shadow-sm">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <span class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center text-sm font-bold text-gray-600">#3</span>
+                      <div>
+                        <p class="font-medium text-gray-900">Karim</p>
+                        <div class="flex items-center gap-2">
+                          <span class="text-xs text-gray-500">En attente</span>
+                          <span class="text-xs text-gray-400">10:44</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-1">
+                      <button class="p-2 text-gray-400 hover:text-gray-600">
+                        <span class="material-symbols-outlined text-xl">open_in_new</span>
+                      </button>
+                      <button class="p-2 text-gray-400 hover:text-red-500">
+                        <span class="material-symbols-outlined text-xl">close</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Empty State Hint -->
+                <div class="text-center py-6 text-gray-400">
+                  <p class="text-sm">Fin de la liste</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bottom Quick Actions -->
+            <div class="flex-shrink-0 bg-white border-t border-gray-100 px-4 py-3 flex justify-around">
+              <button class="flex flex-col items-center gap-1 text-gray-500">
+                <span class="material-symbols-outlined text-xl">qr_code_2</span>
+                <span class="text-xs">QR</span>
+              </button>
+              <button class="flex flex-col items-center gap-1 text-gray-500">
+                <span class="material-symbols-outlined text-xl">share</span>
+                <span class="text-xs">Partager</span>
+              </button>
+              <button class="flex flex-col items-center gap-1 text-gray-500">
+                <span class="material-symbols-outlined text-xl">history</span>
+                <span class="text-xs">Historique</span>
+              </button>
+              <button class="flex flex-col items-center gap-1 text-gray-500">
+                <span class="material-symbols-outlined text-xl">settings</span>
+                <span class="text-xs">Options</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Recommendation Section -->
+  <div class="max-w-7xl mx-auto mt-16 bg-gradient-to-br from-primary-600 to-primary-700 rounded-2xl p-8 shadow-lg text-white">
+    <h2 class="text-2xl font-bold mb-4">Recommendation</h2>
+    <p class="text-primary-100 mb-6 text-lg">
+      <strong class="text-white">Option C (Split Focus)</strong> is recommended because it:
+    </p>
+    <ul class="space-y-3 mb-6">
+      <li class="flex items-start gap-3">
+        <span class="material-symbols-outlined text-primary-200 mt-0.5">check_circle</span>
+        <span>Keeps the most critical info (current patient + next patient) always visible without scrolling</span>
+      </li>
+      <li class="flex items-start gap-3">
+        <span class="material-symbols-outlined text-primary-200 mt-0.5">check_circle</span>
+        <span>Places the primary action (Call Next) prominently in the fixed area - one tap to advance the queue</span>
+      </li>
+      <li class="flex items-start gap-3">
+        <span class="material-symbols-outlined text-primary-200 mt-0.5">check_circle</span>
+        <span>Provides full queue access for context while not cluttering the main view</span>
+      </li>
+      <li class="flex items-start gap-3">
+        <span class="material-symbols-outlined text-primary-200 mt-0.5">check_circle</span>
+        <span>Moves secondary features (QR, settings) to a bottom bar - accessible but not distracting</span>
+      </li>
+    </ul>
+    <div class="bg-white/10 rounded-xl p-4">
+      <p class="text-sm text-primary-100">
+        <strong class="text-white">Key improvement over current design:</strong> The QR code is demoted to a bottom tab (used once per patient onboarding, not core workflow).
+        The "Call Next" button is elevated from a floating FAB to an always-visible primary action in context with the patient it will call.
+      </p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="max-w-7xl mx-auto mt-12 text-center text-gray-500 text-sm">
+    <p>DoctorQ Mobile Dashboard Redesign Showcase</p>
+    <p class="mt-1">Created for user-centered design review</p>
+  </div>
+
+</body>
+</html>
