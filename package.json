@@ -2,6 +2,7 @@
   "name": "doctorq",
   "version": "1.0.0",
   "private": true,
+  "packageManager": "pnpm@9.15.9",
   "description": "Virtual queue management system for Tunisian medical practices",
   "scripts": {
     "dev": "concurrently \"pnpm dev:api\" \"pnpm dev:web\"",
