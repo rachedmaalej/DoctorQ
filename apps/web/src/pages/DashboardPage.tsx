@@ -57,9 +57,12 @@ export default function DashboardPage() {
       useQueueStore.getState().setQueue(data.queue, data.stats);
     },
     onDoctorPresence: (data) => {
-      console.log('Dashboard received doctor:presence event', data);
+      console.log('[Doctor Presence] Socket event received:', data, 'clinic?.id:', clinic?.id);
       if (data.clinicId === clinic?.id) {
+        console.log('[Doctor Presence] Setting state from socket to:', data.isDoctorPresent);
         setIsDoctorPresent(data.isDoctorPresent);
+      } else {
+        console.log('[Doctor Presence] Ignoring socket event - clinicId mismatch');
       }
     },
   });
@@ -73,7 +76,9 @@ export default function DashboardPage() {
   // We use a ref to track if we've done initial sync to avoid overwriting socket updates
   const hasInitializedPresence = useRef(false);
   useEffect(() => {
+    console.log('[Doctor Presence] Sync effect running, hasInitialized:', hasInitializedPresence.current, 'clinic.isDoctorPresent:', (clinic as any)?.isDoctorPresent);
     if (!hasInitializedPresence.current && (clinic as any)?.isDoctorPresent !== undefined) {
+      console.log('[Doctor Presence] Initial sync from clinic data:', (clinic as any).isDoctorPresent);
       setIsDoctorPresent((clinic as any).isDoctorPresent);
       hasInitializedPresence.current = true;
     }
@@ -169,19 +174,24 @@ export default function DashboardPage() {
     if (isTogglingPresence) return;
 
     const newValue = !isDoctorPresent;
+    console.log('[Doctor Presence] Toggle clicked, changing from', isDoctorPresent, 'to', newValue);
     setIsTogglingPresence(true);
 
     // Optimistic update
     setIsDoctorPresent(newValue);
+    console.log('[Doctor Presence] Optimistic update applied:', newValue);
 
     try {
-      await api.setDoctorPresence(newValue);
+      const result = await api.setDoctorPresence(newValue);
+      console.log('[Doctor Presence] API response:', result);
     } catch (error) {
       // Revert on error
+      console.error('[Doctor Presence] API error, reverting to:', !newValue);
       setIsDoctorPresent(!newValue);
       console.error('Failed to update doctor presence:', error);
     } finally {
       setIsTogglingPresence(false);
+      console.log('[Doctor Presence] Toggle complete, current state:', newValue);
     }
   };
 
