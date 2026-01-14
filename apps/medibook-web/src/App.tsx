@@ -2,12 +2,9 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
 
-// Pages (to be implemented)
-// import CalendarPage from '@/pages/CalendarPage';
-// import DayViewPage from '@/pages/DayViewPage';
-// import PatientsPage from '@/pages/PatientsPage';
-// import SettingsPage from '@/pages/SettingsPage';
-// import LoginPage from '@/pages/LoginPage';
+import Layout from './components/layout/Layout';
+import CalendarPage from './pages/CalendarPage';
+import PatientsPage from './pages/PatientsPage';
 
 function App() {
   const { i18n } = useTranslation();
@@ -20,39 +17,28 @@ function App() {
   }, [i18n.language]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Placeholder until pages are implemented */}
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center p-8">
-          <h1 className="text-4xl font-bold text-primary-600 mb-4">MediBook</h1>
-          <p className="text-xl text-gray-600 mb-8">
-            Appointment Management System
-          </p>
-          <div className="bg-white rounded-xl shadow-lg p-6 max-w-md mx-auto">
-            <span className="material-symbols-outlined text-6xl text-primary-500 mb-4 block">
-              calendar_month
-            </span>
-            <h2 className="text-lg font-semibold text-gray-800 mb-2">
-              Coming Soon
-            </h2>
-            <p className="text-gray-500">
-              Calendar, patient management, and DoctorQ integration under development.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Routes to be implemented
+    <Layout>
       <Routes>
-        <Route path="/login" element={<LoginPage />} />
         <Route path="/" element={<CalendarPage />} />
-        <Route path="/day/:date" element={<DayViewPage />} />
         <Route path="/patients" element={<PatientsPage />} />
-        <Route path="/patients/:id" element={<PatientDetailPage />} />
-        <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/settings" element={<SettingsPlaceholder />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-      */}
+    </Layout>
+  );
+}
+
+// Placeholder for settings page
+function SettingsPlaceholder() {
+  return (
+    <div className="flex items-center justify-center h-full">
+      <div className="text-center">
+        <span className="material-symbols-outlined text-6xl text-gray-300 mb-4 block">
+          settings
+        </span>
+        <h2 className="text-xl font-semibold text-gray-600">Settings</h2>
+        <p className="text-gray-400 mt-2">Coming soon</p>
+      </div>
     </div>
   );
 }
