@@ -1,3 +1,5 @@
+// Clinic routes - includes doctor presence endpoint
+// Last updated: 2026-01-14 - force rebuild
 import { Router, Response } from 'express';
 import QRCode from 'qrcode';
 import { z } from 'zod';
