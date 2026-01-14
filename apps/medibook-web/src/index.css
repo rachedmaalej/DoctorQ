@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Material Symbols configuration */
+.material-symbols-outlined {
+  font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
+
+/* Arabic font for RTL */
+[dir="rtl"] {
+  font-family: 'IBM Plex Sans Arabic', system-ui, sans-serif;
+}
+
+/* Calendar customization */
+.fc {
+  --fc-border-color: #e5e7eb;
+  --fc-today-bg-color: #f0fdfa;
+  --fc-event-border-color: transparent;
+}
+
+.fc .fc-button-primary {
+  background-color: #0d9488;
+  border-color: #0d9488;
+}
+
+.fc .fc-button-primary:hover {
+  background-color: #0a766d;
+  border-color: #0a766d;
+}
+
+.fc .fc-button-primary:disabled {
+  background-color: #99dfd7;
+  border-color: #99dfd7;
+}

@@ -1,0 +1,118 @@
+{
+  "app": {
+    "name": "MediBook",
+    "tagline": "Gestion des Rendez-vous"
+  },
+  "nav": {
+    "calendar": "Calendrier",
+    "patients": "Patients",
+    "settings": "Paramètres",
+    "logout": "Déconnexion"
+  },
+  "calendar": {
+    "today": "Aujourd'hui",
+    "day": "Jour",
+    "week": "Semaine",
+    "month": "Mois",
+    "newAppointment": "Nouveau RDV",
+    "noAppointments": "Aucun rendez-vous"
+  },
+  "appointment": {
+    "title": "Rendez-vous",
+    "patient": "Patient",
+    "doctor": "Médecin",
+    "date": "Date",
+    "time": "Heure",
+    "duration": "Durée",
+    "reason": "Motif",
+    "notes": "Notes",
+    "create": "Créer le rendez-vous",
+    "edit": "Modifier",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "status": {
+      "scheduled": "Planifié",
+      "confirmed": "Confirmé",
+      "checkedIn": "Arrivé",
+      "inProgress": "En cours",
+      "completed": "Terminé",
+      "cancelled": "Annulé",
+      "noShow": "Absent"
+    },
+    "actions": {
+      "checkIn": "Enregistrer arrivée",
+      "reschedule": "Reporter",
+      "cancel": "Annuler",
+      "confirm": "Confirmer"
+    },
+    "duration_options": {
+      "15": "15 minutes",
+      "30": "30 minutes",
+      "45": "45 minutes",
+      "60": "1 heure"
+    }
+  },
+  "patient": {
+    "title": "Patient",
+    "name": "Nom",
+    "phone": "Téléphone",
+    "email": "Email",
+    "dateOfBirth": "Date de naissance",
+    "gender": "Genre",
+    "notes": "Notes",
+    "history": "Historique",
+    "create": "Ajouter un patient",
+    "search": "Rechercher un patient...",
+    "noResults": "Aucun patient trouvé",
+    "gender_options": {
+      "male": "Homme",
+      "female": "Femme",
+      "other": "Autre"
+    },
+    "reminder_preference": {
+      "title": "Préférence de rappel",
+      "sms": "SMS",
+      "whatsapp": "WhatsApp",
+      "none": "Aucun"
+    }
+  },
+  "doctor": {
+    "title": "Médecin",
+    "name": "Nom",
+    "specialty": "Spécialité",
+    "phone": "Téléphone",
+    "email": "Email",
+    "workingHours": "Heures de travail",
+    "slotDuration": "Durée par défaut"
+  },
+  "common": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "close": "Fermer",
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "confirm": "Confirmer",
+    "search": "Rechercher",
+    "noData": "Aucune donnée",
+    "required": "Obligatoire"
+  },
+  "errors": {
+    "network": "Erreur de connexion",
+    "unauthorized": "Session expirée",
+    "notFound": "Non trouvé",
+    "doubleBooking": "Ce créneau est déjà pris",
+    "invalidPhone": "Numéro de téléphone invalide"
+  },
+  "days": {
+    "monday": "Lundi",
+    "tuesday": "Mardi",
+    "wednesday": "Mercredi",
+    "thursday": "Jeudi",
+    "friday": "Vendredi",
+    "saturday": "Samedi",
+    "sunday": "Dimanche"
+  }
+}

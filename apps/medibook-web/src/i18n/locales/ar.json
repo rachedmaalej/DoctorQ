@@ -1,0 +1,118 @@
+{
+  "app": {
+    "name": "ميديبوك",
+    "tagline": "إدارة المواعيد"
+  },
+  "nav": {
+    "calendar": "التقويم",
+    "patients": "المرضى",
+    "settings": "الإعدادات",
+    "logout": "تسجيل الخروج"
+  },
+  "calendar": {
+    "today": "اليوم",
+    "day": "يوم",
+    "week": "أسبوع",
+    "month": "شهر",
+    "newAppointment": "موعد جديد",
+    "noAppointments": "لا توجد مواعيد"
+  },
+  "appointment": {
+    "title": "موعد",
+    "patient": "المريض",
+    "doctor": "الطبيب",
+    "date": "التاريخ",
+    "time": "الوقت",
+    "duration": "المدة",
+    "reason": "السبب",
+    "notes": "ملاحظات",
+    "create": "إنشاء الموعد",
+    "edit": "تعديل",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "status": {
+      "scheduled": "مجدول",
+      "confirmed": "مؤكد",
+      "checkedIn": "وصل",
+      "inProgress": "جاري",
+      "completed": "مكتمل",
+      "cancelled": "ملغي",
+      "noShow": "غائب"
+    },
+    "actions": {
+      "checkIn": "تسجيل الوصول",
+      "reschedule": "إعادة الجدولة",
+      "cancel": "إلغاء",
+      "confirm": "تأكيد"
+    },
+    "duration_options": {
+      "15": "15 دقيقة",
+      "30": "30 دقيقة",
+      "45": "45 دقيقة",
+      "60": "ساعة واحدة"
+    }
+  },
+  "patient": {
+    "title": "مريض",
+    "name": "الاسم",
+    "phone": "الهاتف",
+    "email": "البريد الإلكتروني",
+    "dateOfBirth": "تاريخ الميلاد",
+    "gender": "الجنس",
+    "notes": "ملاحظات",
+    "history": "السجل",
+    "create": "إضافة مريض",
+    "search": "البحث عن مريض...",
+    "noResults": "لم يتم العثور على مرضى",
+    "gender_options": {
+      "male": "ذكر",
+      "female": "أنثى",
+      "other": "آخر"
+    },
+    "reminder_preference": {
+      "title": "تفضيل التذكير",
+      "sms": "رسالة نصية",
+      "whatsapp": "واتساب",
+      "none": "بدون"
+    }
+  },
+  "doctor": {
+    "title": "طبيب",
+    "name": "الاسم",
+    "specialty": "التخصص",
+    "phone": "الهاتف",
+    "email": "البريد الإلكتروني",
+    "workingHours": "ساعات العمل",
+    "slotDuration": "المدة الافتراضية"
+  },
+  "common": {
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "close": "إغلاق",
+    "loading": "جاري التحميل...",
+    "error": "خطأ",
+    "success": "نجاح",
+    "confirm": "تأكيد",
+    "search": "بحث",
+    "noData": "لا توجد بيانات",
+    "required": "مطلوب"
+  },
+  "errors": {
+    "network": "خطأ في الاتصال",
+    "unauthorized": "انتهت الجلسة",
+    "notFound": "غير موجود",
+    "doubleBooking": "هذا الموعد محجوز مسبقاً",
+    "invalidPhone": "رقم هاتف غير صالح"
+  },
+  "days": {
+    "monday": "الإثنين",
+    "tuesday": "الثلاثاء",
+    "wednesday": "الأربعاء",
+    "thursday": "الخميس",
+    "friday": "الجمعة",
+    "saturday": "السبت",
+    "sunday": "الأحد"
+  }
+}
