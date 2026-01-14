@@ -93,20 +93,18 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Dev quick login button */}
-          {import.meta.env.DEV && (
-            <div className="mt-4">
-              <button
-                type="button"
-                onClick={handleDevLogin}
-                disabled={isSubmitting}
-                className="w-full bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center justify-center gap-2"
-              >
-                <span className="material-symbols-outlined text-lg">bolt</span>
-                Dev Login (Quick)
-              </button>
-            </div>
-          )}
+          {/* Quick login button for demo */}
+          <div className="mt-4">
+            <button
+              type="button"
+              onClick={handleDevLogin}
+              disabled={isSubmitting}
+              className="w-full bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center justify-center gap-2"
+            >
+              <span className="material-symbols-outlined text-lg">bolt</span>
+              Quick Login (Demo)
+            </button>
+          </div>
 
           <div className="mt-4 text-center text-sm text-gray-600">
             <p>Test account: dr.skander@example.tn / password123</p>
