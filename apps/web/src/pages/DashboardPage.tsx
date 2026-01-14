@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/authStore';
 import { useQueueStore } from '@/stores/queueStore';
@@ -56,6 +56,12 @@ export default function DashboardPage() {
       console.log('Dashboard received queue:updated event, refreshing queue');
       useQueueStore.getState().setQueue(data.queue, data.stats);
     },
+    onDoctorPresence: (data) => {
+      console.log('Dashboard received doctor:presence event', data);
+      if (data.clinicId === clinic?.id) {
+        setIsDoctorPresent(data.isDoctorPresent);
+      }
+    },
   });
 
   useEffect(() => {
@@ -63,10 +69,13 @@ export default function DashboardPage() {
     fetchQueue();
   }, []); // Only run once on mount
 
-  // Sync doctor presence from clinic data when it loads
+  // Sync doctor presence from clinic data on initial load only
+  // We use a ref to track if we've done initial sync to avoid overwriting socket updates
+  const hasInitializedPresence = useRef(false);
   useEffect(() => {
-    if ((clinic as any)?.isDoctorPresent !== undefined) {
+    if (!hasInitializedPresence.current && (clinic as any)?.isDoctorPresent !== undefined) {
       setIsDoctorPresent((clinic as any).isDoctorPresent);
+      hasInitializedPresence.current = true;
     }
   }, [(clinic as any)?.isDoctorPresent]);
 
