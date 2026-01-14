@@ -104,6 +104,8 @@
     "beReadyNamed": "{{name}}، كن مستعداً للدخول!",
     "youAreNext": "أنت التالي!",
     "youAreNextNamed": "{{name}}، أنت التالي!",
+    "urgentNextMessage": "كن مستعداً. سيتم استدعاؤك في أي لحظة!",
+    "urgentNextMessageNamed": "{{name}}، كن مستعداً. سيتم استدعاؤك في أي لحظة!",
     "comeToReception": "توجه للاستقبال",
     "goToReception": "توجه للاستقبال",
     "yourTurnNow": "جاء دورك!",
@@ -165,6 +167,9 @@
     "title": "لوحة التحكم",
     "overview": "نظرة عامة",
     "todayStats": "إحصائيات اليوم"
+  },
+  "funFact": {
+    "didYouKnow": "هل تعلم؟"
   },
   "qrCode": {
     "title": "رمز QR للتسجيل",

@@ -168,6 +168,9 @@
     "overview": "Vue d'ensemble",
     "todayStats": "Statistiques du jour"
   },
+  "funFact": {
+    "didYouKnow": "Le saviez-vous ?"
+  },
   "qrCode": {
     "title": "QR Code d'Enregistrement Patient",
     "show": "Afficher le QR Code",

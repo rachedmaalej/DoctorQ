@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { eyeFunFacts } from '@/data/eyeFunFacts';
+import { useTranslation } from 'react-i18next';
+import { getEyeFunFacts } from '@/data/eyeFunFacts';
 
 const FACT_DURATION = 18000; // 18 seconds per fact
 
@@ -7,10 +8,14 @@ const FACT_DURATION = 18000; // 18 seconds per fact
  * FunFactCard - Displays rotating eye-related fun facts
  * Shows a random fact on mount and rotates to a new one every 18 seconds
  * Includes a subtle circular progress indicator
+ * Supports French and Arabic languages
  */
 export default function FunFactCard() {
+  const { t, i18n } = useTranslation();
+  const facts = getEyeFunFacts(i18n.language);
+
   const [factIndex, setFactIndex] = useState(() =>
-    Math.floor(Math.random() * eyeFunFacts.length)
+    Math.floor(Math.random() * facts.length)
   );
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -45,8 +50,8 @@ export default function FunFactCard() {
         setFactIndex((prev) => {
           let next;
           do {
-            next = Math.floor(Math.random() * eyeFunFacts.length);
-          } while (next === prev && eyeFunFacts.length > 1);
+            next = Math.floor(Math.random() * facts.length);
+          } while (next === prev && facts.length > 1);
           return next;
         });
         setIsTransitioning(false);
@@ -62,7 +67,7 @@ export default function FunFactCard() {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, []);
+  }, [facts.length]);
 
   // SVG circle properties for progress indicator
   const size = 20;
@@ -83,7 +88,7 @@ export default function FunFactCard() {
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between mb-1">
             <p className="text-xs font-medium text-primary-600 uppercase tracking-wide">
-              Le saviez-vous ?
+              {t('funFact.didYouKnow')}
             </p>
             {/* Subtle circular progress timer */}
             <svg
@@ -122,7 +127,7 @@ export default function FunFactCard() {
               isTransitioning ? 'opacity-0' : 'opacity-100'
             }`}
           >
-            {eyeFunFacts[factIndex]}
+            {facts[factIndex]}
           </p>
         </div>
       </div>
