@@ -1,14 +1,17 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { QueueStats as QueueStatsType } from '@/types';
+import type { QueueStats as QueueStatsType, QueueEntry } from '@/types';
+import { QueueStatus } from '@/types';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 
 interface QueueStatsProps {
   stats: QueueStatsType;
   onResetStats?: () => Promise<void>;
+  isDoctorPresent?: boolean;
+  queue?: QueueEntry[];
 }
 
-export default function QueueStats({ stats, onResetStats }: QueueStatsProps) {
+export default function QueueStats({ stats, onResetStats, isDoctorPresent = false, queue = [] }: QueueStatsProps) {
   const { t } = useTranslation();
   const [isResetting, setIsResetting] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
@@ -38,7 +41,10 @@ export default function QueueStats({ stats, onResetStats }: QueueStatsProps) {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div className="order-2 sm:order-1">
               <p className="text-xs sm:text-sm font-medium text-gray-600">{t('queue.waiting')}</p>
-              <p className="text-xl sm:text-3xl font-bold text-primary-700 mt-1 sm:mt-2">{stats.waiting}</p>
+              {/* When doctor is absent, add the IN_CONSULTATION patient to waiting count */}
+              <p className="text-xl sm:text-3xl font-bold text-primary-700 mt-1 sm:mt-2">
+                {stats.waiting + (!isDoctorPresent && queue.some(p => p.status === QueueStatus.IN_CONSULTATION) ? 1 : 0)}
+              </p>
             </div>
             <div className="order-1 sm:order-2 bg-primary-100 p-2 sm:p-3 rounded-full w-fit mb-2 sm:mb-0">
               <span

@@ -17,7 +17,7 @@ import { MD3Button } from '@/components/md3/button';
 export default function DashboardPage() {
   const { t } = useTranslation();
   const { clinic } = useAuthStore();
-  const { queue, stats, fetchQueue, callNext, removePatient, clearQueue, resetStats } = useQueueStore();
+  const { queue, stats, fetchQueue, callNext, removePatient, reorderPatient, clearQueue, resetStats } = useQueueStore();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isQRModalOpen, setIsQRModalOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
@@ -27,6 +27,7 @@ export default function DashboardPage() {
   const [isClearing, setIsClearing] = useState(false);
   const [isCallingNext, setIsCallingNext] = useState(false);
   const [exitingPatientId, setExitingPatientId] = useState<string | null>(null);
+  const [isDoctorPresent, setIsDoctorPresent] = useState(false);
 
   // Count waiting patients for FAB disabled state
   const waitingCount = queue.filter(p => p.status === 'WAITING' || p.status === 'NOTIFIED').length;
@@ -144,8 +145,12 @@ export default function DashboardPage() {
           onCallNext={handleCallNext}
           onAddPatient={() => setIsAddModalOpen(true)}
           onRemovePatient={handleRemovePatient}
+          onReorder={reorderPatient}
+          onEmergency={(id) => reorderPatient(id, 1)}
           onShowQR={() => setIsQRModalOpen(true)}
           isCallingNext={isCallingNext}
+          isDoctorPresent={isDoctorPresent}
+          onToggleDoctorPresent={() => setIsDoctorPresent(!isDoctorPresent)}
         />
       </div>
 
@@ -169,18 +174,46 @@ export default function DashboardPage() {
           {/* Right Column - Stats, Actions, Queue */}
           <div className="space-y-6">
             {/* Stats */}
-            {stats && <QueueStats stats={stats} onResetStats={resetStats} />}
+            {stats && <QueueStats stats={stats} onResetStats={resetStats} isDoctorPresent={isDoctorPresent} queue={queue} />}
 
             {/* Action Bar */}
             <div className="flex flex-wrap items-center justify-between gap-3 sm:gap-4">
-              {/* Add Patient Button */}
-              <MD3Button
-                variant="tonal"
-                onClick={() => setIsAddModalOpen(true)}
-                icon={<span className="material-symbols-outlined text-xl">person_add</span>}
-              >
-                {t('queue.addPatient')}
-              </MD3Button>
+              {/* Left side: Add Patient + Doctor Toggle */}
+              <div className="flex items-center gap-4">
+                {/* Add Patient Button */}
+                <MD3Button
+                  variant="tonal"
+                  onClick={() => setIsAddModalOpen(true)}
+                  icon={<span className="material-symbols-outlined text-xl">person_add</span>}
+                >
+                  {t('queue.addPatient')}
+                </MD3Button>
+
+                {/* Doctor Present Toggle */}
+                <button
+                  onClick={() => setIsDoctorPresent(!isDoctorPresent)}
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-full font-medium transition-all ${
+                    isDoctorPresent
+                      ? 'bg-green-100 text-green-800 border-2 border-green-300'
+                      : 'bg-gray-100 text-gray-600 border-2 border-gray-200'
+                  }`}
+                  title={isDoctorPresent ? t('queue.doctorArrived') : t('queue.waitingForDoctor')}
+                >
+                  <span
+                    className={`material-symbols-outlined text-xl ${isDoctorPresent ? 'text-green-600' : 'text-gray-400'}`}
+                    style={{ fontVariationSettings: isDoctorPresent ? "'FILL' 1" : "'FILL' 0" }}
+                  >
+                    stethoscope
+                  </span>
+                  <span className="text-sm">
+                    {isDoctorPresent ? t('queue.doctorPresent') : t('queue.doctorNotPresent')}
+                  </span>
+                  {/* Toggle indicator */}
+                  <div className={`w-10 h-6 rounded-full p-0.5 transition-colors ${isDoctorPresent ? 'bg-green-500' : 'bg-gray-300'}`}>
+                    <div className={`w-5 h-5 rounded-full bg-white shadow transition-transform ${isDoctorPresent ? 'translate-x-4' : 'translate-x-0'}`} />
+                  </div>
+                </button>
+              </div>
 
               {/* Clear Queue Button */}
               <MD3Button
@@ -198,7 +231,10 @@ export default function DashboardPage() {
             <QueueList
               queue={queue}
               onRemove={handleRemovePatient}
+              onReorder={reorderPatient}
+              onEmergency={(id) => reorderPatient(id, 1)}
               exitingPatientId={exitingPatientId}
+              isDoctorPresent={isDoctorPresent}
             />
           </div>
         </div>
@@ -211,9 +247,9 @@ export default function DashboardPage() {
           size="large"
           icon={<span className="material-symbols-outlined">directions_walk</span>}
           onClick={handleCallNext}
-          disabled={waitingCount === 0 || isCallingNext}
+          disabled={waitingCount === 0 || isCallingNext || !isDoctorPresent}
           className="fixed bottom-6 end-6 z-50 lg:bottom-8 lg:end-8"
-          title={t('queue.callNext')}
+          title={isDoctorPresent ? t('queue.callNext') : t('queue.waitingForDoctor')}
           aria-label={t('queue.callNext')}
         />
       </div>

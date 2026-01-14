@@ -12,6 +12,7 @@ interface QueueState {
   callNext: () => Promise<void>;
   updatePatientStatus: (id: string, data: UpdateStatusData) => Promise<void>;
   removePatient: (id: string) => Promise<void>;
+  reorderPatient: (id: string, newPosition: number) => Promise<void>;
   clearQueue: () => Promise<void>;
   resetStats: () => Promise<void>;
   setQueue: (queue: QueueEntry[], stats: QueueStats) => void;
@@ -114,6 +115,26 @@ export const useQueueStore = create<QueueState>((set) => ({
     } catch (error: any) {
       set({
         error: error.message || 'Failed to remove patient',
+        isLoading: false,
+      });
+      throw error;
+    }
+  },
+
+  reorderPatient: async (id, newPosition) => {
+    set({ isLoading: true, error: null });
+    try {
+      await api.reorderQueue(id, newPosition);
+      // Refresh queue after reordering
+      const response = await api.getQueue();
+      set({
+        queue: response.queue,
+        stats: response.stats,
+        isLoading: false,
+      });
+    } catch (error: any) {
+      set({
+        error: error.message || 'Failed to reorder patient',
         isLoading: false,
       });
       throw error;

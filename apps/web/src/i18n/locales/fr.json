@@ -51,7 +51,18 @@
     "viewPatientStatus": "Voir le statut du patient",
     "resetStats": "Réinitialiser les statistiques",
     "confirmResetStats": "Voulez-vous réinitialiser les statistiques d'attente? Cela supprimera l'historique des patients vus aujourd'hui.",
-    "lastConsultation": "Dernière consultation"
+    "lastConsultation": "Dernière consultation",
+    "appointmentTime": "Heure du RDV",
+    "appointmentTimeHint": "Laisser vide pour les patients sans rendez-vous",
+    "walkIn": "Sans RDV",
+    "scheduled": "RDV",
+    "moveUp": "Monter",
+    "moveDown": "Descendre",
+    "emergency": "Urgence - Voir immédiatement",
+    "doctorPresent": "Docteur présent",
+    "doctorNotPresent": "Docteur absent",
+    "doctorArrived": "Le docteur est arrivé",
+    "waitingForDoctor": "En attente du docteur"
   },
   "patient": {
     "hello": "Bonjour",
@@ -119,7 +130,8 @@
     "leftQueue": "Vous avez quitté le Saf",
     "leftQueueNamed": "{{name}}, vous avez quitté le Saf",
     "leftQueueMessage": "Vous n'êtes plus dans la file d'attente.",
-    "rejoinQueue": "Reprendre ma place"
+    "rejoinQueue": "Reprendre ma place",
+    "yourAppointment": "Votre rendez-vous"
   },
   "checkin": {
     "title": "Rejoignez le Saf",

@@ -318,6 +318,19 @@ export default function PatientStatusPage() {
           />
         )}
 
+        {/* Appointment Time Indicator - if patient has scheduled appointment */}
+        {showTicket && (entry as any).appointmentTime && (
+          <div className="bg-purple-50 border border-purple-200 rounded-xl p-3 text-center">
+            <div className="flex items-center justify-center gap-2 text-purple-800">
+              <span className="material-symbols-outlined text-lg">schedule</span>
+              <span className="font-medium">{t('patient.yourAppointment') || 'Your appointment'}:</span>
+              <span className="font-bold">
+                {new Date((entry as any).appointmentTime).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+              </span>
+            </div>
+          </div>
+        )}
+
         {/* Your Turn Card */}
         {queueState === 'yourTurn' && (
           <>
@@ -338,11 +351,8 @@ export default function PatientStatusPage() {
                     celebration
                   </span>
                 </div>
-                <p className="text-green-700 text-lg font-medium mb-2">
+                <p className="text-green-700 text-lg font-medium">
                   {tPersonal('patient.doctorWaiting')}
-                </p>
-                <p className="text-green-600">
-                  {tPersonal('patient.enterOffice')}
                 </p>
               </div>
             </div>
@@ -396,28 +406,7 @@ export default function PatientStatusPage() {
           </div>
         )}
 
-        {/* Message Card - contextual guidance */}
-        {queueState === 'next' && (
-          <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
-            <div className="flex items-center justify-center gap-2 text-green-700 font-medium">
-              <span className="material-symbols-outlined">arrow_forward</span>
-              {t('patient.goToReception')}
-            </div>
-          </div>
-        )}
-
-        {queueState === 'almost' && (
-          <div className="bg-amber-100 border border-amber-300 rounded-xl p-4 text-center">
-            <div className="flex items-center justify-center gap-2 text-amber-800 font-medium mb-1">
-              <span className="material-symbols-outlined">warning</span>
-              {t('patient.onlyOnePerson')}
-            </div>
-            <p className="text-amber-700 text-sm">
-              {t('patient.headToClinic')}
-            </p>
-          </div>
-        )}
-
+        {/* Message Card - additional contextual guidance (only for states that need extra info) */}
         {queueState === 'closer' && (
           <div className="bg-teal-50 border border-teal-200 rounded-xl p-4 text-center">
             <p className="text-teal-700">

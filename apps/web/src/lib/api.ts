@@ -135,6 +135,14 @@ class ApiClient {
     });
   }
 
+  // Reorder queue (manual override by receptionist)
+  async reorderQueue(entryId: string, newPosition: number): Promise<{ message: string }> {
+    return this.request('/api/queue/reorder', {
+      method: 'POST',
+      body: JSON.stringify({ entryId, newPosition }),
+    });
+  }
+
   async resetStats(): Promise<{ message: string; deletedCount: number }> {
     return this.request('/api/queue/reset-stats', {
       method: 'POST',

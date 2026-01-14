@@ -10,8 +10,12 @@ interface MobileDashboardProps {
   onCallNext: () => void;
   onAddPatient: () => void;
   onRemovePatient: (id: string) => void;
+  onReorder: (id: string, newPosition: number) => void;
+  onEmergency: (id: string) => void;
   onShowQR: () => void;
   isCallingNext: boolean;
+  isDoctorPresent: boolean;
+  onToggleDoctorPresent: () => void;
 }
 
 /**
@@ -46,8 +50,12 @@ export default function MobileDashboard({
   onCallNext,
   onAddPatient,
   onRemovePatient,
+  onReorder,
+  onEmergency,
   onShowQR,
   isCallingNext,
+  isDoctorPresent,
+  onToggleDoctorPresent,
 }: MobileDashboardProps) {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
@@ -64,15 +72,22 @@ export default function MobileDashboard({
   };
 
   // Separate queue into different sections
-  const inConsultation = queue.find(p => p.status === QueueStatus.IN_CONSULTATION);
-  const nextPatient = queue.find(p => p.status === QueueStatus.NOTIFIED);
-  const waitingQueue = queue.filter(p =>
-    p.status === QueueStatus.WAITING ||
-    (p.status === QueueStatus.NOTIFIED && p.id !== nextPatient?.id)
-  );
+  // When doctor is not present, treat IN_CONSULTATION as just another waiting patient
+  const inConsultation = isDoctorPresent ? queue.find(p => p.status === QueueStatus.IN_CONSULTATION) : null;
+  const nextPatient = isDoctorPresent ? queue.find(p => p.status === QueueStatus.NOTIFIED) : null;
+  const waitingQueue = isDoctorPresent
+    ? queue.filter(p =>
+        p.status === QueueStatus.WAITING ||
+        (p.status === QueueStatus.NOTIFIED && p.id !== nextPatient?.id)
+      )
+    : queue.filter(p =>
+        p.status === QueueStatus.WAITING ||
+        p.status === QueueStatus.NOTIFIED ||
+        p.status === QueueStatus.IN_CONSULTATION
+      );
 
-  // Count for disabled state
-  const canCallNext = queue.some(p => p.status === QueueStatus.WAITING || p.status === QueueStatus.NOTIFIED);
+  // Count for disabled state - also disabled when doctor is not present
+  const canCallNext = isDoctorPresent && queue.some(p => p.status === QueueStatus.WAITING || p.status === QueueStatus.NOTIFIED);
 
   return (
     <div className="min-h-screen bg-gray-50 pb-6">
@@ -111,12 +126,15 @@ export default function MobileDashboard({
       {/* Compact Stats Bar */}
       <div className="bg-white px-4 py-3 border-b border-gray-100 flex items-center justify-around sticky top-0 z-10 shadow-sm">
         <div className="text-center">
-          <p className="text-2xl font-bold text-primary-700">{stats?.waiting || 0}</p>
+          {/* When doctor is absent, add the IN_CONSULTATION patient to waiting count */}
+          <p className="text-2xl font-bold text-primary-700">
+            {(stats?.waiting || 0) + (!isDoctorPresent && queue.some(p => p.status === QueueStatus.IN_CONSULTATION) ? 1 : 0)}
+          </p>
           <p className="text-xs text-gray-500">{t('queue.waiting')}</p>
         </div>
         <div className="w-px h-10 bg-gray-200"></div>
         <div className="text-center">
-          <p className="text-2xl font-bold text-green-600">{inConsultation ? 1 : 0}</p>
+          <p className="text-2xl font-bold text-green-600">{isDoctorPresent && inConsultation ? 1 : 0}</p>
           <p className="text-xs text-gray-500">{t('queue.inConsultation')}</p>
         </div>
         <div className="w-px h-10 bg-gray-200"></div>
@@ -124,6 +142,34 @@ export default function MobileDashboard({
           <p className="text-2xl font-bold text-gray-400">{stats?.seen || 0}</p>
           <p className="text-xs text-gray-500">{t('queue.seenToday', { count: stats?.seen || 0 }).replace(/\d+/, '').trim()}</p>
         </div>
+      </div>
+
+      {/* Doctor Present Toggle */}
+      <div className="px-4 py-3">
+        <button
+          onClick={onToggleDoctorPresent}
+          className={`w-full flex items-center justify-between px-4 py-3 rounded-xl font-medium transition-all ${
+            isDoctorPresent
+              ? 'bg-green-100 text-green-800 border-2 border-green-300'
+              : 'bg-gray-100 text-gray-600 border-2 border-gray-200'
+          }`}
+        >
+          <div className="flex items-center gap-3">
+            <span
+              className={`material-symbols-outlined text-2xl ${isDoctorPresent ? 'text-green-600' : 'text-gray-400'}`}
+              style={{ fontVariationSettings: isDoctorPresent ? "'FILL' 1" : "'FILL' 0" }}
+            >
+              stethoscope
+            </span>
+            <span className="text-sm font-semibold">
+              {isDoctorPresent ? t('queue.doctorPresent') : t('queue.doctorNotPresent')}
+            </span>
+          </div>
+          {/* Toggle switch */}
+          <div className={`w-12 h-7 rounded-full p-0.5 transition-colors ${isDoctorPresent ? 'bg-green-500' : 'bg-gray-300'}`}>
+            <div className={`w-6 h-6 rounded-full bg-white shadow transition-transform ${isDoctorPresent ? 'translate-x-5' : 'translate-x-0'}`} />
+          </div>
+        </button>
       </div>
 
       {/* Side-by-side: En Consultation (33%) + Appeler Suivant (66%) */}
@@ -420,7 +466,9 @@ export default function MobileDashboard({
           </p>
           <div className="bg-white rounded-2xl shadow-sm divide-y divide-gray-100 overflow-hidden">
             {waitingQueue.map((entry, index) => {
-              const displayPosition = entry.position - 1; // Adjust for display
+              // When doctor is present: position - 1 (since #1 is in consultation)
+              // When doctor is absent: show actual position (first = #1)
+              const displayPosition = isDoctorPresent ? entry.position - 1 : entry.position;
               const waitingMins = getWaitingMinutes(entry.arrivedAt);
 
               return (
@@ -452,23 +500,59 @@ export default function MobileDashboard({
                           </span>
                           {waitingMins} min
                         </span>
+                        {entry.appointmentTime && (
+                          <span className="flex items-center gap-0.5 text-purple-600">
+                            <span
+                              className="material-symbols-outlined text-sm"
+                              style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20" }}
+                              title={t('queue.appointmentTime')}
+                            >
+                              calendar_clock
+                            </span>
+                            {formatTime(entry.appointmentTime)}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <a
-                      href={`/patient/${entry.id}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="p-2 text-gray-400 hover:text-primary-600 hover:bg-gray-50 rounded-full transition-colors"
-                    >
-                      <span className="material-symbols-outlined text-xl">open_in_new</span>
-                    </a>
+                  <div className="flex items-center gap-0.5">
+                    {/* Move up button */}
+                    {entry.position > 1 && (
+                      <button
+                        onClick={() => onReorder(entry.id, entry.position - 1)}
+                        className="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-full transition-colors"
+                        title={t('queue.moveUp')}
+                      >
+                        <span className="material-symbols-outlined text-lg">arrow_upward</span>
+                      </button>
+                    )}
+                    {/* Move down button */}
+                    {entry.position < queue.length && (
+                      <button
+                        onClick={() => onReorder(entry.id, entry.position + 1)}
+                        className="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-full transition-colors"
+                        title={t('queue.moveDown')}
+                      >
+                        <span className="material-symbols-outlined text-lg">arrow_downward</span>
+                      </button>
+                    )}
+                    {/* Emergency button - move patient to see doctor immediately */}
+                    {entry.position > 1 && (
+                      <button
+                        onClick={() => onEmergency(entry.id)}
+                        className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
+                        title={t('queue.emergency')}
+                      >
+                        <span className="material-symbols-outlined text-lg">e911_emergency</span>
+                      </button>
+                    )}
+                    {/* Delete button */}
                     <button
                       onClick={() => onRemovePatient(entry.id)}
-                      className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
+                      className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
+                      title={t('common.delete')}
                     >
-                      <span className="material-symbols-outlined text-xl">close</span>
+                      <span className="material-symbols-outlined text-lg">close</span>
                     </button>
                   </div>
                 </div>

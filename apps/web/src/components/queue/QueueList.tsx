@@ -6,22 +6,47 @@ import clsx from 'clsx';
 interface QueueListProps {
   queue: QueueEntry[];
   onRemove: (id: string) => void;
+  onReorder?: (id: string, newPosition: number) => void;
+  onEmergency?: (id: string) => void;
   exitingPatientId?: string | null;
+  isDoctorPresent?: boolean;
 }
 
-// Calculate display position: IN_CONSULTATION shows badge, others show position - 1
-function getDisplayPosition(entry: QueueEntry): number | null {
-  if (entry.status === QueueStatus.IN_CONSULTATION) {
+// Calculate display position based on doctor presence
+// When doctor is present: IN_CONSULTATION shows badge, others show position - 1
+// When doctor is absent: everyone shows their position number (first = #1)
+function getDisplayPosition(entry: QueueEntry, isDoctorPresent: boolean): number | null {
+  if (isDoctorPresent && entry.status === QueueStatus.IN_CONSULTATION) {
     return null; // Will show badge instead of position
   }
-  return entry.position - 1; // NOTIFIED becomes #1, first WAITING becomes #2, etc.
+  if (isDoctorPresent) {
+    return entry.position - 1; // NOTIFIED becomes #1, first WAITING becomes #2, etc.
+  }
+  // Doctor not present: show actual position (first patient = #1)
+  return entry.position;
 }
 
-export default function QueueList({ queue, onRemove, exitingPatientId }: QueueListProps) {
+export default function QueueList({ queue, onRemove, onReorder, onEmergency, exitingPatientId, isDoctorPresent = false }: QueueListProps) {
   const { t } = useTranslation();
 
+  // Format appointment time for display
+  const formatAppointmentTime = (dateString: string | null) => {
+    if (!dateString) return null;
+    const date = new Date(dateString);
+    return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  };
+
+  // Get display status - when doctor is absent, IN_CONSULTATION shows as NOTIFIED
+  const getDisplayStatus = (status: QueueStatus): QueueStatus => {
+    if (!isDoctorPresent && status === QueueStatus.IN_CONSULTATION) {
+      return QueueStatus.NOTIFIED;
+    }
+    return status;
+  };
+
   const getStatusColor = (status: QueueStatus) => {
-    switch (status) {
+    const displayStatus = getDisplayStatus(status);
+    switch (displayStatus) {
       case QueueStatus.WAITING:
         return 'bg-blue-100 text-blue-800';
       case QueueStatus.NOTIFIED:
@@ -40,8 +65,9 @@ export default function QueueList({ queue, onRemove, exitingPatientId }: QueueLi
   };
 
   const getStatusTranslationKey = (status: QueueStatus): string => {
+    const displayStatus = getDisplayStatus(status);
     // Convert enum value (e.g., "IN_CONSULTATION") to translation key (e.g., "inConsultation")
-    return status
+    return displayStatus
       .toLowerCase()
       .split('_')
       .map((word, index) => index === 0 ? word : word.charAt(0).toUpperCase() + word.slice(1))
@@ -84,10 +110,10 @@ export default function QueueList({ queue, onRemove, exitingPatientId }: QueueLi
                 {t('queue.status')}
               </th>
               <th className="px-2 sm:px-4 lg:px-6 py-2 sm:py-3 text-left text-[10px] sm:text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {t('queue.arrivedAt')}
+                {t('queue.appointmentTime') || 'RDV'}
               </th>
               <th className="px-2 sm:px-4 lg:px-6 py-2 sm:py-3 text-left text-[10px] sm:text-xs font-medium text-gray-500 uppercase tracking-wider">
-                URL
+                {t('queue.arrivedAt')}
               </th>
               <th className="px-2 sm:px-4 lg:px-6 py-2 sm:py-3 text-left text-[10px] sm:text-xs font-medium text-gray-500 uppercase tracking-wider">
                 {t('queue.actions')}
@@ -95,18 +121,20 @@ export default function QueueList({ queue, onRemove, exitingPatientId }: QueueLi
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {queue.map((entry) => (
+            {queue.map((entry) => {
+              const displayStatus = getDisplayStatus(entry.status);
+              return (
               <tr
                 key={entry.id}
                 className={clsx(
                   'transition-all duration-300',
                   entry.id === exitingPatientId && 'queue-row-exit',
-                  entry.status === QueueStatus.IN_CONSULTATION && 'bg-green-50',
-                  entry.status === QueueStatus.NOTIFIED && 'bg-yellow-50'
+                  displayStatus === QueueStatus.IN_CONSULTATION && 'bg-green-50',
+                  displayStatus === QueueStatus.NOTIFIED && 'bg-yellow-50'
                 )}
               >
                 <td className="px-2 sm:px-4 lg:px-6 py-2 sm:py-4 whitespace-nowrap">
-                  {entry.status === QueueStatus.IN_CONSULTATION ? (
+                  {isDoctorPresent && entry.status === QueueStatus.IN_CONSULTATION ? (
                     <span
                       className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-green-100 text-green-700"
                       title={t('queue.inConsultation')}
@@ -115,7 +143,7 @@ export default function QueueList({ queue, onRemove, exitingPatientId }: QueueLi
                       <span className="material-symbols-outlined text-xl">medical_services</span>
                     </span>
                   ) : (
-                    <div className="text-sm sm:text-lg font-bold text-gray-900">#{getDisplayPosition(entry)}</div>
+                    <div className="text-sm sm:text-lg font-bold text-gray-900">#{getDisplayPosition(entry, isDoctorPresent)}</div>
                   )}
                 </td>
                 <td className="px-2 sm:px-4 lg:px-6 py-2 sm:py-4 whitespace-nowrap">
@@ -135,33 +163,67 @@ export default function QueueList({ queue, onRemove, exitingPatientId }: QueueLi
                     {t(`queue.${getStatusTranslationKey(entry.status)}`)}
                   </span>
                 </td>
+                <td className="px-2 sm:px-4 lg:px-6 py-2 sm:py-4 whitespace-nowrap text-xs sm:text-sm">
+                  {entry.appointmentTime ? (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-100 text-purple-800 rounded-full text-xs font-medium">
+                      <span className="material-symbols-outlined text-sm">schedule</span>
+                      {formatAppointmentTime(entry.appointmentTime)}
+                    </span>
+                  ) : (
+                    <span className="text-gray-400 text-xs">{t('queue.walkIn') || 'Sans RDV'}</span>
+                  )}
+                </td>
                 <td className="px-2 sm:px-4 lg:px-6 py-2 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
                   {formatTime(entry.arrivedAt)}
                 </td>
                 <td className="px-2 sm:px-4 lg:px-6 py-2 sm:py-4 whitespace-nowrap">
-                  <a
-                    href={`/patient/${entry.id}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary-600 hover:text-primary-900 hover:bg-primary-50 p-1.5 sm:p-2 rounded-full transition-colors inline-flex items-center justify-center"
-                    title={t('queue.viewPatientStatus') || 'View patient status'}
-                    aria-label={t('queue.viewPatientStatus') || 'View patient status'}
-                  >
-                    <span className="material-symbols-outlined text-xl">open_in_new</span>
-                  </a>
-                </td>
-                <td className="px-2 sm:px-4 lg:px-6 py-2 sm:py-4 whitespace-nowrap">
-                  <button
-                    onClick={() => onRemove(entry.id)}
-                    className="text-red-600 hover:text-red-900 hover:bg-red-50 p-1.5 sm:p-2 rounded-full transition-colors inline-flex items-center justify-center"
-                    title={t('common.delete')}
-                    aria-label={t('common.delete')}
-                  >
-                    <span className="material-symbols-outlined text-xl">delete</span>
-                  </button>
+                  <div className="flex items-center gap-1">
+                    {/* Emergency button - move patient to see doctor immediately */}
+                    {onEmergency && entry.status !== QueueStatus.IN_CONSULTATION && entry.position > 1 && (
+                      <button
+                        onClick={() => onEmergency(entry.id)}
+                        className="text-red-600 hover:text-red-800 hover:bg-red-50 p-1 rounded-full transition-colors inline-flex items-center justify-center"
+                        title={t('queue.emergency')}
+                        aria-label={t('queue.emergency')}
+                      >
+                        <span className="material-symbols-outlined text-lg">e911_emergency</span>
+                      </button>
+                    )}
+                    {/* Reorder controls */}
+                    {onReorder && entry.position > 1 && (
+                      <button
+                        onClick={() => onReorder(entry.id, entry.position - 1)}
+                        className="text-gray-500 hover:text-primary-600 hover:bg-primary-50 p-1 rounded-full transition-colors inline-flex items-center justify-center"
+                        title={t('queue.moveUp') || 'Move up'}
+                        aria-label={t('queue.moveUp') || 'Move up'}
+                      >
+                        <span className="material-symbols-outlined text-lg">arrow_upward</span>
+                      </button>
+                    )}
+                    {onReorder && entry.position < queue.length && (
+                      <button
+                        onClick={() => onReorder(entry.id, entry.position + 1)}
+                        className="text-gray-500 hover:text-primary-600 hover:bg-primary-50 p-1 rounded-full transition-colors inline-flex items-center justify-center"
+                        title={t('queue.moveDown') || 'Move down'}
+                        aria-label={t('queue.moveDown') || 'Move down'}
+                      >
+                        <span className="material-symbols-outlined text-lg">arrow_downward</span>
+                      </button>
+                    )}
+                    {/* Delete button */}
+                    <button
+                      onClick={() => onRemove(entry.id)}
+                      className="text-red-600 hover:text-red-900 hover:bg-red-50 p-1.5 sm:p-2 rounded-full transition-colors inline-flex items-center justify-center"
+                      title={t('common.delete')}
+                      aria-label={t('common.delete')}
+                    >
+                      <span className="material-symbols-outlined text-xl">delete</span>
+                    </button>
+                  </div>
                 </td>
               </tr>
-            ))}
+            );
+            })}
           </tbody>
         </table>
       </div>

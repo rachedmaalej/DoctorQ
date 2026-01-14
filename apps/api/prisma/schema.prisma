@@ -49,6 +49,9 @@ model QueueEntry {
   status        QueueStatus   @default(WAITING)
   checkInMethod CheckInMethod @default(MANUAL)
 
+  // Appointment support (v0.3)
+  appointmentTime DateTime?   // Scheduled appointment time (null = walk-in)
+
   arrivedAt     DateTime      @default(now())
   notifiedAt    DateTime?     // When "almost your turn" sent
   calledAt      DateTime?     // When called for consultation
@@ -60,6 +63,7 @@ model QueueEntry {
   @@index([clinicId, status])
   @@index([clinicId, arrivedAt])
   @@index([clinicId, createdAt])
+  @@index([clinicId, appointmentTime])
 }
 
 enum QueueStatus {

@@ -45,6 +45,7 @@ const addPatientSchema = z.object({
   patientPhone: z.string().min(8), // More flexible - will format on server
   patientName: z.string().optional(),
   checkInMethod: z.enum(['QR_CODE', 'MANUAL', 'WHATSAPP', 'SMS']).default('MANUAL'),
+  appointmentTime: z.string().optional(), // HH:MM format for today's appointment
 });
 
 const updateStatusSchema = z.object({
@@ -57,9 +58,9 @@ const updateStatusSchema = z.object({
 // - Position #1 should always be IN_CONSULTATION
 // - Position #2 should always be NOTIFIED
 // - All others should be WAITING
+// Ordering: appointmentTime first (nulls last), then arrivedAt for walk-ins
 async function recalculatePositionsAndStatuses(clinicId: string) {
-  // Get all active patients ordered by arrival time
-  // We order by arrivedAt to maintain fairness
+  // Get all active patients
   const activePatients = await prisma.queueEntry.findMany({
     where: {
       clinicId,
@@ -67,7 +68,24 @@ async function recalculatePositionsAndStatuses(clinicId: string) {
         in: [QueueStatus.WAITING, QueueStatus.NOTIFIED, QueueStatus.IN_CONSULTATION],
       },
     },
-    orderBy: { arrivedAt: 'asc' },
+  });
+
+  // Sort: patients with appointments first (by appointment time), then walk-ins (by arrival time)
+  activePatients.sort((a, b) => {
+    // Both have appointments - sort by appointment time
+    if (a.appointmentTime && b.appointmentTime) {
+      return a.appointmentTime.getTime() - b.appointmentTime.getTime();
+    }
+    // Only a has appointment - a comes first
+    if (a.appointmentTime && !b.appointmentTime) {
+      return -1;
+    }
+    // Only b has appointment - b comes first
+    if (!a.appointmentTime && b.appointmentTime) {
+      return 1;
+    }
+    // Neither has appointment (both walk-ins) - sort by arrival time
+    return a.arrivedAt.getTime() - b.arrivedAt.getTime();
   });
 
   if (activePatients.length === 0) {
@@ -226,7 +244,17 @@ router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {
 router.post('/', authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
     const clinicId = req.clinic!.id;
-    const { patientPhone, patientName, checkInMethod } = addPatientSchema.parse(req.body);
+    const { patientPhone, patientName, checkInMethod, appointmentTime } = addPatientSchema.parse(req.body);
+
+    // Parse appointment time if provided (HH:MM format -> today's DateTime)
+    let appointmentDateTime: Date | undefined;
+    if (appointmentTime) {
+      const [hours, minutes] = appointmentTime.split(':').map(Number);
+      if (!isNaN(hours) && !isNaN(minutes)) {
+        appointmentDateTime = new Date();
+        appointmentDateTime.setHours(hours, minutes, 0, 0);
+      }
+    }
 
     // Format phone number
     const formattedPhone = patientPhone.startsWith('+216')
@@ -283,6 +311,7 @@ router.post('/', authMiddleware, async (req: AuthRequest, res: Response) => {
         position,
         status: QueueStatus.WAITING,
         checkInMethod: checkInMethod as CheckInMethod,
+        appointmentTime: appointmentDateTime,
       },
     });
 
@@ -524,6 +553,185 @@ router.delete('/:id', authMiddleware, async (req: AuthRequest, res: Response) =>
   }
 });
 
+// POST /api/queue/reorder - Manually reorder queue (receptionist override)
+const reorderSchema = z.object({
+  entryId: z.string().uuid(),
+  newPosition: z.number().int().min(1),
+});
+
+router.post('/reorder', authMiddleware, async (req: AuthRequest, res: Response) => {
+  try {
+    const clinicId = req.clinic!.id;
+    const { entryId, newPosition } = reorderSchema.parse(req.body);
+
+    // Verify entry belongs to clinic and is active
+    const entry = await prisma.queueEntry.findFirst({
+      where: {
+        id: entryId,
+        clinicId,
+        status: {
+          in: [QueueStatus.WAITING, QueueStatus.NOTIFIED, QueueStatus.IN_CONSULTATION],
+        },
+      },
+    });
+
+    if (!entry) {
+      return res.status(404).json({
+        error: {
+          code: 'ENTRY_NOT_FOUND',
+          message: 'Queue entry not found or not active',
+        },
+      });
+    }
+
+    const oldPosition = entry.position;
+
+    // Get all active patients
+    const activePatients = await prisma.queueEntry.findMany({
+      where: {
+        clinicId,
+        status: {
+          in: [QueueStatus.WAITING, QueueStatus.NOTIFIED, QueueStatus.IN_CONSULTATION],
+        },
+      },
+      orderBy: { position: 'asc' },
+    });
+
+    // Validate new position
+    if (newPosition > activePatients.length) {
+      return res.status(400).json({
+        error: {
+          code: 'INVALID_POSITION',
+          message: `Position must be between 1 and ${activePatients.length}`,
+        },
+      });
+    }
+
+    if (oldPosition === newPosition) {
+      return res.json({ data: { message: 'Position unchanged' } });
+    }
+
+    // Reorder: shift other patients and place the moved patient at new position
+    // First, temporarily set moved patient's position to 0 to avoid conflicts
+    await prisma.queueEntry.update({
+      where: { id: entryId },
+      data: { position: 0 },
+    });
+
+    // Shift other patients
+    if (newPosition < oldPosition) {
+      // Moving up: shift patients between newPosition and oldPosition down
+      await prisma.queueEntry.updateMany({
+        where: {
+          clinicId,
+          position: { gte: newPosition, lt: oldPosition },
+          id: { not: entryId },
+          status: { in: [QueueStatus.WAITING, QueueStatus.NOTIFIED, QueueStatus.IN_CONSULTATION] },
+        },
+        data: { position: { increment: 1 } },
+      });
+    } else {
+      // Moving down: shift patients between oldPosition and newPosition up
+      await prisma.queueEntry.updateMany({
+        where: {
+          clinicId,
+          position: { gt: oldPosition, lte: newPosition },
+          id: { not: entryId },
+          status: { in: [QueueStatus.WAITING, QueueStatus.NOTIFIED, QueueStatus.IN_CONSULTATION] },
+        },
+        data: { position: { decrement: 1 } },
+      });
+    }
+
+    // Set the moved patient to new position
+    await prisma.queueEntry.update({
+      where: { id: entryId },
+      data: { position: newPosition },
+    });
+
+    // Recalculate statuses based on new positions (position 1 = IN_CONSULTATION, 2 = NOTIFIED)
+    const reorderedPatients = await prisma.queueEntry.findMany({
+      where: {
+        clinicId,
+        status: { in: [QueueStatus.WAITING, QueueStatus.NOTIFIED, QueueStatus.IN_CONSULTATION] },
+      },
+      orderBy: { position: 'asc' },
+    });
+
+    // Update statuses based on position
+    await Promise.all(
+      reorderedPatients.map((patient) => {
+        let newStatus: QueueStatus;
+        const updateData: { status: QueueStatus; calledAt?: Date; notifiedAt?: Date } = {
+          status: patient.status,
+        };
+
+        if (patient.position === 1) {
+          newStatus = QueueStatus.IN_CONSULTATION;
+          if (!patient.calledAt) {
+            updateData.calledAt = new Date();
+          }
+        } else if (patient.position === 2) {
+          newStatus = QueueStatus.NOTIFIED;
+          if (!patient.notifiedAt) {
+            updateData.notifiedAt = new Date();
+          }
+        } else {
+          newStatus = QueueStatus.WAITING;
+        }
+
+        updateData.status = newStatus;
+
+        return prisma.queueEntry.update({
+          where: { id: patient.id },
+          data: updateData,
+        });
+      })
+    );
+
+    // Emit real-time updates
+    await emitQueueUpdate(clinicId);
+
+    // Emit to each patient
+    const finalPatients = await prisma.queueEntry.findMany({
+      where: {
+        clinicId,
+        status: { in: [QueueStatus.WAITING, QueueStatus.NOTIFIED, QueueStatus.IN_CONSULTATION] },
+      },
+      orderBy: { position: 'asc' },
+    });
+
+    for (const patient of finalPatients) {
+      emitPatientUpdate(patient.id, patient.position, patient.status);
+    }
+
+    res.json({
+      data: {
+        message: 'Queue reordered successfully',
+        entry: await prisma.queueEntry.findUnique({ where: { id: entryId } }),
+      },
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid request data',
+          details: error.errors,
+        },
+      });
+    }
+
+    console.error('Reorder queue error:', error);
+    res.status(500).json({
+      error: {
+        code: 'SERVER_ERROR',
+        message: 'Failed to reorder queue',
+      },
+    });
+  }
+});
+
 // DELETE /api/queue - Clear all patients from queue
 router.delete('/', authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
@@ -739,7 +947,7 @@ router.post('/patient/:entryId/leave', async (req, res: Response) => {
     }
 
     // Check if patient can leave (not already completed/cancelled/no-show)
-    const nonLeavableStatuses = [QueueStatus.COMPLETED, QueueStatus.CANCELLED, QueueStatus.NO_SHOW];
+    const nonLeavableStatuses: QueueStatus[] = [QueueStatus.COMPLETED, QueueStatus.CANCELLED, QueueStatus.NO_SHOW];
     if (nonLeavableStatuses.includes(entry.status)) {
       return res.status(400).json({
         error: {

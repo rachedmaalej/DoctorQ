@@ -12,8 +12,22 @@ export default function AddPatientModal({ isOpen, onClose }: AddPatientModalProp
   const { addPatient } = useQueueStore();
   const [patientPhone, setPatientPhone] = useState('+216 ');
   const [patientName, setPatientName] = useState('');
+  const [appointmentHour, setAppointmentHour] = useState('');
+  const [appointmentMinute, setAppointmentMinute] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Generate hours 00-23 and minutes in 15-min increments (00, 15, 30, 45)
+  const hours = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0'));
+  const minutes = ['00', '15', '30', '45'];
+
+  // Combine hour and minute into HH:MM format for submission
+  const getAppointmentTime = () => {
+    if (appointmentHour && appointmentMinute) {
+      return `${appointmentHour}:${appointmentMinute}`;
+    }
+    return undefined;
+  };
 
   const formatPhoneNumber = (value: string): string => {
     // Always start with +216
@@ -65,15 +79,19 @@ export default function AddPatientModal({ isOpen, onClose }: AddPatientModalProp
     setIsSubmitting(true);
 
     try {
-      console.log('Submitting patient:', { patientPhone, patientName });
+      const appointmentTime = getAppointmentTime();
+      console.log('Submitting patient:', { patientPhone, patientName, appointmentTime });
       await addPatient({
         patientPhone,
         patientName: patientName || undefined,
+        appointmentTime: appointmentTime,
       });
 
       // Reset form and close modal
       setPatientPhone('+216 ');
       setPatientName('');
+      setAppointmentHour('');
+      setAppointmentMinute('');
       onClose();
     } catch (err: any) {
       console.error('Add patient error:', err);
@@ -138,6 +156,40 @@ export default function AddPatientModal({ isOpen, onClose }: AddPatientModalProp
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               placeholder={t('checkin.namePlaceholder')}
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              {t('queue.appointmentTime')}
+            </label>
+            <div className="flex gap-2 items-center">
+              {/* Hours select (00-23) */}
+              <select
+                value={appointmentHour}
+                onChange={(e) => setAppointmentHour(e.target.value)}
+                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
+              >
+                <option value="">--</option>
+                {hours.map((hour) => (
+                  <option key={hour} value={hour}>{hour}</option>
+                ))}
+              </select>
+              <span className="text-xl font-bold text-gray-500">:</span>
+              {/* Minutes select (00-59) */}
+              <select
+                value={appointmentMinute}
+                onChange={(e) => setAppointmentMinute(e.target.value)}
+                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
+              >
+                <option value="">--</option>
+                {minutes.map((minute) => (
+                  <option key={minute} value={minute}>{minute}</option>
+                ))}
+              </select>
+            </div>
+            <p className="mt-1 text-sm text-gray-500">
+              {t('queue.appointmentTimeHint')}
+            </p>
           </div>
 
           <div className="flex gap-3 pt-4">

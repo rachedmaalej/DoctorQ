@@ -22,6 +22,7 @@ export interface QueueEntry {
   position: number;
   status: QueueStatus;
   checkInMethod: CheckInMethod;
+  appointmentTime: string | null;  // v0.3: Scheduled appointment time
   arrivedAt: string;
   notifiedAt: string | null;
   calledAt: string | null;
@@ -63,6 +64,7 @@ export interface LoginResponse {
 export interface AddPatientData {
   patientPhone: string;
   patientName?: string;
+  appointmentTime?: string;  // v0.3: HH:MM format
 }
 
 export interface UpdateStatusData {

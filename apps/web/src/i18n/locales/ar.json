@@ -51,7 +51,18 @@
     "viewPatientStatus": "عرض حالة المريض",
     "resetStats": "إعادة تعيين الإحصائيات",
     "confirmResetStats": "هل تريد إعادة تعيين إحصائيات الانتظار؟ سيؤدي ذلك إلى حذف سجل المرضى الذين تمت معاينتهم اليوم.",
-    "lastConsultation": "آخر استشارة"
+    "lastConsultation": "آخر استشارة",
+    "appointmentTime": "وقت الموعد",
+    "appointmentTimeHint": "اتركه فارغاً للمرضى بدون موعد",
+    "walkIn": "بدون موعد",
+    "scheduled": "موعد",
+    "moveUp": "تحريك لأعلى",
+    "moveDown": "تحريك لأسفل",
+    "emergency": "طوارئ - معاينة فورية",
+    "doctorPresent": "الطبيب موجود",
+    "doctorNotPresent": "الطبيب غائب",
+    "doctorArrived": "وصل الطبيب",
+    "waitingForDoctor": "في انتظار الطبيب"
   },
   "patient": {
     "hello": "مرحباً",
@@ -119,7 +130,8 @@
     "leftQueue": "لقد غادرت الصف",
     "leftQueueNamed": "{{name}}، لقد غادرت الصف",
     "leftQueueMessage": "لم تعد في قائمة الانتظار.",
-    "rejoinQueue": "استعادة مكاني"
+    "rejoinQueue": "استعادة مكاني",
+    "yourAppointment": "موعدك"
   },
   "checkin": {
     "title": "انضم إلى الصف",
