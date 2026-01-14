@@ -13,11 +13,23 @@ import ConfirmModal from '@/components/ui/ConfirmModal';
 import Header from '@/components/layout/Header';
 import { MD3FAB } from '@/components/md3/fab';
 import { MD3Button } from '@/components/md3/button';
+import type { AddPatientData } from '@/types';
+
+// Sample patients for demo
+const SAMPLE_PATIENTS: AddPatientData[] = [
+  { patientName: 'Rached M', patientPhone: '+21626387742', appointmentTime: '10:00' },
+  { patientName: 'Hela B', patientPhone: '+21655234567', appointmentTime: '10:15' },
+  { patientName: 'Jalila F', patientPhone: '+21622222567', appointmentTime: '10:30' },
+  { patientName: 'Samira K', patientPhone: '+21621999888', appointmentTime: '10:45' },
+  { patientName: 'Mouna C', patientPhone: '+21620222111' },
+  { patientName: 'Amin K', patientPhone: '+21623555000', appointmentTime: '11:00' },
+  { patientName: 'Hejer K', patientPhone: '+21654414141', appointmentTime: '11:30' },
+];
 
 export default function DashboardPage() {
   const { t } = useTranslation();
   const { clinic } = useAuthStore();
-  const { queue, stats, fetchQueue, callNext, removePatient, reorderPatient, clearQueue, resetStats } = useQueueStore();
+  const { queue, stats, fetchQueue, addPatient, callNext, removePatient, reorderPatient, clearQueue, resetStats } = useQueueStore();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isQRModalOpen, setIsQRModalOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
@@ -28,6 +40,7 @@ export default function DashboardPage() {
   const [isCallingNext, setIsCallingNext] = useState(false);
   const [exitingPatientId, setExitingPatientId] = useState<string | null>(null);
   const [isDoctorPresent, setIsDoctorPresent] = useState(false);
+  const [isFillingQueue, setIsFillingQueue] = useState(false);
 
   // Count waiting patients for FAB disabled state
   const waitingCount = queue.filter(p => p.status === 'WAITING' || p.status === 'NOTIFIED').length;
@@ -130,6 +143,24 @@ export default function DashboardPage() {
     setIsClearQueueModalOpen(false);
   };
 
+  // Fill queue with sample patients for demo
+  const handleFillQueue = async () => {
+    if (isFillingQueue) return;
+    setIsFillingQueue(true);
+    try {
+      for (const patient of SAMPLE_PATIENTS) {
+        try {
+          await addPatient(patient);
+        } catch (error) {
+          // Skip if patient already in queue
+          console.log(`Skipped ${patient.patientName}: already in queue or error`);
+        }
+      }
+    } finally {
+      setIsFillingQueue(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 pb-32 lg:pb-8">
       {/* Desktop Header - hidden on mobile since MobileDashboard has its own stats bar */}
@@ -148,9 +179,11 @@ export default function DashboardPage() {
           onReorder={reorderPatient}
           onEmergency={(id) => reorderPatient(id, 1)}
           onShowQR={() => setIsQRModalOpen(true)}
+          onFillQueue={handleFillQueue}
           isCallingNext={isCallingNext}
           isDoctorPresent={isDoctorPresent}
           onToggleDoctorPresent={() => setIsDoctorPresent(!isDoctorPresent)}
+          isFillingQueue={isFillingQueue}
         />
       </div>
 
@@ -214,6 +247,17 @@ export default function DashboardPage() {
                   </div>
                 </button>
               </div>
+
+              {/* Fill Queue Button (Demo) */}
+              <MD3Button
+                variant="text"
+                onClick={handleFillQueue}
+                disabled={isFillingQueue}
+                className="text-purple-600 hover:bg-purple-50 active:bg-purple-100"
+                icon={<span className="material-symbols-outlined text-xl">{isFillingQueue ? 'hourglass_empty' : 'group_add'}</span>}
+              >
+                <span className="hidden sm:inline">{isFillingQueue ? 'Filling...' : 'Fill Queue (Demo)'}</span>
+              </MD3Button>
 
               {/* Clear Queue Button */}
               <MD3Button

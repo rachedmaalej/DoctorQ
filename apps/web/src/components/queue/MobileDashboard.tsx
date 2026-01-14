@@ -13,9 +13,11 @@ interface MobileDashboardProps {
   onReorder: (id: string, newPosition: number) => void;
   onEmergency: (id: string) => void;
   onShowQR: () => void;
+  onFillQueue?: () => void;
   isCallingNext: boolean;
   isDoctorPresent: boolean;
   onToggleDoctorPresent: () => void;
+  isFillingQueue?: boolean;
 }
 
 /**
@@ -53,9 +55,11 @@ export default function MobileDashboard({
   onReorder,
   onEmergency,
   onShowQR,
+  onFillQueue,
   isCallingNext,
   isDoctorPresent,
   onToggleDoctorPresent,
+  isFillingQueue,
 }: MobileDashboardProps) {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
@@ -425,7 +429,7 @@ export default function MobileDashboard({
       )}
 
       {/* Add Patient & QR Code Buttons - positioned above queue */}
-      <div className="px-4 pb-6 flex gap-3">
+      <div className="px-4 pb-3 flex gap-3">
         <button
           onClick={onAddPatient}
           className="flex-[3] bg-white border border-gray-200 text-gray-700 font-medium py-3 rounded-xl flex items-center justify-center gap-2 active:bg-gray-50 shadow-sm transition-colors"
@@ -451,6 +455,25 @@ export default function MobileDashboard({
           </span>
         </button>
       </div>
+
+      {/* Fill Queue Demo Button */}
+      {onFillQueue && (
+        <div className="px-4 pb-6">
+          <button
+            onClick={onFillQueue}
+            disabled={isFillingQueue}
+            className="w-full bg-purple-50 border border-purple-200 text-purple-700 font-medium py-2.5 rounded-xl flex items-center justify-center gap-2 active:bg-purple-100 transition-colors disabled:opacity-50"
+          >
+            <span
+              className="material-symbols-outlined text-lg"
+              style={{ fontVariationSettings: "'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 20" }}
+            >
+              {isFillingQueue ? 'hourglass_empty' : 'group_add'}
+            </span>
+            {isFillingQueue ? 'Filling...' : 'Fill Queue (Demo)'}
+          </button>
+        </div>
+      )}
 
       {/* Remaining Queue */}
       {waitingQueue.length > 0 && (
