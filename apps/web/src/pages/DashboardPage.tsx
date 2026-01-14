@@ -72,17 +72,25 @@ export default function DashboardPage() {
     fetchQueue();
   }, []); // Only run once on mount
 
-  // Sync doctor presence from clinic data on initial load only
-  // We use a ref to track if we've done initial sync to avoid overwriting socket updates
+  // Fetch initial doctor presence state from the API on mount
   const hasInitializedPresence = useRef(false);
   useEffect(() => {
-    console.log('[Doctor Presence] Sync effect running, hasInitialized:', hasInitializedPresence.current, 'clinic.isDoctorPresent:', (clinic as any)?.isDoctorPresent);
-    if (!hasInitializedPresence.current && (clinic as any)?.isDoctorPresent !== undefined) {
-      console.log('[Doctor Presence] Initial sync from clinic data:', (clinic as any).isDoctorPresent);
-      setIsDoctorPresent((clinic as any).isDoctorPresent);
-      hasInitializedPresence.current = true;
-    }
-  }, [(clinic as any)?.isDoctorPresent]);
+    const fetchDoctorPresence = async () => {
+      if (hasInitializedPresence.current || !clinic?.id) return;
+      try {
+        // Fetch full clinic data which includes isDoctorPresent
+        const clinicData = await api.getClinic();
+        console.log('[Doctor Presence] Fetched initial state:', (clinicData as any).isDoctorPresent);
+        if (!hasInitializedPresence.current) {
+          setIsDoctorPresent((clinicData as any).isDoctorPresent ?? false);
+          hasInitializedPresence.current = true;
+        }
+      } catch (err) {
+        console.error('[Doctor Presence] Failed to fetch initial state:', err);
+      }
+    };
+    fetchDoctorPresence();
+  }, [clinic?.id]);
 
   useEffect(() => {
     // Join clinic room for real-time updates
