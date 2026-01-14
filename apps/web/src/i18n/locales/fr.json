@@ -104,6 +104,8 @@
     "beReadyNamed": "{{name}}, tenez-vous prêt à entrer!",
     "youAreNext": "Vous êtes le prochain!",
     "youAreNextNamed": "{{name}}, vous êtes le prochain!",
+    "urgentNextMessage": "Restez tout près du cabinet, vous allez être appelé d'un moment à l'autre!",
+    "urgentNextMessageNamed": "{{name}}, restez tout près du cabinet. Vous allez être appelé d'un moment à l'autre!",
     "comeToReception": "Présentez-vous à l'accueil",
     "goToReception": "Présentez-vous à l'accueil",
     "yourTurnNow": "C'EST VOTRE TOUR!",

@@ -430,8 +430,27 @@ export default function PatientStatusPage() {
           </div>
         )}
 
-        {/* Fun Fact Card - eye-related fun facts for waiting patients */}
-        {showTicket && <FunFactCard />}
+        {/* Urgency Card for position #1 (next state) */}
+        {queueState === 'next' && (
+          <div className="bg-green-50 border-2 border-green-300 rounded-xl p-4 animate-pulse">
+            <div className="flex items-start gap-3">
+              <span
+                className="material-symbols-outlined text-2xl text-green-600 flex-shrink-0"
+                style={{ fontVariationSettings: "'FILL' 1" }}
+              >
+                directions_run
+              </span>
+              <div>
+                <p className="text-sm font-medium text-green-800 leading-relaxed">
+                  {tPersonal('patient.urgentNextMessage')}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Fun Fact Card - eye-related fun facts for waiting patients (not shown when next) */}
+        {showTicket && queueState !== 'next' && <FunFactCard />}
 
         {/* Leave Queue Button - only show in active queue states */}
         {canLeaveQueue && (
