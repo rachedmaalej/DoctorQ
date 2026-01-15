@@ -132,12 +132,37 @@ export default function DashboardPage() {
         // Start exit animation
         setExitingPatientId(currentPatient.id);
 
+        // Optimistic update: remove current patient and shift positions immediately
+        const optimisticQueue = queue
+          .filter(p => p.id !== currentPatient.id)
+          .map((p, index) => ({
+            ...p,
+            position: index + 1,
+            status: index === 0 ? 'IN_CONSULTATION' as const : index === 1 ? 'NOTIFIED' as const : p.status
+          }));
+
+        // Update stats optimistically
+        const optimisticStats = stats ? {
+          ...stats,
+          completed: stats.completed + 1,
+          waiting: Math.max(0, stats.waiting - 1)
+        } : null;
+
+        // Apply optimistic update after animation starts
+        setTimeout(() => {
+          useQueueStore.getState().setQueue(optimisticQueue, optimisticStats!);
+        }, 350); // Slightly before animation ends for smooth transition
+
         // Wait for animation to complete (400ms)
         await new Promise(resolve => setTimeout(resolve, 400));
       }
 
-      // Call API (this will trigger real state update via Socket.io)
-      await callNext();
+      // Fire API call - Socket.io will reconcile if needed
+      callNext().catch(err => {
+        // On error, refetch to get accurate state
+        fetchQueue();
+        console.error('Failed to call next:', err);
+      });
 
       // Clear exiting state
       setExitingPatientId(null);
@@ -262,14 +287,6 @@ export default function DashboardPage() {
 
       {/* Desktop Layout - hidden on mobile */}
       <main className="hidden lg:block max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        {/* Header */}
-        <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{t('queue.title')}</h1>
-          <p className="mt-1 sm:mt-2 text-gray-600">
-            {clinic?.name} - {clinic?.doctorName}
-          </p>
-        </div>
-
         {/* Main Grid Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-6">
           {/* Left Column - QR Code Card */}

@@ -65,13 +65,9 @@ export const useQueueStore = create<QueueState>((set) => ({
     set({ isLoading: true, error: null });
     try {
       await api.callNext();
-      // Refresh queue after calling next
-      const response = await api.getQueue();
-      set({
-        queue: response.queue,
-        stats: response.stats,
-        isLoading: false,
-      });
+      // Socket.io will update queue via onQueueUpdated callback
+      // No need to fetch queue again - removes 1-2 second delay
+      set({ isLoading: false });
     } catch (error: any) {
       set({
         error: error.message || 'Failed to call next patient',

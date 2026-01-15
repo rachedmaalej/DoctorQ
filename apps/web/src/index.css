@@ -130,20 +130,20 @@ body {
   border-radius: 50%;
 }
 
-/* Queue row exit animation - used when "Call Next" is clicked */
+/* Queue row exit animation - Scale + Fade for departing patient */
 @keyframes row-exit {
   0% {
     opacity: 1;
-    transform: translateY(0);
+    transform: scale(1);
     max-height: 80px;
   }
   50% {
-    opacity: 0;
-    transform: translateY(-10px);
+    opacity: 0.5;
+    transform: scale(0.95);
   }
   100% {
     opacity: 0;
-    transform: translateY(-20px);
+    transform: scale(0.8);
     max-height: 0;
     padding-top: 0;
     padding-bottom: 0;
@@ -151,7 +151,41 @@ body {
 }
 
 .queue-row-exit {
-  animation: row-exit 400ms ease-out forwards;
+  animation: row-exit 400ms ease-in-out forwards;
   overflow: hidden;
+  transform-origin: center;
 }
+
+/* Queue row shift animation - MEDIUM Zoom Pulse (3% scale) */
+@keyframes row-shift-pulse {
+  0% {
+    transform: scale(1) translateY(0);
+  }
+  30% {
+    transform: scale(1.03) translateY(-2px);
+  }
+  60% {
+    transform: scale(1.01) translateY(-1px);
+  }
+  100% {
+    transform: scale(1) translateY(0);
+  }
+}
+
+.queue-row-shift {
+  animation: row-shift-pulse 500ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  will-change: transform;
+}
+
+/* Staggered delays for cascade effect */
+tr:nth-child(1).queue-row-shift { animation-delay: 0ms; }
+tr:nth-child(2).queue-row-shift { animation-delay: 50ms; }
+tr:nth-child(3).queue-row-shift { animation-delay: 100ms; }
+tr:nth-child(4).queue-row-shift { animation-delay: 150ms; }
+tr:nth-child(5).queue-row-shift { animation-delay: 200ms; }
+tr:nth-child(6).queue-row-shift { animation-delay: 250ms; }
+tr:nth-child(7).queue-row-shift { animation-delay: 300ms; }
+tr:nth-child(8).queue-row-shift { animation-delay: 350ms; }
+tr:nth-child(9).queue-row-shift { animation-delay: 400ms; }
+tr:nth-child(10).queue-row-shift { animation-delay: 450ms; }
 

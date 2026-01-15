@@ -127,8 +127,8 @@ export default function QueueList({ queue, onRemove, onReorder, onEmergency, exi
               <tr
                 key={entry.id}
                 className={clsx(
-                  'transition-all duration-300',
                   entry.id === exitingPatientId && 'queue-row-exit',
+                  exitingPatientId && entry.id !== exitingPatientId && 'queue-row-shift',
                   displayStatus === QueueStatus.IN_CONSULTATION && 'bg-green-50',
                   displayStatus === QueueStatus.NOTIFIED && 'bg-yellow-50'
                 )}

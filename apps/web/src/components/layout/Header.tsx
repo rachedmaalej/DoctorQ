@@ -22,13 +22,20 @@ export default function Header() {
     <header className="bg-white shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
+          {/* Left: Logo only */}
           <div>
             <Logo size="md" />
-            {clinic && (
-              <p className="text-sm text-gray-600">{clinic.name}</p>
-            )}
           </div>
 
+          {/* Center: Clinic name */}
+          {clinic && (
+            <div className="text-center">
+              <p className="text-sm text-gray-500 font-medium">Cabinet</p>
+              <h1 className="text-xl font-bold text-gray-900">{clinic.doctorName || clinic.name}</h1>
+            </div>
+          )}
+
+          {/* Right: Language toggle and logout */}
           <div className="flex items-center gap-4">
             <button
               onClick={toggleLanguage}
