@@ -5,11 +5,12 @@
  */
 
 interface LogoProps {
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
 }
 
 const sizeClasses = {
+  xs: 'text-base',
   sm: 'text-lg',
   md: 'text-2xl',
   lg: 'text-3xl',

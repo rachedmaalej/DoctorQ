@@ -99,16 +99,24 @@ export default function MobileDashboard({
       {/* Mobile Header */}
       <header className="bg-white px-4 py-3 border-b border-gray-200">
         <div className="flex justify-between items-center">
+          {/* Left: Logo only */}
           <div>
-            <Logo size="sm" />
-            {clinic && (
-              <p className="text-xs text-gray-600">{clinic.name}</p>
-            )}
+            <Logo size="xs" />
           </div>
-          <div className="flex items-center gap-2">
+
+          {/* Center: Clinic name */}
+          {clinic && (
+            <div className="text-center">
+              <p className="text-[10px] text-gray-500 font-medium">Cabinet</p>
+              <h1 className="text-sm font-bold text-gray-900">{clinic.doctorName || clinic.name}</h1>
+            </div>
+          )}
+
+          {/* Right: Language toggle and logout */}
+          <div className="flex items-center gap-1">
             <button
               onClick={toggleLanguage}
-              className="px-2 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+              className="px-2 py-1.5 text-xs text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
             >
               {i18n.language === 'fr' ? 'عربي' : 'FR'}
             </button>
@@ -118,7 +126,7 @@ export default function MobileDashboard({
               title={t('auth.logout')}
             >
               <span
-                className="material-symbols-outlined text-xl"
+                className="material-symbols-outlined text-lg"
                 style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20" }}
               >
                 logout
