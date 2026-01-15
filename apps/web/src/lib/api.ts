@@ -8,6 +8,7 @@ import type {
   UpdateStatusData,
   ApiError,
 } from '@/types';
+import { logger } from './logger';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
@@ -37,7 +38,7 @@ class ApiClient {
       headers['Authorization'] = `Bearer ${this.token}`;
     }
 
-    console.log(`[API] ${options.method || 'GET'} ${endpoint}`, { hasToken: !!this.token });
+    logger.log(`[API] ${options.method || 'GET'} ${endpoint}`, { hasToken: !!this.token });
 
     try {
       const response = await fetch(`${API_URL}${endpoint}`, {
@@ -48,7 +49,7 @@ class ApiClient {
       const data = await response.json();
 
       if (!response.ok) {
-        console.error(`[API] Error response:`, data);
+        logger.error(`[API] Error response:`, data);
         const error: ApiError & { data?: any } = {
           ...(data.error || {
             code: 'UNKNOWN_ERROR',
@@ -59,10 +60,10 @@ class ApiClient {
         throw error;
       }
 
-      console.log(`[API] Success:`, endpoint);
+      logger.log(`[API] Success:`, endpoint);
       return data.data;
     } catch (err) {
-      console.error(`[API] Request failed:`, err);
+      logger.error(`[API] Request failed:`, err);
       throw err;
     }
   }

@@ -2,7 +2,15 @@ import { Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { AuthRequest } from '../types/index.js';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this';
+// JWT_SECRET must be set in environment - no fallback for security
+function getJwtSecret(): string {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('FATAL: JWT_SECRET environment variable is required but not set');
+  }
+  return secret;
+}
+const JWT_SECRET = getJwtSecret();
 
 export interface JWTPayload {
   clinicId: string;

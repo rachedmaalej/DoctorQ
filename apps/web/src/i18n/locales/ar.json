@@ -134,7 +134,9 @@
     "leftQueueMessage": "لم تعد في قائمة الانتظار.",
     "rejoinQueue": "استعادة مكاني",
     "yourAppointment": "موعدك",
-    "doctorNotYetArrived": "الطبيب لم يصل بعد"
+    "doctorNotYetArrived": "الطبيب لم يصل بعد",
+    "movedUpOne": "تقدمت مكان واحد!",
+    "movedUpMultiple": "تقدمت {{count}} أماكن!"
   },
   "checkin": {
     "title": "انضم إلى الصف",

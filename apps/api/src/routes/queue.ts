@@ -60,79 +60,61 @@ const updateStatusSchema = z.object({
 // - Position #2 should always be NOTIFIED
 // - All others should be WAITING
 // Ordering: appointmentTime first (nulls last), then arrivedAt for walk-ins
+// OPTIMIZED: Uses batch SQL update instead of N individual updates
 async function recalculatePositionsAndStatuses(clinicId: string) {
-  // Get all active patients
-  const activePatients = await prisma.queueEntry.findMany({
-    where: {
-      clinicId,
-      status: {
-        in: [QueueStatus.WAITING, QueueStatus.NOTIFIED, QueueStatus.IN_CONSULTATION],
-      },
-    },
+  // Use a database transaction with batch updates for performance
+  // This reduces N queries to just 3-4 queries regardless of queue size
+  await prisma.$transaction(async (tx) => {
+    // Step 1: Batch update positions using a single raw SQL query
+    // Orders by: appointmentTime (nulls last), then arrivedAt
+    await tx.$executeRaw`
+      WITH ranked AS (
+        SELECT id,
+               ROW_NUMBER() OVER (
+                 ORDER BY
+                   CASE WHEN "appointmentTime" IS NULL THEN 1 ELSE 0 END,
+                   "appointmentTime" ASC,
+                   "arrivedAt" ASC
+               ) as new_position
+        FROM "QueueEntry"
+        WHERE "clinicId" = ${clinicId}
+        AND status IN ('WAITING', 'NOTIFIED', 'IN_CONSULTATION')
+      )
+      UPDATE "QueueEntry"
+      SET position = ranked.new_position
+      FROM ranked
+      WHERE "QueueEntry".id = ranked.id
+    `;
+
+    // Step 2: Update status for position #1 to IN_CONSULTATION
+    await tx.$executeRaw`
+      UPDATE "QueueEntry"
+      SET status = 'IN_CONSULTATION',
+          "calledAt" = COALESCE("calledAt", NOW())
+      WHERE "clinicId" = ${clinicId}
+      AND position = 1
+      AND status IN ('WAITING', 'NOTIFIED', 'IN_CONSULTATION')
+    `;
+
+    // Step 3: Update status for position #2 to NOTIFIED
+    await tx.$executeRaw`
+      UPDATE "QueueEntry"
+      SET status = 'NOTIFIED',
+          "notifiedAt" = COALESCE("notifiedAt", NOW())
+      WHERE "clinicId" = ${clinicId}
+      AND position = 2
+      AND status IN ('WAITING', 'NOTIFIED', 'IN_CONSULTATION')
+    `;
+
+    // Step 4: Update status for positions 3+ to WAITING
+    await tx.$executeRaw`
+      UPDATE "QueueEntry"
+      SET status = 'WAITING'
+      WHERE "clinicId" = ${clinicId}
+      AND position > 2
+      AND status IN ('NOTIFIED', 'IN_CONSULTATION')
+    `;
   });
-
-  // Sort: patients with appointments first (by appointment time), then walk-ins (by arrival time)
-  activePatients.sort((a, b) => {
-    // Both have appointments - sort by appointment time
-    if (a.appointmentTime && b.appointmentTime) {
-      return a.appointmentTime.getTime() - b.appointmentTime.getTime();
-    }
-    // Only a has appointment - a comes first
-    if (a.appointmentTime && !b.appointmentTime) {
-      return -1;
-    }
-    // Only b has appointment - b comes first
-    if (!a.appointmentTime && b.appointmentTime) {
-      return 1;
-    }
-    // Neither has appointment (both walk-ins) - sort by arrival time
-    return a.arrivedAt.getTime() - b.arrivedAt.getTime();
-  });
-
-  if (activePatients.length === 0) {
-    return;
-  }
-
-  // Update positions and statuses sequentially
-  await Promise.all(
-    activePatients.map((entry, index) => {
-      const newPosition = index + 1;
-      let newStatus: QueueStatus;
-      const updateData: { position: number; status: QueueStatus; calledAt?: Date; notifiedAt?: Date } = {
-        position: newPosition,
-        status: entry.status, // Default to current status
-      };
-
-      // Position #1 = IN_CONSULTATION
-      if (newPosition === 1) {
-        newStatus = QueueStatus.IN_CONSULTATION;
-        updateData.status = newStatus;
-        // Set calledAt if not already set
-        if (!entry.calledAt) {
-          updateData.calledAt = new Date();
-        }
-      }
-      // Position #2 = NOTIFIED
-      else if (newPosition === 2) {
-        newStatus = QueueStatus.NOTIFIED;
-        updateData.status = newStatus;
-        // Set notifiedAt if not already set
-        if (!entry.notifiedAt) {
-          updateData.notifiedAt = new Date();
-        }
-      }
-      // All others = WAITING
-      else {
-        newStatus = QueueStatus.WAITING;
-        updateData.status = newStatus;
-      }
-
-      return prisma.queueEntry.update({
-        where: { id: entry.id },
-        data: updateData,
-      });
-    })
-  );
 }
 
 // Legacy function name for backward compatibility

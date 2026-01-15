@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { api } from '@/lib/api';
+import { logger } from '@/lib/logger';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 
 // Format phone number as "+216 XX XXX XXX"
@@ -135,7 +136,7 @@ export default function CheckInPage() {
       // Redirect to patient status page
       navigate(`/patient/${result.id}`);
     } catch (err: any) {
-      console.error('Check-in error:', err);
+      logger.error('Check-in error:', err);
 
       if (err.code === 'ALREADY_CHECKED_IN' && err.data?.id) {
         // Redirect to existing patient's status page
@@ -209,7 +210,12 @@ export default function CheckInPage() {
                 required
                 disabled={isLoading}
                 autoComplete="tel"
+                aria-describedby="phone-format-hint"
               />
+              <p id="phone-format-hint" className="mt-1 text-xs text-gray-500 flex items-center gap-1">
+                <span className="material-symbols-outlined text-sm">info</span>
+                {t('checkin.phoneHelp')}
+              </p>
             </div>
 
             {/* Name Field */}

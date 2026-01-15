@@ -3,8 +3,10 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import rateLimit from 'express-rate-limit';
 import { setSocketIO } from './lib/socket.js';
 import { prisma } from './lib/prisma.js';
+import { verifyToken } from './lib/auth.js';
 import authRoutes from './routes/auth.js';
 import queueRoutes from './routes/queue.js';
 import clinicRoutes from './routes/clinic.js';
@@ -39,6 +41,15 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// Rate limiting for public endpoints (prevents abuse)
+const publicRateLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 30, // 30 requests per minute per IP
+  message: { error: { code: 'RATE_LIMITED', message: 'Too many requests, please try again later' } },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // Request logging (development only)
 if (process.env.NODE_ENV === 'development') {
   app.use((req, res, next) => {
@@ -57,6 +68,10 @@ app.use('/api/auth', authRoutes);
 app.use('/api/queue', queueRoutes);
 app.use('/api/clinic', clinicRoutes);
 
+// Apply rate limiting to public queue endpoints
+app.use('/api/queue/checkin', publicRateLimiter);
+app.use('/api/queue/patient', publicRateLimiter);
+
 // Socket.io connection handling
 io.on('connection', (socket) => {
   console.log('[Socket.io] Client connected:', socket.id);
@@ -66,10 +81,25 @@ io.on('connection', (socket) => {
     console.log(`[Socket.io] Event '${eventName}' from ${socket.id}:`, JSON.stringify(args).slice(0, 200));
   });
 
-  // Join clinic room (for doctor/receptionist)
+  // Join clinic room (for doctor/receptionist) - SECURED with token verification
   socket.on('join:clinic', ({ clinicId, token }) => {
     try {
-      // TODO: Verify token
+      // Verify the JWT token
+      if (!token) {
+        console.warn(`[Socket.io] Client ${socket.id} attempted to join clinic room without token`);
+        socket.emit('error', { message: 'Authentication required' });
+        return;
+      }
+
+      const payload = verifyToken(token);
+
+      // Verify the token belongs to the requested clinic
+      if (payload.clinicId !== clinicId) {
+        console.warn(`[Socket.io] Client ${socket.id} token clinicId mismatch: ${payload.clinicId} vs ${clinicId}`);
+        socket.emit('error', { message: 'Unauthorized access to clinic' });
+        return;
+      }
+
       const roomName = `clinic:${clinicId}`;
       socket.join(roomName);
       // Get room size after joining
@@ -79,8 +109,8 @@ io.on('connection', (socket) => {
       // Confirm to client that they joined successfully
       socket.emit('joined:clinic', { clinicId, success: true });
     } catch (error) {
-      console.error('[Socket.io] Join clinic error:', error);
-      socket.emit('error', { message: 'Failed to join clinic room' });
+      console.error('[Socket.io] Join clinic auth error:', error);
+      socket.emit('error', { message: 'Invalid or expired token' });
     }
   });
 

@@ -65,6 +65,8 @@ model QueueEntry {
   @@index([clinicId, arrivedAt])
   @@index([clinicId, createdAt])
   @@index([clinicId, appointmentTime])
+  @@index([clinicId, status, position])  // Optimizes queue recalculation queries
+  @@index([patientPhone])                 // Optimizes duplicate check-in detection
 }
 
 enum QueueStatus {

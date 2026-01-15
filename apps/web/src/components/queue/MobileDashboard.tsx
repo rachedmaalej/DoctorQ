@@ -117,6 +117,7 @@ export default function MobileDashboard({
             <button
               onClick={toggleLanguage}
               className="px-2 py-1.5 text-xs text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+              aria-label={i18n.language === 'fr' ? 'Switch to Arabic' : 'Basculer vers le français'}
             >
               {i18n.language === 'fr' ? 'عربي' : 'FR'}
             </button>
@@ -124,6 +125,7 @@ export default function MobileDashboard({
               onClick={handleLogout}
               className="p-1.5 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors"
               title={t('auth.logout')}
+              aria-label={t('auth.logout')}
             >
               <span
                 className="material-symbols-outlined text-lg"
@@ -166,6 +168,8 @@ export default function MobileDashboard({
               ? 'bg-green-100 text-green-800 border-2 border-green-300'
               : 'bg-gray-100 text-gray-600 border-2 border-gray-200'
           }`}
+          aria-label={isDoctorPresent ? t('queue.doctorPresent') : t('queue.doctorNotPresent')}
+          aria-pressed={isDoctorPresent}
         >
           <div className="flex items-center gap-3">
             <span
@@ -264,6 +268,7 @@ export default function MobileDashboard({
                 <button
                   onClick={() => onRemovePatient(nextPatient.id)}
                   className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
+                  aria-label={t('common.delete')}
                 >
                   <span className="material-symbols-outlined text-lg">close</span>
                 </button>
@@ -333,6 +338,7 @@ export default function MobileDashboard({
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-2 text-green-600 hover:bg-green-100 rounded-full transition-colors"
+                  aria-label={t('queue.viewPatientStatus')}
                 >
                   <span className="material-symbols-outlined text-xl">open_in_new</span>
                 </a>
@@ -387,12 +393,14 @@ export default function MobileDashboard({
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-2 text-primary-600 hover:bg-primary-100 rounded-full transition-colors"
+                  aria-label={t('queue.viewPatientStatus')}
                 >
                   <span className="material-symbols-outlined text-xl">open_in_new</span>
                 </a>
                 <button
                   onClick={() => onRemovePatient(nextPatient.id)}
                   className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
+                  aria-label={t('common.delete')}
                 >
                   <span className="material-symbols-outlined text-xl">close</span>
                 </button>
@@ -455,6 +463,7 @@ export default function MobileDashboard({
           onClick={onShowQR}
           className="flex-1 bg-white border border-gray-200 text-gray-500 py-3 rounded-xl flex items-center justify-center active:bg-gray-50 shadow-sm transition-colors"
           title={t('qrCode.show')}
+          aria-label={t('qrCode.show')}
         >
           <span
             className="material-symbols-outlined text-xl"
@@ -554,6 +563,7 @@ export default function MobileDashboard({
                         onClick={() => onReorder(entry.id, entry.position - 1)}
                         className="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-full transition-colors"
                         title={t('queue.moveUp')}
+                        aria-label={t('queue.moveUp')}
                       >
                         <span className="material-symbols-outlined text-lg">arrow_upward</span>
                       </button>
@@ -564,6 +574,7 @@ export default function MobileDashboard({
                         onClick={() => onReorder(entry.id, entry.position + 1)}
                         className="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-full transition-colors"
                         title={t('queue.moveDown')}
+                        aria-label={t('queue.moveDown')}
                       >
                         <span className="material-symbols-outlined text-lg">arrow_downward</span>
                       </button>
@@ -574,6 +585,7 @@ export default function MobileDashboard({
                         onClick={() => onEmergency(entry.id)}
                         className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
                         title={t('queue.emergency')}
+                        aria-label={t('queue.emergency')}
                       >
                         <span className="material-symbols-outlined text-lg">e911_emergency</span>
                       </button>
@@ -583,6 +595,7 @@ export default function MobileDashboard({
                       onClick={() => onRemovePatient(entry.id)}
                       className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
                       title={t('common.delete')}
+                      aria-label={t('common.delete')}
                     >
                       <span className="material-symbols-outlined text-lg">close</span>
                     </button>

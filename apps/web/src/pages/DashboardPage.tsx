@@ -4,6 +4,7 @@ import { useAuthStore } from '@/stores/authStore';
 import { useQueueStore } from '@/stores/queueStore';
 import { useSocket } from '@/hooks/useSocket';
 import { api } from '@/lib/api';
+import { logger } from '@/lib/logger';
 import QueueList from '@/components/queue/QueueList';
 import QueueStats from '@/components/queue/QueueStats';
 import QRCodeCard from '@/components/queue/QRCodeCard';
@@ -14,6 +15,7 @@ import ConfirmModal from '@/components/ui/ConfirmModal';
 import Header from '@/components/layout/Header';
 import { MD3FAB } from '@/components/md3/fab';
 import { MD3Button } from '@/components/md3/button';
+import { QueueStatus } from '@/types';
 import type { AddPatientData } from '@/types';
 
 // Helper to create today's date with specific time (HH:MM)
@@ -64,16 +66,16 @@ export default function DashboardPage() {
   // Set up Socket.io connection for real-time updates
   const { joinClinicRoom } = useSocket({
     onQueueUpdated: (data) => {
-      console.log('Dashboard received queue:updated event, refreshing queue');
+      logger.log('Dashboard received queue:updated event, refreshing queue');
       useQueueStore.getState().setQueue(data.queue, data.stats);
     },
     onDoctorPresence: (data) => {
-      console.log('[Doctor Presence] Socket event received:', data, 'clinic?.id:', clinic?.id);
+      logger.log('[Doctor Presence] Socket event received:', data, 'clinic?.id:', clinic?.id);
       if (data.clinicId === clinic?.id) {
-        console.log('[Doctor Presence] Setting state from socket to:', data.isDoctorPresent);
+        logger.log('[Doctor Presence] Setting state from socket to:', data.isDoctorPresent);
         setIsDoctorPresent(data.isDoctorPresent);
       } else {
-        console.log('[Doctor Presence] Ignoring socket event - clinicId mismatch');
+        logger.log('[Doctor Presence] Ignoring socket event - clinicId mismatch');
       }
     },
   });
@@ -91,15 +93,15 @@ export default function DashboardPage() {
       try {
         // Fetch full clinic data which includes isDoctorPresent
         const clinicData = await api.getClinic();
-        console.log('[Doctor Presence] API response:', clinicData);
+        logger.log('[Doctor Presence] API response:', clinicData);
         if (clinicData && !hasInitializedPresence.current) {
           const presence = clinicData.isDoctorPresent ?? false;
-          console.log('[Doctor Presence] Setting initial state to:', presence);
+          logger.log('[Doctor Presence] Setting initial state to:', presence);
           setIsDoctorPresent(presence);
           hasInitializedPresence.current = true;
         }
       } catch (err) {
-        console.error('[Doctor Presence] Failed to fetch initial state:', err);
+        logger.error('[Doctor Presence] Failed to fetch initial state:', err);
       }
     };
     fetchDoctorPresence();
@@ -107,14 +109,14 @@ export default function DashboardPage() {
 
   useEffect(() => {
     // Join clinic room for real-time updates
-    console.log('[Dashboard] useEffect - clinic?.id:', clinic?.id, 'typeof joinClinicRoom:', typeof joinClinicRoom);
+    logger.log('[Dashboard] useEffect - clinic?.id:', clinic?.id, 'typeof joinClinicRoom:', typeof joinClinicRoom);
     if (clinic?.id) {
       const token = localStorage.getItem('auth_token');
-      console.log('[Dashboard] Token from localStorage:', token ? 'present' : 'missing');
+      logger.log('[Dashboard] Token from localStorage:', token ? 'present' : 'missing');
       if (token) {
-        console.log('[Dashboard] Calling joinClinicRoom with:', clinic.id);
+        logger.log('[Dashboard] Calling joinClinicRoom with:', clinic.id);
         joinClinicRoom(clinic.id, token);
-        console.log('[Dashboard] joinClinicRoom call completed');
+        logger.log('[Dashboard] joinClinicRoom call completed');
       }
     }
   }, [clinic?.id, joinClinicRoom]); // Re-run when clinic ID or joinClinicRoom changes
@@ -138,13 +140,13 @@ export default function DashboardPage() {
           .map((p, index) => ({
             ...p,
             position: index + 1,
-            status: index === 0 ? 'IN_CONSULTATION' as const : index === 1 ? 'NOTIFIED' as const : p.status
+            status: index === 0 ? QueueStatus.IN_CONSULTATION : index === 1 ? QueueStatus.NOTIFIED : p.status
           }));
 
         // Update stats optimistically
         const optimisticStats = stats ? {
           ...stats,
-          completed: stats.completed + 1,
+          seen: stats.seen + 1,
           waiting: Math.max(0, stats.waiting - 1)
         } : null;
 
@@ -161,14 +163,14 @@ export default function DashboardPage() {
       callNext().catch(err => {
         // On error, refetch to get accurate state
         fetchQueue();
-        console.error('Failed to call next:', err);
+        logger.error('Failed to call next:', err);
       });
 
       // Clear exiting state
       setExitingPatientId(null);
     } catch (error) {
       setExitingPatientId(null);
-      console.error('Failed to call next patient:', error);
+      logger.error('Failed to call next patient:', error);
     } finally {
       setIsCallingNext(false);
     }
@@ -188,7 +190,7 @@ export default function DashboardPage() {
       setIsConfirmModalOpen(false);
       setPatientToRemove(null);
     } catch (error) {
-      console.error('Failed to remove patient:', error);
+      logger.error('Failed to remove patient:', error);
     } finally {
       setIsRemoving(false);
     }
@@ -205,7 +207,7 @@ export default function DashboardPage() {
       await clearQueue();
       setIsClearQueueModalOpen(false);
     } catch (error) {
-      console.error('Failed to clear queue:', error);
+      logger.error('Failed to clear queue:', error);
     } finally {
       setIsClearing(false);
     }
@@ -220,24 +222,24 @@ export default function DashboardPage() {
     if (isTogglingPresence) return;
 
     const newValue = !isDoctorPresent;
-    console.log('[Doctor Presence] Toggle clicked, changing from', isDoctorPresent, 'to', newValue);
+    logger.log('[Doctor Presence] Toggle clicked, changing from', isDoctorPresent, 'to', newValue);
     setIsTogglingPresence(true);
 
     // Optimistic update
     setIsDoctorPresent(newValue);
-    console.log('[Doctor Presence] Optimistic update applied:', newValue);
+    logger.log('[Doctor Presence] Optimistic update applied:', newValue);
 
     try {
       const result = await api.setDoctorPresence(newValue);
-      console.log('[Doctor Presence] API response:', result);
+      logger.log('[Doctor Presence] API response:', result);
     } catch (error) {
       // Revert on error
-      console.error('[Doctor Presence] API error, reverting to:', !newValue);
+      logger.error('[Doctor Presence] API error, reverting to:', !newValue);
       setIsDoctorPresent(!newValue);
-      console.error('Failed to update doctor presence:', error);
+      logger.error('Failed to update doctor presence:', error);
     } finally {
       setIsTogglingPresence(false);
-      console.log('[Doctor Presence] Toggle complete, current state:', newValue);
+      logger.log('[Doctor Presence] Toggle complete, current state:', newValue);
     }
   };
 
@@ -251,7 +253,7 @@ export default function DashboardPage() {
           await addPatient(patient);
         } catch (error) {
           // Skip if patient already in queue
-          console.log(`Skipped ${patient.patientName}: already in queue or error`);
+          logger.log(`Skipped ${patient.patientName}: already in queue or error`);
         }
       }
     } finally {
@@ -322,6 +324,8 @@ export default function DashboardPage() {
                       : 'bg-gray-100 text-gray-600 border-2 border-gray-200'
                   }`}
                   title={isDoctorPresent ? t('queue.doctorArrived') : t('queue.waitingForDoctor')}
+                  aria-label={isDoctorPresent ? t('queue.doctorPresent') : t('queue.doctorNotPresent')}
+                  aria-pressed={isDoctorPresent}
                 >
                   <span
                     className={`material-symbols-outlined text-xl ${isDoctorPresent ? 'text-green-600' : 'text-gray-400'}`}

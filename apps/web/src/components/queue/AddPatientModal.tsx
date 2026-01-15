@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQueueStore } from '@/stores/queueStore';
+import { logger } from '@/lib/logger';
 
 interface AddPatientModalProps {
   isOpen: boolean;
@@ -80,7 +81,7 @@ export default function AddPatientModal({ isOpen, onClose }: AddPatientModalProp
 
     try {
       const appointmentTime = getAppointmentTime();
-      console.log('Submitting patient:', { patientPhone, patientName, appointmentTime });
+      logger.log('Submitting patient:', { patientPhone, patientName, appointmentTime });
       await addPatient({
         patientPhone,
         patientName: patientName || undefined,
@@ -94,7 +95,7 @@ export default function AddPatientModal({ isOpen, onClose }: AddPatientModalProp
       setAppointmentMinute('');
       onClose();
     } catch (err: any) {
-      console.error('Add patient error:', err);
+      logger.error('Add patient error:', err);
       if (err.code === 'ALREADY_CHECKED_IN') {
         setError(t('queue.patientAlreadyInQueue'));
       } else {

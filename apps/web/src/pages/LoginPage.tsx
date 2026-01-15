@@ -26,18 +26,6 @@ export default function LoginPage() {
     }
   };
 
-  // Quick dev login - auto-fill and submit with test credentials
-  const handleDevLogin = async () => {
-    setIsSubmitting(true);
-    try {
-      await login({ email: 'dr.skander@example.tn', password: 'password123' });
-      navigate('/dashboard');
-    } catch (error) {
-      // Error is handled by the store
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-50 flex items-center justify-center p-4">
@@ -66,7 +54,7 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                placeholder="dr.skander@example.tn"
+                placeholder="email@example.com"
               />
             </div>
 
@@ -93,23 +81,6 @@ export default function LoginPage() {
               {isSubmitting ? t('common.loading') : t('auth.loginButton')}
             </button>
           </form>
-
-          {/* Quick login button for demo */}
-          <div className="mt-4">
-            <button
-              type="button"
-              onClick={handleDevLogin}
-              disabled={isSubmitting}
-              className="w-full bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center justify-center gap-2"
-            >
-              <span className="material-symbols-outlined text-lg">bolt</span>
-              Quick Login (Demo)
-            </button>
-          </div>
-
-          <div className="mt-4 text-center text-sm text-gray-600">
-            <p>Test account: dr.skander@example.tn / password123</p>
-          </div>
         </div>
       </div>
     </div>

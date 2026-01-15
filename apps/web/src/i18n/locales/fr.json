@@ -134,7 +134,9 @@
     "leftQueueMessage": "Vous n'êtes plus dans la file d'attente.",
     "rejoinQueue": "Reprendre ma place",
     "yourAppointment": "Votre rendez-vous",
-    "doctorNotYetArrived": "Le médecin n'est pas encore arrivé"
+    "doctorNotYetArrived": "Le médecin n'est pas encore arrivé",
+    "movedUpOne": "Vous avez avancé d'une place!",
+    "movedUpMultiple": "Vous avez avancé de {{count}} places!"
   },
   "checkin": {
     "title": "Rejoignez le Saf",

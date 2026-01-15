@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { api } from '@/lib/api';
+import { logger } from '@/lib/logger';
 import { Toast, useToast } from '@/components/ui/Toast';
 
 interface QRCodeModalProps {
@@ -32,7 +33,7 @@ export default function QRCodeModal({ isOpen, onClose }: QRCodeModalProps) {
       const data = await api.getQRCode();
       setQrData(data);
     } catch (err: any) {
-      console.error('Failed to fetch QR code:', err);
+      logger.error('Failed to fetch QR code:', err);
       setError(err.message || 'Failed to load QR code');
     } finally {
       setIsLoading(false);

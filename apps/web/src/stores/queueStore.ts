@@ -45,13 +45,8 @@ export const useQueueStore = create<QueueState>((set) => ({
     set({ isLoading: true, error: null });
     try {
       await api.addPatient(data);
-      // Refresh queue after adding
-      const response = await api.getQueue();
-      set({
-        queue: response.queue,
-        stats: response.stats,
-        isLoading: false,
-      });
+      // Socket.io will update queue via onQueueUpdated callback
+      set({ isLoading: false });
     } catch (error: any) {
       set({
         error: error.message || 'Failed to add patient',
@@ -81,13 +76,8 @@ export const useQueueStore = create<QueueState>((set) => ({
     set({ isLoading: true, error: null });
     try {
       await api.updatePatientStatus(id, data);
-      // Refresh queue after updating
-      const response = await api.getQueue();
-      set({
-        queue: response.queue,
-        stats: response.stats,
-        isLoading: false,
-      });
+      // Socket.io will update queue via onQueueUpdated callback
+      set({ isLoading: false });
     } catch (error: any) {
       set({
         error: error.message || 'Failed to update patient status',
@@ -101,13 +91,8 @@ export const useQueueStore = create<QueueState>((set) => ({
     set({ isLoading: true, error: null });
     try {
       await api.removePatient(id);
-      // Refresh queue after removing
-      const response = await api.getQueue();
-      set({
-        queue: response.queue,
-        stats: response.stats,
-        isLoading: false,
-      });
+      // Socket.io will update queue via onQueueUpdated callback
+      set({ isLoading: false });
     } catch (error: any) {
       set({
         error: error.message || 'Failed to remove patient',
@@ -121,13 +106,8 @@ export const useQueueStore = create<QueueState>((set) => ({
     set({ isLoading: true, error: null });
     try {
       await api.reorderQueue(id, newPosition);
-      // Refresh queue after reordering
-      const response = await api.getQueue();
-      set({
-        queue: response.queue,
-        stats: response.stats,
-        isLoading: false,
-      });
+      // Socket.io will update queue via onQueueUpdated callback
+      set({ isLoading: false });
     } catch (error: any) {
       set({
         error: error.message || 'Failed to reorder patient',
@@ -141,13 +121,8 @@ export const useQueueStore = create<QueueState>((set) => ({
     set({ isLoading: true, error: null });
     try {
       await api.clearQueue();
-      // Refresh queue after clearing
-      const response = await api.getQueue();
-      set({
-        queue: response.queue,
-        stats: response.stats,
-        isLoading: false,
-      });
+      // Socket.io will update queue via onQueueUpdated callback
+      set({ isLoading: false });
     } catch (error: any) {
       set({
         error: error.message || 'Failed to clear queue',
@@ -161,13 +136,8 @@ export const useQueueStore = create<QueueState>((set) => ({
     set({ isLoading: true, error: null });
     try {
       await api.resetStats();
-      // Refresh queue after resetting stats
-      const response = await api.getQueue();
-      set({
-        queue: response.queue,
-        stats: response.stats,
-        isLoading: false,
-      });
+      // Socket.io will update queue via onQueueUpdated callback
+      set({ isLoading: false });
     } catch (error: any) {
       set({
         error: error.message || 'Failed to reset statistics',

@@ -1,11 +1,13 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { api } from '@/lib/api';
+import { logger } from '@/lib/logger';
 import { useSocket } from '@/hooks/useSocket';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import Confetti from '@/components/ui/Confetti';
 import ConfirmModal from '@/components/ui/ConfirmModal';
+import { Toast } from '@/components/ui/Toast';
 import TicketCard, { type TicketColorScheme } from '@/components/patient/TicketCard';
 import PatientJourneyVisual from '@/components/patient/PatientJourneyVisual';
 import FunFactCard from '@/components/patient/FunFactCard';
@@ -119,6 +121,8 @@ export default function PatientStatusPage() {
   const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
   const [isDoctorPresent, setIsDoctorPresent] = useState(true); // Default to true until we know
+  const [positionToast, setPositionToast] = useState<{ visible: boolean; message: string }>({ visible: false, message: '' });
+  const previousPositionRef = useRef<number | null>(null);
 
   // Helper to get personalized translation (uses Named variant if name exists)
   // Supports passing additional interpolation params
@@ -152,11 +156,26 @@ export default function PatientStatusPage() {
   const handlePositionChanged = useCallback((data: { entryId: string; newPosition: number; estimatedWait: number }) => {
     setEntry((prev) => {
       if (prev && data.entryId === prev.id) {
-        return { ...prev, position: data.newPosition };
+        const oldPosition = previousPositionRef.current;
+        const newPosition = data.newPosition;
+
+        // Show toast notification if position improved (lower number = better)
+        if (oldPosition !== null && newPosition < oldPosition) {
+          const positionsMoved = oldPosition - newPosition;
+          const message = positionsMoved === 1
+            ? t('patient.movedUpOne')
+            : t('patient.movedUpMultiple', { count: positionsMoved });
+          setPositionToast({ visible: true, message });
+        }
+
+        // Update ref for next comparison
+        previousPositionRef.current = newPosition;
+
+        return { ...prev, position: newPosition };
       }
       return prev;
     });
-  }, []);
+  }, [t]);
 
   const handleDoctorPresence = useCallback((data: { clinicId: string; isDoctorPresent: boolean }) => {
     // Only update if it's for our clinic
@@ -180,6 +199,8 @@ export default function PatientStatusPage() {
       try {
         const data = await api.getPatientStatus(entryId);
         setEntry(data);
+        // Initialize previous position ref for tracking changes
+        previousPositionRef.current = data.position;
         // Set doctor presence from the response
         if ((data as any).isDoctorPresent !== undefined) {
           setIsDoctorPresent((data as any).isDoctorPresent);
@@ -215,7 +236,7 @@ export default function PatientStatusPage() {
       // The socket will update the status, but we can also force a refresh
       setIsLeaveModalOpen(false);
     } catch (err: any) {
-      console.error('Failed to leave queue:', err);
+      logger.error('Failed to leave queue:', err);
       // Still close modal - socket update will show correct state
       setIsLeaveModalOpen(false);
     } finally {
@@ -481,6 +502,15 @@ export default function PatientStatusPage() {
         cancelText={t('patient.cancelLeaveButton')}
         variant="danger"
         isLoading={isLeaving}
+      />
+
+      {/* Position Change Toast */}
+      <Toast
+        message={positionToast.message}
+        type="success"
+        isVisible={positionToast.visible}
+        onClose={() => setPositionToast({ visible: false, message: '' })}
+        duration={3000}
       />
     </div>
   );

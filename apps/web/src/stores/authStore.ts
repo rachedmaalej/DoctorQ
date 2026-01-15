@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { Clinic, LoginCredentials } from '@/types';
 import { api } from '@/lib/api';
+import { logger } from '@/lib/logger';
 
 interface AuthState {
   clinic: Clinic | null;
@@ -57,9 +58,9 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   checkAuth: async () => {
     const token = localStorage.getItem('auth_token');
-    console.log('[AuthStore] checkAuth called, token:', token ? 'present' : 'missing');
+    logger.log('[AuthStore] checkAuth called, token:', token ? 'present' : 'missing');
     if (!token) {
-      console.log('[AuthStore] No token, setting isAuthenticated: false');
+      logger.log('[AuthStore] No token, setting isAuthenticated: false');
       set({ isAuthenticated: false, isLoading: false });
       return;
     }
@@ -67,15 +68,14 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ isLoading: true });
     try {
       const clinic = await api.getMe();
-      console.log('[AuthStore] getMe succeeded, clinic:', clinic);
-      console.log('[AuthStore] clinic.id:', clinic?.id);
+      logger.log('[AuthStore] getMe succeeded, clinic:', clinic);
       set({
         clinic,
         isAuthenticated: true,
         isLoading: false,
       });
     } catch (error) {
-      console.error('[AuthStore] checkAuth error:', error);
+      logger.error('[AuthStore] checkAuth error:', error);
       // Token is invalid, clear it
       api.clearToken();
       set({
