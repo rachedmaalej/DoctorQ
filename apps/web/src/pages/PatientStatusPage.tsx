@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { api } from '@/lib/api';
 import { logger } from '@/lib/logger';
 import { useSocket } from '@/hooks/useSocket';
+import { formatTime } from '@/lib/time';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import Confetti from '@/components/ui/Confetti';
 import ConfirmModal from '@/components/ui/ConfirmModal';
@@ -11,7 +12,8 @@ import { Toast } from '@/components/ui/Toast';
 import TicketCard, { type TicketColorScheme } from '@/components/patient/TicketCard';
 import PatientJourneyVisual from '@/components/patient/PatientJourneyVisual';
 import FunFactCard from '@/components/patient/FunFactCard';
-import type { QueueEntry } from '@/types';
+import type { PatientStatusResponse } from '@/types';
+import { QueueStatus } from '@/types';
 
 // Queue state types based on patient's journey
 type QueueState = 'far' | 'closer' | 'almost' | 'next' | 'yourTurn' | 'completed' | 'cancelled';
@@ -114,7 +116,7 @@ export default function PatientStatusPage() {
   const { t } = useTranslation();
   const { entryId } = useParams<{ entryId: string }>();
   const navigate = useNavigate();
-  const [entry, setEntry] = useState<QueueEntry | null>(null);
+  const [entry, setEntry] = useState<PatientStatusResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
@@ -144,9 +146,10 @@ export default function PatientStatusPage() {
   // Memoize callbacks to prevent re-renders
   const handlePatientCalled = useCallback((data: { position: number; status: string }) => {
     setEntry((prev) => {
-      const newEntry = prev ? { ...prev, status: data.status as any, position: data.position } : null;
+      const status = data.status as QueueStatus;
+      const newEntry = prev ? { ...prev, status, position: data.position } : null;
       // Trigger confetti when status changes to IN_CONSULTATION
-      if (data.status === 'IN_CONSULTATION' && prev?.status !== 'IN_CONSULTATION') {
+      if (status === QueueStatus.IN_CONSULTATION && prev?.status !== QueueStatus.IN_CONSULTATION) {
         setShowConfetti(true);
       }
       return newEntry;
@@ -202,8 +205,8 @@ export default function PatientStatusPage() {
         // Initialize previous position ref for tracking changes
         previousPositionRef.current = data.position;
         // Set doctor presence from the response
-        if ((data as any).isDoctorPresent !== undefined) {
-          setIsDoctorPresent((data as any).isDoctorPresent);
+        if (data.isDoctorPresent !== undefined) {
+          setIsDoctorPresent(data.isDoctorPresent);
         }
         // Show confetti if already in consultation when page loads
         if (data.status === 'IN_CONSULTATION') {
@@ -364,13 +367,13 @@ export default function PatientStatusPage() {
         )}
 
         {/* Appointment Time Indicator - if patient has scheduled appointment */}
-        {showTicket && (entry as any).appointmentTime && (
+        {showTicket && entry.appointmentTime && (
           <div className="bg-purple-50 border border-purple-200 rounded-xl p-3 text-center">
             <div className="flex items-center justify-center gap-2 text-purple-800">
               <span className="material-symbols-outlined text-lg">schedule</span>
               <span className="font-medium">{t('patient.yourAppointment') || 'Your appointment'}:</span>
               <span className="font-bold">
-                {new Date((entry as any).appointmentTime).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                {formatTime(entry.appointmentTime)}
               </span>
             </div>
           </div>
@@ -438,9 +441,9 @@ export default function PatientStatusPage() {
               </p>
 
               {/* Rejoin Button - link to check-in page */}
-              {(entry as any).clinicId && (
+              {entry.clinicId && (
                 <button
-                  onClick={() => navigate(`/checkin/${(entry as any).clinicId}`)}
+                  onClick={() => navigate(`/checkin/${entry.clinicId}`)}
                   className="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-xl transition-colors"
                 >
                   <span className="material-symbols-outlined">refresh</span>

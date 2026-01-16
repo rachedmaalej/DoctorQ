@@ -4,6 +4,7 @@ import type { QueueEntry, QueueStats } from '@/types';
 import { QueueStatus } from '@/types';
 import { useAuthStore } from '@/stores/authStore';
 import Logo from '@/components/ui/Logo';
+import { formatTime, getWaitingMinutes } from '@/lib/time';
 
 interface MobileDashboardProps {
   queue: QueueEntry[];
@@ -21,23 +22,6 @@ interface MobileDashboardProps {
   isFillingQueue?: boolean;
 }
 
-/**
- * Calculate waiting time in minutes from arrival time
- */
-function getWaitingMinutes(arrivedAt: string): number {
-  const arrived = new Date(arrivedAt);
-  const now = new Date();
-  const diffMs = now.getTime() - arrived.getTime();
-  return Math.floor(diffMs / (1000 * 60));
-}
-
-/**
- * Format time from ISO string to HH:MM
- */
-function formatTime(dateString: string): string {
-  const date = new Date(dateString);
-  return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-}
 
 /**
  * Queue-First Mobile Dashboard

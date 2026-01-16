@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQueueStore } from '@/stores/queueStore';
 import { logger } from '@/lib/logger';
+import { formatTunisianPhone, isValidTunisianPhone, DEFAULT_PHONE_VALUE } from '@/lib/phone';
 
 interface AddPatientModalProps {
   isOpen: boolean;
@@ -11,7 +12,7 @@ interface AddPatientModalProps {
 export default function AddPatientModal({ isOpen, onClose }: AddPatientModalProps) {
   const { t } = useTranslation();
   const { addPatient } = useQueueStore();
-  const [patientPhone, setPatientPhone] = useState('+216 ');
+  const [patientPhone, setPatientPhone] = useState(DEFAULT_PHONE_VALUE);
   const [patientName, setPatientName] = useState('');
   const [appointmentHour, setAppointmentHour] = useState('');
   const [appointmentMinute, setAppointmentMinute] = useState('');
@@ -30,39 +31,8 @@ export default function AddPatientModal({ isOpen, onClose }: AddPatientModalProp
     return undefined;
   };
 
-  const formatPhoneNumber = (value: string): string => {
-    // Always start with +216
-    const prefix = '+216 ';
-
-    // If user tries to delete the prefix, restore it
-    if (!value.startsWith('+216')) {
-      return prefix;
-    }
-
-    // Remove all non-digit characters except + at the start
-    const digitsOnly = value.slice(4).replace(/\D/g, '');
-
-    // Limit to 8 digits (Tunisian phone numbers)
-    const limitedDigits = digitsOnly.slice(0, 8);
-
-    // Format: +216 XX XXX XXX
-    let formatted = prefix;
-
-    if (limitedDigits.length > 0) {
-      formatted += limitedDigits.slice(0, 2); // First 2 digits
-    }
-    if (limitedDigits.length > 2) {
-      formatted += ' ' + limitedDigits.slice(2, 5); // Next 3 digits
-    }
-    if (limitedDigits.length > 5) {
-      formatted += ' ' + limitedDigits.slice(5, 8); // Last 3 digits
-    }
-
-    return formatted;
-  };
-
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatPhoneNumber(e.target.value);
+    const formatted = formatTunisianPhone(e.target.value);
     setPatientPhone(formatted);
   };
 
@@ -71,8 +41,7 @@ export default function AddPatientModal({ isOpen, onClose }: AddPatientModalProp
     setError(null);
 
     // Validate phone number has exactly 8 digits
-    const digitsOnly = patientPhone.slice(4).replace(/\D/g, '');
-    if (digitsOnly.length !== 8) {
+    if (!isValidTunisianPhone(patientPhone)) {
       setError(t('checkin.invalidPhone'));
       return;
     }
@@ -89,7 +58,7 @@ export default function AddPatientModal({ isOpen, onClose }: AddPatientModalProp
       });
 
       // Reset form and close modal
-      setPatientPhone('+216 ');
+      setPatientPhone(DEFAULT_PHONE_VALUE);
       setPatientName('');
       setAppointmentHour('');
       setAppointmentMinute('');

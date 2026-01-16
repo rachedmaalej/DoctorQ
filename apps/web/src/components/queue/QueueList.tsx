@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import type { QueueEntry } from '@/types';
 import { QueueStatus } from '@/types';
 import clsx from 'clsx';
+import { formatTime } from '@/lib/time';
 
 interface QueueListProps {
   queue: QueueEntry[];
@@ -32,8 +33,7 @@ export default function QueueList({ queue, onRemove, onReorder, onEmergency, exi
   // Format appointment time for display
   const formatAppointmentTime = (dateString: string | null) => {
     if (!dateString) return null;
-    const date = new Date(dateString);
-    return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    return formatTime(dateString);
   };
 
   // Get display status - when doctor is absent, IN_CONSULTATION shows as NOTIFIED
@@ -74,10 +74,6 @@ export default function QueueList({ queue, onRemove, onReorder, onEmergency, exi
       .join('');
   };
 
-  const formatTime = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-  };
 
   if (queue.length === 0) {
     return (

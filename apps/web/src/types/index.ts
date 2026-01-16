@@ -77,5 +77,13 @@ export interface UpdateStatusData {
 export interface ApiError {
   code: string;
   message: string;
-  details?: any;
+  details?: unknown;
+}
+
+/**
+ * Extended patient status returned by GET /api/queue/patient/:entryId
+ * Includes additional context for patient status page
+ */
+export interface PatientStatusResponse extends QueueEntry {
+  isDoctorPresent?: boolean;
 }

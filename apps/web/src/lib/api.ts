@@ -7,6 +7,7 @@ import type {
   QueueEntry,
   UpdateStatusData,
   ApiError,
+  PatientStatusResponse,
 } from '@/types';
 import { logger } from './logger';
 
@@ -154,8 +155,8 @@ class ApiClient {
   }
 
   // Patient endpoints (public)
-  async getPatientStatus(entryId: string): Promise<QueueEntry> {
-    return this.request<QueueEntry>(`/api/queue/patient/${entryId}`);
+  async getPatientStatus(entryId: string): Promise<PatientStatusResponse> {
+    return this.request<PatientStatusResponse>(`/api/queue/patient/${entryId}`);
   }
 
   // Patient leave queue (public)

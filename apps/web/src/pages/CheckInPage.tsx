@@ -3,53 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { api } from '@/lib/api';
 import { logger } from '@/lib/logger';
+import { formatTunisianPhone, extractPhoneDigits, isValidTunisianPhone, DEFAULT_PHONE_VALUE } from '@/lib/phone';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
-
-// Format phone number as "+216 XX XXX XXX"
-function formatTunisianPhone(value: string): string {
-  // Remove all non-digit characters
-  const digits = value.replace(/\D/g, '');
-
-  // If user cleared everything, return the prefix
-  if (digits.length === 0) {
-    return '+216 ';
-  }
-
-  // Handle case where digits start with 216
-  let phoneDigits = digits;
-  if (digits.startsWith('216')) {
-    phoneDigits = digits.slice(3);
-  }
-
-  // Build formatted string: +216 XX XXX XXX
-  let formatted = '+216 ';
-
-  if (phoneDigits.length > 0) {
-    // First 2 digits (XX)
-    formatted += phoneDigits.slice(0, 2);
-  }
-
-  if (phoneDigits.length > 2) {
-    // Next 3 digits (XXX)
-    formatted += ' ' + phoneDigits.slice(2, 5);
-  }
-
-  if (phoneDigits.length > 5) {
-    // Last 3 digits (XXX)
-    formatted += ' ' + phoneDigits.slice(5, 8);
-  }
-
-  return formatted;
-}
-
-// Extract raw phone number for API submission
-function extractPhoneDigits(formattedPhone: string): string {
-  const digits = formattedPhone.replace(/\D/g, '');
-  if (digits.startsWith('216')) {
-    return '+' + digits;
-  }
-  return '+216' + digits;
-}
 
 export default function CheckInPage() {
   const { t } = useTranslation();
@@ -57,7 +12,7 @@ export default function CheckInPage() {
   const navigate = useNavigate();
 
   // Initialize with prefilled "+216 "
-  const [patientPhone, setPatientPhone] = useState('+216 ');
+  const [patientPhone, setPatientPhone] = useState(DEFAULT_PHONE_VALUE);
   const [patientName, setPatientName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -81,7 +36,7 @@ export default function CheckInPage() {
 
     // Don't allow removing the "+216 " prefix
     if (inputValue.length < 5) {
-      setPatientPhone('+216 ');
+      setPatientPhone(DEFAULT_PHONE_VALUE);
       return;
     }
 
@@ -120,11 +75,8 @@ export default function CheckInPage() {
         throw new Error('Invalid clinic ID');
       }
 
-      // Extract digits and validate
-      const phoneDigits = patientPhone.replace(/\D/g, '');
-      const localDigits = phoneDigits.startsWith('216') ? phoneDigits.slice(3) : phoneDigits;
-
-      if (localDigits.length !== 8) {
+      // Validate phone number
+      if (!isValidTunisianPhone(patientPhone)) {
         throw new Error(t('checkin.invalidPhone'));
       }
 
