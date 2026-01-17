@@ -193,15 +193,17 @@ export function useDashboard() {
     setIsClearing(true);
     try {
       await clearQueue();
-      // Explicitly refresh queue to ensure UI updates even if Socket.io is disconnected
-      await fetchQueue();
+      // Optimistically clear the local queue immediately
+      useQueueStore.getState().setQueue([], stats ? { ...stats, waiting: 0 } : { waiting: 0, seen: 0, avgWait: null, lastConsultationMins: null });
       setIsClearQueueModalOpen(false);
     } catch (error) {
       logger.error('Failed to clear queue:', error);
+      // If API fails, refresh to get current state
+      await fetchQueue();
     } finally {
       setIsClearing(false);
     }
-  }, [clearQueue, fetchQueue]);
+  }, [clearQueue, fetchQueue, stats]);
 
   const cancelClearQueue = useCallback(() => {
     setIsClearQueueModalOpen(false);
