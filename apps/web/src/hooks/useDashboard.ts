@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useAuthStore } from '@/stores/authStore';
 import { useQueueStore } from '@/stores/queueStore';
 import { useSocket } from '@/hooks/useSocket';
@@ -84,26 +84,14 @@ export function useDashboard() {
     fetchQueue();
   }, []);
 
-  // Fetch initial doctor presence state from the API on mount
-  const hasInitializedPresence = useRef(false);
+  // Sync doctor presence from clinic data when it changes (e.g., after login or page refresh)
+  // This ensures we use the persisted value from the database
   useEffect(() => {
-    const fetchDoctorPresence = async () => {
-      if (hasInitializedPresence.current || !clinic?.id) return;
-      try {
-        const clinicData = await api.getClinic();
-        logger.log('[Doctor Presence] API response:', clinicData);
-        if (clinicData && !hasInitializedPresence.current) {
-          const presence = clinicData.isDoctorPresent ?? false;
-          logger.log('[Doctor Presence] Setting initial state to:', presence);
-          setIsDoctorPresent(presence);
-          hasInitializedPresence.current = true;
-        }
-      } catch (err) {
-        logger.error('[Doctor Presence] Failed to fetch initial state:', err);
-      }
-    };
-    fetchDoctorPresence();
-  }, [clinic?.id]);
+    if (clinic?.isDoctorPresent !== undefined) {
+      logger.log('[Doctor Presence] Syncing from clinic data:', clinic.isDoctorPresent);
+      setIsDoctorPresent(clinic.isDoctorPresent);
+    }
+  }, [clinic?.isDoctorPresent]);
 
   // Join clinic room for real-time updates
   useEffect(() => {
@@ -205,13 +193,15 @@ export function useDashboard() {
     setIsClearing(true);
     try {
       await clearQueue();
+      // Explicitly refresh queue to ensure UI updates even if Socket.io is disconnected
+      await fetchQueue();
       setIsClearQueueModalOpen(false);
     } catch (error) {
       logger.error('Failed to clear queue:', error);
     } finally {
       setIsClearing(false);
     }
-  }, [clearQueue]);
+  }, [clearQueue, fetchQueue]);
 
   const cancelClearQueue = useCallback(() => {
     setIsClearQueueModalOpen(false);

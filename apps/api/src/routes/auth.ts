@@ -60,6 +60,7 @@ router.post('/login', async (req: Request, res: Response) => {
           email: clinic.email,
           doctorName: clinic.doctorName,
           language: clinic.language,
+          isDoctorPresent: clinic.isDoctorPresent,
         },
       },
     });
@@ -108,6 +109,7 @@ router.get('/me', authMiddleware, async (req: AuthRequest, res: Response) => {
         avgConsultationMins: true,
         notifyAtPosition: true,
         enableWhatsApp: true,
+        isDoctorPresent: true,
       },
     });
 
