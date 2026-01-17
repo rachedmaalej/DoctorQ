@@ -144,7 +144,7 @@ export default function DashboardPage() {
                 className="text-purple-600 hover:bg-purple-50 active:bg-purple-100"
                 icon={<span className="material-symbols-outlined text-xl">{isFillingQueue ? 'hourglass_empty' : 'group_add'}</span>}
               >
-                <span className="hidden sm:inline">{isFillingQueue ? 'Filling...' : 'Fill Queue (Demo)'}</span>
+                <span className="hidden sm:inline">{isFillingQueue ? t('queue.fillingQueue') : t('queue.fillQueue')}</span>
               </MD3Button>
 
               {/* Clear Queue Button */}

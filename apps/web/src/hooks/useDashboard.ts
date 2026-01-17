@@ -247,10 +247,12 @@ export function useDashboard() {
           logger.log(`Skipped ${patient.patientName}: already in queue or error`);
         }
       }
+      // Explicitly refresh queue to ensure UI updates
+      await fetchQueue();
     } finally {
       setIsFillingQueue(false);
     }
-  }, [isFillingQueue, addPatient]);
+  }, [isFillingQueue, addPatient, fetchQueue]);
 
   return {
     // Store data

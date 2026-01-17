@@ -472,7 +472,7 @@ export default function MobileDashboard({
             >
               {isFillingQueue ? 'hourglass_empty' : 'group_add'}
             </span>
-            {isFillingQueue ? 'Filling...' : 'Fill Queue (Demo)'}
+            {isFillingQueue ? t('queue.fillingQueue') : t('queue.fillQueue')}
           </button>
         </div>
       )}
