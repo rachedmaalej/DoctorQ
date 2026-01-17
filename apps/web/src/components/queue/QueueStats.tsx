@@ -20,7 +20,8 @@ export default function QueueStats({ stats, onResetStats, isDoctorPresent = fals
   const hasInConsultationPatient = queue.some(p => p.status === QueueStatus.IN_CONSULTATION);
   const waitingCount = stats.waiting + (!isDoctorPresent && hasInConsultationPatient ? 1 : 0);
 
-  const handleResetClick = () => {
+  // Prefixed with underscore - used in commented-out avgWait section
+  const _handleResetClick = () => {
     if (!onResetStats || isResetting) return;
     setShowResetConfirm(true);
   };
@@ -88,7 +89,7 @@ export default function QueueStats({ stats, onResetStats, isDoctorPresent = fals
                 <p className="text-xs sm:text-sm font-medium text-gray-600">{t('queue.avgWaitLabel')}</p>
                 {onResetStats && stats.avgWait !== null && (
                   <button
-                    onClick={handleResetClick}
+                    onClick={_handleResetClick}
                     disabled={isResetting}
                     className="text-gray-400 hover:text-accent-600 transition-colors disabled:opacity-50"
                     title={t('queue.resetStats')}
