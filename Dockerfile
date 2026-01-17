@@ -12,8 +12,6 @@ RUN npm install -g pnpm@9.15.9
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/api/package.json ./apps/api/
 COPY apps/web/package.json ./apps/web/
-COPY apps/medibook-api/package.json ./apps/medibook-api/
-COPY apps/medibook-web/package.json ./apps/medibook-web/
 
 # Copy prisma schema for generation
 COPY apps/api/prisma ./apps/api/prisma/
