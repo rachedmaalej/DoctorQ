@@ -15,23 +15,35 @@ import { QueueStatus } from '@prisma/client';
  * - Position #2 should always be NOTIFIED
  * - All others should be WAITING
  *
- * Position ordering:
- * - Preserves current position order (just renumbers to fill gaps)
- * - This respects any manual reordering done by the receptionist
- * - New patients are added at the end via getNextPosition()
+ * Position ordering priority:
+ * 1. Manually reordered patients (priorityOrder IS NOT NULL) - ordered by priorityOrder timestamp
+ * 2. Patients with appointments - ordered by appointmentTime
+ * 3. Walk-in patients (no appointment) - ordered by arrivedAt
+ *
+ * This ensures:
+ * - Manual reordering by receptionist is PERSISTENT and takes highest priority
+ * - Patients with appointments are seen before walk-ins
+ * - Within each group, earlier times come first
  *
  * OPTIMIZED: Uses batch SQL update instead of N individual updates
- * This reduces N queries to just 3-4 queries regardless of queue size
  */
 export async function recalculatePositionsAndStatuses(clinicId: string): Promise<void> {
   await prisma.$transaction(async (tx) => {
-    // Step 1: Renumber positions to fill gaps (e.g., after a patient is removed)
-    // Preserves current order - just assigns sequential numbers 1, 2, 3...
+    // Step 1: Renumber positions based on priority rules
+    // Order: 1) Manually pinned (priorityOrder NOT NULL), 2) Appointments, 3) Walk-ins
     await tx.$executeRaw`
       WITH ranked AS (
         SELECT id,
                ROW_NUMBER() OVER (
-                 ORDER BY position ASC
+                 ORDER BY
+                   -- First: manually reordered patients keep their relative order
+                   CASE WHEN "priorityOrder" IS NOT NULL THEN 0 ELSE 1 END ASC,
+                   "priorityOrder" ASC NULLS LAST,
+                   -- Second: patients with appointments (earlier appointments first)
+                   CASE WHEN "appointmentTime" IS NOT NULL THEN 0 ELSE 1 END ASC,
+                   "appointmentTime" ASC NULLS LAST,
+                   -- Third: walk-ins by arrival time
+                   "arrivedAt" ASC
                ) as new_position
         FROM "QueueEntry"
         WHERE "clinicId" = ${clinicId}
@@ -83,10 +95,12 @@ export async function recalculatePositions(clinicId: string): Promise<void> {
 
 /**
  * Reorder a patient to a new position
- * Shifts other patients accordingly and updates statuses
+ * Sets priorityOrder to make the change persistent across recalculations
  *
- * The new position is preserved by recalculatePositionsAndStatuses()
- * which simply renumbers to fill gaps without re-sorting.
+ * When a patient is manually moved:
+ * - They get a priorityOrder timestamp that preserves their relative position
+ * - Patients above them (at the target position) also get priorityOrder to maintain order
+ * - This ensures manual reordering is PERSISTENT and survives queue recalculations
  */
 export async function reorderPatient(
   clinicId: string,
@@ -94,41 +108,74 @@ export async function reorderPatient(
   oldPosition: number,
   newPosition: number
 ): Promise<void> {
-  // Temporarily set moved patient's position to 0 to avoid conflicts
-  await prisma.queueEntry.update({
-    where: { id: entryId },
-    data: { position: 0 },
+  const now = new Date();
+
+  // Get patients that will be affected by this move
+  const affectedPatients = await prisma.queueEntry.findMany({
+    where: {
+      clinicId,
+      status: { in: [QueueStatus.WAITING, QueueStatus.NOTIFIED, QueueStatus.IN_CONSULTATION] },
+      position: newPosition < oldPosition
+        ? { gte: newPosition, lte: oldPosition }  // Moving up
+        : { gte: oldPosition, lte: newPosition }, // Moving down
+    },
+    orderBy: { position: 'asc' },
+    select: { id: true, position: true },
   });
 
-  // Shift other patients
-  if (newPosition < oldPosition) {
-    // Moving up: shift patients between newPosition and oldPosition down
-    await prisma.queueEntry.updateMany({
-      where: {
-        clinicId,
-        position: { gte: newPosition, lt: oldPosition },
-        id: { not: entryId },
-        status: { in: [QueueStatus.WAITING, QueueStatus.NOTIFIED, QueueStatus.IN_CONSULTATION] },
-      },
-      data: { position: { increment: 1 } },
-    });
-  } else {
-    // Moving down: shift patients between oldPosition and newPosition up
-    await prisma.queueEntry.updateMany({
-      where: {
-        clinicId,
-        position: { gt: oldPosition, lte: newPosition },
-        id: { not: entryId },
-        status: { in: [QueueStatus.WAITING, QueueStatus.NOTIFIED, QueueStatus.IN_CONSULTATION] },
-      },
-      data: { position: { decrement: 1 } },
-    });
-  }
+  // Assign priorityOrder timestamps to all affected patients to preserve the new order
+  // Earlier positions get earlier timestamps (1ms apart to maintain order)
+  await prisma.$transaction(async (tx) => {
+    let timestamp = now.getTime();
 
-  // Set the moved patient to new position
-  await prisma.queueEntry.update({
-    where: { id: entryId },
-    data: { position: newPosition },
+    if (newPosition < oldPosition) {
+      // Moving up: the moved patient gets the earliest timestamp
+      await tx.queueEntry.update({
+        where: { id: entryId },
+        data: {
+          position: newPosition,
+          priorityOrder: new Date(timestamp),
+        },
+      });
+      timestamp += 1;
+
+      // Other patients shift down
+      for (const patient of affectedPatients) {
+        if (patient.id !== entryId) {
+          await tx.queueEntry.update({
+            where: { id: patient.id },
+            data: {
+              position: patient.position + 1,
+              priorityOrder: new Date(timestamp),
+            },
+          });
+          timestamp += 1;
+        }
+      }
+    } else {
+      // Moving down: other patients shift up, moved patient goes to new position
+      for (const patient of affectedPatients) {
+        if (patient.id !== entryId) {
+          await tx.queueEntry.update({
+            where: { id: patient.id },
+            data: {
+              position: patient.position - 1,
+              priorityOrder: new Date(timestamp),
+            },
+          });
+          timestamp += 1;
+        }
+      }
+
+      // Moved patient gets the last timestamp (later = lower in the affected range)
+      await tx.queueEntry.update({
+        where: { id: entryId },
+        data: {
+          position: newPosition,
+          priorityOrder: new Date(timestamp),
+        },
+      });
+    }
   });
 }
 
