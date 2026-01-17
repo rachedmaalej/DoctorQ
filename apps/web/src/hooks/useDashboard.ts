@@ -84,6 +84,16 @@ export function useDashboard() {
     fetchQueue();
   }, []);
 
+  // Polling fallback for cross-device sync when Socket.io doesn't work
+  // Polls every 5 seconds to ensure dashboards stay in sync
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchQueue();
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [fetchQueue]);
+
   // Sync doctor presence from clinic data when it changes (e.g., after login or page refresh)
   // This ensures we use the persisted value from the database
   useEffect(() => {
