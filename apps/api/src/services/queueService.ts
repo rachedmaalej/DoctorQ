@@ -117,8 +117,7 @@ export async function addPatient(input: AddPatientInput): Promise<AddPatientResu
   await emitQueueUpdate(clinicId);
 
   // If the new patient became IN_CONSULTATION or NOTIFIED, emit to their page
-  const notifyStatuses = [QueueStatus.IN_CONSULTATION, QueueStatus.NOTIFIED];
-  if (updatedEntry && notifyStatuses.includes(updatedEntry.status)) {
+  if (updatedEntry && (updatedEntry.status === QueueStatus.IN_CONSULTATION || updatedEntry.status === QueueStatus.NOTIFIED)) {
     emitPatientUpdate(updatedEntry.id, updatedEntry.position, updatedEntry.status);
   }
 
