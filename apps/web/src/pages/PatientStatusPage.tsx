@@ -11,7 +11,7 @@ import ConfirmModal from '@/components/ui/ConfirmModal';
 import { Toast } from '@/components/ui/Toast';
 import TicketCard, { type TicketColorScheme } from '@/components/patient/TicketCard';
 import PatientJourneyVisual from '@/components/patient/PatientJourneyVisual';
-import FunFactCard from '@/components/patient/FunFactCard';
+import WaitEstimateCard from '@/components/patient/WaitEstimateCard';
 import type { PatientStatusResponse } from '@/types';
 import { QueueStatus } from '@/types';
 
@@ -473,8 +473,13 @@ export default function PatientStatusPage() {
           </div>
         )}
 
-        {/* Fun Fact Card - eye-related fun facts for waiting patients (not shown when next) */}
-        {showTicket && queueState !== 'next' && <FunFactCard />}
+        {/* Wait Estimate Card - shows estimated wait time (more useful than fun facts) */}
+        {showTicket && queueState !== 'next' && (
+          <WaitEstimateCard
+            position={displayPosition}
+            avgConsultationMins={entry.avgConsultationMins}
+          />
+        )}
 
         {/* Leave Queue Button - only show in active queue states */}
         {canLeaveQueue && (

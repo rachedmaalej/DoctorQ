@@ -1,0 +1,121 @@
+/**
+ * Queue Statistics Service
+ * Handles calculation of queue metrics (wait times, seen count, etc.)
+ * Includes caching for performance optimization
+ */
+
+import { prisma } from '../lib/prisma.js';
+import { QueueStatus } from '@prisma/client';
+import { QueueStats } from '../types/index.js';
+import { cache, CacheKeys, CacheTTL } from '../lib/cache.js';
+
+/**
+ * Calculate queue statistics for a clinic
+ * - waiting: patients currently waiting (WAITING + NOTIFIED)
+ * - seen: patients seen today (IN_CONSULTATION + COMPLETED)
+ * - avgWait: average wait time from arrival to consultation (minutes)
+ * - lastConsultationMins: duration of most recent completed consultation
+ *
+ * Results are cached for 10 seconds to reduce database load
+ */
+export async function getQueueStats(clinicId: string): Promise<QueueStats> {
+  // Check cache first
+  const cacheKey = CacheKeys.stats(clinicId);
+  const cached = cache.get<QueueStats>(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
+  // Fetch from database
+  const [waitingInQueue, seenPatients, lastCompletedPatient] = await Promise.all([
+    // Count patients waiting in queue (WAITING + NOTIFIED, excluding IN_CONSULTATION)
+    prisma.queueEntry.count({
+      where: {
+        clinicId,
+        status: {
+          in: [QueueStatus.WAITING, QueueStatus.NOTIFIED],
+        },
+      },
+    }),
+    // Get patients that have been seen (for average wait calculation)
+    prisma.queueEntry.findMany({
+      where: {
+        clinicId,
+        status: {
+          in: [QueueStatus.IN_CONSULTATION, QueueStatus.COMPLETED],
+        },
+      },
+      select: { arrivedAt: true, calledAt: true },
+    }),
+    // Get the most recently completed patient to calculate last consultation duration
+    prisma.queueEntry.findFirst({
+      where: {
+        clinicId,
+        status: QueueStatus.COMPLETED,
+        calledAt: { not: null },
+        completedAt: { not: null },
+      },
+      orderBy: { completedAt: 'desc' },
+      select: { calledAt: true, completedAt: true },
+    }),
+  ]);
+
+  // Filter entries that have both arrivedAt and calledAt timestamps
+  const patientsWithWaitTime = seenPatients.filter(
+    (entry) => entry.arrivedAt && entry.calledAt
+  );
+
+  let avgWait = null;
+  if (patientsWithWaitTime.length > 0) {
+    const totalWait = patientsWithWaitTime.reduce((sum, entry) => {
+      const wait = entry.calledAt!.getTime() - entry.arrivedAt!.getTime();
+      return sum + wait;
+    }, 0);
+    avgWait = Math.round(totalWait / patientsWithWaitTime.length / 60000);
+  }
+
+  // Calculate last consultation duration
+  let lastConsultationMins: number | null = null;
+  if (lastCompletedPatient?.calledAt && lastCompletedPatient.completedAt) {
+    const duration = lastCompletedPatient.completedAt.getTime() - lastCompletedPatient.calledAt.getTime();
+    lastConsultationMins = Math.round(duration / 60000);
+  }
+
+  const stats: QueueStats = {
+    waiting: waitingInQueue,
+    seen: seenPatients.length,
+    avgWait,
+    lastConsultationMins,
+  };
+
+  // Cache the result
+  cache.set(cacheKey, stats, CacheTTL.STATS);
+
+  return stats;
+}
+
+/**
+ * Reset statistics by deleting all completed entries
+ * Also invalidates the stats cache
+ */
+export async function resetStats(clinicId: string): Promise<number> {
+  const result = await prisma.queueEntry.deleteMany({
+    where: {
+      clinicId,
+      status: QueueStatus.COMPLETED,
+    },
+  });
+
+  // Invalidate cache
+  cache.delete(CacheKeys.stats(clinicId));
+
+  return result.count;
+}
+
+/**
+ * Invalidate stats cache for a clinic
+ * Call this when queue changes (add, remove, call next, etc.)
+ */
+export function invalidateStatsCache(clinicId: string): void {
+  cache.delete(CacheKeys.stats(clinicId));
+}

@@ -16,6 +16,10 @@ export default function QueueStats({ stats, onResetStats, isDoctorPresent = fals
   const [isResetting, setIsResetting] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
 
+  // When doctor is absent, add the IN_CONSULTATION patient to waiting count
+  const hasInConsultationPatient = queue.some(p => p.status === QueueStatus.IN_CONSULTATION);
+  const waitingCount = stats.waiting + (!isDoctorPresent && hasInConsultationPatient ? 1 : 0);
+
   const handleResetClick = () => {
     if (!onResetStats || isResetting) return;
     setShowResetConfirm(true);
@@ -35,15 +39,14 @@ export default function QueueStats({ stats, onResetStats, isDoctorPresent = fals
 
   return (
     <>
-      <div className="grid grid-cols-3 gap-2 sm:gap-4">
+      <div className="grid grid-cols-2 gap-2 sm:gap-4">
         {/* En Attente */}
         <div className="bg-white rounded-lg shadow p-3 sm:p-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div className="order-2 sm:order-1">
               <p className="text-xs sm:text-sm font-medium text-gray-600">{t('queue.waiting')}</p>
-              {/* When doctor is absent, add the IN_CONSULTATION patient to waiting count */}
               <p className="text-xl sm:text-3xl font-bold text-primary-700 mt-1 sm:mt-2">
-                {stats.waiting + (!isDoctorPresent && queue.some(p => p.status === QueueStatus.IN_CONSULTATION) ? 1 : 0)}
+                {waitingCount}
               </p>
             </div>
             <div className="order-1 sm:order-2 bg-primary-100 p-2 sm:p-3 rounded-full w-fit mb-2 sm:mb-0">
@@ -77,7 +80,7 @@ export default function QueueStats({ stats, onResetStats, isDoctorPresent = fals
           </div>
         </div>
 
-        {/* Attente moyenne */}
+        {/* Attente moyenne - HIDDEN: Bug causes inflated values because it includes all historical patients, not just today's
         <div className="bg-white rounded-lg shadow p-3 sm:p-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div className="order-2 sm:order-1">
@@ -114,6 +117,7 @@ export default function QueueStats({ stats, onResetStats, isDoctorPresent = fals
             </div>
           </div>
         </div>
+        */}
       </div>
 
       {/* Reset Stats Confirmation Modal */}

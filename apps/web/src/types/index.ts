@@ -86,4 +86,7 @@ export interface ApiError {
  */
 export interface PatientStatusResponse extends QueueEntry {
   isDoctorPresent?: boolean;
+  estimatedWaitMins?: number;
+  avgConsultationMins?: number;
+  clinicName?: string;
 }

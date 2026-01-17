@@ -1,52 +1,38 @@
+/**
+ * Queue Routes
+ * HTTP endpoints for queue management
+ * Business logic is delegated to services
+ */
+
 import { Router, Response } from 'express';
 import { z } from 'zod';
 import { prisma } from '../lib/prisma.js';
 import { authMiddleware } from '../lib/auth.js';
-import { AuthRequest, QueueStats } from '../types/index.js';
+import { AuthRequest } from '../types/index.js';
 import { QueueStatus, CheckInMethod } from '@prisma/client';
-import { emitToRoom } from '../lib/socket.js';
+import {
+  addPatient,
+  removePatient,
+  callNextPatient,
+  patientLeaveQueue,
+  getQueue,
+  clearQueue,
+  getPatientStatus,
+  updatePatientStatus,
+} from '../services/queueService.js';
+import { reorderPatient, updateStatusesAfterReorder } from '../services/positionService.js';
+import { resetStats } from '../services/statsService.js';
+import { emitQueueUpdate, emitPatientUpdate, emitAllPatientUpdates } from '../services/notificationService.js';
 
 const router = Router();
 
-// Helper function to emit queue updates to clinic room
-async function emitQueueUpdate(clinicId: string) {
-  try {
-    // Get updated queue
-    const queue = await prisma.queueEntry.findMany({
-      where: {
-        clinicId,
-        status: {
-          in: [QueueStatus.WAITING, QueueStatus.NOTIFIED, QueueStatus.IN_CONSULTATION],
-        },
-      },
-      orderBy: { position: 'asc' },
-    });
-
-    // Get updated stats
-    const stats = await getQueueStats(clinicId);
-
-    // Emit to clinic room
-    emitToRoom(`clinic:${clinicId}`, 'queue:updated', { queue, stats });
-    console.log(`Emitted queue:updated to clinic:${clinicId}`);
-  } catch (error) {
-    console.error('Failed to emit queue update:', error);
-  }
-}
-
-// Helper function to emit patient position update
-function emitPatientUpdate(entryId: string, position: number, status: string) {
-  const roomName = `patient:${entryId}`;
-  console.log(`[Socket.io] Emitting 'patient:called' to room '${roomName}' with position=${position}, status=${status}`);
-  emitToRoom(roomName, 'patient:called', { position, status });
-}
-
 // Validation schemas
 const addPatientSchema = z.object({
-  patientPhone: z.string().min(8), // More flexible - will format on server
+  patientPhone: z.string().min(8),
   patientName: z.string().optional(),
   checkInMethod: z.enum(['QR_CODE', 'MANUAL', 'WHATSAPP', 'SMS']).default('MANUAL'),
-  appointmentTime: z.string().optional(), // HH:MM format for today's appointment
-  arrivedAt: z.string().optional(), // ISO string for demo/testing - defaults to now() if not provided
+  appointmentTime: z.string().optional(),
+  arrivedAt: z.string().optional(),
 });
 
 const updateStatusSchema = z.object({
@@ -54,171 +40,22 @@ const updateStatusSchema = z.object({
   completedAt: z.string().datetime().optional(),
 });
 
-// Helper function to recalculate positions AND auto-assign statuses
-// Rules:
-// - Position #1 should always be IN_CONSULTATION
-// - Position #2 should always be NOTIFIED
-// - All others should be WAITING
-// Ordering: appointmentTime first (nulls last), then arrivedAt for walk-ins
-// OPTIMIZED: Uses batch SQL update instead of N individual updates
-async function recalculatePositionsAndStatuses(clinicId: string) {
-  // Use a database transaction with batch updates for performance
-  // This reduces N queries to just 3-4 queries regardless of queue size
-  await prisma.$transaction(async (tx) => {
-    // Step 1: Batch update positions using a single raw SQL query
-    // Orders by: appointmentTime (nulls last), then arrivedAt
-    await tx.$executeRaw`
-      WITH ranked AS (
-        SELECT id,
-               ROW_NUMBER() OVER (
-                 ORDER BY
-                   CASE WHEN "appointmentTime" IS NULL THEN 1 ELSE 0 END,
-                   "appointmentTime" ASC,
-                   "arrivedAt" ASC
-               ) as new_position
-        FROM "QueueEntry"
-        WHERE "clinicId" = ${clinicId}
-        AND status IN ('WAITING', 'NOTIFIED', 'IN_CONSULTATION')
-      )
-      UPDATE "QueueEntry"
-      SET position = ranked.new_position
-      FROM ranked
-      WHERE "QueueEntry".id = ranked.id
-    `;
-
-    // Step 2: Update status for position #1 to IN_CONSULTATION
-    await tx.$executeRaw`
-      UPDATE "QueueEntry"
-      SET status = 'IN_CONSULTATION',
-          "calledAt" = COALESCE("calledAt", NOW())
-      WHERE "clinicId" = ${clinicId}
-      AND position = 1
-      AND status IN ('WAITING', 'NOTIFIED', 'IN_CONSULTATION')
-    `;
-
-    // Step 3: Update status for position #2 to NOTIFIED
-    await tx.$executeRaw`
-      UPDATE "QueueEntry"
-      SET status = 'NOTIFIED',
-          "notifiedAt" = COALESCE("notifiedAt", NOW())
-      WHERE "clinicId" = ${clinicId}
-      AND position = 2
-      AND status IN ('WAITING', 'NOTIFIED', 'IN_CONSULTATION')
-    `;
-
-    // Step 4: Update status for positions 3+ to WAITING
-    await tx.$executeRaw`
-      UPDATE "QueueEntry"
-      SET status = 'WAITING'
-      WHERE "clinicId" = ${clinicId}
-      AND position > 2
-      AND status IN ('NOTIFIED', 'IN_CONSULTATION')
-    `;
-  });
-}
-
-// Legacy function name for backward compatibility
-async function recalculatePositions(clinicId: string) {
-  return recalculatePositionsAndStatuses(clinicId);
-}
-
-// Helper function to calculate queue stats
-// Average wait time = time from arrivedAt to calledAt (when patient starts consultation)
-// Last consultation duration = time from calledAt to completedAt of the most recent COMPLETED patient
-async function getQueueStats(clinicId: string): Promise<QueueStats> {
-  const [waitingInQueue, seenPatients, lastCompletedPatient] = await Promise.all([
-    // Count patients waiting in queue (WAITING + NOTIFIED, excluding IN_CONSULTATION)
-    prisma.queueEntry.count({
-      where: {
-        clinicId,
-        status: {
-          in: [QueueStatus.WAITING, QueueStatus.NOTIFIED],
-        },
-      },
-    }),
-    prisma.queueEntry.findMany({
-      where: {
-        clinicId,
-        status: {
-          in: [QueueStatus.IN_CONSULTATION, QueueStatus.COMPLETED],
-        },
-      },
-      select: { arrivedAt: true, calledAt: true },
-    }),
-    // Get the most recently completed patient to calculate last consultation duration
-    prisma.queueEntry.findFirst({
-      where: {
-        clinicId,
-        status: QueueStatus.COMPLETED,
-        calledAt: { not: null },
-        completedAt: { not: null },
-      },
-      orderBy: { completedAt: 'desc' },
-      select: { calledAt: true, completedAt: true },
-    }),
-  ]);
-
-  // Filter entries that have both arrivedAt and calledAt timestamps
-  // calledAt is set when patient moves to IN_CONSULTATION status
-  const patientsWithWaitTime = seenPatients.filter(
-    (entry) => entry.arrivedAt && entry.calledAt
-  );
-
-  let avgWait = null;
-  if (patientsWithWaitTime.length > 0) {
-    const totalWait = patientsWithWaitTime.reduce((sum, entry) => {
-      // Wait time = time from arrival to being called for consultation
-      const wait = entry.calledAt!.getTime() - entry.arrivedAt!.getTime();
-      return sum + wait;
-    }, 0);
-    avgWait = Math.round(totalWait / patientsWithWaitTime.length / 60000); // Convert to minutes
-  }
-
-  // Calculate last consultation duration (time from calledAt to completedAt)
-  let lastConsultationMins = null;
-  if (lastCompletedPatient && lastCompletedPatient.calledAt && lastCompletedPatient.completedAt) {
-    const duration = lastCompletedPatient.completedAt.getTime() - lastCompletedPatient.calledAt.getTime();
-    lastConsultationMins = Math.round(duration / 60000); // Convert to minutes
-  }
-
-  return {
-    waiting: waitingInQueue,
-    seen: seenPatients.length,
-    avgWait,
-    lastConsultationMins,
-  };
-}
+const reorderSchema = z.object({
+  entryId: z.string().uuid(),
+  newPosition: z.number().int().min(1),
+});
 
 // GET /api/queue - Get today's queue
 router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
     const clinicId = req.clinic!.id;
+    const { queue, stats } = await getQueue(clinicId);
 
-    const queue = await prisma.queueEntry.findMany({
-      where: {
-        clinicId,
-        status: {
-          in: [QueueStatus.WAITING, QueueStatus.NOTIFIED, QueueStatus.IN_CONSULTATION],
-        },
-      },
-      orderBy: { position: 'asc' },
-    });
-
-    const stats = await getQueueStats(clinicId);
-
-    res.json({
-      data: {
-        queue,
-        stats,
-      },
-    });
+    res.json({ data: { queue, stats } });
   } catch (error) {
     console.error('Get queue error:', error);
     res.status(500).json({
-      error: {
-        code: 'SERVER_ERROR',
-        message: 'Failed to get queue',
-      },
+      error: { code: 'SERVER_ERROR', message: 'Failed to get queue' },
     });
   }
 });
@@ -229,7 +66,7 @@ router.post('/', authMiddleware, async (req: AuthRequest, res: Response) => {
     const clinicId = req.clinic!.id;
     const { patientPhone, patientName, checkInMethod, appointmentTime, arrivedAt } = addPatientSchema.parse(req.body);
 
-    // Parse appointment time if provided (HH:MM format -> today's DateTime)
+    // Parse appointment time if provided
     let appointmentDateTime: Date | undefined;
     if (appointmentTime) {
       const [hours, minutes] = appointmentTime.split(':').map(Number);
@@ -239,104 +76,38 @@ router.post('/', authMiddleware, async (req: AuthRequest, res: Response) => {
       }
     }
 
-    // Parse arrivedAt if provided (for demo/testing), otherwise use current time
+    // Parse arrivedAt if provided
     let arrivedAtDateTime: Date | undefined;
     if (arrivedAt) {
       arrivedAtDateTime = new Date(arrivedAt);
     }
 
-    // Format phone number
-    const formattedPhone = patientPhone.startsWith('+216')
-      ? patientPhone
-      : `+216${patientPhone.replace(/\D/g, '')}`;
-
-    // Check for duplicate check-in (same phone, active status, today)
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const existingEntry = await prisma.queueEntry.findFirst({
-      where: {
-        clinicId,
-        patientPhone: formattedPhone,
-        status: {
-          in: [QueueStatus.WAITING, QueueStatus.NOTIFIED, QueueStatus.IN_CONSULTATION],
-        },
-        arrivedAt: {
-          gte: today,
-        },
-      },
+    const result = await addPatient({
+      clinicId,
+      patientPhone,
+      patientName,
+      checkInMethod: checkInMethod as CheckInMethod,
+      appointmentTime: appointmentDateTime,
+      arrivedAt: arrivedAtDateTime,
     });
 
-    if (existingEntry) {
+    if (result.isAlreadyCheckedIn) {
       return res.status(400).json({
-        error: {
-          code: 'ALREADY_CHECKED_IN',
-          message: 'This patient is already in the queue',
-        },
-        data: existingEntry,
+        error: { code: 'ALREADY_CHECKED_IN', message: 'This patient is already in the queue' },
+        data: result.existingEntry,
       });
     }
 
-    // Get current max position across all active statuses
-    const maxPosition = await prisma.queueEntry.findFirst({
-      where: {
-        clinicId,
-        status: {
-          in: [QueueStatus.WAITING, QueueStatus.NOTIFIED, QueueStatus.IN_CONSULTATION],
-        },
-      },
-      orderBy: { position: 'desc' },
-      select: { position: true },
-    });
-
-    const position = (maxPosition?.position || 0) + 1;
-
-    // Create queue entry with initial WAITING status
-    const entry = await prisma.queueEntry.create({
-      data: {
-        clinicId,
-        patientPhone: formattedPhone,
-        patientName,
-        position,
-        status: QueueStatus.WAITING,
-        checkInMethod: checkInMethod as CheckInMethod,
-        appointmentTime: appointmentDateTime,
-        ...(arrivedAtDateTime && { arrivedAt: arrivedAtDateTime }),
-      },
-    });
-
-    // Recalculate positions and auto-assign statuses
-    // This will set: position #1 = IN_CONSULTATION, position #2 = NOTIFIED
-    await recalculatePositionsAndStatuses(clinicId);
-
-    // Fetch the updated entry to return correct status
-    const updatedEntry = await prisma.queueEntry.findUnique({
-      where: { id: entry.id },
-    });
-
-    // Emit real-time update to dashboard
-    await emitQueueUpdate(clinicId);
-
-    // TODO: Send SMS notification (will implement in Phase 3)
-
-    res.status(201).json({ data: updatedEntry || entry });
+    res.status(201).json({ data: result.entry });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
-        error: {
-          code: 'VALIDATION_ERROR',
-          message: 'Invalid request data',
-          details: error.errors,
-        },
+        error: { code: 'VALIDATION_ERROR', message: 'Invalid request data', details: error.errors },
       });
     }
-
     console.error('Add patient error:', error);
     res.status(500).json({
-      error: {
-        code: 'SERVER_ERROR',
-        message: 'Failed to add patient',
-      },
+      error: { code: 'SERVER_ERROR', message: 'Failed to add patient' },
     });
   }
 });
@@ -345,83 +116,19 @@ router.post('/', authMiddleware, async (req: AuthRequest, res: Response) => {
 router.post('/next', authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
     const clinicId = req.clinic!.id;
+    const newInConsultation = await callNextPatient(clinicId);
 
-    // First, complete the patient currently in consultation (position #1)
-    const currentInConsultation = await prisma.queueEntry.findFirst({
-      where: {
-        clinicId,
-        status: QueueStatus.IN_CONSULTATION,
-      },
-    });
-
-    if (currentInConsultation) {
-      await prisma.queueEntry.update({
-        where: { id: currentInConsultation.id },
-        data: {
-          status: QueueStatus.COMPLETED,
-          completedAt: new Date(),
-        },
-      });
-    }
-
-    // Check if there are any remaining patients
-    const remainingPatients = await prisma.queueEntry.findMany({
-      where: {
-        clinicId,
-        status: {
-          in: [QueueStatus.WAITING, QueueStatus.NOTIFIED],
-        },
-      },
-    });
-
-    if (remainingPatients.length === 0) {
-      // No more patients waiting
-      await emitQueueUpdate(clinicId);
+    if (!newInConsultation) {
       return res.status(404).json({
-        error: {
-          code: 'NO_PATIENTS',
-          message: 'No patients waiting',
-        },
+        error: { code: 'NO_PATIENTS', message: 'No patients waiting' },
       });
     }
-
-    // Recalculate positions and statuses
-    // This will automatically:
-    // - Move the next patient (was #2 NOTIFIED) to #1 IN_CONSULTATION
-    // - Move #3 to #2 NOTIFIED
-    // - All others remain WAITING
-    await recalculatePositionsAndStatuses(clinicId);
-
-    // Get ALL updated patients to emit real-time updates to each one
-    const updatedPatients = await prisma.queueEntry.findMany({
-      where: {
-        clinicId,
-        status: {
-          in: [QueueStatus.WAITING, QueueStatus.NOTIFIED, QueueStatus.IN_CONSULTATION],
-        },
-      },
-      orderBy: { position: 'asc' },
-    });
-
-    // Emit real-time updates to the dashboard
-    await emitQueueUpdate(clinicId);
-
-    // Emit updates to EACH patient's status page so they see their new position/status
-    for (const patient of updatedPatients) {
-      emitPatientUpdate(patient.id, patient.position, patient.status);
-    }
-
-    // Find the new in consultation patient for the response
-    const newInConsultation = updatedPatients.find(p => p.status === QueueStatus.IN_CONSULTATION);
 
     res.json({ data: newInConsultation });
   } catch (error) {
     console.error('Call next error:', error);
     res.status(500).json({
-      error: {
-        code: 'SERVER_ERROR',
-        message: 'Failed to call next patient',
-      },
+      error: { code: 'SERVER_ERROR', message: 'Failed to call next patient' },
     });
   }
 });
@@ -433,56 +140,29 @@ router.patch('/:id/status', authMiddleware, async (req: AuthRequest, res: Respon
     const { id } = req.params;
     const { status, completedAt } = updateStatusSchema.parse(req.body);
 
-    // Verify entry belongs to clinic
-    const entry = await prisma.queueEntry.findFirst({
-      where: { id, clinicId },
-    });
+    const updated = await updatePatientStatus(
+      clinicId,
+      id,
+      status as QueueStatus,
+      completedAt ? new Date(completedAt) : undefined
+    );
 
-    if (!entry) {
+    if (!updated) {
       return res.status(404).json({
-        error: {
-          code: 'ENTRY_NOT_FOUND',
-          message: 'Queue entry not found',
-        },
+        error: { code: 'ENTRY_NOT_FOUND', message: 'Queue entry not found' },
       });
     }
-
-    // Update entry
-    const updated = await prisma.queueEntry.update({
-      where: { id },
-      data: {
-        status: status as QueueStatus,
-        ...(completedAt && { completedAt: new Date(completedAt) }),
-      },
-    });
-
-    // Recalculate positions if status changed
-    if (status !== QueueStatus.WAITING) {
-      await recalculatePositions(clinicId);
-    }
-
-    // Emit real-time updates
-    await emitQueueUpdate(clinicId);
-    emitPatientUpdate(updated.id, updated.position, updated.status);
 
     res.json({ data: updated });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
-        error: {
-          code: 'VALIDATION_ERROR',
-          message: 'Invalid request data',
-          details: error.errors,
-        },
+        error: { code: 'VALIDATION_ERROR', message: 'Invalid request data', details: error.errors },
       });
     }
-
     console.error('Update status error:', error);
     res.status(500).json({
-      error: {
-        code: 'SERVER_ERROR',
-        message: 'Failed to update status',
-      },
+      error: { code: 'SERVER_ERROR', message: 'Failed to update status' },
     });
   }
 });
@@ -493,62 +173,24 @@ router.delete('/:id', authMiddleware, async (req: AuthRequest, res: Response) =>
     const clinicId = req.clinic!.id;
     const { id } = req.params;
 
-    // Verify entry belongs to clinic
-    const entry = await prisma.queueEntry.findFirst({
-      where: { id, clinicId },
-    });
+    const success = await removePatient(clinicId, id);
 
-    if (!entry) {
+    if (!success) {
       return res.status(404).json({
-        error: {
-          code: 'ENTRY_NOT_FOUND',
-          message: 'Queue entry not found',
-        },
+        error: { code: 'ENTRY_NOT_FOUND', message: 'Queue entry not found' },
       });
-    }
-
-    await prisma.queueEntry.delete({ where: { id } });
-
-    // Recalculate positions and statuses
-    await recalculatePositionsAndStatuses(clinicId);
-
-    // Get ALL updated patients to emit real-time updates
-    const updatedPatients = await prisma.queueEntry.findMany({
-      where: {
-        clinicId,
-        status: {
-          in: [QueueStatus.WAITING, QueueStatus.NOTIFIED, QueueStatus.IN_CONSULTATION],
-        },
-      },
-      orderBy: { position: 'asc' },
-    });
-
-    // Emit real-time update to dashboard
-    await emitQueueUpdate(clinicId);
-
-    // Emit updates to EACH patient's status page
-    for (const patient of updatedPatients) {
-      emitPatientUpdate(patient.id, patient.position, patient.status);
     }
 
     res.json({ data: { message: 'Patient removed from queue' } });
   } catch (error) {
     console.error('Delete entry error:', error);
     res.status(500).json({
-      error: {
-        code: 'SERVER_ERROR',
-        message: 'Failed to remove patient',
-      },
+      error: { code: 'SERVER_ERROR', message: 'Failed to remove patient' },
     });
   }
 });
 
-// POST /api/queue/reorder - Manually reorder queue (receptionist override)
-const reorderSchema = z.object({
-  entryId: z.string().uuid(),
-  newPosition: z.number().int().min(1),
-});
-
+// POST /api/queue/reorder - Manually reorder queue
 router.post('/reorder', authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
     const clinicId = req.clinic!.id;
@@ -559,165 +201,56 @@ router.post('/reorder', authMiddleware, async (req: AuthRequest, res: Response) 
       where: {
         id: entryId,
         clinicId,
-        status: {
-          in: [QueueStatus.WAITING, QueueStatus.NOTIFIED, QueueStatus.IN_CONSULTATION],
-        },
+        status: { in: [QueueStatus.WAITING, QueueStatus.NOTIFIED, QueueStatus.IN_CONSULTATION] },
       },
     });
 
     if (!entry) {
       return res.status(404).json({
-        error: {
-          code: 'ENTRY_NOT_FOUND',
-          message: 'Queue entry not found or not active',
-        },
+        error: { code: 'ENTRY_NOT_FOUND', message: 'Queue entry not found or not active' },
       });
     }
 
-    const oldPosition = entry.position;
-
-    // Get all active patients
-    const activePatients = await prisma.queueEntry.findMany({
+    // Get active patient count
+    const activeCount = await prisma.queueEntry.count({
       where: {
         clinicId,
-        status: {
-          in: [QueueStatus.WAITING, QueueStatus.NOTIFIED, QueueStatus.IN_CONSULTATION],
-        },
+        status: { in: [QueueStatus.WAITING, QueueStatus.NOTIFIED, QueueStatus.IN_CONSULTATION] },
       },
-      orderBy: { position: 'asc' },
     });
 
-    // Validate new position
-    if (newPosition > activePatients.length) {
+    if (newPosition > activeCount) {
       return res.status(400).json({
-        error: {
-          code: 'INVALID_POSITION',
-          message: `Position must be between 1 and ${activePatients.length}`,
-        },
+        error: { code: 'INVALID_POSITION', message: `Position must be between 1 and ${activeCount}` },
       });
     }
 
-    if (oldPosition === newPosition) {
+    if (entry.position === newPosition) {
       return res.json({ data: { message: 'Position unchanged' } });
     }
 
-    // Reorder: shift other patients and place the moved patient at new position
-    // First, temporarily set moved patient's position to 0 to avoid conflicts
-    await prisma.queueEntry.update({
-      where: { id: entryId },
-      data: { position: 0 },
-    });
+    // Reorder and update statuses
+    await reorderPatient(clinicId, entryId, entry.position, newPosition);
+    await updateStatusesAfterReorder(clinicId);
 
-    // Shift other patients
-    if (newPosition < oldPosition) {
-      // Moving up: shift patients between newPosition and oldPosition down
-      await prisma.queueEntry.updateMany({
-        where: {
-          clinicId,
-          position: { gte: newPosition, lt: oldPosition },
-          id: { not: entryId },
-          status: { in: [QueueStatus.WAITING, QueueStatus.NOTIFIED, QueueStatus.IN_CONSULTATION] },
-        },
-        data: { position: { increment: 1 } },
-      });
-    } else {
-      // Moving down: shift patients between oldPosition and newPosition up
-      await prisma.queueEntry.updateMany({
-        where: {
-          clinicId,
-          position: { gt: oldPosition, lte: newPosition },
-          id: { not: entryId },
-          status: { in: [QueueStatus.WAITING, QueueStatus.NOTIFIED, QueueStatus.IN_CONSULTATION] },
-        },
-        data: { position: { decrement: 1 } },
-      });
-    }
-
-    // Set the moved patient to new position
-    await prisma.queueEntry.update({
-      where: { id: entryId },
-      data: { position: newPosition },
-    });
-
-    // Recalculate statuses based on new positions (position 1 = IN_CONSULTATION, 2 = NOTIFIED)
-    const reorderedPatients = await prisma.queueEntry.findMany({
-      where: {
-        clinicId,
-        status: { in: [QueueStatus.WAITING, QueueStatus.NOTIFIED, QueueStatus.IN_CONSULTATION] },
-      },
-      orderBy: { position: 'asc' },
-    });
-
-    // Update statuses based on position
-    await Promise.all(
-      reorderedPatients.map((patient) => {
-        let newStatus: QueueStatus;
-        const updateData: { status: QueueStatus; calledAt?: Date; notifiedAt?: Date } = {
-          status: patient.status,
-        };
-
-        if (patient.position === 1) {
-          newStatus = QueueStatus.IN_CONSULTATION;
-          if (!patient.calledAt) {
-            updateData.calledAt = new Date();
-          }
-        } else if (patient.position === 2) {
-          newStatus = QueueStatus.NOTIFIED;
-          if (!patient.notifiedAt) {
-            updateData.notifiedAt = new Date();
-          }
-        } else {
-          newStatus = QueueStatus.WAITING;
-        }
-
-        updateData.status = newStatus;
-
-        return prisma.queueEntry.update({
-          where: { id: patient.id },
-          data: updateData,
-        });
-      })
-    );
-
-    // Emit real-time updates
+    // Emit updates
     await emitQueueUpdate(clinicId);
+    await emitAllPatientUpdates(clinicId);
 
-    // Emit to each patient
-    const finalPatients = await prisma.queueEntry.findMany({
-      where: {
-        clinicId,
-        status: { in: [QueueStatus.WAITING, QueueStatus.NOTIFIED, QueueStatus.IN_CONSULTATION] },
-      },
-      orderBy: { position: 'asc' },
-    });
-
-    for (const patient of finalPatients) {
-      emitPatientUpdate(patient.id, patient.position, patient.status);
-    }
+    const updatedEntry = await prisma.queueEntry.findUnique({ where: { id: entryId } });
 
     res.json({
-      data: {
-        message: 'Queue reordered successfully',
-        entry: await prisma.queueEntry.findUnique({ where: { id: entryId } }),
-      },
+      data: { message: 'Queue reordered successfully', entry: updatedEntry },
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
-        error: {
-          code: 'VALIDATION_ERROR',
-          message: 'Invalid request data',
-          details: error.errors,
-        },
+        error: { code: 'VALIDATION_ERROR', message: 'Invalid request data', details: error.errors },
       });
     }
-
     console.error('Reorder queue error:', error);
     res.status(500).json({
-      error: {
-        code: 'SERVER_ERROR',
-        message: 'Failed to reorder queue',
-      },
+      error: { code: 'SERVER_ERROR', message: 'Failed to reorder queue' },
     });
   }
 });
@@ -726,62 +259,34 @@ router.post('/reorder', authMiddleware, async (req: AuthRequest, res: Response) 
 router.delete('/', authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
     const clinicId = req.clinic!.id;
+    const count = await clearQueue(clinicId);
 
-    // Delete all active queue entries for this clinic
-    const result = await prisma.queueEntry.deleteMany({
-      where: {
-        clinicId,
-        status: {
-          in: [QueueStatus.WAITING, QueueStatus.NOTIFIED, QueueStatus.IN_CONSULTATION],
-        },
-      },
-    });
-
-    // Emit real-time update to dashboard
-    await emitQueueUpdate(clinicId);
-
-    res.json({ data: { message: 'Queue cleared', count: result.count } });
+    res.json({ data: { message: 'Queue cleared', count } });
   } catch (error) {
     console.error('Clear queue error:', error);
     res.status(500).json({
-      error: {
-        code: 'SERVER_ERROR',
-        message: 'Failed to clear queue',
-      },
+      error: { code: 'SERVER_ERROR', message: 'Failed to clear queue' },
     });
   }
 });
 
-// POST /api/queue/reset-stats - Reset average wait time by clearing calledAt timestamps
+// POST /api/queue/reset-stats - Reset statistics
 router.post('/reset-stats', authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
     const clinicId = req.clinic!.id;
-
-    // Reset calledAt for COMPLETED entries (removes them from avg wait calculation)
-    // Also delete all COMPLETED entries to reset the "seen today" count
-    const result = await prisma.queueEntry.deleteMany({
-      where: {
-        clinicId,
-        status: QueueStatus.COMPLETED,
-      },
-    });
-
-    // Emit real-time update to dashboard with fresh stats
+    const deletedCount = await resetStats(clinicId);
     await emitQueueUpdate(clinicId);
 
-    res.json({ data: { message: 'Statistics reset', deletedCount: result.count } });
+    res.json({ data: { message: 'Statistics reset', deletedCount } });
   } catch (error) {
     console.error('Reset stats error:', error);
     res.status(500).json({
-      error: {
-        code: 'SERVER_ERROR',
-        message: 'Failed to reset statistics',
-      },
+      error: { code: 'SERVER_ERROR', message: 'Failed to reset statistics' },
     });
   }
 });
 
-// PUBLIC ENDPOINTS (No authentication required)
+// ============ PUBLIC ENDPOINTS ============
 
 // POST /api/queue/checkin/:clinicId - Patient self check-in
 router.post('/checkin/:clinicId', async (req, res: Response) => {
@@ -800,98 +305,29 @@ router.post('/checkin/:clinicId', async (req, res: Response) => {
 
     if (!clinic || !clinic.isActive) {
       return res.status(404).json({
-        error: {
-          code: 'CLINIC_NOT_FOUND',
-          message: 'Clinic not found or inactive',
-        },
+        error: { code: 'CLINIC_NOT_FOUND', message: 'Clinic not found or inactive' },
       });
     }
 
-    // Format phone number
-    const formattedPhone = patientPhone.startsWith('+216')
-      ? patientPhone
-      : `+216${patientPhone.replace(/\D/g, '')}`;
-
-    // Check for duplicate check-in (same phone, waiting status, today)
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const existingEntry = await prisma.queueEntry.findFirst({
-      where: {
-        clinicId,
-        patientPhone: formattedPhone,
-        status: {
-          in: [QueueStatus.WAITING, QueueStatus.NOTIFIED, QueueStatus.IN_CONSULTATION],
-        },
-        arrivedAt: {
-          gte: today,
-        },
-      },
+    const result = await addPatient({
+      clinicId,
+      patientPhone,
+      patientName,
+      checkInMethod: CheckInMethod.QR_CODE,
     });
 
-    if (existingEntry) {
+    if (result.isAlreadyCheckedIn) {
       return res.status(400).json({
-        error: {
-          code: 'ALREADY_CHECKED_IN',
-          message: 'You are already in the queue',
-        },
-        data: existingEntry,
+        error: { code: 'ALREADY_CHECKED_IN', message: 'You are already in the queue' },
+        data: result.existingEntry,
       });
     }
 
-    // Get current max position across all active statuses
-    const maxPosition = await prisma.queueEntry.findFirst({
-      where: {
-        clinicId,
-        status: {
-          in: [QueueStatus.WAITING, QueueStatus.NOTIFIED, QueueStatus.IN_CONSULTATION],
-        },
-      },
-      orderBy: { position: 'desc' },
-      select: { position: true },
-    });
-
-    const position = (maxPosition?.position || 0) + 1;
-
-    // Create queue entry with initial WAITING status
-    const entry = await prisma.queueEntry.create({
-      data: {
-        clinicId,
-        patientPhone: formattedPhone,
-        patientName,
-        position,
-        status: QueueStatus.WAITING,
-        checkInMethod: CheckInMethod.QR_CODE,
-      },
-    });
-
-    // Recalculate positions and auto-assign statuses
-    // This will set: position #1 = IN_CONSULTATION, position #2 = NOTIFIED
-    await recalculatePositionsAndStatuses(clinicId);
-
-    // Fetch the updated entry to return correct status and position
-    const updatedEntry = await prisma.queueEntry.findUnique({
-      where: { id: entry.id },
-    });
-
-    // Calculate estimated wait time based on updated position
-    const finalEntry = updatedEntry || entry;
-    const estimatedWaitMins = finalEntry.position * clinic.avgConsultationMins;
-
-    // Emit real-time update to dashboard
-    await emitQueueUpdate(clinicId);
-
-    // If the new patient became IN_CONSULTATION or NOTIFIED (first/second in queue),
-    // emit update to their status page
-    if (finalEntry.status === QueueStatus.IN_CONSULTATION || finalEntry.status === QueueStatus.NOTIFIED) {
-      emitPatientUpdate(finalEntry.id, finalEntry.position, finalEntry.status);
-    }
-
-    // TODO: Send SMS notification (will implement next)
+    const estimatedWaitMins = result.entry.position * clinic.avgConsultationMins;
 
     res.status(201).json({
       data: {
-        ...finalEntry,
+        ...result.entry,
         clinicName: clinic.name,
         estimatedWaitMins,
       },
@@ -899,102 +335,35 @@ router.post('/checkin/:clinicId', async (req, res: Response) => {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
-        error: {
-          code: 'VALIDATION_ERROR',
-          message: 'Invalid request data',
-          details: error.errors,
-        },
+        error: { code: 'VALIDATION_ERROR', message: 'Invalid request data', details: error.errors },
       });
     }
-
     console.error('Patient check-in error:', error);
     res.status(500).json({
-      error: {
-        code: 'SERVER_ERROR',
-        message: 'Failed to check in',
-      },
+      error: { code: 'SERVER_ERROR', message: 'Failed to check in' },
     });
   }
 });
 
-// POST /api/queue/patient/:entryId/leave - Patient self-removal from queue (public)
+// POST /api/queue/patient/:entryId/leave - Patient self-removal
 router.post('/patient/:entryId/leave', async (req, res: Response) => {
   try {
     const { entryId } = req.params;
+    const result = await patientLeaveQueue(entryId);
 
-    // Find the queue entry
-    const entry = await prisma.queueEntry.findUnique({
-      where: { id: entryId },
-    });
-
-    if (!entry) {
-      return res.status(404).json({
-        error: {
-          code: 'ENTRY_NOT_FOUND',
-          message: 'Queue entry not found',
-        },
-      });
-    }
-
-    // Check if patient can leave (not already completed/cancelled/no-show)
-    const nonLeavableStatuses: QueueStatus[] = [QueueStatus.COMPLETED, QueueStatus.CANCELLED, QueueStatus.NO_SHOW];
-    if (nonLeavableStatuses.includes(entry.status)) {
+    if (!result.success) {
       return res.status(400).json({
-        error: {
-          code: 'CANNOT_LEAVE',
-          message: 'Cannot leave queue in current status',
-        },
+        error: { code: 'CANNOT_LEAVE', message: 'Cannot leave queue in current status' },
       });
     }
-
-    const clinicId = entry.clinicId;
-
-    // Update status to CANCELLED (patient chose to leave)
-    await prisma.queueEntry.update({
-      where: { id: entryId },
-      data: {
-        status: QueueStatus.CANCELLED,
-      },
-    });
-
-    // Recalculate positions and statuses for remaining patients
-    await recalculatePositionsAndStatuses(clinicId);
-
-    // Get ALL updated patients to emit real-time updates
-    const updatedPatients = await prisma.queueEntry.findMany({
-      where: {
-        clinicId,
-        status: {
-          in: [QueueStatus.WAITING, QueueStatus.NOTIFIED, QueueStatus.IN_CONSULTATION],
-        },
-      },
-      orderBy: { position: 'asc' },
-    });
-
-    // Emit real-time update to dashboard
-    await emitQueueUpdate(clinicId);
-
-    // Emit updates to EACH remaining patient's status page
-    for (const patient of updatedPatients) {
-      emitPatientUpdate(patient.id, patient.position, patient.status);
-    }
-
-    // Emit update to the leaving patient (so their page updates to cancelled state)
-    emitPatientUpdate(entryId, 0, QueueStatus.CANCELLED);
 
     res.json({
-      data: {
-        message: 'Successfully left the queue',
-        status: QueueStatus.CANCELLED,
-      },
+      data: { message: 'Successfully left the queue', status: QueueStatus.CANCELLED },
     });
   } catch (error) {
     console.error('Patient leave queue error:', error);
     res.status(500).json({
-      error: {
-        code: 'SERVER_ERROR',
-        message: 'Failed to leave queue',
-      },
+      error: { code: 'SERVER_ERROR', message: 'Failed to leave queue' },
     });
   }
 });
@@ -1003,52 +372,19 @@ router.post('/patient/:entryId/leave', async (req, res: Response) => {
 router.get('/patient/:entryId', async (req, res: Response) => {
   try {
     const { entryId } = req.params;
+    const status = await getPatientStatus(entryId);
 
-    const entry = await prisma.queueEntry.findUnique({
-      where: { id: entryId },
-      include: {
-        clinic: {
-          select: {
-            name: true,
-            avgConsultationMins: true,
-            isDoctorPresent: true,
-          },
-        },
-      },
-    });
-
-    if (!entry) {
+    if (!status) {
       return res.status(404).json({
-        error: {
-          code: 'ENTRY_NOT_FOUND',
-          message: 'Queue entry not found',
-        },
+        error: { code: 'ENTRY_NOT_FOUND', message: 'Queue entry not found' },
       });
     }
 
-    // Calculate estimated wait time
-    const estimatedWaitMins = entry.position * entry.clinic.avgConsultationMins;
-
-    res.json({
-      data: {
-        id: entry.id,
-        clinicId: entry.clinicId,
-        patientName: entry.patientName,
-        position: entry.position,
-        status: entry.status,
-        arrivedAt: entry.arrivedAt,
-        estimatedWaitMins,
-        clinicName: entry.clinic.name,
-        isDoctorPresent: entry.clinic.isDoctorPresent,
-      },
-    });
+    res.json({ data: status });
   } catch (error) {
     console.error('Get patient status error:', error);
     res.status(500).json({
-      error: {
-        code: 'SERVER_ERROR',
-        message: 'Failed to get patient status',
-      },
+      error: { code: 'SERVER_ERROR', message: 'Failed to get patient status' },
     });
   }
 });

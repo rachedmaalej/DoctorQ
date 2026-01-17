@@ -79,6 +79,7 @@
     "patientsWaitingAhead_one": "مريض واحد في الانتظار قبلك",
     "patientsWaitingAhead_other": "{{count}} مرضى في الانتظار قبلك",
     "estimatedWait": "الانتظار المتوقع",
+    "estimatedWaitVeryShort": "< 5 دقائق",
     "estimatedWaitTime": "~{{minutes}} دقيقة انتظار",
     "estimatedWaitTimeNamed": "{{name}}، ~{{minutes}} دقيقة انتظار",
     "minutes": "دقيقة",

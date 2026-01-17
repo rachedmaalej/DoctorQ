@@ -79,6 +79,7 @@
     "patientsWaitingAhead_one": "{{count}} patient en attente devant vous",
     "patientsWaitingAhead_other": "{{count}} patients en attente devant vous",
     "estimatedWait": "Attente estimée",
+    "estimatedWaitVeryShort": "< 5 min",
     "estimatedWaitTime": "~{{minutes}} min d'attente",
     "estimatedWaitTimeNamed": "{{name}}, ~{{minutes}} min d'attente",
     "minutes": "minutes",

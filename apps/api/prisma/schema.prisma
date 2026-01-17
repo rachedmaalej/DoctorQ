@@ -8,7 +8,14 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  // For direct connections (migrations), use DIRECT_URL if available
+  // directUrl = env("DIRECT_URL")
 }
+
+// Connection Pool Configuration:
+// - Supabase pgbouncer (pooler URL) handles pooling in production
+// - Add ?connection_limit=10&pool_timeout=30 to DATABASE_URL for tuning
+// - Use DIRECT_URL for migrations when using pgbouncer
 
 model Clinic {
   id                  String       @id @default(uuid())
@@ -53,6 +60,11 @@ model QueueEntry {
   // Appointment support (v0.3)
   appointmentTime DateTime?   // Scheduled appointment time (null = walk-in)
 
+  // Manual reordering support
+  // When set, this patient's position is "pinned" and won't be auto-recalculated
+  // Value is the timestamp when manually reordered (used for ordering pinned patients)
+  priorityOrder DateTime?
+
   arrivedAt     DateTime      @default(now())
   notifiedAt    DateTime?     // When "almost your turn" sent
   calledAt      DateTime?     // When called for consultation
@@ -61,12 +73,17 @@ model QueueEntry {
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 
-  @@index([clinicId, status])
-  @@index([clinicId, arrivedAt])
-  @@index([clinicId, createdAt])
-  @@index([clinicId, appointmentTime])
-  @@index([clinicId, status, position])  // Optimizes queue recalculation queries
-  @@index([patientPhone])                 // Optimizes duplicate check-in detection
+  // Performance indexes for common queries
+  @@index([clinicId, status])                       // Filter active queue by clinic
+  @@index([clinicId, arrivedAt])                    // Order by arrival time
+  @@index([clinicId, createdAt])                    // Order by creation time
+  @@index([clinicId, appointmentTime])              // Order by appointment time
+  @@index([clinicId, status, position])             // Queue recalculation queries
+  @@index([clinicId, status, arrivedAt])            // Duplicate check (phone + status + date)
+  @@index([clinicId, patientPhone, status])         // Fast duplicate detection
+  @@index([patientPhone])                           // Global phone lookup
+  @@index([status, completedAt])                    // Stats: last completed patient
+  @@index([clinicId, calledAt])                     // Stats: average wait time calculation
 }
 
 enum QueueStatus {
