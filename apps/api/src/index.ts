@@ -169,7 +169,7 @@ app.use((req, res) => {
 });
 
 // Start server
-httpServer.listen(PORT, () => {
+httpServer.listen(PORT, '0.0.0.0', () => {
   console.log(`\n🚀 DoctorQ API Server running on port ${PORT}`);
   console.log(`📍 Health check: http://localhost:${PORT}/health`);
   console.log(`🔌 Socket.io ready for connections\n`);
