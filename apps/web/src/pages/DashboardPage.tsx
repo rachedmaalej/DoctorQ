@@ -7,6 +7,7 @@ import QRCodeModal from '@/components/queue/QRCodeModal';
 import MobileDashboard from '@/components/queue/MobileDashboard';
 import AddPatientModal from '@/components/queue/AddPatientModal';
 import ConfirmModal from '@/components/ui/ConfirmModal';
+import { Toast } from '@/components/ui/Toast';
 import Header from '@/components/layout/Header';
 import { MD3FAB } from '@/components/md3/fab';
 import { MD3Button } from '@/components/md3/button';
@@ -50,8 +51,12 @@ export default function DashboardPage() {
     cancelClearQueue,
     handleToggleDoctorPresent,
     handleFillQueue,
-    reorderPatient,
+    handleReorderPatient,
     resetStats,
+
+    // Toast state
+    toast,
+    hideToast,
   } = useDashboard();
 
   return (
@@ -69,8 +74,8 @@ export default function DashboardPage() {
           onCallNext={handleCallNext}
           onAddPatient={() => setIsAddModalOpen(true)}
           onRemovePatient={handleRemovePatient}
-          onReorder={reorderPatient}
-          onEmergency={(id) => reorderPatient(id, 1)}
+          onReorder={handleReorderPatient}
+          onEmergency={(id) => handleReorderPatient(id, 1)}
           onShowQR={() => setIsQRModalOpen(true)}
           onFillQueue={handleFillQueue}
           isCallingNext={isCallingNext}
@@ -163,8 +168,8 @@ export default function DashboardPage() {
             <QueueList
               queue={queue}
               onRemove={handleRemovePatient}
-              onReorder={reorderPatient}
-              onEmergency={(id) => reorderPatient(id, 1)}
+              onReorder={handleReorderPatient}
+              onEmergency={(id) => handleReorderPatient(id, 1)}
               exitingPatientId={exitingPatientId}
               isDoctorPresent={isDoctorPresent}
             />
@@ -218,6 +223,14 @@ export default function DashboardPage() {
       <QRCodeModal
         isOpen={isQRModalOpen}
         onClose={() => setIsQRModalOpen(false)}
+      />
+
+      {/* Reorder confirmation toast */}
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        isVisible={toast.isVisible}
+        onClose={hideToast}
       />
     </div>
   );

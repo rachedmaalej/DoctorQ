@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/authStore';
 import { useQueueStore } from '@/stores/queueStore';
 import { useSocket } from '@/hooks/useSocket';
@@ -6,6 +7,7 @@ import { api } from '@/lib/api';
 import { logger } from '@/lib/logger';
 import { QueueStatus } from '@/types';
 import type { AddPatientData } from '@/types';
+import type { ToastType } from '@/components/ui/Toast';
 
 // Helper to create today's date with specific time (HH:MM)
 function todayAt(time: string): string {
@@ -34,8 +36,9 @@ const SAMPLE_PATIENTS: AddPatientData[] = [
  * Encapsulates queue operations, doctor presence, and modal state
  */
 export function useDashboard() {
+  const { t } = useTranslation();
   const { clinic } = useAuthStore();
-  const { queue, stats, fetchQueue, addPatient, callNext, removePatient, reorderPatient, clearQueue, resetStats } = useQueueStore();
+  const { queue, stats, fetchQueue, addPatient, callNext, removePatient, reorderPatient: storeReorderPatient, clearQueue, resetStats } = useQueueStore();
 
   // Modal state
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -58,6 +61,21 @@ export function useDashboard() {
     return clinic?.isDoctorPresent ?? false;
   });
   const [isTogglingPresence, setIsTogglingPresence] = useState(false);
+
+  // Toast state for reorder feedback
+  const [toast, setToast] = useState<{ isVisible: boolean; message: string; type: ToastType }>({
+    isVisible: false,
+    message: '',
+    type: 'success',
+  });
+
+  const showToast = useCallback((message: string, type: ToastType = 'success') => {
+    setToast({ isVisible: true, message, type });
+  }, []);
+
+  const hideToast = useCallback(() => {
+    setToast((prev) => ({ ...prev, isVisible: false }));
+  }, []);
 
   // Derived state
   const waitingCount = queue.filter(p => p.status === 'WAITING' || p.status === 'NOTIFIED').length;
@@ -245,6 +263,28 @@ export function useDashboard() {
     }
   }, [isDoctorPresent, isTogglingPresence]);
 
+  // Reorder patient with toast feedback
+  const handleReorderPatient = useCallback(async (id: string, newPosition: number) => {
+    // Find patient name for the toast
+    const patient = queue.find(p => p.id === id);
+    const patientName = patient?.patientName || t('queue.patientName');
+    const currentPosition = patient?.position || 0;
+
+    try {
+      await storeReorderPatient(id, newPosition);
+
+      // Show appropriate message based on direction
+      const message = newPosition < currentPosition
+        ? t('queue.patientMovedUp', { name: patientName })
+        : t('queue.patientMovedDown', { name: patientName });
+
+      showToast(message, 'success');
+    } catch (error) {
+      logger.error('Failed to reorder patient:', error);
+      showToast(t('common.error'), 'error');
+    }
+  }, [queue, storeReorderPatient, showToast, t]);
+
   // Fill queue with sample patients for demo
   const handleFillQueue = useCallback(async () => {
     if (isFillingQueue) return;
@@ -302,7 +342,11 @@ export function useDashboard() {
     cancelClearQueue,
     handleToggleDoctorPresent,
     handleFillQueue,
-    reorderPatient,
+    handleReorderPatient,
     resetStats,
+
+    // Toast state
+    toast,
+    hideToast,
   };
 }

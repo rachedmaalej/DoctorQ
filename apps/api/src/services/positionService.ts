@@ -95,12 +95,12 @@ export async function recalculatePositions(clinicId: string): Promise<void> {
 
 /**
  * Reorder a patient to a new position
- * Sets priorityOrder to make the change persistent across recalculations
+ * Sets priorityOrder on ALL active patients to make the change persistent
  *
  * When a patient is manually moved:
- * - They get a priorityOrder timestamp that preserves their relative position
- * - Patients above them (at the target position) also get priorityOrder to maintain order
- * - This ensures manual reordering is PERSISTENT and survives queue recalculations
+ * - ALL active patients get priorityOrder timestamps based on their new positions
+ * - This ensures the entire queue order is frozen and won't change on recalculation
+ * - Future patients (without priorityOrder) will be added after all manually-ordered ones
  */
 export async function reorderPatient(
   clinicId: string,
@@ -110,69 +110,37 @@ export async function reorderPatient(
 ): Promise<void> {
   const now = new Date();
 
-  // Get patients that will be affected by this move
-  const affectedPatients = await prisma.queueEntry.findMany({
+  // Get ALL active patients in current order
+  const allPatients = await prisma.queueEntry.findMany({
     where: {
       clinicId,
       status: { in: [QueueStatus.WAITING, QueueStatus.NOTIFIED, QueueStatus.IN_CONSULTATION] },
-      position: newPosition < oldPosition
-        ? { gte: newPosition, lte: oldPosition }  // Moving up
-        : { gte: oldPosition, lte: newPosition }, // Moving down
     },
     orderBy: { position: 'asc' },
     select: { id: true, position: true },
   });
 
-  // Assign priorityOrder timestamps to all affected patients to preserve the new order
-  // Earlier positions get earlier timestamps (1ms apart to maintain order)
+  // Build the new order by moving the patient
+  const patientIds = allPatients.map(p => p.id);
+  const movedPatientIndex = patientIds.findIndex(id => id === entryId);
+
+  if (movedPatientIndex === -1) return;
+
+  // Remove from old position and insert at new position
+  patientIds.splice(movedPatientIndex, 1);
+  patientIds.splice(newPosition - 1, 0, entryId);
+
+  // Assign priorityOrder timestamps to ALL patients to preserve the complete order
+  // This ensures the order is "frozen" and won't change on next recalculation
   await prisma.$transaction(async (tx) => {
     let timestamp = now.getTime();
 
-    if (newPosition < oldPosition) {
-      // Moving up: the moved patient gets the earliest timestamp
+    for (let i = 0; i < patientIds.length; i++) {
       await tx.queueEntry.update({
-        where: { id: entryId },
+        where: { id: patientIds[i] },
         data: {
-          position: newPosition,
-          priorityOrder: new Date(timestamp),
-        },
-      });
-      timestamp += 1;
-
-      // Other patients shift down
-      for (const patient of affectedPatients) {
-        if (patient.id !== entryId) {
-          await tx.queueEntry.update({
-            where: { id: patient.id },
-            data: {
-              position: patient.position + 1,
-              priorityOrder: new Date(timestamp),
-            },
-          });
-          timestamp += 1;
-        }
-      }
-    } else {
-      // Moving down: other patients shift up, moved patient goes to new position
-      for (const patient of affectedPatients) {
-        if (patient.id !== entryId) {
-          await tx.queueEntry.update({
-            where: { id: patient.id },
-            data: {
-              position: patient.position - 1,
-              priorityOrder: new Date(timestamp),
-            },
-          });
-          timestamp += 1;
-        }
-      }
-
-      // Moved patient gets the last timestamp (later = lower in the affected range)
-      await tx.queueEntry.update({
-        where: { id: entryId },
-        data: {
-          position: newPosition,
-          priorityOrder: new Date(timestamp),
+          position: i + 1,
+          priorityOrder: new Date(timestamp + i),
         },
       });
     }
