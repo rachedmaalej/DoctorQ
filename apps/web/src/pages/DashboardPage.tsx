@@ -180,17 +180,21 @@ export default function DashboardPage() {
       </main>
 
       {/* Call Next FAB - Primary Action (Fixed Position) - Desktop only */}
-      <div className="hidden lg:block">
-        <MD3FAB
-          variant="primary"
-          size="large"
-          icon={<span className="material-symbols-outlined">directions_walk</span>}
-          onClick={handleCallNext}
-          disabled={waitingCount === 0 || isCallingNext || !isDoctorPresent}
-          className="fixed bottom-6 end-6 z-50 lg:bottom-8 lg:end-8"
-          title={isDoctorPresent ? t('queue.callNext') : t('queue.waitingForDoctor')}
-          aria-label={t('queue.callNext')}
-        />
+      {/* Positioned to align with left column (QR code card) - uses same max-w and padding as main content */}
+      <div className="hidden lg:block fixed bottom-8 left-0 right-0 z-50 pointer-events-none">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="w-[320px] flex justify-center pointer-events-auto">
+            <MD3FAB
+              variant="primary"
+              size="large"
+              icon={<span className="material-symbols-outlined">directions_walk</span>}
+              onClick={handleCallNext}
+              disabled={waitingCount === 0 || isCallingNext || !isDoctorPresent}
+              title={isDoctorPresent ? t('queue.callNext') : t('queue.waitingForDoctor')}
+              aria-label={t('queue.callNext')}
+            />
+          </div>
+        </div>
       </div>
 
       {/* Add patient modal */}
