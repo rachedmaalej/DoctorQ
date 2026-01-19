@@ -92,26 +92,28 @@ export default function QueueList({ queue, onRemove, onReorder, onEmergency, exi
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-2 sm:px-4 lg:px-6 py-2 sm:py-3 text-left text-[10px] sm:text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-2 sm:px-3 py-2 sm:py-3 text-left text-[10px] sm:text-xs font-medium text-gray-500 uppercase tracking-wider">
                 {t('queue.position')}
               </th>
-              <th className="px-2 sm:px-4 lg:px-6 py-2 sm:py-3 text-left text-[10px] sm:text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-2 sm:px-3 py-2 sm:py-3 text-left text-[10px] sm:text-xs font-medium text-gray-500 uppercase tracking-wider">
                 {t('queue.patientName')}
               </th>
-              {/* Hide phone column on mobile */}
-              <th className="hidden md:table-cell px-4 lg:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              {/* Hide phone column on tablet and mobile */}
+              <th className="hidden lg:table-cell px-3 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 {t('queue.patientPhone')}
               </th>
-              <th className="px-2 sm:px-4 lg:px-6 py-2 sm:py-3 text-left text-[10px] sm:text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-2 sm:px-3 py-2 sm:py-3 text-left text-[10px] sm:text-xs font-medium text-gray-500 uppercase tracking-wider">
                 {t('queue.status')}
               </th>
-              <th className="px-2 sm:px-4 lg:px-6 py-2 sm:py-3 text-left text-[10px] sm:text-xs font-medium text-gray-500 uppercase tracking-wider">
+              {/* Hide appointment time on tablet and mobile */}
+              <th className="hidden lg:table-cell px-3 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 {t('queue.appointmentTime') || 'RDV'}
               </th>
-              <th className="px-2 sm:px-4 lg:px-6 py-2 sm:py-3 text-left text-[10px] sm:text-xs font-medium text-gray-500 uppercase tracking-wider">
+              {/* Hide arrived at on tablet and mobile */}
+              <th className="hidden lg:table-cell px-3 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 {t('queue.arrivedAt')}
               </th>
-              <th className="px-2 sm:px-4 lg:px-6 py-2 sm:py-3 text-left text-[10px] sm:text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-2 sm:px-3 py-2 sm:py-3 text-left text-[10px] sm:text-xs font-medium text-gray-500 uppercase tracking-wider">
                 {t('queue.actions')}
               </th>
             </tr>
@@ -129,7 +131,7 @@ export default function QueueList({ queue, onRemove, onReorder, onEmergency, exi
                   displayStatus === QueueStatus.NOTIFIED && 'bg-yellow-50'
                 )}
               >
-                <td className="px-2 sm:px-4 lg:px-6 py-2 sm:py-4 whitespace-nowrap">
+                <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap">
                   {isDoctorPresent && entry.status === QueueStatus.IN_CONSULTATION ? (
                     <span
                       className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-green-100 text-green-700"
@@ -142,24 +144,38 @@ export default function QueueList({ queue, onRemove, onReorder, onEmergency, exi
                     <div className="text-sm sm:text-lg font-bold text-gray-900">#{getDisplayPosition(entry, isDoctorPresent)}</div>
                   )}
                 </td>
-                <td className="px-2 sm:px-4 lg:px-6 py-2 sm:py-4 whitespace-nowrap">
+                <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap">
                   <div className="text-xs sm:text-sm font-medium text-gray-900">
                     {entry.patientName || '-'}
                   </div>
+                  {/* Show phone number below name on tablet/mobile */}
+                  <div className="lg:hidden text-[10px] sm:text-xs text-gray-500">
+                    {entry.patientPhone}
+                  </div>
                 </td>
-                {/* Hide phone column on mobile */}
-                <td className="hidden md:table-cell px-4 lg:px-6 py-2 sm:py-4 whitespace-nowrap">
+                {/* Hide phone column on tablet and mobile */}
+                <td className="hidden lg:table-cell px-3 py-2 sm:py-4 whitespace-nowrap">
                   <div className="text-sm text-gray-900">{entry.patientPhone}</div>
                 </td>
-                <td className="px-2 sm:px-4 lg:px-6 py-2 sm:py-4 whitespace-nowrap">
+                <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap">
                   <span className={clsx(
-                    'px-2 sm:px-3 py-0.5 sm:py-1 inline-flex text-[10px] sm:text-xs leading-5 font-semibold rounded-full',
+                    'px-2 py-0.5 sm:py-1 inline-flex text-[10px] sm:text-xs leading-5 font-semibold rounded-full',
                     getStatusColor(entry.status)
                   )}>
                     {t(`queue.${getStatusTranslationKey(entry.status)}`)}
                   </span>
+                  {/* Show appointment time badge below status on tablet/mobile */}
+                  {entry.appointmentTime && (
+                    <div className="lg:hidden mt-1">
+                      <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-purple-100 text-purple-800 rounded-full text-[10px] font-medium">
+                        <span className="material-symbols-outlined text-xs">schedule</span>
+                        {formatAppointmentTime(entry.appointmentTime)}
+                      </span>
+                    </div>
+                  )}
                 </td>
-                <td className="px-2 sm:px-4 lg:px-6 py-2 sm:py-4 whitespace-nowrap text-xs sm:text-sm">
+                {/* Hide appointment time on tablet and mobile */}
+                <td className="hidden lg:table-cell px-3 py-2 sm:py-4 whitespace-nowrap text-sm">
                   {entry.appointmentTime ? (
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-100 text-purple-800 rounded-full text-xs font-medium">
                       <span className="material-symbols-outlined text-sm">schedule</span>
@@ -169,11 +185,12 @@ export default function QueueList({ queue, onRemove, onReorder, onEmergency, exi
                     <span className="text-gray-400 text-xs">{t('queue.walkIn') || 'Sans RDV'}</span>
                   )}
                 </td>
-                <td className="px-2 sm:px-4 lg:px-6 py-2 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
+                {/* Hide arrived at on tablet and mobile */}
+                <td className="hidden lg:table-cell px-3 py-2 sm:py-4 whitespace-nowrap text-sm text-gray-500">
                   {formatTime(entry.arrivedAt)}
                 </td>
-                <td className="px-2 sm:px-4 lg:px-6 py-2 sm:py-4 whitespace-nowrap">
-                  <div className="flex items-center gap-1">
+                <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap">
+                  <div className="flex items-center gap-0.5 sm:gap-1">
                     {/* Emergency button - move patient to see doctor immediately */}
                     {onEmergency && entry.status !== QueueStatus.IN_CONSULTATION && entry.position > 1 && (
                       <button
@@ -182,7 +199,7 @@ export default function QueueList({ queue, onRemove, onReorder, onEmergency, exi
                         title={t('queue.emergency')}
                         aria-label={t('queue.emergency')}
                       >
-                        <span className="material-symbols-outlined text-lg">e911_emergency</span>
+                        <span className="material-symbols-outlined text-base sm:text-lg">e911_emergency</span>
                       </button>
                     )}
                     {/* Reorder controls */}
@@ -193,7 +210,7 @@ export default function QueueList({ queue, onRemove, onReorder, onEmergency, exi
                         title={t('queue.moveUp') || 'Move up'}
                         aria-label={t('queue.moveUp') || 'Move up'}
                       >
-                        <span className="material-symbols-outlined text-lg">arrow_upward</span>
+                        <span className="material-symbols-outlined text-base sm:text-lg">arrow_upward</span>
                       </button>
                     )}
                     {onReorder && entry.position < queue.length && (
@@ -203,17 +220,17 @@ export default function QueueList({ queue, onRemove, onReorder, onEmergency, exi
                         title={t('queue.moveDown') || 'Move down'}
                         aria-label={t('queue.moveDown') || 'Move down'}
                       >
-                        <span className="material-symbols-outlined text-lg">arrow_downward</span>
+                        <span className="material-symbols-outlined text-base sm:text-lg">arrow_downward</span>
                       </button>
                     )}
                     {/* Delete button */}
                     <button
                       onClick={() => onRemove(entry.id)}
-                      className="text-red-600 hover:text-red-900 hover:bg-red-50 p-1.5 sm:p-2 rounded-full transition-colors inline-flex items-center justify-center"
+                      className="text-red-600 hover:text-red-900 hover:bg-red-50 p-1 sm:p-1.5 rounded-full transition-colors inline-flex items-center justify-center"
                       title={t('common.delete')}
                       aria-label={t('common.delete')}
                     >
-                      <span className="material-symbols-outlined text-xl">delete</span>
+                      <span className="material-symbols-outlined text-base sm:text-xl">delete</span>
                     </button>
                   </div>
                 </td>
