@@ -48,9 +48,6 @@ export default function WaitEstimateCard({ position, avgConsultationMins = 15 }:
           <p className="text-2xl font-bold text-gray-800">
             {formatWaitTime(estimatedMinutes)}
           </p>
-          <p className="text-xs text-gray-500">
-            {t('patient.patientsAhead', { count: patientsAhead })}
-          </p>
         </div>
       </div>
     </div>
