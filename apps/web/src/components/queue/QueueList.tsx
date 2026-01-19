@@ -9,6 +9,7 @@ interface QueueListProps {
   onRemove: (id: string) => void;
   onReorder?: (id: string, newPosition: number) => void;
   onEmergency?: (id: string) => void;
+  onCompleteConsultation?: () => void;
   exitingPatientId?: string | null;
   isDoctorPresent?: boolean;
 }
@@ -27,7 +28,7 @@ function getDisplayPosition(entry: QueueEntry, isDoctorPresent: boolean): number
   return entry.position;
 }
 
-export default function QueueList({ queue, onRemove, onReorder, onEmergency, exitingPatientId, isDoctorPresent = false }: QueueListProps) {
+export default function QueueList({ queue, onRemove, onReorder, onEmergency, onCompleteConsultation, exitingPatientId, isDoctorPresent = false }: QueueListProps) {
   const { t } = useTranslation();
 
   // Format appointment time for display
@@ -158,12 +159,21 @@ export default function QueueList({ queue, onRemove, onReorder, onEmergency, exi
                   <div className="text-sm text-gray-900">{entry.patientPhone}</div>
                 </td>
                 <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap">
-                  <span className={clsx(
-                    'px-2 py-0.5 sm:py-1 inline-flex text-[10px] sm:text-xs leading-5 font-semibold rounded-full',
-                    getStatusColor(entry.status)
-                  )}>
-                    {t(`queue.${getStatusTranslationKey(entry.status)}`)}
-                  </span>
+                  <div className="flex items-center gap-1 flex-wrap">
+                    <span className={clsx(
+                      'px-2 py-0.5 sm:py-1 inline-flex text-[10px] sm:text-xs leading-5 font-semibold rounded-full',
+                      getStatusColor(entry.status)
+                    )}>
+                      {t(`queue.${getStatusTranslationKey(entry.status)}`)}
+                    </span>
+                    {/* Show "Last patient" label when this is the only patient in consultation with no waiting patients */}
+                    {entry.status === QueueStatus.IN_CONSULTATION &&
+                     queue.filter(p => p.status === QueueStatus.WAITING || p.status === QueueStatus.NOTIFIED).length === 0 && (
+                      <span className="text-[10px] sm:text-xs text-gray-500">
+                        ({t('queue.lastPatient')})
+                      </span>
+                    )}
+                  </div>
                   {/* Show appointment time badge below status on tablet/mobile */}
                   {entry.appointmentTime && (
                     <div className="lg:hidden mt-1">
@@ -223,15 +233,29 @@ export default function QueueList({ queue, onRemove, onReorder, onEmergency, exi
                         <span className="material-symbols-outlined text-base sm:text-lg">arrow_downward</span>
                       </button>
                     )}
-                    {/* Delete button */}
-                    <button
-                      onClick={() => onRemove(entry.id)}
-                      className="text-red-600 hover:text-red-900 hover:bg-red-50 p-1 sm:p-1.5 rounded-full transition-colors inline-flex items-center justify-center"
-                      title={t('common.delete')}
-                      aria-label={t('common.delete')}
-                    >
-                      <span className="material-symbols-outlined text-base sm:text-xl">delete</span>
-                    </button>
+                    {/* Complete consultation button - shown for last patient in consultation */}
+                    {entry.status === QueueStatus.IN_CONSULTATION &&
+                     queue.filter(p => p.status === QueueStatus.WAITING || p.status === QueueStatus.NOTIFIED).length === 0 &&
+                     onCompleteConsultation ? (
+                      <button
+                        onClick={onCompleteConsultation}
+                        className="text-green-600 hover:text-green-800 hover:bg-green-50 p-1 sm:p-1.5 rounded-full transition-colors inline-flex items-center justify-center"
+                        title={t('queue.completeConsultation')}
+                        aria-label={t('queue.completeConsultation')}
+                      >
+                        <span className="material-symbols-outlined text-base sm:text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                      </button>
+                    ) : (
+                      /* Delete button */
+                      <button
+                        onClick={() => onRemove(entry.id)}
+                        className="text-red-600 hover:text-red-900 hover:bg-red-50 p-1 sm:p-1.5 rounded-full transition-colors inline-flex items-center justify-center"
+                        title={t('common.delete')}
+                        aria-label={t('common.delete')}
+                      >
+                        <span className="material-symbols-outlined text-base sm:text-xl">delete</span>
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>

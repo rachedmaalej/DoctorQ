@@ -172,6 +172,7 @@ export default function DashboardPage() {
               onRemove={handleRemovePatient}
               onReorder={handleReorderPatient}
               onEmergency={(id) => handleReorderPatient(id, 1)}
+              onCompleteConsultation={handleCompleteConsultation}
               exitingPatientId={exitingPatientId}
               isDoctorPresent={isDoctorPresent}
             />
