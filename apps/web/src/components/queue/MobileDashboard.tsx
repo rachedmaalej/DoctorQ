@@ -166,9 +166,9 @@ export default function MobileDashboard({
               {isDoctorPresent ? t('queue.doctorPresent') : t('queue.doctorNotPresent')}
             </span>
           </div>
-          {/* Toggle switch */}
+          {/* Toggle switch - RTL aware */}
           <div className={`w-12 h-7 rounded-full p-0.5 transition-colors ${isDoctorPresent ? 'bg-green-500' : 'bg-gray-300'}`}>
-            <div className={`w-6 h-6 rounded-full bg-white shadow transition-transform ${isDoctorPresent ? 'translate-x-5' : 'translate-x-0'}`} />
+            <div className={`w-6 h-6 rounded-full bg-white shadow transition-transform ${isDoctorPresent ? 'ltr:translate-x-5 rtl:-translate-x-5' : 'translate-x-0'}`} />
           </div>
         </button>
       </div>

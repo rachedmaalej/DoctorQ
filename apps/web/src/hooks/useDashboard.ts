@@ -19,16 +19,16 @@ function todayAt(time: string): string {
 
 // Sample patients for demo (ordered by arrival time)
 const SAMPLE_PATIENTS: AddPatientData[] = [
-  { patientName: 'Kamel T', patientPhone: '+21654678678', arrivedAt: todayAt('10:50') },
-  { patientName: 'Rached M', patientPhone: '+21626387742', appointmentTime: '10:00', arrivedAt: todayAt('10:55') },
-  { patientName: 'Hela B', patientPhone: '+21655234567', appointmentTime: '10:15', arrivedAt: todayAt('11:00') },
-  { patientName: 'Sandra M', patientPhone: '+21671233935', arrivedAt: todayAt('11:05') },
-  { patientName: 'Jalila F', patientPhone: '+21622222567', appointmentTime: '10:30', arrivedAt: todayAt('11:25') },
-  { patientName: 'Fethi B', patientPhone: '+21621999999', arrivedAt: todayAt('11:25') },
-  { patientName: 'Samira K', patientPhone: '+21621999888', appointmentTime: '10:45', arrivedAt: todayAt('11:30') },
-  { patientName: 'Mouna C', patientPhone: '+21620222111', arrivedAt: todayAt('11:50') },
-  { patientName: 'Amin K', patientPhone: '+21623555000', appointmentTime: '11:00', arrivedAt: todayAt('11:50') },
-  { patientName: 'Hejer K', patientPhone: '+21654414141', appointmentTime: '11:30', arrivedAt: todayAt('12:27') },
+  { patientName: 'Rached M1', patientPhone: '+21626387742', appointmentTime: '10:00', arrivedAt: todayAt('09:55') },
+  { patientName: 'Hela B2', patientPhone: '+21655234567', appointmentTime: '10:15', arrivedAt: todayAt('10:00') },
+  { patientName: 'Kamel T7', patientPhone: '+21654678678', arrivedAt: todayAt('10:20') },
+  { patientName: 'Jalila F3', patientPhone: '+21622222567', appointmentTime: '10:30', arrivedAt: todayAt('10:25') },
+  { patientName: 'Sandra M8', patientPhone: '+21671233935', arrivedAt: todayAt('10:30') },
+  { patientName: 'Samira K4', patientPhone: '+21621999888', appointmentTime: '10:45', arrivedAt: todayAt('10:30') },
+  { patientName: 'Fethi B9', patientPhone: '+21621999999', arrivedAt: todayAt('10:45') },
+  { patientName: 'Amin K5', patientPhone: '+21623555000', appointmentTime: '11:00', arrivedAt: todayAt('10:50') },
+  { patientName: 'Mouna C10', patientPhone: '+21620222111', arrivedAt: todayAt('10:55') },
+  { patientName: 'Hejer K6', patientPhone: '+21654414141', appointmentTime: '11:30', arrivedAt: todayAt('11:27') },
 ];
 
 /**
@@ -288,6 +288,10 @@ export function useDashboard() {
     // Check if this is an emergency (moving to position 1)
     const isEmergency = newPosition === 1 && currentPosition > 2;
 
+    // Calculate queue position (excluding patient in consultation)
+    // Position 1 = in consultation, so queue position = newPosition - 1
+    const queuePosition = newPosition > 1 ? newPosition - 1 : 1;
+
     try {
       await storeReorderPatient(id, newPosition);
 
@@ -295,11 +299,11 @@ export function useDashboard() {
         // Emergency: patient moved to first position
         showToast(t('queue.patientEmergency', { name: patientName }), 'emergency');
       } else if (newPosition < currentPosition) {
-        // Moved up
-        showToast(t('queue.patientMovedUp', { name: patientName, position: newPosition }), 'moveUp');
+        // Moved up - show queue position (excluding patient in consultation)
+        showToast(t('queue.patientMovedUp', { name: patientName, position: queuePosition }), 'moveUp');
       } else {
-        // Moved down
-        showToast(t('queue.patientMovedDown', { name: patientName, position: newPosition }), 'moveDown');
+        // Moved down - show queue position (excluding patient in consultation)
+        showToast(t('queue.patientMovedDown', { name: patientName, position: queuePosition }), 'moveDown');
       }
     } catch (error) {
       logger.error('Failed to reorder patient:', error);

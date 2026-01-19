@@ -35,7 +35,7 @@
     "completed": "Terminé",
     "noShow": "Absent",
     "cancelled": "Annulé",
-    "noPatients": "Aucun patient en attente",
+    "noPatients": "La salle d'attente est vide",
     "patientAlreadyInQueue": "Ce patient est déjà dans la file d'attente",
     "waitingCount": "{{count}} en attente",
     "seenToday": "{{count}} vus aujourd'hui",

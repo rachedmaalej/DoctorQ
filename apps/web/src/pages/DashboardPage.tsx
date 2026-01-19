@@ -134,9 +134,9 @@ export default function DashboardPage() {
                   <span className="text-sm">
                     {isDoctorPresent ? t('queue.doctorPresent') : t('queue.doctorNotPresent')}
                   </span>
-                  {/* Toggle indicator */}
+                  {/* Toggle indicator - RTL aware */}
                   <div className={`w-10 h-6 rounded-full p-0.5 transition-colors ${isDoctorPresent ? 'bg-green-500' : 'bg-gray-300'}`}>
-                    <div className={`w-5 h-5 rounded-full bg-white shadow transition-transform ${isDoctorPresent ? 'translate-x-4' : 'translate-x-0'}`} />
+                    <div className={`w-5 h-5 rounded-full bg-white shadow transition-transform ${isDoctorPresent ? 'ltr:translate-x-4 rtl:-translate-x-4' : 'translate-x-0'}`} />
                   </div>
                 </button>
               </div>
