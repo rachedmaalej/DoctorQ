@@ -399,16 +399,16 @@ export default function PatientStatusPage() {
           />
         )}
 
-        {/* Ticket + Wait Estimate - side by side layout */}
+        {/* Ticket + Wait Estimate - side by side layout, or centered when #1 */}
         {showTicket && (
-          <div className="flex gap-3 items-stretch">
+          <div className={`flex gap-3 items-stretch ${queueState === 'next' ? 'justify-center' : ''}`}>
             {/* Compact Ticket Card */}
             <CompactTicketCard
               position={displayPosition}
               colorScheme={getTicketColorScheme(queueState)}
               animate={queueState === 'almost'}
             />
-            {/* Wait Estimate Card - fills remaining space */}
+            {/* Wait Estimate Card - fills remaining space (hidden when #1) */}
             {queueState !== 'next' && (
               <div className="flex-1 min-w-0">
                 <WaitEstimateCard
