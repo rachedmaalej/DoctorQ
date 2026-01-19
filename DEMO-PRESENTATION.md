@@ -1,7 +1,10 @@
-# DoctorQ Demo Presentation Plan for Dr. Kamoun
+# DoctorQ v0.5.0 - Demo Presentation for Dr. Skander Kamoun
 
 ## Demo Overview
 A compelling 10-15 minute demonstration showing DoctorQ's value proposition: eliminating patient waiting room anxiety and optimizing clinic flow.
+
+**Version:** 0.5.0 (Beta/Pilot Release)
+**Demo Date:** January 20, 2026
 
 ---
 
@@ -27,7 +30,7 @@ A compelling 10-15 minute demonstration showing DoctorQ's value proposition: eli
 
 **Step 2: Empty Dashboard Tour**
 - Point out the QR code card: "This is your unique clinic QR code"
-- Show the stats bar: "At a glance - waiting, last consultation time"
+- Show the stats bar: 3 cards showing "En Attente" (waiting), "Vus Aujourd'hui" (seen today), and "Attente moyenne" (grayed out - coming soon)
 - Explain the "Call Next" button prominence
 
 **Step 3: Populate the Queue**
@@ -90,17 +93,18 @@ A compelling 10-15 minute demonstration showing DoctorQ's value proposition: eli
 ---
 
 ### **Phase 4: Mobile Experience (1-2 min)**
-*Show the responsive design*
+*Both devices are already showing mobile views - this is the real experience!*
 
-**On Phone (or resize browser):**
-- Show the mobile dashboard layout
-- Compact stats bar at top
-- Easy "Call Next" button
-- Show QR code modal for sharing
+**On iPad Mini (Doctor Dashboard):**
+- Point out the clean tablet layout
+- Stats cards visible at a glance
+- "Call Next" button easy to tap
+- Can manage the entire queue from the tablet
 
-**Patient Mobile View:**
-- Show how clean the patient status page looks on mobile
-- "Patients can wait at the café next door, watch their position update"
+**On Phone (Patient View):**
+- "This is exactly what your patients see"
+- Clean, simple, no clutter
+- "They can watch their position update while at the café"
 
 ---
 
@@ -138,24 +142,39 @@ A compelling 10-15 minute demonstration showing DoctorQ's value proposition: eli
 
 ### Before the Demo:
 - [ ] Test login works: `dr.skander@example.tn` / `password123`
-- [ ] Have two browser windows ready (doctor + patient view)
-- [ ] Or use phone for patient view
-- [ ] Clear any old queue entries if needed
-- [ ] Test internet connection
+- [ ] **iPad Mini:** Open `https://doctor-q-web.vercel.app` and log in
+- [ ] **Phone:** Keep ready to scan QR code or open check-in link
+- [ ] Clear any old queue entries if needed (use "Vider la file" button)
+- [ ] Test internet connection on both devices
+- [ ] Both devices connected to same WiFi (or use mobile data)
+- [ ] QR code link should point to: `https://doctor-q-web.vercel.app/checkin/{clinicId}`
 
 ### Key URLs:
 - **Frontend:** `https://doctor-q-web.vercel.app`
 - **API Health:** `https://doctorqapi-production-84e9.up.railway.app/health`
+- **Check-in Page:** `https://doctor-q-web.vercel.app/checkin/7d4e22cd-4604-4a72-b624-7b718885b663`
 
 ### Test Credentials:
 - **Email:** `dr.skander@example.tn`
 - **Password:** `password123`
+- **Clinic Name:** Cabinet Dr Skander Kamoun
+
+### Quick Verification (run before demo):
+```bash
+# Check API is up
+curl https://doctorqapi-production-84e9.up.railway.app/health
+
+# Test login (should return token)
+curl -X POST https://doctorqapi-production-84e9.up.railway.app/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"dr.skander@example.tn","password":"password123"}'
+```
 
 ---
 
 ## Pro Tips for the Demo
 
-1. **Use two devices** - Have the patient view on your phone while showing dashboard on laptop. The real-time sync is impressive.
+1. **Use iPad + Phone** - iPad Mini for doctor dashboard, phone for patient view. Hold both devices so Dr. Kamoun can see the real-time sync.
 
 2. **Let Dr. Kamoun interact** - Have him click "Call Next" himself to feel the simplicity.
 
@@ -175,7 +194,7 @@ A compelling 10-15 minute demonstration showing DoctorQ's value proposition: eli
 ## Demo Flow Diagram
 
 ```
-DOCTOR VIEW                          PATIENT VIEW
+📱 iPad Mini (DOCTOR)                📱 Phone (PATIENT)
 ───────────────────────────────────────────────────
 1. Login
    ↓
@@ -211,3 +230,29 @@ If something doesn't work during the demo:
 1. **API down:** Show screenshots/video of the flow
 2. **Socket not updating:** Refresh the patient page manually
 3. **Fill Queue fails:** Add 2-3 patients manually (still demonstrates the flow)
+
+---
+
+## Known Limitations (v0.5.0)
+
+Be prepared to address these if asked:
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| SMS Notifications | Not yet active | Will be enabled post-pilot |
+| Average wait time | Displayed but inactive | Coming in v0.6 |
+| WhatsApp integration | Planned | Phase 2 feature |
+| Multi-language | French + Arabic | RTL supported |
+| Admin dashboard | Internal only | Available at `/admin` |
+
+---
+
+## Post-Demo Follow-up
+
+If Dr. Kamoun approves:
+1. **Production launch:** Can go live Wed Jan 21 or Thu Jan 22
+2. **Setup needed:**
+   - Create his real clinic account (new email)
+   - Print QR code poster for reception
+   - Brief receptionist on adding walk-in patients
+3. **Pricing:** 50 TND/month (first month free as pilot)
