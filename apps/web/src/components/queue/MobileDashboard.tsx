@@ -177,10 +177,10 @@ export default function MobileDashboard({
 
       {/* Side-by-side: En Consultation (33%) + Appeler Suivant (66%) */}
       {inConsultation && nextPatient && (
-        <div className="px-4 pt-5 pb-5 flex gap-3">
-          {/* En Consultation - Compact Card (33%) */}
-          <div className="flex-1">
-            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2 flex items-center gap-1">
+        <div className="px-4 pt-5 pb-5">
+          {/* Headers row - aligned */}
+          <div className="flex gap-3 mb-2">
+            <p className="flex-1 text-xs font-medium text-gray-500 uppercase tracking-wide flex items-center gap-1">
               <span
                 className="material-symbols-outlined text-sm text-green-600"
                 style={{ fontVariationSettings: "'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 20" }}
@@ -189,7 +189,21 @@ export default function MobileDashboard({
               </span>
               {t('queue.inConsultation')}
             </p>
-            <div className="bg-green-50 border-2 border-green-200 rounded-2xl p-3 h-[calc(100%-1.75rem)]">
+            <p className="flex-[2] text-xs font-medium text-gray-500 uppercase tracking-wide flex items-center gap-1">
+              <span
+                className="material-symbols-outlined text-sm text-primary-600"
+                style={{ fontVariationSettings: "'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 20" }}
+              >
+                arrow_forward
+              </span>
+              {t('queue.callNext')}
+            </p>
+          </div>
+
+          {/* Cards row - aligned */}
+          <div className="flex gap-3 items-stretch">
+            {/* En Consultation - Compact Card (33%) */}
+            <div className="flex-1 bg-green-50 border-2 border-green-200 rounded-2xl p-3 flex flex-col justify-center">
               <div className="flex flex-col items-center text-center">
                 <div className="w-10 h-10 bg-green-200 rounded-full flex items-center justify-center mb-2">
                   <span
@@ -211,20 +225,9 @@ export default function MobileDashboard({
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Appeler Suivant - Main Card (66%) */}
-          <div className="flex-[2]">
-            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2 flex items-center gap-1">
-              <span
-                className="material-symbols-outlined text-sm text-primary-600"
-                style={{ fontVariationSettings: "'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 20" }}
-              >
-                arrow_forward
-              </span>
-              {t('queue.callNext')}
-            </p>
-            <div className="bg-primary-50 border-2 border-primary-300 rounded-2xl p-3">
+            {/* Appeler Suivant - Main Card (66%) */}
+            <div className="flex-[2] bg-primary-50 border-2 border-primary-300 rounded-2xl p-3">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
                   <div className="w-10 h-10 bg-primary-200 rounded-full flex items-center justify-center">
