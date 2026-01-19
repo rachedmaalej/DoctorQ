@@ -19,8 +19,8 @@ export default function AddPatientModal({ isOpen, onClose }: AddPatientModalProp
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Generate hours 00-23 and minutes in 15-min increments (00, 15, 30, 45)
-  const hours = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0'));
+  // Generate hours 08-19 (typical clinic hours) and minutes in 15-min increments (00, 15, 30, 45)
+  const hours = Array.from({ length: 12 }, (_, i) => (i + 8).toString().padStart(2, '0'));
   const minutes = ['00', '15', '30', '45'];
 
   // Combine hour and minute into HH:MM format for submission
