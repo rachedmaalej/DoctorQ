@@ -185,6 +185,18 @@
   "funFact": {
     "didYouKnow": "Le saviez-vous ?"
   },
+  "eyeFunFacts": {
+    "blinkRate": "Vous clignez des yeux environ 15 à 20 fois par minute, soit plus de 10 000 fois par jour!",
+    "eyeColors": "La couleur des yeux la plus rare au monde est le vert, avec seulement 2% de la population mondiale.",
+    "eyeMuscles": "Les muscles qui contrôlent vos yeux sont les plus actifs de votre corps.",
+    "nightVision": "Vos yeux peuvent s'adapter à l'obscurité en 20-30 minutes, augmentant leur sensibilité jusqu'à 1 million de fois.",
+    "tearProduction": "Vous produisez environ 10 litres de larmes par an pour garder vos yeux humides.",
+    "eyeSize": "La taille de vos yeux reste presque la même depuis votre naissance, contrairement à vos oreilles et votre nez.",
+    "colorPerception": "L'œil humain peut distinguer environ 10 millions de couleurs différentes.",
+    "eyeHealing": "La cornée est le seul tissu du corps humain qui ne contient pas de vaisseaux sanguins.",
+    "peripheralVision": "Votre champ de vision périphérique couvre environ 180 degrés.",
+    "readingSpeed": "Vos yeux peuvent traiter 36 000 informations par heure lorsque vous lisez."
+  },
   "qrCode": {
     "title": "QR Code d'Enregistrement Patient",
     "show": "Afficher le QR Code",

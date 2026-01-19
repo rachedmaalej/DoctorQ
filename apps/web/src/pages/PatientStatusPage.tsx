@@ -9,9 +9,10 @@ import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import Confetti from '@/components/ui/Confetti';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 import { Toast } from '@/components/ui/Toast';
-import TicketCard, { type TicketColorScheme } from '@/components/patient/TicketCard';
+import CompactTicketCard, { type TicketColorScheme } from '@/components/patient/CompactTicketCard';
 import PatientJourneyVisual from '@/components/patient/PatientJourneyVisual';
 import WaitEstimateCard from '@/components/patient/WaitEstimateCard';
+import FunFactCard from '@/components/patient/FunFactCard';
 import type { PatientStatusResponse } from '@/types';
 import { QueueStatus } from '@/types';
 
@@ -398,13 +399,25 @@ export default function PatientStatusPage() {
           />
         )}
 
-        {/* Ticket Card - for active queue states */}
+        {/* Ticket + Wait Estimate - side by side layout */}
         {showTicket && (
-          <TicketCard
-            position={displayPosition}
-            colorScheme={getTicketColorScheme(queueState)}
-            animate={queueState === 'almost'}
-          />
+          <div className="flex gap-3 items-stretch">
+            {/* Compact Ticket Card */}
+            <CompactTicketCard
+              position={displayPosition}
+              colorScheme={getTicketColorScheme(queueState)}
+              animate={queueState === 'almost'}
+            />
+            {/* Wait Estimate Card - fills remaining space */}
+            {queueState !== 'next' && (
+              <div className="flex-1 min-w-0">
+                <WaitEstimateCard
+                  position={displayPosition}
+                  avgConsultationMins={entry.avgConsultationMins}
+                />
+              </div>
+            )}
+          </div>
         )}
 
         {/* Appointment Time Indicator - if patient has scheduled appointment */}
@@ -514,12 +527,9 @@ export default function PatientStatusPage() {
           </div>
         )}
 
-        {/* Wait Estimate Card - shows estimated wait time (more useful than fun facts) */}
+        {/* Fun Fact Card - rotates every 18 seconds */}
         {showTicket && queueState !== 'next' && (
-          <WaitEstimateCard
-            position={displayPosition}
-            avgConsultationMins={entry.avgConsultationMins}
-          />
+          <FunFactCard refreshInterval={18000} />
         )}
 
         {/* Leave Queue Button - only show in active queue states */}

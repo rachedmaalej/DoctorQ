@@ -30,23 +30,25 @@ export default function WaitEstimateCard({ position, avgConsultationMins = 15 }:
   };
 
   return (
-    <div className="bg-white/80 backdrop-blur border border-primary-100 rounded-xl p-4">
-      <div className="flex items-start gap-3">
-        <span
-          className="material-symbols-outlined text-2xl text-primary-500 flex-shrink-0"
-          style={{ fontVariationSettings: "'FILL' 1" }}
-          aria-hidden="true"
-        >
-          schedule
-        </span>
+    <div className="bg-white/80 backdrop-blur border border-primary-100 rounded-xl p-4 h-full flex flex-col justify-center">
+      <div className="flex items-center gap-3">
+        <div className="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
+          <span
+            className="material-symbols-outlined text-2xl text-primary-600"
+            style={{ fontVariationSettings: "'FILL' 1" }}
+            aria-hidden="true"
+          >
+            schedule
+          </span>
+        </div>
         <div className="min-w-0 flex-1">
-          <p className="text-xs font-medium text-primary-600 uppercase tracking-wide mb-1">
+          <p className="text-xs font-medium text-primary-600 uppercase tracking-wide mb-0.5">
             {t('patient.estimatedWait')}
           </p>
-          <p className="text-lg font-semibold text-gray-800">
+          <p className="text-2xl font-bold text-gray-800">
             {formatWaitTime(estimatedMinutes)}
           </p>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-xs text-gray-500">
             {t('patient.patientsAhead', { count: patientsAhead })}
           </p>
         </div>
