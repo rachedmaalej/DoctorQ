@@ -342,7 +342,9 @@ export default function PatientStatusPage() {
             <div className="flex items-center justify-center gap-2 text-amber-800">
               <span className="material-symbols-outlined text-lg">schedule</span>
               <span className="text-sm font-medium">
-                {t('patient.doctorNotYetArrived') || 'Le médecin n\'est pas encore arrivé'}
+                {entry.doctorName
+                  ? t('patient.doctorAbsent', { doctorName: entry.doctorName })
+                  : t('patient.doctorNotYetArrived')}
               </span>
             </div>
           </div>

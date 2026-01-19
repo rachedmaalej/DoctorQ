@@ -315,6 +315,7 @@ export async function getPatientStatus(entryId: string) {
       clinic: {
         select: {
           name: true,
+          doctorName: true,
           avgConsultationMins: true,
           isDoctorPresent: true,
         },
@@ -344,6 +345,7 @@ export async function getPatientStatus(entryId: string) {
     estimatedWaitMins,
     avgConsultationMins: entry.clinic.avgConsultationMins,
     clinicName: entry.clinic.name,
+    doctorName: entry.clinic.doctorName,
     isDoctorPresent: entry.clinic.isDoctorPresent,
   };
 }

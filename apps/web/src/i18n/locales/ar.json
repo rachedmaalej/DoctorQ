@@ -142,6 +142,7 @@
     "rejoinQueue": "استعادة مكاني",
     "yourAppointment": "موعدك",
     "doctorNotYetArrived": "الطبيب لم يصل بعد",
+    "doctorAbsent": "{{doctorName}} غائب. سيعود قريباً",
     "movedUpOne": "تقدمت مكان واحد!",
     "movedUpMultiple": "تقدمت {{count}} أماكن!"
   },

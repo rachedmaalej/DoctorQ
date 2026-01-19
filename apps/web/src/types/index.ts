@@ -91,4 +91,5 @@ export interface PatientStatusResponse extends QueueEntry {
   estimatedWaitMins?: number;
   avgConsultationMins?: number;
   clinicName?: string;
+  doctorName?: string;
 }

@@ -150,6 +150,7 @@
     "rejoinQueue": "Reprendre ma place",
     "yourAppointment": "Votre rendez-vous",
     "doctorNotYetArrived": "Le médecin n'est pas encore arrivé",
+    "doctorAbsent": "{{doctorName}} est absent. Il sera de retour prochainement",
     "movedUpOne": "Vous avez avancé d'une place!",
     "movedUpMultiple": "Vous avez avancé de {{count}} places!"
   },
