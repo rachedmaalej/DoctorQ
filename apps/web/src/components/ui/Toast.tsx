@@ -1,6 +1,17 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 
-export type ToastType = 'success' | 'error' | 'info' | 'warning';
+/**
+ * Toast action types for different queue operations
+ * Each type has its own color scheme and icon
+ */
+export type ToastType =
+  | 'success'    // Generic success (green)
+  | 'error'      // Error state (red)
+  | 'call'       // Patient called (purple/primary)
+  | 'moveUp'     // Patient moved up (emerald)
+  | 'moveDown'   // Patient moved down (cyan)
+  | 'emergency'  // Emergency priority (red)
+  | 'remove';    // Patient removed (gray)
 
 interface ToastProps {
   message: string;
@@ -10,6 +21,11 @@ interface ToastProps {
   onClose: () => void;
 }
 
+/**
+ * Floating Badge Toast Component
+ * Colorful gradient badge with bounce animation
+ * Color changes based on action type
+ */
 export function Toast({ message, type = 'success', duration = 3000, isVisible, onClose }: ToastProps) {
   const [isAnimating, setIsAnimating] = useState(false);
 
@@ -18,7 +34,7 @@ export function Toast({ message, type = 'success', duration = 3000, isVisible, o
       setIsAnimating(true);
       const timer = setTimeout(() => {
         setIsAnimating(false);
-        setTimeout(onClose, 300); // Wait for fade out animation
+        setTimeout(onClose, 300);
       }, duration);
       return () => clearTimeout(timer);
     }
@@ -26,73 +42,100 @@ export function Toast({ message, type = 'success', duration = 3000, isVisible, o
 
   if (!isVisible && !isAnimating) return null;
 
-  const typeStyles = {
+  // Color schemes for each action type
+  const typeStyles: Record<ToastType, { gradient: string; shadow: string; icon: string }> = {
     success: {
-      bg: 'bg-green-600',
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-        </svg>
-      ),
+      gradient: 'from-emerald-500 to-green-500',
+      shadow: 'shadow-emerald-500/40',
+      icon: 'check_circle',
     },
     error: {
-      bg: 'bg-red-600',
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      ),
+      gradient: 'from-red-500 to-rose-500',
+      shadow: 'shadow-red-500/40',
+      icon: 'error',
     },
-    info: {
-      bg: 'bg-blue-600',
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      ),
+    call: {
+      gradient: 'from-violet-500 to-purple-500',
+      shadow: 'shadow-violet-500/40',
+      icon: 'directions_walk',
     },
-    warning: {
-      bg: 'bg-orange-500',
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-        </svg>
-      ),
+    moveUp: {
+      gradient: 'from-emerald-500 to-teal-500',
+      shadow: 'shadow-emerald-500/40',
+      icon: 'arrow_upward',
+    },
+    moveDown: {
+      gradient: 'from-cyan-500 to-sky-500',
+      shadow: 'shadow-cyan-500/40',
+      icon: 'arrow_downward',
+    },
+    emergency: {
+      gradient: 'from-red-500 to-orange-500',
+      shadow: 'shadow-red-500/40',
+      icon: 'e911_emergency',
+    },
+    remove: {
+      gradient: 'from-stone-500 to-gray-500',
+      shadow: 'shadow-stone-500/40',
+      icon: 'person_remove',
     },
   };
 
-  const { bg, icon } = typeStyles[type];
+  const { gradient, shadow, icon } = typeStyles[type];
 
   return (
     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100]">
       <div
         className={`
-          ${bg} text-white px-6 py-4 rounded-2xl shadow-lg
+          bg-gradient-to-r ${gradient}
+          text-white px-5 py-3 rounded-xl
           flex items-center gap-3
+          shadow-lg ${shadow}
           transition-all duration-300 ease-out
-          ${isAnimating && isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}
+          ${isAnimating && isVisible
+            ? 'opacity-100 translate-y-0 scale-100'
+            : 'opacity-0 translate-y-4 scale-95'
+          }
         `}
+        style={{
+          animation: isAnimating && isVisible ? 'bounceIn 0.5s cubic-bezier(0.68, -0.3, 0.265, 1.25)' : 'none',
+        }}
       >
-        <div className="flex-shrink-0">{icon}</div>
-        <p className="font-medium text-sm sm:text-base">{message}</p>
-        <button
-          onClick={() => {
-            setIsAnimating(false);
-            setTimeout(onClose, 300);
-          }}
-          className="flex-shrink-0 ml-2 hover:opacity-70 transition-opacity"
+        <span
+          className="material-symbols-outlined text-[22px]"
+          style={{ fontVariationSettings: "'FILL' 1, 'wght' 500" }}
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+          {icon}
+        </span>
+        <span className="font-medium text-sm sm:text-[15px]">{message}</span>
       </div>
+
+      {/* Bounce animation keyframes */}
+      <style>{`
+        @keyframes bounceIn {
+          0% {
+            transform: translateX(-50%) scale(0.3);
+            opacity: 0;
+          }
+          50% {
+            transform: translateX(-50%) scale(1.05);
+          }
+          70% {
+            transform: translateX(-50%) scale(0.95);
+          }
+          100% {
+            transform: translateX(-50%) scale(1);
+            opacity: 1;
+          }
+        }
+      `}</style>
     </div>
   );
 }
 
-// Hook for easy toast management
-import { useCallback } from 'react';
+// ============================================
+// Toast Hook for easy state management
+// ============================================
 
 interface ToastState {
   isVisible: boolean;

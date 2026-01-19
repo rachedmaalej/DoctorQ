@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DoctorQ Toast Notifications Showcase</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      text-align: center;
+      color: #1a1a2e;
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #666;
+      margin-bottom: 40px;
+      font-size: 1.1rem;
+    }
+
+    .action-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 50px;
+      flex-wrap: wrap;
+    }
+
+    .action-btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .action-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .btn-call { background: #4f46e5; color: white; }
+    .btn-move-up { background: #059669; color: white; }
+    .btn-move-down { background: #0891b2; color: white; }
+    .btn-emergency { background: #dc2626; color: white; }
+    .btn-remove { background: #78716c; color: white; }
+
+    .toast-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+      gap: 30px;
+    }
+
+    .toast-card {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    .toast-card h3 {
+      color: #1a1a2e;
+      font-size: 1.25rem;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .toast-card .description {
+      color: #666;
+      font-size: 0.9rem;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .toast-card .position-tag {
+      display: inline-block;
+      background: #e0e7ff;
+      color: #4f46e5;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-bottom: 15px;
+    }
+
+    .preview-area {
+      background: #f8fafc;
+      border-radius: 12px;
+      padding: 20px;
+      min-height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .preview-area.preview-top-right {
+      justify-content: flex-end;
+      align-items: flex-start;
+    }
+
+    .preview-area.preview-top-center {
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .preview-area.preview-bottom-center {
+      justify-content: center;
+      align-items: flex-end;
+    }
+
+    .preview-area.preview-bottom-left {
+      justify-content: flex-start;
+      align-items: flex-end;
+    }
+
+    /* ========== TOAST STYLE 1: Minimal Pill ========== */
+    .toast-1 {
+      background: #1a1a2e;
+      color: white;
+      padding: 14px 24px;
+      border-radius: 50px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .toast-1 .icon {
+      width: 20px;
+      height: 20px;
+      background: #22c55e;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .toast-1 .icon svg {
+      width: 12px;
+      height: 12px;
+      stroke: white;
+      stroke-width: 3;
+    }
+
+    .toast-1.emergency { background: #dc2626; }
+    .toast-1.emergency .icon { background: white; }
+    .toast-1.emergency .icon svg { stroke: #dc2626; }
+
+    /* ========== TOAST STYLE 2: Card with Progress ========== */
+    .toast-2 {
+      background: white;
+      border-radius: 16px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+      min-width: 320px;
+      position: relative;
+      overflow: hidden;
+      animation: slideRight 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .toast-2::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 4px;
+      background: #4f46e5;
+      animation: progress 3s linear forwards;
+    }
+
+    .toast-2 .icon-box {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .toast-2 .icon-box .material-symbols-outlined {
+      color: white;
+      font-size: 24px;
+    }
+
+    .toast-2 .content {
+      flex: 1;
+    }
+
+    .toast-2 .title {
+      font-weight: 600;
+      color: #1a1a2e;
+      font-size: 15px;
+    }
+
+    .toast-2 .message {
+      color: #64748b;
+      font-size: 13px;
+      margin-top: 2px;
+    }
+
+    .toast-2.emergency .icon-box {
+      background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+    }
+
+    .toast-2.emergency::after {
+      background: #dc2626;
+    }
+
+    /* ========== TOAST STYLE 3: Floating Badge ========== */
+    .toast-3 {
+      background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+      color: white;
+      padding: 12px 20px 12px 16px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      box-shadow: 0 10px 40px rgba(5, 150, 105, 0.4);
+      animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+
+    .toast-3 .material-symbols-outlined {
+      font-size: 22px;
+      font-variation-settings: 'FILL' 1;
+    }
+
+    .toast-3.move-down {
+      background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
+      box-shadow: 0 10px 40px rgba(8, 145, 178, 0.4);
+    }
+
+    .toast-3.emergency {
+      background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+      box-shadow: 0 10px 40px rgba(220, 38, 38, 0.4);
+    }
+
+    /* ========== TOAST STYLE 4: Snackbar with Action ========== */
+    .toast-4 {
+      background: #323232;
+      color: white;
+      padding: 14px 16px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 14px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+      min-width: 340px;
+      animation: slideUp 0.3s ease-out;
+    }
+
+    .toast-4 .message {
+      flex: 1;
+    }
+
+    .toast-4 .action {
+      color: #a5b4fc;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 13px;
+      cursor: pointer;
+      padding: 6px 8px;
+      border-radius: 4px;
+      transition: background 0.2s;
+    }
+
+    .toast-4 .action:hover {
+      background: rgba(255,255,255,0.1);
+    }
+
+    /* ========== TOAST STYLE 5: Notification Bell ========== */
+    .toast-5 {
+      background: white;
+      border-radius: 20px;
+      padding: 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.15);
+      min-width: 360px;
+      border: 1px solid #e2e8f0;
+      animation: dropIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .toast-5 .avatar {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, #f0abfc 0%, #c084fc 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .toast-5 .avatar .material-symbols-outlined {
+      color: white;
+      font-size: 26px;
+    }
+
+    .toast-5 .content {
+      flex: 1;
+    }
+
+    .toast-5 .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .toast-5 .title {
+      font-weight: 600;
+      color: #1a1a2e;
+      font-size: 15px;
+    }
+
+    .toast-5 .time {
+      color: #94a3b8;
+      font-size: 12px;
+    }
+
+    .toast-5 .message {
+      color: #64748b;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .toast-5.emergency .avatar {
+      background: linear-gradient(135deg, #fca5a5 0%, #ef4444 100%);
+    }
+
+    /* ========== TOAST STYLE 6: Compact Chip ========== */
+    .toast-6 {
+      background: white;
+      border: 2px solid #22c55e;
+      color: #166534;
+      padding: 10px 18px;
+      border-radius: 100px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 4px 15px rgba(34, 197, 94, 0.25);
+      animation: popIn 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+
+    .toast-6 .material-symbols-outlined {
+      font-size: 18px;
+      font-variation-settings: 'FILL' 1;
+    }
+
+    .toast-6.emergency {
+      border-color: #ef4444;
+      color: #dc2626;
+      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.25);
+    }
+
+    .toast-6.remove {
+      border-color: #78716c;
+      color: #57534e;
+      box-shadow: 0 4px 15px rgba(120, 113, 108, 0.25);
+    }
+
+    /* ========== TOAST STYLE 7: Full-Width Banner ========== */
+    .toast-7 {
+      background: linear-gradient(90deg, #4f46e5 0%, #7c3aed 50%, #a855f7 100%);
+      color: white;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      font-size: 15px;
+      font-weight: 500;
+      width: 100%;
+      animation: slideDown 0.4s ease-out;
+    }
+
+    .toast-7 .material-symbols-outlined {
+      font-size: 22px;
+      font-variation-settings: 'FILL' 1;
+    }
+
+    .toast-7.emergency {
+      background: linear-gradient(90deg, #dc2626 0%, #ef4444 50%, #f87171 100%);
+    }
+
+    /* ========== TOAST STYLE 8: Glass Morphism ========== */
+    .toast-8 {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      border-radius: 16px;
+      padding: 16px 22px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #1a1a2e;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      animation: fadeSlideUp 0.5s ease-out;
+    }
+
+    .toast-8 .icon-wrapper {
+      width: 36px;
+      height: 36px;
+      background: #dcfce7;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .toast-8 .icon-wrapper .material-symbols-outlined {
+      color: #16a34a;
+      font-size: 20px;
+      font-variation-settings: 'FILL' 1;
+    }
+
+    .toast-8.emergency .icon-wrapper {
+      background: #fee2e2;
+    }
+
+    .toast-8.emergency .icon-wrapper .material-symbols-outlined {
+      color: #dc2626;
+    }
+
+    /* ========== TOAST STYLE 9: Slide Card ========== */
+    .toast-9 {
+      background: white;
+      border-radius: 12px;
+      padding: 0;
+      display: flex;
+      overflow: hidden;
+      box-shadow: 0 15px 50px rgba(0,0,0,0.12);
+      min-width: 300px;
+      animation: slideLeft 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .toast-9 .color-bar {
+      width: 6px;
+      background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
+    }
+
+    .toast-9 .content {
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .toast-9 .material-symbols-outlined {
+      color: #22c55e;
+      font-size: 24px;
+      font-variation-settings: 'FILL' 1;
+    }
+
+    .toast-9 .text {
+      font-size: 14px;
+      font-weight: 500;
+      color: #1a1a2e;
+    }
+
+    .toast-9 .close {
+      padding: 16px 14px;
+      color: #94a3b8;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .toast-9 .close:hover {
+      color: #64748b;
+    }
+
+    .toast-9.emergency .color-bar {
+      background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%);
+    }
+
+    .toast-9.emergency .material-symbols-outlined {
+      color: #ef4444;
+    }
+
+    /* ========== TOAST STYLE 10: Playful Bounce ========== */
+    .toast-10 {
+      background: #fef3c7;
+      border: 2px solid #fbbf24;
+      border-radius: 16px;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #92400e;
+      box-shadow: 0 8px 25px rgba(251, 191, 36, 0.3);
+      animation: wiggle 0.6s ease-out;
+    }
+
+    .toast-10 .emoji {
+      font-size: 24px;
+      animation: bounce 1s infinite;
+    }
+
+    .toast-10.success {
+      background: #dcfce7;
+      border-color: #22c55e;
+      color: #166534;
+      box-shadow: 0 8px 25px rgba(34, 197, 94, 0.3);
+    }
+
+    .toast-10.emergency {
+      background: #fee2e2;
+      border-color: #ef4444;
+      color: #991b1b;
+      box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
+    }
+
+    /* ========== ANIMATIONS ========== */
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    @keyframes slideDown {
+      from { transform: translateY(-100%); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    @keyframes slideRight {
+      from { transform: translateX(-30px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    @keyframes slideLeft {
+      from { transform: translateX(30px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    @keyframes bounceIn {
+      0% { transform: scale(0.3); opacity: 0; }
+      50% { transform: scale(1.05); }
+      70% { transform: scale(0.9); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.8); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes dropIn {
+      0% { transform: translateY(-20px) scale(0.95); opacity: 0; }
+      100% { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    @keyframes fadeSlideUp {
+      0% { transform: translateY(10px); opacity: 0; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+
+    @keyframes progress {
+      from { width: 100%; }
+      to { width: 0%; }
+    }
+
+    @keyframes wiggle {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(-3deg); }
+      75% { transform: rotate(3deg); }
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 600px) {
+      .toast-grid {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 1.75rem;
+      }
+
+      .action-buttons {
+        gap: 8px;
+      }
+
+      .action-btn {
+        padding: 10px 16px;
+        font-size: 12px;
+      }
+    }
+
+    /* Selection highlight */
+    .toast-card:hover {
+      box-shadow: 0 8px 30px rgba(79, 70, 229, 0.15);
+      border: 2px solid #4f46e5;
+      margin: -2px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-left: 8px;
+    }
+
+    .badge-recommended {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .badge-mobile {
+      background: #e0e7ff;
+      color: #4338ca;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Toast Notifications Showcase</h1>
+    <p class="subtitle">Click any action button to preview all toast styles with that message type</p>
+
+    <div class="action-buttons">
+      <button class="action-btn btn-call" onclick="showToasts('call')">
+        <span class="material-symbols-outlined">directions_walk</span>
+        Appeler Patient
+      </button>
+      <button class="action-btn btn-move-up" onclick="showToasts('moveUp')">
+        <span class="material-symbols-outlined">arrow_upward</span>
+        Monter
+      </button>
+      <button class="action-btn btn-move-down" onclick="showToasts('moveDown')">
+        <span class="material-symbols-outlined">arrow_downward</span>
+        Descendre
+      </button>
+      <button class="action-btn btn-emergency" onclick="showToasts('emergency')">
+        <span class="material-symbols-outlined">e911_emergency</span>
+        Urgence
+      </button>
+      <button class="action-btn btn-remove" onclick="showToasts('remove')">
+        <span class="material-symbols-outlined">person_remove</span>
+        Retirer
+      </button>
+    </div>
+
+    <div class="toast-grid">
+      <!-- Toast 1 -->
+      <div class="toast-card">
+        <h3>
+          1. Minimal Pill
+          <span class="badge badge-recommended">Recommended</span>
+        </h3>
+        <span class="position-tag">Bottom Center</span>
+        <p class="description">
+          Clean, minimal design with a pill shape. Works well for quick confirmations.
+          Non-intrusive yet noticeable. Great for mobile.
+        </p>
+        <div class="preview-area preview-bottom-center" id="preview-1">
+          <div class="toast-1">
+            <span class="icon">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M5 13l4 4L19 7" stroke="currentColor"/>
+              </svg>
+            </span>
+            <span>Kamel T a été avancé</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toast 2 -->
+      <div class="toast-card">
+        <h3>
+          2. Card with Progress
+          <span class="badge badge-mobile">Desktop</span>
+        </h3>
+        <span class="position-tag">Top Right</span>
+        <p class="description">
+          Rich card design with icon box and progress bar showing remaining time.
+          More informative, ideal for important actions.
+        </p>
+        <div class="preview-area preview-top-right" id="preview-2">
+          <div class="toast-2">
+            <div class="icon-box">
+              <span class="material-symbols-outlined">arrow_upward</span>
+            </div>
+            <div class="content">
+              <div class="title">Patient avancé</div>
+              <div class="message">Kamel T est maintenant en position #3</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toast 3 -->
+      <div class="toast-card">
+        <h3>
+          3. Floating Badge
+          <span class="badge badge-recommended">Recommended</span>
+        </h3>
+        <span class="position-tag">Bottom Center</span>
+        <p class="description">
+          Colorful gradient badge with bounce animation. Eye-catching but not overwhelming.
+          Color changes based on action type.
+        </p>
+        <div class="preview-area preview-bottom-center" id="preview-3">
+          <div class="toast-3">
+            <span class="material-symbols-outlined">check_circle</span>
+            <span>Kamel T a été avancé</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toast 4 -->
+      <div class="toast-card">
+        <h3>4. Material Snackbar</h3>
+        <span class="position-tag">Bottom Center</span>
+        <p class="description">
+          Classic Material Design snackbar with optional action button.
+          Familiar pattern, includes undo option for destructive actions.
+        </p>
+        <div class="preview-area preview-bottom-center" id="preview-4">
+          <div class="toast-4">
+            <span class="message">Kamel T a été retiré de la file</span>
+            <span class="action">Annuler</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toast 5 -->
+      <div class="toast-card">
+        <h3>5. Notification Card</h3>
+        <span class="position-tag">Top Right</span>
+        <p class="description">
+          Full notification card with avatar, timestamp, and detailed message.
+          Best for important notifications that need attention.
+        </p>
+        <div class="preview-area preview-top-right" id="preview-5">
+          <div class="toast-5">
+            <div class="avatar">
+              <span class="material-symbols-outlined">person</span>
+            </div>
+            <div class="content">
+              <div class="header">
+                <span class="title">Patient appelé</span>
+                <span class="time">maintenant</span>
+              </div>
+              <div class="message">C'est au tour de Kamel T. Le patient a été notifié.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toast 6 -->
+      <div class="toast-card">
+        <h3>
+          6. Compact Chip
+          <span class="badge badge-mobile">Mobile</span>
+        </h3>
+        <span class="position-tag">Top Center</span>
+        <p class="description">
+          Ultra-compact chip design. Minimal screen real estate usage.
+          Perfect for mobile or when space is limited.
+        </p>
+        <div class="preview-area preview-top-center" id="preview-6">
+          <div class="toast-6">
+            <span class="material-symbols-outlined">check_circle</span>
+            <span>Patient avancé</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toast 7 -->
+      <div class="toast-card">
+        <h3>7. Full-Width Banner</h3>
+        <span class="position-tag">Top</span>
+        <p class="description">
+          Full-width banner that spans the entire screen width.
+          Maximum visibility, ideal for critical alerts like emergencies.
+        </p>
+        <div class="preview-area" style="padding: 0;" id="preview-7">
+          <div class="toast-7">
+            <span class="material-symbols-outlined">e911_emergency</span>
+            <span>URGENCE: Kamel T passe en priorité absolue</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toast 8 -->
+      <div class="toast-card">
+        <h3>8. Glass Morphism</h3>
+        <span class="position-tag">Bottom Center</span>
+        <p class="description">
+          Modern frosted glass effect with blur background.
+          Elegant and contemporary, blends with any background.
+        </p>
+        <div class="preview-area preview-bottom-center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" id="preview-8">
+          <div class="toast-8">
+            <div class="icon-wrapper">
+              <span class="material-symbols-outlined">check_circle</span>
+            </div>
+            <span>Kamel T a été avancé</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toast 9 -->
+      <div class="toast-card">
+        <h3>
+          9. Slide Card
+          <span class="badge badge-recommended">Recommended</span>
+        </h3>
+        <span class="position-tag">Top Right</span>
+        <p class="description">
+          Card with colored accent bar indicating action type.
+          Clean, professional look with clear visual hierarchy.
+        </p>
+        <div class="preview-area preview-top-right" id="preview-9">
+          <div class="toast-9">
+            <div class="color-bar"></div>
+            <div class="content">
+              <span class="material-symbols-outlined">check_circle</span>
+              <span class="text">Kamel T a été avancé</span>
+            </div>
+            <div class="close">
+              <span class="material-symbols-outlined">close</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toast 10 -->
+      <div class="toast-card">
+        <h3>10. Playful Bounce</h3>
+        <span class="position-tag">Bottom Center</span>
+        <p class="description">
+          Fun, animated toast with emoji and wiggle effect.
+          Adds personality, great for positive confirmations.
+        </p>
+        <div class="preview-area preview-bottom-center" id="preview-10">
+          <div class="toast-10 success">
+            <span class="emoji">✨</span>
+            <span>Kamel T a été avancé!</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const messages = {
+      call: {
+        short: 'Patient appelé',
+        medium: 'C\'est au tour de Kamel T',
+        long: 'C\'est au tour de Kamel T. Le patient a été notifié.',
+        emoji: '📢'
+      },
+      moveUp: {
+        short: 'Patient avancé',
+        medium: 'Kamel T a été avancé',
+        long: 'Kamel T est maintenant en position #3',
+        emoji: '⬆️'
+      },
+      moveDown: {
+        short: 'Patient reculé',
+        medium: 'Kamel T a été reculé',
+        long: 'Kamel T est maintenant en position #5',
+        emoji: '⬇️'
+      },
+      emergency: {
+        short: 'URGENCE',
+        medium: 'Kamel T - Urgence',
+        long: 'URGENCE: Kamel T passe en priorité absolue',
+        emoji: '🚨'
+      },
+      remove: {
+        short: 'Patient retiré',
+        medium: 'Kamel T a été retiré',
+        long: 'Kamel T a été retiré de la file d\'attente',
+        emoji: '👋'
+      }
+    };
+
+    function showToasts(type) {
+      const msg = messages[type];
+      const isEmergency = type === 'emergency';
+      const isRemove = type === 'remove';
+      const isMoveDown = type === 'moveDown';
+
+      // Update Toast 1
+      const t1 = document.querySelector('#preview-1 .toast-1');
+      t1.classList.toggle('emergency', isEmergency);
+      t1.querySelector('span:last-child').textContent = msg.medium;
+
+      // Update Toast 2
+      const t2 = document.querySelector('#preview-2 .toast-2');
+      t2.classList.toggle('emergency', isEmergency);
+      t2.querySelector('.icon-box .material-symbols-outlined').textContent =
+        isEmergency ? 'e911_emergency' : (isMoveDown ? 'arrow_downward' : 'arrow_upward');
+      t2.querySelector('.title').textContent = msg.short;
+      t2.querySelector('.message').textContent = msg.long;
+
+      // Update Toast 3
+      const t3 = document.querySelector('#preview-3 .toast-3');
+      t3.classList.remove('emergency', 'move-down');
+      if (isEmergency) t3.classList.add('emergency');
+      if (isMoveDown) t3.classList.add('move-down');
+      t3.querySelector('.material-symbols-outlined').textContent =
+        isEmergency ? 'e911_emergency' : 'check_circle';
+      t3.querySelector('span:last-child').textContent = msg.medium;
+
+      // Update Toast 4
+      const t4 = document.querySelector('#preview-4 .toast-4');
+      t4.querySelector('.message').textContent = msg.long;
+      t4.querySelector('.action').style.display = isRemove ? 'block' : 'none';
+
+      // Update Toast 5
+      const t5 = document.querySelector('#preview-5 .toast-5');
+      t5.classList.toggle('emergency', isEmergency);
+      t5.querySelector('.title').textContent = msg.short;
+      t5.querySelector('.message').textContent = msg.long;
+
+      // Update Toast 6
+      const t6 = document.querySelector('#preview-6 .toast-6');
+      t6.classList.remove('emergency', 'remove');
+      if (isEmergency) t6.classList.add('emergency');
+      if (isRemove) t6.classList.add('remove');
+      t6.querySelector('.material-symbols-outlined').textContent =
+        isEmergency ? 'warning' : (isRemove ? 'person_remove' : 'check_circle');
+      t6.querySelector('span:last-child').textContent = msg.short;
+
+      // Update Toast 7
+      const t7 = document.querySelector('#preview-7 .toast-7');
+      t7.classList.toggle('emergency', isEmergency);
+      t7.querySelector('.material-symbols-outlined').textContent =
+        isEmergency ? 'e911_emergency' : 'check_circle';
+      t7.querySelector('span:last-child').textContent = msg.long;
+
+      // Update Toast 8
+      const t8 = document.querySelector('#preview-8 .toast-8');
+      t8.classList.toggle('emergency', isEmergency);
+      t8.querySelector('.icon-wrapper .material-symbols-outlined').textContent =
+        isEmergency ? 'warning' : 'check_circle';
+      t8.querySelector('span:last-child').textContent = msg.medium;
+
+      // Update Toast 9
+      const t9 = document.querySelector('#preview-9 .toast-9');
+      t9.classList.toggle('emergency', isEmergency);
+      t9.querySelector('.content .material-symbols-outlined').textContent =
+        isEmergency ? 'e911_emergency' : 'check_circle';
+      t9.querySelector('.text').textContent = msg.medium;
+
+      // Update Toast 10
+      const t10 = document.querySelector('#preview-10 .toast-10');
+      t10.classList.remove('success', 'emergency');
+      t10.classList.add(isEmergency ? 'emergency' : 'success');
+      t10.querySelector('.emoji').textContent = msg.emoji;
+      t10.querySelector('span:last-child').textContent = msg.medium + '!';
+
+      // Trigger animations
+      document.querySelectorAll('.toast-1, .toast-2, .toast-3, .toast-4, .toast-5, .toast-6, .toast-7, .toast-8, .toast-9, .toast-10').forEach(el => {
+        el.style.animation = 'none';
+        el.offsetHeight; // Trigger reflow
+        el.style.animation = null;
+      });
+    }
+  </script>
+</body>
+</html>

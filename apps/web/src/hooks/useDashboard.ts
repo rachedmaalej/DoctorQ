@@ -144,6 +144,8 @@ export function useDashboard() {
 
       // Find current IN_CONSULTATION patient for exit animation
       const currentPatient = queue.find(p => p.status === QueueStatus.IN_CONSULTATION);
+      // Find next patient to be called (first WAITING or NOTIFIED)
+      const nextPatient = queue.find(p => p.status === QueueStatus.WAITING || p.status === QueueStatus.NOTIFIED);
 
       if (currentPatient) {
         // Start exit animation
@@ -180,6 +182,12 @@ export function useDashboard() {
         logger.error('Failed to call next:', err);
       });
 
+      // Show toast for called patient
+      if (nextPatient) {
+        const patientName = nextPatient.patientName || t('queue.patientName');
+        showToast(t('queue.patientCalled', { name: patientName }), 'call');
+      }
+
       // Clear exiting state
       setExitingPatientId(null);
     } catch (error) {
@@ -188,7 +196,7 @@ export function useDashboard() {
     } finally {
       setIsCallingNext(false);
     }
-  }, [isCallingNext, queue, stats, callNext, fetchQueue]);
+  }, [isCallingNext, queue, stats, callNext, fetchQueue, showToast, t]);
 
   // Remove patient handlers
   const handleRemovePatient = useCallback((id: string) => {
@@ -199,17 +207,24 @@ export function useDashboard() {
   const confirmRemovePatient = useCallback(async () => {
     if (!patientToRemove) return;
 
+    // Get patient name before removing
+    const patient = queue.find(p => p.id === patientToRemove);
+    const patientName = patient?.patientName || t('queue.patientName');
+
     setIsRemoving(true);
     try {
       await removePatient(patientToRemove);
       setIsConfirmModalOpen(false);
       setPatientToRemove(null);
+      // Show toast for removed patient
+      showToast(t('queue.patientRemoved', { name: patientName }), 'remove');
     } catch (error) {
       logger.error('Failed to remove patient:', error);
+      showToast(t('common.error'), 'error');
     } finally {
       setIsRemoving(false);
     }
-  }, [patientToRemove, removePatient]);
+  }, [patientToRemove, removePatient, queue, showToast, t]);
 
   const cancelRemovePatient = useCallback(() => {
     setIsConfirmModalOpen(false);
@@ -270,15 +285,22 @@ export function useDashboard() {
     const patientName = patient?.patientName || t('queue.patientName');
     const currentPosition = patient?.position || 0;
 
+    // Check if this is an emergency (moving to position 1)
+    const isEmergency = newPosition === 1 && currentPosition > 2;
+
     try {
       await storeReorderPatient(id, newPosition);
 
-      // Show appropriate message based on direction
-      const message = newPosition < currentPosition
-        ? t('queue.patientMovedUp', { name: patientName })
-        : t('queue.patientMovedDown', { name: patientName });
-
-      showToast(message, 'success');
+      if (isEmergency) {
+        // Emergency: patient moved to first position
+        showToast(t('queue.patientEmergency', { name: patientName }), 'emergency');
+      } else if (newPosition < currentPosition) {
+        // Moved up
+        showToast(t('queue.patientMovedUp', { name: patientName, position: newPosition }), 'moveUp');
+      } else {
+        // Moved down
+        showToast(t('queue.patientMovedDown', { name: patientName, position: newPosition }), 'moveDown');
+      }
     } catch (error) {
       logger.error('Failed to reorder patient:', error);
       showToast(t('common.error'), 'error');
