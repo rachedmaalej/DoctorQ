@@ -1,10 +1,12 @@
 /**
  * Admin Service
  * Provides business metrics and clinic health data for the admin dashboard
+ *
+ * Note: Activity tracking (lastLoginAt) is temporarily disabled until
+ * the production database is migrated.
  */
 
 import { prisma } from '../lib/prisma.js';
-import { QueueStatus } from '@prisma/client';
 
 /**
  * Get the start of today in the local timezone
@@ -14,35 +16,22 @@ function getStartOfToday(): Date {
   return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
 }
 
-/**
- * Get date X days ago
- */
-function getDaysAgo(days: number): Date {
-  const date = new Date();
-  date.setDate(date.getDate() - days);
-  return date;
-}
-
 export interface AdminMetrics {
   activeClinics: number;
   totalClinics: number;
   mrrTND: number;
   patientsToday: number;
-  patientsThisWeek: number;
-  avgWaitAcrossClinics: number | null;
-  churnRiskCount: number;
-  qrAdoptionRate: number;
+  qrCheckinRate: number;
+  atRiskClinics: number;
 }
 
 export interface ClinicHealth {
   id: string;
   name: string;
   doctorName: string | null;
-  email: string;
-  lastLoginAt: Date | null;
-  daysSinceLogin: number | null;
+  lastLoginAt: string | null;
   patientsToday: number;
-  avgWaitToday: number | null;
+  avgWaitMins: number | null;
   status: 'active' | 'at_risk' | 'churned';
 }
 
@@ -51,50 +40,21 @@ export interface ClinicHealth {
  */
 export async function getAdminMetrics(): Promise<AdminMetrics> {
   const startOfToday = getStartOfToday();
-  const sevenDaysAgo = getDaysAgo(7);
-  const thirtyDaysAgo = getDaysAgo(30);
 
   const [
     totalClinics,
-    activeClinics,
-    churnRiskClinics,
     patientsToday,
-    patientsThisWeek,
     qrCheckinsToday,
     totalCheckinsToday,
-    seenPatientsToday,
   ] = await Promise.all([
     // Total clinics
     prisma.clinic.count({
       where: { isActive: true },
     }),
-    // Active clinics (logged in within 30 days)
-    prisma.clinic.count({
-      where: {
-        isActive: true,
-        lastLoginAt: { gte: thirtyDaysAgo },
-      },
-    }),
-    // Churn risk (no login in 7+ days but not churned)
-    prisma.clinic.count({
-      where: {
-        isActive: true,
-        OR: [
-          { lastLoginAt: { lt: sevenDaysAgo } },
-          { lastLoginAt: null },
-        ],
-      },
-    }),
     // Patients today (across all clinics)
     prisma.queueEntry.count({
       where: {
         arrivedAt: { gte: startOfToday },
-      },
-    }),
-    // Patients this week
-    prisma.queueEntry.count({
-      where: {
-        arrivedAt: { gte: sevenDaysAgo },
       },
     }),
     // QR check-ins today
@@ -110,30 +70,15 @@ export async function getAdminMetrics(): Promise<AdminMetrics> {
         arrivedAt: { gte: startOfToday },
       },
     }),
-    // Seen patients today (for avg wait calculation)
-    prisma.queueEntry.findMany({
-      where: {
-        arrivedAt: { gte: startOfToday },
-        status: { in: [QueueStatus.IN_CONSULTATION, QueueStatus.COMPLETED] },
-        calledAt: { not: null },
-      },
-      select: { arrivedAt: true, calledAt: true },
-    }),
   ]);
 
-  // Calculate average wait time across all clinics
-  let avgWaitAcrossClinics: number | null = null;
-  if (seenPatientsToday.length > 0) {
-    const waitTimes = seenPatientsToday.map((p) =>
-      Math.round((p.calledAt!.getTime() - p.arrivedAt.getTime()) / 60000)
-    );
-    avgWaitAcrossClinics = Math.round(
-      waitTimes.reduce((a, b) => a + b, 0) / waitTimes.length
-    );
-  }
+  // Without lastLoginAt, all clinics are considered "active"
+  // TODO: Re-enable activity tracking after migration
+  const activeClinics = totalClinics;
+  const atRiskClinics = 0;
 
   // Calculate QR adoption rate
-  const qrAdoptionRate = totalCheckinsToday > 0
+  const qrCheckinRate = totalCheckinsToday > 0
     ? Math.round((qrCheckinsToday / totalCheckinsToday) * 100)
     : 0;
 
@@ -145,10 +90,8 @@ export async function getAdminMetrics(): Promise<AdminMetrics> {
     totalClinics,
     mrrTND,
     patientsToday,
-    patientsThisWeek,
-    avgWaitAcrossClinics,
-    churnRiskCount: churnRiskClinics,
-    qrAdoptionRate,
+    qrCheckinRate,
+    atRiskClinics,
   };
 }
 
@@ -157,8 +100,6 @@ export async function getAdminMetrics(): Promise<AdminMetrics> {
  */
 export async function getClinicHealthList(): Promise<ClinicHealth[]> {
   const startOfToday = getStartOfToday();
-  const sevenDaysAgo = getDaysAgo(7);
-  const thirtyDaysAgo = getDaysAgo(30);
 
   const clinics = await prisma.clinic.findMany({
     where: { isActive: true },
@@ -166,8 +107,6 @@ export async function getClinicHealthList(): Promise<ClinicHealth[]> {
       id: true,
       name: true,
       doctorName: true,
-      email: true,
-      lastLoginAt: true,
       queueEntries: {
         where: {
           arrivedAt: { gte: startOfToday },
@@ -179,25 +118,13 @@ export async function getClinicHealthList(): Promise<ClinicHealth[]> {
         },
       },
     },
-    orderBy: { lastLoginAt: 'desc' },
+    orderBy: { name: 'asc' },
   });
 
   return clinics.map((clinic) => {
-    // Calculate days since last login
-    let daysSinceLogin: number | null = null;
-    if (clinic.lastLoginAt) {
-      daysSinceLogin = Math.floor(
-        (Date.now() - clinic.lastLoginAt.getTime()) / (1000 * 60 * 60 * 24)
-      );
-    }
-
-    // Determine health status
-    let status: 'active' | 'at_risk' | 'churned' = 'active';
-    if (!clinic.lastLoginAt || clinic.lastLoginAt < thirtyDaysAgo) {
-      status = 'churned';
-    } else if (clinic.lastLoginAt < sevenDaysAgo) {
-      status = 'at_risk';
-    }
+    // Without lastLoginAt, all clinics show as "active"
+    // TODO: Re-enable activity tracking after migration
+    const status: 'active' | 'at_risk' | 'churned' = 'active';
 
     // Calculate today's stats
     const patientsToday = clinic.queueEntries.length;
@@ -205,35 +132,22 @@ export async function getClinicHealthList(): Promise<ClinicHealth[]> {
       (e) => e.calledAt && (e.status === 'IN_CONSULTATION' || e.status === 'COMPLETED')
     );
 
-    let avgWaitToday: number | null = null;
+    let avgWaitMins: number | null = null;
     if (seenToday.length > 0) {
       const waitTimes = seenToday.map((e) =>
         Math.round((e.calledAt!.getTime() - e.arrivedAt.getTime()) / 60000)
       );
-      avgWaitToday = Math.round(waitTimes.reduce((a, b) => a + b, 0) / waitTimes.length);
+      avgWaitMins = Math.round(waitTimes.reduce((a, b) => a + b, 0) / waitTimes.length);
     }
 
     return {
       id: clinic.id,
       name: clinic.name,
       doctorName: clinic.doctorName,
-      email: clinic.email,
-      lastLoginAt: clinic.lastLoginAt,
-      daysSinceLogin,
+      lastLoginAt: null, // TODO: Re-enable after migration
       patientsToday,
-      avgWaitToday,
+      avgWaitMins,
       status,
     };
-  });
-}
-
-/**
- * Update clinic's last login timestamp
- * Call this on every successful login
- */
-export async function updateLastLogin(clinicId: string): Promise<void> {
-  await prisma.clinic.update({
-    where: { id: clinicId },
-    data: { lastLoginAt: new Date() },
   });
 }

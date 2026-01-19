@@ -1,0 +1,173 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner [ref=e5]:
+    - generic [ref=e7]:
+      - heading "BléSAF" [level=1] [ref=e9]
+      - generic [ref=e10]:
+        - paragraph [ref=e11]: Cabinet
+        - heading "Dr. Skander Kamoun" [level=1] [ref=e12]
+      - generic [ref=e13]:
+        - button "عربي" [ref=e14] [cursor=pointer]
+        - button "Déconnexion" [ref=e15] [cursor=pointer]
+  - main [ref=e16]:
+    - generic [ref=e17]:
+      - complementary [ref=e18]:
+        - generic [ref=e19]:
+          - generic [ref=e20]:
+            - heading "qr_code_2 QR Code d'Enregistrement Patient" [level=3] [ref=e21]:
+              - generic [ref=e22]: qr_code_2
+              - text: QR Code d'Enregistrement Patient
+            - paragraph [ref=e23]: Les patients peuvent scanner ce QR code pour s'enregistrer dans la file
+          - img "QR Code" [ref=e26]
+          - generic [ref=e27]:
+            - button "content_copy Copier" [ref=e28] [cursor=pointer]:
+              - generic [ref=e30]: content_copy
+              - text: Copier
+            - button "share Partager" [ref=e31] [cursor=pointer]:
+              - generic [ref=e33]: share
+              - text: Partager
+      - generic [ref=e34]:
+        - generic [ref=e35]:
+          - generic [ref=e37]:
+            - generic [ref=e38]:
+              - paragraph [ref=e39]: En Attente
+              - paragraph [ref=e40]: "4"
+            - generic [ref=e42]: groups
+          - generic [ref=e44]:
+            - generic [ref=e45]:
+              - paragraph [ref=e46]: Dernière consultation
+              - paragraph [ref=e47]: 0min
+            - generic [ref=e49]: stethoscope
+        - generic [ref=e50]:
+          - generic [ref=e51]:
+            - button "person_add Ajouter un Patient" [ref=e52] [cursor=pointer]:
+              - generic [ref=e54]: person_add
+              - text: Ajouter un Patient
+            - button "Docteur présent" [pressed] [ref=e55] [cursor=pointer]:
+              - generic [ref=e56]: stethoscope
+              - generic [ref=e57]: Docteur présent
+          - button "group_add Remplir (Démo)" [ref=e60] [cursor=pointer]:
+            - generic [ref=e62]: group_add
+            - generic [ref=e63]: Remplir (Démo)
+          - button "delete_sweep Vider la file" [ref=e64] [cursor=pointer]:
+            - generic [ref=e66]: delete_sweep
+            - generic [ref=e67]: Vider la file
+        - table [ref=e70]:
+          - rowgroup [ref=e71]:
+            - row "Position Nom du Patient Téléphone Statut Heure du RDV Arrivée Actions" [ref=e72]:
+              - columnheader "Position" [ref=e73]
+              - columnheader "Nom du Patient" [ref=e74]
+              - columnheader "Téléphone" [ref=e75]
+              - columnheader "Statut" [ref=e76]
+              - columnheader "Heure du RDV" [ref=e77]
+              - columnheader "Arrivée" [ref=e78]
+              - columnheader "Actions" [ref=e79]
+          - rowgroup [ref=e80]:
+            - row "En Consultation Amin K +21623555000 En Consultation schedule 12:00 11:50 Descendre Supprimer" [ref=e81]:
+              - cell "En Consultation" [ref=e82]:
+                - generic "En Consultation" [ref=e83]:
+                  - generic [ref=e84]: medical_services
+              - cell "Amin K" [ref=e85]:
+                - generic [ref=e86]: Amin K
+              - cell "+21623555000" [ref=e87]:
+                - generic [ref=e88]: "+21623555000"
+              - cell "En Consultation" [ref=e89]:
+                - generic [ref=e90]: En Consultation
+              - cell "schedule 12:00" [ref=e91]:
+                - generic [ref=e92]:
+                  - generic [ref=e93]: schedule
+                  - text: 12:00
+              - cell "11:50" [ref=e94]
+              - cell "Descendre Supprimer" [ref=e95]:
+                - generic [ref=e96]:
+                  - button "Descendre" [ref=e97] [cursor=pointer]:
+                    - generic [ref=e98]: arrow_downward
+                  - button "Supprimer" [ref=e99] [cursor=pointer]:
+                    - generic [ref=e100]: delete
+            - row "#1 Kamel T +21654678678 Notifié Sans RDV 10:50 Urgence - Voir immédiatement Monter Descendre Supprimer" [ref=e101]:
+              - cell "#1" [ref=e102]:
+                - generic [ref=e103]: "#1"
+              - cell "Kamel T" [ref=e104]:
+                - generic [ref=e105]: Kamel T
+              - cell "+21654678678" [ref=e106]:
+                - generic [ref=e107]: "+21654678678"
+              - cell "Notifié" [ref=e108]:
+                - generic [ref=e109]: Notifié
+              - cell "Sans RDV" [ref=e110]
+              - cell "10:50" [ref=e111]
+              - cell "Urgence - Voir immédiatement Monter Descendre Supprimer" [ref=e112]:
+                - generic [ref=e113]:
+                  - button "Urgence - Voir immédiatement" [ref=e114] [cursor=pointer]:
+                    - generic [ref=e115]: e911_emergency
+                  - button "Monter" [ref=e116] [cursor=pointer]:
+                    - generic [ref=e117]: arrow_upward
+                  - button "Descendre" [ref=e118] [cursor=pointer]:
+                    - generic [ref=e119]: arrow_downward
+                  - button "Supprimer" [ref=e120] [cursor=pointer]:
+                    - generic [ref=e121]: delete
+            - row "#2 Mouna C +21620222111 En Attente Sans RDV 11:50 Urgence - Voir immédiatement Monter Descendre Supprimer" [ref=e122]:
+              - cell "#2" [ref=e123]:
+                - generic [ref=e124]: "#2"
+              - cell "Mouna C" [ref=e125]:
+                - generic [ref=e126]: Mouna C
+              - cell "+21620222111" [ref=e127]:
+                - generic [ref=e128]: "+21620222111"
+              - cell "En Attente" [ref=e129]:
+                - generic [ref=e130]: En Attente
+              - cell "Sans RDV" [ref=e131]
+              - cell "11:50" [ref=e132]
+              - cell "Urgence - Voir immédiatement Monter Descendre Supprimer" [ref=e133]:
+                - generic [ref=e134]:
+                  - button "Urgence - Voir immédiatement" [ref=e135] [cursor=pointer]:
+                    - generic [ref=e136]: e911_emergency
+                  - button "Monter" [ref=e137] [cursor=pointer]:
+                    - generic [ref=e138]: arrow_upward
+                  - button "Descendre" [ref=e139] [cursor=pointer]:
+                    - generic [ref=e140]: arrow_downward
+                  - button "Supprimer" [ref=e141] [cursor=pointer]:
+                    - generic [ref=e142]: delete
+            - row "#3 Sandra M +21671233935 En Attente Sans RDV 11:05 Urgence - Voir immédiatement Monter Descendre Supprimer" [ref=e143]:
+              - cell "#3" [ref=e144]:
+                - generic [ref=e145]: "#3"
+              - cell "Sandra M" [ref=e146]:
+                - generic [ref=e147]: Sandra M
+              - cell "+21671233935" [ref=e148]:
+                - generic [ref=e149]: "+21671233935"
+              - cell "En Attente" [ref=e150]:
+                - generic [ref=e151]: En Attente
+              - cell "Sans RDV" [ref=e152]
+              - cell "11:05" [ref=e153]
+              - cell "Urgence - Voir immédiatement Monter Descendre Supprimer" [ref=e154]:
+                - generic [ref=e155]:
+                  - button "Urgence - Voir immédiatement" [ref=e156] [cursor=pointer]:
+                    - generic [ref=e157]: e911_emergency
+                  - button "Monter" [ref=e158] [cursor=pointer]:
+                    - generic [ref=e159]: arrow_upward
+                  - button "Descendre" [ref=e160] [cursor=pointer]:
+                    - generic [ref=e161]: arrow_downward
+                  - button "Supprimer" [ref=e162] [cursor=pointer]:
+                    - generic [ref=e163]: delete
+            - row "#4 Fethi B +21621999999 En Attente Sans RDV 11:25 Urgence - Voir immédiatement Monter Supprimer" [ref=e164]:
+              - cell "#4" [ref=e165]:
+                - generic [ref=e166]: "#4"
+              - cell "Fethi B" [ref=e167]:
+                - generic [ref=e168]: Fethi B
+              - cell "+21621999999" [ref=e169]:
+                - generic [ref=e170]: "+21621999999"
+              - cell "En Attente" [ref=e171]:
+                - generic [ref=e172]: En Attente
+              - cell "Sans RDV" [ref=e173]
+              - cell "11:25" [ref=e174]
+              - cell "Urgence - Voir immédiatement Monter Supprimer" [ref=e175]:
+                - generic [ref=e176]:
+                  - button "Urgence - Voir immédiatement" [ref=e177] [cursor=pointer]:
+                    - generic [ref=e178]: e911_emergency
+                  - button "Monter" [ref=e179] [cursor=pointer]:
+                    - generic [ref=e180]: arrow_upward
+                  - button "Supprimer" [ref=e181] [cursor=pointer]:
+                    - generic [ref=e182]: delete
+  - button "Appeler Suivant" [ref=e183] [cursor=pointer]:
+    - generic [ref=e185]: directions_walk
+```

@@ -1,0 +1,47 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner [ref=e5]:
+    - generic [ref=e7]:
+      - heading "BléSAF" [level=1] [ref=e9]
+      - generic [ref=e10]:
+        - paragraph [ref=e11]: Cabinet
+        - heading "Dr. Skander Kamoun" [level=1] [ref=e12]
+      - generic [ref=e13]:
+        - button "عربي" [ref=e14] [cursor=pointer]
+        - button "Déconnexion" [ref=e15] [cursor=pointer]
+  - main [ref=e16]:
+    - generic [ref=e17]:
+      - complementary [ref=e18]:
+        - generic [ref=e19]:
+          - generic [ref=e20]:
+            - heading "qr_code_2 QR Code d'Enregistrement Patient" [level=3] [ref=e21]:
+              - generic [ref=e22]: qr_code_2
+              - text: QR Code d'Enregistrement Patient
+            - paragraph [ref=e23]: Les patients peuvent scanner ce QR code pour s'enregistrer dans la file
+          - paragraph [ref=e27]: Chargement...
+      - generic [ref=e28]:
+        - generic [ref=e29]:
+          - generic [ref=e30]:
+            - button "person_add Ajouter un Patient" [ref=e31] [cursor=pointer]:
+              - generic [ref=e33]: person_add
+              - text: Ajouter un Patient
+            - button "Docteur présent" [pressed] [ref=e34] [cursor=pointer]:
+              - generic [ref=e35]: stethoscope
+              - generic [ref=e36]: Docteur présent
+          - button "group_add Remplir (Démo)" [ref=e39] [cursor=pointer]:
+            - generic [ref=e41]: group_add
+            - generic [ref=e42]: Remplir (Démo)
+          - button "delete_sweep Vider la file" [disabled]:
+            - generic:
+              - generic: delete_sweep
+            - generic: Vider la file
+        - generic [ref=e43]:
+          - img [ref=e44]
+          - paragraph [ref=e46]: La salle d'attente est vide
+  - generic:
+    - button "Appeler Suivant" [disabled]:
+      - generic:
+        - generic: directions_walk
+```

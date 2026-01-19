@@ -44,14 +44,8 @@ router.post('/login', async (req: Request, res: Response) => {
       });
     }
 
-    // Update last login timestamp (for churn tracking)
-    // Non-blocking: don't fail login if this fails (e.g., field not yet migrated)
-    prisma.clinic.update({
-      where: { id: clinic.id },
-      data: { lastLoginAt: new Date() },
-    }).catch((err) => {
-      console.warn('Failed to update lastLoginAt:', err.message);
-    });
+    // TODO: Update last login timestamp (for churn tracking)
+    // Temporarily disabled until production database is migrated with lastLoginAt field
 
     // Generate token
     const token = signToken({
