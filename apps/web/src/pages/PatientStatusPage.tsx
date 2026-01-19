@@ -145,16 +145,36 @@ export default function PatientStatusPage() {
 
   // Memoize callbacks to prevent re-renders
   const handlePatientCalled = useCallback((data: { position: number; status: string }) => {
+    logger.log('[PatientStatus] handlePatientCalled received:', data);
     setEntry((prev) => {
+      if (!prev) return null;
+
       const status = data.status as QueueStatus;
-      const newEntry = prev ? { ...prev, status, position: data.position } : null;
+      const newPosition = data.position;
+      const oldPosition = previousPositionRef.current;
+
+      logger.log('[PatientStatus] Updating entry - old position:', oldPosition, 'new position:', newPosition, 'status:', status);
+
+      // Show toast notification if position improved (lower number = better)
+      if (oldPosition !== null && newPosition < oldPosition && status !== QueueStatus.IN_CONSULTATION) {
+        const positionsMoved = oldPosition - newPosition;
+        const message = positionsMoved === 1
+          ? t('patient.movedUpOne')
+          : t('patient.movedUpMultiple', { count: positionsMoved });
+        setPositionToast({ visible: true, message });
+      }
+
+      // Update ref for next comparison
+      previousPositionRef.current = newPosition;
+
       // Trigger confetti when status changes to IN_CONSULTATION
-      if (status === QueueStatus.IN_CONSULTATION && prev?.status !== QueueStatus.IN_CONSULTATION) {
+      if (status === QueueStatus.IN_CONSULTATION && prev.status !== QueueStatus.IN_CONSULTATION) {
         setShowConfetti(true);
       }
-      return newEntry;
+
+      return { ...prev, status, position: newPosition };
     });
-  }, []);
+  }, [t]);
 
   const handlePositionChanged = useCallback((data: { entryId: string; newPosition: number; estimatedWait: number }) => {
     setEntry((prev) => {
@@ -187,10 +207,31 @@ export default function PatientStatusPage() {
     }
   }, [entry?.clinicId]);
 
+  // Refetch patient status when room is (re)joined to sync state after reconnection
+  const handlePatientRoomJoined = useCallback(async (data: { entryId: string; success: boolean }) => {
+    if (!data.success || !data.entryId) return;
+    logger.log('[PatientStatus] Room joined, refetching status for:', data.entryId);
+    try {
+      const freshData = await api.getPatientStatus(data.entryId);
+      setEntry(freshData);
+      previousPositionRef.current = freshData.position;
+      if (freshData.isDoctorPresent !== undefined) {
+        setIsDoctorPresent(freshData.isDoctorPresent);
+      }
+      // Show confetti if now in consultation (e.g., they were called while disconnected)
+      if (freshData.status === 'IN_CONSULTATION') {
+        setShowConfetti(true);
+      }
+    } catch (err) {
+      logger.error('[PatientStatus] Failed to refetch status on room join:', err);
+    }
+  }, []);
+
   const { joinPatientRoom } = useSocket({
     onPatientCalled: handlePatientCalled,
     onPositionChanged: handlePositionChanged,
     onDoctorPresence: handleDoctorPresence,
+    onPatientRoomJoined: handlePatientRoomJoined,
   });
 
   // Fetch patient status only once when entryId changes

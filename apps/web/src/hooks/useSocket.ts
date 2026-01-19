@@ -65,6 +65,7 @@ interface UseSocketOptions {
   onPatientCalled?: (data: { position: number; status: string }) => void;
   onPositionChanged?: (data: { entryId: string; newPosition: number; estimatedWait: number }) => void;
   onDoctorPresence?: (data: { clinicId: string; isDoctorPresent: boolean }) => void;
+  onPatientRoomJoined?: (data: { entryId: string; success: boolean }) => void;
 }
 
 export function useSocket(options: UseSocketOptions = {}) {
@@ -75,6 +76,7 @@ export function useSocket(options: UseSocketOptions = {}) {
   const onPatientCalledRef = useRef(options.onPatientCalled);
   const onPositionChangedRef = useRef(options.onPositionChanged);
   const onDoctorPresenceRef = useRef(options.onDoctorPresence);
+  const onPatientRoomJoinedRef = useRef(options.onPatientRoomJoined);
 
   // Update refs when callbacks change
   useEffect(() => {
@@ -82,7 +84,8 @@ export function useSocket(options: UseSocketOptions = {}) {
     onPatientCalledRef.current = options.onPatientCalled;
     onPositionChangedRef.current = options.onPositionChanged;
     onDoctorPresenceRef.current = options.onDoctorPresence;
-  }, [options.onQueueUpdated, options.onPatientCalled, options.onPositionChanged, options.onDoctorPresence]);
+    onPatientRoomJoinedRef.current = options.onPatientRoomJoined;
+  }, [options.onQueueUpdated, options.onPatientCalled, options.onPositionChanged, options.onDoctorPresence, options.onPatientRoomJoined]);
 
   // Set up event listeners
   useEffect(() => {
@@ -105,8 +108,9 @@ export function useSocket(options: UseSocketOptions = {}) {
       logger.log('[Socket.io] Successfully joined clinic room:', data.clinicId);
     };
 
-    const handleJoinedPatient = (data: { entryId: string }) => {
+    const handleJoinedPatient = (data: { entryId: string; success: boolean }) => {
       logger.log('[Socket.io] Successfully joined patient room:', data.entryId);
+      onPatientRoomJoinedRef.current?.(data);
     };
 
     const handleDoctorPresence = (data: { clinicId: string; isDoctorPresent: boolean }) => {
