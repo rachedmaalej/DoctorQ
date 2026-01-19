@@ -46,7 +46,7 @@
 
 ---
 
-## ACTE 1 : LE PROBLÈME (1 minute)
+## ACTE 1 : LE PROBLÈME (1-2 minutes)
 
 ### Ce que vous faites
 - Ranger l'iPad face vers le bas (ne pas montrer l'app)
@@ -63,7 +63,11 @@
 
 *Attendre sa réponse*
 
-> **"Exactement. Vos patients ont un rendez-vous pour UN JOUR, pas une heure précise. Ils arrivent, ils s'assoient, et ils attendent. Parfois une heure. Parfois trois heures. Sans aucune visibilité."**
+> **"Exactement. Chez vous, vous avez deux types de patients : ceux qui ont un rendez-vous, et ceux qui viennent sans rendez-vous. Les patients avec RDV passent en priorité - c'est normal. Mais même eux ne savent pas exactement QUAND ce sera leur tour."**
+
+> **"Le patient avec RDV à 10h arrive, il voit 3 personnes dans la salle d'attente. Est-ce qu'ils sont avant lui ? Après lui ? Il ne sait pas. Il attend. Parfois une heure. Parfois plus."**
+
+> **"Et les patients sans RDV ? Eux, c'est encore pire. Ils savent qu'ils passent après les RDV, mais ils n'ont AUCUNE visibilité. Ils peuvent attendre 2 ou 3 heures sans savoir où ils en sont."**
 
 > **"Pendant ce temps, ils sont anxieux. Ils ne peuvent pas aller prendre un café. Ils ne peuvent pas faire une course rapide. Ils sont bloqués là, à regarder la porte du cabinet."**
 
@@ -71,7 +75,7 @@
 
 *Pause*
 
-> **"Je vais vous montrer comment changer ça."**
+> **"Je vais vous montrer comment changer ça - tout en gardant VOTRE contrôle sur l'ordre de passage."**
 
 ---
 
@@ -108,35 +112,47 @@
 
 *Pointer la liste*
 
-> **"Vous voyez leurs noms, leurs numéros, l'heure d'arrivée. Certains ont un rendez-vous précis - vous voyez le badge 'RDV'. D'autres sont sans rendez-vous - 'Sans RDV'."**
+> **"Vous voyez leurs noms, leurs numéros, l'heure d'arrivée. Regardez les badges..."**
 
-> **"Tout est automatique. Le patient scanne un QR code à l'entrée, et il apparaît dans votre liste."**
+*Pointer un patient avec badge RDV*
+
+> **"Celui-ci a un rendez-vous - vous voyez 'RDV' avec l'heure. Et celui-là..."**
+
+*Pointer un patient sans RDV*
+
+> **"...'Sans RDV'. Exactement comme chez vous aujourd'hui : les RDV et les sans-RDV sont clairement identifiés."**
+
+> **"Quand un patient arrive et scanne le QR code, il apparaît automatiquement dans votre liste. Votre secrétaire peut aussi l'ajouter manuellement."**
 
 ---
 
-### Scène 2.3 : Gérer la File
+### Scène 2.3 : Gérer la File (la clé!)
 
 **Ce que vous faites :**
 - Montrer les boutons de contrôle sur un patient
 
 **Ce que vous dites :**
 
-> **"Regardez les contrôles. Vous pouvez..."**
+> **"C'est là que VOUS gardez le contrôle total. Regardez les contrôles..."**
 
 *Cliquer sur flèche haut*
-> **"...le faire monter dans la file."**
+> **"Vous pouvez faire monter un patient dans la file."**
 
 *Cliquer sur flèche bas*
-> **"...le faire descendre."**
+> **"Ou le faire descendre."**
+
+> **"Par exemple, un patient avec RDV arrive en retard, vous pouvez le remettre à sa place. Un patient sans RDV attend depuis longtemps et il n'y a plus de RDV ? Vous le faites monter."**
 
 *Pointer le bouton rouge urgence*
 > **"Ce bouton rouge ? C'est pour les urgences. Un patient arrive avec un problème urgent..."**
 
 *Cliquer sur le bouton urgence*
-> **"...un clic, et il passe en premier. Tout le monde est notifié automatiquement."**
+> **"...un clic, et il passe en premier. RDV ou pas, c'est VOUS qui décidez. Tout le monde est notifié automatiquement."**
 
 *Pointer le X*
 > **"Et si un patient part sans prévenir, vous le supprimez. Simple."**
+
+> **"L'ordre de la file, c'est VOUS qui le définissez. L'application ne fait que communiquer cet ordre aux patients en temps réel."**
 
 ---
 
@@ -393,7 +409,8 @@
 > **"Docteur, récapitulons."**
 
 > **"Pour VOUS :**
-> - Vous voyez votre file en un coup d'oeil
+> - Vous voyez votre file en un coup d'oeil - RDV et sans-RDV clairement identifiés
+> - Vous GARDEZ le contrôle total sur l'ordre de passage
 > - Vous appelez les patients en un clic
 > - Vous gérez les urgences facilement
 > - Ça fonctionne sur votre ordinateur, tablette, ou téléphone"**
@@ -431,13 +448,17 @@
 
 > **"Pas de problème. Votre secrétaire les ajoute manuellement en 5 secondes. Le patient n'a rien à faire, il attend comme d'habitude. Mais les patients plus jeunes, eux, peuvent en profiter."**
 
-### "Et les rendez-vous avec heure précise ?"
+### "Et les rendez-vous avec heure précise ? Comment je gère la priorité RDV vs sans-RDV ?"
 
-> **"On gère les deux. Regardez..."**
+> **"Exactement comme vous le faites aujourd'hui - VOUS gardez le contrôle total."**
 
 *Montrer un patient avec badge RDV*
 
-> **"Les patients avec rendez-vous ont un badge spécial. Vous voyez l'heure de leur rendez-vous. Et les 'sans RDV' sont gérés séparément."**
+> **"Les patients avec rendez-vous ont un badge 'RDV' avec l'heure. Les sans-RDV ont le badge 'Sans RDV'. Vous voyez clairement qui est qui."**
+
+> **"Quand vous ajoutez un patient ou qu'il s'enregistre, vous ou votre secrétaire décidez de sa position dans la file. Les RDV en priorité ? Vous les mettez devant. Un sans-RDV qui attend depuis longtemps ? Vous le faites monter."**
+
+> **"L'application ne décide RIEN à votre place. Elle communique simplement l'ordre que VOUS avez défini. Vos patients voient leur position en temps réel, mais c'est VOUS qui organisez la file."**
 
 ### "Les SMS coûtent cher ?"
 
