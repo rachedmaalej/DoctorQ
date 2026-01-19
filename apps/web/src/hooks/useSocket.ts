@@ -3,7 +3,27 @@ import { io, Socket } from 'socket.io-client';
 import type { QueueEntry, QueueStats } from '@/types';
 import { logger } from '@/lib/logger';
 
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:3001';
+// Auto-detect production API URL based on hostname
+function getSocketUrl(): string {
+  // If explicitly set via env var, use that
+  if (import.meta.env.VITE_SOCKET_URL) {
+    return import.meta.env.VITE_SOCKET_URL;
+  }
+
+  // In production (Vercel), detect based on hostname
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname;
+    // Production Vercel deployment
+    if (hostname.includes('vercel.app') || hostname.includes('doctor-q')) {
+      return 'https://doctorqapi-production-84e9.up.railway.app';
+    }
+  }
+
+  // Default to localhost for development
+  return 'http://localhost:3001';
+}
+
+const SOCKET_URL = getSocketUrl();
 
 // Create a singleton socket that lives outside React
 // This ensures it persists across component mounts/unmounts and HMR

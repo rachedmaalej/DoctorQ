@@ -11,7 +11,27 @@ import type {
 } from '@/types';
 import { logger } from './logger';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+// Auto-detect production API URL based on hostname
+function getApiUrl(): string {
+  // If explicitly set via env var, use that
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+
+  // In production (Vercel), detect based on hostname
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname;
+    // Production Vercel deployment
+    if (hostname.includes('vercel.app') || hostname.includes('doctor-q')) {
+      return 'https://doctorqapi-production-84e9.up.railway.app';
+    }
+  }
+
+  // Default to localhost for development
+  return 'http://localhost:3001';
+}
+
+const API_URL = getApiUrl();
 
 class ApiClient {
   private token: string | null = null;
