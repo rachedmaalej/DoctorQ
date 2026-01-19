@@ -272,16 +272,16 @@ export default function PatientStatusPage() {
 
   // Handle leaving the queue
   const handleLeaveQueue = async () => {
-    if (!entryId) return;
+    if (!entryId || !entry?.clinicId) return;
 
     setIsLeaving(true);
     try {
       await api.leaveQueue(entryId);
-      // The socket will update the status, but we can also force a refresh
       setIsLeaveModalOpen(false);
+      // Redirect to check-in page so patient can rejoin if needed
+      navigate(`/checkin/${entry.clinicId}`);
     } catch (err: any) {
       logger.error('Failed to leave queue:', err);
-      // Still close modal - socket update will show correct state
       setIsLeaveModalOpen(false);
     } finally {
       setIsLeaving(false);
