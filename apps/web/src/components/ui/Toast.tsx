@@ -92,33 +92,26 @@ export function Toast({ message, type = 'success', duration = 3000, isVisible, o
 
   return (
     <>
-      {/* Global styles for animation */}
+      {/* Global styles for animation - Zoom In from Large (300%) */}
       <style>{`
-        @keyframes toastBounceIn {
+        @keyframes toastZoomIn {
           0% {
-            opacity: 0;
-            transform: scale(0.3) translateY(20px);
-          }
-          50% {
-            opacity: 1;
-            transform: scale(1.05) translateY(-5px);
-          }
-          70% {
-            transform: scale(0.95) translateY(2px);
+            opacity: 0.5;
+            transform: scale(3);
           }
           100% {
             opacity: 1;
-            transform: scale(1) translateY(0);
+            transform: scale(1);
           }
         }
-        @keyframes toastFadeOut {
-          from {
+        @keyframes toastZoomOut {
+          0% {
             opacity: 1;
-            transform: scale(1) translateY(0);
+            transform: scale(1);
           }
-          to {
+          100% {
             opacity: 0;
-            transform: scale(0.95) translateY(10px);
+            transform: scale(2);
           }
         }
       `}</style>
@@ -137,8 +130,8 @@ export function Toast({ message, type = 'success', duration = 3000, isVisible, o
           `}
           style={{
             animation: showToast
-              ? 'toastBounceIn 0.5s cubic-bezier(0.68, -0.3, 0.265, 1.25) forwards'
-              : 'toastFadeOut 0.3s ease-out forwards',
+              ? 'toastZoomIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards'
+              : 'toastZoomOut 0.3s ease-in forwards',
           }}
         >
           <span
