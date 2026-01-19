@@ -36,6 +36,9 @@ model Clinic {
   enableWhatsApp      Boolean      @default(false)
   isDoctorPresent     Boolean      @default(false)  // Track if doctor is currently seeing patients
 
+  // Activity tracking
+  lastLoginAt         DateTime?    // Last login timestamp for churn detection
+
   createdAt           DateTime     @default(now())
   updatedAt           DateTime     @updatedAt
 
@@ -43,6 +46,7 @@ model Clinic {
   dailyStats          DailyStat[]
 
   @@index([email])
+  @@index([lastLoginAt])  // For churn risk queries
 }
 
 model QueueEntry {

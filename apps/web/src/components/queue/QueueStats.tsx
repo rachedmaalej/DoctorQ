@@ -34,7 +34,7 @@ export default function QueueStats({ stats, onResetStats, isDoctorPresent = fals
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-2 sm:gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
         {/* En Attente */}
         <div className="bg-white rounded-lg shadow p-3 sm:p-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
@@ -55,13 +55,13 @@ export default function QueueStats({ stats, onResetStats, isDoctorPresent = fals
           </div>
         </div>
 
-        {/* Dernière consultation */}
+        {/* Vus Aujourd'hui */}
         <div className="bg-white rounded-lg shadow p-3 sm:p-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div className="order-2 sm:order-1">
-              <p className="text-xs sm:text-sm font-medium text-gray-600">{t('queue.lastConsultation')}</p>
+              <p className="text-xs sm:text-sm font-medium text-gray-600">{t('queue.seenToday')}</p>
               <p className="text-xl sm:text-3xl font-bold text-green-700 mt-1 sm:mt-2">
-                {stats.lastConsultationMins !== null ? `${stats.lastConsultationMins}min` : '-'}
+                {stats.seen}
               </p>
             </div>
             <div className="order-1 sm:order-2 bg-green-100 p-2 sm:p-3 rounded-full w-fit mb-2 sm:mb-0">
@@ -69,13 +69,13 @@ export default function QueueStats({ stats, onResetStats, isDoctorPresent = fals
                 className="material-symbols-outlined w-5 h-5 sm:w-8 sm:h-8 text-green-600 text-xl sm:text-3xl"
                 style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
               >
-                stethoscope
+                check_circle
               </span>
             </div>
           </div>
         </div>
 
-        {/* Attente moyenne - HIDDEN: Bug causes inflated values because it includes all historical patients, not just today's
+        {/* Attente moyenne (now filtered to today only) */}
         <div className="bg-white rounded-lg shadow p-3 sm:p-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div className="order-2 sm:order-1">
@@ -99,7 +99,7 @@ export default function QueueStats({ stats, onResetStats, isDoctorPresent = fals
                 )}
               </div>
               <p className="text-xl sm:text-3xl font-bold text-accent-700 mt-1 sm:mt-2">
-                {stats.avgWait ? `${stats.avgWait}min` : '-'}
+                {stats.avgWait !== null ? `${stats.avgWait}min` : '-'}
               </p>
             </div>
             <div className="order-1 sm:order-2 bg-accent-100 p-2 sm:p-3 rounded-full w-fit mb-2 sm:mb-0">
@@ -112,7 +112,26 @@ export default function QueueStats({ stats, onResetStats, isDoctorPresent = fals
             </div>
           </div>
         </div>
-        */}
+
+        {/* Non-présentés */}
+        <div className="bg-white rounded-lg shadow p-3 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+            <div className="order-2 sm:order-1">
+              <p className="text-xs sm:text-sm font-medium text-gray-600">{t('queue.noShows')}</p>
+              <p className={`text-xl sm:text-3xl font-bold mt-1 sm:mt-2 ${stats.noShows > 0 ? 'text-red-600' : 'text-gray-400'}`}>
+                {stats.noShows}
+              </p>
+            </div>
+            <div className={`order-1 sm:order-2 p-2 sm:p-3 rounded-full w-fit mb-2 sm:mb-0 ${stats.noShows > 0 ? 'bg-red-100' : 'bg-gray-100'}`}>
+              <span
+                className={`material-symbols-outlined w-5 h-5 sm:w-8 sm:h-8 text-xl sm:text-3xl ${stats.noShows > 0 ? 'text-red-600' : 'text-gray-400'}`}
+                style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
+              >
+                person_off
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Reset Stats Confirmation Modal */}

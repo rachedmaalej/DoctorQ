@@ -44,6 +44,12 @@ router.post('/login', async (req: Request, res: Response) => {
       });
     }
 
+    // Update last login timestamp (for churn tracking)
+    await prisma.clinic.update({
+      where: { id: clinic.id },
+      data: { lastLoginAt: new Date() },
+    });
+
     // Generate token
     const token = signToken({
       clinicId: clinic.id,

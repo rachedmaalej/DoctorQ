@@ -10,6 +10,9 @@ import { verifyToken } from './lib/auth.js';
 import authRoutes from './routes/auth.js';
 import queueRoutes from './routes/queue.js';
 import clinicRoutes from './routes/clinic.js';
+import adminRoutes from './routes/admin.js';
+import metricsRoutes from './routes/metrics.js';
+import { metricsMiddleware, activeSocketConnections } from './lib/metrics.js';
 
 // Load environment variables
 dotenv.config();
@@ -41,6 +44,9 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// Metrics middleware (track HTTP request duration and count)
+app.use(metricsMiddleware);
+
 // Rate limiting for public endpoints (prevents abuse)
 const publicRateLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
@@ -63,10 +69,14 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// Prometheus metrics endpoint
+app.use('/metrics', metricsRoutes);
+
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/queue', queueRoutes);
 app.use('/api/clinic', clinicRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Apply rate limiting to public queue endpoints
 app.use('/api/queue/checkin', publicRateLimiter);
@@ -75,6 +85,7 @@ app.use('/api/queue/patient', publicRateLimiter);
 // Socket.io connection handling
 io.on('connection', (socket) => {
   console.log('[Socket.io] Client connected:', socket.id);
+  activeSocketConnections.inc();
 
   // Debug: Log all incoming events
   socket.onAny((eventName, ...args) => {
@@ -142,6 +153,7 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     console.log('[Socket.io] Client disconnected:', socket.id);
+    activeSocketConnections.dec();
   });
 });
 

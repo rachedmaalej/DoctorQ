@@ -34,6 +34,8 @@ export interface QueueStats {
   seen: number;
   avgWait: number | null;
   lastConsultationMins: number | null;
+  noShows: number;
+  maxWait: number | null;
 }
 
 export interface QueueResponse {

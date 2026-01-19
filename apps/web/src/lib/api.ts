@@ -194,6 +194,30 @@ class ApiClient {
       body: JSON.stringify({ isDoctorPresent }),
     });
   }
+
+  // Admin endpoints
+  async getAdminMetrics(): Promise<{
+    activeClinics: number;
+    totalClinics: number;
+    mrrTND: number;
+    patientsToday: number;
+    qrCheckinRate: number;
+    atRiskClinics: number;
+  }> {
+    return this.request('/api/admin/metrics');
+  }
+
+  async getAdminClinics(): Promise<Array<{
+    id: string;
+    name: string;
+    doctorName: string | null;
+    lastLoginAt: string | null;
+    patientsToday: number;
+    avgWaitMins: number | null;
+    status: 'active' | 'at_risk' | 'churned';
+  }>> {
+    return this.request('/api/admin/clinics');
+  }
 }
 
 export const api = new ApiClient();

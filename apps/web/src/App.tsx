@@ -7,6 +7,7 @@ const LoginPage = lazy(() => import('./pages/LoginPage'));
 const DashboardPage = lazy(() => import('./pages/DashboardPage'));
 const PatientStatusPage = lazy(() => import('./pages/PatientStatusPage'));
 const CheckInPage = lazy(() => import('./pages/CheckInPage'));
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
 
 // Lightweight loading spinner for Suspense fallback
 function PageLoader() {
@@ -47,6 +48,10 @@ function App() {
         <Route
           path="/dashboard"
           element={isAuthenticated ? <DashboardPage /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/admin"
+          element={isAuthenticated ? <AdminDashboard /> : <Navigate to="/login" />}
         />
 
         {/* Default redirect */}

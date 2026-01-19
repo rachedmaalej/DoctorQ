@@ -1,0 +1,39 @@
+# Prometheus Configuration for DoctorQ
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+# Alertmanager configuration (optional - add when needed)
+# alerting:
+#   alertmanagers:
+#     - static_configs:
+#         - targets:
+#           # - alertmanager:9093
+
+# Rule files (optional - add when needed)
+# rule_files:
+#   - "alert_rules.yml"
+
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # DoctorQ API (local development)
+  - job_name: 'doctorq-api-local'
+    static_configs:
+      - targets: ['host.docker.internal:3001']
+        labels:
+          environment: 'development'
+
+  # DoctorQ API (production - Railway)
+  # Uncomment and update URL when deployed
+  # - job_name: 'doctorq-api-production'
+  #   scheme: https
+  #   static_configs:
+  #     - targets: ['doctor-q-api.railway.app']
+  #       labels:
+  #         environment: 'production'
+  #   metrics_path: '/metrics'
