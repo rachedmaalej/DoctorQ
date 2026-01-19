@@ -330,6 +330,37 @@ export function useDashboard() {
     }
   }, [isFillingQueue, addPatient, fetchQueue]);
 
+  // Complete the current consultation (for last patient in queue)
+  const handleCompleteConsultation = useCallback(async () => {
+    const currentPatient = queue.find(p => p.status === QueueStatus.IN_CONSULTATION);
+    if (!currentPatient) return;
+
+    const patientName = currentPatient.patientName || t('queue.patientName');
+
+    try {
+      // Mark patient as completed
+      await api.updatePatientStatus(currentPatient.id, { status: QueueStatus.COMPLETED });
+
+      // Optimistically clear the queue
+      const optimisticStats = stats ? {
+        ...stats,
+        seen: stats.seen + 1,
+        waiting: 0
+      } : null;
+      useQueueStore.getState().setQueue([], optimisticStats!);
+
+      // Show success toast
+      showToast(t('queue.consultationCompleted', { name: patientName }), 'success');
+
+      // Refresh queue to ensure consistency
+      await fetchQueue();
+    } catch (error) {
+      logger.error('Failed to complete consultation:', error);
+      showToast(t('common.error'), 'error');
+      await fetchQueue();
+    }
+  }, [queue, stats, fetchQueue, showToast, t]);
+
   return {
     // Store data
     clinic,
@@ -369,6 +400,7 @@ export function useDashboard() {
     handleToggleDoctorPresent,
     handleFillQueue,
     handleReorderPatient,
+    handleCompleteConsultation,
     resetStats,
 
     // Toast state

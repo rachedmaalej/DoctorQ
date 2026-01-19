@@ -16,6 +16,7 @@ interface MobileDashboardProps {
   onEmergency: (id: string) => void;
   onShowQR: () => void;
   onFillQueue?: () => void;
+  onCompleteConsultation?: () => void;
   isCallingNext: boolean;
   isDoctorPresent: boolean;
   onToggleDoctorPresent: () => void;
@@ -41,6 +42,7 @@ export default function MobileDashboard({
   onEmergency,
   onShowQR,
   onFillQueue,
+  onCompleteConsultation,
   isCallingNext,
   isDoctorPresent,
   onToggleDoctorPresent,
@@ -289,6 +291,11 @@ export default function MobileDashboard({
               stethoscope
             </span>
             {t('queue.inConsultation')}
+            {waitingQueue.length === 0 && (
+              <span className="ml-2 text-xs font-normal text-gray-400">
+                ({t('queue.lastPatient')})
+              </span>
+            )}
           </p>
           <div className="bg-green-50 border-2 border-green-200 rounded-2xl p-4">
             <div className="flex items-center justify-between">
@@ -317,15 +324,32 @@ export default function MobileDashboard({
                 </div>
               </div>
               <div className="flex items-center gap-1">
-                <a
-                  href={`/patient/${inConsultation.id}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-2 text-green-600 hover:bg-green-100 rounded-full transition-colors"
-                  aria-label={t('queue.viewPatientStatus')}
-                >
-                  <span className="material-symbols-outlined text-xl">open_in_new</span>
-                </a>
+                {/* Show complete button when this is the last patient, otherwise show view status link */}
+                {waitingQueue.length === 0 && onCompleteConsultation ? (
+                  <button
+                    onClick={onCompleteConsultation}
+                    className="p-2 text-green-600 hover:bg-green-100 rounded-full transition-colors"
+                    aria-label={t('queue.completeConsultation')}
+                    title={t('queue.completeConsultation')}
+                  >
+                    <span
+                      className="material-symbols-outlined text-xl"
+                      style={{ fontVariationSettings: "'FILL' 1" }}
+                    >
+                      check_circle
+                    </span>
+                  </button>
+                ) : (
+                  <a
+                    href={`/patient/${inConsultation.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 text-green-600 hover:bg-green-100 rounded-full transition-colors"
+                    aria-label={t('queue.viewPatientStatus')}
+                  >
+                    <span className="material-symbols-outlined text-xl">open_in_new</span>
+                  </a>
+                )}
               </div>
             </div>
           </div>

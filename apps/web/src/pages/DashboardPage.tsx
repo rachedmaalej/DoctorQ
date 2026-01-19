@@ -52,6 +52,7 @@ export default function DashboardPage() {
     handleToggleDoctorPresent,
     handleFillQueue,
     handleReorderPatient,
+    handleCompleteConsultation,
     resetStats,
 
     // Toast state
@@ -78,6 +79,7 @@ export default function DashboardPage() {
           onEmergency={(id) => handleReorderPatient(id, 1)}
           onShowQR={() => setIsQRModalOpen(true)}
           onFillQueue={handleFillQueue}
+          onCompleteConsultation={handleCompleteConsultation}
           isCallingNext={isCallingNext}
           isDoctorPresent={isDoctorPresent}
           onToggleDoctorPresent={handleToggleDoctorPresent}
