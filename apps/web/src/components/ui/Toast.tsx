@@ -7,11 +7,11 @@ import { useEffect, useState, useCallback } from 'react';
 export type ToastType =
   | 'success'    // Generic success (green)
   | 'error'      // Error state (red)
-  | 'call'       // Patient called (purple/primary)
-  | 'moveUp'     // Patient moved up (emerald)
-  | 'moveDown'   // Patient moved down (cyan)
-  | 'emergency'  // Emergency priority (red)
-  | 'remove';    // Patient removed (gray)
+  | 'call'       // Patient called (green)
+  | 'moveUp'     // Patient moved up (blue)
+  | 'moveDown'   // Patient moved down (purple)
+  | 'emergency'  // Emergency priority (orange)
+  | 'remove';    // Patient removed (red)
 
 interface ToastProps {
   message: string;
@@ -43,6 +43,7 @@ export function Toast({ message, type = 'success', duration = 3000, isVisible, o
   if (!isVisible && !isAnimating) return null;
 
   // Color schemes for each action type
+  // Appeler (green), Monter (blue), Descendre (purple), Urgence (orange), Retirer (red)
   const typeStyles: Record<ToastType, { gradient: string; shadow: string; icon: string }> = {
     success: {
       gradient: 'from-emerald-500 to-green-500',
@@ -55,81 +56,101 @@ export function Toast({ message, type = 'success', duration = 3000, isVisible, o
       icon: 'error',
     },
     call: {
-      gradient: 'from-violet-500 to-purple-500',
-      shadow: 'shadow-violet-500/40',
+      // Green for calling patient
+      gradient: 'from-emerald-500 to-green-600',
+      shadow: 'shadow-emerald-500/40',
       icon: 'directions_walk',
     },
     moveUp: {
-      gradient: 'from-emerald-500 to-teal-500',
-      shadow: 'shadow-emerald-500/40',
+      // Blue for moving up
+      gradient: 'from-blue-500 to-indigo-500',
+      shadow: 'shadow-blue-500/40',
       icon: 'arrow_upward',
     },
     moveDown: {
-      gradient: 'from-cyan-500 to-sky-500',
-      shadow: 'shadow-cyan-500/40',
+      // Purple for moving down
+      gradient: 'from-purple-500 to-violet-500',
+      shadow: 'shadow-purple-500/40',
       icon: 'arrow_downward',
     },
     emergency: {
-      gradient: 'from-red-500 to-orange-500',
-      shadow: 'shadow-red-500/40',
+      // Orange for emergency
+      gradient: 'from-orange-500 to-amber-500',
+      shadow: 'shadow-orange-500/40',
       icon: 'e911_emergency',
     },
     remove: {
-      gradient: 'from-stone-500 to-gray-500',
-      shadow: 'shadow-stone-500/40',
+      // Red for removing patient
+      gradient: 'from-red-500 to-rose-600',
+      shadow: 'shadow-red-500/40',
       icon: 'person_remove',
     },
   };
 
   const { gradient, shadow, icon } = typeStyles[type];
+  const showToast = isAnimating && isVisible;
 
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100]">
-      <div
-        className={`
-          bg-gradient-to-r ${gradient}
-          text-white px-5 py-3 rounded-xl
-          flex items-center gap-3
-          shadow-lg ${shadow}
-          transition-all duration-300 ease-out
-          ${isAnimating && isVisible
-            ? 'opacity-100 translate-y-0 scale-100'
-            : 'opacity-0 translate-y-4 scale-95'
-          }
-        `}
-        style={{
-          animation: isAnimating && isVisible ? 'bounceIn 0.5s cubic-bezier(0.68, -0.3, 0.265, 1.25)' : 'none',
-        }}
-      >
-        <span
-          className="material-symbols-outlined text-[22px]"
-          style={{ fontVariationSettings: "'FILL' 1, 'wght' 500" }}
-        >
-          {icon}
-        </span>
-        <span className="font-medium text-sm sm:text-[15px]">{message}</span>
-      </div>
-
-      {/* Bounce animation keyframes */}
+    <>
+      {/* Global styles for animation */}
       <style>{`
-        @keyframes bounceIn {
+        @keyframes toastBounceIn {
           0% {
-            transform: translateX(-50%) scale(0.3);
             opacity: 0;
+            transform: scale(0.3) translateY(20px);
           }
           50% {
-            transform: translateX(-50%) scale(1.05);
+            opacity: 1;
+            transform: scale(1.05) translateY(-5px);
           }
           70% {
-            transform: translateX(-50%) scale(0.95);
+            transform: scale(0.95) translateY(2px);
           }
           100% {
-            transform: translateX(-50%) scale(1);
             opacity: 1;
+            transform: scale(1) translateY(0);
+          }
+        }
+        @keyframes toastFadeOut {
+          from {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+          }
+          to {
+            opacity: 0;
+            transform: scale(0.95) translateY(10px);
           }
         }
       `}</style>
-    </div>
+
+      {/* Fixed container for centering */}
+      <div
+        className="fixed bottom-6 left-0 right-0 z-[100] flex justify-center pointer-events-none"
+      >
+        <div
+          className={`
+            bg-gradient-to-r ${gradient}
+            text-white px-5 py-3 rounded-xl
+            flex items-center gap-3
+            shadow-lg ${shadow}
+            pointer-events-auto
+          `}
+          style={{
+            animation: showToast
+              ? 'toastBounceIn 0.5s cubic-bezier(0.68, -0.3, 0.265, 1.25) forwards'
+              : 'toastFadeOut 0.3s ease-out forwards',
+          }}
+        >
+          <span
+            className="material-symbols-outlined text-[22px]"
+            style={{ fontVariationSettings: "'FILL' 1, 'wght' 500" }}
+          >
+            {icon}
+          </span>
+          <span className="font-medium text-sm sm:text-[15px] whitespace-nowrap">{message}</span>
+        </div>
+      </div>
+    </>
   );
 }
 
