@@ -1,4 +1,3 @@
-import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 
 export type TicketColorScheme = 'calm' | 'teal' | 'amber' | 'green';
@@ -56,7 +55,6 @@ export default function CompactTicketCard({
   colorScheme,
   animate = false,
 }: CompactTicketCardProps) {
-  const { t } = useTranslation();
   const styles = colorSchemeStyles[colorScheme];
 
   return (
@@ -81,24 +79,11 @@ export default function CompactTicketCard({
           }}
         />
 
-        {/* Main content */}
-        <div className="h-full p-3 flex flex-col justify-between relative">
-          <p className={clsx('text-xs font-medium uppercase tracking-wide', styles.accent)}>
-            {t('patient.yourPosition', { position: '' }).replace('#{{position}}', '').trim() || 'Position'}
+        {/* Main content - centered position number only */}
+        <div className="h-full flex items-center justify-center relative">
+          <p className={clsx('text-6xl font-black', styles.positionText)}>
+            #{position}
           </p>
-
-          <div className="flex-1 flex items-center justify-center">
-            <p className={clsx('text-6xl font-black', styles.positionText)}>
-              #{position}
-            </p>
-          </div>
-
-          {/* Decorative stars */}
-          <div className="flex justify-center gap-1">
-            <span className="text-sm text-white/40">★</span>
-            <span className="text-sm text-white/30">★</span>
-            <span className="text-sm text-white/40">★</span>
-          </div>
         </div>
 
         {/* Perforation circles on right edge */}

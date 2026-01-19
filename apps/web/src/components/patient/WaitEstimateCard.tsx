@@ -30,7 +30,7 @@ export default function WaitEstimateCard({ position, avgConsultationMins = 15 }:
   };
 
   return (
-    <div className="bg-white/80 backdrop-blur border border-primary-100 rounded-xl p-4 h-full flex flex-col justify-center">
+    <div className="bg-white/80 backdrop-blur border border-primary-100 rounded-xl p-4 h-full flex items-center justify-center">
       <div className="flex items-center gap-3">
         <div className="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
           <span
