@@ -10,8 +10,13 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "test": "vitest",
     "test:run": "vitest run",
-    "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui"
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test --project=chromium",
+    "test:e2e:all": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:mobile": "playwright test --project='Mobile Chrome' --project='Mobile Safari'",
+    "test:a11y": "playwright test e2e/accessibility.spec.ts --project=chromium",
+    "lighthouse": "npx lighthouse http://localhost:5174 --output html --output-path ./lighthouse-report.html --chrome-flags='--headless'"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",
@@ -29,6 +34,7 @@
     "zustand": "^4.4.7"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.11.0",
     "@playwright/test": "^1.57.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.1",
