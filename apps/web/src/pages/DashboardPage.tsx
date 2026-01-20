@@ -180,20 +180,24 @@ export default function DashboardPage() {
         </div>
       </main>
 
-      {/* Call Next FAB - Primary Action (Fixed Position) - Desktop only */}
-      {/* Positioned to align with left column (QR code card) - uses same max-w and padding as main content */}
+      {/* Call Next FAB - Primary Action (Fixed Position) - Desktop/Tablet only */}
+      {/* Tablet (lg): Bottom-left aligned with QR code column */}
+      {/* Desktop (xl+): Bottom-right */}
       <div className="hidden lg:block fixed bottom-8 left-0 right-0 z-50 pointer-events-none">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="w-[320px] flex justify-center pointer-events-auto">
-            <MD3FAB
-              variant="primary"
-              size="large"
-              icon={<span className="material-symbols-outlined">directions_walk</span>}
-              onClick={handleCallNext}
-              disabled={waitingCount === 0 || isCallingNext || !isDoctorPresent}
-              title={isDoctorPresent ? t('queue.callNext') : t('queue.waitingForDoctor')}
-              aria-label={t('queue.callNext')}
-            />
+          {/* Tablet: left-aligned with QR column, Desktop: right-aligned */}
+          <div className="flex lg:justify-start xl:justify-end pointer-events-auto">
+            <div className="w-[320px] lg:flex lg:justify-center xl:w-auto">
+              <MD3FAB
+                variant="primary"
+                size="large"
+                icon={<span className="material-symbols-outlined">directions_walk</span>}
+                onClick={handleCallNext}
+                disabled={waitingCount === 0 || isCallingNext || !isDoctorPresent}
+                title={isDoctorPresent ? t('queue.callNext') : t('queue.waitingForDoctor')}
+                aria-label={t('queue.callNext')}
+              />
+            </div>
           </div>
         </div>
       </div>

@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Universal Queue Platform - Vision 2026</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: #0f172a;
+      color: #f8fafc;
+      overflow: hidden;
+    }
+
+    .slide {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 60px 80px;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .slide.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Slide 1: Title */
+    .slide-title {
+      background: linear-gradient(135deg, #059669 0%, #0891b2 50%, #6366f1 100%);
+      text-align: center;
+    }
+
+    .slide-title h1 {
+      font-size: 4.5rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      text-shadow: 0 4px 30px rgba(0,0,0,0.3);
+    }
+
+    .slide-title .tagline {
+      font-size: 2rem;
+      opacity: 0.95;
+      margin-bottom: 2rem;
+      font-weight: 300;
+    }
+
+    .slide-title .badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.2);
+      padding: 0.75rem 2rem;
+      border-radius: 3rem;
+      font-size: 1.1rem;
+      backdrop-filter: blur(10px);
+    }
+
+    /* Slide 2: Problem */
+    .slide-problem {
+      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+    }
+
+    .slide-problem h2 {
+      font-size: 3rem;
+      margin-bottom: 3rem;
+      text-align: center;
+    }
+
+    .problem-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+      max-width: 1100px;
+    }
+
+    .problem-card {
+      background: rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 30px;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .problem-card .icon {
+      font-size: 3.5rem;
+      margin-bottom: 15px;
+    }
+
+    .problem-card h3 {
+      font-size: 1.3rem;
+      margin-bottom: 10px;
+      color: #f472b6;
+    }
+
+    .problem-card p {
+      color: rgba(255,255,255,0.8);
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    .problem-stat {
+      margin-top: 2rem;
+      font-size: 1.5rem;
+      color: #f472b6;
+      text-align: center;
+    }
+
+    /* Slide 3: Solution */
+    .slide-solution {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    }
+
+    .slide-solution h2 {
+      font-size: 2.5rem;
+      margin-bottom: 2rem;
+      color: #10b981;
+    }
+
+    .solution-features {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 25px;
+      max-width: 900px;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 15px;
+      background: #1e293b;
+      padding: 20px 25px;
+      border-radius: 16px;
+      border-left: 4px solid #10b981;
+    }
+
+    .feature-item .check {
+      color: #10b981;
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .feature-item h4 {
+      font-size: 1.1rem;
+      margin-bottom: 5px;
+    }
+
+    .feature-item p {
+      color: #94a3b8;
+      font-size: 0.9rem;
+    }
+
+    /* Slide 4: Current State */
+    .slide-current {
+      background: #0f172a;
+    }
+
+    .slide-current h2 {
+      font-size: 2.5rem;
+      margin-bottom: 2rem;
+      color: #10b981;
+    }
+
+    .current-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      max-width: 1000px;
+    }
+
+    .current-card {
+      background: #1e293b;
+      border-radius: 20px;
+      padding: 30px;
+    }
+
+    .current-card h3 {
+      font-size: 1.3rem;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .current-card h3 .emoji {
+      font-size: 1.5rem;
+    }
+
+    .metric-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #334155;
+    }
+
+    .metric-row:last-child {
+      border-bottom: none;
+    }
+
+    .metric-row .label {
+      color: #94a3b8;
+    }
+
+    .metric-row .value {
+      font-weight: 600;
+      color: #10b981;
+    }
+
+    .version-badge {
+      display: inline-block;
+      background: #059669;
+      padding: 8px 20px;
+      border-radius: 20px;
+      font-weight: 600;
+      margin-top: 20px;
+    }
+
+    /* Slide 5: Vision */
+    .slide-vision {
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      text-align: center;
+    }
+
+    .slide-vision h2 {
+      font-size: 2.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .vision-number {
+      font-size: 8rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #10b981, #06b6d4, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+    }
+
+    .vision-label {
+      font-size: 2rem;
+      color: #94a3b8;
+      margin-bottom: 3rem;
+    }
+
+    .vision-timeline {
+      font-size: 1.5rem;
+      color: #10b981;
+      padding: 15px 40px;
+      background: rgba(16, 185, 129, 0.1);
+      border-radius: 30px;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .vision-industries {
+      display: flex;
+      gap: 40px;
+      margin-top: 3rem;
+    }
+
+    .industry-item {
+      text-align: center;
+    }
+
+    .industry-item .icon {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+    }
+
+    .industry-item span {
+      color: #94a3b8;
+      font-size: 0.95rem;
+    }
+
+    /* Slide 6: Business Model */
+    .slide-business {
+      background: #0f172a;
+    }
+
+    .slide-business h2 {
+      font-size: 2.5rem;
+      margin-bottom: 2.5rem;
+      color: #10b981;
+    }
+
+    .pricing-table {
+      background: #1e293b;
+      border-radius: 20px;
+      overflow: hidden;
+      width: 100%;
+      max-width: 800px;
+    }
+
+    .pricing-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1.5fr;
+      padding: 20px 30px;
+      border-bottom: 1px solid #334155;
+      align-items: center;
+    }
+
+    .pricing-row.header {
+      background: #059669;
+      font-weight: 700;
+    }
+
+    .pricing-row:last-child {
+      border-bottom: none;
+    }
+
+    .pricing-row .industry {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .pricing-row .price {
+      font-weight: 600;
+      color: #10b981;
+    }
+
+    .billing-info {
+      display: flex;
+      gap: 30px;
+      margin-top: 2rem;
+    }
+
+    .billing-badge {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 15px 25px;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .billing-badge .method {
+      font-size: 0.85rem;
+      color: #94a3b8;
+      margin-bottom: 5px;
+    }
+
+    .billing-badge .name {
+      font-weight: 600;
+      color: #10b981;
+    }
+
+    /* Slide 7: Architecture */
+    .slide-arch {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    }
+
+    .slide-arch h2 {
+      font-size: 2.5rem;
+      margin-bottom: 2rem;
+      color: #06b6d4;
+    }
+
+    .arch-diagram {
+      background: #1e293b;
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 900px;
+      width: 100%;
+    }
+
+    .arch-layer {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .arch-box {
+      background: #334155;
+      padding: 15px 25px;
+      border-radius: 12px;
+      text-align: center;
+      min-width: 140px;
+    }
+
+    .arch-box.highlight {
+      background: linear-gradient(135deg, #059669, #0d9488);
+    }
+
+    .arch-box .label {
+      font-size: 0.8rem;
+      color: #94a3b8;
+      margin-bottom: 5px;
+    }
+
+    .arch-box .tech {
+      font-weight: 600;
+    }
+
+    .arch-arrow {
+      text-align: center;
+      color: #64748b;
+      font-size: 1.5rem;
+      margin: 10px 0;
+    }
+
+    .arch-note {
+      text-align: center;
+      color: #94a3b8;
+      font-size: 0.9rem;
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #334155;
+    }
+
+    /* Slide 8: Roadmap */
+    .slide-roadmap {
+      background: #0f172a;
+    }
+
+    .slide-roadmap h2 {
+      font-size: 2.5rem;
+      margin-bottom: 2.5rem;
+      color: #8b5cf6;
+    }
+
+    .roadmap-timeline {
+      display: flex;
+      gap: 0;
+      position: relative;
+      max-width: 1100px;
+    }
+
+    .roadmap-timeline::before {
+      content: '';
+      position: absolute;
+      top: 60px;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #10b981, #06b6d4, #8b5cf6, #f472b6);
+      border-radius: 2px;
+    }
+
+    .roadmap-phase {
+      flex: 1;
+      text-align: center;
+      padding-top: 90px;
+      position: relative;
+    }
+
+    .roadmap-phase::before {
+      content: '';
+      position: absolute;
+      top: 48px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 24px;
+      height: 24px;
+      background: #10b981;
+      border-radius: 50%;
+      border: 4px solid #0f172a;
+    }
+
+    .roadmap-phase:nth-child(2)::before { background: #06b6d4; }
+    .roadmap-phase:nth-child(3)::before { background: #8b5cf6; }
+    .roadmap-phase:nth-child(4)::before { background: #f472b6; }
+
+    .roadmap-phase h3 {
+      font-size: 1rem;
+      color: #10b981;
+      margin-bottom: 8px;
+    }
+
+    .roadmap-phase:nth-child(2) h3 { color: #06b6d4; }
+    .roadmap-phase:nth-child(3) h3 { color: #8b5cf6; }
+    .roadmap-phase:nth-child(4) h3 { color: #f472b6; }
+
+    .roadmap-phase h4 {
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+    }
+
+    .roadmap-phase ul {
+      list-style: none;
+      font-size: 0.85rem;
+      color: #94a3b8;
+      line-height: 1.6;
+    }
+
+    /* Slide 9: GTM */
+    .slide-gtm {
+      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+    }
+
+    .slide-gtm h2 {
+      font-size: 2.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .gtm-flow {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      max-width: 1000px;
+    }
+
+    .gtm-step {
+      flex: 1;
+      background: rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 30px 20px;
+      text-align: center;
+    }
+
+    .gtm-step .number {
+      width: 40px;
+      height: 40px;
+      background: #8b5cf6;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 15px;
+      font-weight: 700;
+    }
+
+    .gtm-step h3 {
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+    }
+
+    .gtm-step p {
+      color: rgba(255,255,255,0.7);
+      font-size: 0.9rem;
+    }
+
+    .gtm-arrow {
+      color: #64748b;
+      font-size: 2rem;
+    }
+
+    .gtm-strategy {
+      margin-top: 2.5rem;
+      display: flex;
+      gap: 30px;
+    }
+
+    .strategy-item {
+      background: rgba(139, 92, 246, 0.2);
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      padding: 20px 30px;
+      border-radius: 12px;
+    }
+
+    .strategy-item h4 {
+      color: #a78bfa;
+      font-size: 0.9rem;
+      margin-bottom: 5px;
+    }
+
+    /* Slide 10: Success Metrics */
+    .slide-metrics {
+      background: linear-gradient(135deg, #059669 0%, #0891b2 50%, #6366f1 100%);
+      text-align: center;
+    }
+
+    .slide-metrics h2 {
+      font-size: 2.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+      max-width: 900px;
+    }
+
+    .metric-card {
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 30px;
+    }
+
+    .metric-card .value {
+      font-size: 3rem;
+      font-weight: 800;
+      margin-bottom: 5px;
+    }
+
+    .metric-card .label {
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+
+    .metric-card .sublabel {
+      font-size: 0.85rem;
+      opacity: 0.7;
+      margin-top: 5px;
+    }
+
+    .differentiator {
+      margin-top: 3rem;
+      padding: 25px 50px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 16px;
+      display: inline-block;
+    }
+
+    .differentiator h3 {
+      font-size: 1.3rem;
+      margin-bottom: 10px;
+    }
+
+    .differentiator p {
+      opacity: 0.9;
+    }
+
+    /* Navigation */
+    .nav {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      background: rgba(30, 41, 59, 0.95);
+      padding: 12px 24px;
+      border-radius: 50px;
+      backdrop-filter: blur(10px);
+      z-index: 100;
+    }
+
+    .nav button {
+      background: none;
+      border: none;
+      color: #f8fafc;
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 8px 16px;
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+
+    .nav button:hover {
+      background: rgba(255,255,255,0.1);
+    }
+
+    .nav button:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .slide-counter {
+      color: #94a3b8;
+      font-size: 0.9rem;
+      min-width: 60px;
+      text-align: center;
+    }
+
+    .dots {
+      display: flex;
+      gap: 8px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      background: #475569;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .dot.active {
+      background: #10b981;
+      width: 24px;
+      border-radius: 4px;
+    }
+
+    .keyboard-hint {
+      position: fixed;
+      bottom: 100px;
+      right: 30px;
+      color: #64748b;
+      font-size: 0.8rem;
+    }
+
+    .keyboard-hint kbd {
+      background: #334155;
+      padding: 4px 8px;
+      border-radius: 4px;
+      margin: 0 2px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Slide 1: Title -->
+  <div class="slide slide-title active" data-slide="1">
+    <h1>The Universal Queue Platform</h1>
+    <p class="tagline">From Medical Clinics to Banks to Government</p>
+    <p class="badge">Vision & Roadmap 2026</p>
+  </div>
+
+  <!-- Slide 2: Problem -->
+  <div class="slide slide-problem" data-slide="2">
+    <h2>The Problem: Waiting Sucks Everywhere</h2>
+    <div class="problem-grid">
+      <div class="problem-card">
+        <div class="icon">🏥</div>
+        <h3>Medical Clinics</h3>
+        <p>Patients wait 1-3 hours with no visibility. Day appointments mean "show up and wait."</p>
+      </div>
+      <div class="problem-card">
+        <div class="icon">🏦</div>
+        <h3>Banks</h3>
+        <p>Multiple service counters, confusing ticket systems, frustrated customers.</p>
+      </div>
+      <div class="problem-card">
+        <div class="icon">🏛️</div>
+        <h3>Government Offices</h3>
+        <p>Long lines, no estimated wait time, citizens lose entire days.</p>
+      </div>
+    </div>
+    <p class="problem-stat">Average time wasted per person per year: <strong>37 hours</strong></p>
+  </div>
+
+  <!-- Slide 3: Solution -->
+  <div class="slide slide-solution" data-slide="3">
+    <h2>The Solution: White-Label Queue SaaS</h2>
+    <div class="solution-features">
+      <div class="feature-item">
+        <span class="check">✓</span>
+        <div>
+          <h4>Real-Time Position Tracking</h4>
+          <p>Patients see their position update live via SMS/WhatsApp</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <span class="check">✓</span>
+        <div>
+          <h4>Multiple Check-In Methods</h4>
+          <p>QR code, kiosk, SMS, WhatsApp bot, web form</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <span class="check">✓</span>
+        <div>
+          <h4>Full White-Label Branding</h4>
+          <p>Custom themes, logos, colors, content per client</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <span class="check">✓</span>
+        <div>
+          <h4>Configurable Workflows</h4>
+          <p>Linear, priority, multi-service queues - clients choose</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <span class="check">✓</span>
+        <div>
+          <h4>Smart Notifications</h4>
+          <p>SMS + WhatsApp - "almost your turn" + "your turn now"</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <span class="check">✓</span>
+        <div>
+          <h4>Multi-Language Support</h4>
+          <p>French, Arabic (RTL), English, crowdsourced translations</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 4: Current State -->
+  <div class="slide slide-current" data-slide="4">
+    <h2>Where We Are Today</h2>
+    <div class="current-grid">
+      <div class="current-card">
+        <h3><span class="emoji">🚀</span> Pilot Launch</h3>
+        <div class="metric-row">
+          <span class="label">First Client</span>
+          <span class="value">Dr. Kamoun</span>
+        </div>
+        <div class="metric-row">
+          <span class="label">Launch Date</span>
+          <span class="value">Jan 21-22, 2026</span>
+        </div>
+        <div class="metric-row">
+          <span class="label">Current Version</span>
+          <span class="value">v0.5.1</span>
+        </div>
+        <div class="metric-row">
+          <span class="label">Status</span>
+          <span class="value">Production Ready</span>
+        </div>
+      </div>
+      <div class="current-card">
+        <h3><span class="emoji">💪</span> Capabilities</h3>
+        <div class="metric-row">
+          <span class="label">Queue Management</span>
+          <span class="value">✓ Complete</span>
+        </div>
+        <div class="metric-row">
+          <span class="label">Real-Time Updates</span>
+          <span class="value">✓ Socket.io</span>
+        </div>
+        <div class="metric-row">
+          <span class="label">QR Check-In</span>
+          <span class="value">✓ Working</span>
+        </div>
+        <div class="metric-row">
+          <span class="label">Languages</span>
+          <span class="value">French + Arabic</span>
+        </div>
+      </div>
+    </div>
+    <div class="version-badge">MVP Complete - Ready to Scale</div>
+  </div>
+
+  <!-- Slide 5: Vision -->
+  <div class="slide slide-vision" data-slide="5">
+    <h2>The Vision</h2>
+    <div class="vision-number">1,000</div>
+    <div class="vision-label">Active Instances</div>
+    <div class="vision-timeline">Target: 12 Months</div>
+    <div class="vision-industries">
+      <div class="industry-item">
+        <div class="icon">🏥</div>
+        <span>Medical</span>
+      </div>
+      <div class="industry-item">
+        <div class="icon">🏦</div>
+        <span>Banks</span>
+      </div>
+      <div class="industry-item">
+        <div class="icon">🏛️</div>
+        <span>Government</span>
+      </div>
+      <div class="industry-item">
+        <div class="icon">📱</div>
+        <span>Telecom</span>
+      </div>
+      <div class="industry-item">
+        <div class="icon">🏪</div>
+        <span>Retail</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 6: Business Model -->
+  <div class="slide slide-business" data-slide="6">
+    <h2>Business Model</h2>
+    <div class="pricing-table">
+      <div class="pricing-row header">
+        <span>Industry</span>
+        <span>Price/Month</span>
+        <span>Features</span>
+      </div>
+      <div class="pricing-row">
+        <span class="industry">🏥 Medical Clinics</span>
+        <span class="price">50 TND</span>
+        <span>Core + SMS</span>
+      </div>
+      <div class="pricing-row">
+        <span class="industry">🏦 Banks</span>
+        <span class="price">100 TND</span>
+        <span>Multi-service queues</span>
+      </div>
+      <div class="pricing-row">
+        <span class="industry">🏛️ Government</span>
+        <span class="price">Custom</span>
+        <span>Full white-label</span>
+      </div>
+    </div>
+    <div class="billing-info">
+      <div class="billing-badge">
+        <div class="method">International</div>
+        <div class="name">Stripe</div>
+      </div>
+      <div class="billing-badge">
+        <div class="method">Tunisia</div>
+        <div class="name">Konnect / Flouci</div>
+      </div>
+      <div class="billing-badge">
+        <div class="method">Onboarding</div>
+        <div class="name">Self-service + Enterprise</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 7: Architecture -->
+  <div class="slide slide-arch" data-slide="7">
+    <h2>Technical Architecture</h2>
+    <div class="arch-diagram">
+      <div class="arch-layer">
+        <div class="arch-box">
+          <div class="label">Frontend</div>
+          <div class="tech">React + Vite</div>
+        </div>
+        <div class="arch-box">
+          <div class="label">Subdomains</div>
+          <div class="tech">client.doctorq.tn</div>
+        </div>
+      </div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-layer">
+        <div class="arch-box highlight">
+          <div class="label">API</div>
+          <div class="tech">Express + Socket.io</div>
+        </div>
+        <div class="arch-box highlight">
+          <div class="label">Cache</div>
+          <div class="tech">Redis</div>
+        </div>
+      </div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-layer">
+        <div class="arch-box">
+          <div class="label">Database</div>
+          <div class="tech">PostgreSQL</div>
+        </div>
+        <div class="arch-box">
+          <div class="label">Notifications</div>
+          <div class="tech">SMS + WhatsApp</div>
+        </div>
+      </div>
+      <div class="arch-note">Shared infrastructure • Tenant isolation via JWT • Horizontal scaling ready</div>
+    </div>
+  </div>
+
+  <!-- Slide 8: Roadmap -->
+  <div class="slide slide-roadmap" data-slide="8">
+    <h2>12-Month Roadmap</h2>
+    <div class="roadmap-timeline">
+      <div class="roadmap-phase">
+        <h3>Phase 1</h3>
+        <h4>Month 1-3</h4>
+        <ul>
+          <li>Core queue + SMS</li>
+          <li>Basic branding</li>
+          <li>Security hardening</li>
+          <li>10 clinics</li>
+        </ul>
+      </div>
+      <div class="roadmap-phase">
+        <h3>Phase 2</h3>
+        <h4>Month 4-6</h4>
+        <ul>
+          <li>WhatsApp integration</li>
+          <li>Multi-service queues</li>
+          <li>Banks onboarding</li>
+          <li>100 instances</li>
+        </ul>
+      </div>
+      <div class="roadmap-phase">
+        <h3>Phase 3</h3>
+        <h4>Month 7-9</h4>
+        <ul>
+          <li>Full white-label</li>
+          <li>Kiosk mode</li>
+          <li>Government pilots</li>
+          <li>500 instances</li>
+        </ul>
+      </div>
+      <div class="roadmap-phase">
+        <h3>Phase 4</h3>
+        <h4>Month 10-12</h4>
+        <ul>
+          <li>Analytics dashboard</li>
+          <li>Workflow builder</li>
+          <li>Full i18n</li>
+          <li>1000 instances</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 9: GTM -->
+  <div class="slide slide-gtm" data-slide="9">
+    <h2>Go-to-Market Strategy</h2>
+    <div class="gtm-flow">
+      <div class="gtm-step">
+        <div class="number">1</div>
+        <h3>Medical Clinics</h3>
+        <p>Direct sales, pilot success stories</p>
+      </div>
+      <span class="gtm-arrow">→</span>
+      <div class="gtm-step">
+        <div class="number">2</div>
+        <h3>Banks</h3>
+        <p>Premium tier, complex queues</p>
+      </div>
+      <span class="gtm-arrow">→</span>
+      <div class="gtm-step">
+        <div class="number">3</div>
+        <h3>Government</h3>
+        <p>White-label contracts</p>
+      </div>
+      <span class="gtm-arrow">→</span>
+      <div class="gtm-step">
+        <div class="number">4</div>
+        <h3>Scale</h3>
+        <p>Self-service + referrals</p>
+      </div>
+    </div>
+    <div class="gtm-strategy">
+      <div class="strategy-item">
+        <h4>Acquisition</h4>
+        <p>Direct sales + demos</p>
+      </div>
+      <div class="strategy-item">
+        <h4>Retention</h4>
+        <p>WhatsApp differentiator</p>
+      </div>
+      <div class="strategy-item">
+        <h4>Growth</h4>
+        <p>Referral program</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 10: Success Metrics -->
+  <div class="slide slide-metrics" data-slide="10">
+    <h2>Success Metrics - Year 1</h2>
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="value">1,000</div>
+        <div class="label">Active Instances</div>
+        <div class="sublabel">Primary KPI</div>
+      </div>
+      <div class="metric-card">
+        <div class="value">50K</div>
+        <div class="label">TND MRR</div>
+        <div class="sublabel">~$16K USD</div>
+      </div>
+      <div class="metric-card">
+        <div class="value">&lt;5%</div>
+        <div class="label">Monthly Churn</div>
+        <div class="sublabel">Retention focus</div>
+      </div>
+    </div>
+    <div class="differentiator">
+      <h3>Key Differentiator: WhatsApp Integration</h3>
+      <p>98% read rates • Cheaper than SMS • Bot check-in • Two-way messaging</p>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <div class="nav">
+    <button id="prev" disabled>←</button>
+    <div class="dots" id="dots"></div>
+    <span class="slide-counter"><span id="current">1</span> / <span id="total">10</span></span>
+    <button id="next">→</button>
+  </div>
+
+  <div class="keyboard-hint">
+    <kbd>←</kbd> <kbd>→</kbd> or <kbd>Space</kbd> to navigate
+  </div>
+
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    const dotsContainer = document.getElementById('dots');
+    const currentSpan = document.getElementById('current');
+    const totalSpan = document.getElementById('total');
+    const prevBtn = document.getElementById('prev');
+    const nextBtn = document.getElementById('next');
+
+    let currentSlide = 1;
+    const totalSlides = slides.length;
+
+    totalSpan.textContent = totalSlides;
+
+    // Create dots
+    for (let i = 1; i <= totalSlides; i++) {
+      const dot = document.createElement('div');
+      dot.className = 'dot' + (i === 1 ? ' active' : '');
+      dot.dataset.slide = i;
+      dot.addEventListener('click', () => goToSlide(i));
+      dotsContainer.appendChild(dot);
+    }
+
+    function goToSlide(n) {
+      slides[currentSlide - 1].classList.remove('active');
+      document.querySelector(`.dot[data-slide="${currentSlide}"]`).classList.remove('active');
+
+      currentSlide = n;
+      if (currentSlide > totalSlides) currentSlide = 1;
+      if (currentSlide < 1) currentSlide = totalSlides;
+
+      slides[currentSlide - 1].classList.add('active');
+      document.querySelector(`.dot[data-slide="${currentSlide}"]`).classList.add('active');
+      currentSpan.textContent = currentSlide;
+
+      prevBtn.disabled = currentSlide === 1;
+      nextBtn.disabled = currentSlide === totalSlides;
+    }
+
+    prevBtn.addEventListener('click', () => goToSlide(currentSlide - 1));
+    nextBtn.addEventListener('click', () => goToSlide(currentSlide + 1));
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ') {
+        e.preventDefault();
+        if (currentSlide < totalSlides) goToSlide(currentSlide + 1);
+      } else if (e.key === 'ArrowLeft') {
+        if (currentSlide > 1) goToSlide(currentSlide - 1);
+      }
+    });
+
+    // Touch support
+    let touchStartX = 0;
+    document.addEventListener('touchstart', (e) => {
+      touchStartX = e.touches[0].clientX;
+    });
+    document.addEventListener('touchend', (e) => {
+      const touchEndX = e.changedTouches[0].clientX;
+      const diff = touchStartX - touchEndX;
+      if (Math.abs(diff) > 50) {
+        if (diff > 0 && currentSlide < totalSlides) goToSlide(currentSlide + 1);
+        if (diff < 0 && currentSlide > 1) goToSlide(currentSlide - 1);
+      }
+    });
+  </script>
+</body>
+</html>
