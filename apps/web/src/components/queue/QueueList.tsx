@@ -28,6 +28,23 @@ function getDisplayPosition(entry: QueueEntry, isDoctorPresent: boolean): number
   return entry.position;
 }
 
+// Calculate wait time in minutes from arrival time
+function getWaitTimeMinutes(arrivedAt: string): number {
+  const arrived = new Date(arrivedAt);
+  const now = new Date();
+  return Math.floor((now.getTime() - arrived.getTime()) / 60000);
+}
+
+// Format wait time for display
+function formatWaitTime(minutes: number): string {
+  if (minutes < 1) return '< 1 min';
+  if (minutes < 60) return `${minutes} min`;
+  const hours = Math.floor(minutes / 60);
+  const remainingMins = minutes % 60;
+  if (remainingMins === 0) return `${hours}h`;
+  return `${hours}h ${remainingMins}min`;
+}
+
 export default function QueueList({ queue, onRemove, onReorder, onEmergency, onCompleteConsultation, exitingPatientId, isDoctorPresent = false }: QueueListProps) {
   const { t } = useTranslation();
 
@@ -87,183 +104,329 @@ export default function QueueList({ queue, onRemove, onReorder, onEmergency, onC
     );
   }
 
+  // Render action button with consistent styling for mobile
+  const renderActionButton = (
+    onClick: () => void,
+    icon: string,
+    label: string,
+    colorClass: string,
+    filled: boolean = false
+  ) => (
+    <button
+      onClick={onClick}
+      className={clsx(
+        'w-11 h-11 rounded-xl transition-colors inline-flex items-center justify-center',
+        colorClass
+      )}
+      title={label}
+      aria-label={label}
+    >
+      <span
+        className="material-symbols-outlined text-xl"
+        style={filled ? { fontVariationSettings: "'FILL' 1" } : undefined}
+      >
+        {icon}
+      </span>
+    </button>
+  );
+
   return (
-    <div className="bg-white rounded-lg shadow overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-2 sm:px-3 py-2 sm:py-3 text-left text-[10px] sm:text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {t('queue.position')}
-              </th>
-              <th className="px-2 sm:px-3 py-2 sm:py-3 text-left text-[10px] sm:text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {t('queue.patientName')}
-              </th>
-              {/* Hide phone column on tablet and mobile */}
-              <th className="hidden lg:table-cell px-3 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {t('queue.patientPhone')}
-              </th>
-              <th className="px-2 sm:px-3 py-2 sm:py-3 text-left text-[10px] sm:text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {t('queue.status')}
-              </th>
-              {/* Hide appointment time on tablet and mobile */}
-              <th className="hidden lg:table-cell px-3 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {t('queue.appointmentTime') || 'RDV'}
-              </th>
-              {/* Hide arrived at on tablet and mobile */}
-              <th className="hidden lg:table-cell px-3 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {t('queue.arrivedAt')}
-              </th>
-              <th className="px-2 sm:px-3 py-2 sm:py-3 text-left text-[10px] sm:text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {t('queue.actions')}
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {queue.map((entry) => {
-              const displayStatus = getDisplayStatus(entry.status);
-              return (
-              <tr
-                key={entry.id}
-                className={clsx(
-                  entry.id === exitingPatientId && 'queue-row-exit',
-                  exitingPatientId && entry.id !== exitingPatientId && 'queue-row-shift',
-                  displayStatus === QueueStatus.IN_CONSULTATION && 'bg-green-50',
-                  displayStatus === QueueStatus.NOTIFIED && 'bg-yellow-50'
-                )}
-              >
-                <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap">
-                  {isDoctorPresent && entry.status === QueueStatus.IN_CONSULTATION ? (
-                    <span
-                      className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-green-100 text-green-700"
-                      title={t('queue.inConsultation')}
-                      aria-label={t('queue.inConsultation')}
-                    >
-                      <span className="material-symbols-outlined text-xl">medical_services</span>
-                    </span>
-                  ) : (
-                    <div className="text-sm sm:text-lg font-bold text-gray-900">#{getDisplayPosition(entry, isDoctorPresent)}</div>
-                  )}
-                </td>
-                <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap">
-                  <div className="text-xs sm:text-sm font-medium text-gray-900">
-                    {entry.patientName || '-'}
-                  </div>
-                  {/* Show phone number below name on tablet/mobile */}
-                  <div className="lg:hidden text-[10px] sm:text-xs text-gray-500">
-                    {entry.patientPhone}
-                  </div>
-                </td>
-                {/* Hide phone column on tablet and mobile */}
-                <td className="hidden lg:table-cell px-3 py-2 sm:py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">{entry.patientPhone}</div>
-                </td>
-                <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap">
-                  <div className="flex items-center gap-1 flex-wrap">
-                    <span className={clsx(
-                      'px-2 py-0.5 sm:py-1 inline-flex text-[10px] sm:text-xs leading-5 font-semibold rounded-full',
-                      getStatusColor(entry.status)
-                    )}>
-                      {t(`queue.${getStatusTranslationKey(entry.status)}`)}
-                    </span>
-                    {/* Show "Last patient" label when this is the only patient in consultation with no waiting patients */}
-                    {entry.status === QueueStatus.IN_CONSULTATION &&
-                     queue.filter(p => p.status === QueueStatus.WAITING || p.status === QueueStatus.NOTIFIED).length === 0 && (
-                      <span className="text-[10px] sm:text-xs text-gray-500">
-                        ({t('queue.lastPatient')})
+    <>
+      {/* Mobile Card View */}
+      <div className="lg:hidden space-y-3">
+        {queue.map((entry) => {
+          const displayStatus = getDisplayStatus(entry.status);
+          const displayPosition = getDisplayPosition(entry, isDoctorPresent);
+          const waitMinutes = getWaitTimeMinutes(entry.arrivedAt);
+          const isInConsultation = entry.status === QueueStatus.IN_CONSULTATION;
+          const isLastPatient = isInConsultation &&
+            queue.filter(p => p.status === QueueStatus.WAITING || p.status === QueueStatus.NOTIFIED).length === 0;
+
+          return (
+            <div
+              key={entry.id}
+              className={clsx(
+                'bg-white rounded-xl shadow-sm border overflow-hidden',
+                entry.id === exitingPatientId && 'queue-row-exit',
+                exitingPatientId && entry.id !== exitingPatientId && 'queue-row-shift',
+                displayStatus === QueueStatus.IN_CONSULTATION && 'border-green-300 bg-green-50',
+                displayStatus === QueueStatus.NOTIFIED && 'border-yellow-300 bg-yellow-50',
+                displayStatus === QueueStatus.WAITING && 'border-gray-200'
+              )}
+            >
+              <div className="p-4">
+                <div className="flex items-start gap-3">
+                  {/* Position badge */}
+                  <div className="flex-shrink-0">
+                    {isDoctorPresent && isInConsultation ? (
+                      <span
+                        className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-green-100 text-green-700"
+                        title={t('queue.inConsultation')}
+                      >
+                        <span className="material-symbols-outlined text-2xl">medical_services</span>
+                      </span>
+                    ) : (
+                      <span className={clsx(
+                        'inline-flex items-center justify-center w-12 h-12 rounded-xl text-lg font-bold',
+                        displayStatus === QueueStatus.NOTIFIED
+                          ? 'bg-green-500 text-white'
+                          : 'bg-primary-100 text-primary-700'
+                      )}>
+                        #{displayPosition}
                       </span>
                     )}
                   </div>
-                  {/* Show appointment time badge below status on tablet/mobile */}
-                  {entry.appointmentTime && (
-                    <div className="lg:hidden mt-1">
-                      <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-purple-100 text-purple-800 rounded-full text-[10px] font-medium">
-                        <span className="material-symbols-outlined text-xs">schedule</span>
+
+                  {/* Patient info */}
+                  <div className="flex-1 min-w-0">
+                    {/* Name */}
+                    <div className="font-semibold text-gray-900 text-base truncate">
+                      {entry.patientName || t('queue.anonymous')}
+                    </div>
+
+                    {/* Info rows stacked vertically */}
+                    <div className="mt-2 space-y-1">
+                      {/* Arrival time */}
+                      <div className="flex items-center gap-1.5 text-sm text-gray-600">
+                        <span className="material-symbols-outlined text-base text-gray-400">login</span>
+                        <span>{formatTime(entry.arrivedAt)}</span>
+                      </div>
+
+                      {/* Appointment time */}
+                      <div className="flex items-center gap-1.5 text-sm">
+                        <span className="material-symbols-outlined text-base text-purple-400">event</span>
+                        {entry.appointmentTime ? (
+                          <span className="text-purple-700 font-medium">{formatAppointmentTime(entry.appointmentTime)}</span>
+                        ) : (
+                          <span className="text-gray-400">{t('queue.walkIn') || 'Sans RDV'}</span>
+                        )}
+                      </div>
+
+                      {/* Wait time */}
+                      <div className="flex items-center gap-1.5 text-sm text-gray-600">
+                        <span className="material-symbols-outlined text-base text-gray-400">hourglass_empty</span>
+                        <span>{formatWaitTime(waitMinutes)}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Action buttons - 2x2 grid for big fingers */}
+                  <div className="flex-shrink-0 grid grid-cols-2 gap-1.5">
+                    {/* Move up */}
+                    {onReorder && entry.position > 1 ? (
+                      renderActionButton(
+                        () => onReorder(entry.id, entry.position - 1),
+                        'arrow_upward',
+                        t('queue.moveUp') || 'Move up',
+                        'text-gray-500 hover:text-primary-600 hover:bg-primary-50 bg-gray-100'
+                      )
+                    ) : (
+                      <div className="w-11 h-11" /> // Placeholder for alignment
+                    )}
+
+                    {/* Move down */}
+                    {onReorder && entry.position < queue.length ? (
+                      renderActionButton(
+                        () => onReorder(entry.id, entry.position + 1),
+                        'arrow_downward',
+                        t('queue.moveDown') || 'Move down',
+                        'text-gray-500 hover:text-primary-600 hover:bg-primary-50 bg-gray-100'
+                      )
+                    ) : (
+                      <div className="w-11 h-11" /> // Placeholder for alignment
+                    )}
+
+                    {/* Emergency */}
+                    {onEmergency && !isInConsultation && entry.position > 1 ? (
+                      renderActionButton(
+                        () => onEmergency(entry.id),
+                        'emergency',
+                        t('queue.emergency'),
+                        'text-amber-600 hover:text-amber-700 hover:bg-amber-100 bg-amber-50'
+                      )
+                    ) : (
+                      <div className="w-11 h-11" /> // Placeholder for alignment
+                    )}
+
+                    {/* Delete or Complete */}
+                    {isLastPatient && onCompleteConsultation ? (
+                      renderActionButton(
+                        onCompleteConsultation,
+                        'check_circle',
+                        t('queue.completeConsultation'),
+                        'text-green-600 hover:text-green-700 hover:bg-green-100 bg-green-50',
+                        true
+                      )
+                    ) : (
+                      renderActionButton(
+                        () => onRemove(entry.id),
+                        'close',
+                        t('common.delete'),
+                        'text-red-600 hover:text-red-700 hover:bg-red-100 bg-red-50'
+                      )
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Desktop Table View */}
+      <div className="hidden lg:block bg-white rounded-lg shadow overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  {t('queue.position')}
+                </th>
+                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  {t('queue.patientName')}
+                </th>
+                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  {t('queue.patientPhone')}
+                </th>
+                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  {t('queue.status')}
+                </th>
+                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  {t('queue.appointmentTime') || 'RDV'}
+                </th>
+                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  {t('queue.arrivedAt')}
+                </th>
+                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  {t('queue.actions')}
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {queue.map((entry) => {
+                const displayStatus = getDisplayStatus(entry.status);
+                return (
+                <tr
+                  key={entry.id}
+                  className={clsx(
+                    entry.id === exitingPatientId && 'queue-row-exit',
+                    exitingPatientId && entry.id !== exitingPatientId && 'queue-row-shift',
+                    displayStatus === QueueStatus.IN_CONSULTATION && 'bg-green-50',
+                    displayStatus === QueueStatus.NOTIFIED && 'bg-yellow-50'
+                  )}
+                >
+                  <td className="px-3 py-4 whitespace-nowrap">
+                    {isDoctorPresent && entry.status === QueueStatus.IN_CONSULTATION ? (
+                      <span
+                        className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-green-100 text-green-700"
+                        title={t('queue.inConsultation')}
+                        aria-label={t('queue.inConsultation')}
+                      >
+                        <span className="material-symbols-outlined text-xl">medical_services</span>
+                      </span>
+                    ) : (
+                      <div className="text-lg font-bold text-gray-900">#{getDisplayPosition(entry, isDoctorPresent)}</div>
+                    )}
+                  </td>
+                  <td className="px-3 py-4 whitespace-nowrap">
+                    <div className="text-sm font-medium text-gray-900">
+                      {entry.patientName || '-'}
+                    </div>
+                  </td>
+                  <td className="px-3 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">{entry.patientPhone}</div>
+                  </td>
+                  <td className="px-3 py-4 whitespace-nowrap">
+                    <div className="flex items-center gap-1 flex-wrap">
+                      <span className={clsx(
+                        'px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full',
+                        getStatusColor(entry.status)
+                      )}>
+                        {t(`queue.${getStatusTranslationKey(entry.status)}`)}
+                      </span>
+                      {entry.status === QueueStatus.IN_CONSULTATION &&
+                       queue.filter(p => p.status === QueueStatus.WAITING || p.status === QueueStatus.NOTIFIED).length === 0 && (
+                        <span className="text-xs text-gray-500">
+                          ({t('queue.lastPatient')})
+                        </span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-3 py-4 whitespace-nowrap text-sm">
+                    {entry.appointmentTime ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-100 text-purple-800 rounded-full text-xs font-medium">
+                        <span className="material-symbols-outlined text-sm">schedule</span>
                         {formatAppointmentTime(entry.appointmentTime)}
                       </span>
-                    </div>
-                  )}
-                </td>
-                {/* Hide appointment time on tablet and mobile */}
-                <td className="hidden lg:table-cell px-3 py-2 sm:py-4 whitespace-nowrap text-sm">
-                  {entry.appointmentTime ? (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-100 text-purple-800 rounded-full text-xs font-medium">
-                      <span className="material-symbols-outlined text-sm">schedule</span>
-                      {formatAppointmentTime(entry.appointmentTime)}
-                    </span>
-                  ) : (
-                    <span className="text-gray-400 text-xs">{t('queue.walkIn') || 'Sans RDV'}</span>
-                  )}
-                </td>
-                {/* Hide arrived at on tablet and mobile */}
-                <td className="hidden lg:table-cell px-3 py-2 sm:py-4 whitespace-nowrap text-sm text-gray-500">
-                  {formatTime(entry.arrivedAt)}
-                </td>
-                <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap">
-                  <div className="flex items-center gap-0.5 sm:gap-1">
-                    {/* Emergency button - move patient to see doctor immediately */}
-                    {onEmergency && entry.status !== QueueStatus.IN_CONSULTATION && entry.position > 1 && (
-                      <button
-                        onClick={() => onEmergency(entry.id)}
-                        className="text-red-600 hover:text-red-800 hover:bg-red-50 p-1 rounded-full transition-colors inline-flex items-center justify-center"
-                        title={t('queue.emergency')}
-                        aria-label={t('queue.emergency')}
-                      >
-                        <span className="material-symbols-outlined text-base sm:text-lg">e911_emergency</span>
-                      </button>
-                    )}
-                    {/* Reorder controls */}
-                    {onReorder && entry.position > 1 && (
-                      <button
-                        onClick={() => onReorder(entry.id, entry.position - 1)}
-                        className="text-gray-500 hover:text-primary-600 hover:bg-primary-50 p-1 rounded-full transition-colors inline-flex items-center justify-center"
-                        title={t('queue.moveUp') || 'Move up'}
-                        aria-label={t('queue.moveUp') || 'Move up'}
-                      >
-                        <span className="material-symbols-outlined text-base sm:text-lg">arrow_upward</span>
-                      </button>
-                    )}
-                    {onReorder && entry.position < queue.length && (
-                      <button
-                        onClick={() => onReorder(entry.id, entry.position + 1)}
-                        className="text-gray-500 hover:text-primary-600 hover:bg-primary-50 p-1 rounded-full transition-colors inline-flex items-center justify-center"
-                        title={t('queue.moveDown') || 'Move down'}
-                        aria-label={t('queue.moveDown') || 'Move down'}
-                      >
-                        <span className="material-symbols-outlined text-base sm:text-lg">arrow_downward</span>
-                      </button>
-                    )}
-                    {/* Complete consultation button - shown for last patient in consultation */}
-                    {entry.status === QueueStatus.IN_CONSULTATION &&
-                     queue.filter(p => p.status === QueueStatus.WAITING || p.status === QueueStatus.NOTIFIED).length === 0 &&
-                     onCompleteConsultation ? (
-                      <button
-                        onClick={onCompleteConsultation}
-                        className="text-green-600 hover:text-green-800 hover:bg-green-50 p-1 sm:p-1.5 rounded-full transition-colors inline-flex items-center justify-center"
-                        title={t('queue.completeConsultation')}
-                        aria-label={t('queue.completeConsultation')}
-                      >
-                        <span className="material-symbols-outlined text-base sm:text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
-                      </button>
                     ) : (
-                      /* Delete button */
-                      <button
-                        onClick={() => onRemove(entry.id)}
-                        className="text-red-600 hover:text-red-900 hover:bg-red-50 p-1 sm:p-1.5 rounded-full transition-colors inline-flex items-center justify-center"
-                        title={t('common.delete')}
-                        aria-label={t('common.delete')}
-                      >
-                        <span className="material-symbols-outlined text-base sm:text-xl">delete</span>
-                      </button>
+                      <span className="text-gray-400 text-xs">{t('queue.walkIn') || 'Sans RDV'}</span>
                     )}
-                  </div>
-                </td>
-              </tr>
-            );
-            })}
-          </tbody>
-        </table>
+                  </td>
+                  <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {formatTime(entry.arrivedAt)}
+                  </td>
+                  <td className="px-3 py-4 whitespace-nowrap">
+                    <div className="flex items-center gap-1">
+                      {onEmergency && entry.status !== QueueStatus.IN_CONSULTATION && entry.position > 1 && (
+                        <button
+                          onClick={() => onEmergency(entry.id)}
+                          className="text-red-600 hover:text-red-800 hover:bg-red-50 p-1.5 rounded-full transition-colors inline-flex items-center justify-center"
+                          title={t('queue.emergency')}
+                          aria-label={t('queue.emergency')}
+                        >
+                          <span className="material-symbols-outlined text-lg">e911_emergency</span>
+                        </button>
+                      )}
+                      {onReorder && entry.position > 1 && (
+                        <button
+                          onClick={() => onReorder(entry.id, entry.position - 1)}
+                          className="text-gray-500 hover:text-primary-600 hover:bg-primary-50 p-1.5 rounded-full transition-colors inline-flex items-center justify-center"
+                          title={t('queue.moveUp') || 'Move up'}
+                          aria-label={t('queue.moveUp') || 'Move up'}
+                        >
+                          <span className="material-symbols-outlined text-lg">arrow_upward</span>
+                        </button>
+                      )}
+                      {onReorder && entry.position < queue.length && (
+                        <button
+                          onClick={() => onReorder(entry.id, entry.position + 1)}
+                          className="text-gray-500 hover:text-primary-600 hover:bg-primary-50 p-1.5 rounded-full transition-colors inline-flex items-center justify-center"
+                          title={t('queue.moveDown') || 'Move down'}
+                          aria-label={t('queue.moveDown') || 'Move down'}
+                        >
+                          <span className="material-symbols-outlined text-lg">arrow_downward</span>
+                        </button>
+                      )}
+                      {entry.status === QueueStatus.IN_CONSULTATION &&
+                       queue.filter(p => p.status === QueueStatus.WAITING || p.status === QueueStatus.NOTIFIED).length === 0 &&
+                       onCompleteConsultation ? (
+                        <button
+                          onClick={onCompleteConsultation}
+                          className="text-green-600 hover:text-green-800 hover:bg-green-50 p-1.5 rounded-full transition-colors inline-flex items-center justify-center"
+                          title={t('queue.completeConsultation')}
+                          aria-label={t('queue.completeConsultation')}
+                        >
+                          <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => onRemove(entry.id)}
+                          className="text-red-600 hover:text-red-900 hover:bg-red-50 p-1.5 rounded-full transition-colors inline-flex items-center justify-center"
+                          title={t('common.delete')}
+                          aria-label={t('common.delete')}
+                        >
+                          <span className="material-symbols-outlined text-xl">delete</span>
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
