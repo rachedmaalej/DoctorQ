@@ -35,8 +35,8 @@ describe('calculateEstimatedWait', () => {
     expect(calculateEstimatedWait(-1, 15)).toBe(0);
   });
 
-  it('should use default avgConsultationMins of 15', () => {
-    expect(calculateEstimatedWait(3)).toBe(30); // 2 people ahead * 15min default
+  it('should use default avgConsultationMins of 10', () => {
+    expect(calculateEstimatedWait(3)).toBe(20); // 2 people ahead * 10min default
   });
 
   it('should handle large queue positions', () => {

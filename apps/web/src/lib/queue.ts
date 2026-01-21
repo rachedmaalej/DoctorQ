@@ -11,7 +11,7 @@
  */
 export function calculateEstimatedWait(
   position: number,
-  avgConsultationMins: number = 15
+  avgConsultationMins: number = 10
 ): number {
   // Position 1 means you're next, so 0 people ahead
   const patientsAhead = Math.max(0, position - 1);

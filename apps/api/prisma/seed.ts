@@ -24,7 +24,7 @@ async function main() {
       phone: '+21671234567',
       address: 'Tunis, Tunisia',
       language: 'fr',
-      avgConsultationMins: 15,
+      avgConsultationMins: 10,
       notifyAtPosition: 2,
       enableWhatsApp: false,
     },

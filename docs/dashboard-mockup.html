@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DoctorQ Dashboard - Online Doctor Style</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  <style>
+    /* ========================================
+       ONLINE DOCTOR INSPIRED PALETTE
+       Rose/Burgundy, Clean, Medical
+       ======================================== */
+    :root {
+      /* Primary - Rose/Burgundy */
+      --primary-900: #590D22;
+      --primary-800: #800F2F;
+      --primary-700: #A4133C;
+      --primary-600: #C9184A;
+      --primary-500: #E8335A;
+      --primary-400: #FF4D6D;
+      --primary-300: #FF758F;
+      --primary-200: #FF8FA3;
+      --primary-100: #FFB3C1;
+      --primary-50: #FFCCD5;
+      --primary-25: #FFF0F3;
+
+      /* Success - Green */
+      --green-600: #059669;
+      --green-500: #10B981;
+      --green-100: #D1FAE5;
+
+      /* Warning - Amber */
+      --amber-600: #D97706;
+      --amber-500: #F59E0B;
+      --amber-100: #FEF3C7;
+
+      /* Info - Blue */
+      --blue-600: #2563EB;
+      --blue-500: #3B82F6;
+      --blue-100: #DBEAFE;
+
+      /* Danger - Red */
+      --red-600: #DC2626;
+      --red-500: #EF4444;
+      --red-100: #FEE2E2;
+
+      /* Neutrals */
+      --gray-900: #1F2937;
+      --gray-800: #374151;
+      --gray-700: #4B5563;
+      --gray-600: #6B7280;
+      --gray-500: #9CA3AF;
+      --gray-400: #D1D5DB;
+      --gray-300: #E5E7EB;
+      --gray-200: #F3F4F6;
+      --gray-100: #F9FAFB;
+      --gray-50: #FAFAFA;
+      --white: #FFFFFF;
+
+      /* Shadows */
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.08);
+      --shadow-button: 0 4px 14px rgba(164, 19, 60, 0.25);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+      background-color: var(--gray-100);
+      color: var(--gray-800);
+      min-height: 100vh;
+    }
+
+    /* ========================================
+       HEADER
+       ======================================== */
+    .header {
+      background: var(--white);
+      padding: 1rem 0;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .header-container {
+      max-width: 80rem;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .logo-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      box-shadow: var(--shadow-button);
+    }
+
+    .logo-text {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary-700);
+    }
+
+    .clinic-info {
+      text-align: center;
+    }
+
+    .clinic-label {
+      font-size: 0.75rem;
+      color: var(--gray-500);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .clinic-name {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--gray-900);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .header-icon-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 1px solid var(--gray-300);
+      background: var(--white);
+      color: var(--primary-700);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .header-icon-btn:hover {
+      background: var(--primary-25);
+      border-color: var(--primary-200);
+    }
+
+    .header-icon-btn .material-symbols-outlined {
+      font-size: 22px;
+    }
+
+    /* ========================================
+       MAIN LAYOUT
+       ======================================== */
+    .main-container {
+      max-width: 80rem;
+      margin: 0 auto;
+      padding: 1.5rem;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 1.5rem;
+    }
+
+    /* ========================================
+       LEFT COLUMN - QR Code Card
+       ======================================== */
+    .left-column {
+      position: sticky;
+      top: 1.5rem;
+      align-self: start;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .qr-card {
+      background: var(--white);
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+    }
+
+    .qr-card-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    .qr-card-title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--gray-900);
+    }
+
+    .qr-card-title .material-symbols-outlined {
+      color: var(--primary-600);
+    }
+
+    .qr-card-description {
+      font-size: 0.8125rem;
+      color: var(--gray-500);
+      margin-top: 0.25rem;
+    }
+
+    .qr-card-content {
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .qr-image-container {
+      background: var(--white);
+      padding: 1rem;
+      border-radius: 20px;
+      border: 2px dashed var(--gray-300);
+    }
+
+    .qr-image {
+      width: 200px;
+      height: 200px;
+      background: linear-gradient(135deg, var(--primary-25), var(--white));
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary-600);
+    }
+
+    .qr-card-footer {
+      padding: 0 1.5rem 1.5rem;
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .qr-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.375rem;
+      padding: 0.75rem 1rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .qr-btn.outline {
+      color: var(--gray-700);
+      background: var(--white);
+      border: 1px solid var(--gray-300);
+    }
+
+    .qr-btn.outline:hover {
+      background: var(--gray-100);
+      border-color: var(--gray-400);
+    }
+
+    .qr-btn.filled {
+      color: var(--white);
+      background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+      border: none;
+      box-shadow: var(--shadow-button);
+    }
+
+    .qr-btn.filled:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(164, 19, 60, 0.35);
+    }
+
+    .qr-btn .material-symbols-outlined {
+      font-size: 18px;
+    }
+
+    /* Doctor Profile Card */
+    .doctor-card {
+      background: var(--white);
+      border-radius: 24px;
+      padding: 1.5rem;
+      box-shadow: var(--shadow-card);
+      text-align: center;
+    }
+
+    .doctor-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary-100), var(--primary-200));
+      margin: 0 auto 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 3px solid var(--white);
+      box-shadow: var(--shadow-md);
+    }
+
+    .doctor-avatar .material-symbols-outlined {
+      font-size: 40px;
+      color: var(--primary-700);
+    }
+
+    .doctor-name {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--gray-900);
+      margin-bottom: 0.25rem;
+    }
+
+    .doctor-specialty {
+      font-size: 0.8125rem;
+      color: var(--gray-500);
+      margin-bottom: 1rem;
+    }
+
+    .doctor-stats {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    .doctor-stat {
+      padding: 0.5rem 1rem;
+      border: 1px solid var(--primary-200);
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .doctor-stat-value {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--primary-700);
+    }
+
+    .doctor-stat-label {
+      font-size: 0.6875rem;
+      color: var(--gray-500);
+      text-transform: uppercase;
+    }
+
+    /* ========================================
+       RIGHT COLUMN
+       ======================================== */
+    .right-column {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .stat-card {
+      background: var(--white);
+      border-radius: 20px;
+      padding: 1.25rem;
+      box-shadow: var(--shadow-card);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .stat-card.disabled {
+      opacity: 0.6;
+    }
+
+    .stat-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .stat-icon.primary {
+      background: var(--primary-25);
+      color: var(--primary-700);
+    }
+
+    .stat-icon.green {
+      background: var(--green-100);
+      color: var(--green-600);
+    }
+
+    .stat-icon.gray {
+      background: var(--gray-200);
+      color: var(--gray-500);
+    }
+
+    .stat-icon .material-symbols-outlined {
+      font-size: 26px;
+    }
+
+    .stat-content {
+      flex: 1;
+    }
+
+    .stat-value {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--gray-900);
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 0.8125rem;
+      color: var(--gray-500);
+      margin-top: 0.25rem;
+    }
+
+    /* Action Bar */
+    .action-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .action-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .action-bar-right {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    /* Primary Button (Pill) */
+    .btn-primary {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--white);
+      background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: var(--shadow-button);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(164, 19, 60, 0.4);
+    }
+
+    .btn-primary .material-symbols-outlined {
+      font-size: 20px;
+    }
+
+    /* Doctor Toggle (Pill Style) */
+    .doctor-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.625rem 1.25rem;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 2px solid;
+    }
+
+    .doctor-toggle.active {
+      background: var(--green-100);
+      border-color: var(--green-500);
+    }
+
+    .doctor-toggle.inactive {
+      background: var(--gray-200);
+      border-color: var(--gray-400);
+    }
+
+    .toggle-indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .doctor-toggle.active .toggle-indicator {
+      background: var(--green-500);
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+    }
+
+    .doctor-toggle.inactive .toggle-indicator {
+      background: var(--gray-500);
+    }
+
+    .toggle-label {
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .doctor-toggle.active .toggle-label {
+      color: var(--green-600);
+    }
+
+    .doctor-toggle.inactive .toggle-label {
+      color: var(--gray-600);
+    }
+
+    /* Text Button */
+    .btn-text {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.625rem 1rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      background: transparent;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-text.purple {
+      color: var(--blue-600);
+    }
+
+    .btn-text.purple:hover {
+      background: var(--blue-100);
+    }
+
+    .btn-text.red {
+      color: var(--red-600);
+    }
+
+    .btn-text.red:hover {
+      background: var(--red-100);
+    }
+
+    .btn-text .material-symbols-outlined {
+      font-size: 20px;
+    }
+
+    /* ========================================
+       QUEUE LIST - Card Style (Like Doctor List)
+       ======================================== */
+    .queue-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .queue-section-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--gray-900);
+    }
+
+    .see-all-link {
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: var(--primary-600);
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .see-all-link:hover {
+      text-decoration: underline;
+    }
+
+    .queue-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    /* Patient Card (Like Doctor Card in reference) */
+    .patient-card {
+      background: var(--white);
+      border-radius: 20px;
+      padding: 1rem 1.25rem;
+      box-shadow: var(--shadow-card);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      transition: all 0.2s;
+      border-left: 4px solid transparent;
+    }
+
+    .patient-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .patient-card.in-consultation {
+      border-left-color: var(--green-500);
+      background: linear-gradient(90deg, var(--green-100) 0%, var(--white) 30%);
+    }
+
+    .patient-card.notified {
+      border-left-color: var(--amber-500);
+      background: linear-gradient(90deg, var(--amber-100) 0%, var(--white) 30%);
+    }
+
+    .patient-card.waiting {
+      border-left-color: var(--primary-400);
+    }
+
+    .patient-position {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.125rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .patient-card.in-consultation .patient-position {
+      background: var(--green-100);
+      color: var(--green-600);
+    }
+
+    .patient-card.notified .patient-position {
+      background: var(--amber-100);
+      color: var(--amber-600);
+    }
+
+    .patient-card.waiting .patient-position {
+      background: var(--primary-25);
+      color: var(--primary-700);
+    }
+
+    .patient-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .patient-name {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--gray-900);
+      margin-bottom: 0.125rem;
+    }
+
+    .patient-details {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.75rem;
+      color: var(--gray-500);
+    }
+
+    .patient-detail-item {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .patient-detail-item .material-symbols-outlined {
+      font-size: 14px;
+    }
+
+    /* Status & Actions */
+    .patient-status-section {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.5rem;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.375rem 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 50px;
+    }
+
+    .status-badge.in-consultation {
+      background: var(--green-100);
+      color: var(--green-600);
+    }
+
+    .status-badge.notified {
+      background: var(--amber-100);
+      color: var(--amber-600);
+    }
+
+    .status-badge.waiting {
+      background: var(--primary-25);
+      color: var(--primary-700);
+    }
+
+    .patient-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .action-btn {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      background: transparent;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .action-btn .material-symbols-outlined {
+      font-size: 18px;
+    }
+
+    .action-btn.emergency {
+      color: var(--red-500);
+    }
+
+    .action-btn.emergency:hover {
+      background: var(--red-100);
+    }
+
+    .action-btn.reorder {
+      color: var(--gray-500);
+    }
+
+    .action-btn.reorder:hover {
+      color: var(--primary-600);
+      background: var(--primary-25);
+    }
+
+    .action-btn.delete {
+      color: var(--red-500);
+    }
+
+    .action-btn.delete:hover {
+      background: var(--red-100);
+    }
+
+    .action-btn.complete {
+      color: var(--green-600);
+    }
+
+    .action-btn.complete:hover {
+      background: var(--green-100);
+    }
+
+    /* View Profile Button (Pill) */
+    .view-profile-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.5rem 1rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--white);
+      background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .view-profile-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-button);
+    }
+
+    /* Appointment Badge */
+    .appointment-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.6875rem;
+      font-weight: 500;
+      background: var(--gray-200);
+      color: var(--gray-700);
+      border-radius: 50px;
+    }
+
+    .appointment-badge.has-appointment {
+      background: var(--primary-25);
+      color: var(--primary-700);
+    }
+
+    .appointment-badge .material-symbols-outlined {
+      font-size: 12px;
+    }
+
+    /* ========================================
+       FAB - Call Next Button
+       ======================================== */
+    .fab {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      border: none;
+      background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+      color: var(--white);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 24px rgba(164, 19, 60, 0.4);
+      transition: all 0.2s;
+      z-index: 100;
+    }
+
+    .fab:hover {
+      transform: translateY(-4px) scale(1.05);
+      box-shadow: 0 10px 32px rgba(164, 19, 60, 0.5);
+    }
+
+    .fab .material-symbols-outlined {
+      font-size: 28px;
+    }
+
+    /* Bottom Navigation (Mobile Style from Reference) */
+    .bottom-nav {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--white);
+      border-radius: 50px;
+      padding: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: var(--shadow-lg);
+      z-index: 90;
+    }
+
+    .bottom-nav-item {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gray-500);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .bottom-nav-item:hover {
+      color: var(--primary-600);
+    }
+
+    .bottom-nav-item.active {
+      background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+      color: var(--white);
+      box-shadow: var(--shadow-button);
+    }
+
+    .bottom-nav-item .material-symbols-outlined {
+      font-size: 24px;
+    }
+
+    /* Heart/Favorite Icon */
+    .favorite-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: none;
+      background: var(--white);
+      color: var(--gray-400);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .favorite-btn:hover,
+    .favorite-btn.active {
+      color: var(--red-500);
+    }
+
+    .favorite-btn.active .material-symbols-outlined {
+      font-variation-settings: 'FILL' 1;
+    }
+
+    .favorite-btn .material-symbols-outlined {
+      font-size: 20px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-container">
+      <!-- Left: Logo -->
+      <div class="logo">
+        <div class="logo-icon">
+          <span class="material-symbols-outlined">medical_services</span>
+        </div>
+        <span class="logo-text">DoctorQ</span>
+      </div>
+
+      <!-- Center: Clinic Info -->
+      <div class="clinic-info">
+        <p class="clinic-label">Cabinet Médical</p>
+        <h1 class="clinic-name">Dr. Kamoun</h1>
+      </div>
+
+      <!-- Right: Actions -->
+      <div class="header-actions">
+        <button class="header-icon-btn">
+          <span class="material-symbols-outlined">notifications</span>
+        </button>
+        <button class="header-icon-btn">
+          <span class="material-symbols-outlined">favorite</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-container">
+    <div class="main-grid">
+      <!-- Left Column -->
+      <aside class="left-column">
+        <!-- QR Code Card -->
+        <div class="qr-card">
+          <div class="qr-card-header">
+            <h2 class="qr-card-title">
+              <span class="material-symbols-outlined">qr_code_2</span>
+              Check-in Patient
+            </h2>
+            <p class="qr-card-description">Scanner pour rejoindre la file</p>
+          </div>
+
+          <div class="qr-card-content">
+            <div class="qr-image-container">
+              <div class="qr-image">
+                <span class="material-symbols-outlined" style="font-size: 80px;">qr_code_2</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="qr-card-footer">
+            <button class="qr-btn outline">
+              <span class="material-symbols-outlined">content_copy</span>
+              Copier
+            </button>
+            <button class="qr-btn filled">
+              <span class="material-symbols-outlined">share</span>
+              Partager
+            </button>
+          </div>
+        </div>
+
+        <!-- Doctor Profile Card -->
+        <div class="doctor-card">
+          <div class="doctor-avatar">
+            <span class="material-symbols-outlined">person</span>
+          </div>
+          <h3 class="doctor-name">Dr. Kamoun</h3>
+          <p class="doctor-specialty">Médecin Généraliste</p>
+          <div class="doctor-stats">
+            <div class="doctor-stat">
+              <div class="doctor-stat-value">948+</div>
+              <div class="doctor-stat-label">Consultations</div>
+            </div>
+            <div class="doctor-stat">
+              <div class="doctor-stat-value">15+</div>
+              <div class="doctor-stat-label">Années</div>
+            </div>
+            <div class="doctor-stat">
+              <div class="doctor-stat-value">4.9</div>
+              <div class="doctor-stat-label">Note</div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Right Column -->
+      <div class="right-column">
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon primary">
+              <span class="material-symbols-outlined">groups</span>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">7</div>
+              <div class="stat-label">En Attente</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon green">
+              <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">12</div>
+              <div class="stat-label">Vus Aujourd'hui</div>
+            </div>
+          </div>
+
+          <div class="stat-card disabled">
+            <div class="stat-icon gray">
+              <span class="material-symbols-outlined">schedule</span>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">-</div>
+              <div class="stat-label">Attente Moyenne</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Bar -->
+        <div class="action-bar">
+          <div class="action-bar-left">
+            <button class="btn-primary">
+              <span class="material-symbols-outlined">person_add</span>
+              Ajouter Patient
+            </button>
+
+            <div class="doctor-toggle active">
+              <div class="toggle-indicator"></div>
+              <span class="toggle-label">Médecin présent</span>
+            </div>
+          </div>
+
+          <div class="action-bar-right">
+            <button class="btn-text purple">
+              <span class="material-symbols-outlined">group_add</span>
+              Remplir
+            </button>
+            <button class="btn-text red">
+              <span class="material-symbols-outlined">delete_sweep</span>
+              Vider
+            </button>
+          </div>
+        </div>
+
+        <!-- Queue Section -->
+        <div>
+          <div class="queue-section-header">
+            <h2 class="queue-section-title">File d'attente</h2>
+            <a href="#" class="see-all-link">Voir tout</a>
+          </div>
+
+          <div class="queue-list">
+            <!-- In Consultation -->
+            <div class="patient-card in-consultation">
+              <div class="patient-position">
+                <span class="material-symbols-outlined">medical_services</span>
+              </div>
+              <div class="patient-info">
+                <div class="patient-name">Sami Ben Ali</div>
+                <div class="patient-details">
+                  <span class="patient-detail-item">
+                    <span class="material-symbols-outlined">phone</span>
+                    +216 98 765 432
+                  </span>
+                  <span class="appointment-badge has-appointment">
+                    <span class="material-symbols-outlined">schedule</span>
+                    09:00
+                  </span>
+                </div>
+              </div>
+              <div class="patient-status-section">
+                <span class="status-badge in-consultation">En consultation</span>
+                <div class="patient-actions">
+                  <button class="action-btn complete" title="Terminer">
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Notified -->
+            <div class="patient-card notified">
+              <div class="patient-position">#1</div>
+              <div class="patient-info">
+                <div class="patient-name">Fatma Trabelsi</div>
+                <div class="patient-details">
+                  <span class="patient-detail-item">
+                    <span class="material-symbols-outlined">phone</span>
+                    +216 97 654 321
+                  </span>
+                  <span class="appointment-badge has-appointment">
+                    <span class="material-symbols-outlined">schedule</span>
+                    09:30
+                  </span>
+                </div>
+              </div>
+              <div class="patient-status-section">
+                <span class="status-badge notified">Notifié</span>
+                <div class="patient-actions">
+                  <button class="action-btn emergency" title="Urgence">
+                    <span class="material-symbols-outlined">e911_emergency</span>
+                  </button>
+                  <button class="action-btn delete" title="Supprimer">
+                    <span class="material-symbols-outlined">delete</span>
+                  </button>
+                </div>
+              </div>
+              <button class="favorite-btn active">
+                <span class="material-symbols-outlined">favorite</span>
+              </button>
+            </div>
+
+            <!-- Waiting -->
+            <div class="patient-card waiting">
+              <div class="patient-position">#2</div>
+              <div class="patient-info">
+                <div class="patient-name">Mohamed Gharbi</div>
+                <div class="patient-details">
+                  <span class="patient-detail-item">
+                    <span class="material-symbols-outlined">phone</span>
+                    +216 96 543 210
+                  </span>
+                  <span class="appointment-badge">
+                    <span class="material-symbols-outlined">schedule</span>
+                    Sans RDV
+                  </span>
+                </div>
+              </div>
+              <div class="patient-status-section">
+                <span class="status-badge waiting">En attente</span>
+                <div class="patient-actions">
+                  <button class="action-btn emergency" title="Urgence">
+                    <span class="material-symbols-outlined">e911_emergency</span>
+                  </button>
+                  <button class="action-btn reorder" title="Monter">
+                    <span class="material-symbols-outlined">arrow_upward</span>
+                  </button>
+                  <button class="action-btn reorder" title="Descendre">
+                    <span class="material-symbols-outlined">arrow_downward</span>
+                  </button>
+                  <button class="action-btn delete" title="Supprimer">
+                    <span class="material-symbols-outlined">delete</span>
+                  </button>
+                </div>
+              </div>
+              <button class="favorite-btn">
+                <span class="material-symbols-outlined">favorite</span>
+              </button>
+            </div>
+
+            <div class="patient-card waiting">
+              <div class="patient-position">#3</div>
+              <div class="patient-info">
+                <div class="patient-name">Leila Khediri</div>
+                <div class="patient-details">
+                  <span class="patient-detail-item">
+                    <span class="material-symbols-outlined">phone</span>
+                    +216 95 432 109
+                  </span>
+                  <span class="appointment-badge has-appointment">
+                    <span class="material-symbols-outlined">schedule</span>
+                    10:00
+                  </span>
+                </div>
+              </div>
+              <div class="patient-status-section">
+                <span class="status-badge waiting">En attente</span>
+                <div class="patient-actions">
+                  <button class="action-btn emergency" title="Urgence">
+                    <span class="material-symbols-outlined">e911_emergency</span>
+                  </button>
+                  <button class="action-btn reorder" title="Monter">
+                    <span class="material-symbols-outlined">arrow_upward</span>
+                  </button>
+                  <button class="action-btn reorder" title="Descendre">
+                    <span class="material-symbols-outlined">arrow_downward</span>
+                  </button>
+                  <button class="action-btn delete" title="Supprimer">
+                    <span class="material-symbols-outlined">delete</span>
+                  </button>
+                </div>
+              </div>
+              <button class="favorite-btn">
+                <span class="material-symbols-outlined">favorite</span>
+              </button>
+            </div>
+
+            <div class="patient-card waiting">
+              <div class="patient-position">#4</div>
+              <div class="patient-info">
+                <div class="patient-name">Ahmed Bouazizi</div>
+                <div class="patient-details">
+                  <span class="patient-detail-item">
+                    <span class="material-symbols-outlined">phone</span>
+                    +216 94 321 098
+                  </span>
+                  <span class="appointment-badge">
+                    <span class="material-symbols-outlined">schedule</span>
+                    Sans RDV
+                  </span>
+                </div>
+              </div>
+              <div class="patient-status-section">
+                <span class="status-badge waiting">En attente</span>
+                <div class="patient-actions">
+                  <button class="action-btn emergency" title="Urgence">
+                    <span class="material-symbols-outlined">e911_emergency</span>
+                  </button>
+                  <button class="action-btn reorder" title="Monter">
+                    <span class="material-symbols-outlined">arrow_upward</span>
+                  </button>
+                  <button class="action-btn reorder" title="Descendre">
+                    <span class="material-symbols-outlined">arrow_downward</span>
+                  </button>
+                  <button class="action-btn delete" title="Supprimer">
+                    <span class="material-symbols-outlined">delete</span>
+                  </button>
+                </div>
+              </div>
+              <button class="favorite-btn active">
+                <span class="material-symbols-outlined">favorite</span>
+              </button>
+            </div>
+
+            <div class="patient-card waiting">
+              <div class="patient-position">#5</div>
+              <div class="patient-info">
+                <div class="patient-name">Nour Hammami</div>
+                <div class="patient-details">
+                  <span class="patient-detail-item">
+                    <span class="material-symbols-outlined">phone</span>
+                    +216 93 210 987
+                  </span>
+                  <span class="appointment-badge has-appointment">
+                    <span class="material-symbols-outlined">schedule</span>
+                    10:30
+                  </span>
+                </div>
+              </div>
+              <div class="patient-status-section">
+                <span class="status-badge waiting">En attente</span>
+                <div class="patient-actions">
+                  <button class="action-btn emergency" title="Urgence">
+                    <span class="material-symbols-outlined">e911_emergency</span>
+                  </button>
+                  <button class="action-btn reorder" title="Monter">
+                    <span class="material-symbols-outlined">arrow_upward</span>
+                  </button>
+                  <button class="action-btn reorder" title="Descendre">
+                    <span class="material-symbols-outlined">arrow_downward</span>
+                  </button>
+                  <button class="action-btn delete" title="Supprimer">
+                    <span class="material-symbols-outlined">delete</span>
+                  </button>
+                </div>
+              </div>
+              <button class="favorite-btn">
+                <span class="material-symbols-outlined">favorite</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+    <div class="bottom-nav-item active">
+      <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+    </div>
+    <div class="bottom-nav-item">
+      <span class="material-symbols-outlined">calendar_month</span>
+    </div>
+    <div class="bottom-nav-item">
+      <span class="material-symbols-outlined">chat</span>
+    </div>
+    <div class="bottom-nav-item">
+      <span class="material-symbols-outlined">person</span>
+    </div>
+  </nav>
+
+  <!-- FAB - Call Next -->
+  <button class="fab" title="Appeler Suivant">
+    <span class="material-symbols-outlined">directions_walk</span>
+  </button>
+</body>
+</html>
