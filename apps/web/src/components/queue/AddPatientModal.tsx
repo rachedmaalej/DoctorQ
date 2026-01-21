@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQueueStore } from '@/stores/queueStore';
 import { logger } from '@/lib/logger';
-import { formatTunisianPhone, isValidTunisianPhone, DEFAULT_PHONE_VALUE } from '@/lib/phone';
+import { formatTunisianPhone, isValidTunisianPhone, extractPhoneDigits, DEFAULT_PHONE_VALUE } from '@/lib/phone';
 
 interface AddPatientModalProps {
   isOpen: boolean;
@@ -50,9 +50,10 @@ export default function AddPatientModal({ isOpen, onClose }: AddPatientModalProp
 
     try {
       const appointmentTime = getAppointmentTime();
-      logger.log('Submitting patient:', { patientPhone, patientName, appointmentTime });
+      const normalizedPhone = extractPhoneDigits(patientPhone);
+      logger.log('Submitting patient:', { patientPhone: normalizedPhone, patientName, appointmentTime });
       await addPatient({
-        patientPhone,
+        patientPhone: normalizedPhone,
         patientName: patientName || undefined,
         appointmentTime: appointmentTime,
       });
