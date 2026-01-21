@@ -30,25 +30,27 @@ export default function WaitEstimateCard({ position, avgConsultationMins = 10 }:
   };
 
   return (
-    <div className="bg-white/80 backdrop-blur border border-primary-100 rounded-xl p-4 h-full flex items-center justify-center">
-      <div className="flex items-center gap-3">
-        <div className="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
+    <div className="bg-white/80 backdrop-blur border border-primary-100 rounded-xl p-4 h-full flex flex-col">
+      {/* Top row: icon + label */}
+      <div className="flex items-center gap-2 mb-2">
+        <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
           <span
-            className="material-symbols-outlined text-2xl text-primary-600"
+            className="material-symbols-outlined text-lg text-primary-600"
             style={{ fontVariationSettings: "'FILL' 1" }}
             aria-hidden="true"
           >
             schedule
           </span>
         </div>
-        <div className="min-w-0 flex-1">
-          <p className="text-xs font-medium text-primary-600 uppercase tracking-wide mb-0.5">
-            {t('patient.estimatedWait')}
-          </p>
-          <p className="text-lg font-bold text-gray-800">
-            {formatWaitTime(estimatedMinutes)}
-          </p>
-        </div>
+        <p className="text-xs font-medium text-primary-600 uppercase tracking-wide">
+          {t('patient.estimatedWait')}
+        </p>
+      </div>
+      {/* Bottom: large time display */}
+      <div className="flex-1 flex items-center justify-center">
+        <p className="text-2xl font-bold text-gray-800 text-center w-full">
+          {formatWaitTime(estimatedMinutes)}
+        </p>
       </div>
     </div>
   );
