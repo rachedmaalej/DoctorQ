@@ -27,13 +27,11 @@ export default function DashboardPage() {
     setIsQRModalOpen,
     isConfirmModalOpen,
     isClearQueueModalOpen,
-    setIsClearQueueModalOpen,
 
     // Loading states
     isRemoving,
     isClearing,
     isCallingNext,
-    isFillingQueue,
     isTogglingPresence,
 
     // Animation state
@@ -50,7 +48,6 @@ export default function DashboardPage() {
     confirmClearQueue,
     cancelClearQueue,
     handleToggleDoctorPresent,
-    handleFillQueue,
     handleReorderPatient,
     handleCompleteConsultation,
     resetStats,
@@ -78,12 +75,10 @@ export default function DashboardPage() {
           onReorder={handleReorderPatient}
           onEmergency={(id) => handleReorderPatient(id, 1)}
           onShowQR={() => setIsQRModalOpen(true)}
-          onFillQueue={handleFillQueue}
           onCompleteConsultation={handleCompleteConsultation}
           isCallingNext={isCallingNext}
           isDoctorPresent={isDoctorPresent}
           onToggleDoctorPresent={handleToggleDoctorPresent}
-          isFillingQueue={isFillingQueue}
         />
       </div>
 

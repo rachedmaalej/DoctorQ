@@ -15,12 +15,10 @@ interface MobileDashboardProps {
   onReorder: (id: string, newPosition: number) => void;
   onEmergency: (id: string) => void;
   onShowQR: () => void;
-  onFillQueue?: () => void;
   onCompleteConsultation?: () => void;
   isCallingNext: boolean;
   isDoctorPresent: boolean;
   onToggleDoctorPresent: () => void;
-  isFillingQueue?: boolean;
 }
 
 
@@ -41,12 +39,10 @@ export default function MobileDashboard({
   onReorder,
   onEmergency,
   onShowQR,
-  onFillQueue,
   onCompleteConsultation,
   isCallingNext,
   isDoctorPresent,
   onToggleDoctorPresent,
-  isFillingQueue,
 }: MobileDashboardProps) {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
