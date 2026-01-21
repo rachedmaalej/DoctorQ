@@ -4,6 +4,7 @@ import { Server } from 'socket.io';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
+import bcrypt from 'bcryptjs';
 import { setSocketIO } from './lib/socket.js';
 import { prisma } from './lib/prisma.js';
 import { verifyToken } from './lib/auth.js';
@@ -67,6 +68,57 @@ if (process.env.NODE_ENV === 'development') {
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// One-time seed endpoint for production (protected by secret)
+app.post('/api/seed', async (req, res) => {
+  const { secret } = req.body;
+
+  // Verify secret matches JWT_SECRET (only admin knows this)
+  if (secret !== process.env.JWT_SECRET) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  try {
+    // Check if clinic already exists
+    const existingClinic = await prisma.clinic.findUnique({
+      where: { email: 'dr.kamoun@doctorq.tn' }
+    });
+
+    if (existingClinic) {
+      return res.json({ message: 'Clinic already exists', clinicId: existingClinic.id });
+    }
+
+    // Create Dr. Kamoun's clinic
+    const passwordHash = await bcrypt.hash('DoctorQ2024!', 10);
+
+    const clinic = await prisma.clinic.create({
+      data: {
+        name: 'Cabinet Dr Skander Kamoun',
+        doctorName: 'Dr. Skander Kamoun',
+        email: 'dr.kamoun@doctorq.tn',
+        passwordHash,
+        phone: '+21671234567',
+        address: 'Tunis, Tunisia',
+        language: 'fr',
+        avgConsultationMins: 10,
+        notifyAtPosition: 2,
+        enableWhatsApp: false,
+      },
+    });
+
+    res.json({
+      message: 'Clinic created successfully',
+      clinicId: clinic.id,
+      credentials: {
+        email: 'dr.kamoun@doctorq.tn',
+        password: 'DoctorQ2024!'
+      }
+    });
+  } catch (error) {
+    console.error('Seed error:', error);
+    res.status(500).json({ error: 'Failed to seed database' });
+  }
 });
 
 // Prometheus metrics endpoint
