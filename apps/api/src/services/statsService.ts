@@ -49,13 +49,11 @@ export async function getQueueStats(clinicId: string): Promise<QueueStats> {
         },
       },
     }),
-    // Get patients that have been seen TODAY (for average wait calculation)
+    // Get patients that have COMPLETED consultation TODAY (for seen count and average wait calculation)
     prisma.queueEntry.findMany({
       where: {
         clinicId,
-        status: {
-          in: [QueueStatus.IN_CONSULTATION, QueueStatus.COMPLETED],
-        },
+        status: QueueStatus.COMPLETED,
         arrivedAt: {
           gte: startOfToday,
         },
