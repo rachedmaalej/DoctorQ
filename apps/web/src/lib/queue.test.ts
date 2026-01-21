@@ -14,33 +14,33 @@ import {
 } from './queue';
 
 describe('calculateEstimatedWait', () => {
-  it('should return 0 for position 1 (next to be called)', () => {
-    expect(calculateEstimatedWait(1, 15)).toBe(0);
+  it('should return avgConsultation for position 1 (waits for person in consultation)', () => {
+    expect(calculateEstimatedWait(1, 10)).toBe(10);
   });
 
-  it('should return avgConsultation for position 2 (one person ahead)', () => {
-    expect(calculateEstimatedWait(2, 15)).toBe(15);
+  it('should return 2x avgConsultation for position 2', () => {
+    expect(calculateEstimatedWait(2, 10)).toBe(20);
   });
 
-  it('should multiply patients ahead by avg consultation time', () => {
-    expect(calculateEstimatedWait(5, 15)).toBe(60); // 4 people ahead * 15min
-    expect(calculateEstimatedWait(5, 20)).toBe(80); // 4 people ahead * 20min
+  it('should multiply position by avg consultation time', () => {
+    expect(calculateEstimatedWait(5, 10)).toBe(50); // position 5 * 10min
+    expect(calculateEstimatedWait(5, 15)).toBe(75); // position 5 * 15min
   });
 
   it('should handle position 0 (edge case)', () => {
-    expect(calculateEstimatedWait(0, 15)).toBe(0);
+    expect(calculateEstimatedWait(0, 10)).toBe(0);
   });
 
   it('should handle negative position (edge case)', () => {
-    expect(calculateEstimatedWait(-1, 15)).toBe(0);
+    expect(calculateEstimatedWait(-1, 10)).toBe(0);
   });
 
   it('should use default avgConsultationMins of 10', () => {
-    expect(calculateEstimatedWait(3)).toBe(20); // 2 people ahead * 10min default
+    expect(calculateEstimatedWait(3)).toBe(30); // position 3 * 10min default
   });
 
   it('should handle large queue positions', () => {
-    expect(calculateEstimatedWait(20, 15)).toBe(285); // 19 people ahead * 15min
+    expect(calculateEstimatedWait(20, 10)).toBe(200); // position 20 * 10min
   });
 });
 

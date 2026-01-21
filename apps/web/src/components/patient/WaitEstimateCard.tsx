@@ -13,9 +13,10 @@ interface WaitEstimateCardProps {
 export default function WaitEstimateCard({ position, avgConsultationMins = 10 }: WaitEstimateCardProps) {
   const { t } = useTranslation();
 
-  // Calculate estimated wait: (people ahead) * avg consultation time
-  const patientsAhead = Math.max(0, position - 1);
-  const estimatedMinutes = patientsAhead * avgConsultationMins;
+  // Calculate estimated wait: position * avg consultation time
+  // Position #1 still waits for the person in consultation to finish
+  // Position #2 waits for person in consultation + person #1, etc.
+  const estimatedMinutes = Math.max(0, position) * avgConsultationMins;
 
   // Format time display
   const formatWaitTime = (minutes: number): string => {

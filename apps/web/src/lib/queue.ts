@@ -13,9 +13,9 @@ export function calculateEstimatedWait(
   position: number,
   avgConsultationMins: number = 10
 ): number {
-  // Position 1 means you're next, so 0 people ahead
-  const patientsAhead = Math.max(0, position - 1);
-  return patientsAhead * avgConsultationMins;
+  // Position #1 still waits for the person in consultation to finish
+  // Position #2 waits for person in consultation + person #1, etc.
+  return Math.max(0, position) * avgConsultationMins;
 }
 
 /**
