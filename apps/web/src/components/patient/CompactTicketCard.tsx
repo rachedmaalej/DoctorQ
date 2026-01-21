@@ -81,7 +81,7 @@ export default function CompactTicketCard({
 
         {/* Main content - centered position number only */}
         <div className="h-full flex items-center justify-center relative">
-          <p className={clsx('text-6xl font-black', styles.positionText)}>
+          <p className={clsx('text-5xl font-black', styles.positionText)}>
             #{position}
           </p>
         </div>

@@ -24,7 +24,7 @@ model Clinic {
   phone               String?
   address             String?
   language            String       @default("fr") // fr, ar
-  avgConsultationMins Int          @default(15)
+  avgConsultationMins Int          @default(10)
   isActive            Boolean      @default(true)
 
   // Auth

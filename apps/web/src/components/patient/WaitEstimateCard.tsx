@@ -10,7 +10,7 @@ interface WaitEstimateCardProps {
  * Shows dynamic wait estimate that updates as patient moves through queue
  * More useful to anxious patients than random fun facts
  */
-export default function WaitEstimateCard({ position, avgConsultationMins = 15 }: WaitEstimateCardProps) {
+export default function WaitEstimateCard({ position, avgConsultationMins = 10 }: WaitEstimateCardProps) {
   const { t } = useTranslation();
 
   // Calculate estimated wait: (people ahead) * avg consultation time
@@ -45,7 +45,7 @@ export default function WaitEstimateCard({ position, avgConsultationMins = 15 }:
           <p className="text-xs font-medium text-primary-600 uppercase tracking-wide mb-0.5">
             {t('patient.estimatedWait')}
           </p>
-          <p className="text-2xl font-bold text-gray-800">
+          <p className="text-lg font-bold text-gray-800">
             {formatWaitTime(estimatedMinutes)}
           </p>
         </div>
