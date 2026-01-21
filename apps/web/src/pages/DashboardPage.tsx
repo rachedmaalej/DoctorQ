@@ -143,27 +143,6 @@ export default function DashboardPage() {
                 </button>
               </div>
 
-              {/* Fill Queue Button (Demo) */}
-              <MD3Button
-                variant="text"
-                onClick={handleFillQueue}
-                disabled={isFillingQueue}
-                className="text-purple-600 hover:bg-purple-50 active:bg-purple-100"
-                icon={<span className="material-symbols-outlined text-xl">{isFillingQueue ? 'hourglass_empty' : 'group_add'}</span>}
-              >
-                <span className="hidden sm:inline">{isFillingQueue ? t('queue.fillingQueue') : t('queue.fillQueue')}</span>
-              </MD3Button>
-
-              {/* Clear Queue Button */}
-              <MD3Button
-                variant="text"
-                onClick={() => setIsClearQueueModalOpen(true)}
-                disabled={queue.length === 0}
-                className="text-red-600 hover:bg-red-50 active:bg-red-100"
-                icon={<span className="material-symbols-outlined text-xl">delete_sweep</span>}
-              >
-                <span className="hidden sm:inline">{t('queue.clearQueue') || 'Clear Queue'}</span>
-              </MD3Button>
             </div>
 
             {/* Queue List */}

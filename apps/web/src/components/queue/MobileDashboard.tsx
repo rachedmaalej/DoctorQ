@@ -485,25 +485,6 @@ export default function MobileDashboard({
         </button>
       </div>
 
-      {/* Fill Queue Demo Button */}
-      {onFillQueue && (
-        <div className="px-4 pb-6">
-          <button
-            onClick={onFillQueue}
-            disabled={isFillingQueue}
-            className="w-full bg-purple-50 border border-purple-200 text-purple-700 font-medium py-2.5 rounded-xl flex items-center justify-center gap-2 active:bg-purple-100 transition-colors disabled:opacity-50"
-          >
-            <span
-              className="material-symbols-outlined text-lg"
-              style={{ fontVariationSettings: "'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 20" }}
-            >
-              {isFillingQueue ? 'hourglass_empty' : 'group_add'}
-            </span>
-            {isFillingQueue ? t('queue.fillingQueue') : t('queue.fillQueue')}
-          </button>
-        </div>
-      )}
-
       {/* Remaining Queue */}
       {waitingQueue.length > 0 && (
         <div className="px-4 pb-6">
@@ -516,7 +497,7 @@ export default function MobileDashboard({
             </span>
             {t('queue.title')}
           </p>
-          <div className="bg-white rounded-2xl shadow-sm divide-y divide-gray-100 overflow-hidden">
+          <div className="space-y-3">
             {waitingQueue.map((entry) => {
               // When doctor is present: position - 1 (since #1 is in consultation)
               // When doctor is absent: show actual position (first = #1)
@@ -524,92 +505,113 @@ export default function MobileDashboard({
               const waitingMins = getWaitingMinutes(entry.arrivedAt);
 
               return (
-                <div key={entry.id} className="p-3 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <span className="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center text-sm font-bold text-gray-600">
+                <div key={entry.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
+                  <div className="flex items-center gap-4">
+                    {/* Position badge - vertically centered */}
+                    <span className="w-14 h-14 bg-primary-100 rounded-2xl flex items-center justify-center text-xl font-bold text-primary-700 flex-shrink-0">
                       #{displayPosition}
                     </span>
-                    <div>
-                      <p className="font-medium text-gray-900">{entry.patientName || t('queue.patientName')}</p>
-                      <div className="flex items-center gap-3 text-xs text-gray-500">
-                        <span className="flex items-center gap-0.5">
+
+                    {/* Patient info - stacked vertically */}
+                    <div className="flex-1 min-w-0">
+                      {/* Name */}
+                      <p className="font-semibold text-gray-900 text-base truncate">
+                        {entry.patientName || t('queue.patientName')}
+                      </p>
+
+                      {/* Info rows stacked vertically */}
+                      <div className="mt-1.5 space-y-0.5">
+                        {/* Arrival time */}
+                        <div className="flex items-center gap-1.5 text-sm text-gray-600">
                           <span
-                            className="material-symbols-outlined text-sm"
+                            className="material-symbols-outlined text-base text-gray-400"
                             style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20" }}
-                            title={t('queue.arrivedAt')}
                           >
                             login
                           </span>
-                          {formatTime(entry.arrivedAt)}
-                        </span>
-                        <span className="flex items-center gap-0.5">
+                          <span>{formatTime(entry.arrivedAt)}</span>
+                        </div>
+
+                        {/* Appointment time */}
+                        <div className="flex items-center gap-1.5 text-sm">
                           <span
-                            className="material-symbols-outlined text-sm"
+                            className="material-symbols-outlined text-base text-purple-400"
                             style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20" }}
-                            title={t('queue.avgWaitLabel')}
                           >
-                            hourglass_top
+                            event
                           </span>
-                          {waitingMins} min
-                        </span>
-                        {entry.appointmentTime && (
-                          <span className="flex items-center gap-0.5 text-purple-600">
-                            <span
-                              className="material-symbols-outlined text-sm"
-                              style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20" }}
-                              title={t('queue.appointmentTime')}
-                            >
-                              calendar_clock
-                            </span>
-                            {formatTime(entry.appointmentTime)}
+                          {entry.appointmentTime ? (
+                            <span className="text-purple-700 font-medium">{formatTime(entry.appointmentTime)}</span>
+                          ) : (
+                            <span className="text-gray-400">{t('queue.walkIn') || 'Sans RDV'}</span>
+                          )}
+                        </div>
+
+                        {/* Wait time */}
+                        <div className="flex items-center gap-1.5 text-sm text-gray-600">
+                          <span
+                            className="material-symbols-outlined text-base text-gray-400"
+                            style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20" }}
+                          >
+                            hourglass_empty
                           </span>
-                        )}
+                          <span>{waitingMins} min</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-0.5">
-                    {/* Move up button */}
-                    {entry.position > 1 && (
+
+                    {/* Action buttons - 2x2 grid: up/emergency on top, down/delete on bottom */}
+                    <div className="flex-shrink-0 grid grid-cols-2 gap-2">
+                      {/* Row 1: Move up | Emergency */}
+                      {entry.position > 1 ? (
+                        <button
+                          onClick={() => onReorder(entry.id, entry.position - 1)}
+                          className="w-11 h-11 rounded-xl bg-gray-100 text-gray-500 hover:text-primary-600 hover:bg-primary-50 transition-colors inline-flex items-center justify-center"
+                          title={t('queue.moveUp')}
+                          aria-label={t('queue.moveUp')}
+                        >
+                          <span className="material-symbols-outlined text-xl">arrow_upward</span>
+                        </button>
+                      ) : (
+                        <div className="w-11 h-11" />
+                      )}
+
+                      {entry.position > 1 ? (
+                        <button
+                          onClick={() => onEmergency(entry.id)}
+                          className="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700 transition-colors inline-flex items-center justify-center"
+                          title={t('queue.emergency')}
+                          aria-label={t('queue.emergency')}
+                        >
+                          <span className="material-symbols-outlined text-xl">e911_emergency</span>
+                        </button>
+                      ) : (
+                        <div className="w-11 h-11" />
+                      )}
+
+                      {/* Row 2: Move down | Delete */}
+                      {entry.position < queue.length ? (
+                        <button
+                          onClick={() => onReorder(entry.id, entry.position + 1)}
+                          className="w-11 h-11 rounded-xl bg-gray-100 text-gray-500 hover:text-primary-600 hover:bg-primary-50 transition-colors inline-flex items-center justify-center"
+                          title={t('queue.moveDown')}
+                          aria-label={t('queue.moveDown')}
+                        >
+                          <span className="material-symbols-outlined text-xl">arrow_downward</span>
+                        </button>
+                      ) : (
+                        <div className="w-11 h-11" />
+                      )}
+
                       <button
-                        onClick={() => onReorder(entry.id, entry.position - 1)}
-                        className="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-full transition-colors"
-                        title={t('queue.moveUp')}
-                        aria-label={t('queue.moveUp')}
+                        onClick={() => onRemovePatient(entry.id)}
+                        className="w-11 h-11 rounded-xl bg-red-50 text-red-600 hover:text-red-700 hover:bg-red-100 transition-colors inline-flex items-center justify-center"
+                        title={t('common.delete')}
+                        aria-label={t('common.delete')}
                       >
-                        <span className="material-symbols-outlined text-lg">arrow_upward</span>
+                        <span className="material-symbols-outlined text-xl">close</span>
                       </button>
-                    )}
-                    {/* Move down button */}
-                    {entry.position < queue.length && (
-                      <button
-                        onClick={() => onReorder(entry.id, entry.position + 1)}
-                        className="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-full transition-colors"
-                        title={t('queue.moveDown')}
-                        aria-label={t('queue.moveDown')}
-                      >
-                        <span className="material-symbols-outlined text-lg">arrow_downward</span>
-                      </button>
-                    )}
-                    {/* Emergency button - move patient to see doctor immediately */}
-                    {entry.position > 1 && (
-                      <button
-                        onClick={() => onEmergency(entry.id)}
-                        className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
-                        title={t('queue.emergency')}
-                        aria-label={t('queue.emergency')}
-                      >
-                        <span className="material-symbols-outlined text-lg">e911_emergency</span>
-                      </button>
-                    )}
-                    {/* Delete button */}
-                    <button
-                      onClick={() => onRemovePatient(entry.id)}
-                      className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
-                      title={t('common.delete')}
-                      aria-label={t('common.delete')}
-                    >
-                      <span className="material-symbols-outlined text-lg">close</span>
-                    </button>
+                    </div>
                   </div>
                 </div>
               );
