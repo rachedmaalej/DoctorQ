@@ -84,6 +84,28 @@ app.post('/api/seed', async (req, res) => {
     if (clinicData) {
       const { name, email, password, phone, address, language, avgConsultationMins, notifyAtPosition, businessType, showAppointments } = clinicData;
 
+      // For deletes, only email is required - deletes clinic and all related data
+      if (clinicData.delete) {
+        if (!email) {
+          return res.status(400).json({ error: 'email is required for deletion' });
+        }
+        // Safety check: prevent deleting Dr. Kamoun's clinic
+        if (email === 'dr.kamoun@doctorq.tn') {
+          return res.status(403).json({ error: 'Cannot delete the primary clinic' });
+        }
+        const existing = await prisma.clinic.findUnique({ where: { email } });
+        if (!existing) {
+          return res.status(404).json({ error: 'Clinic not found' });
+        }
+        // Delete clinic (cascade will delete queue entries and daily stats)
+        await prisma.clinic.delete({ where: { email } });
+        return res.json({
+          message: 'Clinic deleted successfully',
+          clinicId: existing.id,
+          email
+        });
+      }
+
       // For updates, only email is required
       if (clinicData.update) {
         if (!email) {
