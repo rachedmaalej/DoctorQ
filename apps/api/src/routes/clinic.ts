@@ -198,7 +198,7 @@ router.get('/qr', authMiddleware, async (req: AuthRequest, res: Response) => {
     // Use FRONTEND_URL env var, or detect production from NODE_ENV/RAILWAY
     const frontendUrl = process.env.FRONTEND_URL ||
       (process.env.NODE_ENV === 'production' || process.env.RAILWAY_ENVIRONMENT
-        ? 'https://doctor-q-web.vercel.app'
+        ? 'https://web-zeta-five-39.vercel.app'
         : 'http://localhost:5173');
     const checkInUrl = `${frontendUrl}/checkin/${clinicId}`;
 
