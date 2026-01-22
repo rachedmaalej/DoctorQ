@@ -70,9 +70,9 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// One-time seed endpoint for production (protected by secret)
+// Flexible seed endpoint for production (protected by secret)
 app.post('/api/seed', async (req, res) => {
-  const { secret } = req.body;
+  const { secret, clinic: clinicData } = req.body;
 
   // Verify secret matches JWT_SECRET (only admin knows this)
   if (secret !== process.env.JWT_SECRET) {
@@ -80,7 +80,45 @@ app.post('/api/seed', async (req, res) => {
   }
 
   try {
-    // Check if clinic already exists
+    // If clinic data provided, create that clinic
+    if (clinicData) {
+      const { name, email, password, phone, address, language, avgConsultationMins, notifyAtPosition } = clinicData;
+
+      // Validate required fields
+      if (!name || !email || !password) {
+        return res.status(400).json({ error: 'name, email, and password are required' });
+      }
+
+      // Check if clinic already exists
+      const existing = await prisma.clinic.findUnique({ where: { email } });
+      if (existing) {
+        return res.json({ message: 'Clinic already exists', clinicId: existing.id });
+      }
+
+      const passwordHash = await bcrypt.hash(password, 10);
+
+      const clinic = await prisma.clinic.create({
+        data: {
+          name,
+          email,
+          passwordHash,
+          phone: phone || null,
+          address: address || null,
+          language: language || 'fr',
+          avgConsultationMins: avgConsultationMins || 10,
+          notifyAtPosition: notifyAtPosition || 2,
+          enableWhatsApp: false,
+        },
+      });
+
+      return res.json({
+        message: 'Clinic created successfully',
+        clinicId: clinic.id,
+        credentials: { email, password }
+      });
+    }
+
+    // Fallback: Create Dr. Kamoun's clinic (original behavior)
     const existingClinic = await prisma.clinic.findUnique({
       where: { email: 'dr.kamoun@doctorq.tn' }
     });
@@ -89,9 +127,7 @@ app.post('/api/seed', async (req, res) => {
       return res.json({ message: 'Clinic already exists', clinicId: existingClinic.id });
     }
 
-    // Create Dr. Kamoun's clinic
     const passwordHash = await bcrypt.hash('DoctorQ2024!', 10);
-
     const clinic = await prisma.clinic.create({
       data: {
         name: 'Cabinet Dr Skander Kamoun',
@@ -110,10 +146,7 @@ app.post('/api/seed', async (req, res) => {
     res.json({
       message: 'Clinic created successfully',
       clinicId: clinic.id,
-      credentials: {
-        email: 'dr.kamoun@doctorq.tn',
-        password: 'DoctorQ2024!'
-      }
+      credentials: { email: 'dr.kamoun@doctorq.tn', password: 'DoctorQ2024!' }
     });
   } catch (error) {
     console.error('Seed error:', error);

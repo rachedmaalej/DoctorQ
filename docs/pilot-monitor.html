@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DoctorQ Pilot Monitor - Dr. Kamoun</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .cors-warning {
+      background: #7c2d12;
+      border: 1px solid #ea580c;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 20px;
+      text-align: center;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .cors-warning h3 { color: #fb923c; margin-bottom: 8px; }
+    .cors-warning p { color: #fed7aa; font-size: 0.9rem; }
+    .cors-warning a { color: #38bdf8; }
+    .cors-warning.hidden { display: none; }
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #334155;
+    }
+    .header h1 { font-size: 1.8rem; color: #38bdf8; }
+    .header .subtitle { color: #94a3b8; margin-top: 5px; }
+    .status-bar {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .status-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    .status-dot.green { background: #22c55e; }
+    .status-dot.red { background: #ef4444; }
+    .status-dot.yellow { background: #eab308; }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .card {
+      background: #1e293b;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+    }
+    .card.highlight { border: 2px solid #38bdf8; }
+    .card .label {
+      font-size: 0.85rem;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .card .value {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin: 10px 0;
+      color: #f8fafc;
+    }
+    .card .value.small { font-size: 1.5rem; }
+    .card .unit { font-size: 0.9rem; color: #64748b; }
+    .card.api .value { color: #22c55e; }
+    .card.error .value { color: #ef4444; }
+    .section-title {
+      font-size: 1.1rem;
+      color: #94a3b8;
+      margin: 30px 0 15px;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .links {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 30px;
+      flex-wrap: wrap;
+    }
+    .links a {
+      background: #334155;
+      color: #e2e8f0;
+      text-decoration: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      transition: background 0.2s;
+    }
+    .links a:hover { background: #475569; }
+    .links a.primary { background: #0ea5e9; color: white; }
+    .log {
+      max-width: 800px;
+      margin: 30px auto 0;
+      background: #1e293b;
+      border-radius: 12px;
+      padding: 15px;
+      max-height: 200px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 0.85rem;
+    }
+    .log-entry {
+      padding: 5px 0;
+      border-bottom: 1px solid #334155;
+    }
+    .log-entry:last-child { border-bottom: none; }
+    .log-time { color: #64748b; }
+    .log-success { color: #22c55e; }
+    .log-error { color: #ef4444; }
+    .refresh-info {
+      text-align: center;
+      color: #64748b;
+      font-size: 0.8rem;
+      margin-top: 20px;
+    }
+    .checklist {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #1e293b;
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .checklist h3 {
+      color: #38bdf8;
+      margin-bottom: 15px;
+    }
+    .checklist label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+      cursor: pointer;
+    }
+    .checklist input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: #22c55e;
+    }
+  </style>
+</head>
+<body>
+  <div class="cors-warning hidden" id="corsWarning">
+    <h3>Local File Mode</h3>
+    <p>You're opening this file directly. For live data, use the links below or run: <code>npx serve docs</code></p>
+    <p style="margin-top: 8px;">
+      <a href="https://doctorqapi-production-ac8b.up.railway.app/health" target="_blank">Check API Health</a> |
+      <a href="https://web-zeta-five-39.vercel.app" target="_blank">Open Dashboard</a>
+    </p>
+  </div>
+
+  <div class="header">
+    <h1>DoctorQ Pilot Monitor</h1>
+    <div class="subtitle">Cabinet Dr. Skander Kamoun - January 22, 2025</div>
+  </div>
+
+  <div class="status-bar">
+    <div class="status-item">
+      <div class="status-dot" id="apiStatus"></div>
+      <span>API</span>
+    </div>
+    <div class="status-item">
+      <div class="status-dot" id="dbStatus"></div>
+      <span>Database</span>
+    </div>
+    <div class="status-item">
+      <div class="status-dot" id="socketStatus"></div>
+      <span>Real-time</span>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card highlight">
+      <div class="label">Patients in Queue</div>
+      <div class="value" id="waiting">-</div>
+      <div class="unit">waiting</div>
+    </div>
+    <div class="card">
+      <div class="label">Seen Today</div>
+      <div class="value" id="completed">-</div>
+      <div class="unit">completed</div>
+    </div>
+    <div class="card">
+      <div class="label">Avg Wait Time</div>
+      <div class="value" id="avgWait">-</div>
+      <div class="unit">minutes</div>
+    </div>
+    <div class="card">
+      <div class="label">No Shows</div>
+      <div class="value" id="noShows">-</div>
+      <div class="unit">today</div>
+    </div>
+  </div>
+
+  <div class="section-title">System Health</div>
+  <div class="grid">
+    <div class="card api">
+      <div class="label">API Response</div>
+      <div class="value small" id="apiResponse">-</div>
+      <div class="unit">ms</div>
+    </div>
+    <div class="card">
+      <div class="label">Socket Connections</div>
+      <div class="value small" id="socketConns">-</div>
+      <div class="unit">active</div>
+    </div>
+    <div class="card">
+      <div class="label">Last Check</div>
+      <div class="value small" id="lastCheck">-</div>
+      <div class="unit" id="lastCheckTime"></div>
+    </div>
+    <div class="card" id="errorCard" style="display:none">
+      <div class="label">Errors</div>
+      <div class="value small error" id="errorCount">0</div>
+      <div class="unit">in last hour</div>
+    </div>
+  </div>
+
+  <div class="links">
+    <a href="https://web-zeta-five-39.vercel.app" target="_blank" class="primary">Open Dashboard</a>
+    <a href="https://doctorqapi-production-ac8b.up.railway.app/health" target="_blank">API Health</a>
+    <a href="https://doctorqapi-production-ac8b.up.railway.app/metrics" target="_blank">Prometheus Metrics</a>
+    <a href="https://railway.app/dashboard" target="_blank">Railway Dashboard</a>
+  </div>
+
+  <div class="section-title">Activity Log</div>
+  <div class="log" id="log">
+    <div class="log-entry"><span class="log-time">--:--:--</span> Waiting for data...</div>
+  </div>
+
+  <div class="refresh-info">Auto-refreshes every 30 seconds</div>
+
+  <div class="section-title">Pilot Checklist</div>
+  <div class="checklist">
+    <h3>Before Starting</h3>
+    <label><input type="checkbox"> API is responding (green status above)</label>
+    <label><input type="checkbox"> Can login at dashboard link</label>
+    <label><input type="checkbox"> QR code printed and ready</label>
+    <label><input type="checkbox"> Receptionist knows how to add patients manually</label>
+    <label><input type="checkbox"> Test patient added and removed successfully</label>
+
+    <h3 style="margin-top: 20px;">During Test</h3>
+    <label><input type="checkbox"> First real patient added</label>
+    <label><input type="checkbox"> Patient status page loads on their phone</label>
+    <label><input type="checkbox"> Position updates when queue changes</label>
+    <label><input type="checkbox"> "Call Next" works correctly</label>
+    <label><input type="checkbox"> Doctor presence toggle works</label>
+  </div>
+
+  <script>
+    const API_URL = 'https://doctorqapi-production-ac8b.up.railway.app';
+    const AUTH_TOKEN = localStorage.getItem('doctorq_monitor_token') || '';
+
+    let errorCount = 0;
+    const logEntries = [];
+
+    function addLog(message, type = 'info') {
+      const time = new Date().toLocaleTimeString();
+      const entry = { time, message, type };
+      logEntries.unshift(entry);
+      if (logEntries.length > 50) logEntries.pop();
+      renderLog();
+    }
+
+    function renderLog() {
+      const logEl = document.getElementById('log');
+      logEl.innerHTML = logEntries.map(e =>
+        `<div class="log-entry"><span class="log-time">${e.time}</span> <span class="log-${e.type}">${e.message}</span></div>`
+      ).join('');
+    }
+
+    function setStatus(id, status) {
+      const dot = document.getElementById(id);
+      dot.className = 'status-dot ' + status;
+    }
+
+    async function checkHealth() {
+      const start = Date.now();
+      try {
+        const res = await fetch(`${API_URL}/health`);
+        const elapsed = Date.now() - start;
+
+        if (res.ok) {
+          setStatus('apiStatus', 'green');
+          setStatus('dbStatus', 'green');
+          document.getElementById('apiResponse').textContent = elapsed;
+          addLog(`Health check OK (${elapsed}ms)`, 'success');
+          document.getElementById('corsWarning').classList.add('hidden');
+        } else {
+          throw new Error(`Status ${res.status}`);
+        }
+      } catch (err) {
+        // Check if it's a CORS/network error (likely from file://)
+        if (err.message === 'Failed to fetch' || err.name === 'TypeError') {
+          setStatus('apiStatus', 'yellow');
+          document.getElementById('apiResponse').textContent = 'CORS';
+          document.getElementById('corsWarning').classList.remove('hidden');
+          addLog('CORS blocked - open via local server or use direct links', 'error');
+        } else {
+          setStatus('apiStatus', 'red');
+          document.getElementById('apiResponse').textContent = 'ERR';
+          errorCount++;
+          addLog(`Health check FAILED: ${err.message}`, 'error');
+        }
+      }
+
+      document.getElementById('lastCheck').textContent = 'Just now';
+      document.getElementById('lastCheckTime').textContent = new Date().toLocaleTimeString();
+    }
+
+    async function fetchStats() {
+      if (!AUTH_TOKEN) {
+        document.getElementById('waiting').textContent = '?';
+        document.getElementById('completed').textContent = '?';
+        document.getElementById('avgWait').textContent = '?';
+        document.getElementById('noShows').textContent = '?';
+        addLog('No auth token - stats unavailable. Login to dashboard first.', 'error');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_URL}/api/queue`, {
+          headers: { 'Authorization': `Bearer ${AUTH_TOKEN}` }
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          const queue = data.queue || [];
+          const stats = data.stats || {};
+
+          const waiting = queue.filter(p => p.status === 'WAITING' || p.status === 'NOTIFIED').length;
+          const completed = queue.filter(p => p.status === 'COMPLETED').length;
+          const noShows = queue.filter(p => p.status === 'NO_SHOW').length;
+
+          document.getElementById('waiting').textContent = waiting;
+          document.getElementById('completed').textContent = stats.seenToday || completed;
+          document.getElementById('avgWait').textContent = stats.avgWaitMins || '-';
+          document.getElementById('noShows').textContent = noShows;
+
+          setStatus('socketStatus', 'green');
+          addLog(`Stats updated: ${waiting} waiting, ${completed} completed`, 'success');
+        } else if (res.status === 401) {
+          localStorage.removeItem('doctorq_monitor_token');
+          addLog('Token expired - please login again', 'error');
+        }
+      } catch (err) {
+        addLog(`Stats fetch failed: ${err.message}`, 'error');
+      }
+    }
+
+    async function fetchMetrics() {
+      try {
+        const res = await fetch(`${API_URL}/metrics`);
+        if (res.ok) {
+          const text = await res.text();
+          const socketMatch = text.match(/doctorq_socket_connections (\d+)/);
+          if (socketMatch) {
+            document.getElementById('socketConns').textContent = socketMatch[1];
+          }
+        }
+      } catch (err) {
+        // Metrics endpoint might not be accessible without auth
+      }
+    }
+
+    // Show error card if errors
+    function updateErrorDisplay() {
+      if (errorCount > 0) {
+        document.getElementById('errorCard').style.display = 'block';
+        document.getElementById('errorCount').textContent = errorCount;
+      }
+    }
+
+    // Token input helper
+    function promptForToken() {
+      const token = prompt('Paste your auth token (from browser DevTools > Application > Local Storage > token):');
+      if (token) {
+        localStorage.setItem('doctorq_monitor_token', token);
+        location.reload();
+      }
+    }
+
+    // Initial load
+    addLog('Monitor started', 'success');
+    checkHealth();
+    fetchStats();
+    fetchMetrics();
+
+    // Auto refresh
+    setInterval(() => {
+      checkHealth();
+      fetchStats();
+      fetchMetrics();
+      updateErrorDisplay();
+    }, 30000);
+
+    // Add token button if missing
+    if (!AUTH_TOKEN) {
+      const links = document.querySelector('.links');
+      const btn = document.createElement('a');
+      btn.href = '#';
+      btn.textContent = 'Set Auth Token';
+      btn.onclick = (e) => { e.preventDefault(); promptForToken(); };
+      links.appendChild(btn);
+    }
+  </script>
+</body>
+</html>
