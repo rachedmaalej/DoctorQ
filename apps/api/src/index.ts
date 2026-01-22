@@ -82,7 +82,7 @@ app.post('/api/seed', async (req, res) => {
   try {
     // If clinic data provided, create that clinic
     if (clinicData) {
-      const { name, email, password, phone, address, language, avgConsultationMins, notifyAtPosition } = clinicData;
+      const { name, email, password, phone, address, language, avgConsultationMins, notifyAtPosition, businessType, showAppointments } = clinicData;
 
       // Validate required fields
       if (!name || !email || !password) {
@@ -121,6 +121,8 @@ app.post('/api/seed', async (req, res) => {
           avgConsultationMins: avgConsultationMins || 10,
           notifyAtPosition: notifyAtPosition || 2,
           enableWhatsApp: false,
+          businessType: businessType || 'medical',
+          showAppointments: showAppointments !== false,
         },
       });
 

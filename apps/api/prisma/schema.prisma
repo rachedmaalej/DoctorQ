@@ -36,6 +36,10 @@ model Clinic {
   enableWhatsApp      Boolean      @default(false)
   isDoctorPresent     Boolean      @default(false)  // Track if doctor is currently seeing patients
 
+  // Business type customization
+  businessType        String       @default("medical")  // medical, retail, restaurant, etc.
+  showAppointments    Boolean      @default(true)       // Whether to show appointment time field
+
   // Activity tracking (TODO: Add after running migration on production)
   // lastLoginAt         DateTime?    // Last login timestamp for churn detection
 
