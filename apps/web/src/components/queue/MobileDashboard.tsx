@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import type { QueueEntry, QueueStats } from '@/types';
 import { QueueStatus } from '@/types';
 import { useAuthStore } from '@/stores/authStore';
+import { useUILabels } from '@/hooks/useUILabels';
 import Logo from '@/components/ui/Logo';
 import { formatTime, getWaitingMinutes } from '@/lib/time';
 
@@ -47,6 +48,7 @@ export default function MobileDashboard({
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { clinic, logout } = useAuthStore();
+  const { labels, isMedical, showAppointments } = useUILabels();
 
   const handleLogout = async () => {
     await logout();
@@ -86,10 +88,10 @@ export default function MobileDashboard({
             <Logo size="xs" />
           </div>
 
-          {/* Center: Clinic name */}
+          {/* Center: Clinic/Store name */}
           {clinic && (
             <div className="text-center">
-              <p className="text-[10px] text-gray-500 font-medium">Cabinet</p>
+              {isMedical && <p className="text-[10px] text-gray-500 font-medium">Cabinet</p>}
               <h1 className="text-sm font-bold text-gray-900">{clinic.doctorName || clinic.name}</h1>
             </div>
           )}
@@ -141,7 +143,7 @@ export default function MobileDashboard({
         </div>
       </div>
 
-      {/* Doctor Present Toggle */}
+      {/* Presence Toggle (Doctor/Store) */}
       <div className="px-4 py-3">
         <button
           onClick={onToggleDoctorPresent}
@@ -150,7 +152,7 @@ export default function MobileDashboard({
               ? 'bg-green-100 text-green-800 border-2 border-green-300'
               : 'bg-gray-100 text-gray-600 border-2 border-gray-200'
           }`}
-          aria-label={isDoctorPresent ? t('queue.doctorPresent') : t('queue.doctorNotPresent')}
+          aria-label={isDoctorPresent ? labels.presenceOn : labels.presenceOff}
           aria-pressed={isDoctorPresent}
         >
           <div className="flex items-center gap-3">
@@ -158,10 +160,10 @@ export default function MobileDashboard({
               className={`material-symbols-outlined text-2xl ${isDoctorPresent ? 'text-green-600' : 'text-gray-400'}`}
               style={{ fontVariationSettings: isDoctorPresent ? "'FILL' 1" : "'FILL' 0" }}
             >
-              stethoscope
+              {isMedical ? 'stethoscope' : 'storefront'}
             </span>
             <span className="text-sm font-semibold">
-              {isDoctorPresent ? t('queue.doctorPresent') : t('queue.doctorNotPresent')}
+              {isDoctorPresent ? labels.presenceOn : labels.presenceOff}
             </span>
           </div>
           {/* Toggle switch - RTL aware */}
@@ -452,7 +454,7 @@ export default function MobileDashboard({
         </div>
       )}
 
-      {/* Add Patient & QR Code Buttons - positioned above queue */}
+      {/* Add Patient/Client & QR Code Buttons - positioned above queue */}
       <div className="px-4 pb-3 flex gap-3">
         <button
           onClick={onAddPatient}
@@ -464,7 +466,7 @@ export default function MobileDashboard({
           >
             person_add
           </span>
-          {t('queue.addPatient')}
+          {labels.addCustomer}
         </button>
         <button
           onClick={onShowQR}
@@ -528,20 +530,22 @@ export default function MobileDashboard({
                           <span>{formatTime(entry.arrivedAt)}</span>
                         </div>
 
-                        {/* Appointment time */}
-                        <div className="flex items-center gap-1.5 text-sm">
-                          <span
-                            className="material-symbols-outlined text-base text-purple-400"
-                            style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20" }}
-                          >
-                            event
-                          </span>
-                          {entry.appointmentTime ? (
-                            <span className="text-purple-700 font-medium">{formatTime(entry.appointmentTime)}</span>
-                          ) : (
-                            <span className="text-gray-400">{t('queue.walkIn') || 'Sans RDV'}</span>
-                          )}
-                        </div>
+                        {/* Appointment time - only show for medical clinics */}
+                        {showAppointments && (
+                          <div className="flex items-center gap-1.5 text-sm">
+                            <span
+                              className="material-symbols-outlined text-base text-purple-400"
+                              style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20" }}
+                            >
+                              event
+                            </span>
+                            {entry.appointmentTime ? (
+                              <span className="text-purple-700 font-medium">{formatTime(entry.appointmentTime)}</span>
+                            ) : (
+                              <span className="text-gray-400">{t('queue.walkIn') || 'Sans RDV'}</span>
+                            )}
+                          </div>
+                        )}
 
                         {/* Wait time */}
                         <div className="flex items-center gap-1.5 text-sm text-gray-600">
@@ -627,7 +631,7 @@ export default function MobileDashboard({
               groups
             </span>
           </div>
-          <p className="text-gray-500">{t('queue.noPatients')}</p>
+          <p className="text-gray-500">{labels.noCustomers}</p>
         </div>
       )}
     </div>

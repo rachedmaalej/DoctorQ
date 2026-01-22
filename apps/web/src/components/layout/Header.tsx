@@ -1,12 +1,14 @@
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/authStore';
+import { useUILabels } from '@/hooks/useUILabels';
 import Logo from '@/components/ui/Logo';
 
 export default function Header() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { clinic, logout } = useAuthStore();
+  const { isMedical } = useUILabels();
 
   const handleLogout = async () => {
     await logout();
@@ -27,10 +29,10 @@ export default function Header() {
             <Logo size="md" />
           </div>
 
-          {/* Center: Clinic name */}
+          {/* Center: Clinic/Store name */}
           {clinic && (
             <div className="text-center">
-              <p className="text-sm text-gray-500 font-medium">Cabinet</p>
+              {isMedical && <p className="text-sm text-gray-500 font-medium">Cabinet</p>}
               <h1 className="text-xl font-bold text-gray-900">{clinic.doctorName || clinic.name}</h1>
             </div>
           )}

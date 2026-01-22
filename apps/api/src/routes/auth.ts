@@ -54,6 +54,17 @@ router.post('/login', async (req: Request, res: Response) => {
       name: clinic.name,
     });
 
+    // Generate UI labels based on business type
+    const isMedical = (clinic.businessType || 'medical') === 'medical';
+    const uiLabels = {
+      customer: isMedical ? 'patient' : 'client',
+      customers: isMedical ? 'patients' : 'clients',
+      presenceOn: isMedical ? 'Docteur présent' : 'Magasin ouvert',
+      presenceOff: isMedical ? 'Docteur absent' : 'Magasin fermé',
+      addCustomer: isMedical ? 'Ajouter un patient' : 'Ajouter un client',
+      noCustomers: isMedical ? 'Aucun patient dans la file' : 'Aucun client dans la file',
+    };
+
     res.json({
       data: {
         token,
@@ -64,6 +75,9 @@ router.post('/login', async (req: Request, res: Response) => {
           doctorName: clinic.doctorName,
           language: clinic.language,
           isDoctorPresent: clinic.isDoctorPresent,
+          businessType: clinic.businessType || 'medical',
+          showAppointments: clinic.showAppointments !== false,
+          uiLabels,
         },
       },
     });
@@ -113,6 +127,8 @@ router.get('/me', authMiddleware, async (req: AuthRequest, res: Response) => {
         notifyAtPosition: true,
         enableWhatsApp: true,
         isDoctorPresent: true,
+        businessType: true,
+        showAppointments: true,
       },
     });
 
@@ -125,7 +141,25 @@ router.get('/me', authMiddleware, async (req: AuthRequest, res: Response) => {
       });
     }
 
-    res.json({ data: clinic });
+    // Generate UI labels based on business type
+    const isMedical = (clinic.businessType || 'medical') === 'medical';
+    const uiLabels = {
+      customer: isMedical ? 'patient' : 'client',
+      customers: isMedical ? 'patients' : 'clients',
+      presenceOn: isMedical ? 'Docteur présent' : 'Magasin ouvert',
+      presenceOff: isMedical ? 'Docteur absent' : 'Magasin fermé',
+      addCustomer: isMedical ? 'Ajouter un patient' : 'Ajouter un client',
+      noCustomers: isMedical ? 'Aucun patient dans la file' : 'Aucun client dans la file',
+    };
+
+    res.json({
+      data: {
+        ...clinic,
+        businessType: clinic.businessType || 'medical',
+        showAppointments: clinic.showAppointments !== false,
+        uiLabels,
+      }
+    });
   } catch (error) {
     console.error('Get clinic error:', error);
     res.status(500).json({

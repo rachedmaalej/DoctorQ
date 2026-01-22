@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useDashboard } from '@/hooks/useDashboard';
+import { useUILabels } from '@/hooks/useUILabels';
 import QueueList from '@/components/queue/QueueList';
 import QueueStats from '@/components/queue/QueueStats';
 import QRCodeCard from '@/components/queue/QRCodeCard';
@@ -14,6 +15,7 @@ import { MD3Button } from '@/components/md3/button';
 
 export default function DashboardPage() {
   const { t } = useTranslation();
+  const { labels, isMedical } = useUILabels();
   const {
     // Store data
     queue,
@@ -100,16 +102,16 @@ export default function DashboardPage() {
             <div className="flex flex-wrap items-center justify-between gap-3 sm:gap-4">
               {/* Left side: Add Patient + Doctor Toggle */}
               <div className="flex items-center gap-4">
-                {/* Add Patient Button */}
+                {/* Add Patient/Client Button */}
                 <MD3Button
                   variant="tonal"
                   onClick={() => setIsAddModalOpen(true)}
                   icon={<span className="material-symbols-outlined text-xl">person_add</span>}
                 >
-                  {t('queue.addPatient')}
+                  {labels.addCustomer}
                 </MD3Button>
 
-                {/* Doctor Present Toggle */}
+                {/* Presence Toggle (Doctor/Store) */}
                 <button
                   onClick={handleToggleDoctorPresent}
                   disabled={isTogglingPresence}
@@ -118,18 +120,18 @@ export default function DashboardPage() {
                       ? 'bg-green-100 text-green-800 border-2 border-green-300'
                       : 'bg-gray-100 text-gray-600 border-2 border-gray-200'
                   }`}
-                  title={isDoctorPresent ? t('queue.doctorArrived') : t('queue.waitingForDoctor')}
-                  aria-label={isDoctorPresent ? t('queue.doctorPresent') : t('queue.doctorNotPresent')}
+                  title={isDoctorPresent ? labels.presenceOn : labels.presenceOff}
+                  aria-label={isDoctorPresent ? labels.presenceOn : labels.presenceOff}
                   aria-pressed={isDoctorPresent}
                 >
                   <span
                     className={`material-symbols-outlined text-xl ${isDoctorPresent ? 'text-green-600' : 'text-gray-400'}`}
                     style={{ fontVariationSettings: isDoctorPresent ? "'FILL' 1" : "'FILL' 0" }}
                   >
-                    stethoscope
+                    {isMedical ? 'stethoscope' : 'storefront'}
                   </span>
                   <span className="text-sm">
-                    {isDoctorPresent ? t('queue.doctorPresent') : t('queue.doctorNotPresent')}
+                    {isDoctorPresent ? labels.presenceOn : labels.presenceOff}
                   </span>
                   {/* Toggle indicator - RTL aware */}
                   <div className={`w-10 h-6 rounded-full p-0.5 transition-colors ${isDoctorPresent ? 'bg-green-500' : 'bg-gray-300'}`}>

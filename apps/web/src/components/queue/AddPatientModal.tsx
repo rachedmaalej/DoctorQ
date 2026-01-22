@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQueueStore } from '@/stores/queueStore';
+import { useUILabels } from '@/hooks/useUILabels';
 import { logger } from '@/lib/logger';
 import { formatTunisianPhone, isValidTunisianPhone, extractPhoneDigits, DEFAULT_PHONE_VALUE } from '@/lib/phone';
 
@@ -12,6 +13,7 @@ interface AddPatientModalProps {
 export default function AddPatientModal({ isOpen, onClose }: AddPatientModalProps) {
   const { t } = useTranslation();
   const { addPatient } = useQueueStore();
+  const { labels, showAppointments } = useUILabels();
   const [patientPhone, setPatientPhone] = useState(DEFAULT_PHONE_VALUE);
   const [patientName, setPatientName] = useState('');
   const [appointmentHour, setAppointmentHour] = useState('');
@@ -82,7 +84,7 @@ export default function AddPatientModal({ isOpen, onClose }: AddPatientModalProp
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">{t('queue.addPatient')}</h2>
+          <h2 className="text-2xl font-bold text-gray-900">{labels.addCustomer}</h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600"
@@ -134,39 +136,42 @@ export default function AddPatientModal({ isOpen, onClose }: AddPatientModalProp
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t('queue.appointmentTime')}
-            </label>
-            <div className="flex gap-2 items-center">
-              {/* Hours select (00-23) */}
-              <select
-                value={appointmentHour}
-                onChange={(e) => setAppointmentHour(e.target.value)}
-                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
-              >
-                <option value="">--</option>
-                {hours.map((hour) => (
-                  <option key={hour} value={hour}>{hour}</option>
-                ))}
-              </select>
-              <span className="text-xl font-bold text-gray-500">:</span>
-              {/* Minutes select (00-59) */}
-              <select
-                value={appointmentMinute}
-                onChange={(e) => setAppointmentMinute(e.target.value)}
-                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
-              >
-                <option value="">--</option>
-                {minutes.map((minute) => (
-                  <option key={minute} value={minute}>{minute}</option>
-                ))}
-              </select>
+          {/* Appointment time - only shown for medical clinics */}
+          {showAppointments && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {t('queue.appointmentTime')}
+              </label>
+              <div className="flex gap-2 items-center">
+                {/* Hours select (00-23) */}
+                <select
+                  value={appointmentHour}
+                  onChange={(e) => setAppointmentHour(e.target.value)}
+                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
+                >
+                  <option value="">--</option>
+                  {hours.map((hour) => (
+                    <option key={hour} value={hour}>{hour}</option>
+                  ))}
+                </select>
+                <span className="text-xl font-bold text-gray-500">:</span>
+                {/* Minutes select (00-59) */}
+                <select
+                  value={appointmentMinute}
+                  onChange={(e) => setAppointmentMinute(e.target.value)}
+                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
+                >
+                  <option value="">--</option>
+                  {minutes.map((minute) => (
+                    <option key={minute} value={minute}>{minute}</option>
+                  ))}
+                </select>
+              </div>
+              <p className="mt-1 text-sm text-gray-500">
+                {t('queue.appointmentTimeHint')}
+              </p>
             </div>
-            <p className="mt-1 text-sm text-gray-500">
-              {t('queue.appointmentTimeHint')}
-            </p>
-          </div>
+          )}
 
           <div className="flex gap-3 pt-4">
             <button

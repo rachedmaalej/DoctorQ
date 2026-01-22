@@ -43,6 +43,15 @@ export interface QueueResponse {
   stats: QueueStats;
 }
 
+export interface UILabels {
+  customer: string;       // "patient" or "client"
+  customers: string;      // "patients" or "clients"
+  presenceOn: string;     // "Docteur présent" or "Magasin ouvert"
+  presenceOff: string;    // "Docteur absent" or "Magasin fermé"
+  addCustomer: string;    // "Ajouter un patient" or "Ajouter un client"
+  noCustomers: string;    // "Aucun patient..." or "Aucun client..."
+}
+
 export interface Clinic {
   id: string;
   name: string;
@@ -52,6 +61,9 @@ export interface Clinic {
   avgConsultationMins: number;
   notifyAtPosition: number;
   isDoctorPresent?: boolean;
+  businessType?: string;        // "medical" (default) or "retail"
+  showAppointments?: boolean;   // true (default) or false
+  uiLabels?: UILabels;          // Dynamic labels based on businessType
 }
 
 export interface LoginCredentials {
