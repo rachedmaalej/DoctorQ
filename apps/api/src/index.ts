@@ -92,7 +92,29 @@ app.post('/api/seed', async (req, res) => {
       // Check if clinic already exists
       const existing = await prisma.clinic.findUnique({ where: { email } });
       if (existing) {
-        // If resetPassword flag is set, update the password
+        // If update flag is set, update the clinic settings
+        if (clinicData.update) {
+          const updateData: Record<string, unknown> = {};
+          if (password) {
+            updateData.passwordHash = await bcrypt.hash(password, 10);
+          }
+          if (businessType !== undefined) updateData.businessType = businessType;
+          if (showAppointments !== undefined) updateData.showAppointments = showAppointments;
+          if (name) updateData.name = name;
+          if (avgConsultationMins !== undefined) updateData.avgConsultationMins = avgConsultationMins;
+          if (notifyAtPosition !== undefined) updateData.notifyAtPosition = notifyAtPosition;
+
+          await prisma.clinic.update({
+            where: { email },
+            data: updateData,
+          });
+          return res.json({
+            message: 'Clinic updated successfully',
+            clinicId: existing.id,
+            updated: Object.keys(updateData)
+          });
+        }
+        // Legacy: If resetPassword flag is set, update the password only
         if (clinicData.resetPassword) {
           const newPasswordHash = await bcrypt.hash(password, 10);
           await prisma.clinic.update({
