@@ -66,13 +66,19 @@ router.post('/', authMiddleware, async (req: AuthRequest, res: Response) => {
     const clinicId = req.clinic!.id;
     const { patientPhone, patientName, checkInMethod, appointmentTime, arrivedAt } = addPatientSchema.parse(req.body);
 
-    // Parse appointment time if provided
+    // Parse appointment time if provided (Tunisia timezone: UTC+1)
     let appointmentDateTime: Date | undefined;
     if (appointmentTime) {
       const [hours, minutes] = appointmentTime.split(':').map(Number);
       if (!isNaN(hours) && !isNaN(minutes)) {
-        appointmentDateTime = new Date();
-        appointmentDateTime.setHours(hours, minutes, 0, 0);
+        // Create date in UTC, adjusting for Tunisia timezone (UTC+1)
+        // When user submits 14:00 Tunisia time, we need to store 13:00 UTC
+        const now = new Date();
+        const year = now.getUTCFullYear();
+        const month = now.getUTCMonth();
+        const day = now.getUTCDate();
+        // Tunisia is UTC+1, so subtract 1 hour to convert local time to UTC
+        appointmentDateTime = new Date(Date.UTC(year, month, day, hours - 1, minutes, 0, 0));
       }
     }
 
