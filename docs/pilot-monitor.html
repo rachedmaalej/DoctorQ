@@ -578,8 +578,20 @@
     </div>
   </div>
 
-  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <!-- Try multiple CDNs for Socket.io -->
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js" onerror="loadSocketFallback()"></script>
   <script>
+    // Fallback CDN loader
+    function loadSocketFallback() {
+      console.log('[Socket] Primary CDN failed, trying fallback...');
+      const script = document.createElement('script');
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js';
+      script.onerror = function() {
+        console.log('[Socket] All CDNs failed, running in polling-only mode');
+      };
+      document.head.appendChild(script);
+    }
+
     const API_URL = 'https://doctorqapi-production-ac8b.up.railway.app';
     const AUTH_TOKEN = localStorage.getItem('auth_token') || '';
 
@@ -777,6 +789,15 @@
         return;
       }
 
+      // Check if Socket.io is loaded
+      if (typeof io === 'undefined') {
+        setStatus('socketStatus', 'yellow');
+        addLog('Socket.io non chargé - mode polling uniquement', 'info');
+        // Start more frequent polling as fallback
+        setInterval(() => fetchStats(), 10000);
+        return;
+      }
+
       try {
         // Parse clinic ID from JWT
         const payload = JSON.parse(atob(AUTH_TOKEN.split('.')[1]));
@@ -926,13 +947,16 @@
       checkHealth();
       fetchStats();
       fetchMetrics();
-      connectSocket();
 
-      // Poll every 60 seconds as fallback
+      // Delay socket connection to allow fallback CDN to load if needed
+      setTimeout(() => connectSocket(), 500);
+
+      // Poll every 30 seconds as fallback (more frequent since Socket may not work)
       setInterval(() => {
         checkHealth();
+        fetchStats();
         fetchMetrics();
-      }, 60000);
+      }, 30000);
     }
 
     // Start
