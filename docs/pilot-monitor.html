@@ -441,12 +441,27 @@
     <div class="login-required" id="loginRequired" style="display: none;">
       <h2>Connexion requise</h2>
       <p>
-        Pour voir les statistiques en temps réel, connectez-vous d'abord au tableau de bord principal.
-        <br>Le token d'authentification sera automatiquement partagé.
+        Pour voir les statistiques, vous devez copier votre token d'authentification depuis le dashboard.
       </p>
-      <a href="https://web-zeta-five-39.vercel.app" target="_blank" class="btn">
-        Ouvrir le Dashboard
-      </a>
+      <div style="margin: 20px 0;">
+        <p style="font-size: 0.85rem; margin-bottom: 15px;">
+          <strong>Instructions:</strong><br>
+          1. Ouvrez le Dashboard et connectez-vous<br>
+          2. Appuyez sur F12 (DevTools) → Application → Local Storage<br>
+          3. Copiez la valeur de <code style="background: #334155; padding: 2px 6px; border-radius: 4px;">auth_token</code><br>
+          4. Collez-la ci-dessous
+        </p>
+        <input type="text" id="tokenInput" placeholder="Collez votre token ici..."
+          style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #475569; background: #1e293b; color: #e2e8f0; font-family: monospace; font-size: 0.85rem; margin-bottom: 12px;">
+        <button onclick="saveToken()" class="btn" style="background: #22c55e; width: 100%;">
+          Enregistrer le token
+        </button>
+      </div>
+      <div style="border-top: 1px solid #7c2d12; padding-top: 15px; margin-top: 15px;">
+        <a href="https://web-zeta-five-39.vercel.app" target="_blank" class="btn" style="background: #475569;">
+          Ouvrir le Dashboard
+        </a>
+      </div>
     </div>
 
     <!-- Main Content (hidden until authenticated) -->
@@ -525,6 +540,9 @@
         </a>
         <button class="btn btn-secondary" onclick="refresh()">
           Rafraichir
+        </button>
+        <button class="btn btn-secondary" onclick="clearToken()" style="background: #7f1d1d; border: 1px solid #dc2626;">
+          Déconnexion
         </button>
       </div>
     </div>
@@ -791,6 +809,37 @@
     function showLoginRequired() {
       document.getElementById('loginRequired').style.display = 'block';
       document.getElementById('mainContent').style.display = 'none';
+    }
+
+    // Save token from input
+    function saveToken() {
+      const input = document.getElementById('tokenInput');
+      const token = input.value.trim();
+
+      if (!token) {
+        alert('Veuillez coller un token valide');
+        return;
+      }
+
+      // Validate it looks like a JWT
+      if (!token.includes('.') || token.split('.').length !== 3) {
+        alert('Ce token ne semble pas valide. Un token JWT contient 3 parties séparées par des points.');
+        return;
+      }
+
+      localStorage.setItem('auth_token', token);
+      addLog('Token enregistré - rechargement...', 'success');
+
+      // Reload to apply the new token
+      setTimeout(() => location.reload(), 500);
+    }
+
+    // Clear token (logout)
+    function clearToken() {
+      if (!confirm('Supprimer le token et se déconnecter?')) return;
+      localStorage.removeItem('auth_token');
+      addLog('Token supprimé - rechargement...', 'info');
+      setTimeout(() => location.reload(), 500);
     }
 
     // Initialize
