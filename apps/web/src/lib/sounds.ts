@@ -16,29 +16,29 @@ function getAudioContext(): AudioContext {
 }
 
 /**
- * Play the doorbell notification sound
- * Classic two-tone doorbell - Sound #38 from notification-sounds-demo.html
+ * Play the medical chime notification sound
+ * Classic two-tone hospital chime - Sound #1 from notification-sounds-demo.html
  * @param volume - Volume level from 0 to 1 (default: 0.35)
  */
 export function playDoorbellSound(volume: number = 0.35): void {
   try {
     const ctx = getAudioContext();
-    // Two-tone doorbell: E5 (659.25 Hz) then C5 (523.25 Hz)
-    [659.25, 523.25].forEach((freq, i) => {
+    // Medical Chime: A4 (440 Hz) then C#5 (554.37 Hz)
+    [440, 554.37].forEach((freq, i) => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.connect(gain);
       gain.connect(ctx.destination);
       osc.type = 'sine';
       osc.frequency.value = freq;
-      gain.gain.setValueAtTime(volume, ctx.currentTime + i * 0.25);
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + i * 0.25 + 0.35);
-      osc.start(ctx.currentTime + i * 0.25);
-      osc.stop(ctx.currentTime + i * 0.25 + 0.35);
+      gain.gain.setValueAtTime(volume * 0.4, ctx.currentTime + i * 0.2);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + i * 0.2 + 0.4);
+      osc.start(ctx.currentTime + i * 0.2);
+      osc.stop(ctx.currentTime + i * 0.2 + 0.4);
     });
   } catch (e) {
     // Audio not supported or failed - silently ignore
-    console.warn('[Sound] Failed to play doorbell:', e);
+    console.warn('[Sound] Failed to play medical chime:', e);
   }
 }
 
