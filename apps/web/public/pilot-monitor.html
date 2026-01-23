@@ -680,7 +680,8 @@
     // Update all metrics
     function updateMetrics(queue, stats) {
       // Primary metrics
-      const waiting = stats.waiting || 0;
+      // Calculate waiting count from queue (WAITING + NOTIFIED) to match dashboard logic
+      const waiting = queue ? queue.filter(p => p.status === 'WAITING' || p.status === 'NOTIFIED').length : (stats.waiting || 0);
       const seen = stats.seen || 0;
       const avgWait = stats.avgWait !== null ? stats.avgWait : '-';
       const noShows = stats.noShows || 0;
@@ -839,6 +840,8 @@
         socket.on('doctor:presence', (data) => {
           updateDoctorPresence(data.isDoctorPresent);
           addLog('Docteur ' + (data.isDoctorPresent ? 'marqué présent' : 'marqué absent'), 'info');
+          // Refresh queue data since patient statuses may change when doctor presence changes
+          fetchStats();
         });
 
       } catch (err) {
