@@ -662,7 +662,9 @@
         });
 
         if (res.ok) {
-          const data = await res.json();
+          const response = await res.json();
+          // API returns {data: {queue: [...], stats: {...}}}
+          const data = response.data || response;
           updateMetrics(data.queue, data.stats);
           updateTimestamp();
           addLog('Données mises à jour', 'success');
