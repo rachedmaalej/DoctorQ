@@ -541,9 +541,28 @@
         <button class="btn btn-secondary" onclick="refresh()">
           Rafraichir
         </button>
-        <button class="btn btn-secondary" onclick="clearToken()" style="background: #7f1d1d; border: 1px solid #dc2626;">
-          Déconnexion
+        <button class="btn btn-secondary" onclick="toggleTokenPanel()" style="background: #1e3a5f; border: 1px solid #3b82f6;">
+          Changer Token
         </button>
+      </div>
+
+      <!-- Token Management Panel (always available) -->
+      <div id="tokenPanel" style="display: none; background: #1e293b; border-radius: 12px; padding: 20px; margin-top: 15px;">
+        <h4 style="color: #94a3b8; margin-bottom: 12px; font-size: 0.9rem;">Gestion du Token</h4>
+        <p style="color: #64748b; font-size: 0.8rem; margin-bottom: 12px;">
+          Collez votre token depuis: Dashboard → F12 → Application → Local Storage → auth_token
+        </p>
+        <input type="text" id="tokenInputMain" placeholder="Collez votre token ici..."
+          style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: #e2e8f0; font-family: monospace; font-size: 0.85rem; margin-bottom: 12px;">
+        <div style="display: flex; gap: 10px;">
+          <button onclick="saveTokenMain()" class="btn" style="background: #22c55e; flex: 1;">
+            Enregistrer
+          </button>
+          <button onclick="clearToken()" class="btn" style="background: #dc2626; flex: 1;">
+            Supprimer
+          </button>
+        </div>
+        <p id="currentTokenInfo" style="color: #475569; font-size: 0.75rem; margin-top: 10px;"></p>
       </div>
     </div>
 
@@ -840,6 +859,56 @@
       localStorage.removeItem('auth_token');
       addLog('Token supprimé - rechargement...', 'info');
       setTimeout(() => location.reload(), 500);
+    }
+
+    // Toggle token panel visibility
+    function toggleTokenPanel() {
+      const panel = document.getElementById('tokenPanel');
+      if (panel.style.display === 'none') {
+        panel.style.display = 'block';
+        updateTokenInfo();
+      } else {
+        panel.style.display = 'none';
+      }
+    }
+
+    // Save token from main panel
+    function saveTokenMain() {
+      const input = document.getElementById('tokenInputMain');
+      const token = input.value.trim();
+
+      if (!token) {
+        alert('Veuillez coller un token valide');
+        return;
+      }
+
+      // Validate it looks like a JWT
+      if (!token.includes('.') || token.split('.').length !== 3) {
+        alert('Ce token ne semble pas valide. Un token JWT contient 3 parties séparées par des points.');
+        return;
+      }
+
+      localStorage.setItem('auth_token', token);
+      addLog('Token enregistré - rechargement...', 'success');
+      setTimeout(() => location.reload(), 500);
+    }
+
+    // Show current token info
+    function updateTokenInfo() {
+      const infoEl = document.getElementById('currentTokenInfo');
+      const currentToken = localStorage.getItem('auth_token');
+
+      if (currentToken) {
+        try {
+          const payload = JSON.parse(atob(currentToken.split('.')[1]));
+          const expDate = payload.exp ? new Date(payload.exp * 1000).toLocaleString('fr-FR') : 'inconnu';
+          infoEl.textContent = `Token actuel: clinicId=${payload.clinicId || 'N/A'}, expire: ${expDate}`;
+        } catch (e) {
+          infoEl.textContent = 'Token actuel: format invalide';
+        }
+      } else {
+        infoEl.textContent = 'Aucun token enregistré';
+      }
     }
 
     // Initialize
