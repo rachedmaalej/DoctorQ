@@ -16,6 +16,19 @@ import FunFactCard from '@/components/patient/FunFactCard';
 import type { PatientStatusResponse } from '@/types';
 import { QueueStatus } from '@/types';
 
+// Vibration helper - vibrates the device if supported
+// pattern: single number (ms) or array for pattern [vibrate, pause, vibrate, ...]
+function vibrate(pattern: number | number[] = 200): void {
+  if (navigator.vibrate) {
+    try {
+      navigator.vibrate(pattern);
+    } catch (e) {
+      // Vibration not supported or failed - silently ignore
+      logger.log('[Vibration] Not supported or failed:', e);
+    }
+  }
+}
+
 // Queue state types based on patient's journey
 type QueueState = 'far' | 'closer' | 'almost' | 'next' | 'yourTurn' | 'completed' | 'cancelled';
 
@@ -163,6 +176,8 @@ export default function PatientStatusPage() {
           ? t('patient.movedUpOne')
           : t('patient.movedUpMultiple', { count: positionsMoved });
         setPositionToast({ visible: true, message });
+        // Vibrate to alert patient of position change
+        vibrate(200);
       }
 
       // Update ref for next comparison
@@ -171,6 +186,8 @@ export default function PatientStatusPage() {
       // Trigger confetti when status changes to IN_CONSULTATION
       if (status === QueueStatus.IN_CONSULTATION && prev.status !== QueueStatus.IN_CONSULTATION) {
         setShowConfetti(true);
+        // Double vibration pattern for "your turn" celebration
+        vibrate([200, 100, 200]);
       }
 
       return { ...prev, status, position: newPosition };
@@ -190,6 +207,8 @@ export default function PatientStatusPage() {
             ? t('patient.movedUpOne')
             : t('patient.movedUpMultiple', { count: positionsMoved });
           setPositionToast({ visible: true, message });
+          // Vibrate to alert patient of position change
+          vibrate(200);
         }
 
         // Update ref for next comparison
