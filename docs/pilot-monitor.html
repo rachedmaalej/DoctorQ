@@ -178,7 +178,7 @@
 
   <div class="header">
     <h1>DoctorQ Pilot Monitor</h1>
-    <div class="subtitle">Cabinet Dr. Skander Kamoun - January 22, 2025</div>
+    <div class="subtitle">Cabinet Dr. Skander Kamoun - <span id="currentDate"></span></div>
   </div>
 
   <div class="status-bar">
@@ -274,9 +274,11 @@
     <label><input type="checkbox"> Doctor presence toggle works</label>
   </div>
 
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
   <script>
     const API_URL = 'https://doctorqapi-production-ac8b.up.railway.app';
-    const AUTH_TOKEN = localStorage.getItem('doctorq_monitor_token') || '';
+    // Try both token keys - main app uses 'auth_token', monitor used to use 'doctorq_monitor_token'
+    const AUTH_TOKEN = localStorage.getItem('auth_token') || localStorage.getItem('doctorq_monitor_token') || '';
 
     let errorCount = 0;
     const logEntries = [];
@@ -360,9 +362,9 @@
           const noShows = queue.filter(p => p.status === 'NO_SHOW').length;
 
           document.getElementById('waiting').textContent = waiting;
-          document.getElementById('completed').textContent = stats.seenToday || completed;
-          document.getElementById('avgWait').textContent = stats.avgWaitMins || '-';
-          document.getElementById('noShows').textContent = noShows;
+          document.getElementById('completed').textContent = stats.seen || completed;
+          document.getElementById('avgWait').textContent = stats.avgWait || '-';
+          document.getElementById('noShows').textContent = stats.noShows || noShows;
 
           setStatus('socketStatus', 'green');
           addLog(`Stats updated: ${waiting} waiting, ${completed} completed`, 'success');
@@ -400,26 +402,95 @@
 
     // Token input helper
     function promptForToken() {
-      const token = prompt('Paste your auth token (from browser DevTools > Application > Local Storage > token):');
+      const token = prompt('Paste your auth token (from browser DevTools > Application > Local Storage > auth_token):');
       if (token) {
-        localStorage.setItem('doctorq_monitor_token', token);
+        localStorage.setItem('auth_token', token);
         location.reload();
       }
     }
+
+    // Socket.io real-time connection
+    let socket = null;
+    function connectSocket() {
+      if (!AUTH_TOKEN) {
+        addLog('No auth token - real-time updates disabled', 'error');
+        setStatus('socketStatus', 'yellow');
+        return;
+      }
+
+      try {
+        socket = io(API_URL, {
+          transports: ['websocket', 'polling'],
+          timeout: 10000,
+        });
+
+        socket.on('connect', () => {
+          addLog('Socket connected: ' + socket.id, 'success');
+          setStatus('socketStatus', 'green');
+          // Join clinic room - we need the clinic ID from the token
+          // The token is a JWT, we can try to decode it
+          try {
+            const payload = JSON.parse(atob(AUTH_TOKEN.split('.')[1]));
+            if (payload.clinicId) {
+              socket.emit('join:clinic', { clinicId: payload.clinicId, token: AUTH_TOKEN });
+              addLog('Joined clinic room: ' + payload.clinicId.substring(0, 8) + '...', 'success');
+            }
+          } catch (e) {
+            addLog('Could not parse token for clinic ID', 'error');
+          }
+        });
+
+        socket.on('disconnect', (reason) => {
+          addLog('Socket disconnected: ' + reason, 'error');
+          setStatus('socketStatus', 'red');
+        });
+
+        socket.on('connect_error', (error) => {
+          addLog('Socket error: ' + error.message, 'error');
+          setStatus('socketStatus', 'red');
+        });
+
+        socket.on('queue:updated', (data) => {
+          addLog('Real-time update: queue changed', 'success');
+          const queue = data.queue || [];
+          const stats = data.stats || {};
+
+          const waiting = queue.filter(p => p.status === 'WAITING' || p.status === 'NOTIFIED').length;
+          document.getElementById('waiting').textContent = waiting;
+          document.getElementById('completed').textContent = stats.seen || 0;
+          document.getElementById('avgWait').textContent = stats.avgWait || '-';
+          document.getElementById('noShows').textContent = stats.noShows || 0;
+        });
+
+        socket.on('doctor:presence', (data) => {
+          addLog('Doctor presence changed: ' + (data.isDoctorPresent ? 'Present' : 'Absent'), 'success');
+        });
+
+      } catch (err) {
+        addLog('Socket init failed: ' + err.message, 'error');
+        setStatus('socketStatus', 'red');
+      }
+    }
+
+    // Set current date
+    document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', {
+      year: 'numeric', month: 'long', day: 'numeric'
+    });
 
     // Initial load
     addLog('Monitor started', 'success');
     checkHealth();
     fetchStats();
     fetchMetrics();
+    connectSocket();
 
-    // Auto refresh
+    // Auto refresh (reduced to 60 seconds since we have real-time updates)
     setInterval(() => {
       checkHealth();
       fetchStats();
       fetchMetrics();
       updateErrorDisplay();
-    }, 30000);
+    }, 60000);
 
     // Add token button if missing
     if (!AUTH_TOKEN) {
