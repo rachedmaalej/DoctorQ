@@ -598,6 +598,7 @@
     let socket = null;
     const logEntries = [];
     let clinicId = null;
+    let isDoctorPresent = false; // Track doctor presence globally
 
     // Logging
     function addLog(message, type = 'info') {
@@ -677,8 +678,32 @@
       }
     }
 
+    // Fetch clinic data to get doctor presence
+    async function fetchClinicData() {
+      if (!AUTH_TOKEN) return;
+
+      try {
+        const res = await fetch(`${API_URL}/api/auth/me`, {
+          headers: { 'Authorization': `Bearer ${AUTH_TOKEN}` }
+        });
+
+        if (res.ok) {
+          const response = await res.json();
+          const clinic = response.data || response;
+          if (clinic && typeof clinic.isDoctorPresent !== 'undefined') {
+            updateDoctorPresence(clinic.isDoctorPresent);
+          }
+        }
+      } catch (err) {
+        // Clinic data fetch failed - doctor presence will remain unknown
+      }
+    }
+
     // Update all metrics
     function updateMetrics(queue, stats) {
+      // Store queue for later use
+      currentQueue = queue || [];
+
       // Primary metrics
       // Calculate waiting count from queue (WAITING + NOTIFIED) to match dashboard logic
       const waiting = queue ? queue.filter(p => p.status === 'WAITING' || p.status === 'NOTIFIED').length : (stats.waiting || 0);
@@ -695,25 +720,8 @@
       document.getElementById('maxWait').textContent = stats.maxWait !== null ? stats.maxWait : '-';
       document.getElementById('lastConsult').textContent = stats.lastConsultationMins !== null ? stats.lastConsultationMins : '-';
 
-      // Current patient
-      const inConsultation = queue.find(p => p.status === 'IN_CONSULTATION');
-      const nextPatient = queue.find(p => p.status === 'NOTIFIED' || p.status === 'WAITING');
-
-      const currentCard = document.getElementById('currentPatientCard');
-      const currentEl = document.getElementById('currentPatient');
-      const nextEl = document.getElementById('nextPatient');
-
-      if (inConsultation) {
-        currentCard.classList.remove('empty');
-        currentEl.textContent = inConsultation.patientName || 'Patient #' + inConsultation.position;
-      } else {
-        currentCard.classList.add('empty');
-        currentEl.textContent = 'Aucun patient';
-      }
-
-      nextEl.textContent = nextPatient
-        ? (nextPatient.patientName || 'Patient #' + nextPatient.position)
-        : '-';
+      // Current patient display (respects doctor presence)
+      updateCurrentPatientDisplay();
 
       // Flash updated values
       flashElement('waiting');
@@ -722,6 +730,8 @@
 
     // Update doctor presence
     function updateDoctorPresence(isPresent) {
+      isDoctorPresent = isPresent; // Update global state
+
       const card = document.getElementById('doctorCard');
       const status = document.getElementById('doctorStatus');
       const label = document.getElementById('doctorLabel');
@@ -735,6 +745,41 @@
         status.textContent = 'Absent';
         label.textContent = 'indisponible';
       }
+
+      // Update the current patient card based on doctor presence
+      updateCurrentPatientDisplay();
+    }
+
+    // Cache the current queue for updating display
+    let currentQueue = [];
+
+    // Update current patient display based on doctor presence
+    function updateCurrentPatientDisplay() {
+      const inConsultation = currentQueue.find(p => p.status === 'IN_CONSULTATION');
+      const nextPatient = currentQueue.find(p => p.status === 'NOTIFIED' || p.status === 'WAITING');
+
+      const currentCard = document.getElementById('currentPatientCard');
+      const currentEl = document.getElementById('currentPatient');
+      const nextEl = document.getElementById('nextPatient');
+
+      // Only show patient in consultation if doctor is present
+      if (isDoctorPresent && inConsultation) {
+        currentCard.classList.remove('empty');
+        currentCard.classList.remove('doctor-absent-card');
+        currentEl.textContent = inConsultation.patientName || 'Patient #' + inConsultation.position;
+      } else if (!isDoctorPresent) {
+        currentCard.classList.add('empty');
+        currentCard.classList.add('doctor-absent-card');
+        currentEl.textContent = 'Docteur absent';
+      } else {
+        currentCard.classList.add('empty');
+        currentCard.classList.remove('doctor-absent-card');
+        currentEl.textContent = 'Aucun patient';
+      }
+
+      nextEl.textContent = nextPatient
+        ? (nextPatient.patientName || 'Patient #' + nextPatient.position)
+        : '-';
     }
 
     // Reset stats
@@ -950,6 +995,7 @@
 
       addLog('Monitor initialisé', 'success');
       checkHealth();
+      fetchClinicData(); // Fetch doctor presence first
       fetchStats();
       fetchMetrics();
 
