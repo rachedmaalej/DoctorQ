@@ -1,10 +1,11 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/authStore';
 import { useQueueStore } from '@/stores/queueStore';
 import { useSocket } from '@/hooks/useSocket';
 import { api } from '@/lib/api';
 import { logger } from '@/lib/logger';
+import { playDoorbellSound } from '@/lib/sounds';
 import { QueueStatus } from '@/types';
 import type { AddPatientData } from '@/types';
 import type { ToastType } from '@/components/ui/Toast';
@@ -69,6 +70,9 @@ export function useDashboard() {
     type: 'success',
   });
 
+  // Track previous queue length to detect new patients
+  const previousQueueLengthRef = useRef<number | null>(null);
+
   const showToast = useCallback((message: string, type: ToastType = 'success') => {
     setToast({ isVisible: true, message, type });
   }, []);
@@ -84,6 +88,21 @@ export function useDashboard() {
   const { joinClinicRoom } = useSocket({
     onQueueUpdated: (data) => {
       logger.log('Dashboard received queue:updated event, refreshing queue');
+
+      // Detect if a new patient was added by comparing queue lengths
+      const previousLength = previousQueueLengthRef.current;
+      const newLength = data.queue.length;
+
+      // Play doorbell sound if queue grew (new patient added)
+      // Only play if we had a previous length (not on initial load)
+      if (previousLength !== null && newLength > previousLength) {
+        logger.log('[Sound] New patient detected, playing doorbell sound');
+        playDoorbellSound();
+      }
+
+      // Update ref for next comparison
+      previousQueueLengthRef.current = newLength;
+
       useQueueStore.getState().setQueue(data.queue, data.stats);
     },
     onDoctorPresence: (data) => {
@@ -99,7 +118,12 @@ export function useDashboard() {
 
   // Fetch initial queue data
   useEffect(() => {
-    fetchQueue();
+    fetchQueue().then(() => {
+      // Initialize the queue length ref after first fetch (don't play sound on initial load)
+      const currentQueue = useQueueStore.getState().queue;
+      previousQueueLengthRef.current = currentQueue.length;
+      logger.log('[Sound] Initialized queue length ref:', currentQueue.length);
+    });
   }, []);
 
   // Polling fallback for cross-device sync when Socket.io doesn't work
