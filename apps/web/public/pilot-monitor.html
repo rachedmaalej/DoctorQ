@@ -705,8 +705,14 @@
       currentQueue = queue || [];
 
       // Primary metrics
-      // Calculate waiting count from queue (WAITING + NOTIFIED) to match dashboard logic
-      const waiting = queue ? queue.filter(p => p.status === 'WAITING' || p.status === 'NOTIFIED').length : (stats.waiting || 0);
+      // Calculate waiting count from queue to match dashboard logic
+      // When doctor is absent, IN_CONSULTATION patients are effectively still waiting
+      const waiting = queue ? queue.filter(p => {
+        if (p.status === 'WAITING' || p.status === 'NOTIFIED') return true;
+        // Include IN_CONSULTATION when doctor is absent (they're not actually being seen)
+        if (p.status === 'IN_CONSULTATION' && !isDoctorPresent) return true;
+        return false;
+      }).length : (stats.waiting || 0);
       const seen = stats.seen || 0;
       const avgWait = stats.avgWait !== null ? stats.avgWait : '-';
       const noShows = stats.noShows || 0;
