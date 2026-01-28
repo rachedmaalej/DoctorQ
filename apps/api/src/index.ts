@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
 import bcrypt from 'bcryptjs';
 import { setSocketIO } from './lib/socket.js';
+import { initScheduledTasks } from './lib/scheduler.js';
 import { prisma } from './lib/prisma.js';
 import { verifyToken } from './lib/auth.js';
 import authRoutes from './routes/auth.js';
@@ -338,4 +339,7 @@ httpServer.listen(Number(PORT), HOST, () => {
   console.log(`\n🚀 DoctorQ API Server running on port ${PORT}`);
   console.log(`📍 Health check: http://localhost:${PORT}/health`);
   console.log(`🔌 Socket.io ready for connections\n`);
+
+  // Initialize scheduled tasks
+  initScheduledTasks();
 });

@@ -40,14 +40,15 @@ model Clinic {
   businessType        String       @default("medical")  // medical, retail, restaurant, etc.
   showAppointments    Boolean      @default(true)       // Whether to show appointment time field
 
-  // Activity tracking (TODO: Add after running migration on production)
-  // lastLoginAt         DateTime?    // Last login timestamp for churn detection
+  // Activity tracking
+  lastLoginAt         DateTime?    // Last login timestamp for churn detection
 
   createdAt           DateTime     @default(now())
   updatedAt           DateTime     @updatedAt
 
   queueEntries        QueueEntry[]
   dailyStats          DailyStat[]
+  paymentRecords      PaymentRecord[]
 
   @@index([email])
 }
@@ -124,4 +125,26 @@ model DailyStat {
 
   @@unique([clinicId, date])
   @@index([clinicId, date])
+}
+
+model PaymentRecord {
+  id         String   @id @default(uuid())
+  clinicId   String
+  clinic     Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+
+  amount     Int      // Amount in millimes (50000 = 50 TND)
+  month      DateTime @db.Date  // Payment for which month (first day of month)
+  method     String   // "konnect", "bank_transfer", "cash", "cheque"
+  reference  String?  // Konnect paymentRef or bank transfer ref
+  notes      String?
+  status     String   @default("paid") // "paid", "pending", "failed"
+
+  paidAt     DateTime @default(now())
+  recordedBy String   // Admin email who recorded it
+
+  createdAt  DateTime @default(now())
+
+  @@unique([clinicId, month])
+  @@index([clinicId])
+  @@index([month])
 }

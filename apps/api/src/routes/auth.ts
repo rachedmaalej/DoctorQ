@@ -44,8 +44,11 @@ router.post('/login', async (req: Request, res: Response) => {
       });
     }
 
-    // TODO: Update last login timestamp (for churn tracking)
-    // Temporarily disabled until production database is migrated with lastLoginAt field
+    // Update last login timestamp (for churn tracking)
+    await prisma.clinic.update({
+      where: { id: clinic.id },
+      data: { lastLoginAt: new Date() },
+    });
 
     // Generate token
     const token = signToken({

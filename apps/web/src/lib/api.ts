@@ -8,6 +8,11 @@ import type {
   UpdateStatusData,
   ApiError,
   PatientStatusResponse,
+  AdminMetrics,
+  ClinicHealth,
+  ClinicDetail,
+  CreateClinicData,
+  RecordPaymentData,
 } from '@/types';
 import { logger } from './logger';
 
@@ -216,27 +221,51 @@ class ApiClient {
   }
 
   // Admin endpoints
-  async getAdminMetrics(): Promise<{
-    activeClinics: number;
-    totalClinics: number;
-    mrrTND: number;
-    patientsToday: number;
-    qrCheckinRate: number;
-    atRiskClinics: number;
-  }> {
+  async getAdminMetrics(): Promise<AdminMetrics> {
     return this.request('/api/admin/metrics');
   }
 
-  async getAdminClinics(): Promise<Array<{
-    id: string;
-    name: string;
-    doctorName: string | null;
-    lastLoginAt: string | null;
-    patientsToday: number;
-    avgWaitMins: number | null;
-    status: 'active' | 'at_risk' | 'churned';
-  }>> {
+  async getAdminClinics(): Promise<ClinicHealth[]> {
     return this.request('/api/admin/clinics');
+  }
+
+  async getAdminClinicDetail(clinicId: string): Promise<ClinicDetail> {
+    return this.request(`/api/admin/clinics/${clinicId}`);
+  }
+
+  async createClinic(data: CreateClinicData): Promise<{ id: string; name: string; email: string }> {
+    return this.request('/api/admin/clinics', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateClinicStatus(clinicId: string, isActive: boolean): Promise<{ id: string; name: string; isActive: boolean }> {
+    return this.request(`/api/admin/clinics/${clinicId}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ isActive }),
+    });
+  }
+
+  async resetClinicPassword(clinicId: string, password: string): Promise<{ id: string; name: string }> {
+    return this.request(`/api/admin/clinics/${clinicId}/reset-password`, {
+      method: 'POST',
+      body: JSON.stringify({ password }),
+    });
+  }
+
+  async recordPayment(clinicId: string, data: RecordPaymentData): Promise<unknown> {
+    return this.request(`/api/admin/clinics/${clinicId}/payments`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async initKonnectPayment(clinicId: string, month: string): Promise<{ payUrl: string; paymentRef: string }> {
+    return this.request(`/api/admin/clinics/${clinicId}/payments/konnect`, {
+      method: 'POST',
+      body: JSON.stringify({ month }),
+    });
   }
 }
 

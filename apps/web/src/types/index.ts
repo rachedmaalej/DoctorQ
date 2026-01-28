@@ -105,3 +105,99 @@ export interface PatientStatusResponse extends QueueEntry {
   clinicName?: string;
   doctorName?: string;
 }
+
+// ─── Admin Types ─────────────────────────────────────────────
+
+export interface AdminMetrics {
+  activeClinics: number;
+  totalClinics: number;
+  mrrTND: number;
+  patientsToday: number;
+  qrCheckinRate: number;
+  atRiskClinics: number;
+  paidThisMonth: number;
+  overdueCount: number;
+}
+
+export interface ClinicHealth {
+  id: string;
+  name: string;
+  doctorName: string | null;
+  lastLoginAt: string | null;
+  patientsToday: number;
+  avgWaitMins: number | null;
+  status: 'active' | 'at_risk' | 'churned';
+  paymentStatus: 'paid' | 'overdue' | 'none';
+}
+
+export interface ClinicDetail {
+  clinic: {
+    id: string;
+    name: string;
+    doctorName: string | null;
+    email: string;
+    phone: string | null;
+    language: string;
+    avgConsultationMins: number;
+    businessType: string;
+    isActive: boolean;
+    isDoctorPresent: boolean;
+    createdAt: string;
+    lastLoginAt: string | null;
+  };
+  todayStats: {
+    waiting: number;
+    inConsultation: number;
+    completed: number;
+    noShows: number;
+    cancelled: number;
+  };
+  weeklyPatients: Array<{ date: string; count: number }>;
+  monthlyStats: {
+    totalPatients: number;
+    avgWaitMins: number | null;
+    qrRate: number;
+  };
+  recentEntries: Array<{
+    id: string;
+    patientName: string | null;
+    patientPhone: string;
+    status: string;
+    checkInMethod: string;
+    arrivedAt: string;
+    calledAt: string | null;
+    completedAt: string | null;
+  }>;
+  payments: PaymentRecord[];
+}
+
+export interface PaymentRecord {
+  id: string;
+  amount: number;
+  month: string;
+  method: string;
+  reference: string | null;
+  status: string;
+  paidAt: string;
+}
+
+export interface CreateClinicData {
+  name: string;
+  email: string;
+  password: string;
+  doctorName?: string;
+  phone?: string;
+  address?: string;
+  language?: string;
+  avgConsultationMins?: number;
+  businessType?: string;
+  showAppointments?: boolean;
+}
+
+export interface RecordPaymentData {
+  amount: number;
+  month: string;
+  method: string;
+  reference?: string;
+  notes?: string;
+}
