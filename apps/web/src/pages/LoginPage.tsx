@@ -4,6 +4,9 @@ import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/authStore';
 import Logo from '@/components/ui/Logo';
 
+// Admin emails that should be redirected to /admin after login
+const ADMIN_EMAILS = ['rached@doctorq.tn', 'admin@blesaf.tn'];
+
 export default function LoginPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -18,7 +21,9 @@ export default function LoginPage() {
 
     try {
       await login({ email, password });
-      navigate('/dashboard');
+      // Redirect admins to command center, others to dashboard
+      const isAdmin = ADMIN_EMAILS.includes(email.toLowerCase());
+      navigate(isAdmin ? '/admin' : '/dashboard');
     } catch (error) {
       // Error is handled by the store
     } finally {
