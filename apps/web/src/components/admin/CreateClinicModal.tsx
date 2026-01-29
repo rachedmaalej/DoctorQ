@@ -44,7 +44,7 @@ export default function CreateClinicModal({ isOpen, onClose, onCreated }: Create
     setIsSubmitting(true);
 
     try {
-      const clinic = await api.createClinic({
+      await api.createClinic({
         name,
         email,
         password,
@@ -54,8 +54,8 @@ export default function CreateClinicModal({ isOpen, onClose, onCreated }: Create
         avgConsultationMins,
         businessType,
       });
-      setCreatedClinic(clinic);
       onCreated();
+      handleClose();
     } catch (err: any) {
       setError(err.message || 'Failed to create clinic');
     } finally {
