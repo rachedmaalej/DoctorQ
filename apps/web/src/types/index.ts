@@ -64,6 +64,8 @@ export interface Clinic {
   businessType?: string;        // "medical" (default) or "retail"
   showAppointments?: boolean;   // true (default) or false
   uiLabels?: UILabels;          // Dynamic labels based on businessType
+  country?: string;             // "TN" (default) or "FR"
+  enableLanguageSwitcher?: boolean; // true (default) - show/hide language toggle
 }
 
 export interface LoginCredentials {
@@ -104,6 +106,7 @@ export interface PatientStatusResponse extends QueueEntry {
   avgConsultationMins?: number;
   clinicName?: string;
   doctorName?: string;
+  enableLanguageSwitcher?: boolean;
 }
 
 // ─── Admin Types ─────────────────────────────────────────────
@@ -144,6 +147,8 @@ export interface ClinicDetail {
     isDoctorPresent: boolean;
     createdAt: string;
     lastLoginAt: string | null;
+    country: string;
+    enableLanguageSwitcher: boolean;
   };
   todayStats: {
     waiting: number;
@@ -192,6 +197,7 @@ export interface CreateClinicData {
   avgConsultationMins?: number;
   businessType?: string;
   showAppointments?: boolean;
+  country?: string;
 }
 
 export interface RecordPaymentData {

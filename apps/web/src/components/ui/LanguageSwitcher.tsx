@@ -2,10 +2,14 @@ import { useTranslation } from 'react-i18next';
 
 interface LanguageSwitcherProps {
   className?: string;
+  enabled?: boolean;  // If false, component won't render
 }
 
-export default function LanguageSwitcher({ className = '' }: LanguageSwitcherProps) {
+export default function LanguageSwitcher({ className = '', enabled = true }: LanguageSwitcherProps) {
   const { i18n } = useTranslation();
+
+  // Don't render if explicitly disabled
+  if (!enabled) return null;
 
   const toggleLanguage = () => {
     const newLang = i18n.language === 'fr' ? 'ar' : 'fr';

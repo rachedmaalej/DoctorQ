@@ -318,6 +318,7 @@ export async function getPatientStatus(entryId: string) {
           doctorName: true,
           avgConsultationMins: true,
           isDoctorPresent: true,
+          enableLanguageSwitcher: true,
         },
       },
     },
@@ -347,6 +348,7 @@ export async function getPatientStatus(entryId: string) {
     clinicName: entry.clinic.name,
     doctorName: entry.clinic.doctorName,
     isDoctorPresent: entry.clinic.isDoctorPresent,
+    enableLanguageSwitcher: entry.clinic.enableLanguageSwitcher,
   };
 }
 

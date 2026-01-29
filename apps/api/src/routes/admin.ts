@@ -17,6 +17,7 @@ import {
   recordPayment,
   getClinicPayments,
   updatePaymentStatus,
+  updateClinicSettings,
 } from '../services/adminService.js';
 import { initPayment, getPaymentDetails } from '../lib/konnect.js';
 
@@ -89,6 +90,7 @@ const createClinicSchema = z.object({
   avgConsultationMins: z.number().min(1).max(120).optional(),
   businessType: z.string().optional(),
   showAppointments: z.boolean().optional(),
+  country: z.enum(['TN', 'FR']).optional(),
 });
 
 router.post('/clinics', authMiddleware, isAdmin, async (req: AuthRequest, res: Response) => {
@@ -137,6 +139,27 @@ router.post('/clinics/:id/reset-password', authMiddleware, isAdmin, async (req: 
     }
     console.error('Error resetting password:', error);
     res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to reset password' } });
+  }
+});
+
+// ─── Update Clinic Settings ─────────────────────────────────
+
+const updateSettingsSchema = z.object({
+  country: z.enum(['TN', 'FR']).optional(),
+  enableLanguageSwitcher: z.boolean().optional(),
+});
+
+router.patch('/clinics/:id/settings', authMiddleware, isAdmin, async (req: AuthRequest, res: Response) => {
+  try {
+    const data = updateSettingsSchema.parse(req.body);
+    const clinic = await updateClinicSettings(req.params.id, data);
+    res.json({ data: clinic });
+  } catch (error: any) {
+    if (error.name === 'ZodError') {
+      return res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: 'Invalid input' } });
+    }
+    console.error('Error updating clinic settings:', error);
+    res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to update clinic settings' } });
   }
 });
 

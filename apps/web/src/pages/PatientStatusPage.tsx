@@ -350,7 +350,7 @@ export default function PatientStatusPage() {
 
       {/* Language Switcher - Fixed position top corner */}
       <div className="absolute top-4 ltr:right-4 rtl:left-4 z-40">
-        <LanguageSwitcher />
+        <LanguageSwitcher enabled={entry?.enableLanguageSwitcher ?? true} />
       </div>
 
       <div className="max-w-md w-full space-y-4">

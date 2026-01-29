@@ -55,6 +55,8 @@ export interface ClinicDetail {
     isDoctorPresent: boolean;
     createdAt: string;
     lastLoginAt: string | null;
+    country: string;
+    enableLanguageSwitcher: boolean;
   };
   todayStats: {
     waiting: number;
@@ -101,6 +103,12 @@ export interface CreateClinicData {
   avgConsultationMins?: number;
   businessType?: string;
   showAppointments?: boolean;
+  country?: string;
+}
+
+export interface UpdateClinicSettingsData {
+  country?: string;
+  enableLanguageSwitcher?: boolean;
 }
 
 export interface RecordPaymentData {
@@ -259,6 +267,8 @@ export async function getClinicDetails(clinicId: string): Promise<ClinicDetail> 
       isDoctorPresent: true,
       createdAt: true,
       lastLoginAt: true,
+      country: true,
+      enableLanguageSwitcher: true,
     },
   });
 
@@ -399,6 +409,7 @@ export async function createClinic(data: CreateClinicData) {
       avgConsultationMins: data.avgConsultationMins ?? 10,
       businessType: data.businessType ?? 'medical',
       showAppointments: data.showAppointments ?? true,
+      country: data.country ?? 'TN',
     },
     select: {
       id: true,
@@ -470,5 +481,20 @@ export async function updatePaymentStatus(paymentId: string, status: string) {
   return prisma.paymentRecord.update({
     where: { id: paymentId },
     data: { status },
+  });
+}
+
+// ─── Clinic Settings ──────────────────────────────────────────
+
+export async function updateClinicSettings(clinicId: string, data: UpdateClinicSettingsData) {
+  return prisma.clinic.update({
+    where: { id: clinicId },
+    data,
+    select: {
+      id: true,
+      name: true,
+      country: true,
+      enableLanguageSwitcher: true,
+    },
   });
 }

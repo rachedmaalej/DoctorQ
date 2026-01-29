@@ -146,6 +146,7 @@ router.get('/:clinicId/info', async (req, res: Response) => {
         name: true,
         avgConsultationMins: true,
         isDoctorPresent: true,
+        enableLanguageSwitcher: true,
       },
     });
 
@@ -169,6 +170,7 @@ router.get('/:clinicId/info', async (req, res: Response) => {
         waitingCount,
         avgConsultationMins: clinic.avgConsultationMins,
         isDoctorPresent: clinic.isDoctorPresent,
+        enableLanguageSwitcher: clinic.enableLanguageSwitcher,
       },
     });
   } catch (error: any) {

@@ -254,6 +254,16 @@ class ApiClient {
     });
   }
 
+  async updateClinicSettings(
+    clinicId: string,
+    settings: { country?: string; enableLanguageSwitcher?: boolean }
+  ): Promise<{ id: string; name: string; country: string; enableLanguageSwitcher: boolean }> {
+    return this.request(`/api/admin/clinics/${clinicId}/settings`, {
+      method: 'PATCH',
+      body: JSON.stringify(settings),
+    });
+  }
+
   async recordPayment(clinicId: string, data: RecordPaymentData): Promise<unknown> {
     return this.request(`/api/admin/clinics/${clinicId}/payments`, {
       method: 'POST',

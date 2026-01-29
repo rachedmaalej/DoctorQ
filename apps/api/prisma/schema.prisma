@@ -40,6 +40,10 @@ model Clinic {
   businessType        String       @default("medical")  // medical, retail, restaurant, etc.
   showAppointments    Boolean      @default(true)       // Whether to show appointment time field
 
+  // Localization settings
+  country                String    @default("TN")    // TN = Tunisia, FR = France
+  enableLanguageSwitcher Boolean   @default(true)    // Show/hide language toggle on public pages
+
   // Activity tracking
   lastLoginAt         DateTime?    // Last login timestamp for churn detection
 

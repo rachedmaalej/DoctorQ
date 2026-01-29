@@ -17,6 +17,7 @@ export default function CheckInPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [clinicName, setClinicName] = useState<string>('');
+  const [enableLanguageSwitcher, setEnableLanguageSwitcher] = useState(true);
 
   // Fetch clinic info
   useEffect(() => {
@@ -24,6 +25,9 @@ export default function CheckInPage() {
       api.getClinicInfo(clinicId)
         .then((info) => {
           if (info.name) setClinicName(info.name);
+          if (info.enableLanguageSwitcher !== undefined) {
+            setEnableLanguageSwitcher(info.enableLanguageSwitcher);
+          }
         })
         .catch(() => {
           // Silently fail - clinic name is optional display
@@ -111,7 +115,7 @@ export default function CheckInPage() {
     <div className="h-screen bg-gradient-to-br from-primary-50 to-teal-50 flex items-center justify-center p-3 relative overflow-hidden">
       {/* Language Switcher - Top corner */}
       <div className="absolute top-3 ltr:right-3 rtl:left-3 z-10">
-        <LanguageSwitcher />
+        <LanguageSwitcher enabled={enableLanguageSwitcher} />
       </div>
 
       <div className="max-w-md w-full">
