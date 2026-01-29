@@ -199,7 +199,7 @@ class ApiClient {
   }
 
   // Public clinic info (for check-in page)
-  async getClinicInfo(clinicId: string): Promise<{ name: string; waitingCount: number; avgConsultationMins: number; isDoctorPresent: boolean }> {
+  async getClinicInfo(clinicId: string): Promise<{ name: string; waitingCount: number; avgConsultationMins: number; isDoctorPresent: boolean; enableLanguageSwitcher: boolean }> {
     return this.request(`/api/clinic/${clinicId}/info`);
   }
 
