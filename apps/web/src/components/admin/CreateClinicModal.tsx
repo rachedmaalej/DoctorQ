@@ -15,7 +15,7 @@ export default function CreateClinicModal({ isOpen, onClose, onCreated }: Create
   const [phone, setPhone] = useState('');
   const [language, setLanguage] = useState('fr');
   const [avgConsultationMins, setAvgConsultationMins] = useState(10);
-  const [businessType, setBusinessType] = useState('medical');
+  const [businessType, setBusinessType] = useState('ophthalmology');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [createdClinic, setCreatedClinic] = useState<{ id: string; name: string; email: string } | null>(null);
@@ -202,14 +202,14 @@ export default function CreateClinicModal({ isOpen, onClose, onCreated }: Create
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Business Type</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Clinic Type</label>
                 <select
                   value={businessType}
                   onChange={(e) => setBusinessType(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
                 >
-                  <option value="medical">Medical</option>
-                  <option value="retail">Retail</option>
+                  <option value="ophthalmology">Ophthalmology</option>
+                  <option value="dentist">Dentist</option>
                 </select>
               </div>
             </div>
