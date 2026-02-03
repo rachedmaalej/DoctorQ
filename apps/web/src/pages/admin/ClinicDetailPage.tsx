@@ -11,6 +11,7 @@ export default function ClinicDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   const fetchDetail = async () => {
@@ -71,6 +72,20 @@ export default function ClinicDetailPage() {
     }
   };
 
+  const handleDeleteClinic = async () => {
+    if (!clinicId || !detail) return;
+    setActionLoading('delete');
+    try {
+      await api.deleteClinic(clinicId);
+      navigate('/admin');
+    } catch (err: any) {
+      alert(err.message || 'Failed to delete clinic');
+      setShowDeleteConfirm(false);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -90,7 +105,7 @@ export default function ClinicDetailPage() {
     );
   }
 
-  const { clinic, todayStats, weeklyPatients, allTimeStats = { totalPatients: 0, avgWaitMins: null, qrRate: 0 }, recentEntries, payments } = detail;
+  const { clinic, todayStats, weeklyPatients, allTimeStats, recentEntries, payments } = detail;
   const maxWeekly = Math.max(...weeklyPatients.map((w) => w.count), 1);
 
   return (
@@ -138,6 +153,13 @@ export default function ClinicDetailPage() {
                 className="text-sm px-3 py-1.5 rounded-lg font-medium bg-gray-100 text-gray-700 hover:bg-gray-200"
               >
                 Reset Password
+              </button>
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                disabled={!!actionLoading}
+                className="text-sm px-3 py-1.5 rounded-lg font-medium bg-red-100 text-red-700 hover:bg-red-200"
+              >
+                Delete
               </button>
             </div>
           </div>
@@ -334,6 +356,44 @@ export default function ClinicDetailPage() {
         onClose={() => setShowPaymentModal(false)}
         onRecorded={fetchDetail}
       />
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+                <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900">Delete Clinic</h3>
+            </div>
+            <p className="text-gray-600 mb-2">
+              Are you sure you want to delete <strong>{clinic.name}</strong>?
+            </p>
+            <p className="text-sm text-red-600 mb-6">
+              This action cannot be undone. All data including queue entries, payment records, and statistics will be permanently deleted.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={actionLoading === 'delete'}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteClinic}
+                disabled={actionLoading === 'delete'}
+                className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50"
+              >
+                {actionLoading === 'delete' ? 'Deleting...' : 'Delete Clinic'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

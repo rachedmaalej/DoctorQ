@@ -259,6 +259,12 @@ class ApiClient {
     });
   }
 
+  async deleteClinic(clinicId: string): Promise<{ id: string; name: string }> {
+    return this.request(`/api/admin/clinics/${clinicId}`, {
+      method: 'DELETE',
+    });
+  }
+
   async recordPayment(clinicId: string, data: RecordPaymentData): Promise<unknown> {
     return this.request(`/api/admin/clinics/${clinicId}/payments`, {
       method: 'POST',

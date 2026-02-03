@@ -15,6 +15,7 @@ import {
   createClinic,
   updateClinicStatus,
   resetClinicPassword,
+  deleteClinic,
   recordPayment,
   getClinicPayments,
   updatePaymentStatus,
@@ -151,6 +152,21 @@ router.post('/clinics/:id/reset-password', authMiddleware, isAdmin, async (req: 
     }
     console.error('Error resetting password:', error);
     res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to reset password' } });
+  }
+});
+
+// ─── Delete Clinic ──────────────────────────────────────────
+
+router.delete('/clinics/:id', authMiddleware, isAdmin, async (req: AuthRequest, res: Response) => {
+  try {
+    const clinic = await deleteClinic(req.params.id);
+    res.json({ data: clinic });
+  } catch (error: any) {
+    if (error.code === 'P2025') {
+      return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Clinic not found' } });
+    }
+    console.error('Error deleting clinic:', error);
+    res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to delete clinic' } });
   }
 });
 

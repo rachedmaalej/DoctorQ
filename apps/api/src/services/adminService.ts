@@ -835,6 +835,32 @@ export async function resetClinicPassword(clinicId: string, newPassword: string)
   });
 }
 
+export async function deleteClinic(clinicId: string) {
+  // Delete in order to respect foreign key constraints
+  // 1. Delete all queue entries for this clinic
+  await prisma.queueEntry.deleteMany({
+    where: { clinicId },
+  });
+
+  // 2. Delete all payment records for this clinic
+  await prisma.paymentRecord.deleteMany({
+    where: { clinicId },
+  });
+
+  // 3. Delete all daily stats for this clinic
+  await prisma.dailyStat.deleteMany({
+    where: { clinicId },
+  });
+
+  // 4. Finally delete the clinic itself
+  const clinic = await prisma.clinic.delete({
+    where: { id: clinicId },
+    select: { id: true, name: true },
+  });
+
+  return clinic;
+}
+
 // ─── Payment Tracking ────────────────────────────────────────
 
 export async function recordPayment(clinicId: string, data: RecordPaymentData) {
