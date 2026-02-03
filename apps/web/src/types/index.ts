@@ -104,10 +104,15 @@ export interface PatientStatusResponse extends QueueEntry {
   avgConsultationMins?: number;
   clinicName?: string;
   doctorName?: string;
-  enableLanguageSwitcher?: boolean;
 }
 
 // ─── Admin Types ─────────────────────────────────────────────
+
+export interface TrendData {
+  value: number;
+  direction: 'up' | 'down' | 'flat';
+  isPositive: boolean;
+}
 
 export interface AdminMetrics {
   activeClinics: number;
@@ -120,6 +125,38 @@ export interface AdminMetrics {
   overdueCount: number;
 }
 
+export interface ClinicRanking {
+  id: string;
+  name: string;
+  doctorName: string | null;
+  patientsThisMonth: number;
+  trend: TrendData;
+}
+
+export interface ChurnRiskClinic {
+  id: string;
+  name: string;
+  doctorName: string | null;
+  daysSinceLogin: number | null;
+  lastPatientCount: number;
+  riskLevel: 'high' | 'medium' | 'low';
+}
+
+export interface AdminMetricsWithTrends extends AdminMetrics {
+  period: 'today' | '7d' | '30d' | 'all';
+  periodLabel: string;
+  trends: {
+    patients: TrendData;
+    qrRate: TrendData;
+    atRisk: TrendData;
+    collection: TrendData;
+  };
+  patientsByDay: Array<{ date: string; count: number }>;
+  revenueByMonth: Array<{ month: string; collected: number; expected: number }>;
+  clinicRankings: ClinicRanking[];
+  churnRiskClinics: ChurnRiskClinic[];
+}
+
 export interface ClinicHealth {
   id: string;
   name: string;
@@ -129,7 +166,6 @@ export interface ClinicHealth {
   avgWaitMins: number | null;
   status: 'active' | 'at_risk' | 'churned';
   paymentStatus: 'paid' | 'overdue' | 'none';
-  isActive: boolean;
 }
 
 export interface ClinicDetail {

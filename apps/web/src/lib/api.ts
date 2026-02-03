@@ -9,6 +9,7 @@ import type {
   ApiError,
   PatientStatusResponse,
   AdminMetrics,
+  AdminMetricsWithTrends,
   ClinicHealth,
   ClinicDetail,
   CreateClinicData,
@@ -28,7 +29,7 @@ function getApiUrl(): string {
     const hostname = window.location.hostname;
     // Production Vercel deployment
     if (hostname.includes('vercel.app') || hostname.includes('doctor-q')) {
-      return 'https://doctorqapi-production-ac8b.up.railway.app';
+      return 'https://doctorqapi-production-84e9.up.railway.app';
     }
   }
 
@@ -199,7 +200,7 @@ class ApiClient {
   }
 
   // Public clinic info (for check-in page)
-  async getClinicInfo(clinicId: string): Promise<{ name: string; waitingCount: number; avgConsultationMins: number; isDoctorPresent: boolean; enableLanguageSwitcher: boolean }> {
+  async getClinicInfo(clinicId: string): Promise<{ name: string; waitingCount: number; avgConsultationMins: number; isDoctorPresent: boolean }> {
     return this.request(`/api/clinic/${clinicId}/info`);
   }
 
@@ -223,6 +224,10 @@ class ApiClient {
   // Admin endpoints
   async getAdminMetrics(): Promise<AdminMetrics> {
     return this.request('/api/admin/metrics');
+  }
+
+  async getAdminMetricsWithTrends(period: 'today' | '7d' | '30d' | 'all' = '30d'): Promise<AdminMetricsWithTrends> {
+    return this.request(`/api/admin/metrics/trends?period=${period}`);
   }
 
   async getAdminClinics(): Promise<ClinicHealth[]> {
@@ -251,33 +256,6 @@ class ApiClient {
     return this.request(`/api/admin/clinics/${clinicId}/reset-password`, {
       method: 'POST',
       body: JSON.stringify({ password }),
-    });
-  }
-
-  async updateClinicSettings(
-    clinicId: string,
-    settings: { country?: string; enableLanguageSwitcher?: boolean }
-  ): Promise<{ id: string; name: string; country: string; enableLanguageSwitcher: boolean }> {
-    return this.request(`/api/admin/clinics/${clinicId}/settings`, {
-      method: 'PATCH',
-      body: JSON.stringify(settings),
-    });
-  }
-
-  async updateClinicInfo(
-    clinicId: string,
-    info: {
-      name?: string;
-      doctorName?: string;
-      phone?: string;
-      language?: string;
-      avgConsultationMins?: number;
-      businessType?: string;
-    }
-  ): Promise<{ id: string; name: string; doctorName: string | null; phone: string | null; language: string; avgConsultationMins: number; businessType: string }> {
-    return this.request(`/api/admin/clinics/${clinicId}/info`, {
-      method: 'PATCH',
-      body: JSON.stringify(info),
     });
   }
 

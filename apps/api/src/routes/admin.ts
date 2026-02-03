@@ -9,6 +9,7 @@ import { authMiddleware } from '../lib/auth.js';
 import { AuthRequest } from '../types/index.js';
 import {
   getAdminMetrics,
+  getAdminMetricsWithTrends,
   getClinicHealthList,
   getClinicDetails,
   createClinic,
@@ -17,8 +18,6 @@ import {
   recordPayment,
   getClinicPayments,
   updatePaymentStatus,
-  updateClinicSettings,
-  updateClinicInfo,
 } from '../services/adminService.js';
 import { initPayment, getPaymentDetails } from '../lib/konnect.js';
 
@@ -47,6 +46,19 @@ router.get('/metrics', authMiddleware, isAdmin, async (_req: AuthRequest, res: R
     res.json({ data: metrics });
   } catch (error) {
     console.error('Error fetching admin metrics:', error);
+    res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch admin metrics' } });
+  }
+});
+
+// ─── Metrics with Trends ─────────────────────────────────────
+
+router.get('/metrics/trends', authMiddleware, isAdmin, async (req: AuthRequest, res: Response) => {
+  try {
+    const period = (req.query.period as 'today' | '7d' | '30d' | 'all') || '30d';
+    const metrics = await getAdminMetricsWithTrends(period);
+    res.json({ data: metrics });
+  } catch (error) {
+    console.error('Error fetching admin metrics with trends:', error);
     res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch admin metrics' } });
   }
 });
@@ -91,7 +103,6 @@ const createClinicSchema = z.object({
   avgConsultationMins: z.number().min(1).max(120).optional(),
   businessType: z.string().optional(),
   showAppointments: z.boolean().optional(),
-  country: z.enum(['TN', 'FR']).optional(),
 });
 
 router.post('/clinics', authMiddleware, isAdmin, async (req: AuthRequest, res: Response) => {
@@ -140,52 +151,6 @@ router.post('/clinics/:id/reset-password', authMiddleware, isAdmin, async (req: 
     }
     console.error('Error resetting password:', error);
     res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to reset password' } });
-  }
-});
-
-// ─── Update Clinic Settings ─────────────────────────────────
-
-const updateSettingsSchema = z.object({
-  country: z.enum(['TN', 'FR']).optional(),
-  enableLanguageSwitcher: z.boolean().optional(),
-});
-
-router.patch('/clinics/:id/settings', authMiddleware, isAdmin, async (req: AuthRequest, res: Response) => {
-  try {
-    const data = updateSettingsSchema.parse(req.body);
-    const clinic = await updateClinicSettings(req.params.id, data);
-    res.json({ data: clinic });
-  } catch (error: any) {
-    if (error.name === 'ZodError') {
-      return res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: 'Invalid input' } });
-    }
-    console.error('Error updating clinic settings:', error);
-    res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to update clinic settings' } });
-  }
-});
-
-// ─── Update Clinic Info ─────────────────────────────────────
-
-const updateInfoSchema = z.object({
-  name: z.string().min(1).optional(),
-  doctorName: z.string().optional(),
-  phone: z.string().optional(),
-  language: z.enum(['fr', 'ar']).optional(),
-  avgConsultationMins: z.number().min(1).max(120).optional(),
-  businessType: z.string().optional(),
-});
-
-router.patch('/clinics/:id/info', authMiddleware, isAdmin, async (req: AuthRequest, res: Response) => {
-  try {
-    const data = updateInfoSchema.parse(req.body);
-    const clinic = await updateClinicInfo(req.params.id, data);
-    res.json({ data: clinic });
-  } catch (error: any) {
-    if (error.name === 'ZodError') {
-      return res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: 'Invalid input' } });
-    }
-    console.error('Error updating clinic info:', error);
-    res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to update clinic info' } });
   }
 });
 

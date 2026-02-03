@@ -1,31 +1,41 @@
 /**
  * Admin Dashboard - BléSaf SaaS Command Center
- * Business metrics, clinic management, and payment tracking.
+ * Business metrics with trends, clinic management, and payment tracking.
  */
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 import { api } from '../../lib/api';
-import type { AdminMetrics, ClinicHealth } from '../../types';
+import type { AdminMetricsWithTrends, ClinicHealth } from '../../types';
 import CreateClinicModal from '../../components/admin/CreateClinicModal';
+import MetricCardWithTrend from '../../components/admin/MetricCardWithTrend';
+import ClinicRankingCard from '../../components/admin/ClinicRankingCard';
+import ChurnRiskCard from '../../components/admin/ChurnRiskCard';
+
+type Period = 'today' | '7d' | '30d' | 'all';
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const { logout, isAuthenticated } = useAuthStore();
-  const [metrics, setMetrics] = useState<AdminMetrics | null>(null);
+  const [metrics, setMetrics] = useState<AdminMetricsWithTrends | null>(null);
   const [clinics, setClinics] = useState<ClinicHealth[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showPaused, setShowPaused] = useState(false);
+  const [period, setPeriod] = useState<Period>('30d');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'at_risk'>('all');
+  const [paymentFilter, setPaymentFilter] = useState<'all' | 'paid' | 'overdue'>('all');
+  const [sortBy, setSortBy] = useState<'name' | 'patients' | 'lastActive'>('name');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
-  const fetchData = async () => {
+  const fetchData = async (selectedPeriod: Period = period) => {
     try {
       setLoading(true);
       setError(null);
       const [metricsData, clinicsData] = await Promise.all([
-        api.getAdminMetrics(),
+        api.getAdminMetricsWithTrends(selectedPeriod),
         api.getAdminClinics(),
       ]);
       setMetrics(metricsData);
@@ -43,8 +53,12 @@ export default function AdminDashboard() {
   };
 
   useEffect(() => {
-    if (isAuthenticated) fetchData();
-  }, [isAuthenticated]);
+    if (isAuthenticated) fetchData(period);
+  }, [isAuthenticated, period]);
+
+  const handlePeriodChange = (newPeriod: Period) => {
+    setPeriod(newPeriod);
+  };
 
   const handleLogout = () => {
     logout();
@@ -111,6 +125,61 @@ export default function AdminDashboard() {
     );
   }
 
+  const collectionRate = metrics?.totalClinics
+    ? Math.round(((metrics?.paidThisMonth || 0) / metrics.totalClinics) * 100)
+    : 0;
+
+  // Filter and sort clinics
+  const filteredClinics = clinics
+    .filter((clinic) => {
+      // Search filter
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        const matchesName = clinic.name.toLowerCase().includes(query);
+        const matchesDoctor = clinic.doctorName?.toLowerCase().includes(query) || false;
+        if (!matchesName && !matchesDoctor) return false;
+      }
+
+      // Status filter
+      if (statusFilter !== 'all' && clinic.status !== statusFilter) return false;
+
+      // Payment filter
+      if (paymentFilter !== 'all' && clinic.paymentStatus !== paymentFilter) return false;
+
+      return true;
+    })
+    .sort((a, b) => {
+      let comparison = 0;
+      switch (sortBy) {
+        case 'name':
+          comparison = a.name.localeCompare(b.name);
+          break;
+        case 'patients':
+          comparison = a.patientsToday - b.patientsToday;
+          break;
+        case 'lastActive':
+          const aDate = a.lastLoginAt ? new Date(a.lastLoginAt).getTime() : 0;
+          const bDate = b.lastLoginAt ? new Date(b.lastLoginAt).getTime() : 0;
+          comparison = aDate - bDate;
+          break;
+      }
+      return sortDirection === 'asc' ? comparison : -comparison;
+    });
+
+  const handleSort = (column: 'name' | 'patients' | 'lastActive') => {
+    if (sortBy === column) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(column);
+      setSortDirection('asc');
+    }
+  };
+
+  const getSortIcon = (column: 'name' | 'patients' | 'lastActive') => {
+    if (sortBy !== column) return '↕';
+    return sortDirection === 'asc' ? '↑' : '↓';
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -148,74 +217,254 @@ export default function AdminDashboard() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Business Metrics */}
+        {/* Business Metrics Section Header with Period Selector */}
         <section className="mb-8">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Business Metrics</h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">Business Metrics</h2>
+            <div className="flex items-center space-x-2">
+              <span className="text-sm text-gray-500 mr-2">Period:</span>
+              <div className="inline-flex rounded-lg border border-gray-200 bg-white p-1">
+                {(['today', '7d', '30d', 'all'] as Period[]).map((p) => (
+                  <button
+                    key={p}
+                    onClick={() => handlePeriodChange(p)}
+                    className={`px-3 py-1 text-sm font-medium rounded-md transition-colors ${
+                      period === p
+                        ? 'bg-purple-100 text-purple-700'
+                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                    }`}
+                  >
+                    {p === 'today' ? 'Today' : p === '7d' ? '7 Days' : p === '30d' ? '30 Days' : 'All Time'}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Metrics Grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
-            <MetricCard label="Active Clinics" value={metrics?.activeClinics || 0} subtext={`of ${metrics?.totalClinics || 0} total`} color="green" />
-            <MetricCard label="MRR" value={`${metrics?.mrrTND || 0} TND`} subtext="Monthly recurring" color="blue" />
-            <MetricCard label="Patients Today" value={metrics?.patientsToday || 0} subtext="Across all clinics" color="indigo" />
-            <MetricCard label="QR Rate" value={`${metrics?.qrCheckinRate || 0}%`} subtext="vs manual" color="purple" />
-            <MetricCard label="Paid This Month" value={metrics?.paidThisMonth || 0} subtext="Clinics paid" color="green" />
-            <MetricCard label="Overdue" value={metrics?.overdueCount || 0} subtext="Not paid yet" color={metrics?.overdueCount ? 'red' : 'gray'} />
-            <MetricCard label="At Risk" value={metrics?.atRiskClinics || 0} subtext="No login 7+ days" color={metrics?.atRiskClinics ? 'yellow' : 'gray'} />
-            <MetricCard label="Collection" value={metrics?.totalClinics ? `${Math.round(((metrics?.paidThisMonth || 0) / metrics.totalClinics) * 100)}%` : '0%'} subtext="Payment rate" color="blue" />
+            <MetricCardWithTrend
+              label="Active Clinics"
+              value={metrics?.activeClinics || 0}
+              subtext={`of ${metrics?.totalClinics || 0} total`}
+              color="green"
+            />
+            <MetricCardWithTrend
+              label="MRR"
+              value={`${metrics?.mrrTND || 0} TND`}
+              subtext="Monthly recurring"
+              color="blue"
+            />
+            <MetricCardWithTrend
+              label="Patients"
+              value={metrics?.patientsToday || 0}
+              subtext={metrics?.periodLabel || 'Today'}
+              color="indigo"
+              trend={metrics?.trends.patients}
+            />
+            <MetricCardWithTrend
+              label="QR Rate"
+              value={`${metrics?.qrCheckinRate || 0}%`}
+              subtext="vs manual"
+              color="purple"
+              trend={metrics?.trends.qrRate}
+            />
+            <MetricCardWithTrend
+              label="Paid This Month"
+              value={metrics?.paidThisMonth || 0}
+              subtext="Clinics paid"
+              color="green"
+            />
+            <MetricCardWithTrend
+              label="Overdue"
+              value={metrics?.overdueCount || 0}
+              subtext="Not paid yet"
+              color={metrics?.overdueCount ? 'red' : 'gray'}
+            />
+            <MetricCardWithTrend
+              label="At Risk"
+              value={metrics?.atRiskClinics || 0}
+              subtext="No login 7+ days"
+              color={metrics?.atRiskClinics ? 'yellow' : 'gray'}
+              trend={metrics?.trends.atRisk}
+            />
+            <MetricCardWithTrend
+              label="Collection"
+              value={`${collectionRate}%`}
+              subtext="Payment rate"
+              color={collectionRate >= 80 ? 'green' : collectionRate >= 50 ? 'yellow' : 'red'}
+              trend={metrics?.trends.collection}
+            />
           </div>
         </section>
 
+        {/* Charts Section - Placeholder for Phase 2 */}
+        {metrics && (metrics.patientsByDay?.length > 0 || metrics.revenueByMonth?.length > 0) && (
+          <section className="mb-8">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Trends</h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Patient Volume Chart Placeholder */}
+              <div className="bg-white rounded-lg shadow p-6">
+                <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-4">
+                  Patient Volume (Last 30 Days)
+                </h3>
+                <div className="h-48 flex items-end justify-between gap-1">
+                  {metrics.patientsByDay?.slice(-14).map((day, i) => {
+                    const maxCount = Math.max(...metrics.patientsByDay.map(d => d.count), 1);
+                    const height = (day.count / maxCount) * 100;
+                    return (
+                      <div
+                        key={i}
+                        className="flex-1 bg-indigo-500 rounded-t hover:bg-indigo-600 transition-colors"
+                        style={{ height: `${Math.max(height, 4)}%` }}
+                        title={`${day.date}: ${day.count} patients`}
+                      />
+                    );
+                  })}
+                </div>
+                <div className="flex justify-between mt-2 text-xs text-gray-400">
+                  <span>{metrics.patientsByDay?.[metrics.patientsByDay.length - 14]?.date?.slice(5) || ''}</span>
+                  <span>{metrics.patientsByDay?.[metrics.patientsByDay.length - 1]?.date?.slice(5) || ''}</span>
+                </div>
+              </div>
+
+              {/* Revenue Chart Placeholder */}
+              <div className="bg-white rounded-lg shadow p-6">
+                <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-4">
+                  Revenue (Last 6 Months)
+                </h3>
+                <div className="h-48 flex items-end justify-between gap-2">
+                  {metrics.revenueByMonth?.map((month, i) => {
+                    const maxRevenue = Math.max(...metrics.revenueByMonth.map(m => m.expected), 1);
+                    const expectedHeight = (month.expected / maxRevenue) * 100;
+                    const collectedPercent = month.expected > 0 ? (month.collected / month.expected) * 100 : 0;
+                    return (
+                      <div key={i} className="flex-1 flex flex-col items-center">
+                        <div className="w-full relative" style={{ height: `${expectedHeight}%` }}>
+                          <div
+                            className="absolute bottom-0 left-0 right-0 bg-green-500 rounded-t"
+                            style={{ height: `${collectedPercent}%` }}
+                            title={`Collected: ${month.collected} TND`}
+                          />
+                          <div
+                            className="absolute bottom-0 left-0 right-0 border-2 border-dashed border-gray-300 rounded-t"
+                            style={{ height: '100%' }}
+                            title={`Expected: ${month.expected} TND`}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="flex justify-between mt-2 text-xs text-gray-400">
+                  {metrics.revenueByMonth?.map((month, i) => (
+                    <span key={i}>{month.month.slice(5)}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Performance & Risk Analysis Section */}
+        {metrics && (
+          <section className="mb-8">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Performance & Risk Analysis</h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <ClinicRankingCard rankings={metrics.clinicRankings || []} />
+              <ChurnRiskCard clinics={metrics.churnRiskClinics || []} />
+            </div>
+          </section>
+        )}
+
         {/* Clinic Health Table */}
         <section>
-          <div className="flex justify-between items-center mb-4">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
             <h2 className="text-lg font-semibold text-gray-900">Clinic Health</h2>
-            <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={showPaused}
-                onChange={(e) => setShowPaused(e.target.checked)}
-                className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
-              />
-              Show paused clinics
-              {clinics.filter(c => !c.isActive).length > 0 && (
-                <span className="text-gray-400">({clinics.filter(c => !c.isActive).length})</span>
-              )}
-            </label>
+            <div className="flex flex-wrap items-center gap-2">
+              {/* Search */}
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+                <input
+                  type="text"
+                  placeholder="Search clinics..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9 pr-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+
+              {/* Status Filter */}
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value as 'all' | 'active' | 'at_risk')}
+                className="px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              >
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="at_risk">At Risk</option>
+              </select>
+
+              {/* Payment Filter */}
+              <select
+                value={paymentFilter}
+                onChange={(e) => setPaymentFilter(e.target.value as 'all' | 'paid' | 'overdue')}
+                className="px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              >
+                <option value="all">All Payments</option>
+                <option value="paid">Paid</option>
+                <option value="overdue">Overdue</option>
+              </select>
+            </div>
           </div>
+
           <div className="bg-white rounded-lg shadow overflow-hidden">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Clinic</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Active</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Patients Today</th>
+                  <th
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                    onClick={() => handleSort('name')}
+                  >
+                    Clinic {getSortIcon('name')}
+                  </th>
+                  <th
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                    onClick={() => handleSort('lastActive')}
+                  >
+                    Last Active {getSortIcon('lastActive')}
+                  </th>
+                  <th
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                    onClick={() => handleSort('patients')}
+                  >
+                    Patients Today {getSortIcon('patients')}
+                  </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Avg Wait</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {clinics.filter(c => showPaused || c.isActive).length === 0 ? (
+                {filteredClinics.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
-                      No clinics registered yet. Click "+ New Clinic" to get started.
+                    <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
+                      {clinics.length === 0
+                        ? 'No clinics registered yet. Click "+ New Clinic" to get started.'
+                        : 'No clinics match your search criteria.'}
                     </td>
                   </tr>
                 ) : (
-                  clinics.filter(c => showPaused || c.isActive).map((clinic) => (
+                  filteredClinics.map((clinic) => (
                     <tr
                       key={clinic.id}
-                      className={`hover:bg-gray-50 cursor-pointer ${!clinic.isActive ? 'opacity-60' : ''}`}
+                      className="hover:bg-gray-50 cursor-pointer"
                       onClick={() => navigate(`/admin/clinic/${clinic.id}`)}
                     >
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <div>
-                            <div className="text-sm font-medium text-purple-700 hover:text-purple-900">{clinic.name}</div>
-                            {clinic.doctorName && <div className="text-sm text-gray-500">{clinic.doctorName}</div>}
-                          </div>
-                          {!clinic.isActive && (
-                            <span className="px-1.5 py-0.5 text-xs font-medium rounded bg-gray-200 text-gray-600">Paused</span>
-                          )}
+                        <div>
+                          <div className="text-sm font-medium text-purple-700 hover:text-purple-900">{clinic.name}</div>
+                          {clinic.doctorName && <div className="text-sm text-gray-500">{clinic.doctorName}</div>}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -233,23 +482,15 @@ export default function AdminDashboard() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         {getStatusBadge(clinic.status)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigator.clipboard.writeText(`${window.location.origin}/checkin/${clinic.id}`);
-                          }}
-                          className="px-2 py-1 text-xs font-medium text-purple-600 hover:text-purple-800 hover:bg-purple-50 rounded"
-                          title="Copy check-in link"
-                        >
-                          Copy Link
-                        </button>
-                      </td>
                     </tr>
                   ))
                 )}
               </tbody>
             </table>
+            {/* Results count */}
+            <div className="px-6 py-3 bg-gray-50 border-t text-sm text-gray-500">
+              Showing {filteredClinics.length} of {clinics.length} clinics
+            </div>
           </div>
         </section>
       </main>
@@ -257,45 +498,8 @@ export default function AdminDashboard() {
       <CreateClinicModal
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
-        onCreated={fetchData}
+        onCreated={() => fetchData()}
       />
-    </div>
-  );
-}
-
-interface MetricCardProps {
-  label: string;
-  value: string | number;
-  subtext: string;
-  color: 'green' | 'blue' | 'indigo' | 'purple' | 'yellow' | 'red' | 'gray';
-}
-
-function MetricCard({ label, value, subtext, color }: MetricCardProps) {
-  const colorClasses: Record<string, string> = {
-    green: 'bg-green-50 border-green-200',
-    blue: 'bg-blue-50 border-blue-200',
-    indigo: 'bg-indigo-50 border-indigo-200',
-    purple: 'bg-purple-50 border-purple-200',
-    yellow: 'bg-yellow-50 border-yellow-200',
-    red: 'bg-red-50 border-red-200',
-    gray: 'bg-gray-50 border-gray-200',
-  };
-
-  const textClasses: Record<string, string> = {
-    green: 'text-green-900',
-    blue: 'text-blue-900',
-    indigo: 'text-indigo-900',
-    purple: 'text-purple-900',
-    yellow: 'text-yellow-900',
-    red: 'text-red-900',
-    gray: 'text-gray-900',
-  };
-
-  return (
-    <div className={`rounded-lg border p-4 ${colorClasses[color]}`}>
-      <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">{label}</p>
-      <p className={`text-2xl font-bold mt-1 ${textClasses[color]}`}>{value}</p>
-      <p className="text-xs text-gray-500 mt-1">{subtext}</p>
     </div>
   );
 }
