@@ -10,7 +10,6 @@ import AddPatientModal from '@/components/queue/AddPatientModal';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 import { Toast } from '@/components/ui/Toast';
 import Header from '@/components/layout/Header';
-import { MD3FAB } from '@/components/md3/fab';
 import { MD3Button } from '@/components/md3/button';
 
 export default function DashboardPage() {
@@ -60,7 +59,7 @@ export default function DashboardPage() {
   } = useDashboard();
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-32 lg:pb-8">
+    <div className="min-h-screen bg-gray-50 pb-8">
       {/* Desktop Header - hidden on mobile since MobileDashboard has its own stats bar */}
       <div className="hidden lg:block">
         <Header />
@@ -140,6 +139,16 @@ export default function DashboardPage() {
                 </button>
               </div>
 
+              {/* Right side: Call Next Button */}
+              <button
+                onClick={handleCallNext}
+                disabled={waitingCount === 0 || isCallingNext || !isDoctorPresent}
+                title={isDoctorPresent ? t('queue.callNext') : t('queue.waitingForDoctor')}
+                className="flex items-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium rounded-full transition-colors shadow-md"
+              >
+                <span className="material-symbols-outlined text-xl">directions_walk</span>
+                {t('queue.callNext')}
+              </button>
             </div>
 
             {/* Queue List */}
@@ -155,28 +164,6 @@ export default function DashboardPage() {
           </div>
         </div>
       </main>
-
-      {/* Call Next FAB - Primary Action (Fixed Position) - Desktop/Tablet only */}
-      {/* Tablet (lg): Bottom-left aligned with QR code column */}
-      {/* Desktop (xl+): Bottom-right */}
-      <div className="hidden lg:block fixed bottom-8 left-0 right-0 z-50 pointer-events-none">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Tablet: left-aligned with QR column, Desktop: right-aligned */}
-          <div className="flex lg:justify-start xl:justify-end pointer-events-auto">
-            <div className="w-[320px] lg:flex lg:justify-center xl:w-auto">
-              <MD3FAB
-                variant="primary"
-                size="large"
-                icon={<span className="material-symbols-outlined">directions_walk</span>}
-                onClick={handleCallNext}
-                disabled={waitingCount === 0 || isCallingNext || !isDoctorPresent}
-                title={isDoctorPresent ? t('queue.callNext') : t('queue.waitingForDoctor')}
-                aria-label={t('queue.callNext')}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* Add patient modal */}
       <AddPatientModal

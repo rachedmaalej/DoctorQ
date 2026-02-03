@@ -7,14 +7,37 @@
 import bcrypt from 'bcryptjs';
 import { prisma } from '../lib/prisma.js';
 
+// Tunisia is UTC+1 year-round (no DST since 2009)
+const TUNISIA_OFFSET_MINUTES = 60;
+
+/**
+ * Get start of today in Tunisia timezone (Africa/Tunis, UTC+1)
+ * Returns the UTC timestamp that corresponds to midnight in Tunisia
+ */
 function getStartOfToday(): Date {
   const now = new Date();
-  return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+  // Convert current UTC time to Tunisia time
+  const tunisiaTime = new Date(now.getTime() + TUNISIA_OFFSET_MINUTES * 60000);
+  // Get date parts in Tunisia time
+  const year = tunisiaTime.getUTCFullYear();
+  const month = tunisiaTime.getUTCMonth();
+  const day = tunisiaTime.getUTCDate();
+  // Create midnight in Tunisia, convert back to UTC
+  return new Date(Date.UTC(year, month, day) - TUNISIA_OFFSET_MINUTES * 60000);
 }
 
+/**
+ * Get start of current month in Tunisia timezone
+ */
 function getStartOfMonth(): Date {
   const now = new Date();
-  return new Date(now.getFullYear(), now.getMonth(), 1);
+  // Convert current UTC time to Tunisia time
+  const tunisiaTime = new Date(now.getTime() + TUNISIA_OFFSET_MINUTES * 60000);
+  // Get year/month in Tunisia time
+  const year = tunisiaTime.getUTCFullYear();
+  const month = tunisiaTime.getUTCMonth();
+  // Create first day of month at midnight Tunisia, convert to UTC
+  return new Date(Date.UTC(year, month, 1) - TUNISIA_OFFSET_MINUTES * 60000);
 }
 
 // ─── Interfaces ──────────────────────────────────────────────
@@ -55,8 +78,6 @@ export interface ClinicDetail {
     isDoctorPresent: boolean;
     createdAt: string;
     lastLoginAt: string | null;
-    country: string;
-    enableLanguageSwitcher: boolean;
   };
   todayStats: {
     waiting: number;
@@ -67,6 +88,11 @@ export interface ClinicDetail {
   };
   weeklyPatients: Array<{ date: string; count: number }>;
   monthlyStats: {
+    totalPatients: number;
+    avgWaitMins: number | null;
+    qrRate: number;
+  };
+  allTimeStats: {
     totalPatients: number;
     avgWaitMins: number | null;
     qrRate: number;
@@ -103,12 +129,6 @@ export interface CreateClinicData {
   avgConsultationMins?: number;
   businessType?: string;
   showAppointments?: boolean;
-  country?: string;
-}
-
-export interface UpdateClinicSettingsData {
-  country?: string;
-  enableLanguageSwitcher?: boolean;
 }
 
 export interface RecordPaymentData {
@@ -267,8 +287,6 @@ export async function getClinicDetails(clinicId: string): Promise<ClinicDetail> 
       isDoctorPresent: true,
       createdAt: true,
       lastLoginAt: true,
-      country: true,
-      enableLanguageSwitcher: true,
     },
   });
 
@@ -330,6 +348,32 @@ export async function getClinicDetails(clinicId: string): Promise<ClinicDetail> 
       : 0,
   };
 
+  // All-time stats
+  const allTimeEntries = await prisma.queueEntry.findMany({
+    where: { clinicId },
+    select: { checkInMethod: true, arrivedAt: true, calledAt: true, status: true },
+  });
+
+  const allTimeQr = allTimeEntries.filter((e) => e.checkInMethod === 'QR_CODE').length;
+  const allTimeSeen = allTimeEntries.filter(
+    (e) => e.calledAt && (e.status === 'IN_CONSULTATION' || e.status === 'COMPLETED')
+  );
+  let allTimeAvgWait: number | null = null;
+  if (allTimeSeen.length > 0) {
+    const waits = allTimeSeen.map((e) =>
+      Math.round((e.calledAt!.getTime() - e.arrivedAt.getTime()) / 60000)
+    );
+    allTimeAvgWait = Math.round(waits.reduce((a, b) => a + b, 0) / waits.length);
+  }
+
+  const allTimeStats = {
+    totalPatients: allTimeEntries.length,
+    avgWaitMins: allTimeAvgWait,
+    qrRate: allTimeEntries.length > 0
+      ? Math.round((allTimeQr / allTimeEntries.length) * 100)
+      : 0,
+  };
+
   // Recent queue entries
   const recentEntries = await prisma.queueEntry.findMany({
     where: { clinicId },
@@ -371,6 +415,7 @@ export async function getClinicDetails(clinicId: string): Promise<ClinicDetail> 
     todayStats,
     weeklyPatients,
     monthlyStats,
+    allTimeStats,
     recentEntries: recentEntries.map((e) => ({
       ...e,
       arrivedAt: e.arrivedAt.toISOString(),
@@ -409,7 +454,6 @@ export async function createClinic(data: CreateClinicData) {
       avgConsultationMins: data.avgConsultationMins ?? 10,
       businessType: data.businessType ?? 'medical',
       showAppointments: data.showAppointments ?? true,
-      country: data.country ?? 'TN',
     },
     select: {
       id: true,
@@ -481,20 +525,5 @@ export async function updatePaymentStatus(paymentId: string, status: string) {
   return prisma.paymentRecord.update({
     where: { id: paymentId },
     data: { status },
-  });
-}
-
-// ─── Clinic Settings ──────────────────────────────────────────
-
-export async function updateClinicSettings(clinicId: string, data: UpdateClinicSettingsData) {
-  return prisma.clinic.update({
-    where: { id: clinicId },
-    data,
-    select: {
-      id: true,
-      name: true,
-      country: true,
-      enableLanguageSwitcher: true,
-    },
   });
 }

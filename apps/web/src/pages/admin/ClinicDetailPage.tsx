@@ -13,11 +13,6 @@ export default function ClinicDetailPage() {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-  // Settings editing state
-  const [editingSettings, setEditingSettings] = useState(false);
-  const [settingsCountry, setSettingsCountry] = useState('TN');
-  const [settingsLangSwitcher, setSettingsLangSwitcher] = useState(true);
-
   const fetchDetail = async () => {
     if (!clinicId) return;
     try {
@@ -32,14 +27,6 @@ export default function ClinicDetailPage() {
   };
 
   useEffect(() => { fetchDetail(); }, [clinicId]);
-
-  // Sync settings state when detail loads
-  useEffect(() => {
-    if (detail) {
-      setSettingsCountry(detail.clinic.country || 'TN');
-      setSettingsLangSwitcher(detail.clinic.enableLanguageSwitcher ?? true);
-    }
-  }, [detail]);
 
   const handleToggleStatus = async () => {
     if (!detail || !clinicId) return;
@@ -84,31 +71,6 @@ export default function ClinicDetailPage() {
     }
   };
 
-  const handleSaveSettings = async () => {
-    if (!clinicId) return;
-    setActionLoading('settings');
-    try {
-      await api.updateClinicSettings(clinicId, {
-        country: settingsCountry,
-        enableLanguageSwitcher: settingsLangSwitcher,
-      });
-      await fetchDetail();
-      setEditingSettings(false);
-    } catch (err: any) {
-      alert(err.message || 'Failed to update settings');
-    } finally {
-      setActionLoading(null);
-    }
-  };
-
-  const handleCancelSettings = () => {
-    if (detail) {
-      setSettingsCountry(detail.clinic.country || 'TN');
-      setSettingsLangSwitcher(detail.clinic.enableLanguageSwitcher ?? true);
-    }
-    setEditingSettings(false);
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -128,7 +90,7 @@ export default function ClinicDetailPage() {
     );
   }
 
-  const { clinic, todayStats, weeklyPatients, monthlyStats, recentEntries, payments } = detail;
+  const { clinic, todayStats, weeklyPatients, monthlyStats, allTimeStats, recentEntries, payments } = detail;
   const maxWeekly = Math.max(...weeklyPatients.map((w) => w.count), 1);
 
   return (
@@ -197,70 +159,6 @@ export default function ClinicDetailPage() {
           </div>
         </section>
 
-        {/* Settings */}
-        <section className="bg-white rounded-lg shadow p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Settings</h2>
-            {!editingSettings ? (
-              <button
-                onClick={() => setEditingSettings(true)}
-                className="text-sm px-3 py-1.5 rounded-lg font-medium bg-gray-100 text-gray-700 hover:bg-gray-200"
-              >
-                Edit
-              </button>
-            ) : (
-              <div className="flex gap-2">
-                <button
-                  onClick={handleCancelSettings}
-                  className="text-sm px-3 py-1.5 rounded-lg font-medium bg-gray-100 text-gray-700 hover:bg-gray-200"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSaveSettings}
-                  disabled={actionLoading === 'settings'}
-                  className="text-sm px-3 py-1.5 rounded-lg font-medium bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50"
-                >
-                  {actionLoading === 'settings' ? 'Saving...' : 'Save'}
-                </button>
-              </div>
-            )}
-          </div>
-          <div className="grid grid-cols-2 gap-6">
-            <div>
-              <span className="block text-sm text-gray-500 mb-1">Country</span>
-              {editingSettings ? (
-                <select
-                  value={settingsCountry}
-                  onChange={(e) => setSettingsCountry(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
-                >
-                  <option value="TN">Tunisia</option>
-                  <option value="FR">France</option>
-                </select>
-              ) : (
-                <p className="font-medium">{clinic.country === 'FR' ? 'France' : 'Tunisia'}</p>
-              )}
-            </div>
-            <div>
-              <span className="block text-sm text-gray-500 mb-1">Language Switcher</span>
-              {editingSettings ? (
-                <label className="flex items-center gap-2 cursor-pointer mt-2">
-                  <input
-                    type="checkbox"
-                    checked={settingsLangSwitcher}
-                    onChange={(e) => setSettingsLangSwitcher(e.target.checked)}
-                    className="rounded border-gray-300 text-purple-600 focus:ring-purple-500 w-5 h-5"
-                  />
-                  <span className="text-sm">Show on public pages (check-in, patient status)</span>
-                </label>
-              ) : (
-                <p className="font-medium">{clinic.enableLanguageSwitcher ? 'Enabled' : 'Disabled'}</p>
-              )}
-            </div>
-          </div>
-        </section>
-
         {/* Today's Activity */}
         <section>
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Today's Activity</h2>
@@ -294,19 +192,19 @@ export default function ClinicDetailPage() {
           </section>
 
           <section className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">This Month</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">All Time</h2>
             <div className="space-y-4">
               <div className="flex justify-between">
                 <span className="text-gray-500">Total Patients</span>
-                <span className="font-bold text-xl">{monthlyStats.totalPatients}</span>
+                <span className="font-bold text-xl">{allTimeStats.totalPatients}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-500">Avg Wait Time</span>
-                <span className="font-bold text-xl">{monthlyStats.avgWaitMins ? `${monthlyStats.avgWaitMins} min` : '-'}</span>
+                <span className="font-bold text-xl">{allTimeStats.avgWaitMins ? `${allTimeStats.avgWaitMins} min` : '-'}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-500">QR Check-in Rate</span>
-                <span className="font-bold text-xl">{monthlyStats.qrRate}%</span>
+                <span className="font-bold text-xl">{allTimeStats.qrRate}%</span>
               </div>
             </div>
           </section>

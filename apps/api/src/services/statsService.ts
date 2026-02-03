@@ -9,12 +9,23 @@ import { QueueStatus } from '@prisma/client';
 import { QueueStats } from '../types/index.js';
 import { cache, CacheKeys, CacheTTL } from '../lib/cache.js';
 
+// Tunisia is UTC+1 year-round (no DST since 2009)
+const TUNISIA_OFFSET_MINUTES = 60;
+
 /**
- * Get the start of today in the local timezone
+ * Get start of today in Tunisia timezone (Africa/Tunis, UTC+1)
+ * Returns the UTC timestamp that corresponds to midnight in Tunisia
  */
 function getStartOfToday(): Date {
   const now = new Date();
-  return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+  // Convert current UTC time to Tunisia time
+  const tunisiaTime = new Date(now.getTime() + TUNISIA_OFFSET_MINUTES * 60000);
+  // Get date parts in Tunisia time
+  const year = tunisiaTime.getUTCFullYear();
+  const month = tunisiaTime.getUTCMonth();
+  const day = tunisiaTime.getUTCDate();
+  // Create midnight in Tunisia, convert back to UTC
+  return new Date(Date.UTC(year, month, day) - TUNISIA_OFFSET_MINUTES * 60000);
 }
 
 /**

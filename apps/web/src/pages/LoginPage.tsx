@@ -4,9 +4,6 @@ import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/authStore';
 import Logo from '@/components/ui/Logo';
 
-// Admin emails that should be redirected to /admin after login
-const ADMIN_EMAILS = ['rached@doctorq.tn', 'admin@blesaf.tn'];
-
 export default function LoginPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -15,13 +12,16 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Admin email whitelist
+  const ADMIN_EMAILS = ['rached@doctorq.tn', 'admin@blesaf.tn'];
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
       await login({ email, password });
-      // Redirect admins to command center, others to dashboard
+      // Redirect admins to /admin, others to /dashboard
       const isAdmin = ADMIN_EMAILS.includes(email.toLowerCase());
       navigate(isAdmin ? '/admin' : '/dashboard');
     } catch (error) {
@@ -41,6 +41,35 @@ export default function LoginPage() {
         </div>
 
         <div className="bg-white rounded-xl shadow-lg p-8">
+          {/* Dev Quick Login - only in development */}
+          {import.meta.env.DEV && (
+            <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <p className="text-xs text-yellow-700 mb-2 font-medium">⚡ Dev Quick Login</p>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmail('rached@doctorq.tn');
+                    setPassword('BlesafAdmin2024!');
+                  }}
+                  className="flex-1 text-xs bg-yellow-100 hover:bg-yellow-200 text-yellow-800 py-1.5 px-2 rounded transition-colors"
+                >
+                  Admin
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmail('dr.kamoun@doctorq.tn');
+                    setPassword('DoctorQ2024!');
+                  }}
+                  className="flex-1 text-xs bg-yellow-100 hover:bg-yellow-200 text-yellow-800 py-1.5 px-2 rounded transition-colors"
+                >
+                  Clinic
+                </button>
+              </div>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
