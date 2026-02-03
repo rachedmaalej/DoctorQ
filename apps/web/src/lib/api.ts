@@ -28,7 +28,7 @@ function getApiUrl(): string {
     const hostname = window.location.hostname;
     // Production Vercel deployment
     if (hostname.includes('vercel.app') || hostname.includes('doctor-q')) {
-      return 'https://doctorqapi-production-84e9.up.railway.app';
+      return 'https://doctorqapi-production-ac8b.up.railway.app';
     }
   }
 
@@ -261,6 +261,23 @@ class ApiClient {
     return this.request(`/api/admin/clinics/${clinicId}/settings`, {
       method: 'PATCH',
       body: JSON.stringify(settings),
+    });
+  }
+
+  async updateClinicInfo(
+    clinicId: string,
+    info: {
+      name?: string;
+      doctorName?: string;
+      phone?: string;
+      language?: string;
+      avgConsultationMins?: number;
+      businessType?: string;
+    }
+  ): Promise<{ id: string; name: string; doctorName: string | null; phone: string | null; language: string; avgConsultationMins: number; businessType: string }> {
+    return this.request(`/api/admin/clinics/${clinicId}/info`, {
+      method: 'PATCH',
+      body: JSON.stringify(info),
     });
   }
 
