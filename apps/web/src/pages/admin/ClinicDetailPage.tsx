@@ -90,7 +90,7 @@ export default function ClinicDetailPage() {
     );
   }
 
-  const { clinic, todayStats, weeklyPatients, monthlyStats, allTimeStats, recentEntries, payments } = detail;
+  const { clinic, todayStats, weeklyPatients, allTimeStats, recentEntries, payments } = detail;
   const maxWeekly = Math.max(...weeklyPatients.map((w) => w.count), 1);
 
   return (
