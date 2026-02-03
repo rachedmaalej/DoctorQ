@@ -129,6 +129,7 @@ export interface ClinicHealth {
   avgWaitMins: number | null;
   status: 'active' | 'at_risk' | 'churned';
   paymentStatus: 'paid' | 'overdue' | 'none';
+  isActive: boolean;
 }
 
 export interface ClinicDetail {

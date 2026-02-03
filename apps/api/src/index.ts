@@ -1,8 +1,10 @@
+// Load environment variables FIRST - this import has side effects that load .env
+import 'dotenv/config';
+
 import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
 import bcrypt from 'bcryptjs';
 import { setSocketIO } from './lib/socket.js';
@@ -15,9 +17,6 @@ import clinicRoutes from './routes/clinic.js';
 import adminRoutes from './routes/admin.js';
 import metricsRoutes from './routes/metrics.js';
 import { metricsMiddleware, activeSocketConnections } from './lib/metrics.js';
-
-// Load environment variables
-dotenv.config();
 
 const app = express();
 const httpServer = createServer(app);

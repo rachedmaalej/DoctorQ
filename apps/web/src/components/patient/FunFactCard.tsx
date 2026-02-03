@@ -26,7 +26,7 @@ export default function FunFactCard({ refreshInterval = 18000 }: FunFactCardProp
   const [isAnimating, setIsAnimating] = useState(false);
   const [progress, setProgress] = useState(0);
   const shuffledFactsRef = useRef<FunFact[]>([]);
-  const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Shuffle facts once on mount
   useEffect(() => {

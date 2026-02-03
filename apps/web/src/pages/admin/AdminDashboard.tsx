@@ -18,6 +18,7 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showPaused, setShowPaused] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -164,7 +165,21 @@ export default function AdminDashboard() {
 
         {/* Clinic Health Table */}
         <section>
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Clinic Health</h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">Clinic Health</h2>
+            <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={showPaused}
+                onChange={(e) => setShowPaused(e.target.checked)}
+                className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+              />
+              Show paused clinics
+              {clinics.filter(c => !c.isActive).length > 0 && (
+                <span className="text-gray-400">({clinics.filter(c => !c.isActive).length})</span>
+              )}
+            </label>
+          </div>
           <div className="bg-white rounded-lg shadow overflow-hidden">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
@@ -175,26 +190,32 @@ export default function AdminDashboard() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Avg Wait</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {clinics.length === 0 ? (
+                {clinics.filter(c => showPaused || c.isActive).length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
+                    <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
                       No clinics registered yet. Click "+ New Clinic" to get started.
                     </td>
                   </tr>
                 ) : (
-                  clinics.map((clinic) => (
+                  clinics.filter(c => showPaused || c.isActive).map((clinic) => (
                     <tr
                       key={clinic.id}
-                      className="hover:bg-gray-50 cursor-pointer"
+                      className={`hover:bg-gray-50 cursor-pointer ${!clinic.isActive ? 'opacity-60' : ''}`}
                       onClick={() => navigate(`/admin/clinic/${clinic.id}`)}
                     >
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div>
-                          <div className="text-sm font-medium text-purple-700 hover:text-purple-900">{clinic.name}</div>
-                          {clinic.doctorName && <div className="text-sm text-gray-500">{clinic.doctorName}</div>}
+                        <div className="flex items-center gap-2">
+                          <div>
+                            <div className="text-sm font-medium text-purple-700 hover:text-purple-900">{clinic.name}</div>
+                            {clinic.doctorName && <div className="text-sm text-gray-500">{clinic.doctorName}</div>}
+                          </div>
+                          {!clinic.isActive && (
+                            <span className="px-1.5 py-0.5 text-xs font-medium rounded bg-gray-200 text-gray-600">Paused</span>
+                          )}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -211,6 +232,18 @@ export default function AdminDashboard() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         {getStatusBadge(clinic.status)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigator.clipboard.writeText(`${window.location.origin}/checkin/${clinic.id}`);
+                          }}
+                          className="px-2 py-1 text-xs font-medium text-purple-600 hover:text-purple-800 hover:bg-purple-50 rounded"
+                          title="Copy check-in link"
+                        >
+                          Copy Link
+                        </button>
                       </td>
                     </tr>
                   ))

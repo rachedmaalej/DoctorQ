@@ -57,6 +57,7 @@ export interface ClinicHealth {
   id: string;
   name: string;
   doctorName: string | null;
+  isActive: boolean;
   lastLoginAt: string | null;
   patientsToday: number;
   avgWaitMins: number | null;
@@ -200,11 +201,12 @@ export async function getClinicHealthList(): Promise<ClinicHealth[]> {
   const startOfMonth = getStartOfMonth();
 
   const clinics = await prisma.clinic.findMany({
-    where: { isActive: true },
+    // Return all clinics including paused ones
     select: {
       id: true,
       name: true,
       doctorName: true,
+      isActive: true,
       lastLoginAt: true,
       queueEntries: {
         where: { arrivedAt: { gte: startOfToday } },
@@ -249,6 +251,7 @@ export async function getClinicHealthList(): Promise<ClinicHealth[]> {
       id: clinic.id,
       name: clinic.name,
       doctorName: clinic.doctorName,
+      isActive: clinic.isActive,
       lastLoginAt: clinic.lastLoginAt?.toISOString() ?? null,
       patientsToday,
       avgWaitMins,
@@ -525,5 +528,45 @@ export async function updatePaymentStatus(paymentId: string, status: string) {
   return prisma.paymentRecord.update({
     where: { id: paymentId },
     data: { status },
+  });
+}
+
+// ─── Clinic Settings ─────────────────────────────────────────
+
+export interface UpdateClinicSettingsData {
+  country?: 'TN' | 'FR';
+  enableLanguageSwitcher?: boolean;
+}
+
+export async function updateClinicSettings(clinicId: string, data: UpdateClinicSettingsData) {
+  return prisma.clinic.update({
+    where: { id: clinicId },
+    data,
+    select: { id: true, name: true, country: true, enableLanguageSwitcher: true },
+  });
+}
+
+export interface UpdateClinicInfoData {
+  name?: string;
+  doctorName?: string;
+  phone?: string;
+  language?: 'fr' | 'ar';
+  avgConsultationMins?: number;
+  businessType?: string;
+}
+
+export async function updateClinicInfo(clinicId: string, data: UpdateClinicInfoData) {
+  return prisma.clinic.update({
+    where: { id: clinicId },
+    data,
+    select: {
+      id: true,
+      name: true,
+      doctorName: true,
+      phone: true,
+      language: true,
+      avgConsultationMins: true,
+      businessType: true,
+    },
   });
 }
