@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '@/lib/api';
 import type { ClinicDetail } from '@/types';
+import { useAuthStore } from '@/stores/authStore';
 import RecordPaymentModal from '@/components/admin/RecordPaymentModal';
 
 export default function ClinicDetailPage() {
   const { clinicId } = useParams<{ clinicId: string }>();
   const navigate = useNavigate();
+  const { startImpersonation } = useAuthStore();
   const [detail, setDetail] = useState<ClinicDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -86,6 +88,20 @@ export default function ClinicDetailPage() {
     }
   };
 
+  const handleImpersonate = async () => {
+    if (!clinicId) return;
+    setActionLoading('impersonate');
+    try {
+      const result = await api.impersonateClinic(clinicId);
+      startImpersonation(result.token, result.clinic);
+      navigate('/');
+    } catch (err: any) {
+      alert(err.message || 'Failed to login as clinic');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -136,6 +152,13 @@ export default function ClinicDetailPage() {
               )}
             </div>
             <div className="flex items-center space-x-3">
+              <button
+                onClick={handleImpersonate}
+                disabled={actionLoading === 'impersonate'}
+                className="text-sm px-3 py-1.5 rounded-lg font-medium bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50"
+              >
+                {actionLoading === 'impersonate' ? 'Loading...' : 'Login as Clinic'}
+              </button>
               <button
                 onClick={handleToggleStatus}
                 disabled={actionLoading === 'status'}

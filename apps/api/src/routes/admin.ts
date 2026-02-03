@@ -5,7 +5,7 @@
 
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
-import { authMiddleware } from '../lib/auth.js';
+import { authMiddleware, signToken } from '../lib/auth.js';
 import { AuthRequest } from '../types/index.js';
 import {
   getAdminMetrics,
@@ -16,6 +16,7 @@ import {
   updateClinicStatus,
   resetClinicPassword,
   deleteClinic,
+  getClinicForImpersonation,
   recordPayment,
   getClinicPayments,
   updatePaymentStatus,
@@ -167,6 +168,47 @@ router.delete('/clinics/:id', authMiddleware, isAdmin, async (req: AuthRequest, 
     }
     console.error('Error deleting clinic:', error);
     res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to delete clinic' } });
+  }
+});
+
+// ─── Impersonate Clinic (Login As) ──────────────────────────
+
+router.post('/clinics/:id/impersonate', authMiddleware, isAdmin, async (req: AuthRequest, res: Response) => {
+  try {
+    const clinic = await getClinicForImpersonation(req.params.id);
+
+    // Generate a token for this clinic
+    const token = signToken({
+      clinicId: clinic.id,
+      email: clinic.email,
+      name: clinic.name,
+    });
+
+    // Return token and clinic info
+    res.json({
+      data: {
+        token,
+        clinic: {
+          id: clinic.id,
+          name: clinic.name,
+          email: clinic.email,
+          doctorName: clinic.doctorName,
+          language: clinic.language,
+          avgConsultationMins: clinic.avgConsultationMins,
+          notifyAtPosition: clinic.notifyAtPosition,
+          isDoctorPresent: clinic.isDoctorPresent,
+          businessType: clinic.businessType,
+          showAppointments: clinic.showAppointments,
+        },
+        isImpersonation: true,
+      },
+    });
+  } catch (error: any) {
+    if (error.code === 'P2025') {
+      return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Clinic not found' } });
+    }
+    console.error('Error impersonating clinic:', error);
+    res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to impersonate clinic' } });
   }
 });
 

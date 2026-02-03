@@ -861,6 +861,26 @@ export async function deleteClinic(clinicId: string) {
   return clinic;
 }
 
+export async function getClinicForImpersonation(clinicId: string) {
+  const clinic = await prisma.clinic.findUniqueOrThrow({
+    where: { id: clinicId },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      doctorName: true,
+      language: true,
+      avgConsultationMins: true,
+      notifyAtPosition: true,
+      isDoctorPresent: true,
+      businessType: true,
+      showAppointments: true,
+    },
+  });
+
+  return clinic;
+}
+
 // ─── Payment Tracking ────────────────────────────────────────
 
 export async function recordPayment(clinicId: string, data: RecordPaymentData) {

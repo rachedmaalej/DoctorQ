@@ -265,6 +265,16 @@ class ApiClient {
     });
   }
 
+  async impersonateClinic(clinicId: string): Promise<{
+    token: string;
+    clinic: Clinic;
+    isImpersonation: boolean;
+  }> {
+    return this.request(`/api/admin/clinics/${clinicId}/impersonate`, {
+      method: 'POST',
+    });
+  }
+
   async recordPayment(clinicId: string, data: RecordPaymentData): Promise<unknown> {
     return this.request(`/api/admin/clinics/${clinicId}/payments`, {
       method: 'POST',
