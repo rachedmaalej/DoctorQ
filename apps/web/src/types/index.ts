@@ -46,8 +46,8 @@ export interface QueueResponse {
 export interface UILabels {
   customer: string;       // "patient" or "client"
   customers: string;      // "patients" or "clients"
-  presenceOn: string;     // "Docteur présent" or "Magasin ouvert"
-  presenceOff: string;    // "Docteur absent" or "Magasin fermé"
+  presenceOn: string;     // "Docteur présent" or "Cabinet ouvert"
+  presenceOff: string;    // "Docteur absent" or "Cabinet fermé"
   addCustomer: string;    // "Ajouter un patient" or "Ajouter un client"
   noCustomers: string;    // "Aucun patient..." or "Aucun client..."
 }

@@ -62,8 +62,8 @@ router.post('/login', async (req: Request, res: Response) => {
     const uiLabels = {
       customer: isMedical ? 'patient' : 'client',
       customers: isMedical ? 'patients' : 'clients',
-      presenceOn: isMedical ? 'Docteur présent' : 'Magasin ouvert',
-      presenceOff: isMedical ? 'Docteur absent' : 'Magasin fermé',
+      presenceOn: isMedical ? 'Docteur présent' : 'Cabinet ouvert',
+      presenceOff: isMedical ? 'Docteur absent' : 'Cabinet fermé',
       addCustomer: isMedical ? 'Ajouter un patient' : 'Ajouter un client',
       noCustomers: isMedical ? 'Aucun patient dans la file' : 'Aucun client dans la file',
     };
@@ -149,8 +149,8 @@ router.get('/me', authMiddleware, async (req: AuthRequest, res: Response) => {
     const uiLabels = {
       customer: isMedical ? 'patient' : 'client',
       customers: isMedical ? 'patients' : 'clients',
-      presenceOn: isMedical ? 'Docteur présent' : 'Magasin ouvert',
-      presenceOff: isMedical ? 'Docteur absent' : 'Magasin fermé',
+      presenceOn: isMedical ? 'Docteur présent' : 'Cabinet ouvert',
+      presenceOff: isMedical ? 'Docteur absent' : 'Cabinet fermé',
       addCustomer: isMedical ? 'Ajouter un patient' : 'Ajouter un client',
       noCustomers: isMedical ? 'Aucun patient dans la file' : 'Aucun client dans la file',
     };

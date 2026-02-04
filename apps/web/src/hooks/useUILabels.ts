@@ -6,7 +6,7 @@ import type { UILabels } from '@/types';
  * Hook that provides UI labels based on business type.
  *
  * For medical clinics (default): Uses standard translation keys ("patient", "Docteur présent", etc.)
- * For retail/other: Uses custom labels from clinic.uiLabels ("client", "Magasin ouvert", etc.)
+ * For retail/other: Uses custom labels from clinic.uiLabels ("client", "Cabinet ouvert", etc.)
  *
  * This ensures backwards compatibility - existing clinics without uiLabels
  * continue to work exactly as before with the standard translations.
