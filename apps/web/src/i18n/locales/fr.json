@@ -7,7 +7,8 @@
     "save": "Enregistrer",
     "delete": "Supprimer",
     "edit": "Modifier",
-    "close": "Fermer"
+    "close": "Fermer",
+    "back": "Retour"
   },
   "auth": {
     "login": "Connexion",

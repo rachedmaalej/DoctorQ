@@ -356,29 +356,38 @@ export async function getAdminMetricsWithTrends(
   const prevQrRate = prevTotal > 0 ? Math.round((prevQr / prevTotal) * 100) : 0;
 
   // Patients by day (last 30 days for chart)
-  const thirtyDaysAgo = new Date();
+  // Use DailyStat for past days (archived data) + QueueEntry for today (live data)
+  const startOfToday = getStartOfToday();
+  const thirtyDaysAgo = new Date(startOfToday);
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-  thirtyDaysAgo.setHours(0, 0, 0, 0);
 
-  const patientsByDayRaw = await prisma.queueEntry.groupBy({
-    by: ['arrivedAt'],
-    where: { arrivedAt: { gte: thirtyDaysAgo } },
-    _count: { id: true },
-  });
-
-  // Aggregate by date
+  // Initialize all 30 days with 0
   const patientsByDayMap = new Map<string, number>();
-  for (let i = 0; i < 30; i++) {
+  for (let i = 0; i < 31; i++) {
     const d = new Date(thirtyDaysAgo);
     d.setDate(d.getDate() + i);
     patientsByDayMap.set(d.toISOString().split('T')[0], 0);
   }
 
-  patientsByDayRaw.forEach((entry) => {
-    const dateKey = entry.arrivedAt.toISOString().split('T')[0];
-    const current = patientsByDayMap.get(dateKey) || 0;
-    patientsByDayMap.set(dateKey, current + entry._count.id);
+  // Fetch archived stats from DailyStat (past days)
+  const dailyStats = await prisma.dailyStat.findMany({
+    where: { date: { gte: thirtyDaysAgo, lt: startOfToday } },
+    select: { date: true, totalPatients: true },
   });
+
+  dailyStats.forEach((stat) => {
+    const dateKey = stat.date.toISOString().split('T')[0];
+    const existing = patientsByDayMap.get(dateKey) || 0;
+    patientsByDayMap.set(dateKey, existing + stat.totalPatients);
+  });
+
+  // Fetch today's live data from QueueEntry
+  const todayPatientCount = await prisma.queueEntry.count({
+    where: { arrivedAt: { gte: startOfToday } },
+  });
+  const todayKey = new Date(startOfToday.getTime() + TUNISIA_OFFSET_MINUTES * 60000)
+    .toISOString().split('T')[0];
+  patientsByDayMap.set(todayKey, todayPatientCount);
 
   const patientsByDay = Array.from(patientsByDayMap.entries()).map(([date, count]) => ({
     date,
@@ -587,9 +596,15 @@ export async function getClinicHealthList(): Promise<ClinicHealth[]> {
       (e) => e.calledAt && (e.status === 'IN_CONSULTATION' || e.status === 'COMPLETED')
     );
 
+    // Exclude the last patient (latest calledAt) — receptionists often forget
+    // to close the queue, distorting the last patient's timing data.
     let avgWaitMins: number | null = null;
     if (seenToday.length > 0) {
-      const waitTimes = seenToday.map((e) =>
+      const sorted = [...seenToday].sort(
+        (a, b) => a.calledAt!.getTime() - b.calledAt!.getTime()
+      );
+      const forAvg = sorted.length > 1 ? sorted.slice(0, -1) : sorted;
+      const waitTimes = forAvg.map((e) =>
         Math.round((e.calledAt!.getTime() - e.arrivedAt.getTime()) / 60000)
       );
       avgWaitMins = Math.round(waitTimes.reduce((a, b) => a + b, 0) / waitTimes.length);
@@ -657,22 +672,36 @@ export async function getClinicDetails(clinicId: string): Promise<ClinicDetail> 
     cancelled: todayEntries.filter((e) => e.status === 'CANCELLED').length,
   };
 
-  // Weekly patient counts
-  const weeklyEntries = await prisma.queueEntry.findMany({
+  // Weekly patient counts - use DailyStat for past days, QueueEntry for today
+  const clinicStartOfToday = getStartOfToday();
+
+  // Get DailyStat for past 6 days
+  const weeklyDailyStats = await prisma.dailyStat.findMany({
     where: {
       clinicId,
-      arrivedAt: { gte: weekDates[0] },
+      date: { gte: weekDates[0], lt: clinicStartOfToday },
     },
-    select: { arrivedAt: true },
+    select: { date: true, totalPatients: true },
   });
 
+  const weeklyStatsMap = new Map<string, number>();
+  weeklyDailyStats.forEach((stat) => {
+    weeklyStatsMap.set(stat.date.toISOString().split('T')[0], stat.totalPatients);
+  });
+
+  // Get today's live count from QueueEntry
+  const todayCount = await prisma.queueEntry.count({
+    where: { clinicId, arrivedAt: { gte: clinicStartOfToday } },
+  });
+  const todayDateKey = new Date(clinicStartOfToday.getTime() + TUNISIA_OFFSET_MINUTES * 60000)
+    .toISOString().split('T')[0];
+
   const weeklyPatients = weekDates.map((date) => {
-    const nextDay = new Date(date);
-    nextDay.setDate(nextDay.getDate() + 1);
-    const count = weeklyEntries.filter(
-      (e) => e.arrivedAt >= date && e.arrivedAt < nextDay
-    ).length;
-    return { date: date.toISOString().split('T')[0], count };
+    const dateKey = date.toISOString().split('T')[0];
+    const count = dateKey === todayDateKey
+      ? todayCount
+      : (weeklyStatsMap.get(dateKey) || 0);
+    return { date: dateKey, count };
   });
 
   // Monthly stats
@@ -685,9 +714,14 @@ export async function getClinicDetails(clinicId: string): Promise<ClinicDetail> 
   const monthlySeen = monthlyEntries.filter(
     (e) => e.calledAt && (e.status === 'IN_CONSULTATION' || e.status === 'COMPLETED')
   );
+  // Exclude last patient per day from average (unreliable timing data)
   let monthlyAvgWait: number | null = null;
   if (monthlySeen.length > 0) {
-    const waits = monthlySeen.map((e) =>
+    const sorted = [...monthlySeen].sort(
+      (a, b) => a.calledAt!.getTime() - b.calledAt!.getTime()
+    );
+    const forAvg = sorted.length > 1 ? sorted.slice(0, -1) : sorted;
+    const waits = forAvg.map((e) =>
       Math.round((e.calledAt!.getTime() - e.arrivedAt.getTime()) / 60000)
     );
     monthlyAvgWait = Math.round(waits.reduce((a, b) => a + b, 0) / waits.length);
@@ -711,9 +745,14 @@ export async function getClinicDetails(clinicId: string): Promise<ClinicDetail> 
   const allTimeSeen = allTimeEntries.filter(
     (e) => e.calledAt && (e.status === 'IN_CONSULTATION' || e.status === 'COMPLETED')
   );
+  // Exclude last patient from average (unreliable timing data)
   let allTimeAvgWait: number | null = null;
   if (allTimeSeen.length > 0) {
-    const waits = allTimeSeen.map((e) =>
+    const sorted = [...allTimeSeen].sort(
+      (a, b) => a.calledAt!.getTime() - b.calledAt!.getTime()
+    );
+    const forAvg = sorted.length > 1 ? sorted.slice(0, -1) : sorted;
+    const waits = forAvg.map((e) =>
       Math.round((e.calledAt!.getTime() - e.arrivedAt.getTime()) / 60000)
     );
     allTimeAvgWait = Math.round(waits.reduce((a, b) => a + b, 0) / waits.length);

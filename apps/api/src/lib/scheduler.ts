@@ -1,6 +1,6 @@
 import cron from 'node-cron';
 import { prisma } from './prisma.js';
-import { clearQueue } from '../services/queueService.js';
+import { archiveAndClearQueue } from '../services/queueService.js';
 import { emitToRoom } from './socket.js';
 import { sendTrialExpiringEmail } from './email.js';
 
@@ -16,7 +16,7 @@ export function initScheduledTasks() {
       });
 
       for (const clinic of clinics) {
-        const cleared = await clearQueue(clinic.id);
+        const { archived, deleted } = await archiveAndClearQueue(clinic.id);
 
         await prisma.clinic.update({
           where: { id: clinic.id },
@@ -33,7 +33,7 @@ export function initScheduledTasks() {
           isDoctorPresent: false,
         });
 
-        console.log(`[Midnight Reset] ${clinic.name}: cleared ${cleared} entries, doctor set absent`);
+        console.log(`[Midnight Reset] ${clinic.name}: archived ${archived} patients, deleted ${deleted} stale entries, doctor set absent`);
       }
 
       console.log(`[Midnight Reset] Complete. Reset ${clinics.length} clinic(s).`);

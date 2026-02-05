@@ -7,7 +7,7 @@ import { prisma } from '../lib/prisma.js';
 import { QueueStatus, CheckInMethod, QueueEntry } from '@prisma/client';
 import { recalculatePositionsAndStatuses, getNextPosition } from './positionService.js';
 import { emitQueueUpdate, emitPatientUpdate, emitAllPatientUpdates, sendSmsNotification } from './notificationService.js';
-import { getQueueStats } from './statsService.js';
+import { getQueueStats, getStartOfToday } from './statsService.js';
 
 export interface AddPatientInput {
   clinicId: string;
@@ -322,6 +322,73 @@ export async function clearQueue(clinicId: string): Promise<number> {
   await emitQueueUpdate(clinicId);
 
   return result.count;
+}
+
+/**
+ * Archive daily stats and clear the queue for midnight reset.
+ * Unlike clearQueue(), this:
+ * 1. Auto-completes IN_CONSULTATION patients
+ * 2. Saves stats to DailyStat before deleting
+ * 3. Only deletes WAITING/NOTIFIED (keeps COMPLETED/NO_SHOW)
+ */
+export async function archiveAndClearQueue(clinicId: string): Promise<{ archived: number; deleted: number }> {
+  // Step 1: Auto-complete any patients still IN_CONSULTATION
+  await prisma.queueEntry.updateMany({
+    where: { clinicId, status: QueueStatus.IN_CONSULTATION },
+    data: { status: QueueStatus.COMPLETED, completedAt: new Date() },
+  });
+
+  // Step 2: Snapshot today's stats into DailyStat
+  const startOfToday = getStartOfToday();
+  const [totalPatients, noShows, patientsWithWait] = await Promise.all([
+    prisma.queueEntry.count({
+      where: { clinicId, arrivedAt: { gte: startOfToday } },
+    }),
+    prisma.queueEntry.count({
+      where: { clinicId, status: QueueStatus.NO_SHOW, arrivedAt: { gte: startOfToday } },
+    }),
+    prisma.queueEntry.findMany({
+      where: { clinicId, status: QueueStatus.COMPLETED, arrivedAt: { gte: startOfToday }, calledAt: { not: null } },
+      select: { arrivedAt: true, calledAt: true },
+    }),
+  ]);
+
+  // Exclude the last patient (latest calledAt) from average calculation.
+  // Receptionists often forget to close the queue, so the last patient's
+  // timing data is unreliable.
+  let avgWaitMins: number | null = null;
+  if (patientsWithWait.length > 0) {
+    const sorted = [...patientsWithWait].sort(
+      (a, b) => a.calledAt!.getTime() - b.calledAt!.getTime()
+    );
+    const forAverage = sorted.length > 1 ? sorted.slice(0, -1) : sorted;
+    const total = forAverage.reduce((sum, e) =>
+      sum + Math.round((e.calledAt!.getTime() - e.arrivedAt.getTime()) / 60000), 0);
+    avgWaitMins = Math.round(total / forAverage.length);
+  }
+
+  // Upsert DailyStat (only if there were patients)
+  if (totalPatients > 0) {
+    const today = new Date(startOfToday);
+    today.setUTCHours(12, 0, 0, 0); // Noon UTC to avoid date boundary issues
+    await prisma.dailyStat.upsert({
+      where: { clinicId_date: { clinicId, date: today } },
+      create: { clinicId, date: today, totalPatients, avgWaitMins, noShows },
+      update: { totalPatients, avgWaitMins, noShows },
+    });
+  }
+
+  // Step 3: Delete only WAITING/NOTIFIED entries
+  const deleted = await prisma.queueEntry.deleteMany({
+    where: {
+      clinicId,
+      status: { in: [QueueStatus.WAITING, QueueStatus.NOTIFIED] },
+    },
+  });
+
+  await emitQueueUpdate(clinicId);
+
+  return { archived: totalPatients, deleted: deleted.count };
 }
 
 /**

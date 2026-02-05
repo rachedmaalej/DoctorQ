@@ -16,7 +16,7 @@ interface ClinicFormData {
 export default function OnboardingPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { clinic } = useAuthStore();
+  const { clinic, checkAuth } = useAuthStore();
   const [currentStep, setCurrentStep] = useState<OnboardingStep>('clinic');
   const [isLoading, setIsLoading] = useState(false);
   const [qrData, setQrData] = useState<{ url: string; qrCode: string } | null>(null);
@@ -81,6 +81,7 @@ export default function OnboardingPage() {
     setIsLoading(true);
     try {
       await api.updateOnboarding(3, true);
+      await checkAuth(); // Refresh clinic data so dashboard sees onboardingCompleted=true
       navigate('/dashboard');
     } catch (error) {
       console.error('Failed to complete onboarding:', error);

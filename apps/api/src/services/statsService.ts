@@ -16,7 +16,7 @@ const TUNISIA_OFFSET_MINUTES = 60;
  * Get start of today in Tunisia timezone (Africa/Tunis, UTC+1)
  * Returns the UTC timestamp that corresponds to midnight in Tunisia
  */
-function getStartOfToday(): Date {
+export function getStartOfToday(): Date {
   const now = new Date();
   // Convert current UTC time to Tunisia time
   const tunisiaTime = new Date(now.getTime() + TUNISIA_OFFSET_MINUTES * 60000);
@@ -103,16 +103,25 @@ export async function getQueueStats(clinicId: string): Promise<QueueStats> {
   let maxWait: number | null = null;
 
   if (patientsWithWaitTime.length > 0) {
-    const waitTimes = patientsWithWaitTime.map((entry) => {
+    // Exclude the last patient called (latest calledAt) from averages.
+    // Receptionists often forget to close the queue, so the last patient
+    // stays IN_CONSULTATION until auto-completed at midnight, distorting times.
+    const sorted = [...patientsWithWaitTime].sort(
+      (a, b) => a.calledAt!.getTime() - b.calledAt!.getTime()
+    );
+    const forAverage = sorted.length > 1 ? sorted.slice(0, -1) : sorted;
+
+    const waitTimes = forAverage.map((entry) => {
       return Math.round((entry.calledAt!.getTime() - entry.arrivedAt!.getTime()) / 60000);
     });
 
     const totalWait = waitTimes.reduce((sum, wait) => sum + wait, 0);
-    avgWait = Math.round(totalWait / patientsWithWaitTime.length);
+    avgWait = Math.round(totalWait / forAverage.length);
     maxWait = Math.max(...waitTimes);
   }
 
-  // Calculate last consultation duration
+  // Calculate last consultation duration (use second-to-last if available,
+  // since the last patient's completedAt is often auto-set at midnight)
   let lastConsultationMins: number | null = null;
   if (lastCompletedPatient?.calledAt && lastCompletedPatient.completedAt) {
     const duration = lastCompletedPatient.completedAt.getTime() - lastCompletedPatient.calledAt.getTime();
