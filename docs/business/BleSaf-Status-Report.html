@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BleSaf - Project Status Report</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --primary-light: #dbeafe;
+      --accent: #f59e0b;
+      --accent-light: #fef3c7;
+      --success: #10b981;
+      --success-light: #d1fae5;
+      --danger: #ef4444;
+      --danger-light: #fee2e2;
+      --warning: #f59e0b;
+      --warning-light: #fef3c7;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --gray-600: #4b5563;
+      --gray-700: #374151;
+      --gray-800: #1f2937;
+      --gray-900: #111827;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--gray-50);
+      color: var(--gray-800);
+      line-height: 1.6;
+    }
+
+    /* ─── Navigation ─── */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--gray-200);
+      z-index: 100;
+      padding: 0 2rem;
+    }
+    .nav-inner {
+      max-width: 1200px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 64px;
+    }
+    .nav-logo { font-weight: 800; font-size: 1.25rem; color: var(--primary); }
+    .nav-links { display: flex; gap: 0.25rem; }
+    .nav-links a {
+      text-decoration: none; color: var(--gray-600);
+      padding: 0.5rem 0.75rem; border-radius: 8px;
+      font-size: 0.85rem; font-weight: 500;
+      transition: all 0.2s;
+    }
+    .nav-links a:hover { background: var(--primary-light); color: var(--primary); }
+
+    /* ─── Sections ─── */
+    section { padding: 5rem 2rem; }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .section-title {
+      font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem;
+      color: var(--gray-900);
+    }
+    .section-subtitle {
+      font-size: 1.1rem; color: var(--gray-500); margin-bottom: 3rem;
+      max-width: 600px;
+    }
+    .section-badge {
+      display: inline-block; background: var(--primary-light); color: var(--primary);
+      font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; padding: 0.35rem 0.9rem; border-radius: 100px;
+      margin-bottom: 1rem;
+    }
+
+    /* ─── Hero ─── */
+    .hero {
+      min-height: 100vh; display: flex; align-items: center;
+      background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 50%, #3b82f6 100%);
+      color: white; text-align: center; padding-top: 64px;
+    }
+    .hero .container { max-width: 800px; }
+    .hero h1 { font-size: 3.5rem; font-weight: 900; line-height: 1.1; margin-bottom: 1.5rem; }
+    .hero h1 span { color: var(--accent); }
+    .hero p { font-size: 1.25rem; opacity: 0.9; margin-bottom: 2rem; max-width: 600px; margin-left: auto; margin-right: auto; }
+    .hero-date {
+      display: inline-block; background: rgba(255,255,255,0.15);
+      padding: 0.5rem 1.5rem; border-radius: 100px;
+      font-size: 0.9rem; font-weight: 500;
+    }
+    .hero-stats {
+      display: flex; justify-content: center; gap: 3rem; margin-top: 3rem;
+      flex-wrap: wrap;
+    }
+    .hero-stat { text-align: center; }
+    .hero-stat .number { font-size: 2.5rem; font-weight: 900; color: var(--accent); }
+    .hero-stat .label { font-size: 0.85rem; opacity: 0.8; }
+
+    /* ─── Vision ─── */
+    .vision { background: white; }
+    .vision-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 3rem;
+      align-items: start;
+    }
+    .vision-problem, .vision-solution {
+      padding: 2rem; border-radius: 16px;
+    }
+    .vision-problem {
+      background: var(--danger-light); border: 2px solid #fecaca;
+    }
+    .vision-solution {
+      background: var(--success-light); border: 2px solid #a7f3d0;
+    }
+    .vision-problem h3 { color: var(--danger); margin-bottom: 1rem; font-size: 1.25rem; }
+    .vision-solution h3 { color: var(--success); margin-bottom: 1rem; font-size: 1.25rem; }
+    .vision-problem ul, .vision-solution ul {
+      list-style: none; padding: 0;
+    }
+    .vision-problem li, .vision-solution li {
+      padding: 0.5rem 0; padding-left: 1.75rem; position: relative;
+      font-size: 0.95rem; color: var(--gray-700);
+    }
+    .vision-problem li::before { content: "\2717"; position: absolute; left: 0; color: var(--danger); font-weight: 700; }
+    .vision-solution li::before { content: "\2713"; position: absolute; left: 0; color: var(--success); font-weight: 700; }
+
+    /* ─── Objective ─── */
+    .objective { background: linear-gradient(135deg, #0f172a, #1e293b); color: white; }
+    .objective .section-subtitle { color: rgba(255,255,255,0.7); }
+    .objective-pillars {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;
+    }
+    .pillar {
+      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 16px; padding: 2rem; text-align: center;
+      transition: transform 0.3s, background 0.3s;
+    }
+    .pillar:hover { transform: translateY(-4px); background: rgba(255,255,255,0.12); }
+    .pillar-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+    .pillar h3 { font-size: 1.1rem; margin-bottom: 0.75rem; }
+    .pillar p { font-size: 0.9rem; opacity: 0.75; line-height: 1.6; }
+
+    /* ─── Journey ─── */
+    .journey { background: white; }
+    .journey-flow {
+      display: flex; align-items: stretch; gap: 0; position: relative;
+      margin-bottom: 3rem;
+    }
+    .journey-step {
+      flex: 1; padding: 1.5rem; text-align: center;
+      position: relative; background: white;
+      border: 2px solid var(--gray-200); border-radius: 16px;
+      margin: 0 0.5rem;
+    }
+    .journey-step::after {
+      content: "\2192"; position: absolute; right: -1.1rem; top: 50%;
+      transform: translateY(-50%); font-size: 1.5rem; color: var(--primary);
+      z-index: 1;
+    }
+    .journey-step:last-child::after { display: none; }
+    .step-number {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--primary); color: white; font-weight: 700;
+      display: inline-flex; align-items: center; justify-content: center;
+      margin-bottom: 0.75rem; font-size: 0.85rem;
+    }
+    .journey-step h4 { font-size: 0.95rem; margin-bottom: 0.5rem; }
+    .journey-step p { font-size: 0.8rem; color: var(--gray-500); }
+
+    /* ─── Architecture ─── */
+    .architecture { background: var(--gray-50); }
+    .arch-diagram {
+      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .arch-box {
+      background: white; border: 2px solid var(--gray-200); border-radius: 16px;
+      padding: 1.5rem; text-align: center;
+    }
+    .arch-box h4 { color: var(--primary); margin-bottom: 0.5rem; font-size: 1rem; }
+    .arch-box .tech { font-size: 0.8rem; color: var(--gray-500); margin-bottom: 0.75rem; }
+    .arch-items { text-align: left; }
+    .arch-items li {
+      font-size: 0.82rem; padding: 0.25rem 0; color: var(--gray-600);
+      list-style: none; padding-left: 1.25rem; position: relative;
+    }
+    .arch-items li::before { content: "\2022"; position: absolute; left: 0; color: var(--primary); font-weight: 700; }
+
+    /* ─── Features ─── */
+    .features { background: white; }
+    .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+    .feature-card {
+      border: 2px solid var(--gray-200); border-radius: 16px;
+      padding: 1.5rem; transition: all 0.3s;
+    }
+    .feature-card:hover { border-color: var(--primary); box-shadow: 0 4px 20px rgba(37,99,235,0.1); }
+    .feature-icon { font-size: 2rem; margin-bottom: 0.75rem; }
+    .feature-card h3 { font-size: 1rem; margin-bottom: 0.5rem; }
+    .feature-card p { font-size: 0.85rem; color: var(--gray-500); }
+    .feature-status {
+      display: inline-block; margin-top: 0.75rem;
+      font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.05em; padding: 0.25rem 0.6rem; border-radius: 100px;
+    }
+    .status-complete { background: var(--success-light); color: var(--success); }
+    .status-partial { background: var(--warning-light); color: var(--warning); }
+    .status-planned { background: var(--gray-100); color: var(--gray-500); }
+
+    /* ─── Inventory ─── */
+    .inventory { background: var(--gray-50); }
+    .inv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .inv-card {
+      background: white; border-radius: 16px; padding: 1.5rem;
+      border: 1px solid var(--gray-200);
+    }
+    .inv-card h3 { font-size: 1rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+    .inv-card h3 .count {
+      background: var(--primary-light); color: var(--primary);
+      font-size: 0.75rem; padding: 0.15rem 0.5rem; border-radius: 100px;
+    }
+    .inv-list { list-style: none; padding: 0; }
+    .inv-list li {
+      padding: 0.35rem 0; font-size: 0.82rem; color: var(--gray-600);
+      border-bottom: 1px solid var(--gray-100);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .inv-list li:last-child { border-bottom: none; }
+    .inv-tag {
+      font-size: 0.65rem; font-weight: 600; padding: 0.15rem 0.4rem;
+      border-radius: 4px; text-transform: uppercase; letter-spacing: 0.03em;
+    }
+    .tag-route { background: #ede9fe; color: #7c3aed; }
+    .tag-service { background: #fce7f3; color: #db2777; }
+    .tag-model { background: #dbeafe; color: #2563eb; }
+    .tag-component { background: #d1fae5; color: #059669; }
+
+    /* ─── Business Model ─── */
+    .business { background: white; }
+    .pricing-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+    .price-card {
+      border: 2px solid var(--gray-200); border-radius: 16px;
+      padding: 2rem; text-align: center; transition: all 0.3s;
+    }
+    .price-card.featured {
+      border-color: var(--primary); position: relative;
+      box-shadow: 0 4px 20px rgba(37,99,235,0.15);
+    }
+    .price-card.featured::before {
+      content: "POPULAR"; position: absolute; top: -12px; left: 50%;
+      transform: translateX(-50%); background: var(--primary); color: white;
+      font-size: 0.65rem; font-weight: 700; padding: 0.25rem 0.75rem;
+      border-radius: 100px; letter-spacing: 0.05em;
+    }
+    .price-name { font-weight: 700; margin-bottom: 0.5rem; }
+    .price-amount { font-size: 2.5rem; font-weight: 900; color: var(--primary); }
+    .price-period { font-size: 0.85rem; color: var(--gray-500); }
+    .price-features { list-style: none; padding: 0; margin: 1.5rem 0; text-align: left; }
+    .price-features li {
+      padding: 0.4rem 0; font-size: 0.85rem; color: var(--gray-600);
+      padding-left: 1.5rem; position: relative;
+    }
+    .price-features li::before { content: "\2713"; position: absolute; left: 0; color: var(--success); font-weight: 700; }
+
+    /* ─── Bugs Fixed ─── */
+    .bugfixes { background: var(--gray-50); }
+    .bug-list { display: grid; gap: 1rem; }
+    .bug-item {
+      background: white; border-radius: 12px; padding: 1.25rem 1.5rem;
+      border: 1px solid var(--gray-200); display: flex; gap: 1rem;
+      align-items: flex-start;
+    }
+    .bug-severity {
+      flex-shrink: 0; width: 70px; text-align: center;
+      font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+      padding: 0.3rem 0; border-radius: 6px; letter-spacing: 0.05em;
+    }
+    .sev-critical { background: var(--danger-light); color: var(--danger); }
+    .sev-major { background: #fef3c7; color: #d97706; }
+    .sev-minor { background: var(--primary-light); color: var(--primary); }
+    .bug-info h4 { font-size: 0.9rem; margin-bottom: 0.25rem; }
+    .bug-info p { font-size: 0.8rem; color: var(--gray-500); }
+
+    /* ─── Roadmap ─── */
+    .roadmap { background: white; }
+    .roadmap-timeline { position: relative; padding-left: 2rem; }
+    .roadmap-timeline::before {
+      content: ""; position: absolute; left: 7px; top: 0; bottom: 0;
+      width: 2px; background: var(--gray-200);
+    }
+    .roadmap-item {
+      position: relative; margin-bottom: 2rem; padding-left: 1.5rem;
+    }
+    .roadmap-item::before {
+      content: ""; position: absolute; left: -2rem; top: 6px;
+      width: 16px; height: 16px; border-radius: 50%;
+      border: 3px solid var(--primary); background: white;
+    }
+    .roadmap-item.done::before { background: var(--primary); }
+    .roadmap-item.active::before {
+      background: var(--accent); border-color: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-light);
+    }
+    .roadmap-phase {
+      font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--gray-400); margin-bottom: 0.25rem;
+    }
+    .roadmap-item h4 { font-size: 1rem; margin-bottom: 0.25rem; }
+    .roadmap-item p { font-size: 0.85rem; color: var(--gray-500); }
+
+    /* ─── Footer ─── */
+    .footer {
+      background: var(--gray-900); color: white; text-align: center;
+      padding: 3rem 2rem;
+    }
+    .footer p { opacity: 0.5; font-size: 0.85rem; }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 2.25rem; }
+      .vision-grid, .arch-diagram, .feature-grid, .pricing-cards,
+      .objective-pillars, .inv-grid { grid-template-columns: 1fr; }
+      .hero-stats { gap: 1.5rem; }
+      .journey-flow { flex-direction: column; }
+      .journey-step::after { display: none; }
+      .nav-links { display: none; }
+      section { padding: 3rem 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="nav-logo">BleSaf</div>
+    <div class="nav-links">
+      <a href="#vision">Vision</a>
+      <a href="#objective">Objective</a>
+      <a href="#journey">User Journey</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#features">Features</a>
+      <a href="#inventory">Inventory</a>
+      <a href="#business">Business</a>
+      <a href="#bugfixes">Bug Fixes</a>
+      <a href="#roadmap">Roadmap</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-date">Status Report &mdash; February 5, 2026</div>
+    <h1 style="margin-top: 2rem;">
+      <span>BleSaf</span><br>
+      Virtual Queue for<br>Tunisian Clinics
+    </h1>
+    <p>A SaaS platform that eliminates waiting room chaos. Patients track their turn in real-time via SMS. Doctors see happier patients. Everyone saves time.</p>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="number">14</div>
+        <div class="label">Pages Built</div>
+      </div>
+      <div class="hero-stat">
+        <div class="number">45+</div>
+        <div class="label">API Endpoints</div>
+      </div>
+      <div class="hero-stat">
+        <div class="number">7</div>
+        <div class="label">DB Models</div>
+      </div>
+      <div class="hero-stat">
+        <div class="number">2</div>
+        <div class="label">Languages</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Vision -->
+<section class="vision" id="vision">
+  <div class="container">
+    <div class="section-badge">The Problem &amp; Solution</div>
+    <div class="section-title">Why BleSaf Exists</div>
+    <div class="section-subtitle">In Tunisia, doctors assign patients a day, not a time. Patients arrive, sit, and wait &mdash; sometimes 1 to 3 hours &mdash; with zero visibility.</div>
+
+    <div class="vision-grid">
+      <div class="vision-problem">
+        <h3>The Reality Today</h3>
+        <ul>
+          <li>Patients wait 1-3 hours with no idea when their turn is</li>
+          <li>Crowded, stressful waiting rooms create a negative experience</li>
+          <li>Some patients leave before being seen (revenue loss)</li>
+          <li>Receptionists manually manage chaotic queues</li>
+          <li>Doctors start consultations with already-frustrated patients</li>
+          <li>No data on wait times, no-shows, or daily throughput</li>
+        </ul>
+      </div>
+      <div class="vision-solution">
+        <h3>With BleSaf</h3>
+        <ul>
+          <li>Patients scan a QR code or give their phone number</li>
+          <li>They see their real-time position and estimated wait</li>
+          <li>SMS alerts when it's almost their turn</li>
+          <li>Patients wait at a caf&eacute;, in their car, or at home</li>
+          <li>Receptionists manage the queue with one click</li>
+          <li>Daily analytics track throughput, wait times, and no-shows</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Objective -->
+<section class="objective" id="objective">
+  <div class="container">
+    <div class="section-badge" style="background: rgba(245,158,11,0.2); color: var(--accent);">Final Objective</div>
+    <div class="section-title" style="color: white;">Build a Scalable, Self-Service SaaS</div>
+    <div class="section-subtitle">A platform where any doctor in Tunisia can discover BleSaf, sign up without human contact, try it immediately, and convert to a paying customer &mdash; all on their own.</div>
+
+    <div class="objective-pillars">
+      <div class="pillar">
+        <div class="pillar-icon">&#9889;</div>
+        <h3>Frictionless Signup</h3>
+        <p>A 3-field registration form (clinic name, email, password). No credit card required. Email verification, then straight into a guided onboarding. The goal: a doctor goes from "I just heard about this" to "I'm using it with patients" in under 5 minutes.</p>
+      </div>
+      <div class="pillar">
+        <div class="pillar-icon">&#127873;</div>
+        <h3>Try Before You Buy</h3>
+        <p>Two possible models: a <strong>forever-free tier</strong> (up to 100 patients/month) that lets clinics use BleSaf indefinitely with basic features, or a <strong>30-day full-access trial</strong> with all features unlocked. Either way, the doctor experiences full value before ever paying.</p>
+      </div>
+      <div class="pillar">
+        <div class="pillar-icon">&#128200;</div>
+        <h3>Growth Engine</h3>
+        <p>Every patient who receives an SMS becomes aware of BleSaf. Word-of-mouth between doctors. Low cost per clinic (50 TND/month). Break even at 10 clinics; target 50+ for a sustainable business. SMS credits as a scalable revenue add-on.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- User Journey -->
+<section class="journey" id="journey">
+  <div class="container">
+    <div class="section-badge">User Journey</div>
+    <div class="section-title">From Discovery to Daily Use</div>
+    <div class="section-subtitle">The complete path a doctor takes from first hearing about BleSaf to becoming a paying, active user.</div>
+
+    <h3 style="font-size: 1rem; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem;">Phase 1: Acquisition</h3>
+    <div class="journey-flow">
+      <div class="journey-step">
+        <div class="step-number">1</div>
+        <h4>Landing Page</h4>
+        <p>Doctor discovers BleSaf. Sees problem/solution, pricing, FAQ. Clicks "Start Free Trial".</p>
+      </div>
+      <div class="journey-step">
+        <div class="step-number">2</div>
+        <h4>Signup</h4>
+        <p>3 fields: clinic name, email, password. No credit card. Account created in seconds.</p>
+      </div>
+      <div class="journey-step">
+        <div class="step-number">3</div>
+        <h4>Email Verification</h4>
+        <p>Clicks verification link in email. Account activated. Redirected to login.</p>
+      </div>
+    </div>
+
+    <h3 style="font-size: 1rem; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem;">Phase 2: Activation</h3>
+    <div class="journey-flow">
+      <div class="journey-step">
+        <div class="step-number">4</div>
+        <h4>Onboarding Step 1</h4>
+        <p>Configure clinic: name, doctor name, phone number, average consultation time.</p>
+      </div>
+      <div class="journey-step">
+        <div class="step-number">5</div>
+        <h4>Onboarding Step 2</h4>
+        <p>Get the QR code. Print it or display it. This is how patients will check in.</p>
+      </div>
+      <div class="journey-step">
+        <div class="step-number">6</div>
+        <h4>Onboarding Step 3</h4>
+        <p>Quick tutorial: how to add patients, call next, and how SMS notifications work. 50 free SMS included.</p>
+      </div>
+    </div>
+
+    <h3 style="font-size: 1rem; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem;">Phase 3: Daily Use</h3>
+    <div class="journey-flow">
+      <div class="journey-step">
+        <div class="step-number">7</div>
+        <h4>Queue Management</h4>
+        <p>Receptionist adds patients manually or patients self check-in via QR. Real-time dashboard.</p>
+      </div>
+      <div class="journey-step">
+        <div class="step-number">8</div>
+        <h4>Patient Experience</h4>
+        <p>Patients see position, estimated wait, and get SMS when it's their turn. They wait wherever they want.</p>
+      </div>
+      <div class="journey-step">
+        <div class="step-number">9</div>
+        <h4>End of Day</h4>
+        <p>Midnight auto-reset archives stats to DailyStat, clears the queue, sets doctor absent. Fresh start tomorrow.</p>
+      </div>
+    </div>
+
+    <h3 style="font-size: 1rem; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem;">Phase 4: Conversion</h3>
+    <div class="journey-flow">
+      <div class="journey-step">
+        <div class="step-number">10</div>
+        <h4>Trial Reminders</h4>
+        <p>Emails at 7 and 3 days before trial ends. Trial banner in dashboard. Gentle nudge to subscribe.</p>
+      </div>
+      <div class="journey-step">
+        <div class="step-number">11</div>
+        <h4>Subscribe</h4>
+        <p>Choose Monthly (50 TND) or Yearly (500 TND). Pay via Konnect. Subscription activated instantly.</p>
+      </div>
+      <div class="journey-step">
+        <div class="step-number">12</div>
+        <h4>Buy SMS Credits</h4>
+        <p>3 packages: 100 SMS (10 TND), 300 SMS (25 TND), 1000 SMS (70 TND). Additional revenue stream.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Architecture -->
+<section class="architecture" id="architecture">
+  <div class="container">
+    <div class="section-badge">Technical Architecture</div>
+    <div class="section-title">How It's Built</div>
+    <div class="section-subtitle">A monorepo with a React frontend, Node.js API, PostgreSQL database, and real-time WebSockets.</div>
+
+    <div class="arch-diagram">
+      <div class="arch-box">
+        <h4>Frontend</h4>
+        <div class="tech">React 18 + TypeScript + Vite</div>
+        <ul class="arch-items">
+          <li>Tailwind CSS with RTL support</li>
+          <li>Zustand state management</li>
+          <li>Socket.io client (real-time)</li>
+          <li>react-i18next (French + Arabic)</li>
+          <li>React Hook Form + Zod validation</li>
+          <li>Code splitting with lazy loading</li>
+          <li>14 pages, 30+ components</li>
+        </ul>
+      </div>
+      <div class="arch-box">
+        <h4>Backend API</h4>
+        <div class="tech">Node.js + Express + TypeScript</div>
+        <ul class="arch-items">
+          <li>JWT authentication</li>
+          <li>Socket.io server (real-time rooms)</li>
+          <li>Prisma ORM with PostgreSQL</li>
+          <li>Zod request validation</li>
+          <li>45+ REST endpoints across 8 route files</li>
+          <li>7 service modules (queue, stats, admin...)</li>
+          <li>Cron jobs (midnight reset, trial check)</li>
+          <li>Prometheus metrics endpoint</li>
+        </ul>
+      </div>
+      <div class="arch-box">
+        <h4>External Services</h4>
+        <div class="tech">Third-Party Integrations</div>
+        <ul class="arch-items">
+          <li><strong>Supabase</strong> &mdash; PostgreSQL hosting</li>
+          <li><strong>Resend</strong> &mdash; Transactional email</li>
+          <li><strong>Twilio</strong> &mdash; SMS notifications</li>
+          <li><strong>Konnect</strong> &mdash; Tunisian payment gateway</li>
+          <li><strong>Socket.io</strong> &mdash; Real-time WebSocket</li>
+          <li><strong>Vercel</strong> &mdash; Frontend hosting</li>
+          <li><strong>Railway</strong> &mdash; Backend hosting</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section class="features" id="features">
+  <div class="container">
+    <div class="section-badge">Feature Map</div>
+    <div class="section-title">What's Built</div>
+    <div class="section-subtitle">Every major feature, its status, and what it does.</div>
+
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon">&#128587;</div>
+        <h3>Self-Service Signup</h3>
+        <p>3-field form, email verification with token, password strength indicator, terms acceptance. 30-day trial auto-created.</p>
+        <span class="feature-status status-complete">Complete</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">&#128218;</div>
+        <h3>Guided Onboarding</h3>
+        <p>3-step wizard: clinic config, QR code generation with print, and usage tutorial. Grants 50 free SMS on completion.</p>
+        <span class="feature-status status-complete">Complete</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">&#128203;</div>
+        <h3>Queue Management</h3>
+        <p>Add/remove patients, call next, manual reorder, mark no-show/cancelled. Real-time updates via Socket.io.</p>
+        <span class="feature-status status-complete">Complete</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">&#128241;</div>
+        <h3>Patient Self Check-In</h3>
+        <p>QR code scanning lands on check-in page. Patient enters phone number, joins the queue, gets live status page.</p>
+        <span class="feature-status status-complete">Complete</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">&#128172;</div>
+        <h3>SMS Notifications</h3>
+        <p>Automatic alerts: queue joined (with position), almost your turn (2 away), your turn now. Via Twilio.</p>
+        <span class="feature-status status-complete">Complete</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">&#128337;</div>
+        <h3>Real-Time Patient Page</h3>
+        <p>Live position tracking, estimated wait, doctor presence indicator, fun facts during wait, visual queue representation.</p>
+        <span class="feature-status status-complete">Complete</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">&#128176;</div>
+        <h3>Subscription Billing</h3>
+        <p>Monthly (50 TND) and Yearly (500 TND) plans via Konnect payment gateway. Webhook-driven activation.</p>
+        <span class="feature-status status-complete">Complete</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">&#128231;</div>
+        <h3>SMS Credit Packages</h3>
+        <p>3 tiers: Starter (100/10 TND), Standard (300/25 TND), Pro (1000/70 TND). Separate from subscription.</p>
+        <span class="feature-status status-complete">Complete</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">&#127760;</div>
+        <h3>French + Arabic (RTL)</h3>
+        <p>Full i18n with react-i18next. Complete translations for all pages. Arabic with proper RTL layout via Tailwind.</p>
+        <span class="feature-status status-complete">Complete</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">&#128736;</div>
+        <h3>Admin Command Center</h3>
+        <p>SaaS dashboard: clinic health, metrics with trends, churn risk, clinic rankings, payment tracking, impersonation.</p>
+        <span class="feature-status status-complete">Complete</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">&#128197;</div>
+        <h3>Midnight Archival</h3>
+        <p>Cron job at midnight: auto-completes lingering patients, archives stats to DailyStat, clears queue, resets doctor presence.</p>
+        <span class="feature-status status-complete">Complete</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">&#128274;</div>
+        <h3>Password Reset Flow</h3>
+        <p>Forgot password, email with reset link, token validation, new password form. Full error handling.</p>
+        <span class="feature-status status-complete">Complete</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">&#128100;</div>
+        <h3>Multi-Doctor Support</h3>
+        <p>Doctor model in schema, add/edit/delete doctors per clinic, doctor-specific queue filtering.</p>
+        <span class="feature-status status-partial">In Progress</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">&#128172;</div>
+        <h3>WhatsApp Integration</h3>
+        <p>Schema field exists, Meta Cloud API planned. Patients would interact via WhatsApp instead of SMS.</p>
+        <span class="feature-status status-planned">Planned</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">&#128197;</div>
+        <h3>Appointment Scheduling</h3>
+        <p>appointmentTime field exists in QueueEntry. Would allow time-slotted appointments alongside walk-ins.</p>
+        <span class="feature-status status-planned">Planned</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Inventory -->
+<section class="inventory" id="inventory">
+  <div class="container">
+    <div class="section-badge">Codebase Inventory</div>
+    <div class="section-title">What's Inside</div>
+    <div class="section-subtitle">A quantified breakdown of every piece of the application.</div>
+
+    <div class="inv-grid">
+      <div class="inv-card">
+        <h3>Frontend Pages <span class="count">14</span></h3>
+        <ul class="inv-list">
+          <li>LandingPage <span class="inv-tag tag-route">/</span></li>
+          <li>SignupPage <span class="inv-tag tag-route">/signup</span></li>
+          <li>VerifyEmailPage <span class="inv-tag tag-route">/verify-email</span></li>
+          <li>LoginPage <span class="inv-tag tag-route">/login</span></li>
+          <li>ForgotPasswordPage <span class="inv-tag tag-route">/forgot-password</span></li>
+          <li>ResetPasswordPage <span class="inv-tag tag-route">/reset-password</span></li>
+          <li>OnboardingPage <span class="inv-tag tag-route">/onboarding</span></li>
+          <li>DashboardPage <span class="inv-tag tag-route">/dashboard</span></li>
+          <li>SettingsPage <span class="inv-tag tag-route">/settings</span></li>
+          <li>SubscriptionPage <span class="inv-tag tag-route">/subscription</span></li>
+          <li>CheckInPage <span class="inv-tag tag-route">/checkin/:id</span></li>
+          <li>PatientStatusPage <span class="inv-tag tag-route">/patient/:id</span></li>
+          <li>AdminDashboard <span class="inv-tag tag-route">/admin</span></li>
+          <li>ClinicDetailPage <span class="inv-tag tag-route">/admin/clinic/:id</span></li>
+        </ul>
+      </div>
+      <div class="inv-card">
+        <h3>API Route Files <span class="count">8</span></h3>
+        <ul class="inv-list">
+          <li>auth.ts &mdash; Login, logout, me <span class="inv-tag tag-route">3 endpoints</span></li>
+          <li>signup.ts &mdash; Register, verify, reset <span class="inv-tag tag-route">5 endpoints</span></li>
+          <li>queue.ts &mdash; CRUD, call next, check-in <span class="inv-tag tag-route">10 endpoints</span></li>
+          <li>clinic.ts &mdash; Settings, QR, doctors <span class="inv-tag tag-route">8 endpoints</span></li>
+          <li>subscription.ts &mdash; Billing, SMS, webhooks <span class="inv-tag tag-route">7 endpoints</span></li>
+          <li>admin.ts &mdash; Metrics, CRUD, payments <span class="inv-tag tag-route">11 endpoints</span></li>
+          <li>doctor.ts &mdash; Multi-doctor support <span class="inv-tag tag-route">3 endpoints</span></li>
+          <li>metrics.ts &mdash; Prometheus monitoring <span class="inv-tag tag-route">1 endpoint</span></li>
+        </ul>
+      </div>
+      <div class="inv-card">
+        <h3>Backend Services <span class="count">7</span></h3>
+        <ul class="inv-list">
+          <li>queueService <span class="inv-tag tag-service">Core queue ops</span></li>
+          <li>positionService <span class="inv-tag tag-service">Position calc</span></li>
+          <li>notificationService <span class="inv-tag tag-service">Socket + SMS</span></li>
+          <li>statsService <span class="inv-tag tag-service">Analytics</span></li>
+          <li>subscriptionService <span class="inv-tag tag-service">Billing</span></li>
+          <li>signupService <span class="inv-tag tag-service">Registration</span></li>
+          <li>adminService <span class="inv-tag tag-service">SaaS admin</span></li>
+        </ul>
+      </div>
+      <div class="inv-card">
+        <h3>Database Models <span class="count">7</span></h3>
+        <ul class="inv-list">
+          <li>Clinic &mdash; 30+ fields <span class="inv-tag tag-model">Core</span></li>
+          <li>Doctor &mdash; Multi-doc support <span class="inv-tag tag-model">Core</span></li>
+          <li>QueueEntry &mdash; Patient in queue <span class="inv-tag tag-model">Core</span></li>
+          <li>DailyStat &mdash; Archived daily metrics <span class="inv-tag tag-model">Analytics</span></li>
+          <li>PaymentRecord &mdash; Payment tracking <span class="inv-tag tag-model">Billing</span></li>
+          <li>SubscriptionEvent &mdash; Billing events <span class="inv-tag tag-model">Billing</span></li>
+          <li>SmsPackagePurchase &mdash; SMS purchases <span class="inv-tag tag-model">Billing</span></li>
+        </ul>
+      </div>
+      <div class="inv-card">
+        <h3>UI Components <span class="count">30+</span></h3>
+        <ul class="inv-list">
+          <li>Queue: QueueList, QueueStats, AddPatientModal <span class="inv-tag tag-component">queue/</span></li>
+          <li>Queue: QRCodeCard, QRCodeModal, MobileDashboard <span class="inv-tag tag-component">queue/</span></li>
+          <li>Patient: TicketCard, CompactTicketCard <span class="inv-tag tag-component">patient/</span></li>
+          <li>Patient: WaitingRoomVisual, PatientJourneyVisual <span class="inv-tag tag-component">patient/</span></li>
+          <li>Patient: WaitEstimateCard, FunFactCard <span class="inv-tag tag-component">patient/</span></li>
+          <li>Admin: CreateClinicModal, RecordPaymentModal <span class="inv-tag tag-component">admin/</span></li>
+          <li>Admin: MetricCardWithTrend, ClinicRankingCard <span class="inv-tag tag-component">admin/</span></li>
+          <li>UI: LanguageSwitcher, Toast, ConfirmModal, Logo <span class="inv-tag tag-component">ui/</span></li>
+        </ul>
+      </div>
+      <div class="inv-card">
+        <h3>External Integrations <span class="count">4</span></h3>
+        <ul class="inv-list">
+          <li>Resend &mdash; Verification, welcome, reset emails <span class="inv-tag tag-service">Email</span></li>
+          <li>Twilio &mdash; Queue joined, almost turn, your turn <span class="inv-tag tag-service">SMS</span></li>
+          <li>Konnect &mdash; Subscription + SMS package payments <span class="inv-tag tag-service">Payment</span></li>
+          <li>Supabase &mdash; PostgreSQL database hosting <span class="inv-tag tag-service">Database</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Business Model -->
+<section class="business" id="business">
+  <div class="container">
+    <div class="section-badge">Business Model</div>
+    <div class="section-title">Revenue Streams</div>
+    <div class="section-subtitle">Two revenue channels: subscription fees and SMS credit packages. Break-even at ~10 clinics.</div>
+
+    <div class="pricing-cards">
+      <div class="price-card">
+        <div class="price-name">Free Trial</div>
+        <div class="price-amount">0</div>
+        <div class="price-period">TND / 30 days</div>
+        <ul class="price-features">
+          <li>Full feature access for 30 days</li>
+          <li>50 free SMS credits included</li>
+          <li>No credit card required</li>
+          <li>Automatic trial expiry emails (7d, 3d)</li>
+          <li>Seamless upgrade path</li>
+        </ul>
+      </div>
+      <div class="price-card featured">
+        <div class="price-name">Monthly</div>
+        <div class="price-amount">50</div>
+        <div class="price-period">TND / month (~$16 USD)</div>
+        <ul class="price-features">
+          <li>Unlimited patients</li>
+          <li>Real-time queue management</li>
+          <li>QR code check-in</li>
+          <li>SMS notifications</li>
+          <li>Analytics dashboard</li>
+          <li>Multi-doctor support</li>
+          <li>French + Arabic (RTL)</li>
+        </ul>
+      </div>
+      <div class="price-card">
+        <div class="price-name">Yearly</div>
+        <div class="price-amount">500</div>
+        <div class="price-period">TND / year (2 months free)</div>
+        <ul class="price-features">
+          <li>Everything in Monthly</li>
+          <li>Save 100 TND per year</li>
+          <li>Priority support</li>
+          <li>Pay via Konnect gateway</li>
+        </ul>
+      </div>
+    </div>
+
+    <div style="margin-top: 2.5rem;">
+      <h3 style="font-size: 1.1rem; margin-bottom: 1rem; color: var(--gray-700);">SMS Credit Packages (Add-On Revenue)</h3>
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+        <div style="background: var(--gray-50); border-radius: 12px; padding: 1.25rem; text-align: center; border: 1px solid var(--gray-200);">
+          <div style="font-weight: 700;">Starter</div>
+          <div style="font-size: 1.5rem; font-weight: 800; color: var(--primary);">100 SMS</div>
+          <div style="color: var(--gray-500); font-size: 0.85rem;">10 TND</div>
+        </div>
+        <div style="background: var(--gray-50); border-radius: 12px; padding: 1.25rem; text-align: center; border: 1px solid var(--gray-200);">
+          <div style="font-weight: 700;">Standard</div>
+          <div style="font-size: 1.5rem; font-weight: 800; color: var(--primary);">300 SMS</div>
+          <div style="color: var(--gray-500); font-size: 0.85rem;">25 TND</div>
+        </div>
+        <div style="background: var(--gray-50); border-radius: 12px; padding: 1.25rem; text-align: center; border: 1px solid var(--gray-200);">
+          <div style="font-weight: 700;">Pro</div>
+          <div style="font-size: 1.5rem; font-weight: 800; color: var(--primary);">1,000 SMS</div>
+          <div style="color: var(--gray-500); font-size: 0.85rem;">70 TND</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Bug Fixes -->
+<section class="bugfixes" id="bugfixes">
+  <div class="container">
+    <div class="section-badge">Recent Bug Fixes</div>
+    <div class="section-title">Issues Resolved in This Session</div>
+    <div class="section-subtitle">Critical bugs discovered through testing and user reports, all fixed and verified.</div>
+
+    <div class="bug-list">
+      <div class="bug-item">
+        <div class="bug-severity sev-critical">Critical</div>
+        <div class="bug-info">
+          <h4>Midnight Data Loss &mdash; Patient stats permanently deleted</h4>
+          <p>The midnight scheduler used <code>clearQueue()</code> which permanently deleted all WAITING/NOTIFIED/IN_CONSULTATION entries without archiving. Days of patient data were silently destroyed. DailyStat model existed but was never written to.</p>
+          <p style="margin-top: 0.5rem;"><strong>Fix:</strong> New <code>archiveAndClearQueue()</code> function that (1) auto-completes IN_CONSULTATION patients, (2) snapshots stats to DailyStat, (3) only deletes WAITING/NOTIFIED. Admin dashboard now reads from DailyStat for historical charts.</p>
+        </div>
+      </div>
+      <div class="bug-item">
+        <div class="bug-severity sev-critical">Critical</div>
+        <div class="bug-info">
+          <h4>Last-Patient Timing Distortion</h4>
+          <p>The last patient of each day often stays IN_CONSULTATION because the receptionist forgets to close the queue. When auto-completed at midnight, their timing data is wildly inaccurate (e.g., 7-hour "consultation"), distorting all averages.</p>
+          <p style="margin-top: 0.5rem;"><strong>Fix:</strong> All time-based average calculations now exclude the last-called patient (latest <code>calledAt</code>) across statsService, queueService (DailyStat archival), and adminService (3 locations).</p>
+        </div>
+      </div>
+      <div class="bug-item">
+        <div class="bug-severity sev-major">Major</div>
+        <div class="bug-info">
+          <h4>Onboarding Infinite Loop</h4>
+          <p>After completing 3 onboarding steps, the user was redirected back to step 1 instead of the dashboard. Root cause: auth store wasn't refreshed after the API call, so <code>onboardingCompleted</code> was still <code>false</code>.</p>
+          <p style="margin-top: 0.5rem;"><strong>Fix:</strong> Added <code>await checkAuth()</code> before <code>navigate('/dashboard')</code> to refresh clinic data in the store.</p>
+        </div>
+      </div>
+      <div class="bug-item">
+        <div class="bug-severity sev-major">Major</div>
+        <div class="bug-info">
+          <h4>CORS Error on Signup</h4>
+          <p>Frontend running on port 5175 wasn't in the API's CORS whitelist. Signup requests were blocked by the browser.</p>
+          <p style="margin-top: 0.5rem;"><strong>Fix:</strong> Added port 5175 to <code>CORS_ORIGIN</code> environment variable.</p>
+        </div>
+      </div>
+      <div class="bug-item">
+        <div class="bug-severity sev-minor">Minor</div>
+        <div class="bug-info">
+          <h4>Missing "Back" Translation</h4>
+          <p>Settings page showed raw key <code>common.back</code> instead of translated text.</p>
+          <p style="margin-top: 0.5rem;"><strong>Fix:</strong> Added <code>"back": "Retour"</code> (FR) and <code>"back": "&#1585;&#1580;&#1608;&#1593;"</code> (AR) to locale files.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Roadmap -->
+<section class="roadmap" id="roadmap">
+  <div class="container">
+    <div class="section-badge">Roadmap</div>
+    <div class="section-title">What's Done, What's Next</div>
+    <div class="section-subtitle">The journey from concept to scalable SaaS.</div>
+
+    <div class="roadmap-timeline">
+      <div class="roadmap-item done">
+        <div class="roadmap-phase">Phase 1 &mdash; Complete</div>
+        <h4>Core Queue System</h4>
+        <p>Queue management, patient check-in, real-time updates via Socket.io, SMS notifications, doctor dashboard.</p>
+      </div>
+      <div class="roadmap-item done">
+        <div class="roadmap-phase">Phase 2 &mdash; Complete</div>
+        <h4>Patient Experience</h4>
+        <p>Patient status page with live position, wait estimate, visual queue, fun facts, doctor presence indicator.</p>
+      </div>
+      <div class="roadmap-item done">
+        <div class="roadmap-phase">Phase 3 &mdash; Complete</div>
+        <h4>Admin &amp; Analytics</h4>
+        <p>Admin command center with metrics, trends, clinic rankings, churn risk analysis, payment tracking, impersonation.</p>
+      </div>
+      <div class="roadmap-item done">
+        <div class="roadmap-phase">Phase 4 &mdash; Complete</div>
+        <h4>SaaS Self-Service</h4>
+        <p>Landing page, signup flow, email verification, onboarding wizard, subscription billing (Konnect), SMS credit packages, trial system.</p>
+      </div>
+      <div class="roadmap-item done">
+        <div class="roadmap-phase">Phase 5 &mdash; Complete</div>
+        <h4>Data Integrity &amp; Analytics Accuracy</h4>
+        <p>Midnight archival to DailyStat, last-patient exclusion from averages, admin dashboard reading from archived data.</p>
+      </div>
+      <div class="roadmap-item active">
+        <div class="roadmap-phase">Next &mdash; In Progress</div>
+        <h4>Free Tier &amp; Growth</h4>
+        <p>Implement forever-free plan (100 patients/month cap), refine onboarding UX, A/B test trial vs free tier conversion, add in-app upgrade prompts.</p>
+      </div>
+      <div class="roadmap-item">
+        <div class="roadmap-phase">Future</div>
+        <h4>Scale &amp; Expand</h4>
+        <p>WhatsApp integration, appointment scheduling, multi-doctor queue routing, mobile PWA, advanced analytics with ML-based wait prediction.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<div class="footer">
+  <p>BleSaf &mdash; Virtual Queue Management for Tunisian Medical Clinics</p>
+  <p style="margin-top: 0.5rem;">Project Status Report &bull; February 5, 2026</p>
+</div>
+
+</body>
+</html>

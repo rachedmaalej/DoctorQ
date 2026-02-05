@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BleSaf SaaS Launch Strategy - Research & Recommendations</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #059669;
+      --primary-dark: #047857;
+      --primary-light: #d1fae5;
+      --danger: #dc2626;
+      --warning: #f59e0b;
+      --success: #10b981;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-600: #4b5563;
+      --gray-700: #374151;
+      --gray-800: #1f2937;
+      --gray-900: #111827;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--gray-900);
+      color: var(--gray-100);
+      line-height: 1.6;
+    }
+
+    /* Slide Container */
+    .slides-container {
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .slide {
+      width: 100%;
+      height: 100vh;
+      padding: 60px 80px;
+      display: none;
+      flex-direction: column;
+      background: linear-gradient(135deg, var(--gray-900) 0%, #1a2332 100%);
+      overflow-y: auto;
+    }
+
+    .slide.active {
+      display: flex;
+    }
+
+    /* Navigation */
+    .nav {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 12px;
+      z-index: 100;
+      background: rgba(0,0,0,0.5);
+      padding: 12px 24px;
+      border-radius: 50px;
+      backdrop-filter: blur(10px);
+    }
+
+    .nav button {
+      background: var(--gray-700);
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    .nav button:hover {
+      background: var(--primary);
+    }
+
+    .nav button:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .slide-counter {
+      color: var(--gray-300);
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+    }
+
+    /* Progress bar */
+    .progress-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 4px;
+      background: var(--primary);
+      transition: width 0.3s ease;
+      z-index: 100;
+    }
+
+    /* Typography */
+    h1 {
+      font-size: 3.5rem;
+      font-weight: 700;
+      margin-bottom: 24px;
+      background: linear-gradient(135deg, var(--primary) 0%, #34d399 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    h2 {
+      font-size: 2.5rem;
+      font-weight: 600;
+      margin-bottom: 32px;
+      color: white;
+    }
+
+    h3 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: var(--primary);
+    }
+
+    h4 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: var(--gray-200);
+    }
+
+    p {
+      font-size: 1.2rem;
+      color: var(--gray-300);
+      margin-bottom: 16px;
+    }
+
+    .subtitle {
+      font-size: 1.5rem;
+      color: var(--gray-400);
+      margin-bottom: 48px;
+    }
+
+    /* Cards */
+    .card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      margin-top: 24px;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, rgba(5, 150, 105, 0.2) 0%, rgba(5, 150, 105, 0.05) 100%);
+      border: 1px solid rgba(5, 150, 105, 0.3);
+      border-radius: 16px;
+      padding: 32px;
+      text-align: center;
+    }
+
+    .stat-card .number {
+      font-size: 3.5rem;
+      font-weight: 700;
+      color: var(--primary);
+      line-height: 1;
+    }
+
+    .stat-card .label {
+      font-size: 1rem;
+      color: var(--gray-300);
+      margin-top: 8px;
+    }
+
+    .stat-card.danger {
+      background: linear-gradient(135deg, rgba(220, 38, 38, 0.2) 0%, rgba(220, 38, 38, 0.05) 100%);
+      border-color: rgba(220, 38, 38, 0.3);
+    }
+
+    .stat-card.danger .number {
+      color: var(--danger);
+    }
+
+    .stat-card.warning {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(245, 158, 11, 0.05) 100%);
+      border-color: rgba(245, 158, 11, 0.3);
+    }
+
+    .stat-card.warning .number {
+      color: var(--warning);
+    }
+
+    /* Lists */
+    ul, ol {
+      margin-left: 24px;
+      margin-bottom: 16px;
+    }
+
+    li {
+      font-size: 1.1rem;
+      color: var(--gray-300);
+      margin-bottom: 12px;
+    }
+
+    li strong {
+      color: white;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 24px 0;
+      font-size: 1rem;
+    }
+
+    th, td {
+      padding: 16px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    th {
+      background: rgba(5, 150, 105, 0.2);
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    td {
+      color: var(--gray-300);
+    }
+
+    tr:hover td {
+      background: rgba(255,255,255,0.02);
+    }
+
+    /* Status badges */
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .badge-success {
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--success);
+    }
+
+    .badge-warning {
+      background: rgba(245, 158, 11, 0.2);
+      color: var(--warning);
+    }
+
+    .badge-danger {
+      background: rgba(220, 38, 38, 0.2);
+      color: var(--danger);
+    }
+
+    /* Two columns */
+    .two-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      margin-top: 32px;
+    }
+
+    /* Comparison */
+    .comparison {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 24px;
+      align-items: center;
+      margin: 32px 0;
+    }
+
+    .comparison-arrow {
+      font-size: 3rem;
+      color: var(--primary);
+    }
+
+    .comparison-box {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 24px;
+    }
+
+    .comparison-box.current {
+      border-color: rgba(220, 38, 38, 0.3);
+    }
+
+    .comparison-box.recommended {
+      border-color: rgba(16, 185, 129, 0.3);
+      background: rgba(16, 185, 129, 0.05);
+    }
+
+    /* Flow diagram */
+    .flow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 32px 0;
+      padding: 24px;
+      background: rgba(255,255,255,0.02);
+      border-radius: 16px;
+    }
+
+    .flow-step {
+      background: var(--gray-700);
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      color: white;
+    }
+
+    .flow-arrow {
+      color: var(--primary);
+      font-size: 1.5rem;
+    }
+
+    /* Checklist */
+    .checklist {
+      list-style: none;
+      margin-left: 0;
+    }
+
+    .checklist li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .checklist li::before {
+      content: "";
+      width: 24px;
+      height: 24px;
+      border: 2px solid var(--gray-600);
+      border-radius: 6px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .checklist li.done::before {
+      background: var(--success);
+      border-color: var(--success);
+      content: "✓";
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    /* Priority indicators */
+    .priority {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .priority-critical {
+      background: var(--danger);
+      color: white;
+    }
+
+    .priority-high {
+      background: var(--warning);
+      color: black;
+    }
+
+    .priority-medium {
+      background: var(--primary);
+      color: white;
+    }
+
+    /* Title slide special */
+    .title-slide {
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    .title-slide h1 {
+      font-size: 4.5rem;
+      margin-bottom: 16px;
+    }
+
+    .title-slide .subtitle {
+      font-size: 1.8rem;
+      max-width: 800px;
+    }
+
+    .logo {
+      width: 120px;
+      height: 120px;
+      background: linear-gradient(135deg, var(--primary) 0%, #34d399 100%);
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 4rem;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 32px;
+    }
+
+    /* Mistake cards */
+    .mistake-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .mistake-card h4 {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .mistake-number {
+      background: var(--danger);
+      color: white;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .mistake-status {
+      margin-left: auto;
+    }
+
+    /* Metric cards */
+    .metric-row {
+      display: flex;
+      align-items: center;
+      padding: 16px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .metric-label {
+      flex: 1;
+      font-size: 1.1rem;
+      color: var(--gray-300);
+    }
+
+    .metric-value {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--primary);
+      min-width: 100px;
+      text-align: right;
+    }
+
+    .metric-bar {
+      width: 200px;
+      height: 8px;
+      background: var(--gray-700);
+      border-radius: 4px;
+      margin-left: 24px;
+      overflow: hidden;
+    }
+
+    .metric-bar-fill {
+      height: 100%;
+      background: var(--primary);
+      border-radius: 4px;
+    }
+
+    /* Recommendation highlight */
+    .highlight-box {
+      background: linear-gradient(135deg, rgba(5, 150, 105, 0.15) 0%, rgba(5, 150, 105, 0.05) 100%);
+      border: 2px solid var(--primary);
+      border-radius: 16px;
+      padding: 32px;
+      margin: 24px 0;
+    }
+
+    .highlight-box h3 {
+      color: white;
+      margin-bottom: 16px;
+    }
+
+    /* Sources */
+    .sources {
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .sources a {
+      color: var(--primary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      display: inline-block;
+      margin-right: 24px;
+      margin-bottom: 8px;
+    }
+
+    .sources a:hover {
+      text-decoration: underline;
+    }
+
+    /* Animation */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .slide.active > * {
+      animation: fadeIn 0.5s ease forwards;
+    }
+
+    /* Print styles */
+    @media print {
+      .nav, .progress-bar { display: none; }
+      .slide { display: block !important; page-break-after: always; height: auto; }
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--gray-800);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--gray-600);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--gray-500);
+    }
+  </style>
+</head>
+<body>
+  <div class="progress-bar" id="progress"></div>
+
+  <div class="slides-container">
+    <!-- Slide 1: Title -->
+    <div class="slide title-slide active">
+      <div class="logo">B</div>
+      <h1>BleSaf Launch Strategy</h1>
+      <p class="subtitle">SaaS Best Practices Research & Technical Recommendations for Self-Service Launch in Tunisia</p>
+      <p style="color: var(--gray-500); margin-top: 48px;">Press → or click Next to navigate</p>
+    </div>
+
+    <!-- Slide 2: Agenda -->
+    <div class="slide">
+      <h2>What We'll Cover</h2>
+      <div class="card-grid">
+        <div class="card">
+          <h3>1. Industry Benchmarks</h3>
+          <p>Key SaaS metrics and what they mean for BleSaf</p>
+        </div>
+        <div class="card">
+          <h3>2. Common Mistakes</h3>
+          <p>Top 10 onboarding mistakes and how to avoid them</p>
+        </div>
+        <div class="card">
+          <h3>3. Current Assessment</h3>
+          <p>Where BleSaf stands today vs. best practices</p>
+        </div>
+        <div class="card">
+          <h3>4. Strategic Recommendations</h3>
+          <p>Specific changes to improve conversion</p>
+        </div>
+        <div class="card">
+          <h3>5. Implementation Plan</h3>
+          <p>Prioritized action items for launch</p>
+        </div>
+        <div class="card">
+          <h3>6. Success Metrics</h3>
+          <p>KPIs to track post-launch</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 3: Industry Stats -->
+    <div class="slide">
+      <h2>Industry Benchmarks: The Reality of SaaS</h2>
+      <p class="subtitle">These numbers should inform every decision we make</p>
+
+      <div class="card-grid">
+        <div class="stat-card danger">
+          <div class="number">75%</div>
+          <div class="label">Users lost in first week<br>with poor onboarding</div>
+        </div>
+        <div class="stat-card danger">
+          <div class="number">80%</div>
+          <div class="label">Users abandon apps<br>due to confusion</div>
+        </div>
+        <div class="stat-card warning">
+          <div class="number">7%</div>
+          <div class="label">Conversion loss per<br>extra signup field</div>
+        </div>
+        <div class="stat-card warning">
+          <div class="number">3%</div>
+          <div class="label">Conversion loss per<br>minute to value</div>
+        </div>
+      </div>
+
+      <div class="highlight-box" style="margin-top: 32px;">
+        <h3>💡 Key Insight</h3>
+        <p style="font-size: 1.3rem; color: white; margin-bottom: 0;">
+          If a user doesn't experience an "aha moment" within <strong>24 hours</strong>, they will likely churn.
+          Time-to-value is everything.
+        </p>
+      </div>
+    </div>
+
+    <!-- Slide 4: Conversion Benchmarks -->
+    <div class="slide">
+      <h2>Free Trial Conversion Benchmarks</h2>
+      <p class="subtitle">What to expect based on industry data</p>
+
+      <div class="two-columns">
+        <div>
+          <div class="stat-card" style="margin-bottom: 24px;">
+            <div class="number">15-25%</div>
+            <div class="label">Trial-to-Paid Conversion<br><strong>Without credit card required</strong></div>
+          </div>
+          <p style="text-align: center; color: var(--gray-400);">
+            ✓ BleSaf's current approach<br>
+            Lower conversion but higher signup volume
+          </p>
+        </div>
+        <div>
+          <div class="stat-card warning" style="margin-bottom: 24px;">
+            <div class="number">40-60%</div>
+            <div class="label">Trial-to-Paid Conversion<br><strong>With credit card required</strong></div>
+          </div>
+          <p style="text-align: center; color: var(--gray-400);">
+            Higher conversion but 50%+ fewer signups<br>
+            Not recommended for new markets
+          </p>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 32px;">
+        <h3>Recommendation for Tunisia Market</h3>
+        <p>Keep the <strong>no credit card required</strong> approach. For a new brand in a market with lower digital payment adoption, reducing signup friction is more important than optimizing conversion rate. Focus on activation instead.</p>
+      </div>
+    </div>
+
+    <!-- Slide 5: Top 10 Mistakes - Part 1 -->
+    <div class="slide">
+      <h2>Top 10 Onboarding Mistakes</h2>
+      <p class="subtitle">And how BleSaf compares (Part 1)</p>
+
+      <div class="two-columns">
+        <div>
+          <div class="mistake-card">
+            <h4>
+              <span class="mistake-number">1</span>
+              Complex Signup Flow
+              <span class="mistake-status"><span class="badge badge-warning">⚠️ Issue</span></span>
+            </h4>
+            <p style="font-size: 1rem;">Every extra field costs 7% conversion. BleSaf has 6 fields.</p>
+          </div>
+
+          <div class="mistake-card">
+            <h4>
+              <span class="mistake-number">2</span>
+              Blocking Email Verification
+              <span class="mistake-status"><span class="badge badge-danger">❌ Problem</span></span>
+            </h4>
+            <p style="font-size: 1rem;">Currently requires verification before any access. Major friction.</p>
+          </div>
+
+          <div class="mistake-card">
+            <h4>
+              <span class="mistake-number">3</span>
+              Teaching Features, Not Outcomes
+              <span class="mistake-status"><span class="badge badge-warning">⚠️ Issue</span></span>
+            </h4>
+            <p style="font-size: 1rem;">Onboarding focuses on setup steps, not user goals.</p>
+          </div>
+
+          <div class="mistake-card">
+            <h4>
+              <span class="mistake-number">4</span>
+              Long Product Tours
+              <span class="mistake-status"><span class="badge badge-success">✓ Good</span></span>
+            </h4>
+            <p style="font-size: 1rem;">3-step wizard is appropriately short.</p>
+          </div>
+
+          <div class="mistake-card">
+            <h4>
+              <span class="mistake-number">5</span>
+              Empty Dashboard State
+              <span class="mistake-status"><span class="badge badge-warning">⚠️ Issue</span></span>
+            </h4>
+            <p style="font-size: 1rem;">New users see empty queue, unclear what to do next.</p>
+          </div>
+        </div>
+
+        <div>
+          <div class="mistake-card">
+            <h4>
+              <span class="mistake-number">6</span>
+              No Clear "Aha Moment"
+              <span class="mistake-status"><span class="badge badge-warning">⚠️ Issue</span></span>
+            </h4>
+            <p style="font-size: 1rem;">Users don't experience the patient view during onboarding.</p>
+          </div>
+
+          <div class="mistake-card">
+            <h4>
+              <span class="mistake-number">7</span>
+              Treating All Users the Same
+              <span class="mistake-status"><span class="badge badge-success">✓ Good</span></span>
+            </h4>
+            <p style="font-size: 1rem;">Product is simple enough; one path works for all.</p>
+          </div>
+
+          <div class="mistake-card">
+            <h4>
+              <span class="mistake-number">8</span>
+              Poor Email Timing
+              <span class="mistake-status"><span class="badge badge-warning">⚠️ Issue</span></span>
+            </h4>
+            <p style="font-size: 1rem;">No behavior-triggered emails beyond verification.</p>
+          </div>
+
+          <div class="mistake-card">
+            <h4>
+              <span class="mistake-number">9</span>
+              No Progress Indicators
+              <span class="mistake-status"><span class="badge badge-success">✓ Good</span></span>
+            </h4>
+            <p style="font-size: 1rem;">Onboarding has clear step indicators.</p>
+          </div>
+
+          <div class="mistake-card">
+            <h4>
+              <span class="mistake-number">10</span>
+              Requiring Credit Card
+              <span class="mistake-status"><span class="badge badge-success">✓ Good</span></span>
+            </h4>
+            <p style="font-size: 1rem;">No card required for trial. Correct for new market.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 6: Current vs Recommended Flow -->
+    <div class="slide">
+      <h2>Signup Flow: Current vs. Recommended</h2>
+      <p class="subtitle">The single biggest opportunity for improvement</p>
+
+      <h3 style="margin-top: 32px;">Current Flow (High Friction)</h3>
+      <div class="flow">
+        <div class="flow-step">Landing Page</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step" style="background: var(--danger);">Signup (6 fields)</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step" style="background: var(--danger);">Email Verification</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step">Login</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step">Onboarding</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step">Dashboard</div>
+      </div>
+      <p style="text-align: center; color: var(--gray-500);">~5-10 minutes to first value • Multiple drop-off points</p>
+
+      <h3 style="margin-top: 48px;">Recommended Flow (Low Friction)</h3>
+      <div class="flow" style="background: rgba(16, 185, 129, 0.1);">
+        <div class="flow-step">Landing Page</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step" style="background: var(--success);">Signup (3 fields)</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step" style="background: var(--success);">Dashboard (Immediate)</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step">Onboarding</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step">Full Access</div>
+      </div>
+      <p style="text-align: center; color: var(--gray-400);">~2 minutes to first value • Email verification happens later (before SMS/upgrade)</p>
+
+      <div class="highlight-box">
+        <h3>Expected Impact</h3>
+        <p style="margin-bottom: 0; color: white;">
+          Reducing from 6 to 3 fields: <strong>+21% signup completion</strong><br>
+          Delayed email verification: <strong>+15-25% activation rate</strong>
+        </p>
+      </div>
+    </div>
+
+    <!-- Slide 7: Delayed Verification Strategy -->
+    <div class="slide">
+      <h2>Email Verification: The Smart Way</h2>
+      <p class="subtitle">Allow immediate access, verify when it matters</p>
+
+      <div class="two-columns">
+        <div>
+          <div class="card" style="border-color: var(--danger);">
+            <h3 style="color: var(--danger);">❌ Current Approach</h3>
+            <p><strong>Block everything until verified</strong></p>
+            <ul style="margin-top: 16px;">
+              <li>User signs up</li>
+              <li>Must check email</li>
+              <li>Click verification link</li>
+              <li>Only then can access dashboard</li>
+            </ul>
+            <p style="margin-top: 16px; color: var(--danger);">
+              <strong>Problem:</strong> 20-30% never complete verification
+            </p>
+          </div>
+        </div>
+        <div>
+          <div class="card" style="border-color: var(--success);">
+            <h3 style="color: var(--success);">✓ Recommended Approach</h3>
+            <p><strong>Verify when it matters</strong></p>
+            <ul style="margin-top: 16px;">
+              <li>User signs up → Immediate dashboard access</li>
+              <li>Can explore, add patients, see QR code</li>
+              <li>Verify email required only for:
+                <ul>
+                  <li>Sending SMS (consumes credits)</li>
+                  <li>Upgrading to paid plan</li>
+                </ul>
+              </li>
+            </ul>
+            <p style="margin-top: 16px; color: var(--success);">
+              <strong>Benefit:</strong> Users experience value before friction
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 32px; background: rgba(5, 150, 105, 0.1);">
+        <h4>Implementation Code</h4>
+        <pre style="background: var(--gray-800); padding: 16px; border-radius: 8px; overflow-x: auto; color: var(--gray-300); font-size: 0.95rem;">
+// In queueService.ts - when sending SMS
+if (!clinic.emailVerified) {
+  throw new Error('Please verify your email to send SMS notifications');
+}
+
+// Show gentle reminder in dashboard
+{!emailVerified && (
+  &lt;Banner type="info"&gt;
+    Verify your email to enable SMS notifications
+  &lt;/Banner&gt;
+)}</pre>
+      </div>
+    </div>
+
+    <!-- Slide 8: Onboarding Redesign -->
+    <div class="slide">
+      <h2>Onboarding: Focus on Outcomes</h2>
+      <p class="subtitle">Each step should deliver visible value</p>
+
+      <div class="two-columns">
+        <div>
+          <h3 style="color: var(--danger);">Current Steps</h3>
+          <div class="card">
+            <ol>
+              <li style="padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <strong>Clinic Setup</strong><br>
+                <span style="color: var(--gray-500);">Configure settings</span>
+              </li>
+              <li style="padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <strong>QR Code</strong><br>
+                <span style="color: var(--gray-500);">Download poster</span>
+              </li>
+              <li style="padding: 12px 0;">
+                <strong>Tutorial</strong><br>
+                <span style="color: var(--gray-500);">Read explanation</span>
+              </li>
+            </ol>
+          </div>
+          <p style="color: var(--gray-500); margin-top: 16px;">
+            Focus: <em>Setup tasks</em><br>
+            User thinking: "More work to do..."
+          </p>
+        </div>
+        <div>
+          <h3 style="color: var(--success);">Recommended Steps</h3>
+          <div class="card" style="border-color: var(--success);">
+            <ol>
+              <li style="padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <strong>See Your QR Code</strong> 🎉<br>
+                <span style="color: var(--gray-400);">It's already generated! Download it.</span>
+              </li>
+              <li style="padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <strong>Test the Patient View</strong> 📱<br>
+                <span style="color: var(--gray-400);">Click to see what patients see</span>
+              </li>
+              <li style="padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <strong>Add Your First Patient</strong> ✨<br>
+                <span style="color: var(--gray-400);">Try it now (takes 10 seconds)</span>
+              </li>
+              <li style="padding: 12px 0;">
+                <strong>Enable SMS Notifications</strong> 💬<br>
+                <span style="color: var(--gray-400);">Verify email to activate</span>
+              </li>
+            </ol>
+          </div>
+          <p style="color: var(--success); margin-top: 16px;">
+            Focus: <em>Immediate wins</em><br>
+            User thinking: "This is working!"
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 9: Trial Email Strategy -->
+    <div class="slide">
+      <h2>Trial Email Strategy</h2>
+      <p class="subtitle">Behavior-triggered emails increase conversion by 30%+</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Day</th>
+            <th>Trigger</th>
+            <th>Email</th>
+            <th>Goal</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Day 0</strong></td>
+            <td>Signup completed</td>
+            <td>Welcome + Quick Start Guide</td>
+            <td>Set expectations, link to dashboard</td>
+          </tr>
+          <tr>
+            <td><strong>Day 1</strong></td>
+            <td>No patients added</td>
+            <td>"Add your first patient in 30 seconds"</td>
+            <td>Activation nudge</td>
+          </tr>
+          <tr>
+            <td><strong>Day 3</strong></td>
+            <td>First patient added</td>
+            <td>"Great start! Here's what's next"</td>
+            <td>Celebrate + deepen engagement</td>
+          </tr>
+          <tr>
+            <td><strong>Day 7</strong></td>
+            <td>Time-based</td>
+            <td>"How's it going?" + Tips</td>
+            <td>Check-in, offer help</td>
+          </tr>
+          <tr>
+            <td><strong>Day 14</strong></td>
+            <td>Time-based</td>
+            <td>Usage report + Success stories</td>
+            <td>Show value, social proof</td>
+          </tr>
+          <tr style="background: rgba(245, 158, 11, 0.1);">
+            <td><strong>Day 23</strong></td>
+            <td>7 days left</td>
+            <td>"Your trial ends in 7 days"</td>
+            <td>Urgency, upgrade CTA</td>
+          </tr>
+          <tr style="background: rgba(220, 38, 38, 0.1);">
+            <td><strong>Day 27</strong></td>
+            <td>3 days left</td>
+            <td>"Don't lose your setup!"</td>
+            <td>Strong urgency, special offer?</td>
+          </tr>
+          <tr style="background: rgba(220, 38, 38, 0.2);">
+            <td><strong>Day 30</strong></td>
+            <td>Trial expired</td>
+            <td>"Your trial has ended"</td>
+            <td>Last chance, extend offer?</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p style="margin-top: 24px; color: var(--gray-400);">
+        <strong>Current state:</strong> Only verification email implemented.<br>
+        <strong>Priority:</strong> Day 23 and Day 27 emails are most critical for conversion.
+      </p>
+    </div>
+
+    <!-- Slide 10: Implementation Priorities -->
+    <div class="slide">
+      <h2>Implementation Priorities</h2>
+      <p class="subtitle">What to do before launch, and what can wait</p>
+
+      <div class="two-columns">
+        <div>
+          <h3>🚨 Critical (Before Launch)</h3>
+          <ul class="checklist">
+            <li>
+              <div>
+                <strong>Create /verify-email page</strong><br>
+                <span style="color: var(--gray-500);">Frontend page to handle email verification links</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <strong>Create /reset-password page</strong><br>
+                <span style="color: var(--gray-500);">Frontend page for password reset flow</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <strong>Configure Resend API</strong><br>
+                <span style="color: var(--gray-500);">Required for any email to be sent</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <strong>Configure Konnect API</strong><br>
+                <span style="color: var(--gray-500);">Required for payments to work</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <strong>End-to-end flow test</strong><br>
+                <span style="color: var(--gray-500);">Signup → Dashboard → Add patient → Payment</span>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h3>⚡ High Impact (Week 1-2)</h3>
+          <ul class="checklist">
+            <li>
+              <div>
+                <strong>Implement delayed verification</strong><br>
+                <span style="color: var(--gray-500);">+15-25% activation improvement</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <strong>Reduce signup to 3 fields</strong><br>
+                <span style="color: var(--gray-500);">+21% signup completion</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <strong>Add "Test as patient" button</strong><br>
+                <span style="color: var(--gray-500);">Faster "aha moment"</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <strong>Improve empty dashboard state</strong><br>
+                <span style="color: var(--gray-500);">Clear CTAs for new users</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <strong>Add Sentry error monitoring</strong><br>
+                <span style="color: var(--gray-500);">Catch issues before users report them</span>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <h3 style="margin-top: 32px;">📋 Nice to Have (Post-Launch)</h3>
+      <p>Trial reminder emails • In-app tooltips • Analytics tracking • A/B testing • Demo mode • Video tutorials</p>
+    </div>
+
+    <!-- Slide 11: Success Metrics -->
+    <div class="slide">
+      <h2>Success Metrics to Track</h2>
+      <p class="subtitle">What to measure and what targets to aim for</p>
+
+      <div class="two-columns">
+        <div>
+          <h3>Activation Funnel</h3>
+          <div class="card">
+            <div class="metric-row">
+              <span class="metric-label">Landing → Signup started</span>
+              <span class="metric-value">10%</span>
+              <div class="metric-bar"><div class="metric-bar-fill" style="width: 10%"></div></div>
+            </div>
+            <div class="metric-row">
+              <span class="metric-label">Signup started → Completed</span>
+              <span class="metric-value">80%</span>
+              <div class="metric-bar"><div class="metric-bar-fill" style="width: 80%"></div></div>
+            </div>
+            <div class="metric-row">
+              <span class="metric-label">Signup → Dashboard accessed</span>
+              <span class="metric-value">95%</span>
+              <div class="metric-bar"><div class="metric-bar-fill" style="width: 95%"></div></div>
+            </div>
+            <div class="metric-row">
+              <span class="metric-label">Dashboard → First patient added</span>
+              <span class="metric-value">50%</span>
+              <div class="metric-bar"><div class="metric-bar-fill" style="width: 50%"></div></div>
+            </div>
+            <div class="metric-row">
+              <span class="metric-label">Patient added → First SMS sent</span>
+              <span class="metric-value">70%</span>
+              <div class="metric-bar"><div class="metric-bar-fill" style="width: 70%"></div></div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h3>Conversion Funnel</h3>
+          <div class="card">
+            <div class="metric-row">
+              <span class="metric-label">Trial → Email verified</span>
+              <span class="metric-value">80%</span>
+              <div class="metric-bar"><div class="metric-bar-fill" style="width: 80%"></div></div>
+            </div>
+            <div class="metric-row">
+              <span class="metric-label">Trial → Onboarding completed</span>
+              <span class="metric-value">60%</span>
+              <div class="metric-bar"><div class="metric-bar-fill" style="width: 60%"></div></div>
+            </div>
+            <div class="metric-row">
+              <span class="metric-label">Trial → Active usage (5+ patients)</span>
+              <span class="metric-value">40%</span>
+              <div class="metric-bar"><div class="metric-bar-fill" style="width: 40%"></div></div>
+            </div>
+            <div class="metric-row">
+              <span class="metric-label">Trial → Paid conversion</span>
+              <span class="metric-value">15-25%</span>
+              <div class="metric-bar"><div class="metric-bar-fill" style="width: 20%"></div></div>
+            </div>
+          </div>
+
+          <h3 style="margin-top: 32px;">Health Metrics (Month 3+)</h3>
+          <div class="card">
+            <div class="metric-row">
+              <span class="metric-label">Monthly churn rate</span>
+              <span class="metric-value">&lt;10%</span>
+            </div>
+            <div class="metric-row">
+              <span class="metric-label">NPS score</span>
+              <span class="metric-value">&gt;30</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 12: Risk Mitigation -->
+    <div class="slide">
+      <h2>Risk Mitigation</h2>
+      <p class="subtitle">Anticipate problems before they happen</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 25%;">Risk</th>
+            <th style="width: 40%;">Mitigation Strategy</th>
+            <th style="width: 35%;">How to Monitor</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Low signup conversion</strong></td>
+            <td>A/B test signup fields, simplify form, add social proof</td>
+            <td>Track funnel drop-off at each step</td>
+          </tr>
+          <tr>
+            <td><strong>High early churn</strong></td>
+            <td>Improve onboarding, add contextual tooltips, proactive support</td>
+            <td>7-day retention cohorts</td>
+          </tr>
+          <tr>
+            <td><strong>Payment failures</strong></td>
+            <td>Offer manual bank transfer as fallback, retry failed payments</td>
+            <td>Failed payment rate, abandonment</td>
+          </tr>
+          <tr>
+            <td><strong>Support overload</strong></td>
+            <td>Comprehensive FAQ, WhatsApp quick replies, video tutorials</td>
+            <td>Support ticket volume, response time</td>
+          </tr>
+          <tr>
+            <td><strong>SMS cost overruns</strong></td>
+            <td>Low balance warnings (10 credits), hard limits, clear pricing</td>
+            <td>SMS usage per clinic, negative balance attempts</td>
+          </tr>
+          <tr>
+            <td><strong>Technical issues</strong></td>
+            <td>Sentry error monitoring, health checks, alerts</td>
+            <td>Error rate, uptime, response times</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="highlight-box" style="margin-top: 32px;">
+        <h3>Rollback Plan</h3>
+        <p style="margin-bottom: 0;">
+          <strong>Frontend:</strong> One-click rollback via Vercel/Netlify deployment history<br>
+          <strong>Backend:</strong> Previous Railway/Render deployment + database backup restore<br>
+          <strong>Payments:</strong> Temporarily disable buttons, extend trials manually if needed
+        </p>
+      </div>
+    </div>
+
+    <!-- Slide 13: Final Recommendations -->
+    <div class="slide">
+      <h2>Final Recommendations</h2>
+      <p class="subtitle">The 5 most impactful changes for launch success</p>
+
+      <div class="card-grid">
+        <div class="stat-card" style="text-align: left;">
+          <div class="number" style="font-size: 2.5rem;">1</div>
+          <h4 style="margin-top: 16px;">Create Missing Pages</h4>
+          <p style="font-size: 1rem; margin-top: 8px;">VerifyEmailPage and ResetPasswordPage are required for basic functionality.</p>
+          <span class="priority priority-critical">Critical</span>
+        </div>
+
+        <div class="stat-card" style="text-align: left;">
+          <div class="number" style="font-size: 2.5rem;">2</div>
+          <h4 style="margin-top: 16px;">Configure External Services</h4>
+          <p style="font-size: 1rem; margin-top: 8px;">Resend (email) and Konnect (payments) API keys must be set up.</p>
+          <span class="priority priority-critical">Critical</span>
+        </div>
+
+        <div class="stat-card" style="text-align: left;">
+          <div class="number" style="font-size: 2.5rem;">3</div>
+          <h4 style="margin-top: 16px;">Implement Delayed Verification</h4>
+          <p style="font-size: 1rem; margin-top: 8px;">Allow immediate dashboard access. Verify email only before SMS/upgrade.</p>
+          <span class="priority priority-high">High Impact</span>
+        </div>
+
+        <div class="stat-card" style="text-align: left;">
+          <div class="number" style="font-size: 2.5rem;">4</div>
+          <h4 style="margin-top: 16px;">Improve Empty States</h4>
+          <p style="font-size: 1rem; margin-top: 8px;">Add clear CTAs when dashboard is empty. Guide users to their first action.</p>
+          <span class="priority priority-high">High Impact</span>
+        </div>
+
+        <div class="stat-card" style="text-align: left;">
+          <div class="number" style="font-size: 2.5rem;">5</div>
+          <h4 style="margin-top: 16px;">Set Up Error Monitoring</h4>
+          <p style="font-size: 1rem; margin-top: 8px;">Add Sentry to catch issues before users report them. Essential for trust.</p>
+          <span class="priority priority-medium">Medium</span>
+        </div>
+      </div>
+
+      <div class="highlight-box" style="margin-top: 32px; text-align: center;">
+        <h3 style="color: white; font-size: 1.8rem;">The Core Product is Ready</h3>
+        <p style="font-size: 1.3rem; margin-bottom: 0;">
+          Focus on <strong>reducing friction</strong> in the signup-to-value journey<br>
+          rather than adding more features.
+        </p>
+      </div>
+    </div>
+
+    <!-- Slide 14: Sources -->
+    <div class="slide">
+      <h2>Research Sources</h2>
+      <p class="subtitle">Industry reports and best practice guides referenced</p>
+
+      <div class="card-grid" style="grid-template-columns: 1fr 1fr;">
+        <div class="card">
+          <h4>Onboarding Best Practices</h4>
+          <ul style="margin-left: 0; list-style: none;">
+            <li style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+              <a href="https://productled.com/blog/5-best-practices-for-better-saas-user-onboarding" target="_blank" style="color: var(--primary);">ProductLed - SaaS Onboarding Best Practices 2025</a>
+            </li>
+            <li style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+              <a href="https://www.candu.ai/blog/the-complete-guide-to-self-service-saas-onboarding" target="_blank" style="color: var(--primary);">Candu - Complete Guide to Self-Service Onboarding</a>
+            </li>
+            <li style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+              <a href="https://www.flowjam.com/blog/saas-onboarding-best-practices-2025-guide-checklist" target="_blank" style="color: var(--primary);">Flowjam - SaaS Onboarding 2025 Guide</a>
+            </li>
+            <li style="padding: 8px 0;">
+              <a href="https://encharge.io/saas-onboarding-best-practices/" target="_blank" style="color: var(--primary);">Encharge - 11 SaaS Onboarding Best Practices</a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h4>Conversion & Trials</h4>
+          <ul style="margin-left: 0; list-style: none;">
+            <li style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+              <a href="https://userpilot.com/blog/free-trial-conversion-rate/" target="_blank" style="color: var(--primary);">Userpilot - Free Trial Conversion Rate Benchmarks</a>
+            </li>
+            <li style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+              <a href="https://userpilot.com/blog/saas-free-trial-best-practices/" target="_blank" style="color: var(--primary);">Userpilot - 15 B2B SaaS Free Trial Best Practices</a>
+            </li>
+            <li style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+              <a href="https://cxl.com/blog/saas-signup-flows/" target="_blank" style="color: var(--primary);">CXL - Sign-up Flows and Friction Analysis</a>
+            </li>
+            <li style="padding: 8px 0;">
+              <a href="https://churnzero.com/blog/how-to-improve-saas-free-trial-paid-conversion/" target="_blank" style="color: var(--primary);">ChurnZero - Improve Trial to Paid Conversion</a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h4>Email Verification</h4>
+          <ul style="margin-left: 0; list-style: none;">
+            <li style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+              <a href="https://supertokens.com/blog/implementing-the-right-email-verification-flow" target="_blank" style="color: var(--primary);">SuperTokens - Right Email Verification Flow</a>
+            </li>
+            <li style="padding: 8px 0;">
+              <a href="https://uitop.design/blog/reducing-friction-in-saas-sign-up-flows/" target="_blank" style="color: var(--primary);">UITop - Reducing Friction in SaaS Sign-Up</a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h4>Launch & MVP</h4>
+          <ul style="margin-left: 0; list-style: none;">
+            <li style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+              <a href="https://devsquad.com/blog/saas-launch-checklist" target="_blank" style="color: var(--primary);">DevSquad - SaaS Launch Checklist 2025</a>
+            </li>
+            <li style="padding: 8px 0;">
+              <a href="https://devsquad.com/blog/saas-mvp" target="_blank" style="color: var(--primary);">DevSquad - How to Build a SaaS MVP</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 15: Thank You -->
+    <div class="slide title-slide">
+      <div class="logo">B</div>
+      <h1>Ready to Launch</h1>
+      <p class="subtitle">BleSaf has a solid foundation. With these optimizations, we can maximize conversion and build a successful self-service SaaS in Tunisia.</p>
+
+      <div style="margin-top: 48px; display: flex; gap: 24px; justify-content: center;">
+        <div class="card" style="padding: 24px 48px; text-align: center;">
+          <div style="font-size: 2rem; color: var(--primary); font-weight: 700;">5</div>
+          <div style="color: var(--gray-400);">Critical Tasks</div>
+        </div>
+        <div class="card" style="padding: 24px 48px; text-align: center;">
+          <div style="font-size: 2rem; color: var(--primary); font-weight: 700;">30</div>
+          <div style="color: var(--gray-400);">Day Free Trial</div>
+        </div>
+        <div class="card" style="padding: 24px 48px; text-align: center;">
+          <div style="font-size: 2rem; color: var(--primary); font-weight: 700;">15-25%</div>
+          <div style="color: var(--gray-400);">Target Conversion</div>
+        </div>
+      </div>
+
+      <p style="margin-top: 48px; color: var(--gray-500);">
+        Full documentation available in:<br>
+        <code style="background: var(--gray-800); padding: 4px 12px; border-radius: 4px;">docs/Go-to-Market Strategy/</code>
+      </p>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="nav">
+    <button id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+    <span class="slide-counter"><span id="currentSlide">1</span> / <span id="totalSlides">15</span></span>
+    <button id="nextBtn" onclick="changeSlide(1)">Next →</button>
+  </nav>
+
+  <script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    const progressBar = document.getElementById('progress');
+    const currentSlideSpan = document.getElementById('currentSlide');
+    const totalSlidesSpan = document.getElementById('totalSlides');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+
+    totalSlidesSpan.textContent = totalSlides;
+
+    function showSlide(n) {
+      slides[currentSlide].classList.remove('active');
+      currentSlide = (n + totalSlides) % totalSlides;
+      slides[currentSlide].classList.add('active');
+
+      // Update progress bar
+      progressBar.style.width = ((currentSlide + 1) / totalSlides * 100) + '%';
+
+      // Update counter
+      currentSlideSpan.textContent = currentSlide + 1;
+
+      // Update buttons
+      prevBtn.disabled = currentSlide === 0;
+      nextBtn.disabled = currentSlide === totalSlides - 1;
+    }
+
+    function changeSlide(direction) {
+      showSlide(currentSlide + direction);
+    }
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ') {
+        e.preventDefault();
+        if (currentSlide < totalSlides - 1) changeSlide(1);
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        if (currentSlide > 0) changeSlide(-1);
+      }
+    });
+
+    // Touch navigation
+    let touchStartX = 0;
+    document.addEventListener('touchstart', (e) => {
+      touchStartX = e.touches[0].clientX;
+    });
+
+    document.addEventListener('touchend', (e) => {
+      const touchEndX = e.changedTouches[0].clientX;
+      const diff = touchStartX - touchEndX;
+
+      if (Math.abs(diff) > 50) {
+        if (diff > 0 && currentSlide < totalSlides - 1) {
+          changeSlide(1);
+        } else if (diff < 0 && currentSlide > 0) {
+          changeSlide(-1);
+        }
+      }
+    });
+
+    // Initialize
+    showSlide(0);
+  </script>
+</body>
+</html>

@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BléSaf - Alternatives Navigation Mobile</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #8DC7DE;
+            --primary-dark: #6BB3CC;
+            --secondary: #9FD775;
+            --accent: #FBAC54;
+            --dark: #1f2937;
+            --gray-600: #4b5563;
+            --gray-400: #9ca3af;
+            --gray-200: #e5e7eb;
+            --gray-100: #f3f4f6;
+            --white: #ffffff;
+            --danger: #ef4444;
+            --success: #22c55e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background: var(--gray-100);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 40px 0;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        /* Intro */
+        .intro {
+            background: var(--white);
+            padding: 24px;
+            margin: 20px 0;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .intro h2 {
+            font-size: 1.1rem;
+            color: var(--primary-dark);
+            margin-bottom: 12px;
+        }
+
+        .intro p {
+            font-size: 0.9rem;
+            color: var(--gray-600);
+        }
+
+        /* Alternative Sections */
+        .alternative {
+            background: var(--white);
+            margin: 20px 0;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .alt-header {
+            background: var(--gray-100);
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .alt-header h3 {
+            font-size: 1rem;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .alt-number {
+            background: var(--primary);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .alt-body {
+            padding: 20px;
+        }
+
+        .best-for {
+            font-size: 0.8rem;
+            color: var(--gray-400);
+            margin-bottom: 16px;
+        }
+
+        /* Demo Container - Phone Frame */
+        .demo-container {
+            background: var(--dark);
+            border-radius: 24px;
+            padding: 8px;
+            max-width: 320px;
+            margin: 0 auto 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+
+        .demo-screen {
+            background: var(--white);
+            border-radius: 20px;
+            height: 480px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Pros/Cons */
+        .pros-cons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        @media (max-width: 480px) {
+            .pros-cons {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .pros, .cons {
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+        }
+
+        .pros {
+            background: #ecfdf5;
+            border: 1px solid #86efac;
+        }
+
+        .cons {
+            background: #fef2f2;
+            border: 1px solid #fca5a5;
+        }
+
+        .pros h4, .cons h4 {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .pros h4 { color: #059669; }
+        .cons h4 { color: #dc2626; }
+
+        .pros ul, .cons ul {
+            margin: 0;
+            padding-left: 16px;
+            color: var(--gray-600);
+        }
+
+        .pros li, .cons li {
+            margin-bottom: 4px;
+        }
+
+        /* ==================== */
+        /* DEMO 1: Bottom Tab Bar */
+        /* ==================== */
+        .demo1 .demo-content {
+            height: calc(100% - 56px);
+            padding: 16px;
+            overflow-y: auto;
+            background: var(--gray-100);
+        }
+
+        .demo1 .demo-content p {
+            font-size: 0.85rem;
+            color: var(--gray-600);
+            margin-bottom: 12px;
+        }
+
+        .demo1 .tab-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 56px;
+            background: var(--white);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid var(--gray-200);
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.05);
+        }
+
+        .demo1 .tab-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .demo1 .tab-item:hover {
+            background: var(--gray-100);
+        }
+
+        .demo1 .tab-item.active {
+            color: var(--primary);
+        }
+
+        .demo1 .tab-item.active .tab-icon {
+            background: var(--primary);
+            color: white;
+        }
+
+        .demo1 .tab-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            margin-bottom: 2px;
+            background: var(--gray-200);
+            color: var(--gray-600);
+        }
+
+        .demo1 .tab-label {
+            font-size: 0.6rem;
+            font-weight: 500;
+        }
+
+        /* ==================== */
+        /* DEMO 2: Hamburger Menu */
+        /* ==================== */
+        .demo2 .demo-header {
+            height: 48px;
+            background: var(--white);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            border-bottom: 1px solid var(--gray-200);
+            position: relative;
+            z-index: 10;
+        }
+
+        .demo2 .hamburger-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+
+        .demo2 .hamburger-btn:hover {
+            background: var(--gray-100);
+        }
+
+        .demo2 .hamburger-btn span {
+            width: 18px;
+            height: 2px;
+            background: var(--dark);
+            border-radius: 1px;
+            transition: all 0.3s;
+        }
+
+        .demo2 .hamburger-btn.open span:nth-child(1) {
+            transform: rotate(45deg) translate(4px, 4px);
+        }
+        .demo2 .hamburger-btn.open span:nth-child(2) {
+            opacity: 0;
+        }
+        .demo2 .hamburger-btn.open span:nth-child(3) {
+            transform: rotate(-45deg) translate(4px, -4px);
+        }
+
+        .demo2 .demo-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-left: 12px;
+            color: var(--primary);
+        }
+
+        .demo2 .demo-content {
+            height: calc(100% - 48px);
+            padding: 16px;
+            background: var(--gray-100);
+            position: relative;
+        }
+
+        .demo2 .slide-menu {
+            position: absolute;
+            top: 48px;
+            left: 0;
+            width: 75%;
+            height: calc(100% - 48px);
+            background: var(--white);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            z-index: 20;
+            box-shadow: 2px 0 16px rgba(0,0,0,0.1);
+        }
+
+        .demo2 .slide-menu.open {
+            transform: translateX(0);
+        }
+
+        .demo2 .slide-menu ul {
+            list-style: none;
+            padding: 16px 0;
+        }
+
+        .demo2 .slide-menu li {
+            padding: 12px 20px;
+            font-size: 0.9rem;
+            color: var(--gray-600);
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .demo2 .slide-menu li:hover {
+            background: var(--gray-100);
+            color: var(--primary);
+            border-left-color: var(--primary);
+        }
+
+        .demo2 .overlay {
+            position: absolute;
+            top: 48px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.4);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 15;
+        }
+
+        .demo2 .overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* ==================== */
+        /* DEMO 3: Scrollable Nav */
+        /* ==================== */
+        .demo3 .demo-header {
+            background: var(--white);
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .demo3 .demo-brand {
+            padding: 12px 16px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--primary);
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .demo3 .scroll-nav {
+            display: flex;
+            overflow-x: auto;
+            padding: 0 16px;
+            gap: 4px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .demo3 .scroll-nav::-webkit-scrollbar {
+            display: none;
+        }
+
+        .demo3 .scroll-nav-item {
+            flex-shrink: 0;
+            padding: 12px 16px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--gray-600);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .demo3 .scroll-nav-item:hover,
+        .demo3 .scroll-nav-item.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .demo3 .scroll-hint {
+            position: absolute;
+            right: 0;
+            top: 48px;
+            height: 44px;
+            width: 40px;
+            background: linear-gradient(to left, white 50%, transparent);
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 8px;
+            color: var(--gray-400);
+            font-size: 0.7rem;
+        }
+
+        .demo3 .demo-content {
+            padding: 16px;
+            background: var(--gray-100);
+            height: calc(100% - 92px);
+        }
+
+        /* ==================== */
+        /* DEMO 4: Collapsible Header */
+        /* ==================== */
+        .demo4 .demo-screen {
+            overflow: hidden;
+        }
+
+        .demo4 .collapsible-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 48px;
+            background: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            border-bottom: 1px solid var(--gray-200);
+            z-index: 10;
+            transition: transform 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .demo4 .collapsible-header.hidden {
+            transform: translateY(-100%);
+        }
+
+        .demo4 .header-brand {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .demo4 .header-dropdown {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 12px;
+            background: var(--gray-100);
+            border-radius: 6px;
+            font-size: 0.75rem;
+            color: var(--gray-600);
+            cursor: pointer;
+        }
+
+        .demo4 .mini-hamburger {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 3px;
+            cursor: pointer;
+        }
+
+        .demo4 .mini-hamburger span {
+            width: 14px;
+            height: 2px;
+            background: var(--dark);
+            border-radius: 1px;
+        }
+
+        .demo4 .demo-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: 64px 16px 16px;
+            background: var(--gray-100);
+            overflow-y: auto;
+        }
+
+        .demo4 .scroll-indicator {
+            position: absolute;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--dark);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.65rem;
+            opacity: 0.9;
+        }
+
+        /* ==================== */
+        /* DEMO 5: FAB Menu */
+        /* ==================== */
+        .demo5 .demo-content {
+            height: 100%;
+            padding: 16px;
+            background: var(--gray-100);
+            position: relative;
+        }
+
+        .demo5 .fab-container {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 20;
+        }
+
+        .demo5 .fab-btn {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(141, 199, 222, 0.4);
+            transition: all 0.3s;
+            font-size: 1.5rem;
+            z-index: 25;
+            position: relative;
+        }
+
+        .demo5 .fab-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(141, 199, 222, 0.5);
+        }
+
+        .demo5 .fab-btn.open {
+            transform: rotate(45deg);
+            background: var(--gray-600);
+        }
+
+        .demo5 .fab-menu {
+            position: absolute;
+            bottom: 70px;
+            right: 0;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .demo5 .fab-menu.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .demo5 .fab-menu-item {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-bottom: 8px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.2s;
+        }
+
+        .demo5 .fab-menu.open .fab-menu-item {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .demo5 .fab-menu.open .fab-menu-item:nth-child(1) { transition-delay: 0.05s; }
+        .demo5 .fab-menu.open .fab-menu-item:nth-child(2) { transition-delay: 0.1s; }
+        .demo5 .fab-menu.open .fab-menu-item:nth-child(3) { transition-delay: 0.15s; }
+        .demo5 .fab-menu.open .fab-menu-item:nth-child(4) { transition-delay: 0.2s; }
+        .demo5 .fab-menu.open .fab-menu-item:nth-child(5) { transition-delay: 0.25s; }
+        .demo5 .fab-menu.open .fab-menu-item:nth-child(6) { transition-delay: 0.3s; }
+
+        .demo5 .fab-label {
+            background: var(--dark);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .demo5 .fab-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .demo5 .fab-icon:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .demo5 .fab-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.3);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 15;
+        }
+
+        .demo5 .fab-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Recommendation Section */
+        .recommendation {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            margin: 20px 0;
+            padding: 24px;
+            border-radius: 16px;
+            border: 1px solid #86efac;
+        }
+
+        .recommendation h3 {
+            font-size: 1rem;
+            color: #059669;
+            margin-bottom: 12px;
+        }
+
+        .recommendation p {
+            font-size: 0.9rem;
+            color: var(--gray-600);
+            margin-bottom: 12px;
+        }
+
+        .recommendation strong {
+            color: var(--dark);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 32px 0;
+            color: var(--gray-400);
+            font-size: 0.8rem;
+        }
+
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        /* Demo placeholder content */
+        .placeholder-card {
+            background: var(--white);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .placeholder-card .title {
+            height: 10px;
+            background: var(--gray-200);
+            border-radius: 4px;
+            width: 60%;
+            margin-bottom: 8px;
+        }
+
+        .placeholder-card .text {
+            height: 8px;
+            background: var(--gray-100);
+            border-radius: 4px;
+            margin-bottom: 4px;
+        }
+
+        .placeholder-card .text:last-child {
+            width: 80%;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="container">
+        <h1>Alternatives Navigation Mobile</h1>
+        <p>5 options pour remplacer la navigation actuelle du brief</p>
+    </div>
+</header>
+
+<main class="container">
+
+    <div class="intro">
+        <h2>Pourquoi changer la navigation actuelle ?</h2>
+        <p>La navigation actuelle utilise un menu horizontal qui s'enroule sur plusieurs lignes sur mobile. Cela crée une expérience confuse avec des zones de tap trop petites. Voici 5 alternatives basées sur les meilleures pratiques UX mobile.</p>
+    </div>
+
+    <!-- Alternative 1: Bottom Tab Bar -->
+    <div class="alternative">
+        <div class="alt-header">
+            <h3><span class="alt-number">1</span> Bottom Tab Bar</h3>
+        </div>
+        <div class="alt-body">
+            <p class="best-for">Idéal pour : Navigation principale, accessibilité au pouce</p>
+
+            <div class="demo-container">
+                <div class="demo-screen demo1">
+                    <div class="demo-content">
+                        <div class="placeholder-card">
+                            <div class="title"></div>
+                            <div class="text"></div>
+                            <div class="text"></div>
+                        </div>
+                        <div class="placeholder-card">
+                            <div class="title"></div>
+                            <div class="text"></div>
+                            <div class="text"></div>
+                        </div>
+                        <p style="text-align: center; margin-top: 20px; font-size: 0.75rem;">Touchez les onglets en bas</p>
+                    </div>
+                    <nav class="tab-bar">
+                        <div class="tab-item active" onclick="selectTab(this)">
+                            <div class="tab-icon">R</div>
+                            <span class="tab-label">Résumé</span>
+                        </div>
+                        <div class="tab-item" onclick="selectTab(this)">
+                            <div class="tab-icon">A</div>
+                            <span class="tab-label">À Propos</span>
+                        </div>
+                        <div class="tab-item" onclick="selectTab(this)">
+                            <div class="tab-icon">M</div>
+                            <span class="tab-label">Médecin</span>
+                        </div>
+                        <div class="tab-item" onclick="selectTab(this)">
+                            <div class="tab-icon">P</div>
+                            <span class="tab-label">Patient</span>
+                        </div>
+                        <div class="tab-item" onclick="selectTab(this)">
+                            <div class="tab-icon">+</div>
+                            <span class="tab-label">Plus</span>
+                        </div>
+                    </nav>
+                </div>
+            </div>
+
+            <div class="pros-cons">
+                <div class="pros">
+                    <h4>Avantages</h4>
+                    <ul>
+                        <li>Zone du pouce accessible</li>
+                        <li>Toujours visible</li>
+                        <li>Pas de tap supplémentaire</li>
+                    </ul>
+                </div>
+                <div class="cons">
+                    <h4>Inconvénients</h4>
+                    <ul>
+                        <li>Limité à 4-5 items</li>
+                        <li>Prend de l'espace permanent</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alternative 2: Hamburger Menu -->
+    <div class="alternative">
+        <div class="alt-header">
+            <h3><span class="alt-number">2</span> Menu Hamburger (Slide-out)</h3>
+        </div>
+        <div class="alt-body">
+            <p class="best-for">Idéal pour : Sites riches en contenu, navigation secondaire</p>
+
+            <div class="demo-container">
+                <div class="demo-screen demo2">
+                    <div class="demo-header">
+                        <div class="hamburger-btn" onclick="toggleHamburger(this)">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                        <span class="demo-title">BléSaf</span>
+                    </div>
+                    <div class="demo-content">
+                        <div class="overlay" onclick="closeHamburger()"></div>
+                        <div class="slide-menu">
+                            <ul>
+                                <li>Résumé</li>
+                                <li>À Propos</li>
+                                <li>Parcours Médecin</li>
+                                <li>Parcours Patient</li>
+                                <li>Identité de Marque</li>
+                                <li>Livrables</li>
+                            </ul>
+                        </div>
+                        <div class="placeholder-card">
+                            <div class="title"></div>
+                            <div class="text"></div>
+                            <div class="text"></div>
+                        </div>
+                        <p style="text-align: center; margin-top: 20px; font-size: 0.75rem;">Cliquez sur ☰ pour ouvrir</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pros-cons">
+                <div class="pros">
+                    <h4>Avantages</h4>
+                    <ul>
+                        <li>Maximum d'espace écran</li>
+                        <li>Pattern familier</li>
+                        <li>Nombre d'items illimité</li>
+                    </ul>
+                </div>
+                <div class="cons">
+                    <h4>Inconvénients</h4>
+                    <ul>
+                        <li>Navigation cachée</li>
+                        <li>Tap supplémentaire requis</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alternative 3: Scrollable Nav -->
+    <div class="alternative">
+        <div class="alt-header">
+            <h3><span class="alt-number">3</span> Navigation Horizontale Scrollable</h3>
+        </div>
+        <div class="alt-body">
+            <p class="best-for">Idéal pour : Tous les items visibles, geste de swipe naturel</p>
+
+            <div class="demo-container">
+                <div class="demo-screen demo3">
+                    <div class="demo-header">
+                        <div class="demo-brand">BléSaf</div>
+                        <div class="scroll-nav">
+                            <div class="scroll-nav-item active">Résumé</div>
+                            <div class="scroll-nav-item">À Propos</div>
+                            <div class="scroll-nav-item">Parcours Médecin</div>
+                            <div class="scroll-nav-item">Parcours Patient</div>
+                            <div class="scroll-nav-item">Identité</div>
+                            <div class="scroll-nav-item">Livrables</div>
+                        </div>
+                    </div>
+                    <div class="scroll-hint">→</div>
+                    <div class="demo-content">
+                        <div class="placeholder-card">
+                            <div class="title"></div>
+                            <div class="text"></div>
+                            <div class="text"></div>
+                        </div>
+                        <p style="text-align: center; margin-top: 20px; font-size: 0.75rem;">Faites glisser la navigation ←→</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pros-cons">
+                <div class="pros">
+                    <h4>Avantages</h4>
+                    <ul>
+                        <li>Tous les items accessibles</li>
+                        <li>Geste de swipe intuitif</li>
+                        <li>Pas de menu caché</li>
+                    </ul>
+                </div>
+                <div class="cons">
+                    <h4>Inconvénients</h4>
+                    <ul>
+                        <li>Derniers items moins visibles</li>
+                        <li>Nécessite un indicateur visuel</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alternative 4: Collapsible Header -->
+    <div class="alternative">
+        <div class="alt-header">
+            <h3><span class="alt-number">4</span> Header Auto-masquant</h3>
+        </div>
+        <div class="alt-body">
+            <p class="best-for">Idéal pour : Pages longues, lecture immersive</p>
+
+            <div class="demo-container">
+                <div class="demo-screen demo4">
+                    <div class="collapsible-header" id="collapsibleHeader">
+                        <span class="header-brand">BléSaf</span>
+                        <div class="header-dropdown">Résumé ▼</div>
+                        <div class="mini-hamburger">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </div>
+                    <div class="demo-content" id="scrollContent" onscroll="handleScroll(this)">
+                        <div class="placeholder-card">
+                            <div class="title"></div>
+                            <div class="text"></div>
+                            <div class="text"></div>
+                        </div>
+                        <div class="placeholder-card">
+                            <div class="title"></div>
+                            <div class="text"></div>
+                            <div class="text"></div>
+                        </div>
+                        <div class="placeholder-card">
+                            <div class="title"></div>
+                            <div class="text"></div>
+                            <div class="text"></div>
+                        </div>
+                        <div class="placeholder-card">
+                            <div class="title"></div>
+                            <div class="text"></div>
+                            <div class="text"></div>
+                        </div>
+                        <div class="placeholder-card">
+                            <div class="title"></div>
+                            <div class="text"></div>
+                            <div class="text"></div>
+                        </div>
+                        <div class="placeholder-card">
+                            <div class="title"></div>
+                            <div class="text"></div>
+                            <div class="text"></div>
+                        </div>
+                    </div>
+                    <div class="scroll-indicator">↑↓ Scrollez pour tester</div>
+                </div>
+            </div>
+
+            <div class="pros-cons">
+                <div class="pros">
+                    <h4>Avantages</h4>
+                    <ul>
+                        <li>Max d'espace en lecture</li>
+                        <li>Header revient au scroll up</li>
+                        <li>Combinable avec dropdown</li>
+                    </ul>
+                </div>
+                <div class="cons">
+                    <h4>Inconvénients</h4>
+                    <ul>
+                        <li>JavaScript requis</li>
+                        <li>Peut sembler instable</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alternative 5: FAB Menu -->
+    <div class="alternative">
+        <div class="alt-header">
+            <h3><span class="alt-number">5</span> Bouton Flottant (FAB)</h3>
+        </div>
+        <div class="alt-body">
+            <p class="best-for">Idéal pour : Design moderne, actions rapides</p>
+
+            <div class="demo-container">
+                <div class="demo-screen demo5">
+                    <div class="demo-content">
+                        <div class="fab-overlay" id="fabOverlay" onclick="toggleFab()"></div>
+                        <div class="placeholder-card">
+                            <div class="title"></div>
+                            <div class="text"></div>
+                            <div class="text"></div>
+                        </div>
+                        <div class="placeholder-card">
+                            <div class="title"></div>
+                            <div class="text"></div>
+                            <div class="text"></div>
+                        </div>
+                        <p style="text-align: center; margin-top: 20px; font-size: 0.75rem;">Touchez le bouton + en bas</p>
+
+                        <div class="fab-container">
+                            <div class="fab-menu" id="fabMenu">
+                                <div class="fab-menu-item">
+                                    <span class="fab-label">Livrables</span>
+                                    <div class="fab-icon">L</div>
+                                </div>
+                                <div class="fab-menu-item">
+                                    <span class="fab-label">Identité</span>
+                                    <div class="fab-icon">I</div>
+                                </div>
+                                <div class="fab-menu-item">
+                                    <span class="fab-label">Patient</span>
+                                    <div class="fab-icon">P</div>
+                                </div>
+                                <div class="fab-menu-item">
+                                    <span class="fab-label">Médecin</span>
+                                    <div class="fab-icon">M</div>
+                                </div>
+                                <div class="fab-menu-item">
+                                    <span class="fab-label">À Propos</span>
+                                    <div class="fab-icon">A</div>
+                                </div>
+                                <div class="fab-menu-item">
+                                    <span class="fab-label">Résumé</span>
+                                    <div class="fab-icon">R</div>
+                                </div>
+                            </div>
+                            <div class="fab-btn" id="fabBtn" onclick="toggleFab()">+</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pros-cons">
+                <div class="pros">
+                    <h4>Avantages</h4>
+                    <ul>
+                        <li>Toujours accessible au pouce</li>
+                        <li>Design distinctif</li>
+                        <li>Ne prend pas d'espace header</li>
+                    </ul>
+                </div>
+                <div class="cons">
+                    <h4>Inconvénients</h4>
+                    <ul>
+                        <li>Peut couvrir du contenu</li>
+                        <li>Moins conventionnel</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recommendation -->
+    <div class="recommendation">
+        <h3>Recommandation pour le Brief BléSaf</h3>
+        <p>Pour un document de brief destiné à être lu sur mobile, je recommande <strong>l'Alternative 3 (Navigation Horizontale Scrollable)</strong> ou <strong>l'Alternative 4 (Header Auto-masquant)</strong>.</p>
+        <p><strong>Pourquoi ?</strong></p>
+        <ul style="margin: 12px 0 0 20px; color: var(--gray-600); font-size: 0.9rem;">
+            <li>Le brief est un document à lire de manière séquentielle</li>
+            <li>La navigation scrollable permet de voir tous les items sans cacher de contenu</li>
+            <li>Le header auto-masquant maximise l'espace de lecture</li>
+            <li>Ces deux options sont simples à implémenter en CSS pur</li>
+        </ul>
+    </div>
+
+</main>
+
+<footer>
+    <div class="container">
+        <p><a href="index.html">← Retour au Brief Principal</a></p>
+        <p style="margin-top: 8px;">BléSaf &bull; Alternatives Navigation &bull; 2025</p>
+    </div>
+</footer>
+
+<script>
+    // Tab Bar (Demo 1)
+    function selectTab(el) {
+        document.querySelectorAll('.demo1 .tab-item').forEach(tab => tab.classList.remove('active'));
+        el.classList.add('active');
+    }
+
+    // Hamburger Menu (Demo 2)
+    function toggleHamburger(btn) {
+        btn.classList.toggle('open');
+        document.querySelector('.demo2 .slide-menu').classList.toggle('open');
+        document.querySelector('.demo2 .overlay').classList.toggle('open');
+    }
+
+    function closeHamburger() {
+        document.querySelector('.demo2 .hamburger-btn').classList.remove('open');
+        document.querySelector('.demo2 .slide-menu').classList.remove('open');
+        document.querySelector('.demo2 .overlay').classList.remove('open');
+    }
+
+    // Collapsible Header (Demo 4)
+    let lastScrollTop = 0;
+    function handleScroll(el) {
+        const header = document.getElementById('collapsibleHeader');
+        const st = el.scrollTop;
+
+        if (st > lastScrollTop && st > 50) {
+            // Scrolling down
+            header.classList.add('hidden');
+        } else {
+            // Scrolling up
+            header.classList.remove('hidden');
+        }
+        lastScrollTop = st <= 0 ? 0 : st;
+    }
+
+    // FAB Menu (Demo 5)
+    function toggleFab() {
+        document.getElementById('fabBtn').classList.toggle('open');
+        document.getElementById('fabMenu').classList.toggle('open');
+        document.getElementById('fabOverlay').classList.toggle('open');
+    }
+</script>
+
+</body>
+</html>

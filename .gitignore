@@ -42,6 +42,15 @@ coverage/
 temp/
 tmp/
 
+# Credentials & secrets
+CREDENTIALS.md
+
+# Lock files (project uses pnpm only)
+package-lock.json
+
+# HAR debug files
+*.har
+
 # Claude Code local settings
 .claude/
 

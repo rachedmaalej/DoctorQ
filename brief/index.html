@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BléSaf - Brief Design UI & Identité de Marque</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #8DC7DE;
+            --primary-light: #85D9BF;
+            --primary-dark: #8DC7DE;
+            --secondary: #9FD775;
+            --accent1: #FBAC54;
+            --accent2: #C3ADDD;
+            --accent3: #E49CCE;
+            --accent4: #FF9895;
+            --dark: #1f2937;
+            --gray-600: #4b5563;
+            --gray-400: #BABABA;
+            --gray-200: #e5e7eb;
+            --gray-100: #f3f4f6;
+            --white: #ffffff;
+            --warning: #FBAC54;
+            --danger: #FF9895;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.7;
+            color: var(--dark);
+            background: var(--gray-100);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 80px 0;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            letter-spacing: -1px;
+        }
+
+        header .badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 10px 20px;
+            border-radius: 24px;
+            font-size: 0.9rem;
+            margin-top: 28px;
+            backdrop-filter: blur(4px);
+        }
+
+        header .subtitle {
+            font-size: 1.35rem;
+            color: #ffffff;
+            max-width: 700px;
+            margin: 20px auto 0;
+            font-weight: 400;
+        }
+
+        /* Navigation */
+        nav {
+            background: var(--white);
+            padding: 16px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+
+        nav .nav-scroll {
+            position: relative;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 32px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        nav li {
+            flex-shrink: 0;
+        }
+
+        nav a {
+            color: var(--gray-600);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            white-space: nowrap;
+            padding: 8px 0;
+            display: block;
+            border-bottom: 2px solid transparent;
+        }
+
+        nav a:hover {
+            color: var(--primary);
+        }
+
+        nav a.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        /* Scroll fade indicator (hidden on desktop) */
+        .scroll-fade {
+            display: none;
+        }
+
+        /* Sections */
+        section {
+            background: var(--white);
+            margin: 40px 0;
+            border-radius: 20px;
+            padding: 56px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+        }
+
+        section h2 {
+            font-size: 1.85rem;
+            color: var(--primary);
+            margin-bottom: 28px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--gray-200);
+        }
+
+        section h3 {
+            font-size: 1.35rem;
+            color: var(--dark);
+            margin: 40px 0 20px;
+        }
+
+        section h4 {
+            font-size: 1.1rem;
+            color: var(--gray-600);
+            margin: 28px 0 14px;
+        }
+
+        p {
+            margin-bottom: 18px;
+            color: var(--gray-600);
+        }
+
+        strong {
+            color: var(--dark);
+        }
+
+        /* Journey Sections */
+        .journey {
+            border: 2px solid var(--gray-200);
+            border-radius: 20px;
+            overflow: hidden;
+            margin: 40px 0;
+        }
+
+        .journey-header {
+            padding: 32px 40px;
+            border-bottom: 2px solid var(--gray-200);
+        }
+
+        .journey-header.doctor {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+        }
+
+        .journey-header.patient {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+        }
+
+        .journey-header h3 {
+            margin: 0;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .journey-header.doctor h3 {
+            color: #059669;
+        }
+
+        .journey-header.patient h3 {
+            color: #2563eb;
+        }
+
+        .journey-body {
+            padding: 40px;
+        }
+
+        /* Persona Card */
+        .persona {
+            background: var(--gray-100);
+            border-radius: 16px;
+            padding: 28px;
+            margin: 24px 0;
+            border: 1px solid var(--gray-200);
+        }
+
+        .persona h4 {
+            margin-top: 0;
+            color: var(--dark);
+            font-size: 1.2rem;
+        }
+
+        .persona-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .persona-detail {
+            font-size: 0.9rem;
+        }
+
+        .persona-detail strong {
+            display: block;
+            color: var(--gray-400);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        /* Day Comparison */
+        .day-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin: 28px 0;
+        }
+
+        @media (max-width: 768px) {
+            .day-comparison {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .day-box {
+            padding: 28px;
+            border-radius: 16px;
+        }
+
+        .day-box.without {
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            border: 1px solid #fca5a5;
+        }
+
+        .day-box.with {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border: 1px solid #86efac;
+        }
+
+        .day-box h5 {
+            font-size: 1rem;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .day-box.without h5 {
+            color: #dc2626;
+        }
+
+        .day-box.with h5 {
+            color: #059669;
+        }
+
+        .day-box ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .day-box li {
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        /* Cards */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin: 28px 0;
+        }
+
+        .card {
+            background: var(--gray-100);
+            border-radius: 16px;
+            padding: 28px;
+            border: 1px solid var(--gray-200);
+        }
+
+        .card h4 {
+            margin-top: 0;
+            color: var(--dark);
+        }
+
+        .card.highlight {
+            background: linear-gradient(135deg, #ede9fe 0%, #e0e7ff 100%);
+            border-color: var(--primary-light);
+        }
+
+        .card.highlight h4 {
+            color: var(--primary);
+        }
+
+        /* Lists */
+        ul, ol {
+            margin: 16px 0 16px 24px;
+            color: var(--gray-600);
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        /* Screenshots */
+        .screenshot-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 28px;
+            margin: 28px 0;
+        }
+
+        .screenshot {
+            background: var(--gray-100);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--gray-200);
+        }
+
+        .screenshot img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .screenshot figcaption {
+            padding: 20px;
+            font-size: 0.9rem;
+            color: var(--gray-600);
+            background: var(--white);
+        }
+
+        .screenshot figcaption strong {
+            color: var(--dark);
+            display: block;
+            margin-bottom: 6px;
+            font-size: 1rem;
+        }
+
+        /* Desktop + Mobile side by side */
+        .device-comparison {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            margin: 28px 0;
+            align-items: start;
+        }
+
+        @media (max-width: 900px) {
+            .device-comparison {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .device-comparison .desktop {
+            background: var(--gray-100);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--gray-200);
+        }
+
+        .device-comparison .mobile {
+            background: var(--gray-100);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--gray-200);
+            max-width: 280px;
+        }
+
+        .device-comparison img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .device-comparison figcaption {
+            padding: 16px;
+            font-size: 0.85rem;
+            color: var(--gray-600);
+            background: var(--white);
+            text-align: center;
+        }
+
+        .device-comparison figcaption strong {
+            color: var(--dark);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        /* Patient Journey Scroll */
+        .patient-journey-container {
+            margin: 28px 0;
+        }
+
+        .patient-journey-scroll {
+            display: flex;
+            gap: 20px;
+            overflow-x: auto;
+            padding: 20px 0;
+            scroll-snap-type: x mandatory;
+        }
+
+        .patient-journey-scroll::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .patient-journey-scroll::-webkit-scrollbar-track {
+            background: var(--gray-200);
+            border-radius: 4px;
+        }
+
+        .patient-journey-scroll::-webkit-scrollbar-thumb {
+            background: var(--primary-light);
+            border-radius: 4px;
+        }
+
+        .journey-step {
+            flex: 0 0 200px;
+            scroll-snap-align: start;
+            background: var(--white);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--gray-200);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        .journey-step img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .journey-step figcaption {
+            padding: 12px;
+            font-size: 0.8rem;
+            color: var(--gray-600);
+            text-align: center;
+            background: var(--gray-100);
+        }
+
+        .journey-step figcaption strong {
+            color: var(--dark);
+            display: block;
+            font-size: 0.9rem;
+        }
+
+        .journey-arrow {
+            flex: 0 0 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--gray-400);
+        }
+
+        /* Callout */
+        .callout {
+            background: #fef3c7;
+            border-left: 4px solid var(--warning);
+            padding: 24px 28px;
+            border-radius: 0 12px 12px 0;
+            margin: 28px 0;
+        }
+
+        .callout.info {
+            background: #eff6ff;
+            border-left-color: #3b82f6;
+        }
+
+        .callout.success {
+            background: #ecfdf5;
+            border-left-color: var(--secondary);
+        }
+
+        .callout strong {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 28px 0;
+        }
+
+        th, td {
+            padding: 14px 18px;
+            text-align: left;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        th {
+            background: var(--gray-100);
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        td {
+            color: var(--gray-600);
+        }
+
+        /* Brand Box */
+        .brand-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 28px;
+            margin: 28px 0;
+        }
+
+        @media (max-width: 768px) {
+            .brand-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .brand-box {
+            padding: 32px;
+            border-radius: 16px;
+            border: 1px solid var(--gray-200);
+        }
+
+        .brand-box.positive {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border-color: #86efac;
+        }
+
+        .brand-box.negative {
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            border-color: #fca5a5;
+        }
+
+        .brand-box h4 {
+            margin-top: 0;
+        }
+
+        .brand-box.positive h4 {
+            color: #059669;
+        }
+
+        .brand-box.negative h4 {
+            color: #dc2626;
+        }
+
+        /* Mobile-only grid */
+        .mobile-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin: 28px 0;
+        }
+
+        .mobile-screenshot {
+            background: var(--gray-100);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--gray-200);
+            max-width: 220px;
+        }
+
+        .mobile-screenshot img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .mobile-screenshot figcaption {
+            padding: 14px;
+            font-size: 0.8rem;
+            color: var(--gray-600);
+            background: var(--white);
+            text-align: center;
+        }
+
+        .mobile-screenshot figcaption strong {
+            color: var(--dark);
+            display: block;
+            margin-bottom: 4px;
+            font-size: 0.9rem;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 56px 0;
+            color: var(--gray-400);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive: Tablet & Large Phones */
+        @media (max-width: 768px) {
+            /* Header */
+            header {
+                padding: 48px 0;
+            }
+            header h1 {
+                font-size: 2.5rem;
+            }
+            header .subtitle {
+                font-size: 1.1rem;
+            }
+
+            /* Navigation - Scrollable horizontal */
+            nav {
+                padding: 0;
+            }
+            nav .container {
+                padding: 0;
+            }
+            nav .nav-scroll {
+                position: relative;
+            }
+            nav ul {
+                display: flex;
+                flex-wrap: nowrap;
+                gap: 0;
+                justify-content: flex-start;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+                padding: 0 16px;
+            }
+            nav ul::-webkit-scrollbar {
+                display: none;
+            }
+            nav li {
+                flex-shrink: 0;
+            }
+            nav a {
+                font-size: 0.85rem;
+                padding: 14px 16px;
+                border-bottom: 2px solid transparent;
+            }
+            nav a:hover,
+            nav a.active {
+                border-bottom-color: var(--primary);
+            }
+
+            /* Scroll fade indicator */
+            .scroll-fade {
+                display: block;
+                position: absolute;
+                right: 0;
+                top: 0;
+                bottom: 0;
+                width: 40px;
+                background: linear-gradient(to left, var(--white) 30%, transparent);
+                pointer-events: none;
+                z-index: 10;
+            }
+
+            /* Sections */
+            section {
+                margin: 24px 0;
+                padding: 32px 24px;
+                border-radius: 16px;
+            }
+            section h2 {
+                font-size: 1.5rem;
+            }
+
+            /* Journey */
+            .journey-header {
+                padding: 24px;
+            }
+            .journey-body {
+                padding: 24px;
+            }
+
+            /* Screenshot grid */
+            .screenshot-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+
+        /* Responsive: Small Phones */
+        @media (max-width: 576px) {
+            /* Container */
+            .container {
+                padding: 0 16px;
+            }
+
+            /* Header */
+            header {
+                padding: 32px 0;
+            }
+            header h1 {
+                font-size: 2rem;
+            }
+            header .badge {
+                padding: 8px 16px;
+                font-size: 0.8rem;
+            }
+            header .subtitle {
+                font-size: 1rem;
+                padding: 0 8px;
+            }
+
+            /* Navigation - Smaller touch targets for small phones */
+            nav a {
+                font-size: 0.8rem;
+                padding: 12px 14px;
+            }
+
+            /* Sections */
+            section {
+                margin: 16px 0;
+                padding: 24px 16px;
+                border-radius: 12px;
+            }
+            section h2 {
+                font-size: 1.35rem;
+                margin-bottom: 20px;
+            }
+            section h3 {
+                font-size: 1.15rem;
+                margin: 28px 0 16px;
+            }
+
+            /* Cards */
+            .card-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            .card {
+                padding: 20px;
+            }
+
+            /* Day comparison boxes */
+            .day-box {
+                padding: 20px 16px;
+            }
+
+            /* Brand boxes */
+            .brand-box {
+                padding: 24px 20px;
+            }
+
+            /* Journey sections */
+            .journey-header {
+                padding: 20px 16px;
+            }
+            .journey-header h3 {
+                font-size: 1.2rem;
+            }
+            .journey-body {
+                padding: 20px 16px;
+            }
+
+            /* Persona cards */
+            .persona {
+                padding: 20px 16px;
+            }
+            .persona-details {
+                grid-template-columns: 1fr;
+            }
+
+            /* Mobile screenshots */
+            .mobile-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            .mobile-screenshot {
+                max-width: 100%;
+                margin: 0 auto;
+            }
+            .mobile-screenshot figcaption {
+                padding: 12px;
+            }
+
+            /* Device comparison */
+            .device-comparison {
+                gap: 16px;
+            }
+            .device-comparison .mobile {
+                max-width: 100%;
+                margin: 0 auto;
+            }
+
+            /* Patient journey scroll */
+            .journey-step {
+                flex: 0 0 160px;
+            }
+            .journey-arrow {
+                flex: 0 0 24px;
+                font-size: 1.2rem;
+            }
+
+            /* Callouts */
+            .callout {
+                padding: 20px 16px;
+            }
+
+            /* Tables */
+            table {
+                display: block;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            th, td {
+                padding: 10px 12px;
+                font-size: 0.85rem;
+            }
+
+            /* Footer */
+            footer {
+                padding: 32px 0;
+            }
+        }
+
+        /* Print */
+        @media print {
+            nav { display: none; }
+            section {
+                break-inside: avoid;
+                box-shadow: none;
+                border: 1px solid var(--gray-200);
+            }
+            .journey { break-inside: avoid; }
+            .patient-journey-scroll { flex-wrap: wrap; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="container">
+        <h1>BléSaf</h1>
+        <span class="badge">Gestion de File d'Attente Virtuelle pour Cabinets Médicaux</span>
+        <p class="subtitle">Brief pour la conception d'une UI et Brand Identity pour BléSaf</p>
+    </div>
+</header>
+
+<nav>
+    <div class="container">
+        <div class="nav-scroll">
+            <ul>
+                <li><a href="#resume">Résumé</a></li>
+                <li><a href="#apropos">À Propos</a></li>
+                <li><a href="#parcours-medecin">Parcours Médecin</a></li>
+                <li><a href="#parcours-patient">Parcours Patient</a></li>
+                <li><a href="#identite">Identité de Marque</a></li>
+                <li><a href="#livrables">Livrables</a></li>
+            </ul>
+            <div class="scroll-fade"></div>
+        </div>
+    </div>
+</nav>
+
+<main class="container">
+
+    <!-- RÉSUMÉ EXÉCUTIF -->
+    <section id="resume">
+        <h2>Résumé Exécutif</h2>
+
+        <p><strong>BléSaf</strong> (بلا صف en dialecte tunisien, signifiant "Sans File d'Attente") est un système de gestion de file d'attente virtuelle conçu spécifiquement pour les cabinets médicaux indépendants en Tunisie.</p>
+
+        <div class="card-grid">
+            <div class="card">
+                <h4>Notre Mission</h4>
+                <p>Transformer l'expérience chaotique de la salle d'attente en un parcours serein et prévisible, autant pour les professionnels de santé que pour leurs patients.</p>
+            </div>
+            <div class="card highlight">
+                <h4>Livrables Demandés</h4>
+                <ul>
+                    <li>Design UI complet (App Médecin/Secrétaire)</li>
+                    <li>Écrans patient (check-in, suivi de position)</li>
+                    <li>Identité de marque & charte graphique</li>
+                    <li>Design system / bibliothèque de composants</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="callout info">
+            <strong>Objectif de ce Brief</strong>
+            Ce document présente BléSaf à travers les parcours utilisateurs pour vous permettre de comprendre profondément qui sont nos utilisateurs, leurs frustrations actuelles, et la transformation que BléSaf apporte dans leur quotidien.
+        </div>
+    </section>
+
+    <!-- À PROPOS DE BLESAF -->
+    <section id="apropos">
+        <h2>À Propos de BléSaf</h2>
+
+        <h3>Le Contexte Tunisien</h3>
+        <p>En Tunisie, les médecins donnent des rendez-vous aux patients avec un créneau horaire précis. Cependant, <strong>même en arrivant à l'heure</strong>, les patients se retrouvent souvent à attendre longtemps. Pourquoi ?</p>
+
+        <div class="callout">
+            <strong>Les causes de l'attente imprévisible</strong>
+            <ul style="margin-top: 12px; margin-bottom: 0;">
+                <li><strong>Consultations prolongées :</strong> Certains cas nécessitent plus de temps que prévu</li>
+                <li><strong>Urgences médicales :</strong> Le médecin peut être appelé pour une intervention chirurgicale ou une urgence</li>
+                <li><strong>Retards en cascade :</strong> Un seul retard impacte tous les patients suivants</li>
+                <li><strong>Patients sans rendez-vous :</strong> Les "cas urgents" s'intercalent dans la file</li>
+            </ul>
+            <p style="margin-top: 12px; margin-bottom: 0;">Résultat : le patient arrive à 10h pour son rendez-vous de 10h, et attend 30 minutes à 2 heures, sans aucune visibilité sur son temps d'attente réel.</p>
+        </div>
+
+        <h3>Notre Solution</h3>
+        <p>BléSaf apporte transparence et prévisibilité grâce à un système simple de gestion de file d'attente, qui ne nécessite <strong>aucune installation d'application</strong> côté patient.</p>
+
+        <div class="card-grid">
+            <div class="card">
+                <h4>1. Le Patient s'Enregistre</h4>
+                <p>Actuellement, deux méthodes : la secrétaire ajoute le patient à la file, ou le patient scanne le QR Code affiché au cabinet. <em>(À venir : inscription par SMS ou WhatsApp)</em></p>
+            </div>
+            <div class="card">
+                <h4>2. Suivi en Temps Réel</h4>
+                <p>Position actuelle, temps d'attente estimé, mises à jour automatiques.</p>
+            </div>
+            <div class="card">
+                <h4>3. Notifications SMS</h4>
+                <p>"Bientôt votre tour" (2 patients avant) puis "C'est à vous !"</p>
+            </div>
+            <div class="card">
+                <h4>4. Liberté de Mouvement</h4>
+                <p>Le patient peut attendre au café, faire des courses, arriver "sans file d'attente" — بلا صف.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- PARCOURS MÉDECIN / SECRÉTAIRE -->
+    <section id="parcours-medecin">
+        <h2>Parcours 1 : Le Médecin & La Secrétaire</h2>
+
+        <div class="journey">
+            <div class="journey-header doctor">
+                <h3>🩺 L'Équipe Médicale</h3>
+            </div>
+            <div class="journey-body">
+
+                <!-- Persona Secrétaire -->
+                <div class="persona">
+                    <h4>Persona Principal : Amira, 28 ans</h4>
+                    <div class="persona-details">
+                        <div class="persona-detail">
+                            <strong>Rôle</strong>
+                            Secrétaire médicale dans un cabinet de pédiatrie privé à Sousse
+                        </div>
+                        <div class="persona-detail">
+                            <strong>Confort Tech</strong>
+                            Utilise Facebook et WhatsApp quotidiennement, à l'aise avec les applications simples
+                        </div>
+                        <div class="persona-detail">
+                            <strong>Frustrations</strong>
+                            Questions incessantes "C'est bientôt mon tour ?", jongler entre téléphone, accueil et demandes du médecin
+                        </div>
+                        <div class="persona-detail">
+                            <strong>Objectifs</strong>
+                            Que tout se passe bien, des patients satisfaits, faciliter le travail du médecin
+                        </div>
+                    </div>
+                </div>
+
+                <h4>Comparaison : Une Journée Type</h4>
+
+                <div class="day-comparison">
+                    <div class="day-box without">
+                        <h5>❌ SANS BléSaf</h5>
+                        <ul>
+                            <li>La salle d'attente se remplit rapidement, ambiance tendue</li>
+                            <li>"Madame, c'est bientôt mon tour ?" — 50 fois par jour</li>
+                            <li>Patients qui s'énervent, discussions entre eux sur l'ordre</li>
+                            <li>Le médecin ressent le stress ambiant</li>
+                            <li>Aucune donnée sur les temps d'attente réels</li>
+                        </ul>
+                    </div>
+                    <div class="day-box with">
+                        <h5>✓ AVEC BléSaf</h5>
+                        <ul>
+                            <li>Salle d'attente calme, beaucoup de patients attendent ailleurs</li>
+                            <li>La secrétaire gère la file en un clic</li>
+                            <li>Les patients arrivent détendus, informés</li>
+                            <li>Le médecin voit des patients sereins</li>
+                            <li>Statistiques : temps d'attente moyen, heures de pointe</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>Écrans Clés : Connexion</h3>
+
+                <div class="device-comparison">
+                    <figure class="desktop">
+                        <img src="login_desktop.png" alt="Écran de connexion desktop">
+                        <figcaption>
+                            <strong>Desktop</strong>
+                            Écran de connexion simple et épuré
+                        </figcaption>
+                    </figure>
+                    <figure class="mobile">
+                        <img src="login_mobile.jpg" alt="Écran de connexion mobile">
+                        <figcaption>
+                            <strong>Mobile</strong>
+                            Même expérience sur téléphone
+                        </figcaption>
+                    </figure>
+                </div>
+
+                <h3>Écrans Clés : Tableau de Bord - File Vide</h3>
+
+                <div class="device-comparison">
+                    <figure class="desktop">
+                        <img src="dashboard_desktop.png" alt="Dashboard desktop - Cabinet fermé">
+                        <figcaption>
+                            <strong>Desktop - Cabinet Fermé</strong>
+                            Le matin avant l'arrivée du médecin. Toggle "Cabinet fermé" désactivé.
+                        </figcaption>
+                    </figure>
+                    <figure class="mobile">
+                        <img src="file_vide_cabinet_ferme_mobile.jpg" alt="Dashboard mobile - Cabinet fermé">
+                        <figcaption>
+                            <strong>Mobile - Cabinet Fermé</strong>
+                            Interface adaptée au téléphone
+                        </figcaption>
+                    </figure>
+                </div>
+
+                <div class="device-comparison">
+                    <figure class="desktop">
+                        <img src="dashboard_desktop1.png" alt="Dashboard desktop - Cabinet ouvert">
+                        <figcaption>
+                            <strong>Desktop - Cabinet Ouvert</strong>
+                            Le médecin est arrivé, toggle "Cabinet ouvert" activé (vert). Prêt à recevoir des patients.
+                        </figcaption>
+                    </figure>
+                    <figure class="mobile">
+                        <img src="file_vide_cabinet_ouvert_mobile.jpg" alt="Dashboard mobile - Cabinet ouvert">
+                        <figcaption>
+                            <strong>Mobile - Cabinet Ouvert</strong>
+                            Toggle activé, interface claire
+                        </figcaption>
+                    </figure>
+                </div>
+
+                <h3>Écrans Clés : Ajouter un Patient</h3>
+
+                <div class="device-comparison">
+                    <figure class="desktop">
+                        <img src="dashboard_desktop2.png" alt="Modal ajouter patient desktop">
+                        <figcaption>
+                            <strong>Desktop - Modal</strong>
+                            Formulaire simple : téléphone requis, nom optionnel, heure de RDV optionnelle.
+                        </figcaption>
+                    </figure>
+                    <figure class="mobile">
+                        <img src="ajouter_patient_mobile.jpg" alt="Modal ajouter patient mobile">
+                        <figcaption>
+                            <strong>Mobile - Modal</strong>
+                            Même formulaire, adapté au mobile
+                        </figcaption>
+                    </figure>
+                </div>
+
+                <h3>Écran Clé : File d'Attente Active</h3>
+
+                <div class="mobile-grid" style="justify-items: center;">
+                    <figure class="mobile-screenshot" style="max-width: 320px;">
+                        <img src="file_rempli_cabinet_ouvert_mobile.jpg" alt="File d'attente remplie">
+                        <figcaption>
+                            <strong>File Active (Mobile)</strong>
+                            6 patients en attente, 1 en consultation (Mohamed T). Carte verte pour le patient notifié (Rached, #1). Chaque carte montre : position, nom, heure d'arrivée, heure de RDV, temps d'attente, actions (monter, notifier, supprimer).
+                        </figcaption>
+                    </figure>
+                    <figure class="mobile-screenshot" style="max-width: 320px;">
+                        <img src="QR_code_mobile.jpg" alt="QR Code d'enregistrement">
+                        <figcaption>
+                            <strong>QR Code (Mobile)</strong>
+                            Code que les patients scannent pour s'enregistrer. Option de partager le lien via WhatsApp ou copier l'URL.
+                        </figcaption>
+                    </figure>
+                </div>
+
+                <h4>Points de Friction Design Actuels</h4>
+                <ul>
+                    <li>L'état vide manque de personnalité et de guidance</li>
+                    <li>La hiérarchie d'information pourrait être plus claire sur les cartes patients</li>
+                    <li>Le toggle cabinet ouvert/fermé pourrait être plus visible et intuitif</li>
+                    <li>Les actions sur chaque carte (monter, notifier, supprimer) gagneraient à être plus lisibles</li>
+                    <li>Pas d'indication visuelle du "rythme" de la journée</li>
+                </ul>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- PARCOURS PATIENT -->
+    <section id="parcours-patient">
+        <h2>Parcours 2 : Le Patient</h2>
+
+        <div class="journey">
+            <div class="journey-header patient">
+                <h3>👤 Le Patient</h3>
+            </div>
+            <div class="journey-body">
+
+                <!-- Persona Patient -->
+                <div class="persona">
+                    <h4>Persona : Salma, 35 ans</h4>
+                    <div class="persona-details">
+                        <div class="persona-detail">
+                            <strong>Profil</strong>
+                            Mère active qui amène son enfant pour un contrôle de routine
+                        </div>
+                        <div class="persona-detail">
+                            <strong>Confort Tech</strong>
+                            Utilisatrice smartphone ; WhatsApp, Facebook ; sait naviguer sur le web
+                        </div>
+                        <div class="persona-detail">
+                            <strong>Frustrations</strong>
+                            Ne peut pas perdre des heures en salle d'attente ; doit coordonner garde d'enfant, travail, courses
+                        </div>
+                        <div class="persona-detail">
+                            <strong>Objectifs</strong>
+                            Entrer et sortir efficacement ; planifier sa journée ; ne pas se sentir piégée
+                        </div>
+                    </div>
+                </div>
+
+                <h4>Comparaison : L'Expérience Patient</h4>
+
+                <div class="day-comparison">
+                    <div class="day-box without">
+                        <h5>❌ SANS BléSaf</h5>
+                        <ul>
+                            <li>Arrive tôt "au cas où", reste coincée 2 heures</li>
+                            <li>Anxiété : "Est-ce que quelqu'un est passé avant moi ?"</li>
+                            <li>Impossible de s'absenter, même 5 minutes</li>
+                            <li>Les enfants s'agitent dans la salle bondée</li>
+                            <li>Frustration croissante à chaque minute</li>
+                        </ul>
+                    </div>
+                    <div class="day-box with">
+                        <h5>✓ AVEC BléSaf</h5>
+                        <ul>
+                            <li>S'enregistre, voit "Position #4, ~45 min"</li>
+                            <li>Va prendre un café à côté avec son enfant</li>
+                            <li>Reçoit SMS : "Plus que 2 patients avant vous"</li>
+                            <li>Arrive tranquillement, juste à temps</li>
+                            <li>Se sent respectée, en contrôle</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>Écran : Check-in Patient</h3>
+
+                <div class="mobile-grid" style="justify-items: center;">
+                    <figure class="mobile-screenshot" style="max-width: 280px;">
+                        <img src="login_patient_mobile.jpg" alt="Page de check-in patient">
+                        <figcaption>
+                            <strong>Page d'Enregistrement</strong>
+                            Ce que le patient voit après avoir scanné le QR. "Rejoignez le Saf" - entre son téléphone et optionnellement son nom. Message rassurant sur la confidentialité.
+                        </figcaption>
+                    </figure>
+                </div>
+
+                <h3>Le Parcours Complet du Patient</h3>
+                <p>Voici l'évolution de l'écran patient au fur et à mesure que la file avance. Scrollez horizontalement pour voir le parcours complet →</p>
+
+                <div class="patient-journey-container">
+                    <div class="patient-journey-scroll">
+                        <figure class="journey-step">
+                            <img src="patient_status_6.jpg" alt="Position 6">
+                            <figcaption>
+                                <strong>#6 - ~1h</strong>
+                                5 patients devant. Couleur bleue, attente longue.
+                            </figcaption>
+                        </figure>
+                        <div class="journey-arrow">→</div>
+                        <figure class="journey-step">
+                            <img src="patient_status_5.jpg" alt="Position 5">
+                            <figcaption>
+                                <strong>#5 - ~50min</strong>
+                                4 patients devant. Toast "Vous avez avancé!"
+                            </figcaption>
+                        </figure>
+                        <div class="journey-arrow">→</div>
+                        <figure class="journey-step">
+                            <img src="patient_status_4.jpg" alt="Position 4">
+                            <figcaption>
+                                <strong>#4 - ~40min</strong>
+                                3 patients devant. Toujours bleu.
+                            </figcaption>
+                        </figure>
+                        <div class="journey-arrow">→</div>
+                        <figure class="journey-step">
+                            <img src="patient_status_3.jpg" alt="Position 3">
+                            <figcaption>
+                                <strong>#3 - ~30min</strong>
+                                2 patients. Couleur verte, "vous approchez!"
+                            </figcaption>
+                        </figure>
+                        <div class="journey-arrow">→</div>
+                        <figure class="journey-step">
+                            <img src="patient_status_2.jpg" alt="Position 2">
+                            <figcaption>
+                                <strong>#2 - ~20min</strong>
+                                "C'est bientôt votre tour!" Jaune/orange, urgence.
+                            </figcaption>
+                        </figure>
+                        <div class="journey-arrow">→</div>
+                        <figure class="journey-step">
+                            <img src="patient_status_1.jpg" alt="Position 1">
+                            <figcaption>
+                                <strong>#1 - Prochain</strong>
+                                "Vous êtes le prochain!" Vert vif, "Présentez-vous à l'accueil".
+                            </figcaption>
+                        </figure>
+                        <div class="journey-arrow">→</div>
+                        <figure class="journey-step">
+                            <img src="patient_status_0.jpg" alt="C'est votre tour">
+                            <figcaption>
+                                <strong>C'EST VOTRE TOUR!</strong>
+                                Confettis, célébration! "Entrez dans le cabinet"
+                            </figcaption>
+                        </figure>
+                    </div>
+                </div>
+
+                <div class="callout success">
+                    <strong>Progression Visuelle</strong>
+                    Notez comment les couleurs évoluent au fil du parcours :
+                    <ul style="margin-top: 12px;">
+                        <li><strong>Bleu (#6 → #4)</strong> : Attente normale, le patient peut vaquer à ses occupations</li>
+                        <li><strong>Vert/Turquoise (#3)</strong> : Se rapprocher du cabinet</li>
+                        <li><strong>Jaune/Orange (#2)</strong> : Urgence, bientôt son tour</li>
+                        <li><strong>Vert vif (#1)</strong> : Prochain, se présenter à l'accueil</li>
+                        <li><strong>Confettis (Tour)</strong> : Célébration, moment de joie après l'attente</li>
+                    </ul>
+                </div>
+
+                <h4>Les SMS Reçus</h4>
+                <div class="card" style="margin: 24px 0;">
+                    <p><strong>À l'enregistrement :</strong><br>
+                    "Cabinet Dr. Hafsia - Vous êtes #4 dans la file. Attente: ~45min. Suivez votre position: [lien]"</p>
+
+                    <p><strong>Notification "Bientôt" :</strong><br>
+                    "⚠️ Cabinet Dr. Hafsia - Plus que 2 patients avant vous ! Merci de vous rapprocher."</p>
+
+                    <p><strong>Notification "C'est à vous" :</strong><br>
+                    "🎉 Cabinet Dr. Hafsia - C'EST VOTRE TOUR ! Présentez-vous à l'accueil."</p>
+                </div>
+
+                <h4>Points de Friction Design Actuels</h4>
+                <ul>
+                    <li>La page de check-in pourrait mieux rassurer sur le processus</li>
+                    <li>L'estimation du temps d'attente pourrait être présentée de façon plus engageante</li>
+                    <li>Les transitions entre états (#2 → #1 → Tour) pourraient avoir plus d'impact émotionnel</li>
+                    <li>Le "Le saviez-vous?" est un bon concept mais pourrait être plus soigné</li>
+                    <li>Le bouton "Quitter le Saf" pourrait demander confirmation</li>
+                </ul>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- IDENTITÉ DE MARQUE -->
+    <section id="identite">
+        <h2>Identité de Marque</h2>
+
+        <h3>Nos Valeurs</h3>
+        <div class="card-grid">
+            <div class="card">
+                <h4>Respect du Temps</h4>
+                <p>Le temps de chacun est précieux. BléSaf existe pour que personne ne gaspille le sien dans une salle d'attente.</p>
+            </div>
+            <div class="card">
+                <h4>Transparence</h4>
+                <p>Fini l'incertitude. Chaque patient sait exactement où il en est, à tout moment.</p>
+            </div>
+            <div class="card">
+                <h4>Simplicité</h4>
+                <p>Pas d'app à installer, pas de compte à créer. Simple comme envoyer un SMS.</p>
+            </div>
+            <div class="card">
+                <h4>Humanité</h4>
+                <p>La technologie au service de l'humain, pas l'inverse. Moins de stress, plus de sérénité.</p>
+            </div>
+        </div>
+
+        <h3>Tonalité de Marque</h3>
+        <p>BléSaf doit communiquer de façon :</p>
+        <ul>
+            <li><strong>Rassurante</strong> — "Tout est sous contrôle, détendez-vous"</li>
+            <li><strong>Chaleureuse</strong> — Comme une secrétaire médicale bienveillante</li>
+            <li><strong>Claire</strong> — Pas de jargon, information directe</li>
+            <li><strong>Professionnelle</strong> — C'est un contexte médical, pas une app de divertissement</li>
+            <li><strong>Locale</strong> — Tunisienne dans l'âme, le nom "BléSaf" en est la preuve</li>
+        </ul>
+
+        <h3>Direction Visuelle</h3>
+
+        <div class="brand-grid">
+            <div class="brand-box positive">
+                <h4>Ce que nous SOMMES</h4>
+                <ul>
+                    <li>Chaleureux et humains</li>
+                    <li>Rassurants et calmes</li>
+                    <li>Modernes mais pas froids</li>
+                    <li>Professionnels mais accessibles</li>
+                    <li>Efficaces sans être robotiques</li>
+                    <li>Élégants dans la simplicité</li>
+                </ul>
+            </div>
+            <div class="brand-box negative">
+                <h4>Ce que nous NE sommes PAS</h4>
+                <ul>
+                    <li>Cliniques ou stériles</li>
+                    <li>Trop ludiques ou enfantins</li>
+                    <li>Corporate santé générique</li>
+                    <li>Compliqués ou surchargés</li>
+                    <li>Anxiogènes ou stressants</li>
+                    <li>Impersonnels ou distants</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="callout success">
+            <strong>L'Ambiance Recherchée</strong>
+            Imaginez entrer dans un cabinet moderne où une lumière naturelle douce filtre à travers les fenêtres, des plantes apportent de la vie, et la secrétaire vous accueille avec un sourire sincère. C'est le sentiment que BléSaf doit évoquer — organisé, bienveillant, sans stress.
+        </div>
+
+        <h3>Considérations Linguistiques</h3>
+        <p>BléSaf doit fonctionner en :</p>
+        <ul>
+            <li><strong>Français</strong> — Langue principale de l'interface</li>
+            <li><strong>Arabe</strong> — Support RTL complet requis pour les écrans patients</li>
+        </ul>
+        <p>Le nom "BléSaf" (بلا صف) est un atout : il signifie "sans file d'attente" en dialecte tunisien, parle directement aux Tunisiens, évoque l'efficacité, et se distingue des solutions génériques.</p>
+    </section>
+
+    <!-- LIVRABLES ATTENDUS -->
+    <section id="livrables">
+        <h2>Livrables Attendus</h2>
+
+        <p>En réponse à ce brief, nous attendons <strong>3 documents</strong> de votre part :</p>
+
+        <div class="card-grid">
+            <div class="card">
+                <h4>1. Proposition Créative</h4>
+                <p>Votre vision pour l'UI et l'Identité de Marque de BléSaf : direction artistique proposée, moodboards, premières pistes visuelles, et comment vous comptez aborder ce projet.</p>
+            </div>
+            <div class="card">
+                <h4>2. Plan d'Action Phasé</h4>
+                <p>Un calendrier détaillé avec les différentes phases du projet, les jalons clés, les livrables à chaque étape, et le timeline global de réalisation.</p>
+            </div>
+            <div class="card">
+                <h4>3. Devis Détaillé</h4>
+                <p>Une proposition financière claire avec le détail des coûts par phase ou par livrable, les conditions de paiement, et tout élément pouvant impacter le budget.</p>
+            </div>
+        </div>
+
+        <div class="callout info" style="margin-top: 28px;">
+            <strong>Questions ?</strong>
+            N'hésitez pas à nous contacter pour toute clarification avant de soumettre votre proposition. Nous serons ravis de répondre à vos questions et de vous fournir des informations complémentaires si nécessaire.
+        </div>
+
+        <div class="card highlight" style="margin-top: 40px; text-align: center;">
+            <h4>Contact</h4>
+            <p style="margin-bottom: 0;">
+                <strong>Rached Maalej</strong><br>
+                Email : <a href="mailto:rached@datasurf.co" style="color: var(--primary);">rached@datasurf.co</a><br>
+                Téléphone : +216-26-387-742
+            </p>
+        </div>
+    </section>
+
+</main>
+
+<footer>
+    <div class="container">
+        <p>BléSaf &bull; Confidentiel &bull; 2025</p>
+    </div>
+</footer>
+
+<script>
+// Handle scroll fade indicator visibility
+const navUl = document.querySelector('nav ul');
+const scrollFade = document.querySelector('.scroll-fade');
+
+if (navUl && scrollFade) {
+    function updateScrollFade() {
+        const maxScroll = navUl.scrollWidth - navUl.clientWidth;
+        const currentScroll = navUl.scrollLeft;
+        // Hide fade when scrolled to end (or nearly)
+        scrollFade.style.opacity = currentScroll >= maxScroll - 10 ? '0' : '1';
+    }
+
+    navUl.addEventListener('scroll', updateScrollFade);
+    window.addEventListener('resize', updateScrollFade);
+    updateScrollFade();
+}
+
+// Highlight active nav link based on scroll position
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('nav a');
+
+function highlightNav() {
+    const scrollPos = window.scrollY + 100;
+
+    sections.forEach(section => {
+        const top = section.offsetTop;
+        const height = section.offsetHeight;
+        const id = section.getAttribute('id');
+
+        if (scrollPos >= top && scrollPos < top + height) {
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + id) {
+                    link.classList.add('active');
+                    // Scroll nav to show active item on mobile
+                    if (window.innerWidth <= 768) {
+                        link.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                    }
+                }
+            });
+        }
+    });
+}
+
+window.addEventListener('scroll', highlightNav);
+highlightNav();
+</script>
+
+</body>
+</html>
