@@ -1,6 +1,7 @@
 import { Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { AuthRequest } from '../types/index.js';
+import { requestContext } from './requestContext.js';
 
 // JWT_SECRET must be set in environment - no fallback for security
 function getJwtSecret(): string {
@@ -53,7 +54,10 @@ export function authMiddleware(
       name: payload.name,
     };
 
-    next();
+    // Set request context for tenant isolation
+    requestContext.run({ clinicId: payload.clinicId }, () => {
+      next();
+    });
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
       return res.status(401).json({

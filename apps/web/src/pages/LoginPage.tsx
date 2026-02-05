@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/authStore';
 import Logo from '@/components/ui/Logo';
@@ -59,8 +59,8 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => {
-                    setEmail('dr.kamoun@doctorq.tn');
-                    setPassword('DoctorQ2024!');
+                    setEmail('test@blesaf.tn');
+                    setPassword('Test2024!');
                   }}
                   className="flex-1 text-xs bg-yellow-100 hover:bg-yellow-200 text-yellow-800 py-1.5 px-2 rounded transition-colors"
                 >
@@ -105,6 +105,15 @@ export default function LoginPage() {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 placeholder="••••••••"
               />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <Link to="/forgot-password" className="text-sm text-primary-600 hover:text-primary-700">
+                {t('auth.forgotPassword')}
+              </Link>
+              <Link to="/signup" className="text-sm text-primary-600 hover:text-primary-700">
+                {t('auth.createAccount')}
+              </Link>
             </div>
 
             <button

@@ -16,7 +16,9 @@
     "password": "Mot de passe",
     "loginButton": "Se connecter",
     "invalidCredentials": "Email ou mot de passe incorrect",
-    "loginError": "Erreur de connexion"
+    "loginError": "Erreur de connexion",
+    "forgotPassword": "Mot de passe oublié?",
+    "createAccount": "Créer un compte"
   },
   "queue": {
     "title": "File d'Attente",
@@ -215,5 +217,276 @@
     "copyFailed": "Échec de la copie du lien",
     "shareWhatsApp": "Partager sur WhatsApp",
     "whatsappMessage": "Rejoignez la file d'attente"
+  },
+  "landing": {
+    "nav": {
+      "login": "Se connecter",
+      "signup": "Essai gratuit"
+    },
+    "hero": {
+      "title": "Fini les salles d'attente bondées",
+      "subtitle": "Vos patients savent exactement quand c'est leur tour. Ils attendent où ils veulent.",
+      "cta": "Essayez gratuitement pendant 30 jours",
+      "learnMore": "Comment ça marche?",
+      "noCard": "Aucune carte bancaire requise"
+    },
+    "problem": {
+      "title": "Le problème que vous connaissez bien",
+      "item1Title": "Patients frustrés",
+      "item1Desc": "Des heures d'attente sans visibilité sur leur tour",
+      "item2Title": "Salle d'attente surchargée",
+      "item2Desc": "Trop de monde, pas assez de place, ambiance tendue",
+      "item3Title": "Patients qui partent",
+      "item3Desc": "Lassés d'attendre, ils quittent sans être vus",
+      "item4Title": "Stress pour tous",
+      "item4Desc": "Équipe débordée, patients mécontents"
+    },
+    "solution": {
+      "title": "La solution BleSaf",
+      "subtitle": "Transformez l'expérience de vos patients en 4 étapes simples",
+      "step1Title": "Scan rapide",
+      "step1Desc": "Le patient scanne le QR code à son arrivée",
+      "step2Title": "Suivi en temps réel",
+      "step2Desc": "Il voit sa position sur son téléphone",
+      "step3Title": "Notification SMS",
+      "step3Desc": "Il reçoit un SMS quand c'est bientôt son tour",
+      "step4Title": "Attente libre",
+      "step4Desc": "Il attend au café, dans sa voiture, ou chez lui"
+    },
+    "howItWorks": {
+      "title": "Comment ça marche?",
+      "step1Title": "Affichez le QR code",
+      "step1Desc": "Placez le QR code BleSaf dans votre salle d'attente. C'est tout!",
+      "step2Title": "Le patient s'enregistre",
+      "step2Desc": "En 5 secondes, il scanne le code et entre son numéro de téléphone.",
+      "step3Title": "Il suit sa position",
+      "step3Desc": "Sur son téléphone, il voit en temps réel sa place dans la file et l'attente estimée.",
+      "step4Title": "Il reçoit un SMS",
+      "step4Desc": "Quand c'est bientôt son tour, il reçoit automatiquement un SMS pour se présenter."
+    },
+    "pricing": {
+      "title": "Tarifs simples, sans surprise",
+      "subtitle": "Pas de frais cachés. Annulez quand vous voulez.",
+      "monthly": "Mensuel",
+      "yearly": "Annuel",
+      "yearlySavings": "2 mois offerts!",
+      "popular": "Populaire",
+      "feature1": "Tableau de bord complet",
+      "feature2": "Patients illimités",
+      "feature3": "QR code personnalisé",
+      "feature4": "Support WhatsApp",
+      "selectMonthly": "Choisir mensuel",
+      "selectYearly": "Choisir annuel",
+      "smsTitle": "Packs SMS (achat séparé)",
+      "trialNote": "Premier mois gratuit + 50 SMS offerts pour démarrer",
+      "startTrial": "Commencer mon essai gratuit"
+    },
+    "faq": {
+      "title": "Questions fréquentes",
+      "q1": "C'est compliqué à installer?",
+      "a1": "Non, 5 minutes suffisent. Vous imprimez le QR code, vous l'affichez, c'est prêt!",
+      "q2": "Mes patients âgés peuvent l'utiliser?",
+      "a2": "Oui! Ils scannent simplement le QR code avec leur téléphone, c'est tout. Pas besoin d'application.",
+      "q3": "Et si je n'ai pas internet?",
+      "a3": "Le tableau de bord fonctionne aussi hors-ligne. Les mises à jour se synchronisent automatiquement.",
+      "q4": "Je peux annuler quand je veux?",
+      "a4": "Oui, sans engagement. Vous pouvez annuler à tout moment depuis votre compte."
+    },
+    "cta": {
+      "title": "Rejoignez les cabinets qui ont dit adieu aux salles d'attente chaotiques",
+      "subtitle": "Commencez gratuitement et voyez la différence dès le premier jour.",
+      "button": "Commencer mon essai gratuit"
+    },
+    "footer": {
+      "privacy": "Confidentialité",
+      "terms": "Conditions",
+      "contact": "Contact",
+      "rights": "Tous droits réservés."
+    }
+  },
+  "signup": {
+    "title": "Créez votre compte",
+    "subtitle": "30 jours d'essai gratuit, sans engagement",
+    "alreadyHaveAccount": "Déjà inscrit?",
+    "clinicName": "Nom du cabinet",
+    "clinicNamePlaceholder": "Ex: Cabinet Dr. Ben Ali",
+    "doctorName": "Nom du médecin",
+    "doctorNamePlaceholder": "Ex: Dr. Mohamed Ben Ali",
+    "email": "Email",
+    "emailPlaceholder": "votre@email.com",
+    "phone": "Téléphone",
+    "password": "Mot de passe",
+    "passwordPlaceholder": "8 caractères minimum",
+    "confirmPassword": "Confirmer le mot de passe",
+    "confirmPasswordPlaceholder": "Répétez le mot de passe",
+    "optional": "optionnel",
+    "acceptTerms": "J'accepte les",
+    "termsLink": "conditions d'utilisation",
+    "and": "et la",
+    "privacyLink": "politique de confidentialité",
+    "createAccount": "Créer mon compte",
+    "creating": "Création en cours...",
+    "trialInfo": "Essai gratuit de 30 jours + 50 SMS offerts",
+    "success": {
+      "title": "Compte créé avec succès!",
+      "message": "Vérifiez votre email pour activer votre compte.",
+      "loginButton": "Se connecter"
+    },
+    "errors": {
+      "emailExists": "Un compte existe déjà avec cet email",
+      "generic": "Une erreur est survenue. Veuillez réessayer."
+    }
+  },
+  "onboarding": {
+    "skip": "Passer",
+    "step": "Étape {{current}} sur {{total}}",
+    "continue": "Continuer",
+    "back": "Retour",
+    "complete": "Terminer",
+    "clinic": {
+      "title": "Configurez votre cabinet",
+      "subtitle": "Ces informations aideront vos patients à vous identifier",
+      "clinicName": "Nom du cabinet",
+      "clinicNamePlaceholder": "Ex: Cabinet Dr. Ben Ali",
+      "doctorName": "Nom du médecin",
+      "doctorNamePlaceholder": "Ex: Dr. Mohamed Ben Ali",
+      "phone": "Téléphone du cabinet",
+      "avgConsultation": "Durée moyenne d'une consultation",
+      "avgConsultationHelp": "Aide à estimer le temps d'attente pour vos patients",
+      "minutes": "minutes"
+    },
+    "qrcode": {
+      "title": "Votre QR Code",
+      "subtitle": "Imprimez-le et affichez-le dans votre salle d'attente",
+      "howToUse": "Comment l'utiliser?",
+      "step1": "Imprimez l'affiche et placez-la à l'entrée",
+      "step2": "Les patients scannent le code avec leur téléphone",
+      "step3": "Ils suivent leur position en temps réel",
+      "printPoster": "Imprimer l'affiche"
+    },
+    "tutorial": {
+      "title": "Vous êtes prêt!",
+      "subtitle": "Voici quelques conseils pour bien démarrer",
+      "tip1Title": "Ajoutez votre premier patient",
+      "tip1Desc": "Cliquez sur \"Ajouter un patient\" pour tester le système",
+      "tip2Title": "Appelez le suivant",
+      "tip2Desc": "Quand vous êtes prêt, cliquez sur \"Appeler suivant\"",
+      "tip3Title": "Notifications automatiques",
+      "tip3Desc": "Les patients reçoivent un SMS quand c'est bientôt leur tour",
+      "trialInfo": "Vous avez 30 jours d'essai gratuit",
+      "smsInfo": "+ 50 SMS offerts pour démarrer"
+    }
+  },
+  "verify": {
+    "loading": "Vérification en cours...",
+    "successTitle": "Email vérifié!",
+    "successMessage": "Votre email a été vérifié avec succès. Vous pouvez maintenant vous connecter.",
+    "loginButton": "Se connecter",
+    "errorTitle": "Échec de la vérification",
+    "errorMessage": "Le lien de vérification est invalide ou a expiré.",
+    "alreadyVerified": "Votre email a déjà été vérifié. Vous pouvez vous connecter.",
+    "tokenExpired": "Le lien de vérification a expiré. Demandez un nouveau lien ci-dessous.",
+    "noToken": "Aucun jeton de vérification fourni. Vérifiez le lien dans votre email.",
+    "resendPrompt": "Entrez votre email pour recevoir un nouveau lien:",
+    "emailPlaceholder": "votre@email.com",
+    "resendButton": "Renvoyer le lien",
+    "resending": "Envoi en cours...",
+    "resendSuccess": "Un nouveau lien de vérification a été envoyé.",
+    "resendError": "Échec de l'envoi. Veuillez réessayer.",
+    "backToLogin": "Retour à la connexion"
+  },
+  "forgotPassword": {
+    "title": "Mot de passe oublié",
+    "subtitle": "Entrez votre email pour recevoir un lien de réinitialisation",
+    "submitButton": "Envoyer le lien",
+    "sentTitle": "Email envoyé!",
+    "sentMessage": "Si un compte existe avec cet email, vous recevrez un lien de réinitialisation.",
+    "backToLogin": "Retour à la connexion"
+  },
+  "resetPassword": {
+    "title": "Nouveau mot de passe",
+    "subtitle": "Choisissez un nouveau mot de passe pour votre compte",
+    "newPassword": "Nouveau mot de passe",
+    "confirmPassword": "Confirmer le mot de passe",
+    "submitButton": "Réinitialiser le mot de passe",
+    "successTitle": "Mot de passe réinitialisé!",
+    "successMessage": "Votre mot de passe a été modifié avec succès.",
+    "loginButton": "Se connecter",
+    "invalidLink": "Lien invalide",
+    "invalidLinkMessage": "Ce lien de réinitialisation est invalide ou a expiré.",
+    "requestNewLink": "Demander un nouveau lien",
+    "tokenExpired": "Le lien a expiré. Demandez un nouveau lien.",
+    "errorMessage": "Échec de la réinitialisation. Le lien est peut-être invalide."
+  },
+  "settings": {
+    "title": "Paramètres",
+    "clinicInfo": "Informations du cabinet",
+    "clinicName": "Nom du cabinet",
+    "doctorName": "Nom du médecin",
+    "phone": "Téléphone",
+    "address": "Adresse",
+    "queueSettings": "Paramètres de la file",
+    "avgConsultation": "Durée moyenne de consultation (min)",
+    "notifyAt": "Notifier le patient à la position",
+    "account": "Compte",
+    "changePassword": "Changer le mot de passe",
+    "currentPassword": "Mot de passe actuel",
+    "newPassword": "Nouveau mot de passe",
+    "confirmPassword": "Confirmer le nouveau mot de passe",
+    "saveSettings": "Enregistrer",
+    "saving": "Enregistrement...",
+    "saved": "Paramètres enregistrés",
+    "saveError": "Erreur lors de l'enregistrement",
+    "passwordChanged": "Mot de passe modifié avec succès",
+    "passwordError": "Erreur lors du changement de mot de passe",
+    "passwordMismatch": "Les mots de passe ne correspondent pas",
+    "wrongPassword": "Mot de passe actuel incorrect",
+    "doctors": "Gérer les médecins",
+    "addDoctor": "Ajouter un médecin",
+    "doctorNameLabel": "Nom du médecin",
+    "specialty": "Spécialité",
+    "consultationTime": "Durée de consultation (min)",
+    "noDoctors": "Aucun médecin ajouté",
+    "doctorAdded": "Médecin ajouté",
+    "doctorUpdated": "Médecin mis à jour",
+    "doctorDeleted": "Médecin supprimé",
+    "confirmDeleteDoctor": "Supprimer ce médecin ?"
+  },
+  "trial": {
+    "daysRemaining_one": "Il reste {{count}} jour d'essai",
+    "daysRemaining_other": "Il reste {{count}} jours d'essai",
+    "daysRemaining": "Il reste {{count}} jours d'essai",
+    "expired": "Votre période d'essai est terminée. Abonnez-vous pour continuer.",
+    "upgrade": "S'abonner"
+  },
+  "subscription": {
+    "title": "Abonnement",
+    "status": {
+      "trial": "Période d'essai",
+      "active": "Abonnement actif",
+      "expired": "Abonnement expiré"
+    },
+    "daysRemaining": "{{days}} jours restants",
+    "expiredMessage": "Votre abonnement a expiré. Abonnez-vous pour continuer.",
+    "smsCredits": "Crédits SMS",
+    "smsRemaining": "restants",
+    "lowCreditsWarning": "Vos crédits SMS sont bientôt épuisés. Pensez à en acheter.",
+    "buyMoreSms": "Acheter des SMS",
+    "popular": "Populaire",
+    "upgradePlan": "Choisir un abonnement",
+    "monthly": "Mensuel",
+    "yearly": "Annuel",
+    "yearlySavings": "2 mois offerts!",
+    "savings": "-17%",
+    "selectMonthly": "Choisir mensuel",
+    "selectYearly": "Choisir annuel",
+    "features": {
+      "dashboard": "Tableau de bord complet",
+      "unlimited": "Patients illimités",
+      "support": "Support WhatsApp"
+    },
+    "usage": "Utilisation",
+    "totalSmsSent": "Total SMS envoyés",
+    "needHelp": "Besoin d'aide?"
   }
 }

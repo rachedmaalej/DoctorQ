@@ -6,7 +6,7 @@
 import { prisma } from '../lib/prisma.js';
 import { QueueStatus, CheckInMethod, QueueEntry } from '@prisma/client';
 import { recalculatePositionsAndStatuses, getNextPosition } from './positionService.js';
-import { emitQueueUpdate, emitPatientUpdate, emitAllPatientUpdates } from './notificationService.js';
+import { emitQueueUpdate, emitPatientUpdate, emitAllPatientUpdates, sendSmsNotification } from './notificationService.js';
 import { getQueueStats } from './statsService.js';
 
 export interface AddPatientInput {
@@ -121,8 +121,12 @@ export async function addPatient(input: AddPatientInput): Promise<AddPatientResu
     emitPatientUpdate(updatedEntry.id, updatedEntry.position, updatedEntry.status);
   }
 
+  // Send SMS notification to patient (fire-and-forget)
+  const finalEntry = updatedEntry || result.entry;
+  sendSmsNotification(finalEntry.id, 'QUEUE_JOINED').catch(() => {});
+
   return {
-    entry: updatedEntry || result.entry,
+    entry: finalEntry,
     isAlreadyCheckedIn: false,
   };
 }
@@ -212,12 +216,27 @@ export async function callNextPatient(clinicId: string): Promise<QueueEntry | nu
   await emitAllPatientUpdates(clinicId);
 
   // Return the new IN_CONSULTATION patient
-  return prisma.queueEntry.findFirst({
+  const calledPatient = await prisma.queueEntry.findFirst({
     where: {
       clinicId,
       status: QueueStatus.IN_CONSULTATION,
     },
   });
+
+  // Send SMS notifications (fire-and-forget)
+  if (calledPatient) {
+    sendSmsNotification(calledPatient.id, 'YOUR_TURN').catch(() => {});
+  }
+
+  // Send ALMOST_TURN to the NOTIFIED patient (position #2)
+  const notifiedPatient = await prisma.queueEntry.findFirst({
+    where: { clinicId, status: QueueStatus.NOTIFIED },
+  });
+  if (notifiedPatient) {
+    sendSmsNotification(notifiedPatient.id, 'ALMOST_TURN').catch(() => {});
+  }
+
+  return calledPatient;
 }
 
 /**
@@ -318,7 +337,6 @@ export async function getPatientStatus(entryId: string) {
           doctorName: true,
           avgConsultationMins: true,
           isDoctorPresent: true,
-          enableLanguageSwitcher: true,
         },
       },
     },
@@ -348,7 +366,6 @@ export async function getPatientStatus(entryId: string) {
     clinicName: entry.clinic.name,
     doctorName: entry.clinic.doctorName,
     isDoctorPresent: entry.clinic.isDoctorPresent,
-    enableLanguageSwitcher: entry.clinic.enableLanguageSwitcher,
   };
 }
 

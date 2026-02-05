@@ -15,7 +15,7 @@ export default function CreateClinicModal({ isOpen, onClose, onCreated }: Create
   const [phone, setPhone] = useState('');
   const [language, setLanguage] = useState('fr');
   const [avgConsultationMins, setAvgConsultationMins] = useState(10);
-  const [businessType, setBusinessType] = useState('ophthalmology');
+  const [businessType, setBusinessType] = useState('medical');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [createdClinic, setCreatedClinic] = useState<{ id: string; name: string; email: string } | null>(null);
@@ -44,7 +44,7 @@ export default function CreateClinicModal({ isOpen, onClose, onCreated }: Create
     setIsSubmitting(true);
 
     try {
-      const result = await api.createClinic({
+      const clinic = await api.createClinic({
         name,
         email,
         password,
@@ -54,7 +54,7 @@ export default function CreateClinicModal({ isOpen, onClose, onCreated }: Create
         avgConsultationMins,
         businessType,
       });
-      setCreatedClinic(result);
+      setCreatedClinic(clinic);
       onCreated();
     } catch (err: any) {
       setError(err.message || 'Failed to create clinic');
@@ -84,27 +84,6 @@ export default function CreateClinicModal({ isOpen, onClose, onCreated }: Create
             <div className="bg-green-50 border border-green-200 rounded-lg p-4">
               <p className="text-green-800 font-medium">Clinic created successfully!</p>
             </div>
-
-            {/* Check-in Link */}
-            <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 space-y-2">
-              <p className="text-sm font-medium text-purple-900">Patient Check-in Link</p>
-              <div className="flex items-center gap-2">
-                <code className="flex-1 text-sm bg-white border border-purple-200 rounded px-3 py-2 text-purple-700 truncate">
-                  {window.location.origin}/checkin/{createdClinic.id}
-                </code>
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(`${window.location.origin}/checkin/${createdClinic.id}`);
-                  }}
-                  className="px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg whitespace-nowrap"
-                >
-                  Copy Link
-                </button>
-              </div>
-              <p className="text-xs text-purple-600">Share this link or generate a QR code for patients to check in</p>
-            </div>
-
-            {/* Credentials */}
             <div className="bg-gray-50 rounded-lg p-4 space-y-2">
               <p className="text-sm text-gray-600">Share these credentials with the clinic:</p>
               <div className="font-mono text-sm bg-white border rounded p-3 select-all">
@@ -120,7 +99,7 @@ export default function CreateClinicModal({ isOpen, onClose, onCreated }: Create
                 }}
                 className="text-sm text-purple-600 hover:text-purple-800 font-medium"
               >
-                Copy credentials
+                Copy to clipboard
               </button>
             </div>
             <button
@@ -223,14 +202,14 @@ export default function CreateClinicModal({ isOpen, onClose, onCreated }: Create
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Clinic Type</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Business Type</label>
                 <select
                   value={businessType}
                   onChange={(e) => setBusinessType(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
                 >
-                  <option value="ophthalmology">Ophthalmology</option>
-                  <option value="dentist">Dentist</option>
+                  <option value="medical">Medical</option>
+                  <option value="retail">Retail</option>
                 </select>
               </div>
             </div>

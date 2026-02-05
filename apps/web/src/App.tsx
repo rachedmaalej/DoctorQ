@@ -3,10 +3,18 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './stores/authStore';
 
 // Lazy load pages for code splitting - reduces initial bundle by ~40%
+const LandingPage = lazy(() => import('./pages/LandingPage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
+const SignupPage = lazy(() => import('./pages/SignupPage'));
 const DashboardPage = lazy(() => import('./pages/DashboardPage'));
 const PatientStatusPage = lazy(() => import('./pages/PatientStatusPage'));
 const CheckInPage = lazy(() => import('./pages/CheckInPage'));
+const OnboardingPage = lazy(() => import('./pages/OnboardingPage'));
+const SubscriptionPage = lazy(() => import('./pages/SubscriptionPage'));
+const VerifyEmailPage = lazy(() => import('./pages/VerifyEmailPage'));
+const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage'));
+const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage'));
+const SettingsPage = lazy(() => import('./pages/SettingsPage'));
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
 const ClinicDetailPage = lazy(() => import('./pages/admin/ClinicDetailPage'));
 
@@ -20,7 +28,7 @@ function PageLoader() {
 }
 
 function App() {
-  const { isAuthenticated, isLoading, checkAuth } = useAuthStore();
+  const { isAuthenticated, isLoading, checkAuth, clinic } = useAuthStore();
 
   useEffect(() => {
     checkAuth();
@@ -40,15 +48,40 @@ function App() {
   return (
     <Suspense fallback={<PageLoader />}>
       <Routes>
-        {/* Public routes */}
+        {/* Public marketing routes */}
+        <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" /> : <LandingPage />} />
+        <Route path="/signup" element={!isAuthenticated ? <SignupPage /> : <Navigate to="/dashboard" />} />
+
+        {/* Public auth routes */}
         <Route path="/login" element={!isAuthenticated ? <LoginPage /> : <Navigate to="/dashboard" />} />
+        <Route path="/verify-email" element={<VerifyEmailPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/patient/:entryId" element={<PatientStatusPage />} />
         <Route path="/checkin/:clinicId" element={<CheckInPage />} />
 
         {/* Protected routes */}
         <Route
           path="/dashboard"
-          element={isAuthenticated ? <DashboardPage /> : <Navigate to="/login" />}
+          element={
+            isAuthenticated
+              ? clinic?.onboardingCompleted === false
+                ? <Navigate to="/onboarding" />
+                : <DashboardPage />
+              : <Navigate to="/login" />
+          }
+        />
+        <Route
+          path="/onboarding"
+          element={isAuthenticated ? <OnboardingPage /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/subscription"
+          element={isAuthenticated ? <SubscriptionPage /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/settings"
+          element={isAuthenticated ? <SettingsPage /> : <Navigate to="/login" />}
         />
         <Route
           path="/admin"
@@ -58,9 +91,6 @@ function App() {
           path="/admin/clinic/:clinicId"
           element={isAuthenticated ? <ClinicDetailPage /> : <Navigate to="/login" />}
         />
-
-        {/* Default redirect */}
-        <Route path="/" element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} />} />
       </Routes>
     </Suspense>
   );

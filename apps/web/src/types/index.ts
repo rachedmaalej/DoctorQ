@@ -17,6 +17,7 @@ export enum CheckInMethod {
 export interface QueueEntry {
   id: string;
   clinicId: string;
+  doctorId: string | null;
   patientName: string | null;
   patientPhone: string;
   position: number;
@@ -63,7 +64,17 @@ export interface Clinic {
   isDoctorPresent?: boolean;
   businessType?: string;        // "medical" (default) or "retail"
   showAppointments?: boolean;   // true (default) or false
+  onboardingCompleted?: boolean;
   uiLabels?: UILabels;          // Dynamic labels based on businessType
+}
+
+export interface Doctor {
+  id: string;
+  clinicId: string;
+  name: string;
+  specialty: string | null;
+  isActive: boolean;
+  avgConsultationMins: number;
 }
 
 export interface LoginCredentials {

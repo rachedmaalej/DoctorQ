@@ -47,20 +47,70 @@ model Clinic {
   // Activity tracking
   lastLoginAt         DateTime?    // Last login timestamp for churn detection
 
+  // Subscription fields (for self-service)
+  subscriptionStatus    SubscriptionStatus @default(TRIAL)
+  subscriptionPlan      SubscriptionPlan?
+  trialEndsAt           DateTime?          // When free trial expires
+  subscriptionEndsAt    DateTime?          // When paid subscription expires
+
+  // Email verification
+  emailVerified           Boolean   @default(false)
+  emailVerificationToken  String?   @unique
+  emailVerificationExpiry DateTime?
+
+  // Password reset
+  passwordResetToken    String?   @unique
+  passwordResetExpiry   DateTime?
+
+  // Onboarding
+  onboardingCompleted   Boolean   @default(false)
+  onboardingStep        Int       @default(0)
+
+  // SMS credits (separate from subscription)
+  smsCredits            Int       @default(0)    // Current balance
+  smsCreditsUsed        Int       @default(0)    // Total used (for analytics)
+
   createdAt           DateTime     @default(now())
   updatedAt           DateTime     @updatedAt
 
-  queueEntries        QueueEntry[]
-  dailyStats          DailyStat[]
-  paymentRecords      PaymentRecord[]
+  queueEntries          QueueEntry[]
+  dailyStats            DailyStat[]
+  paymentRecords        PaymentRecord[]
+  subscriptionEvents    SubscriptionEvent[]
+  smsPackagePurchases   SmsPackagePurchase[]
+  doctors               Doctor[]
 
   @@index([email])
+  @@index([subscriptionStatus])
+  @@index([trialEndsAt])
+}
+
+model Doctor {
+  id                  String   @id @default(uuid())
+  clinicId            String
+  clinic              Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+
+  name                String
+  specialty           String?
+  isActive            Boolean  @default(true)
+  avgConsultationMins Int      @default(15)
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  queueEntries        QueueEntry[]
+
+  @@index([clinicId, isActive])
 }
 
 model QueueEntry {
   id            String        @id @default(uuid())
   clinicId      String
   clinic        Clinic        @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+
+  // Multi-doctor support (nullable for backward compatibility)
+  doctorId      String?
+  doctor        Doctor?       @relation(fields: [doctorId], references: [id], onDelete: SetNull)
 
   patientName   String?
   patientPhone  String
@@ -96,6 +146,7 @@ model QueueEntry {
   @@index([patientPhone])                           // Global phone lookup
   @@index([status, completedAt])                    // Stats: last completed patient
   @@index([clinicId, calledAt])                     // Stats: average wait time calculation
+  @@index([doctorId])                               // Multi-doctor queue filtering
 }
 
 enum QueueStatus {
@@ -112,6 +163,19 @@ enum CheckInMethod {
   MANUAL
   WHATSAPP
   SMS
+}
+
+enum SubscriptionStatus {
+  TRIAL           // Free 30-day trial
+  ACTIVE          // Paid and current
+  PAST_DUE        // Payment failed, grace period
+  EXPIRED         // Trial or subscription ended
+  CANCELLED       // User cancelled
+}
+
+enum SubscriptionPlan {
+  MONTHLY         // 50 TND/month
+  YEARLY          // 500 TND/year (2 months free)
 }
 
 model DailyStat {
@@ -151,4 +215,40 @@ model PaymentRecord {
   @@unique([clinicId, month])
   @@index([clinicId])
   @@index([month])
+}
+
+// Track subscription lifecycle events
+model SubscriptionEvent {
+  id            String   @id @default(uuid())
+  clinicId      String
+  clinic        Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+
+  eventType     String   // trial_started, trial_expired, payment_success, payment_failed, subscription_activated, subscription_cancelled
+  amount        Int?     // Amount in millimes (if payment related)
+  paymentRef    String?  // Konnect reference
+  notes         String?
+
+  createdAt     DateTime @default(now())
+
+  @@index([clinicId])
+  @@index([eventType])
+  @@index([createdAt])
+}
+
+// Track SMS package purchases
+model SmsPackagePurchase {
+  id          String   @id @default(uuid())
+  clinicId    String
+  clinic      Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+
+  packageName String   // "starter", "standard", "pro"
+  credits     Int      // Number of SMS credits purchased
+  amount      Int      // Amount in millimes
+  paymentRef  String?  // Konnect reference
+  status      String   @default("completed") // "completed", "pending", "failed"
+
+  createdAt   DateTime @default(now())
+
+  @@index([clinicId])
+  @@index([createdAt])
 }

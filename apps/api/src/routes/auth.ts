@@ -80,6 +80,7 @@ router.post('/login', async (req: Request, res: Response) => {
           isDoctorPresent: clinic.isDoctorPresent,
           businessType: clinic.businessType || 'medical',
           showAppointments: clinic.showAppointments !== false,
+          onboardingCompleted: clinic.onboardingCompleted,
           uiLabels,
         },
       },
@@ -132,6 +133,8 @@ router.get('/me', authMiddleware, async (req: AuthRequest, res: Response) => {
         isDoctorPresent: true,
         businessType: true,
         showAppointments: true,
+        onboardingCompleted: true,
+        onboardingStep: true,
       },
     });
 
@@ -170,6 +173,54 @@ router.get('/me', authMiddleware, async (req: AuthRequest, res: Response) => {
         code: 'SERVER_ERROR',
         message: 'Failed to get clinic data',
       },
+    });
+  }
+});
+
+// POST /api/auth/change-password
+const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1),
+  newPassword: z.string().min(8),
+});
+
+router.post('/change-password', authMiddleware, async (req: AuthRequest, res: Response) => {
+  try {
+    const { currentPassword, newPassword } = changePasswordSchema.parse(req.body);
+
+    const clinic = await prisma.clinic.findUnique({
+      where: { id: req.clinic!.id },
+      select: { passwordHash: true },
+    });
+
+    if (!clinic) {
+      return res.status(404).json({
+        error: { code: 'CLINIC_NOT_FOUND', message: 'Clinic not found' },
+      });
+    }
+
+    const isValid = await bcrypt.compare(currentPassword, clinic.passwordHash);
+    if (!isValid) {
+      return res.status(400).json({
+        error: { code: 'INVALID_PASSWORD', message: 'Current password is incorrect' },
+      });
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, 12);
+    await prisma.clinic.update({
+      where: { id: req.clinic!.id },
+      data: { passwordHash },
+    });
+
+    res.json({ data: { message: 'Password changed successfully' } });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({
+        error: { code: 'VALIDATION_ERROR', message: 'Invalid request data', details: error.errors },
+      });
+    }
+    console.error('Change password error:', error);
+    res.status(500).json({
+      error: { code: 'SERVER_ERROR', message: 'Failed to change password' },
     });
   }
 });

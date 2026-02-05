@@ -1,0 +1,198 @@
+# =============================================================================
+# .claudeignore - IjaTawa/DoctorQ Project
+# Prevents Claude Code from loading unnecessary files into context
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Dependencies (CRITICAL - these are massive)
+# -----------------------------------------------------------------------------
+node_modules/
+**/node_modules/
+.pnpm-store/
+
+# -----------------------------------------------------------------------------
+# Lock files (large, not useful for context)
+# -----------------------------------------------------------------------------
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+*.lock
+
+# -----------------------------------------------------------------------------
+# Build outputs
+# -----------------------------------------------------------------------------
+dist/
+build/
+.next/
+out/
+*.tsbuildinfo
+
+# -----------------------------------------------------------------------------
+# Generated code (Prisma client, etc.)
+# -----------------------------------------------------------------------------
+**/generated/
+**/generated/prisma/
+*.dll.node
+
+# -----------------------------------------------------------------------------
+# Environment files (secrets - should never be read)
+# -----------------------------------------------------------------------------
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+**/.env
+**/.env.*
+!.env.example
+!**/.env.example
+
+# -----------------------------------------------------------------------------
+# Test artifacts
+# -----------------------------------------------------------------------------
+coverage/
+.nyc_output/
+playwright-report/
+test-results/
+*.test.js.snap
+__snapshots__/
+
+# -----------------------------------------------------------------------------
+# IDE and editor files
+# -----------------------------------------------------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-*
+
+# -----------------------------------------------------------------------------
+# OS-specific files
+# -----------------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+Desktop.ini
+nul
+
+# -----------------------------------------------------------------------------
+# Logs
+# -----------------------------------------------------------------------------
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# -----------------------------------------------------------------------------
+# Deployment/hosting files
+# -----------------------------------------------------------------------------
+.vercel/
+.railway/
+.netlify/
+.turbo/
+
+# -----------------------------------------------------------------------------
+# Cache directories
+# -----------------------------------------------------------------------------
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+*.cache
+
+# -----------------------------------------------------------------------------
+# Binary and large media files (not useful for code context)
+# -----------------------------------------------------------------------------
+*.pdf
+*.pptx
+*.ppt
+*.docx
+*.doc
+*.xlsx
+*.xls
+*.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z
+*.mp4
+*.mp3
+*.wav
+*.mov
+*.avi
+*.mkv
+
+# Images (large, not useful for code understanding)
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.ico
+*.svg
+*.webp
+*.bmp
+*.tiff
+
+# Fonts
+*.woff
+*.woff2
+*.ttf
+*.otf
+*.eot
+
+# -----------------------------------------------------------------------------
+# Project-specific exclusions
+# -----------------------------------------------------------------------------
+# Error dumps folder
+Errors/
+
+# Monitoring configs (Prometheus/Grafana templates)
+monitoring/
+
+# Old/backup directories
+*OLD/
+*-old/
+*_backup/
+temp-git/
+
+# Medibook apps (separate/legacy apps in monorepo)
+apps/medibook-api/
+apps/medibook-web/
+
+# Documentation files that are not code-relevant
+docs/wireframes.html
+
+# Credentials file (sensitive)
+CREDENTIALS.md
+
+# CSV data files
+*.csv
+
+# Docker files (usually not needed for code context)
+Dockerfile
+docker-compose*.yml
+
+# Railway/deployment configs
+railway.json
+nixpacks.toml
+Procfile
+vercel.json
+
+# -----------------------------------------------------------------------------
+# Temporary files
+# -----------------------------------------------------------------------------
+temp/
+tmp/
+tmpclaude-*
+*.tmp
+*.temp
+
+# -----------------------------------------------------------------------------
+# Misc
+# -----------------------------------------------------------------------------
+.git/
+.gitattributes
+*.map

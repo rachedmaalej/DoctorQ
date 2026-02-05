@@ -14,6 +14,7 @@ import type {
   ClinicDetail,
   CreateClinicData,
   RecordPaymentData,
+  Doctor,
 } from '@/types';
 import { logger } from './logger';
 
@@ -126,6 +127,128 @@ class ApiClient {
     return this.request<Clinic>('/api/auth/me');
   }
 
+  // Signup endpoints (public)
+  async signup(data: {
+    name: string;
+    email: string;
+    password: string;
+    doctorName?: string;
+    phone?: string;
+    language?: 'fr' | 'ar';
+  }): Promise<{ message: string; clinicId: string; email: string }> {
+    return this.request('/api/signup', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async verifyEmail(token: string): Promise<{ message: string; email: string }> {
+    return this.request('/api/signup/verify-email', {
+      method: 'POST',
+      body: JSON.stringify({ token }),
+    });
+  }
+
+  async resendVerification(email: string): Promise<{ message: string }> {
+    return this.request('/api/signup/resend-verification', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+  }
+
+  async forgotPassword(email: string): Promise<{ message: string }> {
+    return this.request('/api/signup/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+  }
+
+  async resetPassword(token: string, password: string): Promise<{ message: string }> {
+    return this.request('/api/signup/reset-password', {
+      method: 'POST',
+      body: JSON.stringify({ token, password }),
+    });
+  }
+
+  // Doctor endpoints
+  async getDoctors(): Promise<Doctor[]> {
+    return this.request('/api/clinic/doctors');
+  }
+
+  async createDoctor(data: { name: string; specialty?: string; avgConsultationMins?: number }): Promise<Doctor> {
+    return this.request('/api/clinic/doctors', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateDoctor(doctorId: string, data: { name?: string; specialty?: string; isActive?: boolean; avgConsultationMins?: number }): Promise<Doctor> {
+    return this.request(`/api/clinic/doctors/${doctorId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteDoctor(doctorId: string): Promise<{ message: string }> {
+    return this.request(`/api/clinic/doctors/${doctorId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Subscription endpoints
+  async getSubscription(): Promise<{
+    status: string;
+    plan: string | null;
+    trialEndsAt: string | null;
+    subscriptionEndsAt: string | null;
+    daysRemaining: number | null;
+    smsCredits: number;
+    canUseApp: boolean;
+  }> {
+    return this.request('/api/subscription');
+  }
+
+  async getPricing(): Promise<{
+    subscription: {
+      monthly: { amount: number; amountTND: number; description: string };
+      yearly: { amount: number; amountTND: number; description: string; savings: number };
+    };
+    smsPackages: Record<string, { credits: number; amount: number; amountTND: number; perSms: number }>;
+    trialDays: number;
+    freeSmsTrial: number;
+  }> {
+    return this.request('/api/subscription/pricing');
+  }
+
+  async createSubscriptionCheckout(plan: 'MONTHLY' | 'YEARLY'): Promise<{ payUrl: string; paymentRef: string }> {
+    return this.request('/api/subscription/checkout', {
+      method: 'POST',
+      body: JSON.stringify({ plan }),
+    });
+  }
+
+  async getSmsBalance(): Promise<{ credits: number; used: number }> {
+    return this.request('/api/subscription/sms');
+  }
+
+  async createSmsCheckout(packageName: 'starter' | 'standard' | 'pro'): Promise<{ payUrl: string; paymentRef: string }> {
+    return this.request('/api/subscription/sms/checkout', {
+      method: 'POST',
+      body: JSON.stringify({ package: packageName }),
+    });
+  }
+
+  async getOnboardingStatus(): Promise<{ step: number; completed: boolean; totalSteps: number }> {
+    return this.request('/api/subscription/onboarding');
+  }
+
+  async updateOnboarding(step: number, completed?: boolean): Promise<{ message: string; step: number; completed: boolean }> {
+    return this.request('/api/subscription/onboarding', {
+      method: 'POST',
+      body: JSON.stringify({ step, completed }),
+    });
+  }
+
   // Queue endpoints
   async getQueue(): Promise<QueueResponse> {
     return this.request<QueueResponse>('/api/queue');
@@ -211,6 +334,28 @@ class ApiClient {
 
   async getQRCode(): Promise<{ url: string; qrCode: string; clinicName: string }> {
     return this.request('/api/clinic/qr');
+  }
+
+  async updateClinic(data: {
+    name?: string;
+    doctorName?: string;
+    phone?: string;
+    address?: string;
+    language?: 'fr' | 'ar';
+    avgConsultationMins?: number;
+    notifyAtPosition?: number;
+  }): Promise<Clinic> {
+    return this.request('/api/clinic', {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async changePassword(currentPassword: string, newPassword: string): Promise<{ message: string }> {
+    return this.request('/api/auth/change-password', {
+      method: 'POST',
+      body: JSON.stringify({ currentPassword, newPassword }),
+    });
   }
 
   // Update doctor presence

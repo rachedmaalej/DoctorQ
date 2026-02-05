@@ -12,6 +12,7 @@ import AddPatientModal from '@/components/queue/AddPatientModal';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 import { Toast } from '@/components/ui/Toast';
 import Header from '@/components/layout/Header';
+import TrialBanner from '@/components/ui/TrialBanner';
 import { MD3Button } from '@/components/md3/button';
 
 export default function DashboardPage() {
@@ -69,6 +70,9 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-8">
+      {/* Trial Expiration Banner */}
+      <TrialBanner />
+
       {/* Impersonation Banner */}
       {isImpersonating && (
         <div className="bg-purple-600 text-white px-4 py-2 flex items-center justify-between">

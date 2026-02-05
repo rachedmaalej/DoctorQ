@@ -1,10 +1,8 @@
-// Load environment variables FIRST - this import has side effects that load .env
-import 'dotenv/config';
-
 import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
+import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
 import bcrypt from 'bcryptjs';
 import { setSocketIO } from './lib/socket.js';
@@ -12,17 +10,24 @@ import { initScheduledTasks } from './lib/scheduler.js';
 import { prisma } from './lib/prisma.js';
 import { verifyToken } from './lib/auth.js';
 import authRoutes from './routes/auth.js';
+import signupRoutes from './routes/signup.js';
+import subscriptionRoutes from './routes/subscription.js';
 import queueRoutes from './routes/queue.js';
 import clinicRoutes from './routes/clinic.js';
 import adminRoutes from './routes/admin.js';
+import doctorRoutes from './routes/doctor.js';
 import metricsRoutes from './routes/metrics.js';
 import { metricsMiddleware, activeSocketConnections } from './lib/metrics.js';
+
+// Load environment variables
+dotenv.config();
 
 const app = express();
 const httpServer = createServer(app);
 
 // Parse CORS origins (supports comma-separated list)
-const corsOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173')
+// Default includes common Vite fallback ports when primary port is in use
+const corsOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173,http://localhost:5174,http://localhost:5175,http://localhost:5176,http://localhost:5177')
   .split(',')
   .map((origin) => origin.trim());
 
@@ -65,9 +70,30 @@ if (process.env.NODE_ENV === 'development') {
   });
 }
 
-// Health check
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+// Health check with DB and Socket.io status
+app.get('/health', async (req, res) => {
+  const checks: Record<string, string> = { api: 'ok' };
+
+  // Database check
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    checks.database = 'ok';
+  } catch {
+    checks.database = 'error';
+  }
+
+  // Socket.io check
+  const { getSocketIO } = await import('./lib/socket.js');
+  const io = getSocketIO();
+  checks.socketio = io ? 'ok' : 'not_initialized';
+
+  const allOk = Object.values(checks).every(v => v === 'ok');
+
+  res.status(allOk ? 200 : 503).json({
+    status: allOk ? 'ok' : 'degraded',
+    timestamp: new Date().toISOString(),
+    checks,
+  });
 });
 
 // Flexible seed endpoint for production (protected by secret)
@@ -226,13 +252,17 @@ app.use('/metrics', metricsRoutes);
 
 // API Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/signup', signupRoutes);
+app.use('/api/subscription', subscriptionRoutes);
 app.use('/api/queue', queueRoutes);
 app.use('/api/clinic', clinicRoutes);
+app.use('/api/clinic/doctors', doctorRoutes);
 app.use('/api/admin', adminRoutes);
 
-// Apply rate limiting to public queue endpoints
+// Apply rate limiting to public endpoints
 app.use('/api/queue/checkin', publicRateLimiter);
 app.use('/api/queue/patient', publicRateLimiter);
+app.use('/api/signup', publicRateLimiter);
 
 // Socket.io connection handling
 io.on('connection', (socket) => {

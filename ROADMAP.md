@@ -148,6 +148,21 @@
 
 ---
 
+## Socket.io Scaling Strategy
+
+Current single-server Socket.io handles real-time updates for all connected clinics and patients. Here's the scaling path:
+
+| Scale | Strategy | Notes |
+|-------|----------|-------|
+| 1-50 clinics | Current single-server Socket.io | No changes needed |
+| 50-200 clinics | Add `@socket.io/redis-adapter` | Enables multi-process/multi-server with shared state via Redis |
+| 200-500 clinics | Add sticky sessions + Redis adapter | Use nginx sticky sessions for WebSocket affinity |
+| 500+ clinics | Evaluate managed services (Ably, Pusher) | Offload connection management entirely |
+
+**When to upgrade:** Monitor WebSocket connection count and message throughput. At ~200 concurrent connections per server instance, add Redis adapter.
+
+---
+
 ## Future Considerations (6+ months)
 
 ### WhatsApp Integration
