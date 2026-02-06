@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BléSaf Admin — Linear Monochrome: 3 Color Palettes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: #111118;
+    color: #e2e2e8;
+    min-height: 100vh;
+  }
+
+  /* ═══════════════════════════════════════
+     PICKER NAV
+     ═══════════════════════════════════════ */
+  .picker {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+    background: rgba(17,17,24,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 20px;
+  }
+  .picker-label {
+    font-weight: 700; font-size: 13px; color: #a0a0b0;
+    white-space: nowrap; margin-right: 8px; letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .picker button {
+    padding: 7px 16px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
+    background: transparent; color: #a0a0b0; font-size: 12px; font-weight: 600;
+    cursor: pointer; white-space: nowrap; transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+  }
+  .picker button:hover { border-color: rgba(255,255,255,0.25); color: #fff; }
+  .picker button.active { background: #7c3aed; border-color: #7c3aed; color: #fff; }
+
+  .alt-container { display: none; padding-top: 56px; }
+  .alt-container.active { display: block; }
+
+  /* ═══════════════════════════════════════
+     COLOR SWATCH REFERENCE STRIP
+     ═══════════════════════════════════════ */
+  .palette-ref {
+    padding: 20px 32px;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .palette-ref h2 { font-size: 18px; font-weight: 700; margin-bottom: 2px; }
+  .palette-ref .philosophy { font-size: 13px; line-height: 1.6; max-width: 720px; margin-bottom: 8px; }
+  .swatch-row {
+    display: flex; gap: 0; border-radius: 8px; overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .swatch {
+    flex: 1; height: 48px;
+    display: flex; align-items: flex-end; justify-content: center;
+    padding-bottom: 4px;
+    font-size: 9px; font-weight: 600; letter-spacing: 0.3px;
+  }
+  .swatch-labels {
+    display: flex; gap: 0; margin-top: 2px;
+  }
+  .swatch-labels span {
+    flex: 1; text-align: center; font-size: 10px; color: #999;
+  }
+
+  /* ═══════════════════════════════════════
+     SHARED LINEAR MONOCHROME BASE
+     ═══════════════════════════════════════ */
+  .linear {
+    min-height: 100vh;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .linear .cmd-bar {
+    margin: 20px 32px 0; padding: 10px 16px; border-radius: 10px;
+    display: flex; align-items: center; gap: 10px; font-size: 13px;
+  }
+  .linear .cmd-bar kbd {
+    padding: 2px 6px; border-radius: 4px;
+    font-size: 11px; font-family: 'Inter', sans-serif;
+  }
+
+  .linear .dash-header {
+    padding: 24px 32px 0;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .linear .dash-header h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
+
+  .linear .tab-row {
+    display: flex; gap: 24px; padding: 16px 32px 0;
+  }
+  .linear .tab-row .tab {
+    padding: 12px 0; font-size: 14px; font-weight: 500; cursor: pointer;
+  }
+
+  .linear .dash-body { padding: 28px 32px; }
+
+  .linear .kpi-grid {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 0;
+    margin-bottom: 28px;
+  }
+  .linear .kpi-card { padding: 0 24px; }
+  .linear .kpi-card:first-child { padding-left: 0; }
+  .linear .kpi-card:last-child { border-right: none; }
+  .linear .kpi-card .label { font-size: 12px; }
+  .linear .kpi-card .value { font-size: 26px; font-weight: 700; margin: 2px 0; letter-spacing: -0.5px; }
+  .linear .kpi-card .delta { font-size: 12px; font-weight: 500; }
+
+  .linear .divider { height: 1px; margin-bottom: 24px; }
+
+  .linear .content-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 32px; }
+
+  .linear .card-title {
+    font-size: 13px; font-weight: 700; margin-bottom: 16px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+
+  .linear .chart-bars { display: flex; align-items: flex-end; gap: 8px; height: 90px; }
+  .linear .chart-bars .bar {
+    flex: 1; border-radius: 2px 2px 0 0; min-height: 3px;
+  }
+
+  .linear .feed-item {
+    padding: 8px 0;
+    font-size: 13px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .linear .feed-item:last-child { border-bottom: none; }
+  .linear .feed-item .time { font-size: 11px; margin-left: auto; }
+  .linear .feed-item .bullet { }
+
+  /* ═══════════════════════════════════════
+     PALETTE A — Indigo Ink
+     From ColorSchema blues: #D8ECF4 → #84C8F3 → #80C7DE → #4A6E8F → #3465FF
+     ═══════════════════════════════════════ */
+  .pal-a {
+    --text: #1B2A44;
+    --text-secondary: #6B7FA0;
+    --text-muted: #9EAEC4;
+    --bg: #FFFFFF;
+    --bg-subtle: #F5F8FC;
+    --border: #D8E4F0;
+    --border-light: #ECF1F7;
+    --accent: #3465FF;
+    --accent-light: #D8ECF4;
+    --positive: #337023;
+    --negative: #CE2626;
+    --bar-fill: #3465FF;
+    --bar-fill-alt: #84C8F3;
+
+    background: var(--bg); color: var(--text);
+  }
+  .pal-a .palette-ref { background: var(--bg); color: var(--text); border-bottom: 1px solid var(--border); }
+  .pal-a .palette-ref .philosophy { color: var(--text-secondary); }
+
+  .pal-a .cmd-bar { border: 1px solid var(--border); background: var(--bg-subtle); color: var(--text-muted); }
+  .pal-a .cmd-bar kbd { background: var(--border); color: var(--text-secondary); }
+  .pal-a .dash-header h1 { color: var(--text); }
+  .pal-a .tab-row { border-bottom: 1px solid var(--border-light); }
+  .pal-a .tab-row .tab { color: var(--text-muted); }
+  .pal-a .tab-row .tab.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
+  .pal-a .kpi-card { border-right: 1px solid var(--border-light); }
+  .pal-a .kpi-card .label { color: var(--text-secondary); }
+  .pal-a .kpi-card .value { color: var(--text); }
+  .pal-a .kpi-card .delta.up { color: var(--positive); }
+  .pal-a .kpi-card .delta.down { color: var(--negative); }
+  .pal-a .divider { background: var(--border-light); }
+  .pal-a .card-title { color: var(--text); }
+  .pal-a .chart-bars .bar { background: var(--bar-fill); opacity: 0.18; }
+  .pal-a .chart-bars .bar:nth-child(even) { opacity: 0.4; }
+  .pal-a .chart-bars .bar:nth-child(3n) { background: var(--bar-fill-alt); opacity: 0.5; }
+  .pal-a .feed-item { border-bottom: 1px solid var(--border-light); color: var(--text-secondary); }
+  .pal-a .feed-item .bullet { color: var(--text-muted); }
+  .pal-a .feed-item .time { color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════
+     PALETTE B — Plum Dusk
+     From ColorSchema purples/pinks: #F3C9F6 → #C3ADD0 → #7940DE → #A1289B
+     ═══════════════════════════════════════ */
+  .pal-b {
+    --text: #2B1642;
+    --text-secondary: #7A6490;
+    --text-muted: #A99ABB;
+    --bg: #FDFBFE;
+    --bg-subtle: #F8F4FA;
+    --border: #E6DAF0;
+    --border-light: #F0EAF5;
+    --accent: #7940DE;
+    --accent-light: #F3C9F6;
+    --positive: #337023;
+    --negative: #A1289B;
+    --bar-fill: #7940DE;
+    --bar-fill-alt: #C3ADD0;
+
+    background: var(--bg); color: var(--text);
+  }
+  .pal-b .palette-ref { background: var(--bg); color: var(--text); border-bottom: 1px solid var(--border); }
+  .pal-b .palette-ref .philosophy { color: var(--text-secondary); }
+
+  .pal-b .cmd-bar { border: 1px solid var(--border); background: var(--bg-subtle); color: var(--text-muted); }
+  .pal-b .cmd-bar kbd { background: var(--border); color: var(--text-secondary); }
+  .pal-b .dash-header h1 { color: var(--text); }
+  .pal-b .tab-row { border-bottom: 1px solid var(--border-light); }
+  .pal-b .tab-row .tab { color: var(--text-muted); }
+  .pal-b .tab-row .tab.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
+  .pal-b .kpi-card { border-right: 1px solid var(--border-light); }
+  .pal-b .kpi-card .label { color: var(--text-secondary); }
+  .pal-b .kpi-card .value { color: var(--text); }
+  .pal-b .kpi-card .delta.up { color: var(--positive); }
+  .pal-b .kpi-card .delta.down { color: var(--negative); }
+  .pal-b .divider { background: var(--border-light); }
+  .pal-b .card-title { color: var(--text); }
+  .pal-b .chart-bars .bar { background: var(--bar-fill); opacity: 0.16; }
+  .pal-b .chart-bars .bar:nth-child(even) { opacity: 0.35; }
+  .pal-b .chart-bars .bar:nth-child(3n) { background: var(--bar-fill-alt); opacity: 0.55; }
+  .pal-b .feed-item { border-bottom: 1px solid var(--border-light); color: var(--text-secondary); }
+  .pal-b .feed-item .bullet { color: var(--text-muted); }
+  .pal-b .feed-item .time { color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════
+     PALETTE C — Teal Clinical
+     From ColorSchema teals: #DAF5E0 → #ACE4CB → #459FB8 → #267B75
+     ═══════════════════════════════════════ */
+  .pal-c {
+    --text: #132E2C;
+    --text-secondary: #4E7572;
+    --text-muted: #8AADAA;
+    --bg: #FDFFFF;
+    --bg-subtle: #F3FAF9;
+    --border: #D0E8E5;
+    --border-light: #E6F2F0;
+    --accent: #267B75;
+    --accent-light: #DAF5E0;
+    --positive: #337023;
+    --negative: #E15720;
+    --bar-fill: #267B75;
+    --bar-fill-alt: #459FB8;
+
+    background: var(--bg); color: var(--text);
+  }
+  .pal-c .palette-ref { background: var(--bg); color: var(--text); border-bottom: 1px solid var(--border); }
+  .pal-c .palette-ref .philosophy { color: var(--text-secondary); }
+
+  .pal-c .cmd-bar { border: 1px solid var(--border); background: var(--bg-subtle); color: var(--text-muted); }
+  .pal-c .cmd-bar kbd { background: var(--border); color: var(--text-secondary); }
+  .pal-c .dash-header h1 { color: var(--text); }
+  .pal-c .tab-row { border-bottom: 1px solid var(--border-light); }
+  .pal-c .tab-row .tab { color: var(--text-muted); }
+  .pal-c .tab-row .tab.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
+  .pal-c .kpi-card { border-right: 1px solid var(--border-light); }
+  .pal-c .kpi-card .label { color: var(--text-secondary); }
+  .pal-c .kpi-card .value { color: var(--text); }
+  .pal-c .kpi-card .delta.up { color: var(--positive); }
+  .pal-c .kpi-card .delta.down { color: var(--negative); }
+  .pal-c .divider { background: var(--border-light); }
+  .pal-c .card-title { color: var(--text); }
+  .pal-c .chart-bars .bar { background: var(--bar-fill); opacity: 0.18; }
+  .pal-c .chart-bars .bar:nth-child(even) { opacity: 0.4; }
+  .pal-c .chart-bars .bar:nth-child(3n) { background: var(--bar-fill-alt); opacity: 0.45; }
+  .pal-c .feed-item { border-bottom: 1px solid var(--border-light); color: var(--text-secondary); }
+  .pal-c .feed-item .bullet { color: var(--text-muted); }
+  .pal-c .feed-item .time { color: var(--text-muted); }
+</style>
+</head>
+<body>
+
+<!-- PICKER -->
+<div class="picker">
+  <span class="picker-label">Palette:</span>
+  <button class="active" onclick="showAlt(0)">A. Indigo Ink</button>
+  <button onclick="showAlt(1)">B. Plum Dusk</button>
+  <button onclick="showAlt(2)">C. Teal Clinical</button>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PALETTE A — Indigo Ink
+     ═══════════════════════════════════════ -->
+<div class="alt-container linear pal-a active" id="alt-0">
+  <div class="palette-ref">
+    <h2>A. Indigo Ink</h2>
+    <p class="philosophy">Sourced from the blue row of the ColorSchema. Deep navy text (#1B2A44) instead of pure black — warmer on screen and easier to scan. Single accent: the schema's vivid blue #3465FF for active states. Chart bars alternate between indigo and sky-blue (#84C8F3). Borders are blue-tinted gray. Feels calm, professional, and trustworthy.</p>
+    <div class="swatch-row">
+      <div class="swatch" style="background:#1B2A44; color:#fff">#1B2A44</div>
+      <div class="swatch" style="background:#3465FF; color:#fff">#3465FF</div>
+      <div class="swatch" style="background:#4A6E8F; color:#fff">#4A6E8F</div>
+      <div class="swatch" style="background:#84C8F3; color:#1B2A44">#84C8F3</div>
+      <div class="swatch" style="background:#D8ECF4; color:#1B2A44">#D8ECF4</div>
+      <div class="swatch" style="background:#337023; color:#fff">#337023</div>
+      <div class="swatch" style="background:#CE2626; color:#fff">#CE2626</div>
+    </div>
+    <div class="swatch-labels">
+      <span>Text</span><span>Accent</span><span>Secondary</span><span>Chart Alt</span><span>Borders</span><span>Positive</span><span>Negative</span>
+    </div>
+  </div>
+
+  <div class="cmd-bar">
+    <kbd>Ctrl</kbd><kbd>K</kbd>
+    <span>Search clinics, metrics, or actions...</span>
+  </div>
+  <div class="dash-header">
+    <h1>Admin Dashboard</h1>
+  </div>
+  <div class="tab-row">
+    <div class="tab active">Overview</div>
+    <div class="tab">Clinics</div>
+    <div class="tab">Financial</div>
+    <div class="tab">Engagement</div>
+    <div class="tab">Platform</div>
+  </div>
+  <div class="dash-body">
+    <div class="kpi-grid">
+      <div class="kpi-card"><div class="label">Active Trials</div><div class="value">24</div><div class="delta up">+8</div></div>
+      <div class="kpi-card"><div class="label">Paid Subscriptions</div><div class="value">18</div><div class="delta up">+3</div></div>
+      <div class="kpi-card"><div class="label">MRR</div><div class="value">1,150</div><div class="delta up">+12.4%</div></div>
+      <div class="kpi-card"><div class="label">Conversion</div><div class="value">34%</div><div class="delta down">-2.1%</div></div>
+      <div class="kpi-card"><div class="label">Daily Active</div><div class="value">31</div><div class="delta up">+5</div></div>
+    </div>
+    <div class="divider"></div>
+    <div class="content-grid">
+      <div>
+        <div class="card-title">Patient Volume</div>
+        <div class="chart-bars">
+          <div class="bar" style="height:45%"></div>
+          <div class="bar" style="height:60%"></div>
+          <div class="bar" style="height:55%"></div>
+          <div class="bar" style="height:80%"></div>
+          <div class="bar" style="height:70%"></div>
+          <div class="bar" style="height:30%"></div>
+          <div class="bar" style="height:20%"></div>
+          <div class="bar" style="height:50%"></div>
+          <div class="bar" style="height:75%"></div>
+          <div class="bar" style="height:65%"></div>
+          <div class="bar" style="height:90%"></div>
+          <div class="bar" style="height:85%"></div>
+          <div class="bar" style="height:40%"></div>
+          <div class="bar" style="height:35%"></div>
+        </div>
+      </div>
+      <div>
+        <div class="card-title">Activity</div>
+        <div class="feed-item"><span class="bullet">&mdash;</span><span>Dr. Karim clinic signed up</span><span class="time">3m</span></div>
+        <div class="feed-item"><span class="bullet">&mdash;</span><span>Cabinet Sfax upgraded to Yearly</span><span class="time">27m</span></div>
+        <div class="feed-item"><span class="bullet">&mdash;</span><span>Dr. Mariam trial expired</span><span class="time">1h</span></div>
+        <div class="feed-item"><span class="bullet">&mdash;</span><span>Cabinet Monastir +300 SMS</span><span class="time">2h</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PALETTE B — Plum Dusk
+     ═══════════════════════════════════════ -->
+<div class="alt-container linear pal-b" id="alt-1">
+  <div class="palette-ref">
+    <h2>B. Plum Dusk</h2>
+    <p class="philosophy">Drawn from the purple/pink rows of the ColorSchema. Deep plum text (#2B1642) carries a sophisticated warmth. Accent is the schema's vivid violet #7940DE — the closest to BléSaf's existing purple brand. Negative indicators use magenta #A1289B instead of red for tonal harmony. Chart bars fade between violet and soft lavender (#C3ADD0). Borders are lilac-tinted. Feels premium and brand-aligned.</p>
+    <div class="swatch-row">
+      <div class="swatch" style="background:#2B1642; color:#fff">#2B1642</div>
+      <div class="swatch" style="background:#7940DE; color:#fff">#7940DE</div>
+      <div class="swatch" style="background:#A1289B; color:#fff">#A1289B</div>
+      <div class="swatch" style="background:#C3ADD0; color:#2B1642">#C3ADD0</div>
+      <div class="swatch" style="background:#F3C9F6; color:#2B1642">#F3C9F6</div>
+      <div class="swatch" style="background:#337023; color:#fff">#337023</div>
+      <div class="swatch" style="background:#A1289B; color:#fff">#A1289B</div>
+    </div>
+    <div class="swatch-labels">
+      <span>Text</span><span>Accent</span><span>Dark Pink</span><span>Chart Alt</span><span>Borders</span><span>Positive</span><span>Negative</span>
+    </div>
+  </div>
+
+  <div class="cmd-bar">
+    <kbd>Ctrl</kbd><kbd>K</kbd>
+    <span>Search clinics, metrics, or actions...</span>
+  </div>
+  <div class="dash-header">
+    <h1>Admin Dashboard</h1>
+  </div>
+  <div class="tab-row">
+    <div class="tab active">Overview</div>
+    <div class="tab">Clinics</div>
+    <div class="tab">Financial</div>
+    <div class="tab">Engagement</div>
+    <div class="tab">Platform</div>
+  </div>
+  <div class="dash-body">
+    <div class="kpi-grid">
+      <div class="kpi-card"><div class="label">Active Trials</div><div class="value">24</div><div class="delta up">+8</div></div>
+      <div class="kpi-card"><div class="label">Paid Subscriptions</div><div class="value">18</div><div class="delta up">+3</div></div>
+      <div class="kpi-card"><div class="label">MRR</div><div class="value">1,150</div><div class="delta up">+12.4%</div></div>
+      <div class="kpi-card"><div class="label">Conversion</div><div class="value">34%</div><div class="delta down">-2.1%</div></div>
+      <div class="kpi-card"><div class="label">Daily Active</div><div class="value">31</div><div class="delta up">+5</div></div>
+    </div>
+    <div class="divider"></div>
+    <div class="content-grid">
+      <div>
+        <div class="card-title">Patient Volume</div>
+        <div class="chart-bars">
+          <div class="bar" style="height:45%"></div>
+          <div class="bar" style="height:60%"></div>
+          <div class="bar" style="height:55%"></div>
+          <div class="bar" style="height:80%"></div>
+          <div class="bar" style="height:70%"></div>
+          <div class="bar" style="height:30%"></div>
+          <div class="bar" style="height:20%"></div>
+          <div class="bar" style="height:50%"></div>
+          <div class="bar" style="height:75%"></div>
+          <div class="bar" style="height:65%"></div>
+          <div class="bar" style="height:90%"></div>
+          <div class="bar" style="height:85%"></div>
+          <div class="bar" style="height:40%"></div>
+          <div class="bar" style="height:35%"></div>
+        </div>
+      </div>
+      <div>
+        <div class="card-title">Activity</div>
+        <div class="feed-item"><span class="bullet">&mdash;</span><span>Dr. Karim clinic signed up</span><span class="time">3m</span></div>
+        <div class="feed-item"><span class="bullet">&mdash;</span><span>Cabinet Sfax upgraded to Yearly</span><span class="time">27m</span></div>
+        <div class="feed-item"><span class="bullet">&mdash;</span><span>Dr. Mariam trial expired</span><span class="time">1h</span></div>
+        <div class="feed-item"><span class="bullet">&mdash;</span><span>Cabinet Monastir +300 SMS</span><span class="time">2h</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PALETTE C — Teal Clinical
+     ═══════════════════════════════════════ -->
+<div class="alt-container linear pal-c" id="alt-2">
+  <div class="palette-ref">
+    <h2>C. Teal Clinical</h2>
+    <p class="philosophy">Built from the teal/green rows of the ColorSchema. Dark teal text (#132E2C) evokes a medical/clinical register. Accent is the schema's deep teal #267B75 — calm, authoritative, and distinctly healthcare. Negative indicators use burnt orange #E15720 instead of red for better contrast against teal. Chart bars alternate between teal and cerulean (#459FB8). Borders are mint-tinted. Feels clean, clinical, and purpose-built for a medical SaaS.</p>
+    <div class="swatch-row">
+      <div class="swatch" style="background:#132E2C; color:#fff">#132E2C</div>
+      <div class="swatch" style="background:#267B75; color:#fff">#267B75</div>
+      <div class="swatch" style="background:#459FB8; color:#fff">#459FB8</div>
+      <div class="swatch" style="background:#ACE4CB; color:#132E2C">#ACE4CB</div>
+      <div class="swatch" style="background:#DAF5E0; color:#132E2C">#DAF5E0</div>
+      <div class="swatch" style="background:#337023; color:#fff">#337023</div>
+      <div class="swatch" style="background:#E15720; color:#fff">#E15720</div>
+    </div>
+    <div class="swatch-labels">
+      <span>Text</span><span>Accent</span><span>Chart Alt</span><span>Light Teal</span><span>Borders</span><span>Positive</span><span>Negative</span>
+    </div>
+  </div>
+
+  <div class="cmd-bar">
+    <kbd>Ctrl</kbd><kbd>K</kbd>
+    <span>Search clinics, metrics, or actions...</span>
+  </div>
+  <div class="dash-header">
+    <h1>Admin Dashboard</h1>
+  </div>
+  <div class="tab-row">
+    <div class="tab active">Overview</div>
+    <div class="tab">Clinics</div>
+    <div class="tab">Financial</div>
+    <div class="tab">Engagement</div>
+    <div class="tab">Platform</div>
+  </div>
+  <div class="dash-body">
+    <div class="kpi-grid">
+      <div class="kpi-card"><div class="label">Active Trials</div><div class="value">24</div><div class="delta up">+8</div></div>
+      <div class="kpi-card"><div class="label">Paid Subscriptions</div><div class="value">18</div><div class="delta up">+3</div></div>
+      <div class="kpi-card"><div class="label">MRR</div><div class="value">1,150</div><div class="delta up">+12.4%</div></div>
+      <div class="kpi-card"><div class="label">Conversion</div><div class="value">34%</div><div class="delta down">-2.1%</div></div>
+      <div class="kpi-card"><div class="label">Daily Active</div><div class="value">31</div><div class="delta up">+5</div></div>
+    </div>
+    <div class="divider"></div>
+    <div class="content-grid">
+      <div>
+        <div class="card-title">Patient Volume</div>
+        <div class="chart-bars">
+          <div class="bar" style="height:45%"></div>
+          <div class="bar" style="height:60%"></div>
+          <div class="bar" style="height:55%"></div>
+          <div class="bar" style="height:80%"></div>
+          <div class="bar" style="height:70%"></div>
+          <div class="bar" style="height:30%"></div>
+          <div class="bar" style="height:20%"></div>
+          <div class="bar" style="height:50%"></div>
+          <div class="bar" style="height:75%"></div>
+          <div class="bar" style="height:65%"></div>
+          <div class="bar" style="height:90%"></div>
+          <div class="bar" style="height:85%"></div>
+          <div class="bar" style="height:40%"></div>
+          <div class="bar" style="height:35%"></div>
+        </div>
+      </div>
+      <div>
+        <div class="card-title">Activity</div>
+        <div class="feed-item"><span class="bullet">&mdash;</span><span>Dr. Karim clinic signed up</span><span class="time">3m</span></div>
+        <div class="feed-item"><span class="bullet">&mdash;</span><span>Cabinet Sfax upgraded to Yearly</span><span class="time">27m</span></div>
+        <div class="feed-item"><span class="bullet">&mdash;</span><span>Dr. Mariam trial expired</span><span class="time">1h</span></div>
+        <div class="feed-item"><span class="bullet">&mdash;</span><span>Cabinet Monastir +300 SMS</span><span class="time">2h</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showAlt(index) {
+  document.querySelectorAll('.alt-container').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.picker button').forEach(el => el.classList.remove('active'));
+  document.getElementById('alt-' + index).classList.add('active');
+  document.querySelectorAll('.picker button')[index].classList.add('active');
+}
+</script>
+</body>
+</html>

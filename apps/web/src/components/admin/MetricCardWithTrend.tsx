@@ -1,6 +1,6 @@
 /**
- * MetricCardWithTrend - Dashboard metric card with trend indicator
- * Shows current value with comparison to previous period
+ * MetricCardWithTrend — Teal Clinical palette
+ * Label → large teal value → colored delta
  */
 
 interface MetricCardWithTrendProps {
@@ -8,9 +8,9 @@ interface MetricCardWithTrendProps {
   value: string | number;
   subtext: string;
   trend?: {
-    value: number;      // Percentage change
+    value: number;
     direction: 'up' | 'down' | 'flat';
-    isPositive: boolean; // Whether up is good (e.g., patients) or bad (e.g., overdue)
+    isPositive: boolean;
   };
   color: 'green' | 'blue' | 'indigo' | 'purple' | 'yellow' | 'red' | 'gray';
   onClick?: () => void;
@@ -19,81 +19,35 @@ interface MetricCardWithTrendProps {
 export default function MetricCardWithTrend({
   label,
   value,
-  subtext,
   trend,
-  color,
   onClick,
 }: MetricCardWithTrendProps) {
-  const colorClasses: Record<string, string> = {
-    green: 'bg-green-50 border-green-200 hover:bg-green-100',
-    blue: 'bg-blue-50 border-blue-200 hover:bg-blue-100',
-    indigo: 'bg-indigo-50 border-indigo-200 hover:bg-indigo-100',
-    purple: 'bg-purple-50 border-purple-200 hover:bg-purple-100',
-    yellow: 'bg-yellow-50 border-yellow-200 hover:bg-yellow-100',
-    red: 'bg-red-50 border-red-200 hover:bg-red-100',
-    gray: 'bg-gray-50 border-gray-200 hover:bg-gray-100',
-  };
-
-  const textClasses: Record<string, string> = {
-    green: 'text-green-900',
-    blue: 'text-blue-900',
-    indigo: 'text-indigo-900',
-    purple: 'text-purple-900',
-    yellow: 'text-yellow-900',
-    red: 'text-red-900',
-    gray: 'text-gray-900',
-  };
-
-  const getTrendIcon = () => {
+  const getTrendDisplay = () => {
     if (!trend) return null;
 
     if (trend.direction === 'flat') {
-      return <span className="text-gray-500">→</span>;
+      return <span className="text-[#8AADAA] text-xs font-medium">steady</span>;
     }
 
     const isGood = trend.direction === 'up' ? trend.isPositive : !trend.isPositive;
-    const colorClass = isGood ? 'text-green-600' : 'text-red-600';
+    const colorClass = isGood ? 'text-[#337023]' : 'text-[#E15720]';
+    const sign = trend.direction === 'up' ? '+' : '-';
 
     return (
-      <span className={colorClass}>
-        {trend.direction === 'up' ? '↑' : '↓'}
-      </span>
-    );
-  };
-
-  const getTrendText = () => {
-    if (!trend) return null;
-
-    if (trend.direction === 'flat') {
-      return <span className="text-gray-500 text-xs ml-1">steady</span>;
-    }
-
-    const isGood = trend.direction === 'up' ? trend.isPositive : !trend.isPositive;
-    const colorClass = isGood ? 'text-green-600' : 'text-red-600';
-
-    return (
-      <span className={`${colorClass} text-xs ml-1`}>
-        {Math.abs(trend.value)}%
+      <span className={`${colorClass} text-xs font-medium`}>
+        {sign}{Math.abs(trend.value)}%
       </span>
     );
   };
 
   return (
     <div
-      className={`rounded-lg border p-4 transition-colors ${colorClasses[color]} ${onClick ? 'cursor-pointer' : ''}`}
+      className={`px-6 first:pl-0 border-r border-[#E6F2F0] last:border-r-0 ${onClick ? 'cursor-pointer' : ''}`}
       onClick={onClick}
     >
-      <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">{label}</p>
-      <div className="flex items-baseline gap-2 mt-1">
-        <p className={`text-2xl font-bold ${textClasses[color]}`}>{value}</p>
-        {trend && (
-          <div className="flex items-center">
-            {getTrendIcon()}
-            {getTrendText()}
-          </div>
-        )}
-      </div>
-      <p className="text-xs text-gray-500 mt-1">{subtext}</p>
+      <p className="text-xs font-medium text-[#4E7572] uppercase tracking-wide">{label}</p>
+      <p className="text-[26px] font-bold text-[#132E2C] tracking-tight leading-tight mt-1 mb-1">{value}</p>
+      {getTrendDisplay()}
     </div>
   );
 }

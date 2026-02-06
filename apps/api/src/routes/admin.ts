@@ -20,6 +20,15 @@ import {
   recordPayment,
   getClinicPayments,
   updatePaymentStatus,
+  getSubscriptionMetrics,
+  getOnboardingFunnel,
+  getRecentActivity,
+  getFinancialAnalytics,
+  getFeatureAdoption,
+  getPlatformHealth,
+  extendTrial,
+  upgradeToActive,
+  updateClinicInfo,
 } from '../services/adminService.js';
 import { initPayment, getPaymentDetails } from '../lib/konnect.js';
 
@@ -140,6 +149,37 @@ router.patch('/clinics/:id/status', authMiddleware, isAdmin, async (req: AuthReq
   }
 });
 
+// ─── Update Clinic Info ──────────────────────────────────────
+
+const updateClinicSchema = z.object({
+  name: z.string().min(1).optional(),
+  doctorName: z.string().optional(),
+  phone: z.string().optional(),
+  email: z.string().email().optional(),
+  language: z.enum(['fr', 'ar']).optional(),
+  avgConsultationMins: z.number().min(1).max(120).optional(),
+  businessType: z.string().optional(),
+  address: z.string().optional(),
+  notifyAtPosition: z.number().min(1).max(10).optional(),
+});
+
+router.patch('/clinics/:id', authMiddleware, isAdmin, async (req: AuthRequest, res: Response) => {
+  try {
+    const data = updateClinicSchema.parse(req.body);
+    const clinic = await updateClinicInfo(req.params.id, data);
+    res.json({ data: clinic });
+  } catch (error: any) {
+    if (error.code === 'EMAIL_EXISTS') {
+      return res.status(409).json({ error: { code: 'EMAIL_EXISTS', message: error.message } });
+    }
+    if (error.name === 'ZodError') {
+      return res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
+    }
+    console.error('Error updating clinic info:', error);
+    res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to update clinic info' } });
+  }
+});
+
 // ─── Reset Clinic Password ───────────────────────────────────
 
 router.post('/clinics/:id/reset-password', authMiddleware, isAdmin, async (req: AuthRequest, res: Response) => {
@@ -248,6 +288,117 @@ router.get('/clinics/:id/payments', authMiddleware, isAdmin, async (req: AuthReq
   } catch (error) {
     console.error('Error fetching payments:', error);
     res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch payments' } });
+  }
+});
+
+// ─── V2: Subscription Metrics ────────────────────────────────
+
+router.get('/subscription-metrics', authMiddleware, isAdmin, async (_req: AuthRequest, res: Response) => {
+  try {
+    const metrics = await getSubscriptionMetrics();
+    res.json({ data: metrics });
+  } catch (error) {
+    console.error('Error fetching subscription metrics:', error);
+    res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch subscription metrics' } });
+  }
+});
+
+// ─── V2: Onboarding Funnel ──────────────────────────────────
+
+router.get('/onboarding-funnel', authMiddleware, isAdmin, async (_req: AuthRequest, res: Response) => {
+  try {
+    const funnel = await getOnboardingFunnel();
+    res.json({ data: funnel });
+  } catch (error) {
+    console.error('Error fetching onboarding funnel:', error);
+    res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch onboarding funnel' } });
+  }
+});
+
+// ─── V2: Activity Feed ──────────────────────────────────────
+
+router.get('/activity-feed', authMiddleware, isAdmin, async (req: AuthRequest, res: Response) => {
+  try {
+    const limit = Math.min(parseInt(req.query.limit as string) || 20, 50);
+    const activity = await getRecentActivity(limit);
+    res.json({ data: activity });
+  } catch (error) {
+    console.error('Error fetching activity feed:', error);
+    res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch activity feed' } });
+  }
+});
+
+// ─── V2: Financial Analytics ────────────────────────────────
+
+router.get('/financial', authMiddleware, isAdmin, async (_req: AuthRequest, res: Response) => {
+  try {
+    const analytics = await getFinancialAnalytics();
+    res.json({ data: analytics });
+  } catch (error) {
+    console.error('Error fetching financial analytics:', error);
+    res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch financial analytics' } });
+  }
+});
+
+// ─── V2: Feature Adoption ───────────────────────────────────
+
+router.get('/feature-adoption', authMiddleware, isAdmin, async (_req: AuthRequest, res: Response) => {
+  try {
+    const adoption = await getFeatureAdoption();
+    res.json({ data: adoption });
+  } catch (error) {
+    console.error('Error fetching feature adoption:', error);
+    res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch feature adoption' } });
+  }
+});
+
+// ─── V2: Platform Health ────────────────────────────────────
+
+router.get('/platform-health', authMiddleware, isAdmin, async (_req: AuthRequest, res: Response) => {
+  try {
+    const health = await getPlatformHealth();
+    res.json({ data: health });
+  } catch (error) {
+    console.error('Error fetching platform health:', error);
+    res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch platform health' } });
+  }
+});
+
+// ─── V2: Extend Trial ───────────────────────────────────────
+
+router.patch('/clinics/:id/trial', authMiddleware, isAdmin, async (req: AuthRequest, res: Response) => {
+  try {
+    const { days } = z.object({ days: z.number().min(1).max(365) }).parse(req.body);
+    const result = await extendTrial(req.params.id, days);
+    res.json({ data: result });
+  } catch (error: any) {
+    if (error.name === 'ZodError') {
+      return res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: 'Invalid input' } });
+    }
+    if (error.code === 'P2025') {
+      return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Clinic not found' } });
+    }
+    console.error('Error extending trial:', error);
+    res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to extend trial' } });
+  }
+});
+
+// ─── V2: Upgrade Subscription ───────────────────────────────
+
+router.patch('/clinics/:id/upgrade', authMiddleware, isAdmin, async (req: AuthRequest, res: Response) => {
+  try {
+    const { plan } = z.object({ plan: z.enum(['MONTHLY', 'YEARLY']) }).parse(req.body);
+    const result = await upgradeToActive(req.params.id, plan);
+    res.json({ data: result });
+  } catch (error: any) {
+    if (error.name === 'ZodError') {
+      return res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: 'Invalid input' } });
+    }
+    if (error.code === 'P2025') {
+      return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Clinic not found' } });
+    }
+    console.error('Error upgrading subscription:', error);
+    res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to upgrade subscription' } });
   }
 });
 

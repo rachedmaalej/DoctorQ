@@ -1,0 +1,1585 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BléSaf Landing Page — 3 Alternative Designs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', system-ui, sans-serif; background: #0a0a0f; color: #e2e2e8; }
+
+/* ── PICKER NAV ── */
+.picker {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  background: rgba(10,10,15,0.95); backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  display: flex; align-items: center; gap: 8px; padding: 10px 20px; flex-wrap: wrap;
+}
+.picker-label {
+  font-weight: 700; font-size: 13px; color: #a0a0b0;
+  white-space: nowrap; margin-right: 8px; letter-spacing: 0.5px; text-transform: uppercase;
+}
+.picker button {
+  padding: 7px 16px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
+  background: transparent; color: #a0a0b0; font-size: 12px; font-weight: 600;
+  cursor: pointer; white-space: nowrap; transition: all 0.2s; font-family: 'Inter', sans-serif;
+}
+.picker button:hover { border-color: rgba(255,255,255,0.25); color: #fff; }
+.picker button.active { background: #059669; border-color: #059669; color: #fff; }
+.alt-container { display: none; padding-top: 56px; }
+.alt-container.active { display: block; }
+
+/* ── ANNOTATION STRIP ── */
+.annotation {
+  background: rgba(5,150,105,0.1); border: 1px solid rgba(5,150,105,0.3);
+  border-radius: 8px; padding: 16px 20px; margin: 20px auto; max-width: 900px;
+  font-size: 13px; color: #6ee7b7; line-height: 1.6;
+}
+.annotation strong { color: #a7f3d0; }
+.annotation ul { margin: 8px 0 0 20px; }
+
+/* ══════════════════════════════════════════════════
+   ALTERNATIVE A — "Clinique Moderne" (Teal/Emerald)
+   ══════════════════════════════════════════════════ */
+.a-page { background: #fff; color: #1e293b; }
+
+/* Header */
+.a-header {
+  position: sticky; top: 56px; z-index: 100;
+  background: rgba(255,255,255,0.92); backdrop-filter: blur(12px);
+  border-bottom: 1px solid #e2e8f0; padding: 0 24px; height: 64px;
+  display: flex; align-items: center; justify-content: space-between; max-width: 100%;
+}
+.a-logo { display: flex; align-items: center; gap: 10px; }
+.a-logo-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: linear-gradient(135deg, #059669, #10b981);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-weight: 800; font-size: 18px;
+}
+.a-logo-text { font-weight: 800; font-size: 20px; color: #0f172a; }
+.a-nav { display: flex; align-items: center; gap: 24px; }
+.a-nav a { font-size: 14px; font-weight: 500; color: #64748b; text-decoration: none; }
+.a-nav a:hover { color: #0f172a; }
+.a-btn-outline {
+  padding: 8px 16px; border-radius: 8px; border: 1px solid #e2e8f0;
+  background: #fff; color: #0f172a; font-weight: 600; font-size: 14px;
+  cursor: pointer; text-decoration: none;
+}
+.a-btn-primary {
+  padding: 8px 20px; border-radius: 8px; border: none;
+  background: linear-gradient(135deg, #059669, #10b981);
+  color: #fff; font-weight: 600; font-size: 14px; cursor: pointer; text-decoration: none;
+}
+
+/* Hero */
+.a-hero {
+  padding: 80px 24px 60px; text-align: center;
+  background: linear-gradient(180deg, #f0fdf4 0%, #fff 100%);
+}
+.a-hero-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #dcfce7; color: #166534; font-size: 13px; font-weight: 600;
+  padding: 6px 14px; border-radius: 20px; margin-bottom: 24px;
+}
+.a-hero h1 {
+  font-size: 52px; font-weight: 900; line-height: 1.1; color: #0f172a;
+  max-width: 740px; margin: 0 auto 20px;
+}
+.a-hero h1 span { color: #059669; }
+.a-hero p {
+  font-size: 20px; color: #64748b; max-width: 600px; margin: 0 auto 32px; line-height: 1.5;
+}
+.a-hero-ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.a-hero-cta-primary {
+  padding: 16px 32px; border-radius: 12px; border: none;
+  background: linear-gradient(135deg, #059669, #047857);
+  color: #fff; font-weight: 700; font-size: 17px; cursor: pointer;
+  box-shadow: 0 4px 24px rgba(5,150,105,0.3); text-decoration: none;
+}
+.a-hero-cta-secondary {
+  padding: 16px 32px; border-radius: 12px; border: 2px solid #e2e8f0;
+  background: #fff; color: #334155; font-weight: 600; font-size: 17px;
+  cursor: pointer; text-decoration: none; display: flex; align-items: center; gap: 8px;
+}
+.a-hero-note { font-size: 13px; color: #94a3b8; margin-top: 16px; }
+
+/* Mockup */
+.a-mockup {
+  max-width: 900px; margin: -20px auto 0; padding: 0 24px;
+  position: relative; z-index: 10;
+}
+.a-mockup-frame {
+  background: #0f172a; border-radius: 16px; padding: 12px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+}
+.a-mockup-dots { display: flex; gap: 6px; margin-bottom: 10px; }
+.a-mockup-dots span { width: 10px; height: 10px; border-radius: 50%; }
+.a-mockup-dots span:nth-child(1) { background: #ef4444; }
+.a-mockup-dots span:nth-child(2) { background: #eab308; }
+.a-mockup-dots span:nth-child(3) { background: #22c55e; }
+.a-mockup-screen {
+  background: #f8fafc; border-radius: 8px; padding: 20px;
+  display: grid; grid-template-columns: 200px 1fr; gap: 16px; min-height: 260px;
+}
+.a-mockup-sidebar { display: flex; flex-direction: column; gap: 8px; }
+.a-mockup-sidebar-item {
+  padding: 10px 14px; border-radius: 8px; font-size: 12px; font-weight: 500; color: #64748b;
+}
+.a-mockup-sidebar-item.active { background: #dcfce7; color: #166534; font-weight: 600; }
+.a-mockup-main { display: flex; flex-direction: column; gap: 12px; }
+.a-mockup-stat-row { display: flex; gap: 12px; }
+.a-mockup-stat {
+  flex: 1; background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px;
+}
+.a-mockup-stat-label { font-size: 11px; color: #94a3b8; margin-bottom: 4px; }
+.a-mockup-stat-val { font-size: 22px; font-weight: 700; color: #0f172a; }
+.a-mockup-queue {
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px; flex: 1;
+}
+.a-mockup-queue-title { font-size: 12px; font-weight: 600; color: #0f172a; margin-bottom: 10px; }
+.a-mockup-queue-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-size: 12px;
+}
+.a-mockup-queue-pos {
+  width: 24px; height: 24px; border-radius: 6px; background: #dcfce7;
+  color: #166534; font-weight: 700; font-size: 11px;
+  display: flex; align-items: center; justify-content: center;
+}
+.a-mockup-queue-name { flex: 1; font-weight: 500; color: #334155; }
+.a-mockup-queue-status {
+  padding: 3px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;
+}
+.a-mockup-queue-status.waiting { background: #fef3c7; color: #92400e; }
+.a-mockup-queue-status.notified { background: #dbeafe; color: #1e40af; }
+
+/* Logos strip */
+.a-logos {
+  padding: 40px 24px; text-align: center;
+  border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9;
+}
+.a-logos-label { font-size: 13px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 24px; }
+.a-logos-grid {
+  display: flex; justify-content: center; align-items: center; gap: 48px; flex-wrap: wrap;
+  opacity: 0.5;
+}
+.a-logos-grid .logo-placeholder {
+  width: 120px; height: 40px; background: #e2e8f0; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #94a3b8;
+}
+
+/* Section utility */
+.a-section { padding: 80px 24px; max-width: 1100px; margin: 0 auto; }
+.a-section-gray { background: #f8fafc; }
+.a-section-title {
+  font-size: 36px; font-weight: 800; color: #0f172a; text-align: center; margin-bottom: 12px;
+}
+.a-section-subtitle {
+  font-size: 18px; color: #64748b; text-align: center; max-width: 600px; margin: 0 auto 48px;
+}
+
+/* Problem */
+.a-problem-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; max-width: 800px; margin: 0 auto; }
+.a-problem-card {
+  background: #fff; border: 1px solid #fee2e2; border-radius: 16px; padding: 28px;
+}
+.a-problem-card .icon { font-size: 28px; margin-bottom: 12px; }
+.a-problem-card h3 { font-size: 17px; font-weight: 700; color: #0f172a; margin-bottom: 6px; }
+.a-problem-card p { font-size: 14px; color: #64748b; line-height: 1.5; }
+
+/* Benefits */
+.a-benefits-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.a-benefit-card {
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 32px; text-align: center;
+}
+.a-benefit-icon {
+  width: 56px; height: 56px; border-radius: 14px; margin: 0 auto 16px;
+  display: flex; align-items: center; justify-content: center; font-size: 24px;
+}
+.a-benefit-icon.green { background: #dcfce7; }
+.a-benefit-icon.blue { background: #dbeafe; }
+.a-benefit-icon.amber { background: #fef3c7; }
+.a-benefit-card h3 { font-size: 17px; font-weight: 700; color: #0f172a; margin-bottom: 8px; }
+.a-benefit-card p { font-size: 14px; color: #64748b; line-height: 1.5; }
+.a-benefit-card .stat { font-size: 28px; font-weight: 800; color: #059669; margin-top: 12px; }
+
+/* How it works */
+.a-steps { display: flex; gap: 32px; flex-wrap: wrap; justify-content: center; }
+.a-step { flex: 1; min-width: 200px; max-width: 240px; text-align: center; position: relative; }
+.a-step-num {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: linear-gradient(135deg, #059669, #10b981);
+  color: #fff; font-weight: 700; font-size: 16px;
+  display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;
+}
+.a-step h3 { font-size: 15px; font-weight: 700; color: #0f172a; margin-bottom: 6px; }
+.a-step p { font-size: 13px; color: #64748b; line-height: 1.5; }
+
+/* Testimonials */
+.a-testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.a-testimonial {
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 28px;
+}
+.a-testimonial-stars { color: #eab308; font-size: 16px; margin-bottom: 12px; }
+.a-testimonial-text { font-size: 14px; color: #334155; line-height: 1.6; font-style: italic; margin-bottom: 16px; }
+.a-testimonial-author { display: flex; align-items: center; gap: 12px; }
+.a-testimonial-avatar {
+  width: 44px; height: 44px; border-radius: 50%; background: #e2e8f0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 700; color: #64748b;
+}
+.a-testimonial-name { font-size: 14px; font-weight: 600; color: #0f172a; }
+.a-testimonial-role { font-size: 12px; color: #94a3b8; }
+
+/* Case study */
+.a-case-study {
+  background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
+  border: 1px solid #bbf7d0; border-radius: 20px; padding: 48px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center;
+  max-width: 900px; margin: 0 auto;
+}
+.a-case-study h3 { font-size: 24px; font-weight: 800; color: #0f172a; margin-bottom: 12px; }
+.a-case-study p { font-size: 15px; color: #334155; line-height: 1.6; margin-bottom: 16px; }
+.a-case-study-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.a-case-study-stat { text-align: center; }
+.a-case-study-stat .val { font-size: 36px; font-weight: 800; color: #059669; }
+.a-case-study-stat .label { font-size: 12px; color: #64748b; margin-top: 4px; }
+
+/* Trust badges */
+.a-trust-row {
+  display: flex; justify-content: center; gap: 32px; flex-wrap: wrap; margin-top: 48px;
+}
+.a-trust-badge {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; color: #64748b; font-weight: 500;
+}
+.a-trust-badge .icon {
+  width: 32px; height: 32px; background: #f1f5f9; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center; font-size: 16px;
+}
+
+/* Pricing */
+.a-pricing-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; max-width: 700px; margin: 0 auto 32px; }
+.a-pricing-card {
+  background: #fff; border: 2px solid #e2e8f0; border-radius: 16px; padding: 32px;
+}
+.a-pricing-card.popular { border-color: #059669; position: relative; }
+.a-pricing-card.popular::before {
+  content: 'Populaire'; position: absolute; top: -12px; right: 20px;
+  background: #059669; color: #fff; font-size: 12px; font-weight: 600;
+  padding: 4px 12px; border-radius: 10px;
+}
+.a-pricing-card h3 { font-size: 18px; font-weight: 700; color: #0f172a; margin-bottom: 8px; }
+.a-pricing-price { font-size: 40px; font-weight: 800; color: #0f172a; }
+.a-pricing-price span { font-size: 16px; font-weight: 500; color: #64748b; }
+.a-pricing-savings { font-size: 14px; font-weight: 600; color: #059669; margin: 4px 0 16px; }
+.a-pricing-features { list-style: none; margin-bottom: 24px; }
+.a-pricing-features li {
+  padding: 6px 0; font-size: 14px; color: #64748b;
+  display: flex; align-items: center; gap: 8px;
+}
+.a-pricing-features li::before { content: '✓'; color: #059669; font-weight: 700; }
+.a-pricing-btn-primary {
+  display: block; width: 100%; padding: 14px; border-radius: 10px; border: none;
+  background: linear-gradient(135deg, #059669, #047857);
+  color: #fff; font-weight: 700; font-size: 15px; cursor: pointer; text-align: center;
+}
+.a-pricing-btn-outline {
+  display: block; width: 100%; padding: 14px; border-radius: 10px;
+  border: 2px solid #e2e8f0; background: #fff;
+  color: #334155; font-weight: 700; font-size: 15px; cursor: pointer; text-align: center;
+}
+.a-sms-packs {
+  background: #f8fafc; border-radius: 16px; padding: 32px;
+  max-width: 700px; margin: 0 auto;
+}
+.a-sms-packs h4 { font-size: 16px; font-weight: 700; color: #0f172a; text-align: center; margin-bottom: 16px; }
+.a-sms-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.a-sms-pack {
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; text-align: center;
+}
+.a-sms-pack .amount { font-size: 20px; font-weight: 700; color: #0f172a; }
+.a-sms-pack .price { font-size: 14px; color: #64748b; }
+.a-sms-pack .unit { font-size: 12px; color: #059669; }
+
+/* FAQ */
+.a-faq-list { max-width: 700px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+.a-faq-item { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; }
+.a-faq-q {
+  padding: 18px 24px; font-size: 15px; font-weight: 600; color: #0f172a; cursor: pointer;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.a-faq-a { padding: 0 24px 18px; font-size: 14px; color: #64748b; line-height: 1.6; display: none; }
+.a-faq-item.open .a-faq-a { display: block; }
+
+/* Guarantee */
+.a-guarantee {
+  background: #f0fdf4; border: 2px solid #bbf7d0; border-radius: 20px;
+  padding: 40px; text-align: center; max-width: 700px; margin: 48px auto 0;
+}
+.a-guarantee h3 { font-size: 22px; font-weight: 800; color: #0f172a; margin-bottom: 8px; }
+.a-guarantee p { font-size: 15px; color: #334155; line-height: 1.6; }
+
+/* Final CTA */
+.a-final-cta {
+  padding: 80px 24px; text-align: center;
+  background: linear-gradient(135deg, #059669, #047857); color: #fff;
+}
+.a-final-cta h2 { font-size: 36px; font-weight: 800; margin-bottom: 12px; }
+.a-final-cta p { font-size: 18px; opacity: 0.85; margin-bottom: 32px; }
+.a-final-cta-btn {
+  display: inline-block; padding: 16px 40px; border-radius: 12px;
+  background: #fff; color: #059669; font-weight: 700; font-size: 17px;
+  text-decoration: none; cursor: pointer;
+}
+.a-final-cta .secondary-link {
+  display: block; margin-top: 16px; font-size: 14px; opacity: 0.8;
+  color: #fff; text-decoration: underline;
+}
+
+/* Footer */
+.a-footer {
+  background: #0f172a; color: #94a3b8; padding: 40px 24px;
+  display: flex; justify-content: center; gap: 32px; font-size: 13px;
+}
+.a-footer a { color: #94a3b8; text-decoration: none; }
+.a-footer a:hover { color: #fff; }
+
+
+/* ══════════════════════════════════════════════════
+   ALTERNATIVE B — "Confiance" (Navy/Gold Premium)
+   ══════════════════════════════════════════════════ */
+.b-page { background: #fafbff; color: #1a1f36; }
+
+.b-header {
+  position: sticky; top: 56px; z-index: 100;
+  background: rgba(255,255,255,0.95); backdrop-filter: blur(12px);
+  border-bottom: 1px solid #e5e7ef; padding: 0 24px; height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.b-logo { display: flex; align-items: center; gap: 10px; }
+.b-logo-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: linear-gradient(135deg, #1e3a5f, #2d5a8e);
+  display: flex; align-items: center; justify-content: center;
+  color: #f0c040; font-weight: 800; font-size: 18px;
+}
+.b-logo-text { font-weight: 800; font-size: 20px; color: #1a1f36; }
+.b-nav { display: flex; align-items: center; gap: 20px; }
+.b-nav a { font-size: 14px; font-weight: 500; color: #6b7280; text-decoration: none; }
+.b-btn-primary {
+  padding: 10px 22px; border-radius: 8px; border: none;
+  background: linear-gradient(135deg, #1e3a5f, #2d5a8e);
+  color: #fff; font-weight: 600; font-size: 14px; cursor: pointer; text-decoration: none;
+}
+
+/* Hero */
+.b-hero {
+  padding: 80px 24px 60px;
+  background: linear-gradient(170deg, #1a1f36 0%, #1e3a5f 50%, #2d5a8e 100%);
+  color: #fff; position: relative; overflow: hidden;
+}
+.b-hero::after {
+  content: ''; position: absolute; top: 0; right: 0; bottom: 0; width: 40%;
+  background: radial-gradient(ellipse at 70% 50%, rgba(240,192,64,0.1) 0%, transparent 70%);
+}
+.b-hero-inner {
+  max-width: 1100px; margin: 0 auto;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;
+  position: relative; z-index: 1;
+}
+.b-hero-urgency {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(240,192,64,0.15); border: 1px solid rgba(240,192,64,0.3);
+  color: #f0c040; font-size: 13px; font-weight: 600;
+  padding: 6px 14px; border-radius: 20px; margin-bottom: 20px;
+}
+.b-hero h1 { font-size: 46px; font-weight: 900; line-height: 1.12; margin-bottom: 20px; }
+.b-hero h1 span { color: #f0c040; }
+.b-hero p { font-size: 18px; opacity: 0.8; line-height: 1.5; margin-bottom: 28px; }
+.b-hero-ctas { display: flex; gap: 12px; }
+.b-hero-cta-primary {
+  padding: 16px 32px; border-radius: 10px; border: none;
+  background: linear-gradient(135deg, #f0c040, #e5a91a);
+  color: #1a1f36; font-weight: 700; font-size: 16px; cursor: pointer; text-decoration: none;
+  box-shadow: 0 4px 20px rgba(240,192,64,0.3);
+}
+.b-hero-cta-secondary {
+  padding: 16px 28px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.3);
+  background: transparent; color: #fff; font-weight: 600; font-size: 16px;
+  cursor: pointer; text-decoration: none; display: flex; align-items: center; gap: 8px;
+}
+.b-hero-note { font-size: 12px; opacity: 0.6; margin-top: 12px; }
+
+/* Video mockup */
+.b-video-mockup {
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 16px; padding: 24px; aspect-ratio: 16/10;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.b-play-btn {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: rgba(240,192,64,0.2); border: 2px solid #f0c040;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; margin-bottom: 12px;
+}
+.b-video-mockup .label { font-size: 13px; opacity: 0.6; }
+
+/* Social proof banner */
+.b-social-banner {
+  background: #fff; padding: 32px 24px; text-align: center;
+  border-bottom: 1px solid #e5e7ef;
+}
+.b-social-stats { display: flex; justify-content: center; gap: 48px; flex-wrap: wrap; }
+.b-social-stat .num { font-size: 32px; font-weight: 800; color: #1e3a5f; }
+.b-social-stat .label { font-size: 13px; color: #6b7280; }
+
+/* Section utility */
+.b-section { padding: 80px 24px; max-width: 1100px; margin: 0 auto; }
+.b-section-white { background: #fff; }
+.b-section-title { font-size: 34px; font-weight: 800; color: #1a1f36; text-align: center; margin-bottom: 12px; }
+.b-section-subtitle { font-size: 17px; color: #6b7280; text-align: center; max-width: 600px; margin: 0 auto 48px; }
+
+/* Doctor benefits split */
+.b-benefits-split {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start;
+}
+.b-benefit-group h3 {
+  font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+  margin-bottom: 24px; padding-bottom: 12px; border-bottom: 2px solid;
+}
+.b-benefit-group h3.doctor-color { color: #1e3a5f; border-color: #1e3a5f; }
+.b-benefit-group h3.patient-color { color: #059669; border-color: #059669; }
+.b-benefit-list { list-style: none; display: flex; flex-direction: column; gap: 16px; }
+.b-benefit-list li {
+  display: flex; align-items: start; gap: 12px;
+  font-size: 15px; color: #334155; line-height: 1.5;
+}
+.b-benefit-list .check {
+  flex-shrink: 0; width: 24px; height: 24px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: #fff;
+}
+.b-benefit-list .check.navy { background: #1e3a5f; }
+.b-benefit-list .check.green { background: #059669; }
+
+/* Testimonials */
+.b-testimonial-featured {
+  background: #1a1f36; color: #fff; border-radius: 20px; padding: 48px;
+  display: grid; grid-template-columns: 100px 1fr; gap: 32px; align-items: center;
+  max-width: 800px; margin: 0 auto 32px;
+}
+.b-testimonial-featured .avatar-lg {
+  width: 100px; height: 100px; border-radius: 50%; background: #2d5a8e;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 32px; font-weight: 700; color: #f0c040;
+}
+.b-testimonial-featured blockquote {
+  font-size: 18px; font-style: italic; line-height: 1.6; margin-bottom: 16px; opacity: 0.9;
+}
+.b-testimonial-featured cite { font-size: 14px; font-style: normal; color: #f0c040; font-weight: 600; }
+.b-testimonial-small-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; max-width: 800px; margin: 0 auto; }
+.b-testimonial-small {
+  background: #fff; border: 1px solid #e5e7ef; border-radius: 14px; padding: 24px;
+}
+.b-testimonial-small .stars { color: #f0c040; font-size: 14px; margin-bottom: 8px; }
+.b-testimonial-small p { font-size: 14px; color: #334155; line-height: 1.5; font-style: italic; margin-bottom: 12px; }
+.b-testimonial-small .author { font-size: 13px; font-weight: 600; color: #1a1f36; }
+.b-testimonial-small .role { font-size: 12px; color: #6b7280; }
+
+/* Pricing */
+.b-pricing-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; max-width: 650px; margin: 0 auto 24px; }
+.b-pricing-card {
+  background: #fff; border: 2px solid #e5e7ef; border-radius: 16px; padding: 28px;
+}
+.b-pricing-card.popular { border-color: #1e3a5f; }
+.b-pricing-card.popular::before {
+  content: 'Recommandé'; display: inline-block;
+  background: #1e3a5f; color: #f0c040; font-size: 11px; font-weight: 600;
+  padding: 3px 10px; border-radius: 8px; margin-bottom: 12px;
+}
+.b-pricing-card h3 { font-size: 16px; font-weight: 700; color: #1a1f36; margin-bottom: 6px; }
+.b-price { font-size: 36px; font-weight: 800; color: #1a1f36; }
+.b-price span { font-size: 16px; font-weight: 500; color: #6b7280; }
+.b-pricing-features { list-style: none; margin: 16px 0 24px; }
+.b-pricing-features li { padding: 5px 0; font-size: 14px; color: #6b7280; }
+.b-pricing-features li::before { content: '✓ '; color: #1e3a5f; font-weight: 700; }
+.b-pricing-btn {
+  display: block; width: 100%; padding: 12px; border-radius: 8px; border: none;
+  background: linear-gradient(135deg, #1e3a5f, #2d5a8e);
+  color: #fff; font-weight: 600; font-size: 14px; cursor: pointer; text-align: center;
+}
+.b-pricing-btn-outline {
+  display: block; width: 100%; padding: 12px; border-radius: 8px;
+  border: 2px solid #e5e7ef; background: #fff;
+  color: #1a1f36; font-weight: 600; font-size: 14px; cursor: pointer; text-align: center;
+}
+
+/* Guarantee */
+.b-guarantee {
+  display: flex; align-items: center; gap: 24px;
+  background: #fff; border: 2px solid #e5e7ef; border-radius: 16px;
+  padding: 28px 32px; max-width: 650px; margin: 24px auto 0;
+}
+.b-guarantee-icon { font-size: 40px; flex-shrink: 0; }
+.b-guarantee h4 { font-size: 16px; font-weight: 700; color: #1a1f36; margin-bottom: 4px; }
+.b-guarantee p { font-size: 14px; color: #6b7280; line-height: 1.5; }
+
+/* Final CTA */
+.b-final-cta {
+  padding: 80px 24px; text-align: center;
+  background: linear-gradient(135deg, #1a1f36, #1e3a5f); color: #fff;
+}
+.b-final-cta h2 { font-size: 34px; font-weight: 800; margin-bottom: 12px; }
+.b-final-cta p { font-size: 17px; opacity: 0.7; margin-bottom: 28px; }
+.b-final-cta-btn {
+  display: inline-block; padding: 16px 40px; border-radius: 10px;
+  background: linear-gradient(135deg, #f0c040, #e5a91a);
+  color: #1a1f36; font-weight: 700; font-size: 17px; text-decoration: none;
+}
+.b-footer {
+  background: #0f1425; color: #6b7280; padding: 32px 24px;
+  text-align: center; font-size: 13px;
+}
+
+
+/* ══════════════════════════════════════════════════
+   ALTERNATIVE C — "Efficacité" (Purple Gradient / Bold)
+   ══════════════════════════════════════════════════ */
+.c-page { background: #faf5ff; color: #1e1b2e; }
+
+.c-header {
+  position: sticky; top: 56px; z-index: 100;
+  background: rgba(250,245,255,0.95); backdrop-filter: blur(12px);
+  border-bottom: 1px solid #ede9fe; padding: 0 24px; height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.c-logo { display: flex; align-items: center; gap: 10px; }
+.c-logo-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: linear-gradient(135deg, #7c3aed, #a855f7);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-weight: 800; font-size: 18px;
+}
+.c-logo-text { font-weight: 800; font-size: 20px; color: #1e1b2e; }
+.c-nav { display: flex; align-items: center; gap: 20px; }
+.c-nav a { font-size: 14px; font-weight: 500; color: #6b7280; text-decoration: none; }
+.c-btn-primary {
+  padding: 10px 22px; border-radius: 8px; border: none;
+  background: linear-gradient(135deg, #7c3aed, #a855f7);
+  color: #fff; font-weight: 600; font-size: 14px; cursor: pointer; text-decoration: none;
+}
+
+/* Hero split */
+.c-hero {
+  padding: 60px 24px 40px;
+  background: linear-gradient(135deg, #1e1b2e 0%, #3b1f6e 40%, #7c3aed 100%);
+  color: #fff; position: relative; overflow: hidden;
+}
+.c-hero::before {
+  content: ''; position: absolute; top: -50%; right: -20%; width: 60%; height: 200%;
+  background: radial-gradient(circle, rgba(168,85,247,0.2), transparent 70%);
+}
+.c-hero-inner {
+  max-width: 1100px; margin: 0 auto;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center;
+  position: relative; z-index: 1;
+}
+.c-hero-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(168,85,247,0.2); border: 1px solid rgba(168,85,247,0.4);
+  color: #d8b4fe; font-size: 12px; font-weight: 600;
+  padding: 5px 12px; border-radius: 16px; margin-bottom: 16px;
+}
+.c-hero h1 { font-size: 44px; font-weight: 900; line-height: 1.1; margin-bottom: 16px; }
+.c-hero h1 span { background: linear-gradient(135deg, #c084fc, #e9d5ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.c-hero p { font-size: 17px; opacity: 0.8; line-height: 1.5; margin-bottom: 24px; }
+.c-hero-ctas { display: flex; gap: 12px; }
+.c-hero-cta-primary {
+  padding: 14px 28px; border-radius: 10px; border: none;
+  background: #fff; color: #7c3aed; font-weight: 700; font-size: 16px;
+  cursor: pointer; text-decoration: none;
+}
+.c-hero-cta-secondary {
+  padding: 14px 28px; border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.3); background: transparent;
+  color: #fff; font-weight: 600; font-size: 16px;
+  cursor: pointer; text-decoration: none;
+}
+.c-hero-note { font-size: 12px; opacity: 0.5; margin-top: 10px; }
+
+/* Split screen preview */
+.c-split-preview {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+}
+.c-preview-panel {
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 12px; padding: 20px;
+}
+.c-preview-panel .label {
+  font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
+  margin-bottom: 16px; display: flex; align-items: center; gap: 6px;
+}
+.c-preview-panel .label .dot { width: 8px; height: 8px; border-radius: 50%; background: #a855f7; }
+.c-preview-queue-item {
+  display: flex; align-items: center; gap: 10px; padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 12px;
+}
+.c-preview-pos {
+  width: 22px; height: 22px; border-radius: 6px; background: rgba(168,85,247,0.3);
+  display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 10px;
+}
+.c-preview-name { flex: 1; opacity: 0.8; }
+.c-preview-badge { font-size: 10px; padding: 2px 6px; border-radius: 6px; font-weight: 600; }
+.c-preview-badge.wait { background: rgba(250,204,21,0.2); color: #fcd34d; }
+.c-preview-badge.ok { background: rgba(34,197,94,0.2); color: #4ade80; }
+
+.c-phone-mockup { text-align: center; }
+.c-phone-frame {
+  display: inline-block; width: 180px; background: rgba(255,255,255,0.08);
+  border: 2px solid rgba(255,255,255,0.15); border-radius: 24px; padding: 20px 16px;
+}
+.c-phone-header { font-size: 11px; font-weight: 600; margin-bottom: 16px; opacity: 0.7; }
+.c-phone-position { font-size: 48px; font-weight: 900; color: #c084fc; }
+.c-phone-sublabel { font-size: 11px; opacity: 0.6; margin-bottom: 12px; }
+.c-phone-bar {
+  height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; margin-bottom: 8px;
+}
+.c-phone-bar-fill { height: 100%; width: 60%; background: #a855f7; border-radius: 3px; }
+.c-phone-wait { font-size: 12px; font-weight: 600; color: #c084fc; }
+
+/* ROI section */
+.c-roi {
+  background: #fff; border: 1px solid #ede9fe; border-radius: 20px;
+  padding: 48px; max-width: 900px; margin: 0 auto;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center;
+}
+.c-roi h3 { font-size: 26px; font-weight: 800; color: #1e1b2e; margin-bottom: 12px; }
+.c-roi p { font-size: 15px; color: #6b7280; line-height: 1.6; margin-bottom: 20px; }
+.c-roi-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.c-roi-stat {
+  background: #faf5ff; border: 1px solid #ede9fe; border-radius: 12px; padding: 16px; text-align: center;
+}
+.c-roi-stat .val { font-size: 28px; font-weight: 800; color: #7c3aed; }
+.c-roi-stat .label { font-size: 12px; color: #6b7280; margin-top: 4px; }
+
+/* Section utility */
+.c-section { padding: 80px 24px; max-width: 1100px; margin: 0 auto; }
+.c-section-white { background: #fff; }
+.c-section-title { font-size: 34px; font-weight: 800; color: #1e1b2e; text-align: center; margin-bottom: 12px; }
+.c-section-subtitle { font-size: 17px; color: #6b7280; text-align: center; max-width: 600px; margin: 0 auto 48px; }
+
+/* Timeline steps */
+.c-timeline { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
+.c-timeline-step {
+  flex: 1; min-width: 220px; max-width: 250px;
+  background: #fff; border: 1px solid #ede9fe; border-radius: 16px; padding: 28px;
+  position: relative; text-align: center;
+}
+.c-timeline-step .num {
+  position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+  width: 28px; height: 28px; border-radius: 50%;
+  background: linear-gradient(135deg, #7c3aed, #a855f7);
+  color: #fff; font-weight: 700; font-size: 13px;
+  display: flex; align-items: center; justify-content: center;
+}
+.c-timeline-step .icon { font-size: 32px; margin-bottom: 12px; margin-top: 8px; }
+.c-timeline-step h3 { font-size: 15px; font-weight: 700; color: #1e1b2e; margin-bottom: 6px; }
+.c-timeline-step p { font-size: 13px; color: #6b7280; line-height: 1.5; }
+
+/* Testimonials */
+.c-testimonials-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.c-testimonial {
+  background: #fff; border: 1px solid #ede9fe; border-radius: 16px; padding: 24px;
+}
+.c-testimonial .rating { color: #eab308; font-size: 14px; margin-bottom: 10px; }
+.c-testimonial p { font-size: 14px; color: #334155; line-height: 1.5; font-style: italic; margin-bottom: 14px; }
+.c-testimonial .name { font-size: 14px; font-weight: 600; color: #1e1b2e; }
+.c-testimonial .spec { font-size: 12px; color: #6b7280; }
+
+/* Pricing */
+.c-pricing-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; max-width: 650px; margin: 0 auto; }
+.c-pricing-card { background: #fff; border: 2px solid #ede9fe; border-radius: 16px; padding: 28px; }
+.c-pricing-card.popular { border-color: #7c3aed; }
+.c-pricing-card.popular::before {
+  content: 'Meilleure offre'; display: inline-block;
+  background: linear-gradient(135deg, #7c3aed, #a855f7); color: #fff;
+  font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 8px; margin-bottom: 10px;
+}
+.c-pricing-card h3 { font-size: 16px; font-weight: 700; color: #1e1b2e; margin-bottom: 6px; }
+.c-price { font-size: 36px; font-weight: 800; color: #1e1b2e; }
+.c-price span { font-size: 16px; font-weight: 500; color: #6b7280; }
+.c-pricing-features { list-style: none; margin: 16px 0 24px; }
+.c-pricing-features li { padding: 5px 0; font-size: 14px; color: #6b7280; }
+.c-pricing-features li::before { content: '✓ '; color: #7c3aed; font-weight: 700; }
+.c-pricing-btn {
+  display: block; width: 100%; padding: 12px; border-radius: 8px; border: none;
+  background: linear-gradient(135deg, #7c3aed, #a855f7);
+  color: #fff; font-weight: 600; font-size: 14px; cursor: pointer; text-align: center;
+}
+
+/* Final CTA */
+.c-final-cta {
+  padding: 80px 24px; text-align: center;
+  background: linear-gradient(135deg, #1e1b2e, #3b1f6e, #7c3aed); color: #fff;
+}
+.c-final-cta h2 { font-size: 34px; font-weight: 800; margin-bottom: 12px; }
+.c-final-cta p { font-size: 17px; opacity: 0.7; margin-bottom: 28px; }
+.c-final-cta-btn {
+  display: inline-block; padding: 16px 40px; border-radius: 12px;
+  background: #fff; color: #7c3aed; font-weight: 700; font-size: 17px; text-decoration: none;
+}
+.c-footer {
+  background: #1e1b2e; color: #6b7280; padding: 32px 24px; text-align: center; font-size: 13px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .a-mockup-screen { grid-template-columns: 1fr; }
+  .a-mockup-sidebar { display: none; }
+  .a-problem-grid, .a-benefits-grid, .a-testimonials-grid, .a-pricing-grid { grid-template-columns: 1fr; }
+  .a-case-study { grid-template-columns: 1fr; }
+  .b-hero-inner, .b-benefits-split, .b-testimonial-small-grid, .b-pricing-grid { grid-template-columns: 1fr; }
+  .c-hero-inner, .c-roi, .c-testimonials-row, .c-pricing-grid { grid-template-columns: 1fr; }
+  .c-split-preview { grid-template-columns: 1fr; }
+  .a-hero h1, .b-hero h1, .c-hero h1 { font-size: 32px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── PICKER NAV ── -->
+<div class="picker">
+  <span class="picker-label">Design:</span>
+  <button class="active" onclick="show('a')">A — Clinique Moderne</button>
+  <button onclick="show('b')">B — Confiance Premium</button>
+  <button onclick="show('c')">C — Efficacité Bold</button>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     ALTERNATIVE A — "Clinique Moderne" — Teal/Emerald, clean medical
+     ══════════════════════════════════════════════════════════════ -->
+<div id="alt-a" class="alt-container active">
+  <div class="annotation">
+    <strong>Design A — "Clinique Moderne"</strong><br>
+    Addresses: product visualization (dashboard mockup), restructured narrative (value before price),
+    social proof (logos + testimonials + case study), benefit-driven headline, trust badges, risk reversal guarantee, secondary CTA.
+    <ul>
+      <li>Hero with benefit-oriented headline + dashboard mockup</li>
+      <li>Client logos strip immediately after hero</li>
+      <li>Quantifiable benefits (ROI-focused copy for doctors)</li>
+      <li>Featured testimonials from 3 doctors</li>
+      <li>Mini case study with real metrics</li>
+      <li>Pricing moved after value is established</li>
+      <li>Risk reversal guarantee section</li>
+    </ul>
+  </div>
+
+  <div class="a-page">
+    <!-- Header -->
+    <div class="a-header">
+      <div class="a-logo">
+        <div class="a-logo-icon">B</div>
+        <div class="a-logo-text">BléSaf</div>
+      </div>
+      <div class="a-nav">
+        <a href="#">Fonctionnalités</a>
+        <a href="#">Tarifs</a>
+        <a href="#">Témoignages</a>
+        <a href="#" class="a-btn-outline">Se connecter</a>
+        <a href="#" class="a-btn-primary">Essai gratuit</a>
+      </div>
+    </div>
+
+    <!-- Hero -->
+    <section class="a-hero">
+      <div class="a-hero-badge">✨ Offre de lancement — 30 jours gratuits</div>
+      <h1>Modernisez votre salle d'attente. <span>Fidélisez vos patients.</span></h1>
+      <p>BléSaf transforme l'attente en une expérience fluide et sans stress, augmentant la satisfaction de vos patients et l'efficacité de votre cabinet.</p>
+      <div class="a-hero-ctas">
+        <a href="#" class="a-hero-cta-primary">Commencez votre essai de 30 jours</a>
+        <a href="#" class="a-hero-cta-secondary">▶ Voir la démo (2 min)</a>
+      </div>
+      <p class="a-hero-note">Aucune carte bancaire requise · Installation en 5 minutes</p>
+    </section>
+
+    <!-- Dashboard Mockup -->
+    <div class="a-mockup">
+      <div class="a-mockup-frame">
+        <div class="a-mockup-dots"><span></span><span></span><span></span></div>
+        <div class="a-mockup-screen">
+          <div class="a-mockup-sidebar">
+            <div class="a-mockup-sidebar-item active">📋 File d'attente</div>
+            <div class="a-mockup-sidebar-item">📊 Statistiques</div>
+            <div class="a-mockup-sidebar-item">⚙️ Paramètres</div>
+            <div class="a-mockup-sidebar-item">📱 QR Code</div>
+          </div>
+          <div class="a-mockup-main">
+            <div class="a-mockup-stat-row">
+              <div class="a-mockup-stat">
+                <div class="a-mockup-stat-label">En attente</div>
+                <div class="a-mockup-stat-val">7</div>
+              </div>
+              <div class="a-mockup-stat">
+                <div class="a-mockup-stat-label">Vus aujourd'hui</div>
+                <div class="a-mockup-stat-val">23</div>
+              </div>
+              <div class="a-mockup-stat">
+                <div class="a-mockup-stat-label">Attente moy.</div>
+                <div class="a-mockup-stat-val">18 min</div>
+              </div>
+            </div>
+            <div class="a-mockup-queue">
+              <div class="a-mockup-queue-title">File d'attente — Aujourd'hui</div>
+              <div class="a-mockup-queue-row">
+                <div class="a-mockup-queue-pos">1</div>
+                <div class="a-mockup-queue-name">Fatma Ben Ali</div>
+                <div class="a-mockup-queue-status notified">Notifié</div>
+              </div>
+              <div class="a-mockup-queue-row">
+                <div class="a-mockup-queue-pos">2</div>
+                <div class="a-mockup-queue-name">Mohamed Trabelsi</div>
+                <div class="a-mockup-queue-status waiting">En attente</div>
+              </div>
+              <div class="a-mockup-queue-row">
+                <div class="a-mockup-queue-pos">3</div>
+                <div class="a-mockup-queue-name">Amira Gharbi</div>
+                <div class="a-mockup-queue-status waiting">En attente</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Client Logos -->
+    <section class="a-logos">
+      <div class="a-logos-label">Ils nous font déjà confiance</div>
+      <div class="a-logos-grid">
+        <div class="logo-placeholder">Cabinet Ennasr</div>
+        <div class="logo-placeholder">Clinique Marsa</div>
+        <div class="logo-placeholder">Dr. Khelifi</div>
+        <div class="logo-placeholder">Centre Sfax</div>
+        <div class="logo-placeholder">Polyclinique B.</div>
+      </div>
+    </section>
+
+    <!-- Problem -->
+    <section class="a-section-gray">
+      <div class="a-section" style="padding-top:60px;padding-bottom:60px;">
+        <h2 class="a-section-title">Le problème que vous connaissez bien</h2>
+        <p class="a-section-subtitle">Chaque jour, votre salle d'attente coûte cher à votre cabinet</p>
+        <div class="a-problem-grid">
+          <div class="a-problem-card">
+            <div class="icon">📉</div>
+            <h3>Patients qui ne reviennent pas</h3>
+            <p>25% des patients changent de médecin à cause des temps d'attente excessifs.</p>
+          </div>
+          <div class="a-problem-card">
+            <div class="icon">🏥</div>
+            <h3>Salle d'attente surchargée</h3>
+            <p>Trop de monde, pas assez de place. Risques sanitaires et ambiance tendue.</p>
+          </div>
+          <div class="a-problem-card">
+            <div class="icon">🚪</div>
+            <h3>Départs avant consultation</h3>
+            <p>Des patients quittent le cabinet sans être vus — du chiffre d'affaires perdu.</p>
+          </div>
+          <div class="a-problem-card">
+            <div class="icon">😓</div>
+            <h3>Personnel sous pression</h3>
+            <p>Votre équipe gère les plaintes au lieu de se concentrer sur les soins.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Benefits (ROI-focused) -->
+    <section class="a-section">
+      <h2 class="a-section-title">Ce que BléSaf change pour votre cabinet</h2>
+      <p class="a-section-subtitle">Des résultats concrets dès la première semaine</p>
+      <div class="a-benefits-grid">
+        <div class="a-benefit-card">
+          <div class="a-benefit-icon green">📈</div>
+          <h3>Fidélisez vos patients</h3>
+          <p>Une expérience moderne qui respecte leur temps et renforce leur confiance.</p>
+          <div class="stat">+35%</div>
+          <div style="font-size:12px;color:#64748b;">satisfaction patient</div>
+        </div>
+        <div class="a-benefit-card">
+          <div class="a-benefit-icon blue">⏱️</div>
+          <h3>Réduisez l'attente perçue</h3>
+          <p>Vos patients attendent au café, pas dans une salle bondée.</p>
+          <div class="stat">-40%</div>
+          <div style="font-size:12px;color:#64748b;">temps d'attente ressenti</div>
+        </div>
+        <div class="a-benefit-card">
+          <div class="a-benefit-icon amber">🛡️</div>
+          <h3>Libérez votre équipe</h3>
+          <p>Fini les "C'est quand mon tour?" — vos assistants se concentrent sur l'essentiel.</p>
+          <div class="stat">-60%</div>
+          <div style="font-size:12px;color:#64748b;">questions répétitives</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How it works -->
+    <section class="a-section-gray">
+      <div class="a-section" style="padding-top:60px;padding-bottom:60px;">
+        <h2 class="a-section-title">Simple comme 1, 2, 3, 4</h2>
+        <p class="a-section-subtitle">Aucune formation requise, aucune installation compliquée</p>
+        <div class="a-steps">
+          <div class="a-step">
+            <div class="a-step-num">1</div>
+            <h3>Affichez le QR code</h3>
+            <p>Imprimez-le et placez-le dans votre salle d'attente.</p>
+          </div>
+          <div class="a-step">
+            <div class="a-step-num">2</div>
+            <h3>Le patient scanne</h3>
+            <p>5 secondes pour s'enregistrer avec son téléphone.</p>
+          </div>
+          <div class="a-step">
+            <div class="a-step-num">3</div>
+            <h3>Il suit sa position</h3>
+            <p>En temps réel sur son téléphone, où qu'il soit.</p>
+          </div>
+          <div class="a-step">
+            <div class="a-step-num">4</div>
+            <h3>SMS automatique</h3>
+            <p>Il revient quand c'est son tour. Pas avant.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="a-section">
+      <h2 class="a-section-title">Ce que disent nos médecins</h2>
+      <p class="a-section-subtitle">Ils ont transformé leur salle d'attente avec BléSaf</p>
+      <div class="a-testimonials-grid">
+        <div class="a-testimonial">
+          <div class="a-testimonial-stars">★★★★★</div>
+          <div class="a-testimonial-text">"Depuis que j'ai installé BléSaf, ma salle d'attente est calme. Mes patients me disent merci au lieu de se plaindre. C'est un changement radical."</div>
+          <div class="a-testimonial-author">
+            <div class="a-testimonial-avatar">AK</div>
+            <div>
+              <div class="a-testimonial-name">Dr. Ahmed Khelifi</div>
+              <div class="a-testimonial-role">Médecin Généraliste · La Marsa</div>
+            </div>
+          </div>
+        </div>
+        <div class="a-testimonial">
+          <div class="a-testimonial-stars">★★★★★</div>
+          <div class="a-testimonial-text">"L'installation a pris 5 minutes. Le lendemain, 80% de mes patients utilisaient le système. Même les plus âgés s'y sont mis."</div>
+          <div class="a-testimonial-author">
+            <div class="a-testimonial-avatar">SB</div>
+            <div>
+              <div class="a-testimonial-name">Dr. Sonia Bouaziz</div>
+              <div class="a-testimonial-role">Pédiatre · Ennasr</div>
+            </div>
+          </div>
+        </div>
+        <div class="a-testimonial">
+          <div class="a-testimonial-stars">★★★★★</div>
+          <div class="a-testimonial-text">"Je n'ai plus de patients qui partent sans être vus. Et mon assistante peut enfin se concentrer sur son vrai travail."</div>
+          <div class="a-testimonial-author">
+            <div class="a-testimonial-avatar">MT</div>
+            <div>
+              <div class="a-testimonial-name">Dr. Mohamed Trabelsi</div>
+              <div class="a-testimonial-role">Dermatologue · Sfax</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mini case study -->
+      <div style="margin-top:48px;">
+        <div class="a-case-study">
+          <div>
+            <h3>Cabinet Dr. Khelifi — La Marsa</h3>
+            <p>Après 1 mois d'utilisation de BléSaf, le cabinet a constaté une transformation complète de l'expérience patient et de l'efficacité opérationnelle.</p>
+            <p style="font-size:13px;color:#64748b;font-style:italic;">"Pour le prix de quelques cafés par mois, j'ai modernisé tout mon accueil."</p>
+          </div>
+          <div class="a-case-study-stats">
+            <div class="a-case-study-stat">
+              <div class="val">-40%</div>
+              <div class="label">Temps d'attente perçu</div>
+            </div>
+            <div class="a-case-study-stat">
+              <div class="val">0</div>
+              <div class="label">Départs impatients</div>
+            </div>
+            <div class="a-case-study-stat">
+              <div class="val">+92%</div>
+              <div class="label">Satisfaction patients</div>
+            </div>
+            <div class="a-case-study-stat">
+              <div class="val">5 min</div>
+              <div class="label">Installation</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pricing -->
+    <section class="a-section-gray">
+      <div class="a-section" style="padding-top:60px;padding-bottom:60px;">
+        <h2 class="a-section-title">Tarifs simples, sans surprise</h2>
+        <p class="a-section-subtitle">Pour le prix de quelques cafés, modernisez votre cabinet</p>
+        <div class="a-pricing-grid">
+          <div class="a-pricing-card">
+            <h3>Mensuel</h3>
+            <div class="a-pricing-price">50 <span>TND/mois</span></div>
+            <ul class="a-pricing-features">
+              <li>Tableau de bord complet</li>
+              <li>Patients illimités</li>
+              <li>QR code personnalisé</li>
+              <li>Support prioritaire</li>
+            </ul>
+            <button class="a-pricing-btn-outline">Choisir mensuel</button>
+          </div>
+          <div class="a-pricing-card popular">
+            <h3>Annuel</h3>
+            <div class="a-pricing-price">500 <span>TND/an</span></div>
+            <div class="a-pricing-savings">2 mois offerts — économisez 100 TND!</div>
+            <ul class="a-pricing-features">
+              <li>Tout le plan mensuel</li>
+              <li>2 mois gratuits</li>
+              <li>Support WhatsApp</li>
+              <li>Onboarding personnalisé</li>
+            </ul>
+            <button class="a-pricing-btn-primary">Choisir annuel</button>
+          </div>
+        </div>
+        <div class="a-sms-packs">
+          <h4>Packs SMS (achat séparé)</h4>
+          <div class="a-sms-grid">
+            <div class="a-sms-pack"><div class="amount">100 SMS</div><div class="price">10 TND</div><div class="unit">0.10 TND/SMS</div></div>
+            <div class="a-sms-pack"><div class="amount">300 SMS</div><div class="price">25 TND</div><div class="unit">0.08 TND/SMS</div></div>
+            <div class="a-sms-pack"><div class="amount">1000 SMS</div><div class="price">70 TND</div><div class="unit">0.07 TND/SMS</div></div>
+          </div>
+        </div>
+
+        <!-- Trust badges -->
+        <div class="a-trust-row">
+          <div class="a-trust-badge"><div class="icon">🔒</div> Données sécurisées</div>
+          <div class="a-trust-badge"><div class="icon">🛡️</div> Conforme RGPD</div>
+          <div class="a-trust-badge"><div class="icon">☁️</div> Hébergé en Europe</div>
+          <div class="a-trust-badge"><div class="icon">📞</div> Support en français</div>
+        </div>
+
+        <!-- Guarantee -->
+        <div class="a-guarantee">
+          <h3>🎯 Garantie satisfaction</h3>
+          <p>30 jours d'essai gratuit, sans carte bancaire. Si BléSaf ne transforme pas votre salle d'attente, vous ne payez rien. Et notre équipe vous accompagne à chaque étape de l'installation.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="a-section">
+      <h2 class="a-section-title">Questions fréquentes</h2>
+      <div class="a-faq-list">
+        <div class="a-faq-item open">
+          <div class="a-faq-q">C'est compliqué à installer? <span>▼</span></div>
+          <div class="a-faq-a">Non, 5 minutes suffisent. Vous imprimez le QR code, vous l'affichez, c'est prêt! Notre équipe peut aussi vous accompagner par téléphone.</div>
+        </div>
+        <div class="a-faq-item">
+          <div class="a-faq-q">Mes patients âgés peuvent l'utiliser? <span>▼</span></div>
+          <div class="a-faq-a">Oui! Ils scannent simplement le QR code avec leur téléphone, c'est tout. Pas besoin d'application. Votre réceptionniste peut aussi les enregistrer manuellement.</div>
+        </div>
+        <div class="a-faq-item">
+          <div class="a-faq-q">Et si je n'ai pas internet? <span>▼</span></div>
+          <div class="a-faq-a">Le tableau de bord fonctionne aussi hors-ligne. Les mises à jour se synchronisent automatiquement quand la connexion revient.</div>
+        </div>
+        <div class="a-faq-item">
+          <div class="a-faq-q">Mes données patients sont-elles en sécurité? <span>▼</span></div>
+          <div class="a-faq-a">Absolument. Toutes les données sont chiffrées, hébergées en Europe, et conformes au RGPD. Nous ne partageons jamais vos données.</div>
+        </div>
+        <div class="a-faq-item">
+          <div class="a-faq-q">Je peux annuler quand je veux? <span>▼</span></div>
+          <div class="a-faq-a">Oui, sans engagement. Vous pouvez annuler à tout moment depuis votre compte. Aucuns frais cachés.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Final CTA -->
+    <section class="a-final-cta">
+      <h2>Rejoignez les cabinets qui ont modernisé leur accueil</h2>
+      <p>Commencez gratuitement et voyez la différence dès le premier jour.</p>
+      <a href="#" class="a-final-cta-btn">Commencer mon essai gratuit de 30 jours</a>
+      <a href="#" class="secondary-link" style="display:block;margin-top:14px;font-size:14px;color:rgba(255,255,255,0.7);text-decoration:underline;">Ou téléchargez notre brochure PDF →</a>
+    </section>
+
+    <footer class="a-footer">
+      <a href="#">Confidentialité</a>
+      <a href="#">Conditions</a>
+      <a href="#">Contact</a>
+      <span>© 2026 BléSaf. Tous droits réservés.</span>
+    </footer>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════
+     ALTERNATIVE B — "Confiance Premium" — Navy/Gold, trust-first
+     ══════════════════════════════════════════════════════════════ -->
+<div id="alt-b" class="alt-container">
+  <div class="annotation">
+    <strong>Design B — "Confiance Premium"</strong><br>
+    Addresses: trust-first approach with prominent social proof, premium navy/gold aesthetic for medical professionals,
+    video demo placeholder, split doctor/patient benefits, featured testimonial, urgency badge, risk reversal.
+    <ul>
+      <li>Navy/gold palette conveys professionalism and trust</li>
+      <li>Hero with video demo placeholder + urgency badge</li>
+      <li>Social proof metrics banner (patients processed, clinics, satisfaction)</li>
+      <li>Benefits split by perspective: Doctor vs Patient</li>
+      <li>Featured large testimonial + secondary testimonials</li>
+      <li>Guarantee/risk-reversal prominently placed near pricing</li>
+    </ul>
+  </div>
+
+  <div class="b-page">
+    <!-- Header -->
+    <div class="b-header">
+      <div class="b-logo">
+        <div class="b-logo-icon">B</div>
+        <div class="b-logo-text">BléSaf</div>
+      </div>
+      <div class="b-nav">
+        <a href="#">Comment ça marche</a>
+        <a href="#">Témoignages</a>
+        <a href="#">Tarifs</a>
+        <a href="#" style="color:#1a1f36;font-weight:600;">Se connecter</a>
+        <a href="#" class="b-btn-primary">Essai gratuit</a>
+      </div>
+    </div>
+
+    <!-- Hero -->
+    <section class="b-hero">
+      <div class="b-hero-inner">
+        <div>
+          <div class="b-hero-urgency">🔥 Places limitées — Offre de lancement</div>
+          <h1>Vos patients méritent mieux qu'une <span>salle d'attente bondée</span></h1>
+          <p>Offrez une expérience d'accueil digne de votre expertise. BléSaf élimine la frustration de l'attente et renforce la confiance de vos patients.</p>
+          <div class="b-hero-ctas">
+            <a href="#" class="b-hero-cta-primary">Commencer gratuitement</a>
+            <a href="#" class="b-hero-cta-secondary">▶ Voir la démo</a>
+          </div>
+          <p class="b-hero-note">30 jours gratuits · Aucune carte requise · 50 SMS offerts</p>
+        </div>
+        <div class="b-video-mockup">
+          <div class="b-play-btn">▶</div>
+          <div class="label">Démonstration produit — 90 secondes</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Social Proof Banner -->
+    <section class="b-social-banner">
+      <div class="b-social-stats">
+        <div class="b-social-stat">
+          <div class="num">1,200+</div>
+          <div class="label">Patients gérés ce mois</div>
+        </div>
+        <div class="b-social-stat">
+          <div class="num">15</div>
+          <div class="label">Cabinets actifs</div>
+        </div>
+        <div class="b-social-stat">
+          <div class="num">96%</div>
+          <div class="label">Satisfaction médecins</div>
+        </div>
+        <div class="b-social-stat">
+          <div class="num">18 min</div>
+          <div class="label">Temps d'attente moyen réduit</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Benefits split: Doctor vs Patient -->
+    <div class="b-section-white">
+      <section class="b-section">
+        <h2 class="b-section-title">Tout le monde y gagne</h2>
+        <p class="b-section-subtitle">BléSaf améliore l'expérience pour votre cabinet ET vos patients</p>
+        <div class="b-benefits-split">
+          <div class="b-benefit-group">
+            <h3 class="doctor-color">🩺 Pour votre cabinet</h3>
+            <ul class="b-benefit-list">
+              <li><span class="check navy">✓</span> Fidélisez vos patients avec un accueil moderne</li>
+              <li><span class="check navy">✓</span> Réduisez la charge de votre secrétariat de 60%</li>
+              <li><span class="check navy">✓</span> Éliminez les départs de patients impatients</li>
+              <li><span class="check navy">✓</span> Accédez à des statistiques de fréquentation</li>
+              <li><span class="check navy">✓</span> Image professionnelle et innovante</li>
+            </ul>
+          </div>
+          <div class="b-benefit-group">
+            <h3 class="patient-color">👤 Pour vos patients</h3>
+            <ul class="b-benefit-list">
+              <li><span class="check green">✓</span> Visibilité en temps réel sur leur position</li>
+              <li><span class="check green">✓</span> Liberté d'attendre où ils veulent</li>
+              <li><span class="check green">✓</span> Notification SMS automatique</li>
+              <li><span class="check green">✓</span> Pas d'application à installer</li>
+              <li><span class="check green">✓</span> Fonctionne sur tous les téléphones</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- How it works -->
+    <section class="b-section">
+      <h2 class="b-section-title">Installation en 5 minutes</h2>
+      <p class="b-section-subtitle">Aucune compétence technique requise</p>
+      <div style="display:flex;gap:32px;flex-wrap:wrap;justify-content:center;">
+        <div style="flex:1;min-width:200px;max-width:230px;text-align:center;">
+          <div style="width:48px;height:48px;border-radius:50%;background:#1e3a5f;color:#f0c040;font-weight:700;font-size:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">1</div>
+          <h3 style="font-size:15px;font-weight:700;color:#1a1f36;margin-bottom:6px;">Inscrivez-vous</h3>
+          <p style="font-size:13px;color:#6b7280;">Créez votre compte en 2 minutes</p>
+        </div>
+        <div style="flex:1;min-width:200px;max-width:230px;text-align:center;">
+          <div style="width:48px;height:48px;border-radius:50%;background:#1e3a5f;color:#f0c040;font-weight:700;font-size:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">2</div>
+          <h3 style="font-size:15px;font-weight:700;color:#1a1f36;margin-bottom:6px;">Imprimez le QR code</h3>
+          <p style="font-size:13px;color:#6b7280;">Affichez-le dans votre salle d'attente</p>
+        </div>
+        <div style="flex:1;min-width:200px;max-width:230px;text-align:center;">
+          <div style="width:48px;height:48px;border-radius:50%;background:#1e3a5f;color:#f0c040;font-weight:700;font-size:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">3</div>
+          <h3 style="font-size:15px;font-weight:700;color:#1a1f36;margin-bottom:6px;">C'est prêt!</h3>
+          <p style="font-size:13px;color:#6b7280;">Vos patients scannent et profitent</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Testimonials -->
+    <div class="b-section-white">
+      <section class="b-section">
+        <h2 class="b-section-title">Ils témoignent</h2>
+        <p class="b-section-subtitle">Des médecins comme vous ont transformé leur pratique</p>
+
+        <div class="b-testimonial-featured">
+          <div class="avatar-lg">AK</div>
+          <div>
+            <blockquote>"BléSaf a transformé mon cabinet. Mes patients sont sereins, mon assistante est soulagée, et je commence chaque consultation avec un patient détendu. C'est un investissement qui se rembourse dès le premier mois."</blockquote>
+            <cite>Dr. Ahmed Khelifi — Médecin Généraliste, La Marsa</cite>
+          </div>
+        </div>
+
+        <div class="b-testimonial-small-grid">
+          <div class="b-testimonial-small">
+            <div class="stars">★★★★★</div>
+            <p>"Même mes patients de 70 ans l'utilisent sans problème. Le scan QR, c'est simple et efficace."</p>
+            <div class="author">Dr. Sonia Bouaziz</div>
+            <div class="role">Pédiatre · Ennasr</div>
+          </div>
+          <div class="b-testimonial-small">
+            <div class="stars">★★★★★</div>
+            <p>"Zéro patient perdu depuis l'installation. Avant, j'en perdais 2-3 par semaine par impatience."</p>
+            <div class="author">Dr. Mohamed Trabelsi</div>
+            <div class="role">Dermatologue · Sfax</div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Pricing -->
+    <section class="b-section">
+      <h2 class="b-section-title">Investissez dans l'expérience patient</h2>
+      <p class="b-section-subtitle">Pour le prix de quelques cafés par mois</p>
+
+      <div class="b-pricing-grid">
+        <div class="b-pricing-card">
+          <h3>Mensuel</h3>
+          <div class="b-price">50 <span>TND/mois</span></div>
+          <ul class="b-pricing-features">
+            <li>Tableau de bord complet</li>
+            <li>Patients illimités</li>
+            <li>QR code personnalisé</li>
+            <li>Support par email</li>
+          </ul>
+          <button class="b-pricing-btn-outline">Choisir mensuel</button>
+        </div>
+        <div class="b-pricing-card popular">
+          <h3>Annuel</h3>
+          <div class="b-price">500 <span>TND/an</span></div>
+          <div style="font-size:14px;font-weight:600;color:#059669;margin:4px 0 12px;">Économisez 100 TND</div>
+          <ul class="b-pricing-features">
+            <li>Tout le plan mensuel</li>
+            <li>2 mois gratuits</li>
+            <li>Support WhatsApp prioritaire</li>
+            <li>Onboarding personnalisé</li>
+          </ul>
+          <button class="b-pricing-btn">Choisir annuel</button>
+        </div>
+      </div>
+
+      <div class="b-guarantee">
+        <div class="b-guarantee-icon">🛡️</div>
+        <div>
+          <h4>Garantie zéro risque</h4>
+          <p>30 jours d'essai gratuit, aucune carte bancaire requise. Si vous n'êtes pas satisfait, vous ne payez rien. Notre équipe vous accompagne de A à Z.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Final CTA -->
+    <section class="b-final-cta">
+      <h2>Transformez l'expérience de vos patients dès aujourd'hui</h2>
+      <p>Rejoignez les médecins qui ont choisi BléSaf pour moderniser leur accueil.</p>
+      <a href="#" class="b-final-cta-btn">Commencer mon essai gratuit</a>
+      <div style="margin-top:14px;font-size:13px;opacity:0.6;">30 jours gratuits · 50 SMS offerts · Annulez quand vous voulez</div>
+    </section>
+
+    <footer class="b-footer">© 2026 BléSaf · Confidentialité · Conditions · Contact</footer>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════
+     ALTERNATIVE C — "Efficacité Bold" — Purple gradient, energetic
+     ══════════════════════════════════════════════════════════════ -->
+<div id="alt-c" class="alt-container">
+  <div class="annotation">
+    <strong>Design C — "Efficacité Bold"</strong><br>
+    Addresses: visual demonstration (split-screen doctor/patient preview), ROI calculator section,
+    energetic purple gradient for modern feel, urgency, quantifiable metrics, timeline steps.
+    <ul>
+      <li>Bold purple gradient hero with split-screen preview (doctor dashboard + patient phone)</li>
+      <li>ROI-focused section with quantifiable business metrics</li>
+      <li>Timeline-style "How it works" with icons</li>
+      <li>Three doctor testimonials</li>
+      <li>Compact pricing with "best offer" highlight</li>
+      <li>Secondary CTA (download brochure / watch demo)</li>
+    </ul>
+  </div>
+
+  <div class="c-page">
+    <!-- Header -->
+    <div class="c-header">
+      <div class="c-logo">
+        <div class="c-logo-icon">B</div>
+        <div class="c-logo-text">BléSaf</div>
+      </div>
+      <div class="c-nav">
+        <a href="#">Fonctionnalités</a>
+        <a href="#">Tarifs</a>
+        <a href="#" style="color:#1e1b2e;font-weight:600;">Se connecter</a>
+        <a href="#" class="c-btn-primary">Essai gratuit</a>
+      </div>
+    </div>
+
+    <!-- Hero -->
+    <section class="c-hero">
+      <div class="c-hero-inner">
+        <div>
+          <div class="c-hero-badge">🚀 Nouveau — Lancement en Tunisie</div>
+          <h1>Optimisez le flux patients. <span>Boostez votre cabinet.</span></h1>
+          <p>Remplacez le chaos de la salle d'attente par un système intelligent qui gère la file pour vous. Vos patients sont sereins, votre équipe respire.</p>
+          <div class="c-hero-ctas">
+            <a href="#" class="c-hero-cta-primary">Essai gratuit de 30 jours</a>
+            <a href="#" class="c-hero-cta-secondary">▶ Démo 2 min</a>
+          </div>
+          <p class="c-hero-note">Aucune carte requise · Annulez quand vous voulez</p>
+        </div>
+
+        <!-- Split screen preview -->
+        <div class="c-split-preview">
+          <div class="c-preview-panel">
+            <div class="label"><span class="dot"></span> Vue médecin</div>
+            <div class="c-preview-queue-item">
+              <div class="c-preview-pos">1</div>
+              <div class="c-preview-name">Fatma B.</div>
+              <div class="c-preview-badge ok">Notifié</div>
+            </div>
+            <div class="c-preview-queue-item">
+              <div class="c-preview-pos">2</div>
+              <div class="c-preview-name">Mohamed T.</div>
+              <div class="c-preview-badge wait">Attente</div>
+            </div>
+            <div class="c-preview-queue-item">
+              <div class="c-preview-pos">3</div>
+              <div class="c-preview-name">Amira G.</div>
+              <div class="c-preview-badge wait">Attente</div>
+            </div>
+            <div class="c-preview-queue-item">
+              <div class="c-preview-pos">4</div>
+              <div class="c-preview-name">Youssef M.</div>
+              <div class="c-preview-badge wait">Attente</div>
+            </div>
+          </div>
+          <div class="c-phone-mockup">
+            <div class="c-phone-frame">
+              <div class="c-phone-header">BléSaf · Dr. Khelifi</div>
+              <div class="c-phone-position">#2</div>
+              <div class="c-phone-sublabel">Votre position</div>
+              <div class="c-phone-bar"><div class="c-phone-bar-fill"></div></div>
+              <div class="c-phone-wait">~12 min d'attente</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ROI Section -->
+    <section class="c-section">
+      <div class="c-roi">
+        <div>
+          <h3>Le retour sur investissement est immédiat</h3>
+          <p>Pour 50 TND/mois — le prix de 3 cafés par jour — vous transformez l'expérience de dizaines de patients quotidiennement.</p>
+          <p style="font-size:14px;color:#7c3aed;font-weight:600;">Un seul patient fidélisé rembourse votre abonnement annuel.</p>
+        </div>
+        <div class="c-roi-stats">
+          <div class="c-roi-stat">
+            <div class="val">-40%</div>
+            <div class="label">Attente perçue</div>
+          </div>
+          <div class="c-roi-stat">
+            <div class="val">0</div>
+            <div class="label">Départ impatient</div>
+          </div>
+          <div class="c-roi-stat">
+            <div class="val">-60%</div>
+            <div class="label">Questions "C'est quand?"</div>
+          </div>
+          <div class="c-roi-stat">
+            <div class="val">5 min</div>
+            <div class="label">Installation totale</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How it works -->
+    <div class="c-section-white">
+      <section class="c-section">
+        <h2 class="c-section-title">Comment ça marche</h2>
+        <p class="c-section-subtitle">4 étapes, zéro complication</p>
+        <div class="c-timeline">
+          <div class="c-timeline-step">
+            <div class="num">1</div>
+            <div class="icon">🖨️</div>
+            <h3>Imprimez le QR</h3>
+            <p>Affichez-le dans votre salle d'attente. C'est tout côté installation.</p>
+          </div>
+          <div class="c-timeline-step">
+            <div class="num">2</div>
+            <div class="icon">📱</div>
+            <h3>Le patient scanne</h3>
+            <p>5 secondes avec n'importe quel téléphone. Pas d'appli requise.</p>
+          </div>
+          <div class="c-timeline-step">
+            <div class="num">3</div>
+            <div class="icon">👀</div>
+            <h3>Il suit sa place</h3>
+            <p>Position en temps réel et estimation du temps d'attente.</p>
+          </div>
+          <div class="c-timeline-step">
+            <div class="num">4</div>
+            <div class="icon">💬</div>
+            <h3>SMS automatique</h3>
+            <p>"C'est bientôt votre tour!" — il revient juste à temps.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Testimonials -->
+    <section class="c-section">
+      <h2 class="c-section-title">Approuvé par des médecins tunisiens</h2>
+      <p class="c-section-subtitle">Ils utilisent BléSaf au quotidien</p>
+      <div class="c-testimonials-row">
+        <div class="c-testimonial">
+          <div class="rating">★★★★★</div>
+          <p>"Ma salle d'attente est méconnaissable. Calme, ordonnée. Mes patients sont détendus quand ils entrent en consultation."</p>
+          <div class="name">Dr. Ahmed Khelifi</div>
+          <div class="spec">Généraliste · La Marsa</div>
+        </div>
+        <div class="c-testimonial">
+          <div class="rating">★★★★★</div>
+          <p>"Même mes patients les plus réticents à la technologie ont adopté le système en une journée. C'est vraiment intuitif."</p>
+          <div class="name">Dr. Sonia Bouaziz</div>
+          <div class="spec">Pédiatre · Ennasr</div>
+        </div>
+        <div class="c-testimonial">
+          <div class="rating">★★★★★</div>
+          <p>"Le rapport qualité-prix est imbattable. 50 TND par mois pour zéro stress et des patients fidèles? C'est une évidence."</p>
+          <div class="name">Dr. Mohamed Trabelsi</div>
+          <div class="spec">Dermatologue · Sfax</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pricing -->
+    <div class="c-section-white">
+      <section class="c-section">
+        <h2 class="c-section-title">Tarifs transparents</h2>
+        <p class="c-section-subtitle">Commencez gratuitement, payez uniquement quand vous êtes convaincu</p>
+        <div class="c-pricing-grid">
+          <div class="c-pricing-card">
+            <h3>Mensuel</h3>
+            <div class="c-price">50 <span>TND/mois</span></div>
+            <ul class="c-pricing-features">
+              <li>Tableau de bord complet</li>
+              <li>Patients illimités</li>
+              <li>QR code personnalisé</li>
+              <li>Support email</li>
+            </ul>
+            <button class="c-pricing-btn" style="background:#e2e8f0;color:#1e1b2e;">Choisir mensuel</button>
+          </div>
+          <div class="c-pricing-card popular">
+            <h3>Annuel</h3>
+            <div class="c-price">500 <span>TND/an</span></div>
+            <div style="font-size:14px;font-weight:600;color:#7c3aed;margin:4px 0 12px;">Économisez 100 TND</div>
+            <ul class="c-pricing-features">
+              <li>Tout le plan mensuel</li>
+              <li>2 mois gratuits</li>
+              <li>Support WhatsApp prioritaire</li>
+              <li>Onboarding personnalisé</li>
+            </ul>
+            <button class="c-pricing-btn">Choisir annuel</button>
+          </div>
+        </div>
+        <div style="text-align:center;margin-top:24px;">
+          <p style="font-size:14px;color:#6b7280;">🔒 30 jours gratuits · Sans carte bancaire · Annulation en 1 clic</p>
+        </div>
+      </section>
+    </div>
+
+    <!-- Final CTA -->
+    <section class="c-final-cta">
+      <h2>Prêt à moderniser votre cabinet?</h2>
+      <p>Rejoignez les médecins qui ont dit adieu aux salles d'attente chaotiques.</p>
+      <a href="#" class="c-final-cta-btn">Commencer mon essai gratuit</a>
+      <div style="margin-top:16px;display:flex;gap:20px;justify-content:center;">
+        <a href="#" style="font-size:13px;color:rgba(255,255,255,0.7);text-decoration:underline;">Télécharger la brochure</a>
+        <a href="#" style="font-size:13px;color:rgba(255,255,255,0.7);text-decoration:underline;">Demander une démo personnalisée</a>
+      </div>
+    </section>
+
+    <footer class="c-footer">© 2026 BléSaf · Confidentialité · Conditions · Contact</footer>
+  </div>
+</div>
+
+<script>
+function show(id) {
+  document.querySelectorAll('.alt-container').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.picker button').forEach(b => b.classList.remove('active'));
+  document.getElementById('alt-' + id).classList.add('active');
+  event.target.classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// FAQ toggle for design A
+document.querySelectorAll('.a-faq-q').forEach(q => {
+  q.addEventListener('click', () => {
+    q.parentElement.classList.toggle('open');
+  });
+});
+</script>
+</body>
+</html>

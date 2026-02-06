@@ -177,6 +177,37 @@ export interface ClinicHealth {
   avgWaitMins: number | null;
   status: 'active' | 'at_risk' | 'churned';
   paymentStatus: 'paid' | 'overdue' | 'none';
+  // V2 subscription fields
+  email: string;
+  subscriptionStatus: string;
+  subscriptionPlan: string | null;
+  trialEndsAt: string | null;
+  createdAt: string;
+  smsCredits: number;
+  onboardingStep: number;
+  onboardingCompleted: boolean;
+}
+
+export type ClinicDetailTab = 'overview' | 'patients' | 'billing' | 'settings';
+
+export interface ClinicDetailDoctor {
+  id: string;
+  name: string;
+  specialty: string | null;
+  isActive: boolean;
+  avgConsultationMins: number;
+}
+
+export interface ClinicEditableFields {
+  name?: string;
+  doctorName?: string;
+  phone?: string;
+  email?: string;
+  language?: string;
+  avgConsultationMins?: number;
+  businessType?: string;
+  address?: string;
+  notifyAtPosition?: number;
 }
 
 export interface ClinicDetail {
@@ -186,14 +217,25 @@ export interface ClinicDetail {
     doctorName: string | null;
     email: string;
     phone: string | null;
+    address: string | null;
     language: string;
     avgConsultationMins: number;
     businessType: string;
     isActive: boolean;
     isDoctorPresent: boolean;
+    notifyAtPosition: number;
+    subscriptionStatus: string;
+    subscriptionPlan: string | null;
+    trialEndsAt: string | null;
+    subscriptionEndsAt: string | null;
+    smsCredits: number;
+    smsCreditsUsed: number;
+    onboardingStep: number;
+    onboardingCompleted: boolean;
     createdAt: string;
     lastLoginAt: string | null;
   };
+  doctors: ClinicDetailDoctor[];
   todayStats: {
     waiting: number;
     inConsultation: number;
@@ -254,4 +296,96 @@ export interface RecordPaymentData {
   method: string;
   reference?: string;
   notes?: string;
+}
+
+// ─── Admin V2 Types ─────────────────────────────────────────
+
+export type AdminTab = 'overview' | 'clinics' | 'financial' | 'engagement' | 'platform';
+
+export interface SubscriptionMetrics {
+  activeTrials: number;
+  paidSubscriptions: number;
+  expiredClinics: number;
+  cancelledClinics: number;
+  trialConversionRate: number;
+  mrrActual: number;
+  dailyActiveClinics: number;
+}
+
+export interface OnboardingFunnel {
+  steps: Array<{
+    step: number;
+    name: string;
+    count: number;
+    dropOffRate: number;
+  }>;
+  totalSignups: number;
+  completionRate: number;
+}
+
+export interface ActivityItem {
+  id: string;
+  type: string;
+  clinicId: string;
+  clinicName: string;
+  description: string;
+  timestamp: string;
+  metadata?: Record<string, unknown>;
+}
+
+export interface FinancialAnalytics {
+  mrr: number;
+  mrrGrowthRate: number;
+  arpu: number;
+  cltv: number;
+  churnRateRevenue: number;
+  mrrHistory: Array<{
+    month: string;
+    totalMrr: number;
+    newMrr: number;
+    churnedMrr: number;
+  }>;
+  subscriptionBreakdown: {
+    trial: number;
+    monthlyActive: number;
+    yearlyActive: number;
+    pastDue: number;
+    expired: number;
+    cancelled: number;
+  };
+}
+
+export interface FeatureAdoption {
+  checkInMethods: {
+    qrCode: { count: number; percentage: number };
+    manual: { count: number; percentage: number };
+    whatsApp: { count: number; percentage: number };
+    sms: { count: number; percentage: number };
+  };
+  smsUsage: {
+    totalSent: number;
+    clinicsUsingSms: number;
+    avgPerClinic: number;
+  };
+  multiDoctorAdoption: number;
+  avgPatientsPerClinicPerDay: number;
+}
+
+export interface PlatformHealth {
+  services: {
+    api: 'healthy' | 'degraded' | 'down';
+    database: 'healthy' | 'degraded' | 'down';
+    sms: 'configured' | 'not_configured';
+  };
+  smsStats: {
+    totalCreditsIssued: number;
+    totalCreditsUsed: number;
+    remainingCredits: number;
+  };
+  clinicStats: {
+    totalClinics: number;
+    activeClinics: number;
+    clinicsOnTrial: number;
+    clinicsPaid: number;
+  };
 }

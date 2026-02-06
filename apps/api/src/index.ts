@@ -199,7 +199,7 @@ app.post('/api/seed', async (req, res) => {
           avgConsultationMins: avgConsultationMins || 10,
           notifyAtPosition: notifyAtPosition || 2,
           enableWhatsApp: false,
-          businessType: businessType || 'medical',
+          businessType: businessType || 'general',
           showAppointments: showAppointments !== false,
         },
       });

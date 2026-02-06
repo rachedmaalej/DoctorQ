@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BléSaf Landing Page Alternatives</title>
+    <style>
+        :root {
+            --primary: #0D9488;
+            --primary-dark: #0F766E;
+            --primary-light: #14B8A6;
+            --secondary: #F59E0B;
+            --dark: #1F2937;
+            --light: #F9FAFB;
+            --gray: #6B7280;
+            --border: #E5E7EB;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+            padding: 40px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            color: var(--primary-dark);
+            margin-bottom: 15px;
+        }
+
+        header p {
+            font-size: 1.2rem;
+            color: var(--gray);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .alternatives-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 60px;
+        }
+
+        .alternative {
+            background: white;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .alternative:hover {
+            transform: translateY(-5px);
+        }
+
+        .alternative-header {
+            padding: 30px 40px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .alternative-number {
+            width: 60px;
+            height: 60px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        .alternative-title h2 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        .alternative-title p {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        .alternative-content {
+            padding: 40px;
+        }
+
+        .concept-overview {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 900px) {
+            .concept-overview {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .concept-description h3 {
+            color: var(--primary-dark);
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .concept-description h3::before {
+            content: '';
+            width: 4px;
+            height: 24px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+
+        .concept-description p {
+            color: var(--gray);
+            margin-bottom: 20px;
+        }
+
+        .key-elements {
+            background: var(--light);
+            border-radius: 12px;
+            padding: 25px;
+        }
+
+        .key-elements h4 {
+            color: var(--dark);
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .key-elements ul {
+            list-style: none;
+        }
+
+        .key-elements li {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .key-elements li:last-child {
+            border-bottom: none;
+        }
+
+        .key-elements li::before {
+            content: '✓';
+            color: var(--primary);
+            font-weight: bold;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .mockup-section {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 16px;
+            padding: 30px;
+            margin-top: 30px;
+        }
+
+        .mockup-section h3 {
+            color: var(--primary-dark);
+            margin-bottom: 25px;
+            text-align: center;
+            font-size: 1.4rem;
+        }
+
+        /* Hero Mockup Styles */
+        .hero-mockup {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .mockup-nav {
+            background: white;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .mockup-logo {
+            font-weight: bold;
+            font-size: 1.3rem;
+            color: var(--primary);
+        }
+
+        .mockup-cta-btn {
+            background: var(--primary);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .mockup-hero {
+            padding: 60px 40px;
+            text-align: center;
+        }
+
+        .mockup-hero.split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            text-align: left;
+            gap: 40px;
+            align-items: center;
+        }
+
+        @media (max-width: 768px) {
+            .mockup-hero.split {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+        }
+
+        .mockup-hero h1 {
+            font-size: 2rem;
+            color: var(--dark);
+            margin-bottom: 15px;
+            line-height: 1.3;
+        }
+
+        .mockup-hero p {
+            color: var(--gray);
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+        }
+
+        .mockup-hero .cta-primary {
+            background: var(--primary);
+            color: white;
+            padding: 14px 32px;
+            border-radius: 8px;
+            font-weight: 600;
+            display: inline-block;
+            margin-right: 15px;
+            margin-bottom: 10px;
+        }
+
+        .mockup-hero .cta-secondary {
+            color: var(--primary);
+            padding: 14px 32px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .mockup-hero .trust-note {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .mockup-product-visual {
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
+            border-radius: 12px;
+            padding: 30px;
+            color: white;
+            text-align: center;
+        }
+
+        .mockup-product-visual .phone-mockup {
+            background: white;
+            border-radius: 20px;
+            padding: 15px;
+            max-width: 180px;
+            margin: 0 auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .mockup-product-visual .phone-screen {
+            background: var(--light);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .mockup-product-visual .phone-screen .position {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .mockup-product-visual .phone-screen .label {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .social-proof-bar {
+            background: var(--light);
+            padding: 25px 40px;
+            text-align: center;
+            border-top: 1px solid var(--border);
+        }
+
+        .social-proof-bar p {
+            color: var(--gray);
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+        }
+
+        .logo-strip {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .logo-placeholder {
+            background: var(--border);
+            padding: 10px 25px;
+            border-radius: 6px;
+            color: var(--gray);
+            font-size: 0.85rem;
+        }
+
+        .testimonial-highlight {
+            background: white;
+            border-left: 4px solid var(--primary);
+            padding: 25px;
+            margin: 20px 40px;
+            border-radius: 0 12px 12px 0;
+        }
+
+        .testimonial-highlight blockquote {
+            font-style: italic;
+            color: var(--dark);
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+        }
+
+        .testimonial-highlight .author {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .testimonial-highlight .author-avatar {
+            width: 50px;
+            height: 50px;
+            background: var(--primary-light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .testimonial-highlight .author-info {
+            font-size: 0.95rem;
+        }
+
+        .testimonial-highlight .author-info strong {
+            color: var(--dark);
+            display: block;
+        }
+
+        .testimonial-highlight .author-info span {
+            color: var(--gray);
+        }
+
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 30px 40px;
+            background: var(--primary);
+            color: white;
+        }
+
+        @media (max-width: 600px) {
+            .stats-bar {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-item .number {
+            font-size: 2.2rem;
+            font-weight: bold;
+        }
+
+        .stat-item .label {
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+
+        .video-placeholder {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 12px;
+            padding: 60px;
+            text-align: center;
+            color: white;
+            position: relative;
+        }
+
+        .play-button {
+            width: 80px;
+            height: 80px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .play-button:hover {
+            transform: scale(1.1);
+        }
+
+        .video-placeholder p {
+            opacity: 0.8;
+        }
+
+        .why-section {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+
+        .why-section h4 {
+            color: #166534;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .why-section h4::before {
+            content: '💡';
+        }
+
+        .why-section p {
+            color: #15803d;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .comparison-table th {
+            background: var(--light);
+            color: var(--dark);
+            font-weight: 600;
+        }
+
+        .comparison-table td:first-child {
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px;
+            color: var(--gray);
+            margin-top: 60px;
+        }
+
+        footer p {
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏥 BléSaf Landing Page Alternatives</h1>
+            <p>Three strategic approaches to transform the BléSaf landing page into a high-converting asset that builds trust with doctors and drives free trial sign-ups.</p>
+        </header>
+
+        <div class="alternatives-grid">
+            <!-- Alternative 1 -->
+            <div class="alternative">
+                <div class="alternative-header">
+                    <div class="alternative-number">1</div>
+                    <div class="alternative-title">
+                        <h2>The Trust-First Approach</h2>
+                        <p>Lead with social proof to instantly establish credibility with skeptical doctors</p>
+                    </div>
+                </div>
+                <div class="alternative-content">
+                    <div class="concept-overview">
+                        <div class="concept-description">
+                            <h3>Core Strategy</h3>
+                            <p>This approach recognizes that doctors are inherently skeptical of new technologies and rely heavily on peer recommendations. By leading with powerful social proof immediately after the hero section, we address the trust barrier before it becomes an objection.</p>
+                            <p>The page structure prioritizes testimonials, case studies, and client logos above the product explanation, signaling that BléSaf is already trusted by the medical community.</p>
+                            
+                            <h3>Target Psychology</h3>
+                            <p>Doctors often think: "Has anyone like me used this successfully?" This approach answers that question within the first 5 seconds of landing on the page, reducing bounce rates and increasing engagement with the rest of the content.</p>
+                        </div>
+                        <div class="key-elements">
+                            <h4>Key Elements</h4>
+                            <ul>
+                                <li><strong>Hero with Testimonial Integration:</strong> The headline is accompanied by a rotating carousel of short doctor quotes</li>
+                                <li><strong>Prominent Client Logo Bar:</strong> Immediately below the hero, showing 6-8 clinic logos</li>
+                                <li><strong>Featured Case Study:</strong> A mini case study with specific metrics (e.g., "40% reduction in patient complaints")</li>
+                                <li><strong>Video Testimonial:</strong> A 60-second video of a doctor explaining their experience</li>
+                                <li><strong>Trust Badges:</strong> Data security, privacy compliance, and support availability icons</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="mockup-section">
+                        <h3>Hero Section Mockup</h3>
+                        <div class="hero-mockup">
+                            <div class="mockup-nav">
+                                <div class="mockup-logo">🏥 BléSaf</div>
+                                <div class="mockup-cta-btn">Essai Gratuit</div>
+                            </div>
+                            <div class="mockup-hero">
+                                <h1>Rejoignez les 150+ cabinets qui ont transformé leur salle d'attente</h1>
+                                <p>"BléSaf a réduit nos plaintes de patients de 60% dès le premier mois." — Dr. Karim B., Tunis</p>
+                                <a class="cta-primary">Commencer mon essai de 30 jours</a>
+                                <a class="cta-secondary">Voir les témoignages</a>
+                                <p class="trust-note">✓ Aucune carte bancaire requise &nbsp; ✓ Installation en 5 minutes &nbsp; ✓ Support WhatsApp inclus</p>
+                            </div>
+                            <div class="social-proof-bar">
+                                <p>Ils nous font confiance :</p>
+                                <div class="logo-strip">
+                                    <span class="logo-placeholder">Clinique Pasteur</span>
+                                    <span class="logo-placeholder">Centre Médical Lac</span>
+                                    <span class="logo-placeholder">Cabinet Dr. Mansour</span>
+                                    <span class="logo-placeholder">Polyclinique Ennasr</span>
+                                </div>
+                            </div>
+                            <div class="testimonial-highlight">
+                                <blockquote>"Avant BléSaf, ma salle d'attente était une source de stress constant. Aujourd'hui, mes patients me remercient pour le respect de leur temps."</blockquote>
+                                <div class="author">
+                                    <div class="author-avatar">SK</div>
+                                    <div class="author-info">
+                                        <strong>Dr. Sonia Khemiri</strong>
+                                        <span>Médecin Généraliste, Sousse • Utilise BléSaf depuis 8 mois</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="why-section">
+                        <h4>Why This Works</h4>
+                        <p>Research shows that B2B buyers, especially in healthcare, rely heavily on peer validation. By leading with social proof, this approach can increase conversion rates by up to 34% compared to feature-first pages. The testimonial-integrated hero immediately answers the visitor's unspoken question: "Can I trust this?"</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alternative 2 -->
+            <div class="alternative">
+                <div class="alternative-header" style="background: linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%);">
+                    <div class="alternative-number">2</div>
+                    <div class="alternative-title">
+                        <h2>The Visual Demonstration Approach</h2>
+                        <p>Show, don't tell — let the product speak for itself through video and interactive demos</p>
+                    </div>
+                </div>
+                <div class="alternative-content">
+                    <div class="concept-overview">
+                        <div class="concept-description">
+                            <h3>Core Strategy</h3>
+                            <p>This approach leverages the power of visual demonstration to make BléSaf tangible and understandable within seconds. Instead of describing the product with text, a short video or animated demo takes center stage in the hero section.</p>
+                            <p>Studies show that including video on a landing page can increase conversions by up to 80%. For a product like BléSaf, where the value proposition is inherently visual (a patient checking their phone, a doctor managing a queue), this approach is particularly effective.</p>
+                            
+                            <h3>Target Psychology</h3>
+                            <p>Doctors are busy and often scan pages quickly. A video captures attention and communicates the entire value proposition in 60-90 seconds, without requiring the visitor to read paragraphs of text. It also reduces uncertainty by showing exactly what the product looks like.</p>
+                        </div>
+                        <div class="key-elements">
+                            <h4>Key Elements</h4>
+                            <ul>
+                                <li><strong>Hero Video:</strong> A 60-90 second explainer video showing the patient and doctor experience side-by-side</li>
+                                <li><strong>Animated GIFs:</strong> Short loops demonstrating key features (QR scan, queue position, SMS notification)</li>
+                                <li><strong>Interactive Demo:</strong> A "Try it yourself" section where visitors can simulate the patient experience</li>
+                                <li><strong>Dashboard Screenshots:</strong> High-quality, annotated images of the doctor's dashboard</li>
+                                <li><strong>Before/After Visual:</strong> A split-screen showing a chaotic waiting room vs. a calm, modern one</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="mockup-section">
+                        <h3>Hero Section Mockup</h3>
+                        <div class="hero-mockup">
+                            <div class="mockup-nav">
+                                <div class="mockup-logo">🏥 BléSaf</div>
+                                <div class="mockup-cta-btn">Essai Gratuit</div>
+                            </div>
+                            <div class="mockup-hero split">
+                                <div>
+                                    <h1>Voyez comment BléSaf transforme l'attente en 90 secondes</h1>
+                                    <p>Regardez la démo et découvrez pourquoi des centaines de médecins ont adopté notre solution.</p>
+                                    <a class="cta-primary">▶ Regarder la démo</a>
+                                    <a class="cta-secondary">Essayer gratuitement</a>
+                                </div>
+                                <div class="video-placeholder">
+                                    <div class="play-button">▶</div>
+                                    <p>Démo de 90 secondes</p>
+                                </div>
+                            </div>
+                            <div class="stats-bar">
+                                <div class="stat-item">
+                                    <div class="number">150+</div>
+                                    <div class="label">Cabinets équipés</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="number">50,000+</div>
+                                    <div class="label">Patients servis</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="number">40%</div>
+                                    <div class="label">Réduction des plaintes</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="why-section">
+                        <h4>Why This Works</h4>
+                        <p>Video content is processed 60,000 times faster than text by the human brain. For a product like BléSaf, where the user experience is the core value, showing the product in action eliminates ambiguity and builds desire. The "show, don't tell" approach is particularly effective for busy professionals who prefer to see rather than read.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alternative 3 -->
+            <div class="alternative">
+                <div class="alternative-header" style="background: linear-gradient(135deg, #EA580C 0%, #C2410C 100%);">
+                    <div class="alternative-number">3</div>
+                    <div class="alternative-title">
+                        <h2>The Problem-Agitation-Solution (PAS) Approach</h2>
+                        <p>Deeply resonate with the doctor's pain before presenting BléSaf as the inevitable solution</p>
+                    </div>
+                </div>
+                <div class="alternative-content">
+                    <div class="concept-overview">
+                        <div class="concept-description">
+                            <h3>Core Strategy</h3>
+                            <p>This classic copywriting framework first identifies the problem (crowded waiting rooms), then agitates it by exploring the emotional and financial consequences (stressed staff, lost patients, damaged reputation), and finally presents BléSaf as the clear solution.</p>
+                            <p>By spending more time on the problem and its consequences, this approach creates a stronger emotional connection and makes the solution feel more valuable and necessary.</p>
+                            
+                            <h3>Target Psychology</h3>
+                            <p>Doctors may not realize the full extent of the problem until it's articulated for them. By naming specific pain points (patients leaving without being seen, staff burnout, negative online reviews), this approach creates an "aha" moment that makes the doctor feel understood and ready to act.</p>
+                        </div>
+                        <div class="key-elements">
+                            <h4>Key Elements</h4>
+                            <ul>
+                                <li><strong>Empathetic Headline:</strong> A headline that directly addresses the doctor's frustration (e.g., "Fatigué de gérer les plaintes de vos patients?")</li>
+                                <li><strong>Problem Deep-Dive:</strong> A section that explores 3-4 specific consequences of crowded waiting rooms with relatable scenarios</li>
+                                <li><strong>Agitation with Data:</strong> Statistics about patient dissatisfaction, walk-outs, and the impact on clinic revenue</li>
+                                <li><strong>Solution Reveal:</strong> BléSaf is presented as the answer after the problem is fully understood</li>
+                                <li><strong>ROI Calculator:</strong> An interactive tool showing potential savings and patient retention improvements</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="mockup-section">
+                        <h3>Hero Section Mockup</h3>
+                        <div class="hero-mockup">
+                            <div class="mockup-nav">
+                                <div class="mockup-logo">🏥 BléSaf</div>
+                                <div class="mockup-cta-btn">Essai Gratuit</div>
+                            </div>
+                            <div class="mockup-hero split">
+                                <div>
+                                    <h1>Vos patients partent-ils avant d'être vus?</h1>
+                                    <p>Chaque jour, des cabinets perdent des patients — et des revenus — à cause de salles d'attente mal gérées. Il existe une meilleure façon.</p>
+                                    <a class="cta-primary">Découvrir la solution</a>
+                                    <a class="cta-secondary">Calculer mes pertes</a>
+                                </div>
+                                <div class="mockup-product-visual">
+                                    <div class="phone-mockup">
+                                        <div class="phone-screen">
+                                            <div class="position">3</div>
+                                            <div class="label">Votre position</div>
+                                            <p style="font-size: 0.8rem; color: #666; margin-top: 10px;">≈ 15 min d'attente</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Problem Agitation Section -->
+                        <div style="padding: 40px; background: #FEF2F2; margin-top: 20px; border-radius: 12px;">
+                            <h4 style="color: #991B1B; margin-bottom: 20px; font-size: 1.2rem;">Le coût caché d'une salle d'attente chaotique :</h4>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                                <div style="background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #DC2626;">
+                                    <div style="font-size: 1.5rem; font-weight: bold; color: #DC2626;">15%</div>
+                                    <div style="color: #666;">des patients quittent sans être vus</div>
+                                </div>
+                                <div style="background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #DC2626;">
+                                    <div style="font-size: 1.5rem; font-weight: bold; color: #DC2626;">2h/jour</div>
+                                    <div style="color: #666;">perdues à gérer les plaintes</div>
+                                </div>
+                                <div style="background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #DC2626;">
+                                    <div style="font-size: 1.5rem; font-weight: bold; color: #DC2626;">⭐ 3.2</div>
+                                    <div style="color: #666;">note moyenne sur Google</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="why-section">
+                        <h4>Why This Works</h4>
+                        <p>The PAS framework is one of the most effective copywriting structures because it creates emotional resonance before presenting the solution. By quantifying the problem (lost patients, wasted time, poor reviews), this approach makes the cost of inaction tangible, which increases the perceived value of BléSaf and creates urgency to act.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comparison Section -->
+        <div class="alternative" style="margin-top: 60px;">
+            <div class="alternative-header" style="background: linear-gradient(135deg, #374151 0%, #1F2937 100%);">
+                <div class="alternative-number">📊</div>
+                <div class="alternative-title">
+                    <h2>Comparison & Recommendation</h2>
+                    <p>Which approach is best for BléSaf?</p>
+                </div>
+            </div>
+            <div class="alternative-content">
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Criteria</th>
+                            <th>1. Trust-First</th>
+                            <th>2. Visual Demo</th>
+                            <th>3. PAS Framework</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Best for building initial trust</td>
+                            <td>⭐⭐⭐⭐⭐</td>
+                            <td>⭐⭐⭐</td>
+                            <td>⭐⭐⭐</td>
+                        </tr>
+                        <tr>
+                            <td>Best for explaining the product</td>
+                            <td>⭐⭐⭐</td>
+                            <td>⭐⭐⭐⭐⭐</td>
+                            <td>⭐⭐⭐</td>
+                        </tr>
+                        <tr>
+                            <td>Best for creating urgency</td>
+                            <td>⭐⭐⭐</td>
+                            <td>⭐⭐⭐</td>
+                            <td>⭐⭐⭐⭐⭐</td>
+                        </tr>
+                        <tr>
+                            <td>Ease of implementation</td>
+                            <td>⭐⭐⭐⭐ (needs testimonials)</td>
+                            <td>⭐⭐⭐ (needs video production)</td>
+                            <td>⭐⭐⭐⭐⭐ (copy-focused)</td>
+                        </tr>
+                        <tr>
+                            <td>Ideal for skeptical audience</td>
+                            <td>⭐⭐⭐⭐⭐</td>
+                            <td>⭐⭐⭐⭐</td>
+                            <td>⭐⭐⭐⭐</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="why-section" style="background: #EFF6FF; border-color: #93C5FD; margin-top: 30px;">
+                    <h4 style="color: #1E40AF;">Final Recommendation</h4>
+                    <p style="color: #1E3A8A;"><strong>For BléSaf, we recommend a hybrid approach that combines elements from all three alternatives:</strong></p>
+                    <p style="color: #1E3A8A; margin-top: 15px;">
+                        1. <strong>Lead with a Trust-First hero</strong> that includes a powerful headline, a short testimonial quote, and client logos immediately visible.<br><br>
+                        2. <strong>Follow with a Visual Demo section</strong> featuring a short video or animated GIFs showing the product in action.<br><br>
+                        3. <strong>Use PAS-style copy throughout</strong> to ensure the problem is clearly articulated and the solution feels necessary.<br><br>
+                        This hybrid approach addresses the primary weakness of the current page (lack of trust signals) while also making the product tangible and creating emotional resonance with the target audience.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>BléSaf Landing Page Alternatives — Prepared by Manus AI — February 2026</p>
+        </footer>
+    </div>
+</body>
+</html>

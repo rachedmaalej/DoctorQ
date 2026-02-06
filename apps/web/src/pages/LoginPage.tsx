@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/authStore';
+import { api } from '@/lib/api';
 import Logo from '@/components/ui/Logo';
 
 export default function LoginPage() {
@@ -11,6 +12,9 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [emailNotVerified, setEmailNotVerified] = useState(false);
+  const [resendSuccess, setResendSuccess] = useState(false);
+  const [resending, setResending] = useState(false);
 
   // Admin email whitelist
   const ADMIN_EMAILS = ['rached@doctorq.tn', 'admin@blesaf.tn'];
@@ -18,16 +22,32 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setEmailNotVerified(false);
+    setResendSuccess(false);
 
     try {
       await login({ email, password });
       // Redirect admins to /admin, others to /dashboard
       const isAdmin = ADMIN_EMAILS.includes(email.toLowerCase());
       navigate(isAdmin ? '/admin' : '/dashboard');
-    } catch (error) {
-      // Error is handled by the store
+    } catch (err: any) {
+      if (err?.code === 'EMAIL_NOT_VERIFIED') {
+        setEmailNotVerified(true);
+      }
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    setResending(true);
+    try {
+      await api.resendVerification(email);
+      setResendSuccess(true);
+    } catch {
+      // Silently fail — the message is generic anyway
+    } finally {
+      setResending(false);
     }
   };
 
@@ -71,7 +91,27 @@ export default function LoginPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {error && (
+            {emailNotVerified && !resendSuccess && (
+              <div className="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-lg">
+                <p className="font-medium mb-1">{t('auth.emailNotVerified', 'Veuillez vérifier votre email avant de vous connecter.')}</p>
+                <button
+                  type="button"
+                  onClick={handleResendVerification}
+                  disabled={resending}
+                  className="text-sm text-amber-700 underline hover:text-amber-900 disabled:opacity-50"
+                >
+                  {resending ? t('common.loading', 'Envoi...') : t('auth.resendVerification', 'Renvoyer l\'email de vérification')}
+                </button>
+              </div>
+            )}
+
+            {resendSuccess && (
+              <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
+                {t('auth.verificationSent', 'Email de vérification envoyé. Vérifiez votre boîte de réception.')}
+              </div>
+            )}
+
+            {error && !emailNotVerified && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
                 {error}
               </div>

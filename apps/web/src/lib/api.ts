@@ -15,6 +15,13 @@ import type {
   CreateClinicData,
   RecordPaymentData,
   Doctor,
+  SubscriptionMetrics,
+  OnboardingFunnel,
+  ActivityItem,
+  FinancialAnalytics,
+  FeatureAdoption,
+  PlatformHealth,
+  ClinicEditableFields,
 } from '@/types';
 import { logger } from './logger';
 
@@ -78,6 +85,14 @@ class ApiClient {
 
       if (!response.ok) {
         logger.error(`[API] Error response:`, data);
+
+        // Auto-logout on 401 (expired/invalid token) — except for login/signup routes
+        if (response.status === 401 && this.token && !endpoint.startsWith('/api/auth/login')) {
+          this.clearToken();
+          window.location.href = '/login';
+          throw { code: 'SESSION_EXPIRED', message: 'Session expired. Please log in again.' };
+        }
+
         const error: ApiError & { data?: any } = {
           ...(data.error || {
             code: 'UNKNOWN_ERROR',
@@ -431,6 +446,52 @@ class ApiClient {
     return this.request(`/api/admin/clinics/${clinicId}/payments/konnect`, {
       method: 'POST',
       body: JSON.stringify({ month }),
+    });
+  }
+
+  // Admin V2 endpoints
+  async getSubscriptionMetrics(): Promise<SubscriptionMetrics> {
+    return this.request('/api/admin/subscription-metrics');
+  }
+
+  async getOnboardingFunnel(): Promise<OnboardingFunnel> {
+    return this.request('/api/admin/onboarding-funnel');
+  }
+
+  async getActivityFeed(limit = 20): Promise<ActivityItem[]> {
+    return this.request(`/api/admin/activity-feed?limit=${limit}`);
+  }
+
+  async getFinancialAnalytics(): Promise<FinancialAnalytics> {
+    return this.request('/api/admin/financial');
+  }
+
+  async getFeatureAdoption(): Promise<FeatureAdoption> {
+    return this.request('/api/admin/feature-adoption');
+  }
+
+  async getPlatformHealth(): Promise<PlatformHealth> {
+    return this.request('/api/admin/platform-health');
+  }
+
+  async extendClinicTrial(clinicId: string, days: number): Promise<{ id: string; name: string; trialEndsAt: string }> {
+    return this.request(`/api/admin/clinics/${clinicId}/trial`, {
+      method: 'PATCH',
+      body: JSON.stringify({ days }),
+    });
+  }
+
+  async upgradeClinicSubscription(clinicId: string, plan: 'MONTHLY' | 'YEARLY'): Promise<{ id: string; name: string }> {
+    return this.request(`/api/admin/clinics/${clinicId}/upgrade`, {
+      method: 'PATCH',
+      body: JSON.stringify({ plan }),
+    });
+  }
+
+  async updateAdminClinicInfo(clinicId: string, data: ClinicEditableFields): Promise<{ id: string; name: string }> {
+    return this.request(`/api/admin/clinics/${clinicId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
     });
   }
 }

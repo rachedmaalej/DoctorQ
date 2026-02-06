@@ -46,6 +46,23 @@ export default {
           800: '#623F04',
           900: '#312002',
         },
+        // Teal Clinical — admin dashboard palette
+        admin: {
+          DEFAULT: '#267B75',
+          text: '#132E2C',
+          secondary: '#4E7572',
+          muted: '#8AADAA',
+          bg: '#FDFFFF',
+          subtle: '#F3FAF9',
+          border: '#D0E8E5',
+          'border-light': '#E6F2F0',
+          accent: '#267B75',
+          'accent-hover': '#1F6560',
+          'accent-light': '#DAF5E0',
+          positive: '#337023',
+          negative: '#E15720',
+          chart: '#459FB8',
+        },
       },
       fontFamily: {
         sans: ['IBM Plex Sans', 'system-ui', 'sans-serif'],

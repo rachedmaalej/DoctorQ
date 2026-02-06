@@ -19,7 +19,10 @@
     "invalidCredentials": "Email ou mot de passe incorrect",
     "loginError": "Erreur de connexion",
     "forgotPassword": "Mot de passe oublié?",
-    "createAccount": "Créer un compte"
+    "createAccount": "Créer un compte",
+    "emailNotVerified": "Veuillez vérifier votre email avant de vous connecter.",
+    "resendVerification": "Renvoyer l'email de vérification",
+    "verificationSent": "Email de vérification envoyé. Vérifiez votre boîte de réception."
   },
   "queue": {
     "title": "File d'Attente",

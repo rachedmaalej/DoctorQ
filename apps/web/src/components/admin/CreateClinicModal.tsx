@@ -1,6 +1,33 @@
 import { useState } from 'react';
 import { api } from '@/lib/api';
 
+/**
+ * Format a raw phone input into +216 XX XXX XXX
+ */
+function formatTunisianPhone(raw: string): string {
+  let digits = raw.replace(/\D/g, '');
+
+  // Remove leading 216 if user typed it after the +
+  if (digits.startsWith('216')) {
+    digits = digits.slice(3);
+  }
+
+  // Cap at 8 digits (Tunisian local number)
+  digits = digits.slice(0, 8);
+
+  if (digits.length <= 2) return digits ? `+216 ${digits}` : '';
+  if (digits.length <= 5) return `+216 ${digits.slice(0, 2)} ${digits.slice(2)}`;
+  return `+216 ${digits.slice(0, 2)} ${digits.slice(2, 5)} ${digits.slice(5)}`;
+}
+
+/** Extract +216XXXXXXXX for API submission */
+function phoneToE164(formatted: string): string {
+  const digits = formatted.replace(/\D/g, '');
+  if (!digits) return '';
+  if (digits.startsWith('216')) return `+${digits}`;
+  return `+216${digits}`;
+}
+
 interface CreateClinicModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -15,7 +42,7 @@ export default function CreateClinicModal({ isOpen, onClose, onCreated }: Create
   const [phone, setPhone] = useState('');
   const [language, setLanguage] = useState('fr');
   const [avgConsultationMins, setAvgConsultationMins] = useState(10);
-  const [businessType, setBusinessType] = useState('medical');
+  const [businessType, setBusinessType] = useState('general');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [createdClinic, setCreatedClinic] = useState<{ id: string; name: string; email: string } | null>(null);
@@ -28,7 +55,7 @@ export default function CreateClinicModal({ isOpen, onClose, onCreated }: Create
     setPhone('');
     setLanguage('fr');
     setAvgConsultationMins(10);
-    setBusinessType('medical');
+    setBusinessType('general');
     setError(null);
     setCreatedClinic(null);
   };
@@ -44,12 +71,13 @@ export default function CreateClinicModal({ isOpen, onClose, onCreated }: Create
     setIsSubmitting(true);
 
     try {
+      const e164Phone = phoneToE164(phone);
       const clinic = await api.createClinic({
         name,
         email,
         password,
         doctorName: doctorName || undefined,
-        phone: phone || undefined,
+        phone: e164Phone || undefined,
         language,
         avgConsultationMins,
         businessType,
@@ -65,173 +93,140 @@ export default function CreateClinicModal({ isOpen, onClose, onCreated }: Create
 
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-xl shadow-xl max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold text-gray-900">
-            {createdClinic ? 'Clinic Created' : 'Create New Clinic'}
-          </h2>
-          <button onClick={handleClose} className="text-gray-400 hover:text-gray-600">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
+  const inputClass = 'w-full px-3 py-2 border border-[#D0E8E5] rounded-lg focus:ring-2 focus:ring-[#267B75] focus:border-transparent text-[#132E2C]';
 
-        {createdClinic ? (
-          <div className="space-y-4">
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-              <p className="text-green-800 font-medium">Clinic created successfully!</p>
-            </div>
-            <div className="bg-gray-50 rounded-lg p-4 space-y-2">
-              <p className="text-sm text-gray-600">Share these credentials with the clinic:</p>
-              <div className="font-mono text-sm bg-white border rounded p-3 select-all">
-                <p><strong>Clinic:</strong> {createdClinic.name}</p>
-                <p><strong>Email:</strong> {createdClinic.email}</p>
-                <p><strong>Password:</strong> {password}</p>
-              </div>
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(
-                    `Clinic: ${createdClinic.name}\nEmail: ${createdClinic.email}\nPassword: ${password}`
-                  );
-                }}
-                className="text-sm text-purple-600 hover:text-purple-800 font-medium"
-              >
-                Copy to clipboard
-              </button>
-            </div>
-            <button
-              onClick={handleClose}
-              className="w-full px-4 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg"
-            >
-              Done
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center p-4 z-50">
+      <div className="bg-white border border-[#E6F2F0] rounded-lg max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-lg">
+        <div className="p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-[13px] font-bold text-[#132E2C] uppercase tracking-wider">
+              {createdClinic ? 'Clinic Created' : 'Create New Clinic'}
+            </h2>
+            <button onClick={handleClose} className="text-[#8AADAA] hover:text-[#132E2C] transition-colors">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
             </button>
           </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-                {error}
+          {createdClinic ? (
+            <div className="space-y-4">
+              <div className="border border-[#337023] rounded-lg p-4">
+                <p className="text-[#337023] font-medium text-sm">Clinic created successfully!</p>
               </div>
-            )}
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Clinic Name *</label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  placeholder="Cabinet Dr. Kammoun"
-                />
-              </div>
-
-              <div className="col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Doctor Name</label>
-                <input
-                  type="text"
-                  value={doctorName}
-                  onChange={(e) => setDoctorName(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  placeholder="Dr. Ahmed Kammoun"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  placeholder="clinic@email.com"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Password *</label>
-                <input
-                  type="text"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  minLength={6}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  placeholder="Min 6 characters"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-                <input
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  placeholder="+216 XX XXX XXX"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Language</label>
-                <select
-                  value={language}
-                  onChange={(e) => setLanguage(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
+              <div className="border border-[#E6F2F0] rounded-lg p-4 space-y-2">
+                <p className="text-sm text-[#4E7572]">Share these credentials with the clinic:</p>
+                <div className="font-mono text-sm border border-[#D0E8E5] rounded p-3 select-all text-[#132E2C]">
+                  <p><strong>Clinic:</strong> {createdClinic.name}</p>
+                  <p><strong>Email:</strong> {createdClinic.email}</p>
+                  <p><strong>Password:</strong> {password}</p>
+                </div>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(
+                      `Clinic: ${createdClinic.name}\nEmail: ${createdClinic.email}\nPassword: ${password}`
+                    );
+                  }}
+                  className="text-sm text-[#267B75] hover:underline font-medium"
                 >
-                  <option value="fr">Francais</option>
-                  <option value="ar">العربية</option>
-                </select>
+                  Copy to clipboard
+                </button>
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Avg Consultation (min)</label>
-                <input
-                  type="number"
-                  value={avgConsultationMins}
-                  onChange={(e) => setAvgConsultationMins(Number(e.target.value))}
-                  min={1}
-                  max={120}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Business Type</label>
-                <select
-                  value={businessType}
-                  onChange={(e) => setBusinessType(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
-                >
-                  <option value="medical">Medical</option>
-                  <option value="retail">Retail</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="flex gap-3 pt-4">
               <button
-                type="button"
                 onClick={handleClose}
-                className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50"
+                className="w-full px-4 py-3 bg-[#267B75] hover:bg-[#1F6560] text-white font-medium rounded-lg transition-colors"
               >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="flex-1 px-4 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg disabled:opacity-50"
-              >
-                {isSubmitting ? 'Creating...' : 'Create Clinic'}
+                Done
               </button>
             </div>
-          </form>
-        )}
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {error && (
+                <div className="border border-[#E15720] text-[#E15720] px-4 py-3 rounded-lg text-sm">
+                  {error}
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium text-[#4E7572] mb-1">Clinic Name *</label>
+                  <input type="text" value={name} onChange={(e) => setName(e.target.value)} required className={inputClass} placeholder="Cabinet Dr. Kammoun" />
+                </div>
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium text-[#4E7572] mb-1">Doctor Name</label>
+                  <input type="text" value={doctorName} onChange={(e) => setDoctorName(e.target.value)} className={inputClass} placeholder="Dr. Ahmed Kammoun" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[#4E7572] mb-1">Email *</label>
+                  <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className={inputClass} placeholder="clinic@email.com" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[#4E7572] mb-1">Password *</label>
+                  <input type="text" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} className={inputClass} placeholder="Min 6 characters" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[#4E7572] mb-1">Phone</label>
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => {
+                      const formatted = formatTunisianPhone(e.target.value);
+                      setPhone(formatted);
+                    }}
+                    onFocus={() => { if (!phone) setPhone('+216 '); }}
+                    onBlur={() => { if (phone === '+216 ' || phone === '+216') setPhone(''); }}
+                    className={inputClass}
+                    placeholder="+216 XX XXX XXX"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[#4E7572] mb-1">Language</label>
+                  <select value={language} onChange={(e) => setLanguage(e.target.value)} className={`${inputClass} bg-white`}>
+                    <option value="fr">Francais</option>
+                    <option value="ar">العربية</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[#4E7572] mb-1">Avg Consultation (min)</label>
+                  <input type="number" value={avgConsultationMins} onChange={(e) => setAvgConsultationMins(Number(e.target.value))} min={1} max={120} className={inputClass} />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[#4E7572] mb-1">Spécialité</label>
+                  <select value={businessType} onChange={(e) => setBusinessType(e.target.value)} className={`${inputClass} bg-white`}>
+                    <option value="general">Médecine Générale</option>
+                    <option value="gynecology">Gynécologie-Obstétrique</option>
+                    <option value="pediatrics">Pédiatrie</option>
+                    <option value="ophthalmology">Ophtalmologie</option>
+                    <option value="dermatology">Dermatologie</option>
+                    <option value="ent">ORL</option>
+                    <option value="cardiology">Cardiologie</option>
+                    <option value="gastroenterology">Gastro-entérologie</option>
+                    <option value="orthopedics">Orthopédie</option>
+                    <option value="dental">Dentaire</option>
+                    <option value="other">Autre</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={handleClose}
+                  className="flex-1 px-4 py-3 border border-[#D0E8E5] text-[#4E7572] font-medium rounded-lg hover:bg-[#F3FAF9] transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="flex-1 px-4 py-3 bg-[#267B75] hover:bg-[#1F6560] text-white font-medium rounded-lg disabled:opacity-50 transition-colors"
+                >
+                  {isSubmitting ? 'Creating...' : 'Create Clinic'}
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
       </div>
     </div>
   );

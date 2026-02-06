@@ -27,7 +27,7 @@ export function useUILabels() {
   };
 
   // Helper to check if this is a medical clinic (default behavior)
-  const isMedical = !clinic?.businessType || clinic.businessType === 'medical';
+  const isMedical = !clinic?.businessType || clinic.businessType !== 'retail';
 
   // Whether to show appointment time field in add form
   const showAppointments = clinic?.showAppointments !== false;

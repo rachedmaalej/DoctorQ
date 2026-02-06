@@ -44,6 +44,17 @@ router.post('/login', async (req: Request, res: Response) => {
       });
     }
 
+    // Check email verification
+    if (!clinic.emailVerified) {
+      return res.status(403).json({
+        error: {
+          code: 'EMAIL_NOT_VERIFIED',
+          message: 'Please verify your email before logging in.',
+          email: clinic.email,
+        },
+      });
+    }
+
     // Update last login timestamp (for churn tracking)
     await prisma.clinic.update({
       where: { id: clinic.id },
@@ -58,7 +69,7 @@ router.post('/login', async (req: Request, res: Response) => {
     });
 
     // Generate UI labels based on business type
-    const isMedical = (clinic.businessType || 'medical') === 'medical';
+    const isMedical = (clinic.businessType || 'general') !== 'retail';
     const uiLabels = {
       customer: isMedical ? 'patient' : 'client',
       customers: isMedical ? 'patients' : 'clients',
@@ -67,6 +78,11 @@ router.post('/login', async (req: Request, res: Response) => {
       addCustomer: isMedical ? 'Ajouter un patient' : 'Ajouter un client',
       noCustomers: isMedical ? 'Aucun patient dans la file' : 'Aucun client dans la file',
     };
+
+    // Calculate subscription info
+    const now = new Date();
+    const endDate = clinic.subscriptionStatus === 'TRIAL' ? clinic.trialEndsAt : clinic.subscriptionEndsAt;
+    const daysRemaining = endDate ? Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)) : null;
 
     res.json({
       data: {
@@ -81,6 +97,9 @@ router.post('/login', async (req: Request, res: Response) => {
           businessType: clinic.businessType || 'medical',
           showAppointments: clinic.showAppointments !== false,
           onboardingCompleted: clinic.onboardingCompleted,
+          subscriptionStatus: clinic.subscriptionStatus,
+          subscriptionPlan: clinic.subscriptionPlan,
+          daysRemaining,
           uiLabels,
         },
       },
@@ -148,7 +167,7 @@ router.get('/me', authMiddleware, async (req: AuthRequest, res: Response) => {
     }
 
     // Generate UI labels based on business type
-    const isMedical = (clinic.businessType || 'medical') === 'medical';
+    const isMedical = (clinic.businessType || 'general') !== 'retail';
     const uiLabels = {
       customer: isMedical ? 'patient' : 'client',
       customers: isMedical ? 'patients' : 'clients',
