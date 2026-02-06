@@ -27,7 +27,7 @@ const httpServer = createServer(app);
 
 // Parse CORS origins (supports comma-separated list)
 // Default includes common Vite fallback ports when primary port is in use
-const corsOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173,http://localhost:5174,http://localhost:5175,http://localhost:5176,http://localhost:5177')
+const corsOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173,http://localhost:5174,http://localhost:5175,http://localhost:5176,http://localhost:5177,https://web-zeta-five-39.vercel.app')
   .split(',')
   .map((origin) => origin.trim());
 
