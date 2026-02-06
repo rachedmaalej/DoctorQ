@@ -84,6 +84,7 @@ interface UseSocketOptions {
   onPatientCalled?: (data: { position: number; status: string }) => void;
   onPositionChanged?: (data: { entryId: string; newPosition: number; estimatedWait: number }) => void;
   onDoctorPresence?: (data: { clinicId: string; isDoctorPresent: boolean }) => void;
+  onAnnouncement?: (data: { clinicId: string; announcement: string | null; announcementAt: string | null }) => void;
   onPatientRoomJoined?: (data: { entryId: string; success: boolean }) => void;
 }
 
@@ -95,6 +96,7 @@ export function useSocket(options: UseSocketOptions = {}) {
   const onPatientCalledRef = useRef(options.onPatientCalled);
   const onPositionChangedRef = useRef(options.onPositionChanged);
   const onDoctorPresenceRef = useRef(options.onDoctorPresence);
+  const onAnnouncementRef = useRef(options.onAnnouncement);
   const onPatientRoomJoinedRef = useRef(options.onPatientRoomJoined);
 
   // Update refs when callbacks change
@@ -103,8 +105,9 @@ export function useSocket(options: UseSocketOptions = {}) {
     onPatientCalledRef.current = options.onPatientCalled;
     onPositionChangedRef.current = options.onPositionChanged;
     onDoctorPresenceRef.current = options.onDoctorPresence;
+    onAnnouncementRef.current = options.onAnnouncement;
     onPatientRoomJoinedRef.current = options.onPatientRoomJoined;
-  }, [options.onQueueUpdated, options.onPatientCalled, options.onPositionChanged, options.onDoctorPresence, options.onPatientRoomJoined]);
+  }, [options.onQueueUpdated, options.onPatientCalled, options.onPositionChanged, options.onDoctorPresence, options.onAnnouncement, options.onPatientRoomJoined]);
 
   // Set up event listeners
   useEffect(() => {
@@ -137,12 +140,18 @@ export function useSocket(options: UseSocketOptions = {}) {
       onDoctorPresenceRef.current?.(data);
     };
 
+    const handleAnnouncement = (data: { clinicId: string; announcement: string | null; announcementAt: string | null }) => {
+      console.log('[Socket.io] Received clinic:announcement event', data);
+      onAnnouncementRef.current?.(data);
+    };
+
     socketInstance.on('queue:updated', handleQueueUpdated);
     socketInstance.on('patient:called', handlePatientCalled);
     socketInstance.on('position:changed', handlePositionChanged);
     socketInstance.on('joined:clinic', handleJoinedClinic);
     socketInstance.on('joined:patient', handleJoinedPatient);
     socketInstance.on('doctor:presence', handleDoctorPresence);
+    socketInstance.on('clinic:announcement', handleAnnouncement);
 
     return () => {
       socketInstance.off('queue:updated', handleQueueUpdated);
@@ -151,6 +160,7 @@ export function useSocket(options: UseSocketOptions = {}) {
       socketInstance.off('joined:clinic', handleJoinedClinic);
       socketInstance.off('joined:patient', handleJoinedPatient);
       socketInstance.off('doctor:presence', handleDoctorPresence);
+      socketInstance.off('clinic:announcement', handleAnnouncement);
     };
   }, [socketInstance]);
 

@@ -10,6 +10,7 @@ import QRCodeModal from '@/components/queue/QRCodeModal';
 import MobileDashboard from '@/components/queue/MobileDashboard';
 import AddPatientModal from '@/components/queue/AddPatientModal';
 import ConfirmModal from '@/components/ui/ConfirmModal';
+import AnnouncementModal from '@/components/queue/AnnouncementModal';
 import { Toast } from '@/components/ui/Toast';
 import Header from '@/components/layout/Header';
 import TrialBanner from '@/components/ui/TrialBanner';
@@ -45,6 +46,13 @@ export default function DashboardPage() {
 
     // Doctor presence
     isDoctorPresent,
+
+    // Announcement
+    announcement,
+    isAnnouncementModalOpen,
+    setIsAnnouncementModalOpen,
+    isSendingAnnouncement,
+    handleSetAnnouncement,
 
     // Actions
     handleCallNext,
@@ -114,6 +122,8 @@ export default function DashboardPage() {
           isCallingNext={isCallingNext}
           isDoctorPresent={isDoctorPresent}
           onToggleDoctorPresent={handleToggleDoctorPresent}
+          announcement={announcement}
+          onAnnouncementClick={() => setIsAnnouncementModalOpen(true)}
         />
       </div>
 
@@ -171,6 +181,29 @@ export default function DashboardPage() {
                     <div className={`w-5 h-5 rounded-full bg-white shadow transition-transform ${isDoctorPresent ? 'ltr:translate-x-4 rtl:-translate-x-4' : 'translate-x-0'}`} />
                   </div>
                 </button>
+
+                {/* Announcement Button */}
+                <button
+                  onClick={() => setIsAnnouncementModalOpen(true)}
+                  className={`relative flex items-center gap-2 px-4 py-2.5 rounded-full font-medium transition-all ${
+                    announcement
+                      ? 'bg-blue-100 text-blue-800 border-2 border-blue-300'
+                      : 'bg-gray-100 text-gray-600 border-2 border-gray-200 hover:bg-gray-200'
+                  }`}
+                  title={t('announcement.buttonLabel')}
+                  aria-label={t('announcement.buttonLabel')}
+                >
+                  <span
+                    className={`material-symbols-outlined text-xl ${announcement ? 'text-blue-600' : 'text-gray-400'}`}
+                    style={{ fontVariationSettings: announcement ? "'FILL' 1" : "'FILL' 0" }}
+                  >
+                    campaign
+                  </span>
+                  <span className="text-sm">{t('announcement.buttonLabel')}</span>
+                  {announcement && (
+                    <span className="absolute -top-1 ltr:-right-1 rtl:-left-1 w-3 h-3 bg-blue-500 rounded-full border-2 border-white" />
+                  )}
+                </button>
               </div>
 
               {/* Right side: Call Next Button */}
@@ -225,6 +258,15 @@ export default function DashboardPage() {
         message={t('queue.confirmClear') || 'Are you sure you want to remove all patients from the queue? This action cannot be undone.'}
         variant="danger"
         isLoading={isClearing}
+      />
+
+      {/* Announcement modal */}
+      <AnnouncementModal
+        isOpen={isAnnouncementModalOpen}
+        onClose={() => setIsAnnouncementModalOpen(false)}
+        onSend={handleSetAnnouncement}
+        currentAnnouncement={announcement}
+        isLoading={isSendingAnnouncement}
       />
 
       {/* QR Code modal for mobile */}

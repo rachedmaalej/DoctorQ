@@ -492,5 +492,22 @@
     "usage": "Utilisation",
     "totalSmsSent": "Total SMS envoyés",
     "needHelp": "Besoin d'aide?"
+  },
+  "announcement": {
+    "title": "Envoyer une annonce",
+    "send": "Envoyer",
+    "clear": "Effacer l'annonce",
+    "cancel": "Annuler",
+    "placeholder": "Tapez votre message aux patients...",
+    "charCount": "{{count}}/500",
+    "presetSteppedOut": "Absent 30 minutes, de retour bientôt",
+    "presetRunningLate": "En retard, délai estimé 15 minutes",
+    "presetBackSoon": "De retour dans quelques instants",
+    "presetBreak": "En pause, reprise prochainement",
+    "sent": "Annonce envoyée",
+    "cleared": "Annonce effacée",
+    "buttonLabel": "Annonce",
+    "activeLabel": "Annonce active",
+    "presetsLabel": "Messages rapides"
   }
 }

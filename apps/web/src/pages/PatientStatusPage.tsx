@@ -137,6 +137,7 @@ export default function PatientStatusPage() {
   const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
   const [isDoctorPresent, setIsDoctorPresent] = useState(true); // Default to true until we know
+  const [announcement, setAnnouncement] = useState<string | null>(null);
   const [positionToast, setPositionToast] = useState<{ visible: boolean; message: string }>({ visible: false, message: '' });
   const previousPositionRef = useRef<number | null>(null);
 
@@ -227,6 +228,12 @@ export default function PatientStatusPage() {
     }
   }, [entry?.clinicId]);
 
+  const handleAnnouncement = useCallback((data: { clinicId: string; announcement: string | null; announcementAt: string | null }) => {
+    if (entry?.clinicId === data.clinicId || !entry) {
+      setAnnouncement(data.announcement);
+    }
+  }, [entry?.clinicId]);
+
   // Refetch patient status when room is (re)joined to sync state after reconnection
   const handlePatientRoomJoined = useCallback(async (data: { entryId: string; success: boolean }) => {
     if (!data.success || !data.entryId) return;
@@ -237,6 +244,9 @@ export default function PatientStatusPage() {
       previousPositionRef.current = freshData.position;
       if (freshData.isDoctorPresent !== undefined) {
         setIsDoctorPresent(freshData.isDoctorPresent);
+      }
+      if (freshData.announcement !== undefined) {
+        setAnnouncement(freshData.announcement);
       }
       // Show confetti if now in consultation (e.g., they were called while disconnected)
       if (freshData.status === 'IN_CONSULTATION') {
@@ -251,6 +261,7 @@ export default function PatientStatusPage() {
     onPatientCalled: handlePatientCalled,
     onPositionChanged: handlePositionChanged,
     onDoctorPresence: handleDoctorPresence,
+    onAnnouncement: handleAnnouncement,
     onPatientRoomJoined: handlePatientRoomJoined,
   });
 
@@ -268,6 +279,10 @@ export default function PatientStatusPage() {
         // Set doctor presence from the response
         if (data.isDoctorPresent !== undefined) {
           setIsDoctorPresent(data.isDoctorPresent);
+        }
+        // Set announcement from the response
+        if (data.announcement !== undefined) {
+          setAnnouncement(data.announcement);
         }
         // Show confetti if already in consultation when page loads
         if (data.status === 'IN_CONSULTATION') {
@@ -365,6 +380,21 @@ export default function PatientStatusPage() {
                   ? t('patient.doctorAbsent', { doctorName: entry.doctorName })
                   : t('patient.doctorNotYetArrived')}
               </span>
+            </div>
+          </div>
+        )}
+
+        {/* Clinic Announcement Banner */}
+        {announcement && queueState !== 'completed' && queueState !== 'cancelled' && (
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-center">
+            <div className="flex items-center justify-center gap-2 text-blue-800">
+              <span
+                className="material-symbols-outlined text-lg flex-shrink-0"
+                style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 20" }}
+              >
+                campaign
+              </span>
+              <span className="text-sm font-medium">{announcement}</span>
             </div>
           </div>
         )}

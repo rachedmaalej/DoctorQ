@@ -115,6 +115,8 @@ export interface PatientStatusResponse extends QueueEntry {
   avgConsultationMins?: number;
   clinicName?: string;
   doctorName?: string;
+  announcement?: string | null;
+  announcementAt?: string | null;
 }
 
 // ─── Admin Types ─────────────────────────────────────────────

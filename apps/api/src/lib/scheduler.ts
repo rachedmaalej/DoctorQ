@@ -20,7 +20,11 @@ export function initScheduledTasks() {
 
         await prisma.clinic.update({
           where: { id: clinic.id },
-          data: { isDoctorPresent: false },
+          data: {
+            isDoctorPresent: false,
+            announcement: null,
+            announcementAt: null,
+          },
         });
 
         emitToRoom(`clinic:${clinic.id}`, 'doctor:presence', {
@@ -33,7 +37,20 @@ export function initScheduledTasks() {
           isDoctorPresent: false,
         });
 
-        console.log(`[Midnight Reset] ${clinic.name}: archived ${archived} patients, deleted ${deleted} stale entries, doctor set absent`);
+        // Clear any active announcement
+        emitToRoom(`clinic:${clinic.id}:patients`, 'clinic:announcement', {
+          clinicId: clinic.id,
+          announcement: null,
+          announcementAt: null,
+        });
+
+        emitToRoom(`clinic:${clinic.id}`, 'clinic:announcement', {
+          clinicId: clinic.id,
+          announcement: null,
+          announcementAt: null,
+        });
+
+        console.log(`[Midnight Reset] ${clinic.name}: archived ${archived} patients, deleted ${deleted} stale entries, doctor set absent, announcement cleared`);
       }
 
       console.log(`[Midnight Reset] Complete. Reset ${clinics.length} clinic(s).`);

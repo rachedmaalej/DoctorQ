@@ -484,5 +484,22 @@
     "usage": "الاستخدام",
     "totalSmsSent": "إجمالي SMS المرسلة",
     "needHelp": "تحتاج مساعدة؟"
+  },
+  "announcement": {
+    "title": "إرسال إعلان",
+    "send": "إرسال",
+    "clear": "مسح الإعلان",
+    "cancel": "إلغاء",
+    "placeholder": "اكتب رسالتك للمرضى...",
+    "charCount": "{{count}}/500",
+    "presetSteppedOut": "غائب 30 دقيقة، سأعود قريباً",
+    "presetRunningLate": "متأخر، التأخير المتوقع 15 دقيقة",
+    "presetBackSoon": "سأعود بعد لحظات",
+    "presetBreak": "في استراحة، سأستأنف قريباً",
+    "sent": "تم إرسال الإعلان",
+    "cleared": "تم مسح الإعلان",
+    "buttonLabel": "إعلان",
+    "activeLabel": "إعلان نشط",
+    "presetsLabel": "رسائل سريعة"
   }
 }

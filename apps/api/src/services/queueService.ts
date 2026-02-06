@@ -404,6 +404,8 @@ export async function getPatientStatus(entryId: string) {
           doctorName: true,
           avgConsultationMins: true,
           isDoctorPresent: true,
+          announcement: true,
+          announcementAt: true,
         },
       },
     },
@@ -433,6 +435,8 @@ export async function getPatientStatus(entryId: string) {
     clinicName: entry.clinic.name,
     doctorName: entry.clinic.doctorName,
     isDoctorPresent: entry.clinic.isDoctorPresent,
+    announcement: entry.clinic.announcement,
+    announcementAt: entry.clinic.announcementAt,
   };
 }
 

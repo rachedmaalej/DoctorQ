@@ -63,6 +63,11 @@ export function useDashboard() {
   });
   const [isTogglingPresence, setIsTogglingPresence] = useState(false);
 
+  // Announcement state
+  const [announcement, setAnnouncement] = useState<string | null>(null);
+  const [isAnnouncementModalOpen, setIsAnnouncementModalOpen] = useState(false);
+  const [isSendingAnnouncement, setIsSendingAnnouncement] = useState(false);
+
   // Toast state for reorder feedback
   const [toast, setToast] = useState<{ isVisible: boolean; message: string; type: ToastType }>({
     isVisible: false,
@@ -112,6 +117,12 @@ export function useDashboard() {
         setIsDoctorPresent(data.isDoctorPresent);
       } else {
         logger.log('[Doctor Presence] Ignoring socket event - clinicId mismatch');
+      }
+    },
+    onAnnouncement: (data) => {
+      if (data.clinicId === clinic?.id) {
+        logger.log('[Announcement] Socket event received:', data.announcement);
+        setAnnouncement(data.announcement);
       }
     },
   });
@@ -302,6 +313,29 @@ export function useDashboard() {
     }
   }, [isDoctorPresent, isTogglingPresence]);
 
+  // Set or clear announcement
+  const handleSetAnnouncement = useCallback(async (text: string | null) => {
+    if (isSendingAnnouncement) return;
+    setIsSendingAnnouncement(true);
+
+    const previousAnnouncement = announcement;
+    // Optimistic update
+    setAnnouncement(text);
+
+    try {
+      await api.setAnnouncement(text);
+      setIsAnnouncementModalOpen(false);
+      showToast(text ? t('announcement.sent') : t('announcement.cleared'), 'success');
+    } catch (error) {
+      // Revert on error
+      setAnnouncement(previousAnnouncement);
+      logger.error('Failed to set announcement:', error);
+      showToast(t('common.error'), 'error');
+    } finally {
+      setIsSendingAnnouncement(false);
+    }
+  }, [isSendingAnnouncement, announcement, showToast, t]);
+
   // Reorder patient with toast feedback
   const handleReorderPatient = useCallback(async (id: string, newPosition: number) => {
     // Find patient name for the toast
@@ -413,6 +447,13 @@ export function useDashboard() {
 
     // Doctor presence
     isDoctorPresent,
+
+    // Announcement
+    announcement,
+    isAnnouncementModalOpen,
+    setIsAnnouncementModalOpen,
+    isSendingAnnouncement,
+    handleSetAnnouncement,
 
     // Actions
     handleCallNext,

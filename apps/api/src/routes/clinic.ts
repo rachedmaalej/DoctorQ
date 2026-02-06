@@ -134,6 +134,51 @@ router.post('/doctor-presence', authMiddleware, async (req: AuthRequest, res: Re
   }
 });
 
+// POST /api/clinic/announcement - Set or clear announcement for all patients
+router.post('/announcement', authMiddleware, async (req: AuthRequest, res: Response) => {
+  try {
+    const clinicId = req.clinic?.id;
+    if (!clinicId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const { announcement } = z.object({
+      announcement: z.string().max(500).nullable(),
+    }).parse(req.body);
+
+    const updatedClinic = await prisma.clinic.update({
+      where: { id: clinicId },
+      data: {
+        announcement,
+        announcementAt: announcement ? new Date() : null,
+      },
+      select: { id: true, announcement: true, announcementAt: true },
+    });
+
+    // Broadcast to all patients in this clinic's room
+    emitToRoom(`clinic:${clinicId}:patients`, 'clinic:announcement', {
+      clinicId,
+      announcement: updatedClinic.announcement,
+      announcementAt: updatedClinic.announcementAt,
+    });
+
+    // Also broadcast to the clinic dashboard (in case multiple tabs open)
+    emitToRoom(`clinic:${clinicId}`, 'clinic:announcement', {
+      clinicId,
+      announcement: updatedClinic.announcement,
+      announcementAt: updatedClinic.announcementAt,
+    });
+
+    res.json({ data: updatedClinic });
+  } catch (error: any) {
+    console.error('Error updating announcement:', error);
+    if (error.name === 'ZodError') {
+      return res.status(400).json({ error: 'Invalid input', details: error.errors });
+    }
+    res.status(500).json({ error: 'Failed to update announcement' });
+  }
+});
+
 // GET /api/clinic/:clinicId/info - Public endpoint for clinic info (for check-in page)
 router.get('/:clinicId/info', async (req, res: Response) => {
   try {

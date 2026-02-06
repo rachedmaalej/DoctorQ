@@ -36,6 +36,10 @@ model Clinic {
   enableWhatsApp      Boolean      @default(false)
   isDoctorPresent     Boolean      @default(false)  // Track if doctor is currently seeing patients
 
+  // Announcement to all patients (displayed as banner on patient status page)
+  announcement        String?      // Active announcement text (null = no announcement)
+  announcementAt      DateTime?    // When the announcement was set
+
   // Business type customization
   businessType        String       @default("medical")  // medical, retail, restaurant, etc.
   showAppointments    Boolean      @default(true)       // Whether to show appointment time field

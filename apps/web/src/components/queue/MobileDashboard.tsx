@@ -20,6 +20,8 @@ interface MobileDashboardProps {
   isCallingNext: boolean;
   isDoctorPresent: boolean;
   onToggleDoctorPresent: () => void;
+  announcement?: string | null;
+  onAnnouncementClick?: () => void;
 }
 
 
@@ -44,6 +46,8 @@ export default function MobileDashboard({
   isCallingNext,
   isDoctorPresent,
   onToggleDoctorPresent,
+  announcement,
+  onAnnouncementClick,
 }: MobileDashboardProps) {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
@@ -454,7 +458,7 @@ export default function MobileDashboard({
         </div>
       )}
 
-      {/* Add Patient/Client & QR Code Buttons - positioned above queue */}
+      {/* Add Patient/Client, Announcement & QR Code Buttons - positioned above queue */}
       <div className="px-4 pb-3 flex gap-3">
         <button
           onClick={onAddPatient}
@@ -468,6 +472,28 @@ export default function MobileDashboard({
           </span>
           {labels.addCustomer}
         </button>
+        {onAnnouncementClick && (
+          <button
+            onClick={onAnnouncementClick}
+            className={`relative flex-1 py-3 rounded-xl flex items-center justify-center shadow-sm transition-colors ${
+              announcement
+                ? 'bg-blue-50 border-2 border-blue-300 text-blue-600'
+                : 'bg-white border border-gray-200 text-gray-500 active:bg-gray-50'
+            }`}
+            title={t('announcement.buttonLabel')}
+            aria-label={t('announcement.buttonLabel')}
+          >
+            <span
+              className="material-symbols-outlined text-xl"
+              style={{ fontVariationSettings: announcement ? "'FILL' 1" : "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
+            >
+              campaign
+            </span>
+            {announcement && (
+              <span className="absolute -top-1 ltr:-right-1 rtl:-left-1 w-3 h-3 bg-blue-500 rounded-full border-2 border-white" />
+            )}
+          </button>
+        )}
         <button
           onClick={onShowQR}
           className="flex-1 bg-white border border-gray-200 text-gray-500 py-3 rounded-xl flex items-center justify-center active:bg-gray-50 shadow-sm transition-colors"

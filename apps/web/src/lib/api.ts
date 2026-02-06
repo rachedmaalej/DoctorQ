@@ -381,6 +381,14 @@ class ApiClient {
     });
   }
 
+  // Set or clear clinic announcement
+  async setAnnouncement(announcement: string | null): Promise<{ id: string; announcement: string | null; announcementAt: string | null }> {
+    return this.request('/api/clinic/announcement', {
+      method: 'POST',
+      body: JSON.stringify({ announcement }),
+    });
+  }
+
   // Admin endpoints
   async getAdminMetrics(): Promise<AdminMetrics> {
     return this.request('/api/admin/metrics');
