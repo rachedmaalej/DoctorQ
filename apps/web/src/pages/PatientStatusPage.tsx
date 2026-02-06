@@ -138,6 +138,8 @@ export default function PatientStatusPage() {
   const [isLeaving, setIsLeaving] = useState(false);
   const [isDoctorPresent, setIsDoctorPresent] = useState(true); // Default to true until we know
   const [announcement, setAnnouncement] = useState<string | null>(null);
+  const [announcementDismissed, setAnnouncementDismissed] = useState(false);
+  const lastAnnouncementRef = useRef<string | null>(null);
   const [specialty, setSpecialty] = useState<string | null>(null);
   const [funFactsEnabled, setFunFactsEnabled] = useState(true);
   const [positionToast, setPositionToast] = useState<{ visible: boolean; message: string }>({ visible: false, message: '' });
@@ -240,6 +242,11 @@ export default function PatientStatusPage() {
 
   const handleAnnouncement = useCallback((data: { clinicId: string; announcement: string | null; announcementAt: string | null }) => {
     if (entry?.clinicId === data.clinicId || !entry) {
+      // Reset dismissed state when a new/different announcement arrives
+      if (data.announcement && data.announcement !== lastAnnouncementRef.current) {
+        setAnnouncementDismissed(false);
+      }
+      lastAnnouncementRef.current = data.announcement;
       setAnnouncement(data.announcement);
     }
   }, [entry?.clinicId]);
@@ -381,8 +388,12 @@ export default function PatientStatusPage() {
   // Determine if we should show the ticket card
   const showTicket = ['far', 'closer', 'almost', 'next'].includes(queueState);
 
+  // Split-screen announcement overlay
+  const showAnnouncementOverlay = !!announcement && !announcementDismissed
+    && queueState !== 'completed' && queueState !== 'cancelled';
+
   return (
-    <div className={`min-h-screen ${config.bg} flex items-center justify-center px-6 py-4 sm:p-4 relative`}>
+    <div className={`min-h-screen ${config.bg} flex flex-col relative`}>
       {/* Confetti animation for "Your Turn" */}
       {showConfetti && queueState === 'yourTurn' && <Confetti duration={4000} pieces={60} />}
 
@@ -391,6 +402,53 @@ export default function PatientStatusPage() {
         <LanguageSwitcher />
       </div>
 
+      {/* ═══ Split-Screen Announcement Overlay ═══ */}
+      {showAnnouncementOverlay && (
+        <div
+          className="flex-shrink-0 relative overflow-hidden bg-gradient-to-br from-teal-700 via-teal-600 to-emerald-500 text-white flex flex-col items-center justify-center text-center px-6 py-8 animate-[splitExpand_0.5s_ease-out_both]"
+          style={{ height: '60vh' }}
+        >
+          {/* Curved bottom edge */}
+          <div className="absolute -bottom-1 left-0 right-0 h-8 bg-transparent">
+            <svg viewBox="0 0 100 20" preserveAspectRatio="none" className="w-full h-full">
+              <path d="M0,0 Q50,20 100,0 L100,20 L0,20 Z" className={`${config.bg.includes('green-100') ? 'fill-green-100' : config.bg.includes('emerald-50') ? 'fill-emerald-50' : config.bg.includes('amber') ? 'fill-amber-50' : config.bg.includes('teal') ? 'fill-teal-50' : 'fill-gray-50'}`} />
+            </svg>
+          </div>
+
+          {/* Icon */}
+          <div className="w-14 h-14 rounded-full bg-white/20 border border-white/30 flex items-center justify-center mb-4">
+            <span
+              className="material-symbols-outlined text-3xl text-white"
+              style={{ fontVariationSettings: "'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24" }}
+            >
+              campaign
+            </span>
+          </div>
+
+          {/* Title */}
+          <h2 className="text-lg font-bold mb-2">{t('announcement.overlayTitle', 'Annonce du cabinet')}</h2>
+
+          {/* Message */}
+          <p className="text-white/90 text-sm leading-relaxed max-w-xs mb-3">{announcement}</p>
+
+          {/* Timestamp */}
+          <p className="text-white/50 text-xs flex items-center gap-1 mb-5">
+            <span className="material-symbols-outlined text-sm">schedule</span>
+            {t('announcement.justNow', 'À l\'instant')}
+          </p>
+
+          {/* Dismiss button */}
+          <button
+            onClick={() => setAnnouncementDismissed(true)}
+            className="px-8 py-3 bg-white text-teal-700 font-bold rounded-xl shadow-lg hover:shadow-xl transition-all active:scale-95"
+          >
+            {t('announcement.dismiss', 'Compris')}
+          </button>
+        </div>
+      )}
+
+      {/* ═══ Main Status Content ═══ */}
+      <div className={`flex-1 flex items-center justify-center px-6 py-4 sm:p-4 transition-all duration-500 ${showAnnouncementOverlay ? 'opacity-85 scale-[0.92] origin-top' : ''}`}>
       <div className="max-w-md w-full space-y-4">
 
         {/* Doctor Absent Banner */}
@@ -403,21 +461,6 @@ export default function PatientStatusPage() {
                   ? t('patient.doctorAbsent', { doctorName: entry.doctorName })
                   : t('patient.doctorNotYetArrived')}
               </span>
-            </div>
-          </div>
-        )}
-
-        {/* Clinic Announcement Banner */}
-        {announcement && queueState !== 'completed' && queueState !== 'cancelled' && (
-          <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-center">
-            <div className="flex items-center justify-center gap-2 text-blue-800">
-              <span
-                className="material-symbols-outlined text-lg flex-shrink-0"
-                style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 20" }}
-              >
-                campaign
-              </span>
-              <span className="text-sm font-medium">{announcement}</span>
             </div>
           </div>
         )}
@@ -623,6 +666,7 @@ export default function PatientStatusPage() {
           {t('patient.autoRefresh')}
         </p>
       </div>
+      </div>{/* end flex-1 content wrapper */}
 
       {/* Leave Queue Confirmation Modal */}
       <ConfirmModal

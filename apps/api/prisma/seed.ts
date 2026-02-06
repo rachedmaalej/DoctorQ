@@ -27,6 +27,8 @@ async function main() {
       avgConsultationMins: 10,
       notifyAtPosition: 2,
       enableWhatsApp: false,
+      onboardingCompleted: true,
+      onboardingStep: 3,
     },
   });
 
