@@ -117,6 +117,8 @@ export interface PatientStatusResponse extends QueueEntry {
   doctorName?: string;
   announcement?: string | null;
   announcementAt?: string | null;
+  specialty?: string | null;
+  funFactsEnabled?: boolean;
 }
 
 // ─── Admin Types ─────────────────────────────────────────────
@@ -389,5 +391,33 @@ export interface PlatformHealth {
     activeClinics: number;
     clinicsOnTrial: number;
     clinicsPaid: number;
+  };
+}
+
+// ─── Daily Recap Types ─────────────────────────────────────────
+
+export interface DailyRecapResponse {
+  hasData: boolean;
+  yesterday?: {
+    totalPatients: number;
+    avgWaitMins: number | null;
+    avgConsultationMins: number | null;
+    date: string;
+  };
+  previousDay?: {
+    totalPatients: number;
+    avgWaitMins: number | null;
+    avgConsultationMins: number | null;
+    date: string;
+  } | null;
+  monthlyAvg?: {
+    avgPatients: number;
+    avgWaitMins: number;
+    avgConsultationMins: number;
+  };
+  trends?: {
+    patients: { vsPrevDay: number; vsMonthly: number };
+    avgWait: { vsPrevDay: number; vsMonthly: number };
+    avgConsultation: { vsPrevDay: number; vsMonthly: number };
   };
 }

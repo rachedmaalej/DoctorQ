@@ -22,6 +22,7 @@ import type {
   FeatureAdoption,
   PlatformHealth,
   ClinicEditableFields,
+  DailyRecapResponse,
 } from '@/types';
 import { logger } from './logger';
 
@@ -359,6 +360,8 @@ class ApiClient {
     language?: 'fr' | 'ar';
     avgConsultationMins?: number;
     notifyAtPosition?: number;
+    specialty?: string;
+    funFactsEnabled?: boolean;
   }): Promise<Clinic> {
     return this.request('/api/clinic', {
       method: 'PATCH',
@@ -494,6 +497,11 @@ class ApiClient {
       method: 'PATCH',
       body: JSON.stringify({ plan }),
     });
+  }
+
+  // Daily recap
+  async getDailyRecap(): Promise<DailyRecapResponse> {
+    return this.request('/api/clinic/daily-recap');
   }
 
   async updateAdminClinicInfo(clinicId: string, data: ClinicEditableFields): Promise<{ id: string; name: string }> {

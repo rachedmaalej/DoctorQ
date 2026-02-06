@@ -349,7 +349,7 @@ export async function archiveAndClearQueue(clinicId: string): Promise<{ archived
     }),
     prisma.queueEntry.findMany({
       where: { clinicId, status: QueueStatus.COMPLETED, arrivedAt: { gte: startOfToday }, calledAt: { not: null } },
-      select: { arrivedAt: true, calledAt: true },
+      select: { arrivedAt: true, calledAt: true, completedAt: true },
     }),
   ]);
 
@@ -367,14 +367,28 @@ export async function archiveAndClearQueue(clinicId: string): Promise<{ archived
     avgWaitMins = Math.round(total / forAverage.length);
   }
 
+  // Calculate average consultation duration (completedAt - calledAt)
+  let avgConsultationMins: number | null = null;
+  const patientsWithConsult = patientsWithWait.filter(e => e.calledAt && e.completedAt);
+  if (patientsWithConsult.length > 0) {
+    // Exclude last patient (may have been auto-completed at midnight)
+    const sorted = [...patientsWithConsult].sort(
+      (a, b) => a.completedAt!.getTime() - b.completedAt!.getTime()
+    );
+    const forAverage = sorted.length > 1 ? sorted.slice(0, -1) : sorted;
+    const totalDuration = forAverage.reduce((sum, e) =>
+      sum + Math.round((e.completedAt!.getTime() - e.calledAt!.getTime()) / 60000), 0);
+    avgConsultationMins = Math.round(totalDuration / forAverage.length);
+  }
+
   // Upsert DailyStat (only if there were patients)
   if (totalPatients > 0) {
     const today = new Date(startOfToday);
     today.setUTCHours(12, 0, 0, 0); // Noon UTC to avoid date boundary issues
     await prisma.dailyStat.upsert({
       where: { clinicId_date: { clinicId, date: today } },
-      create: { clinicId, date: today, totalPatients, avgWaitMins, noShows },
-      update: { totalPatients, avgWaitMins, noShows },
+      create: { clinicId, date: today, totalPatients, avgWaitMins, avgConsultationMins, noShows },
+      update: { totalPatients, avgWaitMins, avgConsultationMins, noShows },
     });
   }
 
@@ -406,6 +420,8 @@ export async function getPatientStatus(entryId: string) {
           isDoctorPresent: true,
           announcement: true,
           announcementAt: true,
+          specialty: true,
+          funFactsEnabled: true,
         },
       },
     },
@@ -437,6 +453,8 @@ export async function getPatientStatus(entryId: string) {
     isDoctorPresent: entry.clinic.isDoctorPresent,
     announcement: entry.clinic.announcement,
     announcementAt: entry.clinic.announcementAt,
+    specialty: entry.clinic.specialty,
+    funFactsEnabled: entry.clinic.funFactsEnabled,
   };
 }
 

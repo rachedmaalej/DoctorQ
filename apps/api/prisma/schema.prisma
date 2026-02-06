@@ -44,6 +44,10 @@ model Clinic {
   businessType        String       @default("medical")  // medical, retail, restaurant, etc.
   showAppointments    Boolean      @default(true)       // Whether to show appointment time field
 
+  // Specialty & fun facts
+  specialty           String?      // Medical specialty (ophthalmology, dentistry, cardiology, etc.)
+  funFactsEnabled     Boolean      @default(true)  // Show fun facts on patient status page
+
   // Localization settings
   country                String    @default("TN")    // TN = Tunisia, FR = France
   enableLanguageSwitcher Boolean   @default(true)    // Show/hide language toggle on public pages
@@ -187,10 +191,11 @@ model DailyStat {
   clinicId      String
   clinic        Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
 
-  date          DateTime @db.Date
-  totalPatients Int      @default(0)
-  avgWaitMins   Int?
-  noShows       Int      @default(0)
+  date                DateTime @db.Date
+  totalPatients       Int      @default(0)
+  avgWaitMins         Int?
+  avgConsultationMins Int?
+  noShows             Int      @default(0)
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt

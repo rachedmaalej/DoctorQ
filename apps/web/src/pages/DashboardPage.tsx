@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useDashboard } from '@/hooks/useDashboard';
@@ -15,12 +16,24 @@ import { Toast } from '@/components/ui/Toast';
 import Header from '@/components/layout/Header';
 import TrialBanner from '@/components/ui/TrialBanner';
 import { MD3Button } from '@/components/md3/button';
+import DailyRecapOverlay from '@/components/dashboard/DailyRecapOverlay';
 
 export default function DashboardPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { labels, isMedical } = useUILabels();
-  const { isImpersonating, impersonatedClinicName, stopImpersonation } = useAuthStore();
+  const { clinic, isImpersonating, impersonatedClinicName, stopImpersonation } = useAuthStore();
+  const [showDailyRecap, setShowDailyRecap] = useState(false);
+
+  // Show daily recap on first visit of the day
+  useEffect(() => {
+    if (!clinic?.id) return;
+    const today = new Date().toISOString().slice(0, 10);
+    const lastShown = localStorage.getItem(`dailyRecap_shown_${clinic.id}`);
+    if (lastShown !== today) {
+      setShowDailyRecap(true);
+    }
+  }, [clinic?.id]);
   const {
     // Store data
     queue,
@@ -282,6 +295,20 @@ export default function DashboardPage() {
         isVisible={toast.isVisible}
         onClose={hideToast}
       />
+
+      {/* Daily Recap Overlay - shown once per day on first visit */}
+      {showDailyRecap && (
+        <DailyRecapOverlay
+          doctorName={clinic?.doctorName || clinic?.name || ''}
+          onDismiss={() => {
+            if (clinic?.id) {
+              const today = new Date().toISOString().slice(0, 10);
+              localStorage.setItem(`dailyRecap_shown_${clinic.id}`, today);
+            }
+            setShowDailyRecap(false);
+          }}
+        />
+      )}
     </div>
   );
 }

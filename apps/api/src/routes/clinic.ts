@@ -57,6 +57,8 @@ const updateClinicSchema = z.object({
   avgConsultationMins: z.number().int().min(5).max(120).optional(),
   notifyAtPosition: z.number().int().min(1).max(10).optional(),
   enableWhatsApp: z.boolean().optional(),
+  specialty: z.string().max(50).optional(),
+  funFactsEnabled: z.boolean().optional(),
 });
 
 router.patch('/', authMiddleware, async (req: AuthRequest, res: Response) => {
@@ -81,6 +83,8 @@ router.patch('/', authMiddleware, async (req: AuthRequest, res: Response) => {
         avgConsultationMins: true,
         notifyAtPosition: true,
         enableWhatsApp: true,
+        specialty: true,
+        funFactsEnabled: true,
       },
     });
 
@@ -219,6 +223,110 @@ router.get('/:clinicId/info', async (req, res: Response) => {
   } catch (error: any) {
     console.error('Error fetching clinic info:', error);
     res.status(500).json({ error: 'Failed to fetch clinic info' });
+  }
+});
+
+// GET /api/clinic/daily-recap - Get yesterday's stats for daily recap overlay
+router.get('/daily-recap', authMiddleware, async (req: AuthRequest, res: Response) => {
+  try {
+    const clinicId = req.clinic?.id;
+    if (!clinicId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    // Get the 2 most recent DailyStat entries
+    const recentStats = await prisma.dailyStat.findMany({
+      where: { clinicId },
+      orderBy: { date: 'desc' },
+      take: 2,
+    });
+
+    if (recentStats.length === 0) {
+      return res.json({ data: { hasData: false } });
+    }
+
+    const yesterday = recentStats[0];
+    const previousDay = recentStats.length > 1 ? recentStats[1] : null;
+
+    // Get monthly averages (last 30 days of DailyStat records)
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const monthlyStats = await prisma.dailyStat.findMany({
+      where: { clinicId, date: { gte: thirtyDaysAgo } },
+    });
+
+    const monthlyAvg = {
+      avgPatients: 0,
+      avgWaitMins: 0,
+      avgConsultationMins: 0,
+    };
+
+    if (monthlyStats.length > 0) {
+      const totalPatients = monthlyStats.reduce((s, d) => s + d.totalPatients, 0);
+      const waitEntries = monthlyStats.filter(d => d.avgWaitMins !== null);
+      const consultEntries = monthlyStats.filter(d => d.avgConsultationMins !== null);
+
+      monthlyAvg.avgPatients = Math.round(totalPatients / monthlyStats.length);
+      monthlyAvg.avgWaitMins = waitEntries.length > 0
+        ? Math.round(waitEntries.reduce((s, d) => s + d.avgWaitMins!, 0) / waitEntries.length)
+        : 0;
+      monthlyAvg.avgConsultationMins = consultEntries.length > 0
+        ? Math.round(consultEntries.reduce((s, d) => s + d.avgConsultationMins!, 0) / consultEntries.length)
+        : 0;
+    }
+
+    // Calculate trends (% change)
+    const calcTrend = (current: number, previous: number): number => {
+      if (previous === 0) return current === 0 ? 0 : 100;
+      return Math.round(((current - previous) / previous) * 100);
+    };
+
+    const trends = {
+      patients: {
+        vsPrevDay: previousDay ? calcTrend(yesterday.totalPatients, previousDay.totalPatients) : 0,
+        vsMonthly: monthlyAvg.avgPatients > 0 ? calcTrend(yesterday.totalPatients, monthlyAvg.avgPatients) : 0,
+      },
+      avgWait: {
+        vsPrevDay: previousDay?.avgWaitMins != null && yesterday.avgWaitMins != null
+          ? calcTrend(yesterday.avgWaitMins, previousDay.avgWaitMins)
+          : 0,
+        vsMonthly: monthlyAvg.avgWaitMins > 0 && yesterday.avgWaitMins != null
+          ? calcTrend(yesterday.avgWaitMins, monthlyAvg.avgWaitMins)
+          : 0,
+      },
+      avgConsultation: {
+        vsPrevDay: previousDay?.avgConsultationMins != null && yesterday.avgConsultationMins != null
+          ? calcTrend(yesterday.avgConsultationMins, previousDay.avgConsultationMins)
+          : 0,
+        vsMonthly: monthlyAvg.avgConsultationMins > 0 && yesterday.avgConsultationMins != null
+          ? calcTrend(yesterday.avgConsultationMins, monthlyAvg.avgConsultationMins)
+          : 0,
+      },
+    };
+
+    res.json({
+      data: {
+        hasData: true,
+        yesterday: {
+          totalPatients: yesterday.totalPatients,
+          avgWaitMins: yesterday.avgWaitMins,
+          avgConsultationMins: yesterday.avgConsultationMins,
+          date: yesterday.date,
+        },
+        previousDay: previousDay ? {
+          totalPatients: previousDay.totalPatients,
+          avgWaitMins: previousDay.avgWaitMins,
+          avgConsultationMins: previousDay.avgConsultationMins,
+          date: previousDay.date,
+        } : null,
+        monthlyAvg,
+        trends,
+      },
+    });
+  } catch (error: any) {
+    console.error('Error fetching daily recap:', error);
+    res.status(500).json({ error: 'Failed to fetch daily recap' });
   }
 });
 

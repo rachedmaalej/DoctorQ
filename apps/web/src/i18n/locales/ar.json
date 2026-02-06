@@ -501,5 +501,37 @@
     "buttonLabel": "إعلان",
     "activeLabel": "إعلان نشط",
     "presetsLabel": "رسائل سريعة"
+  },
+  "funFacts": {
+    "sectionTitle": "تجربة المريض",
+    "specialtyLabel": "التخصص الطبي",
+    "specialtyPlaceholder": "اختر تخصصك",
+    "enableToggle": "معلومات مثيرة",
+    "enableDescription": "سيرى مرضاك معلومات تثقيفية أثناء الانتظار",
+    "preview": "معاينة",
+    "valueProposition": "سيرى مرضاك معلومات مثل هذه أثناء انتظارهم. لمسة تجعل الانتظار أكثر متعة!",
+    "specialties": {
+      "general_medicine": "طب عام",
+      "ophthalmology": "طب العيون",
+      "dentistry": "طب الأسنان",
+      "cardiology": "طب القلب",
+      "dermatology": "طب الجلد",
+      "pediatrics": "طب الأطفال",
+      "gynecology": "طب النساء"
+    }
+  },
+  "dailyRecap": {
+    "greeting": "صباح الخير د. {{name}} !",
+    "subtitle": "إليك ملخص يومك بالأمس",
+    "patientsTitle": "المرضى",
+    "patientsSubtitle": "إجمالي الأمس",
+    "consultationTitle": "مدة الاستشارة",
+    "consultationSubtitle": "المعدل لكل مريض",
+    "waitTitle": "وقت الانتظار",
+    "waitSubtitle": "المعدل لكل مريض",
+    "minutes": "د",
+    "vsPrevDay": "مقارنة بالأمس",
+    "vsMonthly": "مقارنة بالشهر",
+    "dismiss": "إغلاق"
   }
 }

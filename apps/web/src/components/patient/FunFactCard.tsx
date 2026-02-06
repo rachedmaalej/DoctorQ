@@ -1,37 +1,42 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { funFacts, type FunFact } from '@/data/funFacts';
+import { getFunFactsForSpecialty, type SpecialtyFunFact } from '@/data/funFacts';
 
 interface FunFactCardProps {
   refreshInterval?: number; // How often to show a new fact (ms)
+  specialty?: string | null;
 }
 
-// Map categories to MD3 icons
-const categoryIcons: Record<FunFact['category'], string> = {
-  anatomy: 'visibility',
-  vision: 'palette',
-  health: 'health_and_safety',
-  medical: 'medical_information',
-  trivia: 'lightbulb',
-};
-
 /**
- * Displays random eye-related fun facts to entertain patients while waiting
+ * Displays specialty-relevant fun facts to entertain patients while waiting
  * Rotates through 50 facts every 18 seconds by default
  * Includes a progress circle that shows time until next fact
  */
-export default function FunFactCard({ refreshInterval = 18000 }: FunFactCardProps) {
+export default function FunFactCard({ refreshInterval = 18000, specialty }: FunFactCardProps) {
   const { i18n } = useTranslation();
   const [currentFactIndex, setCurrentFactIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [progress, setProgress] = useState(0);
-  const shuffledFactsRef = useRef<FunFact[]>([]);
+  const shuffledFactsRef = useRef<SpecialtyFunFact[]>([]);
   const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Shuffle facts once on mount
+  // Get the specialty data (with fallback chain)
+  const specialtyData = useMemo(() => getFunFactsForSpecialty(specialty), [specialty]);
+
+  // Build category icon map from specialty data
+  const categoryIcons = useMemo(() => {
+    const map: Record<string, string> = {};
+    for (const cat of specialtyData.categories) {
+      map[cat.key] = cat.icon;
+    }
+    return map;
+  }, [specialtyData]);
+
+  // Shuffle facts once on mount or when specialty changes
   useEffect(() => {
-    shuffledFactsRef.current = [...funFacts].sort(() => Math.random() - 0.5);
-  }, []);
+    shuffledFactsRef.current = [...specialtyData.facts].sort(() => Math.random() - 0.5);
+    setCurrentFactIndex(0);
+  }, [specialtyData]);
 
   // Set up rotation interval and progress
   useEffect(() => {
@@ -52,7 +57,7 @@ export default function FunFactCard({ refreshInterval = 18000 }: FunFactCardProp
       if (currentStep >= totalSteps) {
         setIsAnimating(true);
         setTimeout(() => {
-          setCurrentFactIndex((prev) => (prev + 1) % funFacts.length);
+          setCurrentFactIndex((prev) => (prev + 1) % specialtyData.facts.length);
           setIsAnimating(false);
           setProgress(0);
           currentStep = 0;
@@ -65,16 +70,16 @@ export default function FunFactCard({ refreshInterval = 18000 }: FunFactCardProp
         clearInterval(progressIntervalRef.current);
       }
     };
-  }, [refreshInterval]);
+  }, [refreshInterval, specialtyData.facts.length]);
 
-  const currentFact = shuffledFactsRef.current[currentFactIndex] || funFacts[currentFactIndex];
+  const currentFact = shuffledFactsRef.current[currentFactIndex] || specialtyData.facts[currentFactIndex];
 
   if (!currentFact) return null;
 
   // Get the fact text based on current language
   const factText = i18n.language === 'ar' ? currentFact.ar : currentFact.fr;
   const title = i18n.language === 'ar' ? 'هل تعلم؟' : 'Le saviez-vous ?';
-  const icon = categoryIcons[currentFact.category];
+  const icon = categoryIcons[currentFact.category] || 'lightbulb';
 
   // Calculate SVG circle progress (stroke-dashoffset based)
   const circleRadius = 10;

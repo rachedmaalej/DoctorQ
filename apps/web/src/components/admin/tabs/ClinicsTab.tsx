@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../../../lib/api';
 import type { ClinicHealth } from '../../../types';
 import ExtendTrialModal from '../ExtendTrialModal';
+import ConfirmModal from '../../ui/ConfirmModal';
 
 type SubStatusFilter = 'all' | 'TRIAL' | 'ACTIVE' | 'EXPIRED' | 'CANCELLED';
 
@@ -17,6 +18,8 @@ export default function ClinicsTab() {
   const [sortBy, setSortBy] = useState<'name' | 'patients' | 'lastActive' | 'created'>('name');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [trialModal, setTrialModal] = useState<{ clinicId: string; clinicName: string } | null>(null);
+  const [upgradeModal, setUpgradeModal] = useState<{ clinicId: string; clinicName: string; plan: 'MONTHLY' | 'YEARLY' } | null>(null);
+  const [isUpgrading, setIsUpgrading] = useState(false);
 
   const fetchClinics = async () => {
     try {
@@ -92,13 +95,17 @@ export default function ClinicsTab() {
     );
   };
 
-  const handleUpgrade = async (clinicId: string, plan: 'MONTHLY' | 'YEARLY') => {
-    if (!confirm(`Upgrade to ${plan}?`)) return;
+  const handleUpgradeConfirm = async () => {
+    if (!upgradeModal) return;
+    setIsUpgrading(true);
     try {
-      await api.upgradeClinicSubscription(clinicId, plan);
+      await api.upgradeClinicSubscription(upgradeModal.clinicId, upgradeModal.plan);
+      setUpgradeModal(null);
       fetchClinics();
     } catch {
-      alert('Failed to upgrade');
+      // Keep modal open on failure so user can retry
+    } finally {
+      setIsUpgrading(false);
     }
   };
 
@@ -235,7 +242,7 @@ export default function ClinicsTab() {
                       )}
                       {(clinic.subscriptionStatus === 'TRIAL' || clinic.subscriptionStatus === 'EXPIRED') && (
                         <button
-                          onClick={(e) => { e.stopPropagation(); handleUpgrade(clinic.id, 'MONTHLY'); }}
+                          onClick={(e) => { e.stopPropagation(); setUpgradeModal({ clinicId: clinic.id, clinicName: clinic.name, plan: 'MONTHLY' }); }}
                           className="px-2 py-1 text-xs text-[#337023] border border-[#337023] rounded hover:bg-[#337023] hover:text-white transition-colors"
                           title="Upgrade to paid"
                         >
@@ -267,6 +274,19 @@ export default function ClinicsTab() {
           clinicName={trialModal.clinicName}
           onClose={() => setTrialModal(null)}
           onExtended={fetchClinics}
+        />
+      )}
+
+      {upgradeModal && (
+        <ConfirmModal
+          isOpen={true}
+          onClose={() => setUpgradeModal(null)}
+          onConfirm={handleUpgradeConfirm}
+          title={`Upgrade ${upgradeModal.clinicName}`}
+          message={`This will upgrade the clinic to the ${upgradeModal.plan} plan and set the subscription status to ACTIVE.`}
+          confirmText="Upgrade"
+          variant="info"
+          isLoading={isUpgrading}
         />
       )}
     </div>

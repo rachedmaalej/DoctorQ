@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../stores/authStore';
 import { api } from '../lib/api';
+import { SUPPORTED_SPECIALTIES, getFunFactsForSpecialty } from '@/data/funFacts';
 
 type OnboardingStep = 'clinic' | 'qrcode' | 'tutorial';
 
@@ -11,6 +12,7 @@ interface ClinicFormData {
   doctorName: string;
   phone: string;
   avgConsultationMins: number;
+  specialty: string;
 }
 
 export default function OnboardingPage() {
@@ -25,6 +27,7 @@ export default function OnboardingPage() {
     doctorName: clinic?.doctorName || '',
     phone: '',
     avgConsultationMins: 10,
+    specialty: '',
   });
 
   const steps: OnboardingStep[] = ['clinic', 'qrcode', 'tutorial'];
@@ -56,6 +59,7 @@ export default function OnboardingPage() {
             doctorName: clinicForm.doctorName || undefined,
             phone: clinicForm.phone || undefined,
             avgConsultationMins: clinicForm.avgConsultationMins,
+            specialty: clinicForm.specialty || undefined,
           });
         } catch (error) {
           console.error('Failed to save clinic settings:', error);
@@ -174,7 +178,7 @@ function StepClinicSetup({
   onChange: (form: ClinicFormData) => void;
   onNext: () => void;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   return (
     <div className="bg-white rounded-2xl p-8 shadow-sm">
@@ -244,6 +248,58 @@ function StepClinicSetup({
             <option value={30}>30 {t('onboarding.clinic.minutes')}</option>
           </select>
           <p className="mt-1 text-sm text-gray-500">{t('onboarding.clinic.avgConsultationHelp')}</p>
+        </div>
+
+        {/* Specialty Picker */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            {t('funFacts.specialtyLabel')}
+          </label>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {SUPPORTED_SPECIALTIES.map((spec) => {
+              const isSelected = form.specialty === spec.key;
+              const label = i18n.language === 'ar' ? spec.labelAr : spec.labelFr;
+              return (
+                <button
+                  key={spec.key}
+                  type="button"
+                  onClick={() => onChange({ ...form, specialty: spec.key })}
+                  className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border-2 text-sm font-medium transition-all text-start ${
+                    isSelected
+                      ? 'border-primary-500 bg-primary-50 text-primary-700'
+                      : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  <span
+                    className={`material-symbols-outlined text-lg ${isSelected ? 'text-primary-600' : 'text-gray-400'}`}
+                    style={{ fontVariationSettings: isSelected ? "'FILL' 1" : "'FILL' 0" }}
+                  >
+                    {spec.icon}
+                  </span>
+                  <span className="truncate">{label}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Value proposition preview */}
+          {form.specialty && (
+            <div className="mt-3 p-3 bg-primary-50 border border-primary-100 rounded-xl">
+              <p className="text-xs text-primary-600 mb-2">{t('funFacts.valueProposition')}</p>
+              <div className="bg-white/80 border border-primary-100 rounded-lg p-3">
+                <p className="text-xs font-medium text-primary-600 uppercase tracking-wide mb-1">
+                  {i18n.language === 'ar' ? 'هل تعلم؟' : 'Le saviez-vous ?'}
+                </p>
+                <p className="text-sm text-gray-700">
+                  {(() => {
+                    const data = getFunFactsForSpecialty(form.specialty);
+                    const fact = data.facts[0];
+                    return fact ? (i18n.language === 'ar' ? fact.ar : fact.fr) : '';
+                  })()}
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

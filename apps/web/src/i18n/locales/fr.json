@@ -509,5 +509,37 @@
     "buttonLabel": "Annonce",
     "activeLabel": "Annonce active",
     "presetsLabel": "Messages rapides"
+  },
+  "funFacts": {
+    "sectionTitle": "Expérience patient",
+    "specialtyLabel": "Spécialité médicale",
+    "specialtyPlaceholder": "Sélectionnez votre spécialité",
+    "enableToggle": "Faits intéressants",
+    "enableDescription": "Vos patients verront des anecdotes éducatives pendant l'attente",
+    "preview": "Aperçu",
+    "valueProposition": "Vos patients verront des faits comme celui-ci pendant leur attente. Une touche qui rend l'attente plus agréable !",
+    "specialties": {
+      "general_medicine": "Médecine Générale",
+      "ophthalmology": "Ophtalmologie",
+      "dentistry": "Dentisterie",
+      "cardiology": "Cardiologie",
+      "dermatology": "Dermatologie",
+      "pediatrics": "Pédiatrie",
+      "gynecology": "Gynécologie"
+    }
+  },
+  "dailyRecap": {
+    "greeting": "Bonjour Dr. {{name}} !",
+    "subtitle": "Voici le récap de votre journée d'hier",
+    "patientsTitle": "Patients vus",
+    "patientsSubtitle": "Total d'hier",
+    "consultationTitle": "Durée consultation",
+    "consultationSubtitle": "Moyenne par patient",
+    "waitTitle": "Temps d'attente",
+    "waitSubtitle": "Moyenne par patient",
+    "minutes": "min",
+    "vsPrevDay": "vs veille",
+    "vsMonthly": "vs mois",
+    "dismiss": "Fermer"
   }
 }

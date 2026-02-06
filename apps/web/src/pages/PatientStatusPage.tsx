@@ -138,6 +138,8 @@ export default function PatientStatusPage() {
   const [isLeaving, setIsLeaving] = useState(false);
   const [isDoctorPresent, setIsDoctorPresent] = useState(true); // Default to true until we know
   const [announcement, setAnnouncement] = useState<string | null>(null);
+  const [specialty, setSpecialty] = useState<string | null>(null);
+  const [funFactsEnabled, setFunFactsEnabled] = useState(true);
   const [positionToast, setPositionToast] = useState<{ visible: boolean; message: string }>({ visible: false, message: '' });
   const previousPositionRef = useRef<number | null>(null);
 
@@ -248,6 +250,12 @@ export default function PatientStatusPage() {
       if (freshData.announcement !== undefined) {
         setAnnouncement(freshData.announcement);
       }
+      if (freshData.specialty !== undefined) {
+        setSpecialty(freshData.specialty);
+      }
+      if (freshData.funFactsEnabled !== undefined) {
+        setFunFactsEnabled(freshData.funFactsEnabled);
+      }
       // Show confetti if now in consultation (e.g., they were called while disconnected)
       if (freshData.status === 'IN_CONSULTATION') {
         setShowConfetti(true);
@@ -283,6 +291,13 @@ export default function PatientStatusPage() {
         // Set announcement from the response
         if (data.announcement !== undefined) {
           setAnnouncement(data.announcement);
+        }
+        // Set specialty for fun facts
+        if (data.specialty !== undefined) {
+          setSpecialty(data.specialty);
+        }
+        if (data.funFactsEnabled !== undefined) {
+          setFunFactsEnabled(data.funFactsEnabled);
         }
         // Show confetti if already in consultation when page loads
         if (data.status === 'IN_CONSULTATION') {
@@ -579,8 +594,8 @@ export default function PatientStatusPage() {
         )}
 
         {/* Fun Fact Card - rotates every 18 seconds */}
-        {showTicket && queueState !== 'next' && (
-          <FunFactCard refreshInterval={18000} />
+        {showTicket && queueState !== 'next' && funFactsEnabled && (
+          <FunFactCard refreshInterval={18000} specialty={specialty} />
         )}
 
         {/* Leave Queue Button - only show in active queue states */}

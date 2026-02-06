@@ -3,7 +3,7 @@
  * Linear Monochrome design with Teal Clinical palette
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 import type { AdminTab } from '../../types';
@@ -27,6 +27,22 @@ export default function AdminDashboard() {
   const rawTab = searchParams.get('tab') as AdminTab | null;
   const activeTab: AdminTab = rawTab && VALID_TABS.includes(rawTab) ? rawTab : 'overview';
 
+  // Prevent all native scrollbars while admin dashboard is mounted
+  useEffect(() => {
+    const html = document.documentElement;
+    const body = document.body;
+    html.style.overflow = 'hidden';
+    body.style.overflow = 'hidden';
+    html.classList.add('no-scrollbar');
+    body.classList.add('no-scrollbar');
+    return () => {
+      html.style.overflow = '';
+      body.style.overflow = '';
+      html.classList.remove('no-scrollbar');
+      body.classList.remove('no-scrollbar');
+    };
+  }, []);
+
   const handleTabChange = useCallback((tab: AdminTab) => {
     setSearchParams({ tab });
   }, [setSearchParams]);
@@ -41,7 +57,7 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="h-screen overflow-y-auto bg-[#FDFFFF] [&::-webkit-scrollbar]:hidden" style={{ fontFamily: "'Inter', sans-serif", scrollbarWidth: 'none' }}>
+    <div className="h-screen overflow-y-auto no-scrollbar bg-[#FDFFFF]" style={{ fontFamily: "'Inter', sans-serif" }}>
       {/* Header — clean white */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center pt-6 pb-2">
