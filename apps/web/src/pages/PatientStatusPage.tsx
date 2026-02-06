@@ -179,18 +179,22 @@ export default function PatientStatusPage() {
           ? t('patient.movedUpOne')
           : t('patient.movedUpMultiple', { count: positionsMoved });
         setPositionToast({ visible: true, message });
-        // Vibrate to alert patient of position change
-        vibrate(200);
+        // Stronger single vibration when reaching position #1 (NOTIFIED = next in line)
+        if (status === QueueStatus.NOTIFIED) {
+          vibrate(400);
+        } else {
+          vibrate(200);
+        }
       }
 
       // Update ref for next comparison
       previousPositionRef.current = newPosition;
 
-      // Trigger confetti when status changes to IN_CONSULTATION
+      // Trigger confetti when called into the doctor's office
       if (status === QueueStatus.IN_CONSULTATION && prev.status !== QueueStatus.IN_CONSULTATION) {
         setShowConfetti(true);
-        // Double vibration pattern for "your turn" celebration
-        vibrate([200, 100, 200]);
+        // Two distinct vibrations for "go to the doctor's office"
+        vibrate([300, 150, 300]);
       }
 
       return { ...prev, status, position: newPosition };
@@ -210,8 +214,12 @@ export default function PatientStatusPage() {
             ? t('patient.movedUpOne')
             : t('patient.movedUpMultiple', { count: positionsMoved });
           setPositionToast({ visible: true, message });
-          // Vibrate to alert patient of position change
-          vibrate(200);
+          // Stronger single vibration when reaching position #1 (backend pos 2 = NOTIFIED/next)
+          if (newPosition <= 2) {
+            vibrate(400);
+          } else {
+            vibrate(200);
+          }
         }
 
         // Update ref for next comparison
