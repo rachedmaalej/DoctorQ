@@ -31,7 +31,7 @@ export default function ActivityFeed() {
 
   useEffect(() => {
     fetchActivity();
-    const interval = setInterval(fetchActivity, 30000);
+    const interval = setInterval(fetchActivity, 60000);
     return () => clearInterval(interval);
   }, [fetchActivity]);
 

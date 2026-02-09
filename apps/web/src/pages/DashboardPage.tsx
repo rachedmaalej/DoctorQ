@@ -137,6 +137,7 @@ export default function DashboardPage() {
           onToggleDoctorPresent={handleToggleDoctorPresent}
           announcement={announcement}
           onAnnouncementClick={() => setIsAnnouncementModalOpen(true)}
+          onAnnouncementClear={() => handleSetAnnouncement(null)}
         />
       </div>
 

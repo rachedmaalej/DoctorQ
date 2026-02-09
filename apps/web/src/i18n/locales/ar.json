@@ -74,7 +74,16 @@
     "doctorPresent": "الطبيب موجود",
     "doctorNotPresent": "الطبيب غائب",
     "doctorArrived": "وصل الطبيب",
-    "waitingForDoctor": "في انتظار الطبيب"
+    "waitingForDoctor": "في انتظار الطبيب",
+    "avgWaitShort": "متوسط الانتظار",
+    "nextEstimate": "التالي",
+    "endEstimate": "النهاية المتوقعة",
+    "priority": "أولوية",
+    "smsSent": "تم إرسال SMS",
+    "smsPending": "SMS في الانتظار",
+    "remove": "إزالة",
+    "fillQueue": "ملء (عرض)",
+    "fillingQueue": "جاري الملء..."
   },
   "patient": {
     "hello": "مرحباً",
@@ -124,7 +133,9 @@
     "yourTurnNow": "جاء دورك!",
     "yourTurnNowNamed": "{{name}}، جاء دورك!",
     "doctorWaiting": "الطبيب بانتظارك!",
+    "doctorWaiting_female": "الطبيبة بانتظارك!",
     "doctorWaitingNamed": "{{name}}، الطبيب بانتظارك!",
+    "doctorWaitingNamed_female": "{{name}}، الطبيبة بانتظارك!",
     "enterOffice": "ادخل إلى العيادة",
     "enterOfficeNamed": "{{name}}، ادخل إلى العيادة",
     "thankYou": "شكراً لزيارتك!",
@@ -133,6 +144,7 @@
     "consultationCompleteNamed": "{{name}}، انتهت استشارتك. إلى اللقاء!",
     "waitingInQueue": "تقدمك في الطابور",
     "autoRefresh": "هذه الصفحة تتحدث تلقائياً",
+    "liveIndicator": "مباشر",
     "cancelled": "تم إلغاء موعدك",
     "cancelledNamed": "{{name}}، تم إلغاء موعدك",
     "noShow": "تم تسجيلك كغائب",
@@ -149,6 +161,7 @@
     "yourAppointment": "موعدك",
     "doctorNotYetArrived": "الطبيب لم يصل بعد",
     "doctorAbsent": "{{doctorName}} غائب. سيعود قريباً",
+    "doctorAbsent_female": "{{doctorName}} غائبة. ستعود قريباً",
     "movedUpOne": "تقدمت مكان واحد!",
     "movedUpMultiple": "تقدمت {{count}} أماكن!"
   },
@@ -349,7 +362,9 @@
       "phone": "هاتف العيادة",
       "avgConsultation": "متوسط مدة الاستشارة",
       "avgConsultationHelp": "يساعد في تقدير وقت الانتظار لمرضاك",
-      "minutes": "دقيقة"
+      "minutes": "دقيقة",
+      "genderMr": "د.",
+      "genderMs": "د.ة"
     },
     "qrcode": {
       "title": "رمز QR الخاص بك",
@@ -500,7 +515,9 @@
     "cleared": "تم مسح الإعلان",
     "buttonLabel": "إعلان",
     "activeLabel": "إعلان نشط",
-    "presetsLabel": "رسائل سريعة"
+    "presetsLabel": "رسائل سريعة",
+    "toggleOn": "إعلان نشط",
+    "toggleOff": "إعلان"
   },
   "funFacts": {
     "sectionTitle": "تجربة المريض",

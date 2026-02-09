@@ -355,6 +355,7 @@ class ApiClient {
   async updateClinic(data: {
     name?: string;
     doctorName?: string;
+    doctorGender?: 'M' | 'F';
     phone?: string;
     address?: string;
     language?: 'fr' | 'ar';

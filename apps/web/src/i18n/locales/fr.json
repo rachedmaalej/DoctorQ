@@ -82,7 +82,14 @@
     "doctorArrived": "Le docteur est arrivé",
     "waitingForDoctor": "En attente du docteur",
     "fillQueue": "Remplir (Démo)",
-    "fillingQueue": "Remplissage..."
+    "fillingQueue": "Remplissage...",
+    "avgWaitShort": "Attente moy",
+    "nextEstimate": "Prochain",
+    "endEstimate": "Fin estimée",
+    "priority": "Priorité",
+    "smsSent": "SMS envoyé",
+    "smsPending": "SMS en attente",
+    "remove": "Retirer"
   },
   "patient": {
     "hello": "Bonjour",
@@ -132,7 +139,9 @@
     "yourTurnNow": "C'EST VOTRE TOUR!",
     "yourTurnNowNamed": "{{name}}, C'EST VOTRE TOUR!",
     "doctorWaiting": "Le docteur vous attend!",
+    "doctorWaiting_female": "La docteure vous attend!",
     "doctorWaitingNamed": "{{name}}, le docteur vous attend!",
+    "doctorWaitingNamed_female": "{{name}}, la docteure vous attend!",
     "enterOffice": "Entrez dans le cabinet",
     "enterOfficeNamed": "{{name}}, entrez dans le cabinet",
     "thankYou": "Merci pour votre visite!",
@@ -141,6 +150,7 @@
     "consultationCompleteNamed": "{{name}}, votre consultation est terminée. À bientôt!",
     "waitingInQueue": "Votre progression",
     "autoRefresh": "Cette page se met à jour automatiquement",
+    "liveIndicator": "En direct",
     "cancelled": "Votre rendez-vous a été annulé",
     "cancelledNamed": "{{name}}, votre rendez-vous a été annulé",
     "noShow": "Vous avez été marqué absent",
@@ -157,6 +167,7 @@
     "yourAppointment": "Votre rendez-vous",
     "doctorNotYetArrived": "Le médecin n'est pas encore arrivé",
     "doctorAbsent": "{{doctorName}} est absent. Il sera de retour prochainement",
+    "doctorAbsent_female": "{{doctorName}} est absente. Elle sera de retour prochainement",
     "movedUpOne": "Vous avez avancé d'une place!",
     "movedUpMultiple": "Vous avez avancé de {{count}} places!"
   },
@@ -357,7 +368,9 @@
       "phone": "Téléphone du cabinet",
       "avgConsultation": "Durée moyenne d'une consultation",
       "avgConsultationHelp": "Aide à estimer le temps d'attente pour vos patients",
-      "minutes": "minutes"
+      "minutes": "minutes",
+      "genderMr": "M.",
+      "genderMs": "Mme"
     },
     "qrcode": {
       "title": "Votre QR Code",
@@ -508,7 +521,9 @@
     "cleared": "Annonce effacée",
     "buttonLabel": "Annonce",
     "activeLabel": "Annonce active",
-    "presetsLabel": "Messages rapides"
+    "presetsLabel": "Messages rapides",
+    "toggleOn": "Annonce active",
+    "toggleOff": "Annonce"
   },
   "funFacts": {
     "sectionTitle": "Expérience patient",

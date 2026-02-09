@@ -33,7 +33,13 @@ export default function ClinicsTab() {
     }
   };
 
-  useEffect(() => { fetchClinics(); }, []);
+  useEffect(() => {
+    fetchClinics();
+
+    // Auto-refresh every 60 seconds
+    const interval = setInterval(fetchClinics, 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   const filteredClinics = clinics
     .filter((clinic) => {

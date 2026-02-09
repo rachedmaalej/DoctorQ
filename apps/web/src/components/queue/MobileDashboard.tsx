@@ -22,16 +22,21 @@ interface MobileDashboardProps {
   onToggleDoctorPresent: () => void;
   announcement?: string | null;
   onAnnouncementClick?: () => void;
+  onAnnouncementClear?: () => void;
 }
 
 
 /**
- * Queue-First Mobile Dashboard
- * Prioritizes the queue list with clear hierarchy:
- * 1. Compact stats bar
- * 2. Current patient in consultation (if any)
- * 3. Next patient with prominent call action
- * 4. Remaining queue with icons for time info
+ * Queue-First Mobile Dashboard (v3 — Ocean Blue redesign)
+ *
+ * Layout order:
+ * 1. Header
+ * 2. Compact stats bar (sticky)
+ * 3. Estimates bar (avg wait, next, end)
+ * 4. Presence toggle
+ * 5. Action buttons (add patient, QR, announce, settings)
+ * 6. Consultation area + Call Next
+ * 7. Redesigned queue cards
  */
 export default function MobileDashboard({
   queue,
@@ -48,6 +53,7 @@ export default function MobileDashboard({
   onToggleDoctorPresent,
   announcement,
   onAnnouncementClick,
+  onAnnouncementClear,
 }: MobileDashboardProps) {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
@@ -67,11 +73,10 @@ export default function MobileDashboard({
   // Separate queue into different sections
   // When doctor is not present, treat IN_CONSULTATION as just another waiting patient
   const inConsultation = isDoctorPresent ? queue.find(p => p.status === QueueStatus.IN_CONSULTATION) : null;
-  const nextPatient = isDoctorPresent ? queue.find(p => p.status === QueueStatus.NOTIFIED) : null;
   const waitingQueue = isDoctorPresent
     ? queue.filter(p =>
         p.status === QueueStatus.WAITING ||
-        (p.status === QueueStatus.NOTIFIED && p.id !== nextPatient?.id)
+        p.status === QueueStatus.NOTIFIED
       )
     : queue.filter(p =>
         p.status === QueueStatus.WAITING ||
@@ -81,6 +86,30 @@ export default function MobileDashboard({
 
   // Count for disabled state - also disabled when doctor is not present
   const canCallNext = isDoctorPresent && queue.some(p => p.status === QueueStatus.WAITING || p.status === QueueStatus.NOTIFIED);
+
+  // Estimates calculations
+  const avgConsultMins = clinic?.avgConsultationMins || 10;
+  const avgWaitMins = stats?.avgWait ?? avgConsultMins;
+  const now = new Date();
+
+  // Next estimate: when the next patient will be called
+  const nextEstTime = inConsultation
+    ? new Date(now.getTime() + avgConsultMins * 60000)
+    : now;
+  const nextEstStr = `~${String(nextEstTime.getHours()).padStart(2, '0')}:${String(nextEstTime.getMinutes()).padStart(2, '0')}`;
+
+  // End estimate: when the last patient in queue will be seen
+  const endEstTime = new Date(
+    now.getTime() + waitingQueue.length * avgConsultMins * 60000
+  );
+  const endEstStr = `~${String(endEstTime.getHours()).padStart(2, '0')}:${String(endEstTime.getMinutes()).padStart(2, '0')}`;
+
+  // Wait time color helper
+  const waitColorClass = (mins: number) => {
+    if (mins >= 30) return 'text-red-500';
+    if (mins >= 15) return 'text-amber-600';
+    return 'text-green-600';
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 pb-6">
@@ -129,7 +158,6 @@ export default function MobileDashboard({
       {/* Compact Stats Bar */}
       <div className="bg-white px-4 py-3 border-b border-gray-100 flex items-center justify-around sticky top-0 z-10 shadow-sm">
         <div className="text-center">
-          {/* When doctor is absent, add the IN_CONSULTATION patient to waiting count */}
           <p className="text-2xl font-bold text-primary-700">
             {(stats?.waiting || 0) + (!isDoctorPresent && queue.some(p => p.status === QueueStatus.IN_CONSULTATION) ? 1 : 0)}
           </p>
@@ -147,11 +175,45 @@ export default function MobileDashboard({
         </div>
       </div>
 
-      {/* Presence Toggle (Doctor/Store) */}
-      <div className="px-4 py-3">
+      {/* Estimates Bar */}
+      {waitingQueue.length > 0 && (
+        <div className="bg-white px-4 py-2.5 border-b border-gray-100 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-1 text-xs text-gray-500">
+            <span
+              className="material-symbols-outlined text-sm text-gray-400"
+              style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20" }}
+            >
+              avg_pace
+            </span>
+            {t('queue.avgWaitShort')}: <strong className="text-gray-800 font-semibold">{Math.round(avgWaitMins)} min</strong>
+          </div>
+          <div className="flex items-center gap-1 text-xs text-gray-500">
+            <span
+              className="material-symbols-outlined text-sm text-gray-400"
+              style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20" }}
+            >
+              schedule
+            </span>
+            {t('queue.nextEstimate')}: <strong className="text-gray-800 font-semibold">{nextEstStr}</strong>
+          </div>
+          <div className="flex items-center gap-1 text-xs text-gray-500">
+            <span
+              className="material-symbols-outlined text-sm text-gray-400"
+              style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20" }}
+            >
+              flag
+            </span>
+            {t('queue.endEstimate')}: <strong className="text-gray-800 font-semibold">{endEstStr}</strong>
+          </div>
+        </div>
+      )}
+
+      {/* Presence & Announcement Toggles */}
+      <div className="px-4 py-3 flex gap-2">
+        {/* Doctor Presence Toggle */}
         <button
           onClick={onToggleDoctorPresent}
-          className={`w-full flex items-center justify-between px-4 py-3 rounded-xl font-medium transition-all ${
+          className={`flex-1 flex items-center justify-between px-3 py-3 rounded-xl font-medium transition-all ${
             isDoctorPresent
               ? 'bg-green-100 text-green-800 border-2 border-green-300'
               : 'bg-gray-100 text-gray-600 border-2 border-gray-200'
@@ -159,26 +221,96 @@ export default function MobileDashboard({
           aria-label={isDoctorPresent ? labels.presenceOn : labels.presenceOff}
           aria-pressed={isDoctorPresent}
         >
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 min-w-0">
             <span
-              className={`material-symbols-outlined text-2xl ${isDoctorPresent ? 'text-green-600' : 'text-gray-400'}`}
+              className={`material-symbols-outlined text-xl shrink-0 ${isDoctorPresent ? 'text-green-600' : 'text-gray-400'}`}
               style={{ fontVariationSettings: isDoctorPresent ? "'FILL' 1" : "'FILL' 0" }}
             >
               {isMedical ? 'stethoscope' : 'storefront'}
             </span>
-            <span className="text-sm font-semibold">
+            <span className="text-xs font-semibold truncate">
               {isDoctorPresent ? labels.presenceOn : labels.presenceOff}
             </span>
           </div>
-          {/* Toggle switch - RTL aware */}
-          <div className={`w-12 h-7 rounded-full p-0.5 transition-colors ${isDoctorPresent ? 'bg-green-500' : 'bg-gray-300'}`}>
-            <div className={`w-6 h-6 rounded-full bg-white shadow transition-transform ${isDoctorPresent ? 'ltr:translate-x-5 rtl:-translate-x-5' : 'translate-x-0'}`} />
+          <div className={`w-10 h-6 rounded-full p-0.5 transition-colors shrink-0 ${isDoctorPresent ? 'bg-green-500' : 'bg-gray-300'}`}>
+            <div className={`w-5 h-5 rounded-full bg-white shadow transition-transform ${isDoctorPresent ? 'ltr:translate-x-4 rtl:-translate-x-4' : 'translate-x-0'}`} />
           </div>
+        </button>
+
+        {/* Announcement Toggle */}
+        {onAnnouncementClick && (
+          <button
+            onClick={announcement ? onAnnouncementClear : onAnnouncementClick}
+            className={`flex-1 flex items-center justify-between px-3 py-3 rounded-xl font-medium transition-all ${
+              announcement
+                ? 'bg-blue-50 text-blue-800 border-2 border-blue-300'
+                : 'bg-gray-100 text-gray-600 border-2 border-gray-200'
+            }`}
+            aria-label={announcement ? t('announcement.toggleOn') : t('announcement.toggleOff')}
+            aria-pressed={!!announcement}
+          >
+            <div className="flex items-center gap-2 min-w-0">
+              <span
+                className={`material-symbols-outlined text-xl shrink-0 ${announcement ? 'text-blue-600' : 'text-gray-400'}`}
+                style={{ fontVariationSettings: announcement ? "'FILL' 1" : "'FILL' 0" }}
+              >
+                campaign
+              </span>
+              <span className="text-xs font-semibold truncate">
+                {announcement ? t('announcement.toggleOn') : t('announcement.toggleOff')}
+              </span>
+            </div>
+            <div className={`w-10 h-6 rounded-full p-0.5 transition-colors shrink-0 ${announcement ? 'bg-blue-500' : 'bg-gray-300'}`}>
+              <div className={`w-5 h-5 rounded-full bg-white shadow transition-transform ${announcement ? 'ltr:translate-x-4 rtl:-translate-x-4' : 'translate-x-0'}`} />
+            </div>
+          </button>
+        )}
+      </div>
+
+      {/* Action Buttons — below presence toggle, no container */}
+      <div className="mx-4 mb-3 flex gap-2">
+        <button
+          onClick={onAddPatient}
+          className="flex-1 bg-white border border-gray-200 text-gray-700 font-semibold py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 active:bg-gray-50 shadow-sm transition-colors text-sm"
+        >
+          <span
+            className="material-symbols-outlined text-xl"
+            style={{ fontVariationSettings: "'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 20" }}
+          >
+            person_add
+          </span>
+          {labels.addCustomer}
+        </button>
+        <button
+          onClick={onShowQR}
+          className="bg-white border border-gray-200 text-gray-500 py-2.5 px-3 rounded-xl flex items-center justify-center active:bg-gray-50 shadow-sm transition-colors"
+          title={t('qrCode.show')}
+          aria-label={t('qrCode.show')}
+        >
+          <span
+            className="material-symbols-outlined text-xl"
+            style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20" }}
+          >
+            qr_code_2
+          </span>
+        </button>
+        <button
+          onClick={() => navigate('/settings')}
+          className="bg-white border border-gray-200 text-gray-500 py-2.5 px-3 rounded-xl flex items-center justify-center active:bg-gray-50 shadow-sm transition-colors"
+          title={t('settings.title')}
+          aria-label={t('settings.title')}
+        >
+          <span
+            className="material-symbols-outlined text-xl"
+            style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20" }}
+          >
+            settings
+          </span>
         </button>
       </div>
 
-      {/* Side-by-side: En Consultation (33%) + Appeler Suivant (66%) */}
-      {inConsultation && nextPatient && (
+      {/* Side-by-side: En Consultation (33%) + Call Next Button (66%) */}
+      {inConsultation && waitingQueue.length > 0 && (
         <div className="px-4 pt-5 pb-5">
           {/* Headers row - aligned */}
           <div className="flex gap-3 mb-2">
@@ -228,65 +360,28 @@ export default function MobileDashboard({
               </div>
             </div>
 
-            {/* Appeler Suivant - Main Card (66%) */}
-            <div className="flex-[2] bg-primary-50 border-2 border-primary-300 rounded-2xl p-3">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-10 h-10 bg-primary-200 rounded-full flex items-center justify-center">
-                    <span className="text-primary-700 font-bold text-sm">#1</span>
-                  </div>
-                  <div>
-                    <p className="font-semibold text-gray-900 text-sm">{nextPatient.patientName || t('queue.patientName')}</p>
-                    <div className="flex items-center gap-1 text-xs text-primary-600">
-                      <span
-                        className="material-symbols-outlined text-sm"
-                        style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 20" }}
-                      >
-                        notifications_active
-                      </span>
-                      <span>{t('queue.notified')}</span>
-                      <span className="mx-0.5">·</span>
-                      <span
-                        className="material-symbols-outlined text-sm"
-                        style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20" }}
-                      >
-                        hourglass_top
-                      </span>
-                      <span>{getWaitingMinutes(nextPatient.arrivedAt)} min</span>
-                    </div>
-                  </div>
-                </div>
-                <button
-                  onClick={() => onRemovePatient(nextPatient.id)}
-                  className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
-                  aria-label={t('common.delete')}
-                >
-                  <span className="material-symbols-outlined text-lg">close</span>
-                </button>
-              </div>
-              <button
-                onClick={onCallNext}
-                disabled={isCallingNext}
-                className="w-full bg-primary-600 text-white font-semibold py-2.5 rounded-xl flex items-center justify-center gap-2 active:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary-600/20 transition-all text-sm"
+            {/* Call Next - Elevated Button (66%) */}
+            <button
+              onClick={onCallNext}
+              disabled={isCallingNext || !canCallNext}
+              className="flex-[2] bg-primary-600 text-white font-semibold rounded-2xl flex items-center justify-center gap-3 active:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary-600/30 transition-all"
+            >
+              <span
+                className="material-symbols-outlined text-2xl"
+                style={{ fontVariationSettings: "'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24" }}
               >
-                <span
-                  className="material-symbols-outlined text-lg"
-                  style={{ fontVariationSettings: "'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24" }}
-                >
-                  {isCallingNext ? 'sync' : 'directions_walk'}
-                </span>
-                {isCallingNext
-                  ? t('common.loading')
-                  : `${t('queue.call')} ${nextPatient.patientName || ''}`
-                }
-              </button>
-            </div>
+                {isCallingNext ? 'sync' : 'directions_walk'}
+              </span>
+              <span className="text-base">
+                {isCallingNext ? t('common.loading') : t('queue.callNext')}
+              </span>
+            </button>
           </div>
         </div>
       )}
 
-      {/* Current Consultation Section - Full width when no next patient */}
-      {inConsultation && !nextPatient && (
+      {/* Current Consultation Section - Full width when queue is empty */}
+      {inConsultation && waitingQueue.length === 0 && (
         <div className="px-4 pt-5 pb-5">
           <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2 flex items-center gap-1">
             <span
@@ -329,7 +424,6 @@ export default function MobileDashboard({
                 </div>
               </div>
               <div className="flex items-center gap-1">
-                {/* Show complete button when this is the last patient, otherwise show view status link */}
                 {waitingQueue.length === 0 && onCompleteConsultation ? (
                   <button
                     onClick={onCompleteConsultation}
@@ -361,86 +455,8 @@ export default function MobileDashboard({
         </div>
       )}
 
-      {/* Next Patient Section - Full width when no one in consultation */}
-      {nextPatient && !inConsultation && (
-        <div className="px-4 pt-5 pb-5">
-          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2 flex items-center gap-1">
-            <span
-              className="material-symbols-outlined text-sm text-primary-600"
-              style={{ fontVariationSettings: "'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 20" }}
-            >
-              arrow_forward
-            </span>
-            {t('queue.callNext')}
-          </p>
-          <div className="bg-primary-50 border-2 border-primary-300 rounded-2xl p-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-primary-200 rounded-full flex items-center justify-center">
-                  <span className="text-primary-700 font-bold">#1</span>
-                </div>
-                <div>
-                  <p className="font-semibold text-gray-900">{nextPatient.patientName || t('queue.patientName')}</p>
-                  <div className="flex items-center gap-1 text-sm text-primary-600">
-                    <span
-                      className="material-symbols-outlined text-base"
-                      style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 20" }}
-                    >
-                      notifications_active
-                    </span>
-                    <span>{t('queue.notified')}</span>
-                    <span className="mx-1">·</span>
-                    <span
-                      className="material-symbols-outlined text-base"
-                      style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20" }}
-                    >
-                      hourglass_top
-                    </span>
-                    <span>{getWaitingMinutes(nextPatient.arrivedAt)} min</span>
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center gap-1">
-                <a
-                  href={`/patient/${nextPatient.id}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-2 text-primary-600 hover:bg-primary-100 rounded-full transition-colors"
-                  aria-label={t('queue.viewPatientStatus')}
-                >
-                  <span className="material-symbols-outlined text-xl">open_in_new</span>
-                </a>
-                <button
-                  onClick={() => onRemovePatient(nextPatient.id)}
-                  className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
-                  aria-label={t('common.delete')}
-                >
-                  <span className="material-symbols-outlined text-xl">close</span>
-                </button>
-              </div>
-            </div>
-            <button
-              onClick={onCallNext}
-              disabled={isCallingNext}
-              className="w-full bg-primary-600 text-white font-semibold py-3.5 rounded-xl flex items-center justify-center gap-2 active:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary-600/20 transition-all"
-            >
-              <span
-                className="material-symbols-outlined text-xl"
-                style={{ fontVariationSettings: "'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24" }}
-              >
-                {isCallingNext ? 'sync' : 'directions_walk'}
-              </span>
-              {isCallingNext
-                ? t('common.loading')
-                : `${t('queue.call')} ${nextPatient.patientName || ''}`
-              }
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Call Next when no one is notified but there are waiting patients */}
-      {!nextPatient && waitingQueue.length > 0 && (
+      {/* Call Next - Full width when no one in consultation but there are waiting patients */}
+      {!inConsultation && waitingQueue.length > 0 && (
         <div className="px-4 pt-5 pb-5">
           <button
             onClick={onCallNext}
@@ -458,63 +474,12 @@ export default function MobileDashboard({
         </div>
       )}
 
-      {/* Add Patient/Client, Announcement & QR Code Buttons - positioned above queue */}
-      <div className="px-4 pb-3 flex gap-3">
-        <button
-          onClick={onAddPatient}
-          className="flex-[3] bg-white border border-gray-200 text-gray-700 font-medium py-3 rounded-xl flex items-center justify-center gap-2 active:bg-gray-50 shadow-sm transition-colors"
-        >
-          <span
-            className="material-symbols-outlined text-xl"
-            style={{ fontVariationSettings: "'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24" }}
-          >
-            person_add
-          </span>
-          {labels.addCustomer}
-        </button>
-        {onAnnouncementClick && (
-          <button
-            onClick={onAnnouncementClick}
-            className={`relative flex-1 py-3 rounded-xl flex items-center justify-center shadow-sm transition-colors ${
-              announcement
-                ? 'bg-blue-50 border-2 border-blue-300 text-blue-600'
-                : 'bg-white border border-gray-200 text-gray-500 active:bg-gray-50'
-            }`}
-            title={t('announcement.buttonLabel')}
-            aria-label={t('announcement.buttonLabel')}
-          >
-            <span
-              className="material-symbols-outlined text-xl"
-              style={{ fontVariationSettings: announcement ? "'FILL' 1" : "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
-            >
-              campaign
-            </span>
-            {announcement && (
-              <span className="absolute -top-1 ltr:-right-1 rtl:-left-1 w-3 h-3 bg-blue-500 rounded-full border-2 border-white" />
-            )}
-          </button>
-        )}
-        <button
-          onClick={onShowQR}
-          className="flex-1 bg-white border border-gray-200 text-gray-500 py-3 rounded-xl flex items-center justify-center active:bg-gray-50 shadow-sm transition-colors"
-          title={t('qrCode.show')}
-          aria-label={t('qrCode.show')}
-        >
-          <span
-            className="material-symbols-outlined text-xl"
-            style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
-          >
-            qr_code_2
-          </span>
-        </button>
-      </div>
-
-      {/* Remaining Queue */}
+      {/* Remaining Queue — Redesigned Patient Cards */}
       {waitingQueue.length > 0 && (
         <div className="px-4 pb-6">
-          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2 flex items-center gap-1">
+          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2.5 flex items-center gap-1.5">
             <span
-              className="material-symbols-outlined text-sm"
+              className="material-symbols-outlined text-base"
               style={{ fontVariationSettings: "'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 20" }}
             >
               groups
@@ -527,115 +492,179 @@ export default function MobileDashboard({
               // When doctor is absent: show actual position (first = #1)
               const displayPosition = isDoctorPresent ? entry.position - 1 : entry.position;
               const waitingMins = getWaitingMinutes(entry.arrivedAt);
+              const isNotified = entry.status === QueueStatus.NOTIFIED;
+              const hasAppointment = !!entry.appointmentTime;
+              const isFirstInQueue = displayPosition === 1;
+              const isLastInQueue = entry.position >= queue.filter(p =>
+                p.status === QueueStatus.WAITING || p.status === QueueStatus.NOTIFIED
+              ).length + (inConsultation ? 1 : 0);
 
               return (
-                <div key={entry.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
-                  <div className="flex items-center gap-4">
-                    {/* Position badge - vertically centered */}
-                    <span className="w-14 h-14 bg-primary-100 rounded-2xl flex items-center justify-center text-xl font-bold text-primary-700 flex-shrink-0">
+                <div key={entry.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                  {/* Top section: position badge + name + details */}
+                  <div className="p-3.5 pb-2.5 flex items-start gap-3">
+                    {/* Position badge */}
+                    <span className="w-11 h-11 bg-primary-100 rounded-xl flex items-center justify-center text-base font-bold text-primary-700 flex-shrink-0">
                       #{displayPosition}
                     </span>
 
-                    {/* Patient info - stacked vertically */}
+                    {/* Patient info */}
                     <div className="flex-1 min-w-0">
-                      {/* Name */}
-                      <p className="font-semibold text-gray-900 text-base truncate">
+                      <p className="font-semibold text-gray-900 text-[15px] truncate">
                         {entry.patientName || t('queue.patientName')}
                       </p>
-
-                      {/* Info rows stacked vertically */}
-                      <div className="mt-1.5 space-y-0.5">
+                      {/* Details inline */}
+                      <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1">
                         {/* Arrival time */}
-                        <div className="flex items-center gap-1.5 text-sm text-gray-600">
+                        <div className="flex items-center gap-1 text-[13px] text-gray-600">
                           <span
-                            className="material-symbols-outlined text-base text-gray-400"
+                            className="material-symbols-outlined text-[15px] text-gray-400"
                             style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20" }}
                           >
                             login
                           </span>
-                          <span>{formatTime(entry.arrivedAt)}</span>
+                          {formatTime(entry.arrivedAt)}
                         </div>
-
-                        {/* Appointment time - only show for medical clinics */}
-                        {showAppointments && (
-                          <div className="flex items-center gap-1.5 text-sm">
+                        {/* Appointment time — only for medical with appointment */}
+                        {showAppointments && hasAppointment && (
+                          <div className="flex items-center gap-1 text-[13px]">
                             <span
-                              className="material-symbols-outlined text-base text-purple-400"
+                              className="material-symbols-outlined text-[15px] text-purple-400"
                               style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20" }}
                             >
                               event
                             </span>
-                            {entry.appointmentTime ? (
-                              <span className="text-purple-700 font-medium">{formatTime(entry.appointmentTime)}</span>
-                            ) : (
-                              <span className="text-gray-400">{t('queue.walkIn') || 'Sans RDV'}</span>
-                            )}
+                            <span className="text-purple-700 font-medium">{formatTime(entry.appointmentTime!)}</span>
                           </div>
                         )}
-
-                        {/* Wait time */}
-                        <div className="flex items-center gap-1.5 text-sm text-gray-600">
+                        {/* Wait time — color-coded */}
+                        <div className="flex items-center gap-1 text-[13px]">
                           <span
-                            className="material-symbols-outlined text-base text-gray-400"
+                            className="material-symbols-outlined text-[15px] text-gray-400"
                             style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20" }}
                           >
                             hourglass_empty
                           </span>
-                          <span>{waitingMins} min</span>
+                          <span className={`font-medium ${waitColorClass(waitingMins)}`}>{waitingMins} min</span>
                         </div>
                       </div>
+                      {/* Notified badge */}
+                      {isNotified && (
+                        <div className="inline-flex items-center gap-1 mt-1 text-[11px] font-semibold text-primary-600 bg-primary-50 px-2 py-0.5 rounded-md">
+                          <span
+                            className="material-symbols-outlined text-[13px] text-primary-500"
+                            style={{ fontVariationSettings: "'FILL' 1" }}
+                          >
+                            notifications_active
+                          </span>
+                          {t('queue.notified')}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Bottom action row: status icons (left) + action buttons (right) */}
+                  <div className="flex items-center justify-between px-3.5 py-2 border-t border-gray-100">
+                    {/* Status icons — walk-in/appointment first, then SMS */}
+                    <div className="flex gap-1.5">
+                      {/* Walk-in or Appointment icon */}
+                      {showAppointments && (
+                        hasAppointment ? (
+                          <div
+                            className="w-7 h-7 rounded-lg bg-purple-600 flex items-center justify-center"
+                            title={`${t('queue.scheduled')} ${formatTime(entry.appointmentTime!)}`}
+                          >
+                            <span
+                              className="material-symbols-outlined text-white text-sm"
+                              style={{ fontVariationSettings: "'FILL' 1" }}
+                            >
+                              event
+                            </span>
+                          </div>
+                        ) : (
+                          <div
+                            className="w-7 h-7 rounded-lg bg-purple-50 flex items-center justify-center"
+                            title={t('queue.walkIn')}
+                          >
+                            <span className="material-symbols-outlined text-purple-400 text-base">
+                              directions_walk
+                            </span>
+                          </div>
+                        )
+                      )}
+                      {/* SMS status icon */}
+                      {isNotified || entry.notifiedAt ? (
+                        <div
+                          className="w-7 h-7 rounded-lg bg-green-50 flex items-center justify-center"
+                          title={t('queue.smsSent')}
+                        >
+                          <span
+                            className="material-symbols-outlined text-green-500 text-base"
+                            style={{ fontVariationSettings: "'FILL' 1" }}
+                          >
+                            send
+                          </span>
+                        </div>
+                      ) : (
+                        <div
+                          className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center"
+                          title={t('queue.smsPending')}
+                        >
+                          <span className="material-symbols-outlined text-gray-300 text-base">
+                            send
+                          </span>
+                        </div>
+                      )}
                     </div>
 
-                    {/* Action buttons - 2x2 grid: up/emergency on top, down/delete on bottom */}
-                    <div className="flex-shrink-0 grid grid-cols-2 gap-2">
-                      {/* Row 1: Move up | Emergency */}
-                      {entry.position > 1 ? (
+                    {/* Action buttons — icon-only squares */}
+                    <div className="flex gap-1.5">
+                      {/* Priority / Emergency */}
+                      {!isFirstInQueue && (
+                        <button
+                          onClick={() => onEmergency(entry.id)}
+                          className="w-9 h-9 rounded-[10px] bg-amber-50 text-amber-600 hover:bg-amber-100 inline-flex items-center justify-center transition-colors"
+                          title={t('queue.priority')}
+                          aria-label={t('queue.priority')}
+                        >
+                          <span
+                            className="material-symbols-outlined text-lg"
+                            style={{ fontVariationSettings: "'FILL' 1" }}
+                          >
+                            star
+                          </span>
+                        </button>
+                      )}
+                      {/* Move up */}
+                      {!isFirstInQueue && (
                         <button
                           onClick={() => onReorder(entry.id, entry.position - 1)}
-                          className="w-11 h-11 rounded-xl bg-gray-100 text-gray-500 hover:text-primary-600 hover:bg-primary-50 transition-colors inline-flex items-center justify-center"
+                          className="w-9 h-9 rounded-[10px] bg-gray-100 text-gray-600 hover:bg-gray-200 inline-flex items-center justify-center transition-colors"
                           title={t('queue.moveUp')}
                           aria-label={t('queue.moveUp')}
                         >
-                          <span className="material-symbols-outlined text-xl">arrow_upward</span>
+                          <span className="material-symbols-outlined text-lg">arrow_upward</span>
                         </button>
-                      ) : (
-                        <div className="w-11 h-11" />
                       )}
-
-                      {entry.position > 1 ? (
-                        <button
-                          onClick={() => onEmergency(entry.id)}
-                          className="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700 transition-colors inline-flex items-center justify-center"
-                          title={t('queue.emergency')}
-                          aria-label={t('queue.emergency')}
-                        >
-                          <span className="material-symbols-outlined text-xl">e911_emergency</span>
-                        </button>
-                      ) : (
-                        <div className="w-11 h-11" />
-                      )}
-
-                      {/* Row 2: Move down | Delete */}
-                      {entry.position < queue.length ? (
+                      {/* Move down */}
+                      {!isLastInQueue && (
                         <button
                           onClick={() => onReorder(entry.id, entry.position + 1)}
-                          className="w-11 h-11 rounded-xl bg-gray-100 text-gray-500 hover:text-primary-600 hover:bg-primary-50 transition-colors inline-flex items-center justify-center"
+                          className="w-9 h-9 rounded-[10px] bg-gray-100 text-gray-600 hover:bg-gray-200 inline-flex items-center justify-center transition-colors"
                           title={t('queue.moveDown')}
                           aria-label={t('queue.moveDown')}
                         >
-                          <span className="material-symbols-outlined text-xl">arrow_downward</span>
+                          <span className="material-symbols-outlined text-lg">arrow_downward</span>
                         </button>
-                      ) : (
-                        <div className="w-11 h-11" />
                       )}
-
+                      {/* Remove */}
                       <button
                         onClick={() => onRemovePatient(entry.id)}
-                        className="w-11 h-11 rounded-xl bg-red-50 text-red-600 hover:text-red-700 hover:bg-red-100 transition-colors inline-flex items-center justify-center"
-                        title={t('common.delete')}
-                        aria-label={t('common.delete')}
+                        className="w-9 h-9 rounded-[10px] bg-red-50 text-red-500 hover:bg-red-100 inline-flex items-center justify-center transition-colors"
+                        title={t('queue.remove')}
+                        aria-label={t('queue.remove')}
                       >
-                        <span className="material-symbols-outlined text-xl">close</span>
+                        <span className="material-symbols-outlined text-lg">close</span>
                       </button>
                     </div>
                   </div>

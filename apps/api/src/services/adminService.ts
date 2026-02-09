@@ -295,21 +295,14 @@ export async function getAdminMetrics(): Promise<AdminMetrics> {
   const startOfToday = getStartOfToday();
   const startOfMonth = getStartOfMonth();
 
-  const [
-    totalClinics,
-    patientsToday,
-    qrCheckinsToday,
-    totalCheckinsToday,
-    paidThisMonth,
-  ] = await Promise.all([
-    prisma.clinic.count({ where: { isActive: true } }),
-    prisma.queueEntry.count({ where: { arrivedAt: { gte: startOfToday } } }),
-    prisma.queueEntry.count({ where: { arrivedAt: { gte: startOfToday }, checkInMethod: 'QR_CODE' } }),
-    prisma.queueEntry.count({ where: { arrivedAt: { gte: startOfToday } } }),
-    prisma.paymentRecord.count({
-      where: { month: startOfMonth, status: 'paid' },
-    }),
-  ]);
+  // Sequential queries to prevent pgbouncer pool exhaustion
+  const totalClinics = await prisma.clinic.count({ where: { isActive: true } });
+  const patientsToday = await prisma.queueEntry.count({ where: { arrivedAt: { gte: startOfToday } } });
+  const qrCheckinsToday = await prisma.queueEntry.count({ where: { arrivedAt: { gte: startOfToday }, checkInMethod: 'QR_CODE' } });
+  const totalCheckinsToday = patientsToday; // Same query, reuse result
+  const paidThisMonth = await prisma.paymentRecord.count({
+    where: { month: startOfMonth, status: 'paid' },
+  });
 
   // Activity tracking: clinics with no login in 7+ days
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
@@ -328,12 +321,15 @@ export async function getAdminMetrics(): Promise<AdminMetrics> {
     ? Math.round((qrCheckinsToday / totalCheckinsToday) * 100)
     : 0;
 
-  // Actual MRR from subscription data
-  const [monthlyActive, yearlyActive] = await Promise.all([
-    prisma.clinic.count({ where: { subscriptionStatus: 'ACTIVE', subscriptionPlan: 'MONTHLY' } }),
-    prisma.clinic.count({ where: { subscriptionStatus: 'ACTIVE', subscriptionPlan: 'YEARLY' } }),
-  ]);
-  const mrrTND = (monthlyActive * 50) + Math.round(yearlyActive * (500 / 12));
+  // MRR from subscription data — use groupBy to avoid parallel queries
+  const planGroups = await prisma.clinic.groupBy({
+    by: ['subscriptionPlan'],
+    where: { subscriptionStatus: 'ACTIVE' },
+    _count: true,
+  });
+  const planMap: Record<string, number> = {};
+  for (const g of planGroups) { planMap[g.subscriptionPlan || ''] = g._count; }
+  const mrrTND = ((planMap['MONTHLY'] || 0) * 50) + Math.round((planMap['YEARLY'] || 0) * (500 / 12));
   const overdueCount = totalClinics - paidThisMonth;
 
   return {
@@ -1098,17 +1094,30 @@ export interface SubscriptionMetrics {
 export async function getSubscriptionMetrics(): Promise<SubscriptionMetrics> {
   const startOfToday = getStartOfToday();
 
-  const [trialCount, activeCount, expiredCount, cancelledCount, totalClinics, dailyActive] =
-    await Promise.all([
-      prisma.clinic.count({ where: { subscriptionStatus: 'TRIAL' } }),
-      prisma.clinic.count({ where: { subscriptionStatus: 'ACTIVE' } }),
-      prisma.clinic.count({ where: { subscriptionStatus: 'EXPIRED' } }),
-      prisma.clinic.count({ where: { subscriptionStatus: 'CANCELLED' } }),
-      prisma.clinic.count(),
-      prisma.clinic.count({ where: { lastLoginAt: { gte: startOfToday } } }),
-    ]);
+  // Use groupBy to get all subscription status counts in a single query
+  // instead of 6+ parallel count queries that exhaust the pgbouncer pool
+  const statusGroups = await prisma.clinic.groupBy({
+    by: ['subscriptionStatus'],
+    where: { isActive: true },
+    _count: true,
+  });
 
-  // Conversion rate: clinics that ever paid / clinics that ever had a trial
+  const statusMap: Record<string, number> = {};
+  for (const g of statusGroups) {
+    statusMap[g.subscriptionStatus || ''] = g._count;
+  }
+
+  const trialCount = statusMap['TRIAL'] || 0;
+  const activeCount = statusMap['ACTIVE'] || 0;
+  const expiredCount = statusMap['EXPIRED'] || 0;
+  const cancelledCount = statusMap['CANCELLED'] || 0;
+  const totalClinics = Object.values(statusMap).reduce((a, b) => a + b, 0);
+
+  // Sequential queries to avoid pool exhaustion
+  const dailyActive = await prisma.clinic.count({
+    where: { lastLoginAt: { gte: startOfToday }, isActive: true },
+  });
+
   const everPaid = await prisma.subscriptionEvent.findMany({
     where: { eventType: 'payment_success' },
     select: { clinicId: true },
@@ -1118,12 +1127,17 @@ export async function getSubscriptionMetrics(): Promise<SubscriptionMetrics> {
     ? Math.round((everPaid.length / totalClinics) * 100)
     : 0;
 
-  // Actual MRR
-  const [monthlyActive, yearlyActive] = await Promise.all([
-    prisma.clinic.count({ where: { subscriptionStatus: 'ACTIVE', subscriptionPlan: 'MONTHLY' } }),
-    prisma.clinic.count({ where: { subscriptionStatus: 'ACTIVE', subscriptionPlan: 'YEARLY' } }),
-  ]);
-  const mrrActual = (monthlyActive * 50) + Math.round(yearlyActive * (500 / 12));
+  // MRR: use groupBy on plan for active clinics
+  const planGroups = await prisma.clinic.groupBy({
+    by: ['subscriptionPlan'],
+    where: { subscriptionStatus: 'ACTIVE' },
+    _count: true,
+  });
+  const planMap: Record<string, number> = {};
+  for (const g of planGroups) {
+    planMap[g.subscriptionPlan || ''] = g._count;
+  }
+  const mrrActual = ((planMap['MONTHLY'] || 0) * 50) + Math.round((planMap['YEARLY'] || 0) * (500 / 12));
 
   return {
     activeTrials: trialCount,
@@ -1150,13 +1164,11 @@ export interface OnboardingFunnel {
 }
 
 export async function getOnboardingFunnel(): Promise<OnboardingFunnel> {
+  // Use sequential queries to avoid pgbouncer pool exhaustion
   const totalSignups = await prisma.clinic.count();
-
-  const [step1Plus, step2Plus, completed] = await Promise.all([
-    prisma.clinic.count({ where: { onboardingStep: { gte: 1 } } }),
-    prisma.clinic.count({ where: { onboardingStep: { gte: 2 } } }),
-    prisma.clinic.count({ where: { onboardingCompleted: true } }),
-  ]);
+  const step1Plus = await prisma.clinic.count({ where: { onboardingStep: { gte: 1 } } });
+  const step2Plus = await prisma.clinic.count({ where: { onboardingStep: { gte: 2 } } });
+  const completed = await prisma.clinic.count({ where: { onboardingCompleted: true } });
 
   const steps = [
     { step: 0, name: 'Signed Up', count: totalSignups, dropOffRate: 0 },
@@ -1250,14 +1262,27 @@ export interface FinancialAnalytics {
 
 export async function getFinancialAnalytics(): Promise<FinancialAnalytics> {
   // Current subscription counts
-  const [trial, monthlyActive, yearlyActive, pastDue, expired, cancelled] = await Promise.all([
-    prisma.clinic.count({ where: { subscriptionStatus: 'TRIAL' } }),
-    prisma.clinic.count({ where: { subscriptionStatus: 'ACTIVE', subscriptionPlan: 'MONTHLY' } }),
-    prisma.clinic.count({ where: { subscriptionStatus: 'ACTIVE', subscriptionPlan: 'YEARLY' } }),
-    prisma.clinic.count({ where: { subscriptionStatus: 'PAST_DUE' } }),
-    prisma.clinic.count({ where: { subscriptionStatus: 'EXPIRED' } }),
-    prisma.clinic.count({ where: { subscriptionStatus: 'CANCELLED' } }),
-  ]);
+  // Single groupBy instead of 6 parallel counts
+  const statusCounts = await prisma.clinic.groupBy({
+    by: ['subscriptionStatus'],
+    _count: true,
+  });
+  const sMap: Record<string, number> = {};
+  for (const g of statusCounts) { sMap[g.subscriptionStatus || ''] = g._count; }
+  const trial = sMap['TRIAL'] || 0;
+  const pastDue = sMap['PAST_DUE'] || 0;
+  const expired = sMap['EXPIRED'] || 0;
+  const cancelled = sMap['CANCELLED'] || 0;
+
+  const planCounts = await prisma.clinic.groupBy({
+    by: ['subscriptionPlan'],
+    where: { subscriptionStatus: 'ACTIVE' },
+    _count: true,
+  });
+  const pMap: Record<string, number> = {};
+  for (const g of planCounts) { pMap[g.subscriptionPlan || ''] = g._count; }
+  const monthlyActive = pMap['MONTHLY'] || 0;
+  const yearlyActive = pMap['YEARLY'] || 0;
 
   const currentMrr = (monthlyActive * 50) + Math.round(yearlyActive * (500 / 12));
   const totalPaying = monthlyActive + yearlyActive;
@@ -1375,13 +1400,19 @@ export async function getFeatureAdoption(): Promise<FeatureAdoption> {
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
   // Check-in method distribution (last 30 days)
-  const [qrCount, manualCount, whatsAppCount, smsCount, totalEntries] = await Promise.all([
-    prisma.queueEntry.count({ where: { arrivedAt: { gte: thirtyDaysAgo }, checkInMethod: 'QR_CODE' } }),
-    prisma.queueEntry.count({ where: { arrivedAt: { gte: thirtyDaysAgo }, checkInMethod: 'MANUAL' } }),
-    prisma.queueEntry.count({ where: { arrivedAt: { gte: thirtyDaysAgo }, checkInMethod: 'WHATSAPP' } }),
-    prisma.queueEntry.count({ where: { arrivedAt: { gte: thirtyDaysAgo }, checkInMethod: 'SMS' } }),
-    prisma.queueEntry.count({ where: { arrivedAt: { gte: thirtyDaysAgo } } }),
-  ]);
+  // Single groupBy instead of 5 parallel counts
+  const checkinGroups = await prisma.queueEntry.groupBy({
+    by: ['checkInMethod'],
+    where: { arrivedAt: { gte: thirtyDaysAgo } },
+    _count: true,
+  });
+  const cMap: Record<string, number> = {};
+  for (const g of checkinGroups) { cMap[g.checkInMethod || ''] = g._count; }
+  const qrCount = cMap['QR_CODE'] || 0;
+  const manualCount = cMap['MANUAL'] || 0;
+  const whatsAppCount = cMap['WHATSAPP'] || 0;
+  const smsCount = cMap['SMS'] || 0;
+  const totalEntries = Object.values(cMap).reduce((a, b) => a + b, 0);
 
   const pct = (n: number) => totalEntries > 0 ? Math.round((n / totalEntries) * 100) : 0;
 
@@ -1467,12 +1498,11 @@ export async function getPlatformHealth(): Promise<PlatformHealth> {
   const totalCreditsIssued = totalCreditsUsed + remainingCredits;
 
   // Clinic breakdown
-  const [totalClinics, activeClinics, clinicsOnTrial, clinicsPaid] = await Promise.all([
-    prisma.clinic.count(),
-    prisma.clinic.count({ where: { isActive: true } }),
-    prisma.clinic.count({ where: { subscriptionStatus: 'TRIAL' } }),
-    prisma.clinic.count({ where: { subscriptionStatus: 'ACTIVE' } }),
-  ]);
+  // Sequential to prevent pool exhaustion
+  const totalClinics = await prisma.clinic.count();
+  const activeClinics = await prisma.clinic.count({ where: { isActive: true } });
+  const clinicsOnTrial = await prisma.clinic.count({ where: { subscriptionStatus: 'TRIAL' } });
+  const clinicsPaid = await prisma.clinic.count({ where: { subscriptionStatus: 'ACTIVE' } });
 
   return {
     services: {

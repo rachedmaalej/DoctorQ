@@ -10,6 +10,7 @@ type OnboardingStep = 'clinic' | 'qrcode' | 'tutorial';
 interface ClinicFormData {
   name: string;
   doctorName: string;
+  doctorGender: 'M' | 'F' | '';
   phone: string;
   avgConsultationMins: number;
   specialty: string;
@@ -25,6 +26,7 @@ export default function OnboardingPage() {
   const [clinicForm, setClinicForm] = useState<ClinicFormData>({
     name: clinic?.name || '',
     doctorName: clinic?.doctorName || '',
+    doctorGender: (clinic?.doctorGender as 'M' | 'F') || '',
     phone: '',
     avgConsultationMins: 10,
     specialty: '',
@@ -57,6 +59,7 @@ export default function OnboardingPage() {
           await api.updateClinic({
             name: clinicForm.name || undefined,
             doctorName: clinicForm.doctorName || undefined,
+            doctorGender: clinicForm.doctorGender || undefined,
             phone: clinicForm.phone || undefined,
             avgConsultationMins: clinicForm.avgConsultationMins,
             specialty: clinicForm.specialty || undefined,
@@ -210,13 +213,39 @@ function StepClinicSetup({
           <label className="block text-sm font-medium text-gray-700 mb-1">
             {t('onboarding.clinic.doctorName')}
           </label>
-          <input
-            type="text"
-            value={form.doctorName}
-            onChange={(e) => onChange({ ...form, doctorName: e.target.value })}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-            placeholder={t('onboarding.clinic.doctorNamePlaceholder')}
-          />
+          <div className="flex gap-2">
+            <div className="flex rounded-lg border border-gray-300 overflow-hidden flex-shrink-0">
+              <button
+                type="button"
+                onClick={() => onChange({ ...form, doctorGender: 'M' })}
+                className={`px-3 py-3 text-sm font-medium transition-colors ${
+                  form.doctorGender === 'M'
+                    ? 'bg-primary-500 text-white'
+                    : 'bg-white text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                {t('onboarding.clinic.genderMr')}
+              </button>
+              <button
+                type="button"
+                onClick={() => onChange({ ...form, doctorGender: 'F' })}
+                className={`px-3 py-3 text-sm font-medium transition-colors border-s border-gray-300 ${
+                  form.doctorGender === 'F'
+                    ? 'bg-primary-500 text-white'
+                    : 'bg-white text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                {t('onboarding.clinic.genderMs')}
+              </button>
+            </div>
+            <input
+              type="text"
+              value={form.doctorName}
+              onChange={(e) => onChange({ ...form, doctorName: e.target.value })}
+              className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              placeholder={t('onboarding.clinic.doctorNamePlaceholder')}
+            />
+          </div>
         </div>
 
         <div>

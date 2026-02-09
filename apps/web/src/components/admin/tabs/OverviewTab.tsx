@@ -20,13 +20,12 @@ export default function OverviewTab() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const [metricsData, subData, funnelData] = await Promise.all([
-          api.getAdminMetricsWithTrends(period),
-          api.getSubscriptionMetrics(),
-          api.getOnboardingFunnel(),
-        ]);
+        // Sequential fetches to prevent pgbouncer pool exhaustion
+        const metricsData = await api.getAdminMetricsWithTrends(period);
         setMetrics(metricsData);
+        const subData = await api.getSubscriptionMetrics();
         setSubMetrics(subData);
+        const funnelData = await api.getOnboardingFunnel();
         setFunnel(funnelData);
       } catch {
         // Error handled in parent
@@ -35,6 +34,10 @@ export default function OverviewTab() {
       }
     };
     fetchData();
+
+    // Auto-refresh every 60 seconds (reduced to prevent pgbouncer pool exhaustion)
+    const interval = setInterval(fetchData, 60000);
+    return () => clearInterval(interval);
   }, [period]);
 
   if (loading && !metrics) {

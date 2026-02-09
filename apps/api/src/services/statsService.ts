@@ -49,50 +49,38 @@ export async function getQueueStats(clinicId: string): Promise<QueueStats> {
 
   const startOfToday = getStartOfToday();
 
-  // Fetch from database
-  const [waitingInQueue, seenPatientsToday, noShowsToday, lastCompletedPatient] = await Promise.all([
-    // Count patients waiting in queue (WAITING + NOTIFIED, excluding IN_CONSULTATION)
-    prisma.queueEntry.count({
-      where: {
-        clinicId,
-        status: {
-          in: [QueueStatus.WAITING, QueueStatus.NOTIFIED],
-        },
-      },
-    }),
-    // Get patients that have COMPLETED consultation TODAY (for seen count and average wait calculation)
-    prisma.queueEntry.findMany({
-      where: {
-        clinicId,
-        status: QueueStatus.COMPLETED,
-        arrivedAt: {
-          gte: startOfToday,
-        },
-      },
-      select: { arrivedAt: true, calledAt: true },
-    }),
-    // Count no-shows today
-    prisma.queueEntry.count({
-      where: {
-        clinicId,
-        status: QueueStatus.NO_SHOW,
-        arrivedAt: {
-          gte: startOfToday,
-        },
-      },
-    }),
-    // Get the most recently completed patient to calculate last consultation duration
-    prisma.queueEntry.findFirst({
-      where: {
-        clinicId,
-        status: QueueStatus.COMPLETED,
-        calledAt: { not: null },
-        completedAt: { not: null },
-      },
-      orderBy: { completedAt: 'desc' },
-      select: { calledAt: true, completedAt: true },
-    }),
-  ]);
+  // Sequential queries to prevent pgbouncer pool exhaustion
+  const waitingInQueue = await prisma.queueEntry.count({
+    where: {
+      clinicId,
+      status: { in: [QueueStatus.WAITING, QueueStatus.NOTIFIED] },
+    },
+  });
+  const seenPatientsToday = await prisma.queueEntry.findMany({
+    where: {
+      clinicId,
+      status: QueueStatus.COMPLETED,
+      arrivedAt: { gte: startOfToday },
+    },
+    select: { arrivedAt: true, calledAt: true },
+  });
+  const noShowsToday = await prisma.queueEntry.count({
+    where: {
+      clinicId,
+      status: QueueStatus.NO_SHOW,
+      arrivedAt: { gte: startOfToday },
+    },
+  });
+  const lastCompletedPatient = await prisma.queueEntry.findFirst({
+    where: {
+      clinicId,
+      status: QueueStatus.COMPLETED,
+      calledAt: { not: null },
+      completedAt: { not: null },
+    },
+    orderBy: { completedAt: 'desc' },
+    select: { calledAt: true, completedAt: true },
+  });
 
   // Filter entries that have both arrivedAt and calledAt timestamps
   const patientsWithWaitTime = seenPatientsToday.filter(

@@ -28,6 +28,7 @@ const signupSchema = z.object({
   email: z.string().email('Invalid email address'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
   doctorName: z.string().optional(),
+  doctorGender: z.enum(['M', 'F']).optional(),
   phone: z.string().optional(),
   language: z.enum(['fr', 'ar']).optional(),
 });

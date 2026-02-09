@@ -140,26 +140,31 @@ export default function PatientStatusPage() {
   const [announcement, setAnnouncement] = useState<string | null>(null);
   const [announcementDismissed, setAnnouncementDismissed] = useState(false);
   const lastAnnouncementRef = useRef<string | null>(null);
+  const [doctorGender, setDoctorGender] = useState<string | null>(null);
   const [specialty, setSpecialty] = useState<string | null>(null);
   const [funFactsEnabled, setFunFactsEnabled] = useState(true);
   const [positionToast, setPositionToast] = useState<{ visible: boolean; message: string }>({ visible: false, message: '' });
   const previousPositionRef = useRef<number | null>(null);
 
+  // Gender context for i18next (undefined = default/masculine fallback)
+  const genderContext = doctorGender === 'F' ? 'female' : undefined;
+
   // Helper to get personalized translation (uses Named variant if name exists)
-  // Supports passing additional interpolation params
+  // Supports passing additional interpolation params + gender context
   const tPersonal = (key: string, params: Record<string, unknown> = {}): string => {
     const name = entry?.patientName;
+    const allParams = { ...params, context: genderContext };
     if (name) {
       // Try the Named version first (e.g., "patient.yourTurnNowNamed")
       const namedKey = `${key}Named`;
-      const namedResult = t(namedKey, { name, ...params });
+      const namedResult = t(namedKey, { name, ...allParams });
       // If the Named key exists and was translated, use it
       if (namedResult !== namedKey) {
         return String(namedResult);
       }
     }
     // Fall back to regular key
-    return String(t(key, params));
+    return String(t(key, allParams));
   };
 
   // Memoize callbacks to prevent re-renders
@@ -262,6 +267,9 @@ export default function PatientStatusPage() {
       if (freshData.isDoctorPresent !== undefined) {
         setIsDoctorPresent(freshData.isDoctorPresent);
       }
+      if (freshData.doctorGender !== undefined) {
+        setDoctorGender(freshData.doctorGender);
+      }
       if (freshData.announcement !== undefined) {
         setAnnouncement(freshData.announcement);
       }
@@ -302,6 +310,9 @@ export default function PatientStatusPage() {
         // Set doctor presence from the response
         if (data.isDoctorPresent !== undefined) {
           setIsDoctorPresent(data.isDoctorPresent);
+        }
+        if (data.doctorGender !== undefined) {
+          setDoctorGender(data.doctorGender);
         }
         // Set announcement from the response
         if (data.announcement !== undefined) {
@@ -402,66 +413,92 @@ export default function PatientStatusPage() {
         <LanguageSwitcher />
       </div>
 
-      {/* ═══ Split-Screen Announcement Overlay ═══ */}
-      {showAnnouncementOverlay && (
-        <div
-          className="flex-shrink-0 relative overflow-hidden bg-gradient-to-br from-teal-700 via-teal-600 to-emerald-500 text-white flex flex-col items-center justify-center text-center px-6 py-8 animate-[splitExpand_0.5s_ease-out_both]"
-          style={{ height: '60vh' }}
-        >
-          {/* Curved bottom edge */}
-          <div className="absolute -bottom-1 left-0 right-0 h-8 bg-transparent">
-            <svg viewBox="0 0 100 20" preserveAspectRatio="none" className="w-full h-full">
-              <path d="M0,0 Q50,20 100,0 L100,20 L0,20 Z" className={`${config.bg.includes('green-100') ? 'fill-green-100' : config.bg.includes('emerald-50') ? 'fill-emerald-50' : config.bg.includes('amber') ? 'fill-amber-50' : config.bg.includes('teal') ? 'fill-teal-50' : 'fill-gray-50'}`} />
-            </svg>
-          </div>
-
-          {/* Icon */}
-          <div className="w-14 h-14 rounded-full bg-white/20 border border-white/30 flex items-center justify-center mb-4">
-            <span
-              className="material-symbols-outlined text-3xl text-white"
-              style={{ fontVariationSettings: "'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24" }}
-            >
-              campaign
-            </span>
-          </div>
-
-          {/* Title */}
-          <h2 className="text-lg font-bold mb-2">{t('announcement.overlayTitle', 'Annonce du cabinet')}</h2>
-
-          {/* Message */}
-          <p className="text-white/90 text-sm leading-relaxed max-w-xs mb-3">{announcement}</p>
-
-          {/* Timestamp */}
-          <p className="text-white/50 text-xs flex items-center gap-1 mb-5">
-            <span className="material-symbols-outlined text-sm">schedule</span>
-            {t('announcement.justNow', 'À l\'instant')}
-          </p>
-
-          {/* Dismiss button */}
-          <button
-            onClick={() => setAnnouncementDismissed(true)}
-            className="px-8 py-3 bg-white text-teal-700 font-bold rounded-xl shadow-lg hover:shadow-xl transition-all active:scale-95"
-          >
-            {t('announcement.dismiss', 'Compris')}
-          </button>
-        </div>
-      )}
-
       {/* ═══ Main Status Content ═══ */}
-      <div className={`flex-1 flex items-center justify-center px-6 py-4 sm:p-4 transition-all duration-500 ${showAnnouncementOverlay ? 'opacity-85 scale-[0.92] origin-top' : ''}`}>
+      <div className="flex-1 flex items-center justify-center px-6 py-4 sm:p-4">
       <div className="max-w-md w-full space-y-4">
 
-        {/* Doctor Absent Banner */}
-        {!isDoctorPresent && queueState !== 'completed' && queueState !== 'cancelled' && (
+        {/* Merged: Doctor Absent + Announcement (single card when both exist) */}
+        {showAnnouncementOverlay && !isDoctorPresent && (
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 animate-[fadeIn_0.3s_ease-out_both]">
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span
+                  className="material-symbols-outlined text-lg text-amber-600"
+                  style={{ fontVariationSettings: "'FILL' 1" }}
+                >
+                  schedule
+                </span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-amber-700 uppercase tracking-wide mb-0.5">
+                  {entry.doctorName
+                    ? t('patient.doctorAbsent', { doctorName: entry.doctorName, context: genderContext })
+                    : t('patient.doctorNotYetArrived')}
+                </p>
+                <p className="text-sm text-amber-800 leading-relaxed">{announcement}</p>
+              </div>
+              <button
+                onClick={() => setAnnouncementDismissed(true)}
+                className="flex-shrink-0 p-1 rounded-lg text-amber-400 hover:text-amber-600 hover:bg-amber-100 transition-colors"
+                aria-label={t('announcement.dismiss', 'Compris')}
+              >
+                <span className="material-symbols-outlined text-lg">close</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Announcement-only Banner (doctor is present) */}
+        {showAnnouncementOverlay && isDoctorPresent && (
+          <div className="bg-teal-50 border border-teal-200 rounded-xl p-3 animate-[fadeIn_0.3s_ease-out_both]">
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span
+                  className="material-symbols-outlined text-lg text-teal-600"
+                  style={{ fontVariationSettings: "'FILL' 1" }}
+                >
+                  campaign
+                </span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-teal-700 uppercase tracking-wide mb-0.5">
+                  {t('announcement.overlayTitle', 'Annonce du cabinet')}
+                </p>
+                <p className="text-sm text-teal-800 leading-relaxed">{announcement}</p>
+              </div>
+              <button
+                onClick={() => setAnnouncementDismissed(true)}
+                className="flex-shrink-0 p-1 rounded-lg text-teal-400 hover:text-teal-600 hover:bg-teal-100 transition-colors"
+                aria-label={t('announcement.dismiss', 'Compris')}
+              >
+                <span className="material-symbols-outlined text-lg">close</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Doctor Absent Banner (no announcement) */}
+        {!isDoctorPresent && !showAnnouncementOverlay && queueState !== 'completed' && queueState !== 'cancelled' && (
           <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-center">
             <div className="flex items-center justify-center gap-2 text-amber-800">
               <span className="material-symbols-outlined text-lg">schedule</span>
               <span className="text-sm font-medium">
                 {entry.doctorName
-                  ? t('patient.doctorAbsent', { doctorName: entry.doctorName })
+                  ? t('patient.doctorAbsent', { doctorName: entry.doctorName, context: genderContext })
                   : t('patient.doctorNotYetArrived')}
               </span>
             </div>
+          </div>
+        )}
+
+        {/* Live indicator */}
+        {showTicket && (
+          <div className="flex items-center justify-center gap-1.5">
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+            </span>
+            <span className="text-xs font-medium text-green-600">{t('patient.liveIndicator', 'En direct')}</span>
           </div>
         )}
 
@@ -507,6 +544,15 @@ export default function PatientStatusPage() {
           )}
         </div>
 
+        {/* Hero Wait Estimate — the most important info for patients */}
+        {showTicket && queueState !== 'next' && (
+          <WaitEstimateCard
+            position={displayPosition}
+            avgConsultationMins={entry.avgConsultationMins}
+            hero
+          />
+        )}
+
         {/* Visual Journey - shows patient's progress through queue */}
         {showTicket && (
           <PatientJourneyVisual
@@ -516,24 +562,14 @@ export default function PatientStatusPage() {
           />
         )}
 
-        {/* Ticket + Wait Estimate - side by side layout, or centered when #1 */}
+        {/* Ticket Card — secondary to wait time */}
         {showTicket && (
-          <div className={`flex gap-3 items-stretch ${queueState === 'next' ? 'justify-center' : ''}`}>
-            {/* Compact Ticket Card */}
+          <div className={`flex gap-3 items-stretch ${queueState === 'next' ? 'justify-center' : 'justify-center'}`}>
             <CompactTicketCard
               position={displayPosition}
               colorScheme={getTicketColorScheme(queueState)}
               animate={queueState === 'almost'}
             />
-            {/* Wait Estimate Card - fills remaining space (hidden when #1) */}
-            {queueState !== 'next' && (
-              <div className="flex-1 min-w-0">
-                <WaitEstimateCard
-                  position={displayPosition}
-                  avgConsultationMins={entry.avgConsultationMins}
-                />
-              </div>
-            )}
           </div>
         )}
 
@@ -644,27 +680,23 @@ export default function PatientStatusPage() {
           </div>
         )}
 
-        {/* Fun Fact Card - rotates every 18 seconds */}
+        {/* Leave Queue Button - only show in active queue states */}
+        {canLeaveQueue && (
+          <div className="pt-2">
+            <button
+              onClick={() => setIsLeaveModalOpen(true)}
+              className="w-full py-3 px-4 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm"
+            >
+              <span className="material-symbols-outlined text-lg">logout</span>
+              {t('patient.leaveQueue')}
+            </button>
+          </div>
+        )}
+
+        {/* Fun Fact Card - passive engagement at the bottom */}
         {showTicket && queueState !== 'next' && funFactsEnabled && (
           <FunFactCard refreshInterval={18000} specialty={specialty} />
         )}
-
-        {/* Leave Queue Button - only show in active queue states */}
-        {canLeaveQueue && (
-          <button
-            onClick={() => setIsLeaveModalOpen(true)}
-            className="w-full py-3 px-4 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm"
-          >
-            <span className="material-symbols-outlined text-lg">logout</span>
-            {t('patient.leaveQueue')}
-          </button>
-        )}
-
-        {/* Auto-refresh indicator */}
-        <p className="text-center text-gray-500 text-sm flex items-center justify-center gap-2">
-          <span className="material-symbols-outlined text-lg">sync</span>
-          {t('patient.autoRefresh')}
-        </p>
       </div>
       </div>{/* end flex-1 content wrapper */}
 

@@ -19,12 +19,12 @@ Une démonstration convaincante de 12-15 minutes montrant la proposition de vale
 - [ ] Vider la file existante ("Vider la file")
 - [ ] Désactiver "Docteur présent" initialement
 - [ ] Les deux appareils sur une connexion internet stable
-- [ ] Tester que l'API répond : `https://doctorqapi-production-84e9.up.railway.app/health`
+- [ ] Tester que l'API répond : `https://doctorqapi-production-ac8b.up.railway.app/health`
 
 ### URLs Clés
 - **Frontend:** `https://doctor-q-web.vercel.app`
 - **Page Check-in:** `https://doctor-q-web.vercel.app/checkin/7d4e22cd-4604-4a72-b624-7b718885b663`
-- **API Health:** `https://doctorqapi-production-84e9.up.railway.app/health`
+- **API Health:** `https://doctorqapi-production-ac8b.up.railway.app/health`
 
 ---
 
@@ -235,10 +235,10 @@ Si Dr. Kamoun approuve :
 
 ```bash
 # Vérifier que l'API est up
-curl https://doctorqapi-production-84e9.up.railway.app/health
+curl https://doctorqapi-production-ac8b.up.railway.app/health
 
 # Tester la connexion (devrait retourner un token)
-curl -X POST https://doctorqapi-production-84e9.up.railway.app/api/auth/login \
+curl -X POST https://doctorqapi-production-ac8b.up.railway.app/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"dr.skander@example.tn","password":"password123"}'
 ```

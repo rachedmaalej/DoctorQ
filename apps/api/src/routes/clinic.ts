@@ -51,6 +51,7 @@ router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {
 const updateClinicSchema = z.object({
   name: z.string().optional(),
   doctorName: z.string().optional(),
+  doctorGender: z.enum(['M', 'F']).optional(),
   phone: z.string().optional(),
   address: z.string().optional(),
   language: z.enum(['fr', 'ar']).optional(),

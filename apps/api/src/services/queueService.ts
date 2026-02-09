@@ -290,18 +290,17 @@ export async function patientLeaveQueue(entryId: string): Promise<{ success: boo
  * Get the active queue for a clinic
  */
 export async function getQueue(clinicId: string) {
-  const [queue, stats] = await Promise.all([
-    prisma.queueEntry.findMany({
-      where: {
-        clinicId,
-        status: {
-          in: [QueueStatus.WAITING, QueueStatus.NOTIFIED, QueueStatus.IN_CONSULTATION],
-        },
+  // Sequential to prevent pgbouncer pool exhaustion
+  const queue = await prisma.queueEntry.findMany({
+    where: {
+      clinicId,
+      status: {
+        in: [QueueStatus.WAITING, QueueStatus.NOTIFIED, QueueStatus.IN_CONSULTATION],
       },
-      orderBy: { position: 'asc' },
-    }),
-    getQueueStats(clinicId),
-  ]);
+    },
+    orderBy: { position: 'asc' },
+  });
+  const stats = await getQueueStats(clinicId);
 
   return { queue, stats };
 }
@@ -340,18 +339,16 @@ export async function archiveAndClearQueue(clinicId: string): Promise<{ archived
 
   // Step 2: Snapshot today's stats into DailyStat
   const startOfToday = getStartOfToday();
-  const [totalPatients, noShows, patientsWithWait] = await Promise.all([
-    prisma.queueEntry.count({
-      where: { clinicId, arrivedAt: { gte: startOfToday } },
-    }),
-    prisma.queueEntry.count({
-      where: { clinicId, status: QueueStatus.NO_SHOW, arrivedAt: { gte: startOfToday } },
-    }),
-    prisma.queueEntry.findMany({
-      where: { clinicId, status: QueueStatus.COMPLETED, arrivedAt: { gte: startOfToday }, calledAt: { not: null } },
-      select: { arrivedAt: true, calledAt: true, completedAt: true },
-    }),
-  ]);
+  const totalPatients = await prisma.queueEntry.count({
+    where: { clinicId, arrivedAt: { gte: startOfToday } },
+  });
+  const noShows = await prisma.queueEntry.count({
+    where: { clinicId, status: QueueStatus.NO_SHOW, arrivedAt: { gte: startOfToday } },
+  });
+  const patientsWithWait = await prisma.queueEntry.findMany({
+    where: { clinicId, status: QueueStatus.COMPLETED, arrivedAt: { gte: startOfToday }, calledAt: { not: null } },
+    select: { arrivedAt: true, calledAt: true, completedAt: true },
+  });
 
   // Exclude the last patient (latest calledAt) from average calculation.
   // Receptionists often forget to close the queue, so the last patient's
@@ -416,6 +413,7 @@ export async function getPatientStatus(entryId: string) {
         select: {
           name: true,
           doctorName: true,
+          doctorGender: true,
           avgConsultationMins: true,
           isDoctorPresent: true,
           announcement: true,
@@ -450,6 +448,7 @@ export async function getPatientStatus(entryId: string) {
     avgConsultationMins: entry.clinic.avgConsultationMins,
     clinicName: entry.clinic.name,
     doctorName: entry.clinic.doctorName,
+    doctorGender: entry.clinic.doctorGender,
     isDoctorPresent: entry.clinic.isDoctorPresent,
     announcement: entry.clinic.announcement,
     announcementAt: entry.clinic.announcementAt,

@@ -57,6 +57,7 @@ export interface Clinic {
   id: string;
   name: string;
   doctorName: string | null;
+  doctorGender: string | null;
   email: string;
   language: string;
   avgConsultationMins: number;
@@ -115,6 +116,7 @@ export interface PatientStatusResponse extends QueueEntry {
   avgConsultationMins?: number;
   clinicName?: string;
   doctorName?: string;
+  doctorGender?: string | null;
   announcement?: string | null;
   announcementAt?: string | null;
   specialty?: string | null;

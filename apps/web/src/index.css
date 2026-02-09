@@ -55,6 +55,12 @@ body {
   height: 0 !important;
 }
 
+/* Patient Status Page - Inline banner fade-in */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 /* Patient Status Page - Urgent pulse animation */
 @keyframes pulse-urgent {
   0%, 100% {

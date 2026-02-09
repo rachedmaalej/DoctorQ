@@ -27,7 +27,7 @@ function PageLoader() {
 }
 
 function App() {
-  const { isAuthenticated, isLoading, checkAuth, clinic } = useAuthStore();
+  const { isAuthenticated, isLoading, checkAuth } = useAuthStore();
 
   useEffect(() => {
     checkAuth();
@@ -64,9 +64,7 @@ function App() {
           path="/dashboard"
           element={
             isAuthenticated
-              ? clinic?.onboardingCompleted === false
-                ? <Navigate to="/onboarding" />
-                : <DashboardPage />
+              ? <DashboardPage />
               : <Navigate to="/login" />
           }
         />

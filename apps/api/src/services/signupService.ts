@@ -15,6 +15,7 @@ export interface SignupData {
   email: string;
   password: string;
   doctorName?: string;
+  doctorGender?: 'M' | 'F';
   phone?: string;
   language?: 'fr' | 'ar';
 }
@@ -93,6 +94,7 @@ export async function registerClinic(data: SignupData): Promise<SignupResult> {
       email: data.email,
       passwordHash,
       doctorName: data.doctorName,
+      doctorGender: data.doctorGender,
       phone: data.phone,
       language: data.language ?? 'fr',
       // Subscription defaults
