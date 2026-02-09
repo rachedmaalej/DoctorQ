@@ -70,6 +70,8 @@ export default function ClinicPatientsTab({ detail }: ClinicPatientsTabProps) {
                         <td className="px-4 py-2 text-sm text-[#4E7572] capitalize">{entry.checkInMethod.replace('_', ' ').toLowerCase()}</td>
                         <td className="px-4 py-2">{statusBadge(entry.status)}</td>
                         <td className="px-4 py-2 text-sm text-[#4E7572]">
+                          <span className="text-[#8AADAA]">{new Date(entry.arrivedAt).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })}</span>
+                          {' '}
                           {new Date(entry.arrivedAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
                         </td>
                         <td className="px-4 py-2 text-sm text-[#4E7572]">
