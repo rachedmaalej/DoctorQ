@@ -348,11 +348,11 @@ router.get('/qr', authMiddleware, async (req: AuthRequest, res: Response) => {
     }
 
     // Generate check-in URL
-    // Use FRONTEND_URL env var, or detect production from NODE_ENV/RAILWAY
+    // Use FRONTEND_URL env var, detect production, or use request Origin header (tracks Vite port changes in dev)
     const frontendUrl = process.env.FRONTEND_URL ||
       (process.env.NODE_ENV === 'production' || process.env.RAILWAY_ENVIRONMENT
         ? 'https://web-zeta-five-39.vercel.app'
-        : 'http://localhost:5173');
+        : req.headers.origin || 'http://localhost:5173');
     const checkInUrl = `${frontendUrl}/checkin/${clinicId}`;
 
     // Generate QR code as data URL
