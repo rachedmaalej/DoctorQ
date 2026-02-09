@@ -9,7 +9,8 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
   // For direct connections (migrations), use DIRECT_URL if available
-  // directUrl = env("DIRECT_URL")
+  // pgbouncer doesn't support DDL transactions, so migrations need a direct connection
+  directUrl = env("DIRECT_URL")
 }
 
 // Connection Pool Configuration:
@@ -21,6 +22,7 @@ model Clinic {
   id                  String       @id @default(uuid())
   name                String
   doctorName          String?
+  doctorGender        String?            // "M" or "F"
   phone               String?
   address             String?
   language            String       @default("fr") // fr, ar

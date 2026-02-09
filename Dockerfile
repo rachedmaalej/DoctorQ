@@ -31,5 +31,5 @@ RUN ls -la /app/apps/api/dist/ || echo "dist folder not found!"
 # Expose port
 EXPOSE 3001
 
-# Start the API with db push first (ensures schema is in sync)
-CMD cd apps/api && npx prisma db push --skip-generate --accept-data-loss && cd ../.. && pnpm --filter @doctorq/api start
+# Run pending migrations then start the API
+CMD cd apps/api && npx prisma migrate deploy && cd ../.. && pnpm --filter @doctorq/api start

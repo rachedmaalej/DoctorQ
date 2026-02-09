@@ -27,9 +27,11 @@ pnpm dev:api             # API only (tsx watch, port 3001)
 pnpm dev:web             # Web only (Vite, port 5174)
 
 # Database
-pnpm db:push             # Push schema to DB
-pnpm db:migrate          # Run migrations
-pnpm db:seed             # Seed test data
+pnpm db:push             # Push schema to DB (dev only, quick prototyping)
+pnpm db:migrate          # Create new migration (dev only)
+pnpm db:migrate:deploy   # Apply pending migrations (production-safe)
+pnpm db:migrate:status   # Check migration status
+pnpm db:seed             # Seed dev test data
 pnpm db:studio           # Prisma Studio GUI
 
 # Testing
@@ -54,7 +56,8 @@ pnpm format              # Prettier
 
 ### Backend (`apps/api/.env`)
 ```
-DATABASE_URL             # PostgreSQL connection (REQUIRED)
+DATABASE_URL             # PostgreSQL pooler URL (REQUIRED)
+DIRECT_URL               # PostgreSQL direct URL (REQUIRED for migrations)
 JWT_SECRET               # REQUIRED - server crashes without it
 JWT_EXPIRES_IN           # Default: 7d
 RESEND_API_KEY           # Email service
@@ -81,7 +84,8 @@ VITE_DEFAULT_LANGUAGE    # Default: fr
 ## Platform Quirks
 
 - **PowerShell:** Use `;` not `&&` to chain commands
-- **Prisma:** Use `--accept-data-loss` flag when adding unique constraints to existing columns
+- **Prisma migrations:** Use `prisma migrate dev --name <name>` for schema changes (never `db push` in production)
+- **Prisma directUrl:** Required for migrations when using Supabase pgbouncer — set `DIRECT_URL` env var
 - **LanguageSwitcher:** Uses DEFAULT export, not named: `import LanguageSwitcher from '...'`
 - **Phone numbers:** Always `+216` format. Tunisian numbers are 8 digits after country code.
 - **Konnect amounts:** Always in millimes (50 TND = 50000 millimes)
@@ -117,11 +121,29 @@ Schema: [apps/api/prisma/schema.prisma](apps/api/prisma/schema.prisma)
 
 ---
 
-## Deployment
+## Branching & Deployment
 
-- **API:** Railway (binds 0.0.0.0). Production URL: `doctorqapi-production-84e9.up.railway.app`
+### Branch Model
+| Branch | Purpose | Deploys to |
+|--------|---------|------------|
+| `main` | Active development | Nothing (local dev only) |
+| `production` | Stable releases | Railway (API) + Vercel (Web) |
+
+### Workflow
+- **Daily dev:** Work on `main`, run locally with `pnpm dev` (connects to dev Supabase)
+- **Schema changes:** `cd apps/api && npx prisma migrate dev --name <name>` — commit the migration file
+- **Promote to prod:** `gh pr create --base production --head main` — CI must pass, then merge
+- **Emergency hotfix:** Branch off `production`, fix, PR back to `production`, cherry-pick to `main`
+
+### CI/CD
+- GitHub Actions runs lint, type-check, build, and tests on PRs to `production` and pushes to `main`
+- Branch protection on `production` requires CI to pass before merge
+
+### Infrastructure
+- **API:** Railway (binds 0.0.0.0). Production URL: `doctorqapi-production-ac8b.up.railway.app`
 - **Web:** Vercel. Frontend auto-detects production API URL from hostname in `lib/api.ts`
-- **DB:** PostgreSQL via Supabase with pgbouncer pooling
+- **Dev DB:** Separate Supabase project (free tier) — isolated from production
+- **Prod DB:** Supabase with pgbouncer pooling. Migrations via `prisma migrate deploy` (non-destructive)
 - **Cron:** In-process via node-cron. Timezone: Africa/Tunis
   - Midnight: archive stats, clear queues, reset doctor presence
   - 9 AM: trial expiration warning emails (7-day and 3-day)

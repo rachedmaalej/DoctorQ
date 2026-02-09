@@ -18,6 +18,8 @@
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "db:push": "pnpm --filter @doctorq/api db:push",
     "db:migrate": "pnpm --filter @doctorq/api db:migrate",
+    "db:migrate:deploy": "pnpm --filter @doctorq/api db:migrate:deploy",
+    "db:migrate:status": "pnpm --filter @doctorq/api db:migrate:status",
     "db:seed": "pnpm --filter @doctorq/api db:seed",
     "db:studio": "pnpm --filter @doctorq/api db:studio"
   },
