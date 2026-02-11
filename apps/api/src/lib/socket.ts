@@ -1,4 +1,5 @@
 import { Server } from 'socket.io';
+import { logger } from './logger.js';
 
 // Socket.io instance holder - will be set by index.ts
 let io: Server | null = null;
@@ -17,9 +18,9 @@ export function emitToRoom(room: string, event: string, data: any) {
     // Check how many clients are in the room
     const roomSockets = io.sockets.adapter.rooms.get(room);
     const clientCount = roomSockets ? roomSockets.size : 0;
-    console.log(`[Socket.io] Emitting '${event}' to room '${room}' (${clientCount} clients)`);
+    logger.debug({ event, room, clientCount }, 'Socket.io emit');
     io.to(room).emit(event, data);
   } else {
-    console.warn('[Socket.io] Not initialized, cannot emit event:', event);
+    logger.warn({ event }, 'Socket.io not initialized, cannot emit');
   }
 }

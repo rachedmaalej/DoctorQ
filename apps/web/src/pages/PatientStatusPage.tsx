@@ -544,6 +544,13 @@ export default function PatientStatusPage() {
           )}
         </div>
 
+        {/* People ahead indicator */}
+        {showTicket && displayPosition > 1 && (
+          <p className="text-center text-sm font-medium text-gray-600">
+            {t('patient.peopleAhead', { count: displayPosition - 1 })}
+          </p>
+        )}
+
         {/* Hero Wait Estimate — the most important info for patients */}
         {showTicket && queueState !== 'next' && (
           <WaitEstimateCard

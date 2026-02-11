@@ -18,6 +18,7 @@ import {
   sendWelcomeEmail,
 } from '../lib/email.js';
 import { prisma } from '../lib/prisma.js';
+import { logger } from '../lib/logger.js';
 
 const router = Router();
 
@@ -101,7 +102,7 @@ router.post('/', async (req: Request, res: Response) => {
       });
     }
 
-    console.error('Signup error:', error);
+    logger.error({ err: error }, 'Signup error');
     res.status(500).json({
       error: {
         code: 'SERVER_ERROR',
@@ -181,7 +182,7 @@ router.post('/verify-email', async (req: Request, res: Response) => {
       });
     }
 
-    console.error('Email verification error:', error);
+    logger.error({ err: error }, 'Email verification error');
     res.status(500).json({
       error: {
         code: 'SERVER_ERROR',
@@ -256,7 +257,7 @@ router.post('/resend-verification', async (req: Request, res: Response) => {
       });
     }
 
-    console.error('Resend verification error:', error);
+    logger.error({ err: error }, 'Resend verification error');
     res.status(500).json({
       error: {
         code: 'SERVER_ERROR',
@@ -314,7 +315,7 @@ router.post('/forgot-password', async (req: Request, res: Response) => {
       });
     }
 
-    console.error('Forgot password error:', error);
+    logger.error({ err: error }, 'Forgot password error');
     res.status(500).json({
       error: {
         code: 'SERVER_ERROR',
@@ -369,7 +370,7 @@ router.post('/reset-password', async (req: Request, res: Response) => {
       });
     }
 
-    console.error('Reset password error:', error);
+    logger.error({ err: error }, 'Reset password error');
     res.status(500).json({
       error: {
         code: 'SERVER_ERROR',

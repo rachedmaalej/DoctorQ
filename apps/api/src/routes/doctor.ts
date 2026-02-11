@@ -14,6 +14,7 @@ import {
   updateDoctor,
   deleteDoctor,
 } from '../services/doctorService.js';
+import { logger } from '../lib/logger.js';
 
 const router = Router();
 
@@ -36,7 +37,7 @@ router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {
     const doctors = await getDoctors(req.clinic!.id);
     res.json({ data: doctors });
   } catch (error) {
-    console.error('Get doctors error:', error);
+    logger.error({ err: error }, 'Get doctors error');
     res.status(500).json({
       error: { code: 'SERVER_ERROR', message: 'Failed to get doctors' },
     });
@@ -54,7 +55,7 @@ router.get('/:id', authMiddleware, async (req: AuthRequest, res: Response) => {
     }
     res.json({ data: doctor });
   } catch (error) {
-    console.error('Get doctor error:', error);
+    logger.error({ err: error }, 'Get doctor error');
     res.status(500).json({
       error: { code: 'SERVER_ERROR', message: 'Failed to get doctor' },
     });
@@ -76,7 +77,7 @@ router.post('/', authMiddleware, async (req: AuthRequest, res: Response) => {
         error: { code: 'VALIDATION_ERROR', message: 'Invalid data', details: error.errors },
       });
     }
-    console.error('Create doctor error:', error);
+    logger.error({ err: error }, 'Create doctor error');
     res.status(500).json({
       error: { code: 'SERVER_ERROR', message: 'Failed to create doctor' },
     });
@@ -100,7 +101,7 @@ router.patch('/:id', authMiddleware, async (req: AuthRequest, res: Response) => 
         error: { code: 'VALIDATION_ERROR', message: 'Invalid data', details: error.errors },
       });
     }
-    console.error('Update doctor error:', error);
+    logger.error({ err: error }, 'Update doctor error');
     res.status(500).json({
       error: { code: 'SERVER_ERROR', message: 'Failed to update doctor' },
     });
@@ -118,7 +119,7 @@ router.delete('/:id', authMiddleware, async (req: AuthRequest, res: Response) =>
     }
     res.json({ data: { message: 'Doctor deleted' } });
   } catch (error) {
-    console.error('Delete doctor error:', error);
+    logger.error({ err: error }, 'Delete doctor error');
     res.status(500).json({
       error: { code: 'SERVER_ERROR', message: 'Failed to delete doctor' },
     });

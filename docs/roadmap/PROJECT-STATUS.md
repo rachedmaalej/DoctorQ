@@ -426,7 +426,7 @@ IjaTawa/
 
 ### Authentication & Authorization
 - [x] JWT-based clinic login
-- [x] Admin role whitelist (rached@doctorq.tn, admin@blesaf.tn)
+- [x] Admin role whitelist (admin@doctorq.tn)
 - [x] Protected routes (frontend)
 - [x] Auth middleware (backend)
 - [x] Rate limiting on public endpoints

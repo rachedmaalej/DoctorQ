@@ -5,6 +5,7 @@
 
 import { prisma } from '../lib/prisma.js';
 import { initPayment, getPaymentDetails } from '../lib/konnect.js';
+import { logger } from '../lib/logger.js';
 
 // ─── Constants ───────────────────────────────────────────────
 
@@ -160,7 +161,7 @@ export async function processSubscriptionPayment(paymentRef: string): Promise<vo
   const paymentDetails = await getPaymentDetails(paymentRef);
 
   if (paymentDetails.payment.status !== 'completed') {
-    console.log(`[Subscription] Payment ${paymentRef} not completed: ${paymentDetails.payment.status}`);
+    logger.info({ paymentRef, status: paymentDetails.payment.status }, 'Subscription payment not completed');
     return;
   }
 
@@ -171,7 +172,7 @@ export async function processSubscriptionPayment(paymentRef: string): Promise<vo
   });
 
   if (!event || !event.notes) {
-    console.error(`[Subscription] No event found for payment ${paymentRef}`);
+    logger.error({ paymentRef }, 'No subscription event found for payment');
     return;
   }
 
@@ -199,7 +200,7 @@ export async function processSubscriptionPayment(paymentRef: string): Promise<vo
     },
   });
 
-  console.log(`[Subscription] Clinic ${event.clinicId} activated ${plan} subscription`);
+  logger.info({ clinicId: event.clinicId, plan }, 'Subscription activated');
 }
 
 // ─── SMS Package Purchase ────────────────────────────────────
@@ -268,7 +269,7 @@ export async function processSmsPackagePayment(paymentRef: string): Promise<void
   const paymentDetails = await getPaymentDetails(paymentRef);
 
   if (paymentDetails.payment.status !== 'completed') {
-    console.log(`[SMS] Payment ${paymentRef} not completed: ${paymentDetails.payment.status}`);
+    logger.info({ paymentRef, status: paymentDetails.payment.status }, 'SMS payment not completed');
     return;
   }
 
@@ -278,7 +279,7 @@ export async function processSmsPackagePayment(paymentRef: string): Promise<void
   });
 
   if (!purchase) {
-    console.error(`[SMS] No pending purchase found for payment ${paymentRef}`);
+    logger.error({ paymentRef }, 'No pending SMS purchase found for payment');
     return;
   }
 
@@ -296,7 +297,7 @@ export async function processSmsPackagePayment(paymentRef: string): Promise<void
     }),
   ]);
 
-  console.log(`[SMS] Added ${purchase.credits} SMS credits to clinic ${purchase.clinicId}`);
+  logger.info({ clinicId: purchase.clinicId, credits: purchase.credits }, 'SMS credits added');
 }
 
 // ─── SMS Credit Management ───────────────────────────────────
@@ -378,7 +379,7 @@ export async function checkExpiredSubscriptions(): Promise<void> {
       })),
     });
 
-    console.log(`[Subscription] Expired ${expiredTrials.length} trial subscriptions`);
+    logger.info({ count: expiredTrials.length }, 'Expired trial subscriptions');
   }
 
   // Find expired paid subscriptions
@@ -405,7 +406,7 @@ export async function checkExpiredSubscriptions(): Promise<void> {
       })),
     });
 
-    console.log(`[Subscription] Expired ${expiredPaid.length} paid subscriptions`);
+    logger.info({ count: expiredPaid.length }, 'Expired paid subscriptions');
   }
 }
 

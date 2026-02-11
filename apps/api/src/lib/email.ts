@@ -4,6 +4,8 @@
  * Uses Resend for email delivery
  */
 
+import { logger } from './logger.js';
+
 // ─── Types ───────────────────────────────────────────────────
 
 interface EmailOptions {
@@ -420,8 +422,7 @@ function getTrialExpiringEmailTemplate(
 async function sendEmail(options: EmailOptions): Promise<EmailResult> {
   // If no API key, log and skip (useful for development)
   if (!RESEND_API_KEY) {
-    console.log('[Email] No RESEND_API_KEY configured. Email would be sent to:', options.to);
-    console.log('[Email] Subject:', options.subject);
+    logger.info({ to: options.to, subject: options.subject }, 'No RESEND_API_KEY configured, skipping email');
     return { success: true, messageId: 'dev-mode-skipped' };
   }
 
@@ -443,15 +444,15 @@ async function sendEmail(options: EmailOptions): Promise<EmailResult> {
 
     if (!response.ok) {
       const error = await response.json() as { message?: string };
-      console.error('[Email] Failed to send:', error);
+      logger.error({ err: error }, 'Email failed to send');
       return { success: false, error: error.message || 'Unknown error' };
     }
 
     const result = await response.json() as { id?: string };
-    console.log('[Email] Sent successfully:', result.id);
+    logger.info({ messageId: result.id }, 'Email sent successfully');
     return { success: true, messageId: result.id };
   } catch (error) {
-    console.error('[Email] Error:', error);
+    logger.error({ err: error }, 'Email send error');
     return { success: false, error: (error as Error).message };
   }
 }

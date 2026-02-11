@@ -96,7 +96,7 @@ VITE_DEFAULT_LANGUAGE    # Default: fr
 ## Auth Model
 
 - **Clinic-level JWT** — no patient accounts. Patients identified by phone number only.
-- **Admin access:** Hardcoded `ADMIN_EMAILS` array in `apps/api/src/routes/admin.ts` (admin@doctorq.tn, rached@doctorq.tn)
+- **Admin access:** Hardcoded `ADMIN_EMAILS` array in `apps/api/src/routes/admin.ts` (admin@doctorq.tn)
 - **Impersonation:** Admin can "login as clinic" — stores original admin token, swaps to clinic JWT
 - **Subscription enforcement:** TRIAL valid 30 days from signup, ACTIVE until `subscriptionEndsAt`
 - **SMS credits:** Deducted per-send, checked in notificationService before sending

@@ -8,6 +8,7 @@ import { QueueStatus } from '@prisma/client';
 import { emitToRoom } from '../lib/socket.js';
 import { getQueueStats } from './statsService.js';
 import { sendSms, buildSmsBody, type SmsTemplate } from '../lib/sms.js';
+import { logger } from '../lib/logger.js';
 
 /**
  * Emit queue update to clinic dashboard
@@ -31,9 +32,9 @@ export async function emitQueueUpdate(clinicId: string): Promise<void> {
 
     // Emit to clinic room
     emitToRoom(`clinic:${clinicId}`, 'queue:updated', { queue, stats });
-    console.log(`Emitted queue:updated to clinic:${clinicId}`);
+    logger.debug({ clinicId }, 'Emitted queue:updated');
   } catch (error) {
-    console.error('Failed to emit queue update:', error);
+    logger.error({ err: error }, 'Failed to emit queue update');
   }
 }
 
@@ -42,7 +43,7 @@ export async function emitQueueUpdate(clinicId: string): Promise<void> {
  */
 export function emitPatientUpdate(entryId: string, position: number, status: string): void {
   const roomName = `patient:${entryId}`;
-  console.log(`[Socket.io] Emitting 'patient:called' to room '${roomName}' with position=${position}, status=${status}`);
+  logger.debug({ room: roomName, position, status }, 'Emitting patient:called');
   emitToRoom(roomName, 'patient:called', { position, status });
 }
 
@@ -94,7 +95,7 @@ export async function sendSmsNotification(
 
     // Check SMS credits
     if (entry.clinic.smsCredits <= 0) {
-      console.log(`[SMS] No credits remaining for clinic ${entry.clinic.name}`);
+      logger.warn({ clinicName: entry.clinic.name }, 'No SMS credits remaining');
       return false;
     }
 
@@ -124,7 +125,7 @@ export async function sendSmsNotification(
 
     return result.success;
   } catch (error) {
-    console.error('[SMS] Notification error:', error);
+    logger.error({ err: error }, 'SMS notification error');
     return false;
   }
 }

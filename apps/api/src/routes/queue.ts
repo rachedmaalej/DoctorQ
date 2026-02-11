@@ -8,6 +8,7 @@ import { Router, Response } from 'express';
 import { z } from 'zod';
 import { prisma } from '../lib/prisma.js';
 import { authMiddleware } from '../lib/auth.js';
+import { subscriptionGate } from '../lib/subscriptionGate.js';
 import { AuthRequest } from '../types/index.js';
 import { QueueStatus, CheckInMethod } from '@prisma/client';
 import {
@@ -22,6 +23,7 @@ import {
 } from '../services/queueService.js';
 import { reorderPatient, updateStatusesAfterReorder } from '../services/positionService.js';
 import { resetStats } from '../services/statsService.js';
+import { logger } from '../lib/logger.js';
 import { emitQueueUpdate, emitPatientUpdate, emitAllPatientUpdates } from '../services/notificationService.js';
 
 const router = Router();
@@ -53,7 +55,7 @@ router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {
 
     res.json({ data: { queue, stats } });
   } catch (error) {
-    console.error('Get queue error:', error);
+    logger.error({ err: error }, "Get queue error");
     res.status(500).json({
       error: { code: 'SERVER_ERROR', message: 'Failed to get queue' },
     });
@@ -61,7 +63,7 @@ router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {
 });
 
 // POST /api/queue - Add patient to queue
-router.post('/', authMiddleware, async (req: AuthRequest, res: Response) => {
+router.post('/', authMiddleware, subscriptionGate, async (req: AuthRequest, res: Response) => {
   try {
     const clinicId = req.clinic!.id;
     const { patientPhone, patientName, checkInMethod, appointmentTime, arrivedAt } = addPatientSchema.parse(req.body);
@@ -111,7 +113,7 @@ router.post('/', authMiddleware, async (req: AuthRequest, res: Response) => {
         error: { code: 'VALIDATION_ERROR', message: 'Invalid request data', details: error.errors },
       });
     }
-    console.error('Add patient error:', error);
+    logger.error({ err: error }, "Add patient error");
     res.status(500).json({
       error: { code: 'SERVER_ERROR', message: 'Failed to add patient' },
     });
@@ -119,7 +121,7 @@ router.post('/', authMiddleware, async (req: AuthRequest, res: Response) => {
 });
 
 // POST /api/queue/next - Call next patient
-router.post('/next', authMiddleware, async (req: AuthRequest, res: Response) => {
+router.post('/next', authMiddleware, subscriptionGate, async (req: AuthRequest, res: Response) => {
   try {
     const clinicId = req.clinic!.id;
     const newInConsultation = await callNextPatient(clinicId);
@@ -132,7 +134,7 @@ router.post('/next', authMiddleware, async (req: AuthRequest, res: Response) => 
 
     res.json({ data: newInConsultation });
   } catch (error) {
-    console.error('Call next error:', error);
+    logger.error({ err: error }, "Call next error");
     res.status(500).json({
       error: { code: 'SERVER_ERROR', message: 'Failed to call next patient' },
     });
@@ -140,7 +142,7 @@ router.post('/next', authMiddleware, async (req: AuthRequest, res: Response) => 
 });
 
 // PATCH /api/queue/:id/status - Update patient status
-router.patch('/:id/status', authMiddleware, async (req: AuthRequest, res: Response) => {
+router.patch('/:id/status', authMiddleware, subscriptionGate, async (req: AuthRequest, res: Response) => {
   try {
     const clinicId = req.clinic!.id;
     const { id } = req.params;
@@ -166,7 +168,7 @@ router.patch('/:id/status', authMiddleware, async (req: AuthRequest, res: Respon
         error: { code: 'VALIDATION_ERROR', message: 'Invalid request data', details: error.errors },
       });
     }
-    console.error('Update status error:', error);
+    logger.error({ err: error }, "Update status error");
     res.status(500).json({
       error: { code: 'SERVER_ERROR', message: 'Failed to update status' },
     });
@@ -174,7 +176,7 @@ router.patch('/:id/status', authMiddleware, async (req: AuthRequest, res: Respon
 });
 
 // DELETE /api/queue/:id - Remove patient from queue
-router.delete('/:id', authMiddleware, async (req: AuthRequest, res: Response) => {
+router.delete('/:id', authMiddleware, subscriptionGate, async (req: AuthRequest, res: Response) => {
   try {
     const clinicId = req.clinic!.id;
     const { id } = req.params;
@@ -189,7 +191,7 @@ router.delete('/:id', authMiddleware, async (req: AuthRequest, res: Response) =>
 
     res.json({ data: { message: 'Patient removed from queue' } });
   } catch (error) {
-    console.error('Delete entry error:', error);
+    logger.error({ err: error }, "Delete entry error");
     res.status(500).json({
       error: { code: 'SERVER_ERROR', message: 'Failed to remove patient' },
     });
@@ -197,7 +199,7 @@ router.delete('/:id', authMiddleware, async (req: AuthRequest, res: Response) =>
 });
 
 // POST /api/queue/reorder - Manually reorder queue
-router.post('/reorder', authMiddleware, async (req: AuthRequest, res: Response) => {
+router.post('/reorder', authMiddleware, subscriptionGate, async (req: AuthRequest, res: Response) => {
   try {
     const clinicId = req.clinic!.id;
     const { entryId, newPosition } = reorderSchema.parse(req.body);
@@ -254,7 +256,7 @@ router.post('/reorder', authMiddleware, async (req: AuthRequest, res: Response) 
         error: { code: 'VALIDATION_ERROR', message: 'Invalid request data', details: error.errors },
       });
     }
-    console.error('Reorder queue error:', error);
+    logger.error({ err: error }, "Reorder queue error");
     res.status(500).json({
       error: { code: 'SERVER_ERROR', message: 'Failed to reorder queue' },
     });
@@ -262,14 +264,14 @@ router.post('/reorder', authMiddleware, async (req: AuthRequest, res: Response) 
 });
 
 // DELETE /api/queue - Clear all patients from queue
-router.delete('/', authMiddleware, async (req: AuthRequest, res: Response) => {
+router.delete('/', authMiddleware, subscriptionGate, async (req: AuthRequest, res: Response) => {
   try {
     const clinicId = req.clinic!.id;
     const count = await clearQueue(clinicId);
 
     res.json({ data: { message: 'Queue cleared', count } });
   } catch (error) {
-    console.error('Clear queue error:', error);
+    logger.error({ err: error }, "Clear queue error");
     res.status(500).json({
       error: { code: 'SERVER_ERROR', message: 'Failed to clear queue' },
     });
@@ -277,7 +279,7 @@ router.delete('/', authMiddleware, async (req: AuthRequest, res: Response) => {
 });
 
 // POST /api/queue/reset-stats - Reset statistics
-router.post('/reset-stats', authMiddleware, async (req: AuthRequest, res: Response) => {
+router.post('/reset-stats', authMiddleware, subscriptionGate, async (req: AuthRequest, res: Response) => {
   try {
     const clinicId = req.clinic!.id;
     const deletedCount = await resetStats(clinicId);
@@ -285,7 +287,7 @@ router.post('/reset-stats', authMiddleware, async (req: AuthRequest, res: Respon
 
     res.json({ data: { message: 'Statistics reset', deletedCount } });
   } catch (error) {
-    console.error('Reset stats error:', error);
+    logger.error({ err: error }, "Reset stats error");
     res.status(500).json({
       error: { code: 'SERVER_ERROR', message: 'Failed to reset statistics' },
     });
@@ -344,7 +346,7 @@ router.post('/checkin/:clinicId', async (req, res: Response) => {
         error: { code: 'VALIDATION_ERROR', message: 'Invalid request data', details: error.errors },
       });
     }
-    console.error('Patient check-in error:', error);
+    logger.error({ err: error }, "Patient check-in error");
     res.status(500).json({
       error: { code: 'SERVER_ERROR', message: 'Failed to check in' },
     });
@@ -367,7 +369,7 @@ router.post('/patient/:entryId/leave', async (req, res: Response) => {
       data: { message: 'Successfully left the queue', status: QueueStatus.CANCELLED },
     });
   } catch (error) {
-    console.error('Patient leave queue error:', error);
+    logger.error({ err: error }, "Patient leave queue error");
     res.status(500).json({
       error: { code: 'SERVER_ERROR', message: 'Failed to leave queue' },
     });
@@ -388,7 +390,7 @@ router.get('/patient/:entryId', async (req, res: Response) => {
 
     res.json({ data: status });
   } catch (error) {
-    console.error('Get patient status error:', error);
+    logger.error({ err: error }, "Get patient status error");
     res.status(500).json({
       error: { code: 'SERVER_ERROR', message: 'Failed to get patient status' },
     });

@@ -7,6 +7,7 @@ import { prisma } from '../lib/prisma.js';
 import { authMiddleware } from '../lib/auth.js';
 import { AuthRequest } from '../types/index.js';
 import { emitToRoom } from '../lib/socket.js';
+import { logger } from '../lib/logger.js';
 
 const router = Router();
 
@@ -42,7 +43,7 @@ router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {
 
     res.json({ data: clinic });
   } catch (error: any) {
-    console.error('Error fetching clinic:', error);
+    logger.error({ err: error }, 'Error fetching clinic');
     res.status(500).json({ error: 'Failed to fetch clinic details' });
   }
 });
@@ -91,7 +92,7 @@ router.patch('/', authMiddleware, async (req: AuthRequest, res: Response) => {
 
     res.json(updatedClinic);
   } catch (error: any) {
-    console.error('Error updating clinic:', error);
+    logger.error({ err: error }, 'Error updating clinic');
     if (error.name === 'ZodError') {
       return res.status(400).json({ error: 'Invalid input', details: error.errors });
     }
@@ -131,7 +132,7 @@ router.post('/doctor-presence', authMiddleware, async (req: AuthRequest, res: Re
 
     res.json({ data: updatedClinic });
   } catch (error: any) {
-    console.error('Error updating doctor presence:', error);
+    logger.error({ err: error }, 'Error updating doctor presence');
     if (error.name === 'ZodError') {
       return res.status(400).json({ error: 'Invalid input', details: error.errors });
     }
@@ -176,7 +177,7 @@ router.post('/announcement', authMiddleware, async (req: AuthRequest, res: Respo
 
     res.json({ data: updatedClinic });
   } catch (error: any) {
-    console.error('Error updating announcement:', error);
+    logger.error({ err: error }, 'Error updating announcement');
     if (error.name === 'ZodError') {
       return res.status(400).json({ error: 'Invalid input', details: error.errors });
     }
@@ -222,7 +223,7 @@ router.get('/:clinicId/info', async (req, res: Response) => {
       },
     });
   } catch (error: any) {
-    console.error('Error fetching clinic info:', error);
+    logger.error({ err: error }, 'Error fetching clinic info');
     res.status(500).json({ error: 'Failed to fetch clinic info' });
   }
 });
@@ -326,7 +327,7 @@ router.get('/daily-recap', authMiddleware, async (req: AuthRequest, res: Respons
       },
     });
   } catch (error: any) {
-    console.error('Error fetching daily recap:', error);
+    logger.error({ err: error }, 'Error fetching daily recap');
     res.status(500).json({ error: 'Failed to fetch daily recap' });
   }
 });
@@ -372,7 +373,7 @@ router.get('/qr', authMiddleware, async (req: AuthRequest, res: Response) => {
       },
     });
   } catch (error: any) {
-    console.error('Error generating QR code:', error);
+    logger.error({ err: error }, 'Error generating QR code');
     res.status(500).json({ error: 'Failed to generate QR code' });
   }
 });

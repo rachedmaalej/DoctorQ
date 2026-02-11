@@ -5,6 +5,7 @@
 
 import { Router, Request, Response } from 'express';
 import { register } from '../lib/metrics.js';
+import { logger } from '../lib/logger.js';
 
 const router = Router();
 
@@ -20,7 +21,7 @@ router.get('/', async (_req: Request, res: Response) => {
     res.set('Content-Type', register.contentType);
     res.end(await register.metrics());
   } catch (error) {
-    console.error('Error generating metrics:', error);
+    logger.error({ err: error }, 'Error generating metrics');
     res.status(500).end('Error generating metrics');
   }
 });

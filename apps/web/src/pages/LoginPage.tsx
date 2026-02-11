@@ -16,9 +16,6 @@ export default function LoginPage() {
   const [resendSuccess, setResendSuccess] = useState(false);
   const [resending, setResending] = useState(false);
 
-  // Admin email whitelist
-  const ADMIN_EMAILS = ['rached@doctorq.tn', 'admin@blesaf.tn'];
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -28,8 +25,8 @@ export default function LoginPage() {
     try {
       await login({ email, password });
       // Redirect admins to /admin, others to /dashboard
-      const isAdmin = ADMIN_EMAILS.includes(email.toLowerCase());
-      navigate(isAdmin ? '/admin' : '/dashboard');
+      const { clinic } = useAuthStore.getState();
+      navigate(clinic?.isAdmin ? '/admin' : '/dashboard');
     } catch (err: any) {
       if (err?.code === 'EMAIL_NOT_VERIFIED') {
         setEmailNotVerified(true);
@@ -69,7 +66,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => {
-                    setEmail('rached@doctorq.tn');
+                    setEmail('admin@doctorq.tn');
                     setPassword('BlesafAdmin2024!');
                   }}
                   className="flex-1 text-xs bg-yellow-100 hover:bg-yellow-200 text-yellow-800 py-1.5 px-2 rounded transition-colors"

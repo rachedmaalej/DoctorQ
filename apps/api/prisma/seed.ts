@@ -21,6 +21,7 @@ async function main() {
       doctorName: 'Dr. Skander Kamoun',
       email: 'dr.skander@example.tn',
       passwordHash,
+      emailVerified: true,
       phone: '+21671234567',
       address: 'Tunis, Tunisia',
       language: 'fr',
@@ -33,6 +34,29 @@ async function main() {
   });
 
   console.log(`Created test clinic: ${clinic.name}`);
+
+  // Create admin account
+  const adminPasswordHash = await bcrypt.hash('BlesafAdmin2024!', 10);
+
+  const admin = await prisma.clinic.create({
+    data: {
+      name: 'DoctorQ Admin',
+      doctorName: 'Admin',
+      email: 'admin@doctorq.tn',
+      passwordHash: adminPasswordHash,
+      emailVerified: true,
+      phone: '+21600000000',
+      address: 'Tunis, Tunisia',
+      language: 'fr',
+      avgConsultationMins: 15,
+      notifyAtPosition: 2,
+      enableWhatsApp: false,
+      onboardingCompleted: true,
+      onboardingStep: 3,
+    },
+  });
+
+  console.log(`Created admin account: ${admin.email}`);
 
   // Create test queue entries with various statuses
   const now = new Date();
@@ -121,8 +145,8 @@ async function main() {
 
   console.log('\nSeeding complete!');
   console.log('\nTest Credentials:');
-  console.log('Email: dr.skander@example.tn');
-  console.log('Password: password123');
+  console.log('  Clinic: dr.skander@example.tn / password123');
+  console.log('  Admin:  admin@doctorq.tn / BlesafAdmin2024!');
 }
 
 main()

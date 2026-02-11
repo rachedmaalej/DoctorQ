@@ -2,6 +2,7 @@ import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
+import helmet from 'helmet';
 import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
 import bcrypt from 'bcryptjs';
@@ -18,6 +19,7 @@ import adminRoutes from './routes/admin.js';
 import doctorRoutes from './routes/doctor.js';
 import metricsRoutes from './routes/metrics.js';
 import { metricsMiddleware, activeSocketConnections } from './lib/metrics.js';
+import { logger } from './lib/logger.js';
 
 // Load environment variables
 dotenv.config();
@@ -50,6 +52,17 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// HTTP security headers
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      connectSrc: ["'self'", ...corsOrigins, 'wss:', 'ws:'],
+    },
+  },
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+}));
+
 // Metrics middleware (track HTTP request duration and count)
 app.use(metricsMiddleware);
 
@@ -62,10 +75,19 @@ const publicRateLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// Rate limiting for authenticated endpoints (more generous)
+const authRateLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 100, // 100 requests per minute per IP
+  message: { error: { code: 'RATE_LIMITED', message: 'Too many requests, please try again later' } },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // Request logging (development only)
 if (process.env.NODE_ENV === 'development') {
   app.use((req, res, next) => {
-    console.log(`${req.method} ${req.path}`);
+    logger.debug(`${req.method} ${req.path}`);
     next();
   });
 }
@@ -96,8 +118,12 @@ app.get('/health', async (req, res) => {
   });
 });
 
-// Flexible seed endpoint for production (protected by secret)
+// Seed endpoint (disabled in production, protected by JWT_SECRET)
 app.post('/api/seed', async (req, res) => {
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(403).json({ error: 'Seed endpoint is disabled in production' });
+  }
+
   const { secret, clinic: clinicData } = req.body;
 
   // Verify secret matches JWT_SECRET (only admin knows this)
@@ -220,7 +246,8 @@ app.post('/api/seed', async (req, res) => {
       return res.json({ message: 'Clinic already exists', clinicId: existingClinic.id });
     }
 
-    const passwordHash = await bcrypt.hash('DoctorQ2024!', 10);
+    const seedPassword = process.env.SEED_PASSWORD || 'DoctorQ2024!';
+    const passwordHash = await bcrypt.hash(seedPassword, 10);
     const clinic = await prisma.clinic.create({
       data: {
         name: 'Cabinet Dr Skander Kamoun',
@@ -239,16 +266,20 @@ app.post('/api/seed', async (req, res) => {
     res.json({
       message: 'Clinic created successfully',
       clinicId: clinic.id,
-      credentials: { email: 'dr.kamoun@doctorq.tn', password: 'DoctorQ2024!' }
     });
   } catch (error) {
-    console.error('Seed error:', error);
+    logger.error({ err: error }, 'Seed error');
     res.status(500).json({ error: 'Failed to seed database' });
   }
 });
 
 // Prometheus metrics endpoint
 app.use('/metrics', metricsRoutes);
+
+// Apply rate limiting to public endpoints (before routes)
+app.use('/api/queue/checkin', publicRateLimiter);
+app.use('/api/queue/patient', publicRateLimiter);
+app.use('/api/signup', publicRateLimiter);
 
 // API Routes
 app.use('/api/auth', authRoutes);
@@ -259,27 +290,32 @@ app.use('/api/clinic', clinicRoutes);
 app.use('/api/clinic/doctors', doctorRoutes);
 app.use('/api/admin', adminRoutes);
 
-// Apply rate limiting to public endpoints
-app.use('/api/queue/checkin', publicRateLimiter);
-app.use('/api/queue/patient', publicRateLimiter);
-app.use('/api/signup', publicRateLimiter);
+// Apply rate limiting to authenticated endpoints
+app.use('/api/queue', authRateLimiter);
+app.use('/api/clinic', authRateLimiter);
+app.use('/api/subscription', authRateLimiter);
+app.use('/api/admin', authRateLimiter);
 
 // Socket.io connection handling
+const isDev = process.env.NODE_ENV === 'development';
+
 io.on('connection', (socket) => {
-  console.log('[Socket.io] Client connected:', socket.id);
+  if (isDev) logger.debug({ socketId: socket.id }, 'Socket.io client connected');
   activeSocketConnections.inc();
 
-  // Debug: Log all incoming events
-  socket.onAny((eventName, ...args) => {
-    console.log(`[Socket.io] Event '${eventName}' from ${socket.id}:`, JSON.stringify(args).slice(0, 200));
-  });
+  // Debug: Log all incoming events (development only)
+  if (isDev) {
+    socket.onAny((eventName, ...args) => {
+      logger.debug({ event: eventName, socketId: socket.id }, 'Socket.io event');
+    });
+  }
 
   // Join clinic room (for doctor/receptionist) - SECURED with token verification
   socket.on('join:clinic', ({ clinicId, token }) => {
     try {
       // Verify the JWT token
       if (!token) {
-        console.warn(`[Socket.io] Client ${socket.id} attempted to join clinic room without token`);
+        logger.warn({ socketId: socket.id }, 'Socket.io join without token');
         socket.emit('error', { message: 'Authentication required' });
         return;
       }
@@ -288,21 +324,22 @@ io.on('connection', (socket) => {
 
       // Verify the token belongs to the requested clinic
       if (payload.clinicId !== clinicId) {
-        console.warn(`[Socket.io] Client ${socket.id} token clinicId mismatch: ${payload.clinicId} vs ${clinicId}`);
+        logger.warn({ socketId: socket.id, tokenClinicId: payload.clinicId, requestedClinicId: clinicId }, 'Socket.io clinicId mismatch');
         socket.emit('error', { message: 'Unauthorized access to clinic' });
         return;
       }
 
       const roomName = `clinic:${clinicId}`;
       socket.join(roomName);
-      // Get room size after joining
-      const roomSockets = io.sockets.adapter.rooms.get(roomName);
-      const clientCount = roomSockets ? roomSockets.size : 0;
-      console.log(`[Socket.io] Client ${socket.id} joined room '${roomName}' (total: ${clientCount} clients)`);
+      if (isDev) {
+        const roomSockets = io.sockets.adapter.rooms.get(roomName);
+        const clientCount = roomSockets ? roomSockets.size : 0;
+        logger.debug({ socketId: socket.id, room: roomName, clientCount }, 'Socket.io joined clinic room');
+      }
       // Confirm to client that they joined successfully
       socket.emit('joined:clinic', { clinicId, success: true });
     } catch (error) {
-      console.error('[Socket.io] Join clinic auth error:', error);
+      logger.error({ err: error }, 'Socket.io join clinic auth error');
       socket.emit('error', { message: 'Invalid or expired token' });
     }
   });
@@ -312,7 +349,7 @@ io.on('connection', (socket) => {
     try {
       const roomName = `patient:${entryId}`;
       socket.join(roomName);
-      console.log(`[Socket.io] Client ${socket.id} joined room '${roomName}'`);
+      if (isDev) logger.debug({ socketId: socket.id, room: roomName }, 'Socket.io joined patient room');
 
       // Also join the clinic's patients room to receive doctor presence updates
       const entry = await prisma.queueEntry.findUnique({
@@ -323,18 +360,18 @@ io.on('connection', (socket) => {
       if (entry?.clinicId) {
         const clinicPatientsRoom = `clinic:${entry.clinicId}:patients`;
         socket.join(clinicPatientsRoom);
-        console.log(`[Socket.io] Client ${socket.id} also joined room '${clinicPatientsRoom}'`);
+        if (isDev) logger.debug({ socketId: socket.id, room: clinicPatientsRoom }, 'Socket.io joined clinic patients room');
       }
 
       socket.emit('joined:patient', { entryId, success: true });
     } catch (error) {
-      console.error('[Socket.io] Join patient error:', error);
+      logger.error({ err: error }, 'Socket.io join patient error');
       socket.emit('error', { message: 'Failed to join patient room' });
     }
   });
 
   socket.on('disconnect', () => {
-    console.log('[Socket.io] Client disconnected:', socket.id);
+    if (isDev) logger.debug({ socketId: socket.id }, 'Socket.io client disconnected');
     activeSocketConnections.dec();
   });
 });
@@ -343,7 +380,7 @@ io.on('connection', (socket) => {
 
 // Error handling
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error('Unhandled error:', err);
+  logger.error({ err }, 'Unhandled error');
   res.status(500).json({
     error: {
       code: 'SERVER_ERROR',
@@ -365,9 +402,9 @@ app.use((req, res) => {
 // Start server - bind to 0.0.0.0 for Railway deployment
 const HOST = '0.0.0.0';
 httpServer.listen(Number(PORT), HOST, () => {
-  console.log(`\n🚀 DoctorQ API Server running on port ${PORT}`);
-  console.log(`📍 Health check: http://localhost:${PORT}/health`);
-  console.log(`🔌 Socket.io ready for connections\n`);
+  logger.info({ port: PORT }, 'DoctorQ API Server running');
+  logger.info({ url: `http://localhost:${PORT}/health` }, 'Health check endpoint');
+  logger.info('Socket.io ready for connections');
 
   // Initialize scheduled tasks
   initScheduledTasks();

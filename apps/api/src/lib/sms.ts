@@ -4,6 +4,8 @@
  * Graceful no-op if TWILIO_* env vars are not set
  */
 
+import { logger } from './logger.js';
+
 // ─── Configuration ───────────────────────────────────────────
 
 const TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID;
@@ -63,7 +65,7 @@ export function buildSmsBody(
 
 export async function sendSms(to: string, body: string): Promise<SmsResult> {
   if (!isConfigured) {
-    console.log(`[SMS] Not configured. Would send to ${to}: ${body}`);
+    logger.info({ to }, 'SMS not configured, skipping send');
     return { success: true, messageId: 'dev-mode-skipped' };
   }
 
@@ -88,15 +90,15 @@ export async function sendSms(to: string, body: string): Promise<SmsResult> {
 
     if (!response.ok) {
       const error = await response.json() as { message?: string };
-      console.error('[SMS] Failed to send:', error);
+      logger.error({ err: error }, 'SMS failed to send');
       return { success: false, error: error.message || 'Send failed' };
     }
 
     const result = await response.json() as { sid?: string };
-    console.log(`[SMS] Sent to ${to}: ${result.sid}`);
+    logger.info({ to, sid: result.sid }, 'SMS sent');
     return { success: true, messageId: result.sid };
   } catch (error) {
-    console.error('[SMS] Error:', error);
+    logger.error({ err: error }, 'SMS send error');
     return { success: false, error: (error as Error).message };
   }
 }

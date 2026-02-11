@@ -94,6 +94,11 @@ class ApiClient {
           throw { code: 'SESSION_EXPIRED', message: 'Session expired. Please log in again.' };
         }
 
+        // Handle subscription expired — let caller handle the error
+        if (response.status === 403 && data.error?.code === 'SUBSCRIPTION_EXPIRED') {
+          throw { code: 'SUBSCRIPTION_EXPIRED', message: data.error.message };
+        }
+
         const error: ApiError & { data?: any } = {
           ...(data.error || {
             code: 'UNKNOWN_ERROR',

@@ -22,6 +22,7 @@ import {
   updateOnboardingStep,
   getOnboardingStatus,
 } from '../services/signupService.js';
+import { logger } from '../lib/logger.js';
 
 const router = Router();
 
@@ -58,7 +59,7 @@ router.post('/webhooks/subscription', async (req: Request, res: Response) => {
 
     res.json({ success: true });
   } catch (error) {
-    console.error('Subscription webhook error:', error);
+    logger.error({ err: error }, "Subscription webhook error");
     res.status(500).json({ error: 'Webhook processing failed' });
   }
 });
@@ -79,7 +80,7 @@ router.post('/webhooks/sms-package', async (req: Request, res: Response) => {
 
     res.json({ success: true });
   } catch (error) {
-    console.error('SMS package webhook error:', error);
+    logger.error({ err: error }, "SMS package webhook error");
     res.status(500).json({ error: 'Webhook processing failed' });
   }
 });
@@ -141,7 +142,7 @@ router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {
 
     res.json({ data: status });
   } catch (error) {
-    console.error('Get subscription error:', error);
+    logger.error({ err: error }, "Get subscription error");
     res.status(500).json({
       error: {
         code: 'SERVER_ERROR',
@@ -181,7 +182,7 @@ router.post('/checkout', authMiddleware, async (req: AuthRequest, res: Response)
       });
     }
 
-    console.error('Checkout error:', error);
+    logger.error({ err: error }, "Checkout error");
     res.status(500).json({
       error: {
         code: 'SERVER_ERROR',
@@ -201,7 +202,7 @@ router.get('/sms', authMiddleware, async (req: AuthRequest, res: Response) => {
 
     res.json({ data: balance });
   } catch (error) {
-    console.error('Get SMS balance error:', error);
+    logger.error({ err: error }, "Get SMS balance error");
     res.status(500).json({
       error: {
         code: 'SERVER_ERROR',
@@ -241,7 +242,7 @@ router.post('/sms/checkout', authMiddleware, async (req: AuthRequest, res: Respo
       });
     }
 
-    console.error('SMS checkout error:', error);
+    logger.error({ err: error }, "SMS checkout error");
     res.status(500).json({
       error: {
         code: 'SERVER_ERROR',
@@ -261,7 +262,7 @@ router.get('/history', authMiddleware, async (req: AuthRequest, res: Response) =
 
     res.json({ data: history });
   } catch (error) {
-    console.error('Get payment history error:', error);
+    logger.error({ err: error }, "Get payment history error");
     res.status(500).json({
       error: {
         code: 'SERVER_ERROR',
@@ -283,7 +284,7 @@ router.get('/onboarding', authMiddleware, async (req: AuthRequest, res: Response
 
     res.json({ data: status });
   } catch (error) {
-    console.error('Get onboarding status error:', error);
+    logger.error({ err: error }, "Get onboarding status error");
     res.status(500).json({
       error: {
         code: 'SERVER_ERROR',
@@ -321,7 +322,7 @@ router.post('/onboarding', authMiddleware, async (req: AuthRequest, res: Respons
       });
     }
 
-    console.error('Update onboarding error:', error);
+    logger.error({ err: error }, "Update onboarding error");
     res.status(500).json({
       error: {
         code: 'SERVER_ERROR',

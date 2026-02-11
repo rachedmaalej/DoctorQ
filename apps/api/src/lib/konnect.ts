@@ -6,6 +6,8 @@
  * Amount is always in millimes (1 TND = 1000 millimes).
  */
 
+import { logger } from './logger.js';
+
 const KONNECT_API_URL = 'https://api.konnect.network/api/v2';
 
 interface InitPaymentParams {
@@ -75,7 +77,7 @@ export async function initPayment(params: InitPaymentParams): Promise<InitPaymen
 
   if (!response.ok) {
     const error = await response.text();
-    console.error('[Konnect] Init payment failed:', error);
+    logger.error({ err: error }, 'Konnect init payment failed');
     throw new Error(`Konnect payment init failed: ${response.status}`);
   }
 
