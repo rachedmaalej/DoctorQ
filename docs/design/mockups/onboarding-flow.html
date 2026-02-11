@@ -1,0 +1,1826 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BleSaf — Onboarding Flow Mockup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet" />
+  <style>
+    /* ========== CSS VARIABLES ========== */
+    :root {
+      --primary-50: #f0fdfa;
+      --primary-100: #ccfbf1;
+      --primary-200: #99f6e4;
+      --primary-300: #5eead4;
+      --primary-400: #2dd4bf;
+      --primary-500: #14b8a6;
+      --primary-600: #0d9488;
+      --primary-700: #0f766e;
+      --primary-800: #115e59;
+      --primary-900: #134e4a;
+
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --gray-600: #4b5563;
+      --gray-700: #374151;
+      --gray-800: #1f2937;
+      --gray-900: #111827;
+
+      --green-50: #ecfdf5;
+      --green-500: #10b981;
+      --green-600: #059669;
+
+      --amber-50: #fffbeb;
+      --amber-500: #f59e0b;
+
+      --red-50: #fef2f2;
+      --red-500: #ef4444;
+
+      --blue-50: #eff6ff;
+      --blue-500: #3b82f6;
+      --blue-600: #2563eb;
+
+      --purple-50: #faf5ff;
+      --purple-500: #a855f7;
+
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+      --shadow-lg: 0 8px 30px rgba(0,0,0,0.12);
+      --shadow-xl: 0 20px 60px rgba(0,0,0,0.15);
+
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 20px;
+      --radius-pill: 999px;
+    }
+
+    /* ========== RESET & BASE ========== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'IBM Plex Sans', -apple-system, sans-serif;
+      background: #f0f2f5;
+      color: var(--gray-800);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 1.5rem;
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      vertical-align: middle;
+    }
+    .material-symbols-outlined.filled {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+
+    /* ========== PHONE FRAME ========== */
+    .phone-frame {
+      width: 390px;
+      min-height: 760px;
+      background: #fff;
+      border-radius: 40px;
+      box-shadow: var(--shadow-xl), 0 0 0 1px rgba(0,0,0,0.06);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .phone-notch {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 150px;
+      height: 28px;
+      background: #000;
+      border-radius: 0 0 20px 20px;
+      z-index: 100;
+    }
+
+    .phone-status-bar {
+      height: 50px;
+      background: #fff;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding: 0 1.5rem 0.25rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--gray-800);
+    }
+
+    .phone-status-bar .time { font-weight: 700; }
+    .phone-status-bar .icons { display: flex; gap: 4px; align-items: center; }
+    .phone-status-bar .icons .material-symbols-outlined { font-size: 16px; }
+
+    /* ========== SCREEN CONTAINER ========== */
+    .screen {
+      display: none;
+      flex-direction: column;
+      min-height: 710px;
+      animation: fadeIn 0.4s cubic-bezier(.32,.72,0,1);
+    }
+    .screen.active { display: flex; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.8); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes bounceIn {
+      0% { opacity: 0; transform: scale(0.3); }
+      50% { opacity: 1; transform: scale(1.05); }
+      70% { transform: scale(0.95); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes confettiBurst {
+      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(-80px) rotate(720deg); opacity: 0; }
+    }
+
+    @keyframes checkmark {
+      0% { stroke-dashoffset: 24; }
+      100% { stroke-dashoffset: 0; }
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(13, 148, 136, 0.4); }
+      50% { transform: scale(1.02); box-shadow: 0 0 0 8px rgba(13, 148, 136, 0); }
+    }
+
+    /* ========== PROGRESS BAR ========== */
+    .progress-header {
+      padding: 0.75rem 1.5rem;
+      background: #fff;
+    }
+
+    .progress-steps {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin-bottom: 0.5rem;
+    }
+
+    .progress-dot {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 600;
+      background: var(--gray-100);
+      color: var(--gray-400);
+      transition: all 0.3s ease;
+      flex-shrink: 0;
+    }
+    .progress-dot.active {
+      background: var(--primary-600);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(13, 148, 136, 0.3);
+    }
+    .progress-dot.completed {
+      background: var(--primary-500);
+      color: #fff;
+    }
+    .progress-dot.completed .material-symbols-outlined { font-size: 18px; }
+
+    .progress-line {
+      flex: 1;
+      height: 3px;
+      background: var(--gray-200);
+      border-radius: 2px;
+      transition: background 0.3s ease;
+    }
+    .progress-line.active { background: var(--primary-400); }
+
+    .progress-label {
+      font-size: 0.75rem;
+      color: var(--gray-500);
+      font-weight: 500;
+    }
+
+    /* ========== COMMON ELEMENTS ========== */
+    .screen-body {
+      flex: 1;
+      padding: 1.25rem 1.5rem;
+      overflow-y: auto;
+    }
+
+    .screen-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--gray-900);
+      line-height: 1.25;
+      margin-bottom: 0.35rem;
+    }
+
+    .screen-subtitle {
+      font-size: 0.85rem;
+      color: var(--gray-500);
+      line-height: 1.5;
+      margin-bottom: 1.25rem;
+    }
+
+    .screen-footer {
+      padding: 1rem 1.5rem 2rem;
+      background: #fff;
+      border-top: 1px solid var(--gray-100);
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 0.875rem;
+      background: var(--primary-600);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-md);
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    .btn-primary:hover { background: var(--primary-700); }
+    .btn-primary:active { transform: scale(0.98); }
+    .btn-primary:disabled {
+      background: var(--gray-200);
+      color: var(--gray-400);
+      cursor: not-allowed;
+      transform: none;
+    }
+    .btn-primary .material-symbols-outlined { font-size: 20px; }
+
+    .btn-secondary {
+      width: 100%;
+      padding: 0.75rem;
+      background: var(--gray-50);
+      color: var(--gray-600);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-md);
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    .btn-secondary:hover { background: var(--gray-100); }
+    .btn-secondary:active { transform: scale(0.98); }
+    .btn-secondary .material-symbols-outlined { font-size: 18px; }
+
+    /* ========== FORM ELEMENTS ========== */
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--gray-700);
+      margin-bottom: 0.35rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 0.9rem;
+      color: var(--gray-800);
+      background: #fff;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      outline: none;
+    }
+    .form-input:focus {
+      border-color: var(--primary-500);
+      box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1);
+    }
+    .form-input::placeholder { color: var(--gray-400); }
+    .form-input.has-value { border-color: var(--primary-300); }
+
+    .form-hint {
+      font-size: 0.7rem;
+      color: var(--gray-400);
+      margin-top: 0.25rem;
+    }
+
+    /* Gender toggle */
+    .gender-toggle {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .gender-btn {
+      flex: 1;
+      padding: 0.6rem;
+      border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius-sm);
+      background: #fff;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--gray-600);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-align: center;
+    }
+    .gender-btn.active {
+      border-color: var(--primary-500);
+      background: var(--primary-50);
+      color: var(--primary-700);
+      font-weight: 600;
+    }
+    .gender-btn:hover:not(.active) { border-color: var(--gray-300); }
+
+    /* Specialty selector */
+    .specialty-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+    }
+
+    .specialty-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.75rem 0.5rem;
+      border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius-md);
+      background: #fff;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+    }
+    .specialty-chip:hover { border-color: var(--gray-300); transform: translateY(-1px); }
+    .specialty-chip.active {
+      border-color: var(--primary-500);
+      background: var(--primary-50);
+      box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.08);
+    }
+    .specialty-chip .icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+    }
+    .specialty-chip .label {
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: var(--gray-600);
+      line-height: 1.2;
+    }
+    .specialty-chip.active .label { color: var(--primary-700); font-weight: 600; }
+
+    /* ========== STEP 2 — QR CODE / POSTER ========== */
+    .poster-preview {
+      background: #fff;
+      border: 2px solid var(--gray-200);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      text-align: center;
+      box-shadow: var(--shadow-md);
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+    .poster-preview::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: linear-gradient(90deg, var(--primary-500), var(--primary-400), var(--primary-600));
+    }
+
+    .poster-clinic-name {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--gray-900);
+      margin-top: 0.75rem;
+      margin-bottom: 0.15rem;
+    }
+
+    .poster-doctor-name {
+      font-size: 0.85rem;
+      color: var(--primary-600);
+      font-weight: 500;
+      margin-bottom: 1rem;
+    }
+
+    .poster-specialty-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      background: var(--primary-50);
+      color: var(--primary-700);
+      padding: 0.3rem 0.75rem;
+      border-radius: var(--radius-pill);
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    .qr-code-container {
+      width: 160px;
+      height: 160px;
+      margin: 0 auto 0.75rem;
+      background: #fff;
+      border: 2px solid var(--gray-100);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .qr-code-svg {
+      width: 140px;
+      height: 140px;
+    }
+
+    .poster-scan-text {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--gray-700);
+      margin-bottom: 0.25rem;
+    }
+
+    .poster-scan-subtext {
+      font-size: 0.7rem;
+      color: var(--gray-400);
+    }
+
+    .poster-blesaf-logo {
+      margin-top: 1rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--primary-500);
+      letter-spacing: 0.05em;
+    }
+
+    /* How it works steps */
+    .how-it-works {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    .how-step {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem;
+      background: var(--gray-50);
+      border-radius: var(--radius-md);
+    }
+
+    .how-step-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--primary-600);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .how-step-text {
+      font-size: 0.8rem;
+      color: var(--gray-700);
+      line-height: 1.4;
+    }
+    .how-step-text strong { color: var(--gray-900); }
+
+    /* Share buttons row */
+    .share-row {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    .share-row .btn-secondary { flex: 1; }
+
+    /* ========== STEP 3 — SIMULATION ========== */
+    .sim-header {
+      text-align: center;
+      padding: 1rem 0;
+    }
+    .sim-header .icon-circle {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--primary-50);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 0.75rem;
+    }
+    .sim-header .icon-circle .material-symbols-outlined {
+      font-size: 28px;
+      color: var(--primary-600);
+    }
+
+    .sim-instruction {
+      text-align: center;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--gray-800);
+      margin-bottom: 0.35rem;
+    }
+    .sim-instruction-sub {
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--gray-500);
+      margin-bottom: 1rem;
+    }
+
+    /* Patient card in simulation */
+    .sim-patient-card {
+      background: #fff;
+      border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+      transition: all 0.3s cubic-bezier(.32,.72,0,1);
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    .sim-patient-card.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .sim-patient-card.in-consultation {
+      border-color: var(--green-500);
+      background: var(--green-50);
+    }
+
+    .sim-patient-position {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-sm);
+      background: var(--primary-600);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .sim-patient-card.in-consultation .sim-patient-position {
+      background: var(--green-500);
+    }
+
+    .sim-patient-info { flex: 1; }
+    .sim-patient-name {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--gray-800);
+    }
+    .sim-patient-details {
+      font-size: 0.75rem;
+      color: var(--gray-500);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.15rem;
+    }
+
+    .sim-patient-status {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.2rem 0.6rem;
+      border-radius: var(--radius-pill);
+      background: var(--primary-50);
+      color: var(--primary-700);
+    }
+    .sim-patient-card.in-consultation .sim-patient-status {
+      background: var(--green-50);
+      color: var(--green-600);
+    }
+
+    /* Toast notification */
+    .toast {
+      position: absolute;
+      top: 60px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background: var(--gray-900);
+      color: #fff;
+      padding: 0.65rem 1rem;
+      border-radius: var(--radius-pill);
+      font-size: 0.8rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      z-index: 200;
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(.32,.72,0,1);
+      white-space: nowrap;
+      box-shadow: var(--shadow-lg);
+    }
+    .toast.visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    .toast .material-symbols-outlined { font-size: 18px; color: var(--green-500); }
+
+    /* SMS notification preview */
+    .sms-preview {
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-md);
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.4s cubic-bezier(.32,.72,0,1);
+    }
+    .sms-preview.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .sms-preview .sms-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-sm);
+      background: var(--blue-50);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .sms-preview .sms-icon .material-symbols-outlined {
+      font-size: 20px;
+      color: var(--blue-600);
+    }
+    .sms-preview .sms-content { flex: 1; }
+    .sms-preview .sms-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--gray-500);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      margin-bottom: 0.2rem;
+    }
+    .sms-preview .sms-text {
+      font-size: 0.8rem;
+      color: var(--gray-700);
+      line-height: 1.4;
+    }
+
+    /* Simulation call button */
+    .sim-call-btn {
+      width: 100%;
+      padding: 1rem;
+      background: var(--primary-600);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-md);
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      animation: pulse 2s infinite;
+      transition: all 0.15s ease;
+      margin-top: 0.75rem;
+    }
+    .sim-call-btn:hover { background: var(--primary-700); }
+    .sim-call-btn:active { transform: scale(0.98); animation: none; }
+    .sim-call-btn .material-symbols-outlined { font-size: 22px; }
+
+    /* ========== STEP 4 — DASHBOARD REVEAL ========== */
+    .dashboard-mock {
+      background: var(--gray-50);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+
+    .dashboard-topbar {
+      background: #fff;
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--gray-100);
+    }
+    .dashboard-topbar .logo {
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--primary-600);
+    }
+    .dashboard-topbar .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--primary-100);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .dashboard-topbar .avatar .material-symbols-outlined {
+      font-size: 18px;
+      color: var(--primary-600);
+    }
+
+    .dashboard-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+      padding: 0.75rem;
+    }
+
+    .stat-card-mini {
+      background: #fff;
+      border-radius: var(--radius-sm);
+      padding: 0.6rem;
+      text-align: center;
+    }
+    .stat-card-mini .stat-value {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--gray-800);
+    }
+    .stat-card-mini .stat-label {
+      font-size: 0.6rem;
+      color: var(--gray-500);
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+    }
+
+    .dashboard-queue-header {
+      padding: 0.5rem 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .dashboard-queue-header .title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--gray-700);
+    }
+
+    .dashboard-queue-list {
+      padding: 0 0.75rem 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    /* Trial banner */
+    .trial-banner {
+      background: linear-gradient(135deg, var(--primary-50), #fff);
+      border: 1px solid var(--primary-200);
+      border-radius: var(--radius-md);
+      padding: 0.75rem 1rem;
+      margin-top: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .trial-banner .trial-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--primary-100);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .trial-banner .trial-icon .material-symbols-outlined {
+      font-size: 20px;
+      color: var(--primary-600);
+    }
+    .trial-banner .trial-text {
+      font-size: 0.75rem;
+      color: var(--gray-700);
+      line-height: 1.4;
+    }
+    .trial-banner .trial-text strong { color: var(--primary-700); }
+
+    /* Test mode banner in dashboard */
+    .test-mode-banner {
+      background: var(--amber-50);
+      border: 1px solid #fde68a;
+      padding: 0.6rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      color: #92400e;
+      font-weight: 500;
+    }
+    .test-mode-banner .material-symbols-outlined {
+      font-size: 18px;
+      color: var(--amber-500);
+    }
+
+    /* ========== POST-ONBOARDING — CHECKLIST ========== */
+    .checklist-banner {
+      background: linear-gradient(135deg, var(--primary-50), var(--blue-50));
+      border: 1px solid var(--primary-200);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .checklist-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--gray-800);
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .checklist-title .material-symbols-outlined {
+      font-size: 20px;
+      color: var(--primary-600);
+    }
+
+    .checklist-item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.5rem 0;
+      font-size: 0.8rem;
+      color: var(--gray-600);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .checklist-circle {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid var(--gray-300);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.3s ease;
+    }
+    .checklist-circle .material-symbols-outlined {
+      font-size: 14px;
+      color: transparent;
+      transition: color 0.2s ease;
+    }
+
+    .checklist-item.completed .checklist-circle {
+      border-color: var(--green-500);
+      background: var(--green-500);
+    }
+    .checklist-item.completed .checklist-circle .material-symbols-outlined {
+      color: #fff;
+    }
+    .checklist-item.completed {
+      color: var(--gray-400);
+      text-decoration: line-through;
+    }
+
+    /* ========== COMPLETION MODAL ========== */
+    .modal-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 300;
+      padding: 1.5rem;
+    }
+    .modal-overlay.visible { display: flex; }
+
+    .modal-content {
+      background: #fff;
+      border-radius: var(--radius-xl);
+      padding: 2rem 1.5rem;
+      text-align: center;
+      width: 100%;
+      animation: bounceIn 0.5s cubic-bezier(.34,1.56,.64,1);
+      box-shadow: var(--shadow-xl);
+    }
+
+    .modal-emoji {
+      font-size: 3rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .modal-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--gray-900);
+      margin-bottom: 0.35rem;
+    }
+
+    .modal-subtitle {
+      font-size: 0.85rem;
+      color: var(--gray-500);
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+
+    .modal-email-preview {
+      background: var(--gray-50);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      margin-bottom: 1.25rem;
+      text-align: left;
+    }
+    .modal-email-preview .email-subject {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--gray-700);
+      margin-bottom: 0.35rem;
+    }
+    .modal-email-preview .email-body {
+      font-size: 0.7rem;
+      color: var(--gray-500);
+      line-height: 1.5;
+    }
+
+    /* ========== CONFETTI ========== */
+    .confetti-container {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 400;
+      overflow: hidden;
+    }
+    .confetti-piece {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+      animation: confettiFall linear forwards;
+    }
+
+    @keyframes confettiFall {
+      0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(750px) rotate(720deg); opacity: 0; }
+    }
+
+    /* ========== DESIGN NOTES PANEL ========== */
+    .design-notes {
+      position: fixed;
+      top: 1.5rem;
+      right: 1.5rem;
+      width: 320px;
+      background: #fff;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      padding: 1.25rem;
+      font-size: 0.8rem;
+      color: var(--gray-600);
+      line-height: 1.6;
+      max-height: calc(100vh - 3rem);
+      overflow-y: auto;
+    }
+    .design-notes h3 {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--gray-800);
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .design-notes h3 .material-symbols-outlined {
+      font-size: 18px;
+      color: var(--primary-600);
+    }
+    .design-notes .note-step {
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--gray-100);
+    }
+    .design-notes .note-step:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .design-notes .note-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--primary-600);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.25rem;
+    }
+    .design-notes ul {
+      padding-left: 1rem;
+      margin: 0;
+    }
+    .design-notes li { margin-bottom: 0.2rem; }
+    .design-notes .wow-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      background: var(--amber-50);
+      color: #92400e;
+      padding: 0.15rem 0.5rem;
+      border-radius: var(--radius-pill);
+      font-size: 0.65rem;
+      font-weight: 600;
+    }
+
+    @media (max-width: 900px) {
+      .design-notes { display: none; }
+    }
+
+    /* ========== CUSTOM SCROLLBAR ========== */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 2px; }
+  </style>
+</head>
+<body>
+
+<!-- ============ DESIGN NOTES PANEL ============ -->
+<div class="design-notes">
+  <h3>
+    <span class="material-symbols-outlined">design_services</span>
+    UX Recommendations Applied
+  </h3>
+
+  <div class="note-step">
+    <div class="note-label">Rec 1 — Lighten + Personalize</div>
+    <ul>
+      <li>Step 1 reduced from 5 fields to <strong>3 essential inputs</strong></li>
+      <li>Phone + consultation duration moved to Settings</li>
+      <li>Fun fact preview removed</li>
+      <li><span class="wow-tag">WOW</span> Personalization payoff in Step 2</li>
+    </ul>
+  </div>
+
+  <div class="note-step">
+    <div class="note-label">Rec 2 — Live Simulation</div>
+    <ul>
+      <li>Step 3 is now an <strong>interactive sandbox</strong></li>
+      <li>Doctor adds a test patient, calls them, sees SMS preview</li>
+      <li>Dashboard reveal with test data visible</li>
+      <li><span class="wow-tag">WOW</span> "I just ran my first digital queue"</li>
+    </ul>
+  </div>
+
+  <div class="note-step">
+    <div class="note-label">Rec 3 — First Morning Playbook</div>
+    <ul>
+      <li>Completion modal with evening email preview</li>
+      <li>Dashboard shows persistent <strong>3-item checklist</strong></li>
+      <li>Auto-completes when milestones are hit</li>
+      <li><span class="wow-tag">WOW</span> First real patient toast + weekly summary</li>
+    </ul>
+  </div>
+
+  <div class="note-step">
+    <div class="note-label" style="color: var(--gray-500);">Interaction Guide</div>
+    <ul>
+      <li>Fill fields and select specialty to enable "Continuer"</li>
+      <li>Step 2 reflects your inputs on the poster</li>
+      <li>Step 3: tap "Ajouter" then "Appeler suivant"</li>
+      <li>Click checklist items on the final dashboard</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ============ PHONE FRAME ============ -->
+<div class="phone-frame" id="phone">
+
+  <div class="phone-notch"></div>
+  <div class="phone-status-bar">
+    <span class="time">14:32</span>
+    <div class="icons">
+      <span class="material-symbols-outlined" style="font-size:14px">signal_cellular_alt</span>
+      <span class="material-symbols-outlined" style="font-size:14px">wifi</span>
+      <span class="material-symbols-outlined" style="font-size:14px">battery_5_bar</span>
+    </div>
+  </div>
+
+  <!-- Toast container -->
+  <div class="toast" id="toast">
+    <span class="material-symbols-outlined filled">check_circle</span>
+    <span id="toastText"></span>
+  </div>
+
+  <!-- Confetti container -->
+  <div class="confetti-container" id="confetti"></div>
+
+  <!-- ============ SCREEN 1 — CLINIC SETUP ============ -->
+  <div class="screen active" id="screen1">
+    <div class="progress-header">
+      <div class="progress-steps">
+        <div class="progress-dot active" id="dot1">1</div>
+        <div class="progress-line" id="line1"></div>
+        <div class="progress-dot" id="dot2">2</div>
+        <div class="progress-line" id="line2"></div>
+        <div class="progress-dot" id="dot3">3</div>
+      </div>
+      <div class="progress-label">Etape 1 sur 3 — Configuration</div>
+    </div>
+
+    <div class="screen-body">
+      <div class="screen-title">Bienvenue sur BleSaf</div>
+      <div class="screen-subtitle">Configurons votre cabinet en quelques secondes. Vous pourrez modifier ces informations plus tard.</div>
+
+      <div class="form-group">
+        <label class="form-label">Titre</label>
+        <div class="gender-toggle">
+          <button class="gender-btn active" onclick="selectGender(this, 'M')">Dr. (M.)</button>
+          <button class="gender-btn" onclick="selectGender(this, 'F')">Dr. (Mme)</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Votre nom</label>
+        <input type="text" class="form-input" id="doctorName" placeholder="ex: Amira Bouazizi" oninput="updateForm()">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Nom du cabinet</label>
+        <input type="text" class="form-input" id="clinicName" placeholder="ex: Centre Ophtalmo Bouazizi" oninput="updateForm()">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Specialite</label>
+        <div class="specialty-grid">
+          <div class="specialty-chip" onclick="selectSpecialty(this, 'Medecine Generale', 'stethoscope')">
+            <div class="icon" style="background: var(--blue-50);">
+              <span class="material-symbols-outlined" style="color: var(--blue-600); font-size: 20px;">stethoscope</span>
+            </div>
+            <span class="label">Medecine Generale</span>
+          </div>
+          <div class="specialty-chip" onclick="selectSpecialty(this, 'Ophtalmologie', 'visibility')">
+            <div class="icon" style="background: var(--purple-50);">
+              <span class="material-symbols-outlined" style="color: var(--purple-500); font-size: 20px;">visibility</span>
+            </div>
+            <span class="label">Ophtalmologie</span>
+          </div>
+          <div class="specialty-chip" onclick="selectSpecialty(this, 'Dentiste', 'dentistry')">
+            <div class="icon" style="background: var(--green-50);">
+              <span class="material-symbols-outlined" style="color: var(--green-600); font-size: 20px;">dentistry</span>
+            </div>
+            <span class="label">Dentiste</span>
+          </div>
+          <div class="specialty-chip" onclick="selectSpecialty(this, 'Pediatrie', 'child_care')">
+            <div class="icon" style="background: var(--amber-50);">
+              <span class="material-symbols-outlined" style="color: var(--amber-500); font-size: 20px;">child_care</span>
+            </div>
+            <span class="label">Pediatrie</span>
+          </div>
+          <div class="specialty-chip" onclick="selectSpecialty(this, 'Cardiologie', 'cardiology')">
+            <div class="icon" style="background: var(--red-50);">
+              <span class="material-symbols-outlined" style="color: var(--red-500); font-size: 20px;">cardiology</span>
+            </div>
+            <span class="label">Cardiologie</span>
+          </div>
+          <div class="specialty-chip" onclick="selectSpecialty(this, 'Autre', 'medical_services')">
+            <div class="icon" style="background: var(--gray-100);">
+              <span class="material-symbols-outlined" style="color: var(--gray-600); font-size: 20px;">medical_services</span>
+            </div>
+            <span class="label">Autre</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-hint" style="margin-top: 0.5rem; text-align: center; color: var(--gray-400);">
+        <span class="material-symbols-outlined" style="font-size: 14px; vertical-align: text-bottom;">info</span>
+        Telephone et duree de consultation configurables dans les parametres
+      </div>
+    </div>
+
+    <div class="screen-footer">
+      <button class="btn-primary" id="btn-step1" disabled onclick="goToStep(2)">
+        Continuer
+        <span class="material-symbols-outlined">arrow_forward</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN 2 — QR CODE + POSTER ============ -->
+  <div class="screen" id="screen2">
+    <div class="progress-header">
+      <div class="progress-steps">
+        <div class="progress-dot completed" id="dot1b"><span class="material-symbols-outlined">check</span></div>
+        <div class="progress-line active" id="line1b"></div>
+        <div class="progress-dot active" id="dot2b">2</div>
+        <div class="progress-line" id="line2b"></div>
+        <div class="progress-dot" id="dot3b">3</div>
+      </div>
+      <div class="progress-label">Etape 2 sur 3 — Votre QR Code</div>
+    </div>
+
+    <div class="screen-body">
+      <div class="screen-title" id="step2Greeting">Votre affiche est prete !</div>
+      <div class="screen-subtitle">Voici un apercu de l'affiche a afficher dans votre salle d'attente.</div>
+
+      <!-- Poster Preview -->
+      <div class="poster-preview" id="posterPreview">
+        <div class="poster-clinic-name" id="posterClinicName">Centre Ophtalmo Bouazizi</div>
+        <div class="poster-doctor-name" id="posterDoctorName">Dr. Amira Bouazizi</div>
+        <div class="poster-specialty-badge" id="posterSpecialty">
+          <span class="material-symbols-outlined" style="font-size: 14px;" id="posterSpecIcon">visibility</span>
+          <span id="posterSpecText">Ophtalmologie</span>
+        </div>
+
+        <div class="qr-code-container">
+          <!-- Stylized QR code SVG -->
+          <svg class="qr-code-svg" viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+            <!-- Position markers -->
+            <rect x="8" y="8" width="36" height="36" rx="4" fill="none" stroke="#0d9488" stroke-width="4"/>
+            <rect x="16" y="16" width="20" height="20" rx="2" fill="#0d9488"/>
+            <rect x="96" y="8" width="36" height="36" rx="4" fill="none" stroke="#0d9488" stroke-width="4"/>
+            <rect x="104" y="16" width="20" height="20" rx="2" fill="#0d9488"/>
+            <rect x="8" y="96" width="36" height="36" rx="4" fill="none" stroke="#0d9488" stroke-width="4"/>
+            <rect x="16" y="104" width="20" height="20" rx="2" fill="#0d9488"/>
+            <!-- Data modules (decorative) -->
+            <rect x="52" y="8" width="8" height="8" rx="1" fill="#374151"/>
+            <rect x="64" y="8" width="8" height="8" rx="1" fill="#374151"/>
+            <rect x="80" y="8" width="8" height="8" rx="1" fill="#374151"/>
+            <rect x="52" y="20" width="8" height="8" rx="1" fill="#374151"/>
+            <rect x="76" y="20" width="8" height="8" rx="1" fill="#374151"/>
+            <rect x="52" y="32" width="8" height="8" rx="1" fill="#374151"/>
+            <rect x="64" y="32" width="8" height="8" rx="1" fill="#374151"/>
+            <rect x="8" y="52" width="8" height="8" rx="1" fill="#374151"/>
+            <rect x="20" y="52" width="8" height="8" rx="1" fill="#374151"/>
+            <rect x="36" y="52" width="8" height="8" rx="1" fill="#374151"/>
+            <rect x="52" y="52" width="8" height="8" rx="1" fill="#374151"/>
+            <rect x="68" y="52" width="8" height="8" rx="1" fill="#374151"/>
+            <rect x="84" y="52" width="8" height="8" rx="1" fill="#374151"/>
+            <rect x="100" y="52" width="8" height="8" rx="1" fill="#374151"/>
+            <rect x="120" y="52" width="8" height="8" rx="1" fill="#374151"/>
+            <rect x="8" y="64" width="8" height="8" rx="1" fill="#374151"/>
+            <rect x="32" y="64" width="8" height="8" rx="1" fill="#374151"/>
+            <rect x="52" y="64" width="8" height="8" rx="1" fill="#374151"/>
+            <rect x="76" y="64" width="8" height="8" rx="1" fill="#374151"/>
+            <rect x="96" y="64" width="8" height="8" rx="1" fill="#374151"/>
+            <rect x="112" y="64" width="8" height="8" rx="1" fill="#374151"/>
+            <rect x="8" y="76" width="8" height="8" rx="1" fill="#374151"/>
+            <rect x="20" y="76" width="8" height="8" rx="1" fill="#374151"/>
+            <rect x="40" y="76" width="8" height="8" rx="1" fill="#374151"/>
+            <rect x="60" y="76" width="8" height="8" rx="1" fill="#374151"/>
+            <rect x="80" y="76" width="8" height="8" rx="1" fill="#374151"/>
+            <rect x="108" y="76" width="8" height="8" rx="1" fill="#374151"/>
+            <rect x="124" y="76" width="8" height="8" rx="1" fill="#374151"/>
+            <rect x="52" y="96" width="8" height="8" rx="1" fill="#374151"/>
+            <rect x="68" y="96" width="8" height="8" rx="1" fill="#374151"/>
+            <rect x="84" y="96" width="8" height="8" rx="1" fill="#374151"/>
+            <rect x="100" y="96" width="8" height="8" rx="1" fill="#374151"/>
+            <rect x="120" y="96" width="8" height="8" rx="1" fill="#374151"/>
+            <rect x="52" y="108" width="8" height="8" rx="1" fill="#374151"/>
+            <rect x="76" y="108" width="8" height="8" rx="1" fill="#374151"/>
+            <rect x="96" y="108" width="8" height="8" rx="1" fill="#374151"/>
+            <rect x="112" y="108" width="8" height="8" rx="1" fill="#374151"/>
+            <rect x="52" y="120" width="8" height="8" rx="1" fill="#374151"/>
+            <rect x="64" y="120" width="8" height="8" rx="1" fill="#374151"/>
+            <rect x="80" y="120" width="8" height="8" rx="1" fill="#374151"/>
+            <rect x="100" y="120" width="8" height="8" rx="1" fill="#374151"/>
+            <rect x="124" y="120" width="8" height="8" rx="1" fill="#374151"/>
+            <!-- Center logo area -->
+            <rect x="54" y="54" width="32" height="32" rx="6" fill="#fff"/>
+            <text x="70" y="75" text-anchor="middle" font-family="IBM Plex Sans" font-weight="700" font-size="14" fill="#0d9488">B</text>
+          </svg>
+        </div>
+
+        <div class="poster-scan-text">Scannez pour rejoindre la file d'attente</div>
+        <div class="poster-scan-subtext">Suivez votre position en temps reel</div>
+        <div class="poster-blesaf-logo">BLESAF</div>
+      </div>
+
+      <!-- How it works -->
+      <div class="how-it-works">
+        <div class="how-step" style="animation: slideUp 0.4s ease 0.1s both;">
+          <div class="how-step-num">1</div>
+          <div class="how-step-text"><strong>Imprimez</strong> l'affiche et placez-la dans votre salle d'attente</div>
+        </div>
+        <div class="how-step" style="animation: slideUp 0.4s ease 0.2s both;">
+          <div class="how-step-num">2</div>
+          <div class="how-step-text"><strong>Les patients scannent</strong> le QR code avec leur telephone</div>
+        </div>
+        <div class="how-step" style="animation: slideUp 0.4s ease 0.3s both;">
+          <div class="how-step-num">3</div>
+          <div class="how-step-text"><strong>Ils suivent</strong> leur position en temps reel</div>
+        </div>
+      </div>
+
+      <!-- Share / Download row -->
+      <div class="share-row">
+        <button class="btn-secondary" onclick="showToast('Affiche telechargee !')">
+          <span class="material-symbols-outlined">download</span>
+          Telecharger
+        </button>
+        <button class="btn-secondary" onclick="showToast('Lien copie !')">
+          <span class="material-symbols-outlined">share</span>
+          Partager
+        </button>
+        <button class="btn-secondary" onclick="showToast('Impression lancee !')">
+          <span class="material-symbols-outlined">print</span>
+          Imprimer
+        </button>
+      </div>
+    </div>
+
+    <div class="screen-footer">
+      <button class="btn-primary" onclick="goToStep(3)">
+        Continuer — Testons ensemble
+        <span class="material-symbols-outlined">arrow_forward</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN 3 — LIVE SIMULATION ============ -->
+  <div class="screen" id="screen3">
+    <div class="progress-header">
+      <div class="progress-steps">
+        <div class="progress-dot completed"><span class="material-symbols-outlined">check</span></div>
+        <div class="progress-line active"></div>
+        <div class="progress-dot completed"><span class="material-symbols-outlined">check</span></div>
+        <div class="progress-line active"></div>
+        <div class="progress-dot active">3</div>
+      </div>
+      <div class="progress-label">Etape 3 sur 3 — Essayez votre file</div>
+    </div>
+
+    <div class="screen-body">
+      <!-- Phase A: Add patient -->
+      <div id="simPhaseA">
+        <div class="sim-header">
+          <div class="icon-circle">
+            <span class="material-symbols-outlined filled">play_circle</span>
+          </div>
+        </div>
+        <div class="sim-instruction">Ajoutons un patient test</div>
+        <div class="sim-instruction-sub">Decouvrez comment fonctionne votre file d'attente</div>
+
+        <!-- Pre-filled patient form -->
+        <div style="background: var(--gray-50); border-radius: var(--radius-md); padding: 1rem; margin-bottom: 0.75rem;">
+          <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+            <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--primary-100); display: flex; align-items: center; justify-content: center;">
+              <span class="material-symbols-outlined" style="color: var(--primary-600);">person</span>
+            </div>
+            <div>
+              <div style="font-size: 0.9rem; font-weight: 600;">Sami B.</div>
+              <div style="font-size: 0.75rem; color: var(--gray-500);">+216 55 123 456</div>
+            </div>
+          </div>
+          <div style="font-size: 0.7rem; color: var(--gray-400); display: flex; align-items: center; gap: 0.3rem;">
+            <span class="material-symbols-outlined" style="font-size: 14px;">info</span>
+            Patient fictif — sera supprime automatiquement
+          </div>
+        </div>
+
+        <button class="btn-primary" onclick="simAddPatient()" id="btnAddPatient">
+          <span class="material-symbols-outlined">person_add</span>
+          Ajouter a la file
+        </button>
+      </div>
+
+      <!-- Phase B: Patient added, show queue -->
+      <div id="simPhaseB" style="display: none;">
+        <div class="sim-instruction">Votre file d'attente</div>
+        <div class="sim-instruction-sub" id="simPhaseBSub">1 patient en attente</div>
+
+        <div class="sim-patient-card" id="patientCard1">
+          <div class="sim-patient-position">1</div>
+          <div class="sim-patient-info">
+            <div class="sim-patient-name">Sami B.</div>
+            <div class="sim-patient-details">
+              <span class="material-symbols-outlined" style="font-size: 14px;">schedule</span>
+              A l'instant
+            </div>
+          </div>
+          <div class="sim-patient-status" id="patientStatus1">En attente</div>
+        </div>
+
+        <div id="callSection">
+          <button class="sim-call-btn" onclick="simCallPatient()" id="btnCallNext">
+            <span class="material-symbols-outlined">notifications_active</span>
+            Appeler suivant
+          </button>
+        </div>
+
+        <!-- SMS preview (hidden initially) -->
+        <div class="sms-preview" id="smsPreview">
+          <div class="sms-icon">
+            <span class="material-symbols-outlined">sms</span>
+          </div>
+          <div class="sms-content">
+            <div class="sms-label">Notification SMS envoyee</div>
+            <div class="sms-text">Sami B. a ete notifie par SMS que c'est son tour. Il peut se presenter au cabinet.</div>
+          </div>
+        </div>
+
+        <!-- Dashboard CTA (hidden initially) -->
+        <div id="dashboardCTA" style="display: none; margin-top: 1.25rem; text-align: center;">
+          <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🎉</div>
+          <div style="font-size: 1.1rem; font-weight: 700; color: var(--gray-800); margin-bottom: 0.25rem;">Bravo !</div>
+          <div style="font-size: 0.8rem; color: var(--gray-500); margin-bottom: 1rem; line-height: 1.5;">
+            Vous venez de gerer votre premiere file d'attente numerique.
+          </div>
+
+          <div class="trial-banner">
+            <div class="trial-icon">
+              <span class="material-symbols-outlined filled">card_giftcard</span>
+            </div>
+            <div class="trial-text">
+              <strong>30 jours d'essai gratuit</strong> + <strong>50 SMS offerts</strong><br>
+              Aucune carte bancaire requise
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen-footer" id="screen3Footer" style="display: none;">
+      <button class="btn-primary" onclick="goToStep(4)">
+        <span class="material-symbols-outlined">dashboard</span>
+        Voir mon tableau de bord
+      </button>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN 4 — DASHBOARD + CHECKLIST ============ -->
+  <div class="screen" id="screen4">
+    <div class="screen-body" style="padding: 0; background: var(--gray-50);">
+      <!-- Dashboard mock -->
+      <div class="dashboard-mock">
+        <div class="dashboard-topbar">
+          <div class="logo">BleSaf</div>
+          <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <span class="material-symbols-outlined" style="color: var(--gray-400); font-size: 22px; cursor: pointer;">notifications</span>
+            <div class="avatar">
+              <span class="material-symbols-outlined">person</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="test-mode-banner">
+          <span class="material-symbols-outlined">science</span>
+          Mode essai — Le patient test sera supprime automatiquement
+        </div>
+
+        <!-- Checklist banner -->
+        <div style="padding: 0.75rem;">
+          <div class="checklist-banner">
+            <div class="checklist-title">
+              <span class="material-symbols-outlined filled">rocket_launch</span>
+              Premiers pas avec BleSaf
+            </div>
+            <div class="checklist-item" id="check1" onclick="toggleCheck(1)">
+              <div class="checklist-circle"><span class="material-symbols-outlined">check</span></div>
+              Affichez le QR code dans votre salle d'attente
+            </div>
+            <div class="checklist-item" id="check2" onclick="toggleCheck(2)">
+              <div class="checklist-circle"><span class="material-symbols-outlined">check</span></div>
+              Votre premier patient s'enregistre
+            </div>
+            <div class="checklist-item" id="check3" onclick="toggleCheck(3)">
+              <div class="checklist-circle"><span class="material-symbols-outlined">check</span></div>
+              Vous appelez votre premier patient
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats row -->
+        <div class="dashboard-stats">
+          <div class="stat-card-mini">
+            <div class="stat-value">1</div>
+            <div class="stat-label">En attente</div>
+          </div>
+          <div class="stat-card-mini">
+            <div class="stat-value">0</div>
+            <div class="stat-label">Consultes</div>
+          </div>
+          <div class="stat-card-mini">
+            <div class="stat-value" style="color: var(--green-500);">~0m</div>
+            <div class="stat-label">Attente moy.</div>
+          </div>
+        </div>
+
+        <!-- Queue list -->
+        <div class="dashboard-queue-header">
+          <div class="title">File d'attente</div>
+          <button style="border: none; background: var(--primary-50); color: var(--primary-600); padding: 0.35rem 0.75rem; border-radius: var(--radius-pill); font-size: 0.75rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.3rem;">
+            <span class="material-symbols-outlined" style="font-size: 16px;">person_add</span>
+            Ajouter
+          </button>
+        </div>
+
+        <div class="dashboard-queue-list">
+          <!-- Test patient card in dashboard -->
+          <div style="background: #fff; border-radius: var(--radius-md); padding: 0.75rem; display: flex; align-items: center; gap: 0.75rem; box-shadow: var(--shadow-sm); border-left: 3px solid var(--green-500);">
+            <div style="width: 36px; height: 36px; border-radius: var(--radius-sm); background: var(--green-50); color: var(--green-600); display: flex; align-items: center; justify-content: center; font-weight: 700;">1</div>
+            <div style="flex: 1;">
+              <div style="font-size: 0.85rem; font-weight: 600;">Sami B.</div>
+              <div style="font-size: 0.7rem; color: var(--gray-500); display: flex; align-items: center; gap: 0.3rem;">
+                <span class="material-symbols-outlined" style="font-size: 12px;">schedule</span>
+                Il y a 2 min
+              </div>
+            </div>
+            <div style="font-size: 0.65rem; font-weight: 600; padding: 0.2rem 0.5rem; border-radius: var(--radius-pill); background: var(--green-50); color: var(--green-600);">En consultation</div>
+          </div>
+        </div>
+
+        <!-- Evening email preview section -->
+        <div style="padding: 0.75rem;">
+          <div style="background: #fff; border-radius: var(--radius-md); padding: 1rem; box-shadow: var(--shadow-sm);">
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+              <span class="material-symbols-outlined" style="font-size: 18px; color: var(--primary-600);">mail</span>
+              <span style="font-size: 0.75rem; font-weight: 600; color: var(--gray-700);">Email programme ce soir</span>
+            </div>
+            <div style="background: var(--gray-50); border-radius: var(--radius-sm); padding: 0.75rem; font-size: 0.7rem; color: var(--gray-500); line-height: 1.5;">
+              <div style="font-weight: 600; color: var(--gray-700); margin-bottom: 0.25rem;" id="emailSubject">
+                Dr. Bouazizi, tout est pret pour demain
+              </div>
+              <div>Contient : checklist du matin + votre affiche QR en piece jointe</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Weekly summary preview -->
+        <div style="padding: 0 0.75rem 1rem;">
+          <div style="background: linear-gradient(135deg, var(--primary-700), var(--primary-800)); border-radius: var(--radius-md); padding: 1rem; color: #fff;">
+            <div style="font-size: 0.7rem; font-weight: 600; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.5rem;">Apercu — Email de fin de semaine</div>
+            <div style="font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem;">Cette semaine avec BleSaf</div>
+            <div style="display: flex; gap: 1rem; margin-top: 0.75rem;">
+              <div>
+                <div style="font-size: 1.5rem; font-weight: 700;">23</div>
+                <div style="font-size: 0.65rem; opacity: 0.7;">patients geres</div>
+              </div>
+              <div>
+                <div style="font-size: 1.5rem; font-weight: 700;">34 min</div>
+                <div style="font-size: 0.65rem; opacity: 0.7;">temps gagne</div>
+              </div>
+              <div>
+                <div style="font-size: 1.5rem; font-weight: 700;">4.8/5</div>
+                <div style="font-size: 0.65rem; opacity: 0.7;">satisfaction</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ COMPLETION MODAL ============ -->
+  <div class="modal-overlay" id="completionModal">
+    <div class="modal-content">
+      <div class="modal-emoji">🎉</div>
+      <div class="modal-title" id="modalTitle">Felicitations !</div>
+      <div class="modal-subtitle">
+        Votre cabinet est configure et pret a accueillir des patients numeriquement.
+        Nous vous envoyons un petit guide pour demain matin.
+      </div>
+
+      <div class="modal-email-preview">
+        <div class="email-subject" id="modalEmailSubject">
+          📧 Ce soir a 20h : "Tout est pret pour demain"
+        </div>
+        <div class="email-body">
+          Contient votre affiche QR en piece jointe,<br>
+          une checklist pour le premier matin,<br>
+          et un lien direct vers votre tableau de bord.
+        </div>
+      </div>
+
+      <button class="btn-primary" onclick="closeModal()">
+        <span class="material-symbols-outlined">dashboard</span>
+        Explorer mon tableau de bord
+      </button>
+    </div>
+  </div>
+
+</div><!-- end phone-frame -->
+
+
+<script>
+  // ========== STATE ==========
+  let state = {
+    gender: 'M',
+    doctorName: '',
+    clinicName: '',
+    specialty: '',
+    specialtyIcon: '',
+    currentStep: 1,
+  };
+
+  // ========== STEP 1 INTERACTIONS ==========
+  function selectGender(btn, gender) {
+    document.querySelectorAll('.gender-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    state.gender = gender;
+    updateForm();
+  }
+
+  function selectSpecialty(chip, name, icon) {
+    document.querySelectorAll('.specialty-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    state.specialty = name;
+    state.specialtyIcon = icon;
+    updateForm();
+  }
+
+  function updateForm() {
+    state.doctorName = document.getElementById('doctorName').value.trim();
+    state.clinicName = document.getElementById('clinicName').value.trim();
+
+    // Update input styling
+    document.getElementById('doctorName').classList.toggle('has-value', state.doctorName.length > 0);
+    document.getElementById('clinicName').classList.toggle('has-value', state.clinicName.length > 0);
+
+    // Enable/disable continue button
+    const isValid = state.doctorName && state.clinicName && state.specialty;
+    document.getElementById('btn-step1').disabled = !isValid;
+  }
+
+  // ========== NAVIGATION ==========
+  function goToStep(step) {
+    // Hide all screens
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+
+    if (step === 2) {
+      // Update poster with user data
+      const prefix = state.gender === 'M' ? 'Dr.' : 'Dr.';
+      document.getElementById('posterClinicName').textContent = state.clinicName;
+      document.getElementById('posterDoctorName').textContent = `${prefix} ${state.doctorName}`;
+      document.getElementById('posterSpecText').textContent = state.specialty;
+      document.getElementById('step2Greeting').textContent = `${prefix} ${state.doctorName}, votre affiche est prete !`;
+
+      // Update email subject in dashboard too
+      const lastName = state.doctorName.split(' ').pop();
+      document.getElementById('emailSubject').textContent = `Dr. ${lastName}, tout est pret pour demain`;
+      document.getElementById('modalTitle').textContent = `Felicitations, Dr. ${lastName} !`;
+      document.getElementById('modalEmailSubject').textContent = `📧 Ce soir a 20h : "Dr. ${lastName}, tout est pret pour demain"`;
+
+      document.getElementById('screen2').classList.add('active');
+    } else if (step === 3) {
+      document.getElementById('screen3').classList.add('active');
+    } else if (step === 4) {
+      document.getElementById('screen4').classList.add('active');
+      // Show completion modal after a beat
+      setTimeout(() => {
+        document.getElementById('completionModal').classList.add('visible');
+        triggerConfetti();
+      }, 600);
+    }
+
+    state.currentStep = step;
+  }
+
+  // ========== SIMULATION ==========
+  function simAddPatient() {
+    const btn = document.getElementById('btnAddPatient');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 1s linear infinite;">progress_activity</span> Ajout en cours...';
+
+    setTimeout(() => {
+      // Hide phase A, show phase B
+      document.getElementById('simPhaseA').style.display = 'none';
+      document.getElementById('simPhaseB').style.display = 'block';
+
+      // Animate patient card in
+      setTimeout(() => {
+        document.getElementById('patientCard1').classList.add('visible');
+        showToast('Sami est en file d\'attente');
+      }, 100);
+    }, 800);
+  }
+
+  function simCallPatient() {
+    const btn = document.getElementById('btnCallNext');
+    btn.disabled = true;
+    btn.style.animation = 'none';
+    btn.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 1s linear infinite;">progress_activity</span> Notification en cours...';
+
+    setTimeout(() => {
+      // Update patient card to "in consultation"
+      const card = document.getElementById('patientCard1');
+      card.classList.add('in-consultation');
+      document.getElementById('patientStatus1').textContent = 'En consultation';
+      document.getElementById('simPhaseBSub').textContent = '0 en attente · 1 en consultation';
+
+      // Hide call button
+      document.getElementById('callSection').style.display = 'none';
+
+      // Show SMS preview
+      setTimeout(() => {
+        document.getElementById('smsPreview').classList.add('visible');
+        showToast('Sami a ete notifie par SMS');
+      }, 300);
+
+      // Show dashboard CTA
+      setTimeout(() => {
+        document.getElementById('dashboardCTA').style.display = 'block';
+        document.getElementById('dashboardCTA').style.animation = 'slideUp 0.5s cubic-bezier(.32,.72,0,1) both';
+        document.getElementById('screen3Footer').style.display = 'block';
+        document.getElementById('screen3Footer').style.animation = 'slideUp 0.3s ease both';
+      }, 1000);
+    }, 1200);
+  }
+
+  // ========== TOAST ==========
+  function showToast(text) {
+    const toast = document.getElementById('toast');
+    document.getElementById('toastText').textContent = text;
+    toast.classList.add('visible');
+    setTimeout(() => toast.classList.remove('visible'), 2500);
+  }
+
+  // ========== CHECKLIST ==========
+  function toggleCheck(num) {
+    const item = document.getElementById('check' + num);
+    item.classList.toggle('completed');
+  }
+
+  // ========== MODAL ==========
+  function closeModal() {
+    document.getElementById('completionModal').classList.remove('visible');
+  }
+
+  // ========== CONFETTI ==========
+  function triggerConfetti() {
+    const container = document.getElementById('confetti');
+    const colors = ['#14b8a6', '#f59e0b', '#ef4444', '#3b82f6', '#a855f7', '#10b981', '#ec4899'];
+
+    for (let i = 0; i < 50; i++) {
+      const piece = document.createElement('div');
+      piece.className = 'confetti-piece';
+      piece.style.left = Math.random() * 100 + '%';
+      piece.style.top = '-10px';
+      piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+      piece.style.width = (Math.random() * 6 + 4) + 'px';
+      piece.style.height = (Math.random() * 6 + 4) + 'px';
+      piece.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
+      piece.style.animationDelay = (Math.random() * 0.8) + 's';
+      piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+      container.appendChild(piece);
+    }
+
+    setTimeout(() => { container.innerHTML = ''; }, 4000);
+  }
+
+  // ========== CSS ANIMATION HELPER ==========
+  const style = document.createElement('style');
+  style.textContent = `@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`;
+  document.head.appendChild(style);
+</script>
+
+</body>
+</html>

@@ -281,3 +281,61 @@ tr:nth-child(10).queue-row-shift { animation-delay: 450ms; }
   animation: recap-progress 15s linear forwards;
 }
 
+/* ─── Landing Page Scroll-Reveal Animations ─────────────── */
+html {
+  scroll-behavior: smooth;
+}
+
+section[id] {
+  scroll-margin-top: 5rem;
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Staggered hero entrance */
+@keyframes hero-enter {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-stagger-1 { animation: hero-enter 0.6s ease-out 0.1s both; }
+.hero-stagger-2 { animation: hero-enter 0.6s ease-out 0.3s both; }
+.hero-stagger-3 { animation: hero-enter 0.6s ease-out 0.5s both; }
+.hero-stagger-4 { animation: hero-enter 0.6s ease-out 0.7s both; }
+
+/* Hero floating bubble animations */
+@keyframes hero-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+.hero-float-anim {
+  animation: hero-float 3s ease-in-out infinite;
+}
+.hero-float-anim-delayed {
+  animation: hero-float 3s ease-in-out 1s infinite;
+}
+
+/* Patient position number enter animation */
+@keyframes position-change {
+  0% { transform: scale(1.3); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.position-enter {
+  animation: position-change 0.5s ease-out forwards;
+}
+

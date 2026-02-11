@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Announcement Overlay Designs — DoctorQ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: #f3f4f6; color: #1f2937; }
+
+    /* ── Nav ─────────────────────────────────── */
+    .nav { position: sticky; top: 0; z-index: 100; background: #fff; border-bottom: 1px solid #e5e7eb; padding: 12px 16px; }
+    .nav h1 { font-size: 15px; font-weight: 700; margin-bottom: 10px; text-align: center; color: #374151; }
+    .nav-tabs { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+    .nav-tabs::-webkit-scrollbar { display: none; }
+    .nav-tab {
+      flex-shrink: 0; padding: 8px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;
+      border: 2px solid #e5e7eb; background: #fff; color: #6b7280; cursor: pointer; transition: all .2s;
+    }
+    .nav-tab.active { background: #0d9488; color: #fff; border-color: #0d9488; }
+    .nav-tab:hover:not(.active) { border-color: #0d9488; color: #0d9488; }
+
+    /* ── Phone frame ─────────────────────────── */
+    .phone-container { display: flex; justify-content: center; padding: 24px 16px 40px; }
+    .phone-frame {
+      width: 375px; height: 720px; border-radius: 40px; overflow: hidden;
+      box-shadow: 0 25px 60px rgba(0,0,0,.18), 0 0 0 8px #1f2937, 0 0 0 10px #374151;
+      position: relative; background: #f0fdfa;
+    }
+
+    /* ── Fake patient status page behind overlays ─ */
+    .status-page {
+      position: absolute; inset: 0; padding: 48px 20px 20px;
+      background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 50%, #99f6e4 100%);
+      display: flex; flex-direction: column; align-items: center; gap: 14px;
+    }
+    .status-page .clinic-name { font-size: 11px; font-weight: 500; color: #5eead4; letter-spacing: .5px; text-transform: uppercase; }
+    .status-page .status-title { font-size: 22px; font-weight: 700; color: #134e4a; text-align: center; }
+    .status-page .ticket {
+      width: 120px; height: 120px; border-radius: 24px; background: #fff;
+      box-shadow: 0 4px 24px rgba(13,148,136,.15); display: flex; flex-direction: column;
+      align-items: center; justify-content: center; margin-top: 4px;
+    }
+    .status-page .ticket .pos-label { font-size: 10px; font-weight: 600; color: #99f6e4; text-transform: uppercase; letter-spacing: 1px; }
+    .status-page .ticket .pos-num { font-size: 48px; font-weight: 800; color: #0d9488; line-height: 1; }
+    .status-page .wait-card {
+      background: #fff; border-radius: 16px; padding: 14px 20px; width: 100%;
+      box-shadow: 0 2px 12px rgba(0,0,0,.06); display: flex; align-items: center; gap: 12px;
+    }
+    .status-page .wait-card .material-symbols-outlined { font-size: 28px; color: #14b8a6; }
+    .status-page .wait-card .wait-text { font-size: 13px; color: #374151; }
+    .status-page .wait-card .wait-text strong { font-weight: 700; color: #0f766e; }
+    .status-page .journey-bar {
+      display: flex; gap: 6px; align-items: center; width: 100%; justify-content: center; margin-top: 4px;
+    }
+    .status-page .journey-dot {
+      width: 10px; height: 10px; border-radius: 50%; background: #99f6e4;
+    }
+    .status-page .journey-dot.active { background: #0d9488; width: 12px; height: 12px; }
+    .status-page .journey-line { width: 40px; height: 3px; background: #ccfbf1; border-radius: 2px; }
+
+    /* current banner (for reference) */
+    .current-banner {
+      background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px;
+      padding: 10px 14px; display: flex; align-items: center; gap: 8px; width: 100%;
+    }
+    .current-banner .material-symbols-outlined { font-size: 18px; color: #1e40af; font-variation-settings: 'FILL' 1; }
+    .current-banner span:last-child { font-size: 13px; font-weight: 500; color: #1e40af; }
+
+    /* ── Design panels (hidden by default) ────── */
+    .design-panel { display: none; }
+    .design-panel.active { display: block; }
+
+    /* ── Shared overlay pieces ────────────────── */
+    .scrim {
+      position: absolute; inset: 0; z-index: 10;
+      transition: opacity .3s ease;
+    }
+    .announce-icon {
+      width: 52px; height: 52px; border-radius: 50%; display: flex;
+      align-items: center; justify-content: center; margin: 0 auto 12px;
+    }
+    .announce-icon .material-symbols-outlined { font-size: 28px; font-variation-settings: 'FILL' 1, 'wght' 500; }
+    .announce-title { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+    .announce-msg { font-size: 14px; line-height: 1.55; margin-bottom: 20px; }
+    .announce-time { font-size: 11px; opacity: .6; margin-bottom: 16px; display: flex; align-items: center; gap: 4px; }
+    .announce-time .material-symbols-outlined { font-size: 14px; }
+    .btn-dismiss {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 12px 28px; border-radius: 14px; font-size: 14px; font-weight: 600;
+      cursor: pointer; border: none; transition: transform .15s, box-shadow .15s;
+    }
+    .btn-dismiss:active { transform: scale(.97); }
+
+    /* ─────────────────────────────────────────── */
+    /* DESIGN 1 — Bottom Sheet                     */
+    /* ─────────────────────────────────────────── */
+    .d1-scrim { background: rgba(0,0,0,.40); }
+    .d1-sheet {
+      position: absolute; bottom: 0; left: 0; right: 0; z-index: 11;
+      height: 60%; background: #fff; border-radius: 24px 24px 0 0;
+      padding: 12px 24px 32px; display: flex; flex-direction: column;
+      transform: translateY(0);
+      animation: d1SlideUp .45s cubic-bezier(.32,.72,0,1) both;
+    }
+    @keyframes d1SlideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .d1-handle { width: 40px; height: 4px; border-radius: 4px; background: #d1d5db; margin: 0 auto 20px; flex-shrink: 0; }
+    .d1-sheet .announce-icon { background: #dbeafe; }
+    .d1-sheet .announce-icon .material-symbols-outlined { color: #2563eb; }
+    .d1-sheet .announce-title { color: #111827; text-align: center; }
+    .d1-sheet .announce-msg { color: #4b5563; text-align: center; flex: 1; }
+    .d1-sheet .announce-time { color: #6b7280; justify-content: center; }
+    .d1-sheet .btn-dismiss { background: #2563eb; color: #fff; width: 100%; box-shadow: 0 4px 14px rgba(37,99,235,.3); }
+
+    /* ─────────────────────────────────────────── */
+    /* DESIGN 2 — Glassmorphism Modal              */
+    /* ─────────────────────────────────────────── */
+    .d2-scrim { background: rgba(0,0,0,.25); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+    .d2-modal-wrap {
+      position: absolute; inset: 0; z-index: 11; display: flex;
+      align-items: center; justify-content: center; padding: 20px;
+    }
+    .d2-card {
+      background: rgba(255,255,255,.22); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255,255,255,.35); border-radius: 24px;
+      padding: 28px 24px; width: 100%; max-width: 340px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.12);
+      animation: d2PopIn .35s cubic-bezier(.34,1.56,.64,1) both;
+      text-align: center;
+    }
+    @keyframes d2PopIn { from { opacity: 0; transform: scale(.88) translateY(12px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+    .d2-card .announce-icon { background: rgba(255,255,255,.3); border: 1px solid rgba(255,255,255,.4); }
+    .d2-card .announce-icon .material-symbols-outlined { color: #fff; }
+    .d2-card .announce-title { color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,.15); }
+    .d2-card .announce-msg { color: rgba(255,255,255,.9); text-shadow: 0 1px 2px rgba(0,0,0,.1); }
+    .d2-card .announce-time { color: rgba(255,255,255,.65); justify-content: center; }
+    .d2-card .btn-dismiss { background: rgba(255,255,255,.25); color: #fff; border: 1px solid rgba(255,255,255,.4); backdrop-filter: blur(4px); }
+    .d2-card .btn-dismiss:hover { background: rgba(255,255,255,.35); }
+
+    /* ─────────────────────────────────────────── */
+    /* DESIGN 3 — Slide-Down Gradient Panel        */
+    /* ─────────────────────────────────────────── */
+    .d3-panel {
+      position: absolute; top: 0; left: 0; right: 0; z-index: 11;
+      height: 60%; display: flex; flex-direction: column; justify-content: center;
+      align-items: center; padding: 40px 24px 60px; text-align: center;
+      background: linear-gradient(170deg, #1e40af 0%, #3b82f6 55%, rgba(59,130,246,.82) 100%);
+      animation: d3SlideDown .5s cubic-bezier(.22,1,.36,1) both;
+    }
+    @keyframes d3SlideDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }
+    .d3-panel::after {
+      content: ''; position: absolute; bottom: -40px; left: 0; right: 0; height: 60px;
+      background: linear-gradient(to bottom, rgba(59,130,246,.5), transparent);
+      pointer-events: none;
+    }
+    .d3-panel .announce-icon { background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.25); }
+    .d3-panel .announce-icon .material-symbols-outlined { color: #fff; }
+    .d3-panel .d3-title {
+      font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 8px;
+      animation: d3FadeIn .4s .15s ease both;
+    }
+    .d3-panel .d3-msg {
+      font-size: 14px; color: rgba(255,255,255,.88); line-height: 1.6; margin-bottom: 8px;
+      animation: d3FadeIn .4s .25s ease both;
+    }
+    .d3-panel .announce-time { color: rgba(255,255,255,.5); justify-content: center; animation: d3FadeIn .4s .3s ease both; }
+    .d3-panel .btn-dismiss {
+      background: rgba(255,255,255,.2); color: #fff; border: 1.5px solid rgba(255,255,255,.4);
+      animation: d3FadeIn .4s .35s ease both; margin-top: 8px;
+    }
+    @keyframes d3FadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+    .d3-close {
+      position: absolute; top: 14px; right: 14px; width: 32px; height: 32px;
+      border-radius: 50%; background: rgba(255,255,255,.15); border: none;
+      color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      font-size: 18px; transition: background .2s;
+    }
+    .d3-close:hover { background: rgba(255,255,255,.25); }
+
+    /* ─────────────────────────────────────────── */
+    /* DESIGN 4 — Split-Screen                     */
+    /* ─────────────────────────────────────────── */
+    .d4-wrapper { position: absolute; inset: 0; display: flex; flex-direction: column; z-index: 11; }
+    .d4-top {
+      height: 60%; flex-shrink: 0; background: linear-gradient(135deg, #0f766e, #0d9488, #14b8a6);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 32px 24px; text-align: center; position: relative; overflow: hidden;
+      animation: d4Expand .5s ease both;
+    }
+    @keyframes d4Expand { from { height: 0; } to { height: 60%; } }
+    .d4-top::after {
+      content: ''; position: absolute; bottom: -20px; left: -10%; right: -10%;
+      height: 50px; background: #f0fdfa; border-radius: 50% 50% 0 0;
+    }
+    .d4-top .announce-icon { background: rgba(255,255,255,.2); border: 1px solid rgba(255,255,255,.3); }
+    .d4-top .announce-icon .material-symbols-outlined { color: #fff; }
+    .d4-top .announce-title { color: #fff; font-size: 17px; }
+    .d4-top .announce-msg { color: rgba(255,255,255,.9); }
+    .d4-top .announce-time { color: rgba(255,255,255,.5); justify-content: center; }
+    .d4-top .btn-dismiss { background: #fff; color: #0f766e; font-weight: 700; box-shadow: 0 4px 16px rgba(0,0,0,.12); }
+    .d4-bottom {
+      flex: 1; background: #f0fdfa; overflow: hidden; position: relative;
+    }
+    .d4-mini-status {
+      padding: 24px 20px; display: flex; flex-direction: column; align-items: center; gap: 10px;
+      transform: scale(.92); transform-origin: top center; opacity: .85;
+    }
+    .d4-mini-status .mini-label { font-size: 10px; color: #5eead4; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
+    .d4-mini-status .mini-ticket {
+      width: 72px; height: 72px; border-radius: 16px; background: #fff;
+      box-shadow: 0 2px 12px rgba(0,0,0,.08); display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+    }
+    .d4-mini-status .mini-ticket .pos-num { font-size: 32px; font-weight: 800; color: #0d9488; }
+    .d4-mini-status .mini-ticket .pos-label { font-size: 8px; font-weight: 600; color: #99f6e4; text-transform: uppercase; }
+    .d4-mini-status .mini-wait { font-size: 11px; color: #6b7280; }
+
+    /* ─────────────────────────────────────────── */
+    /* DESIGN 5 — Card Stack                       */
+    /* ─────────────────────────────────────────── */
+    .d5-scrim { background: rgba(0,0,0,.40); }
+    .d5-stack-wrap {
+      position: absolute; inset: 0; z-index: 11; display: flex;
+      align-items: center; justify-content: center; padding: 20px;
+    }
+    .d5-stack { position: relative; width: 100%; max-width: 330px; height: 380px; }
+    .d5-card-back-2 {
+      position: absolute; inset: 0; background: #e5e7eb; border-radius: 20px;
+      transform: scale(.88) translateY(20px); opacity: .25; z-index: 1;
+      animation: d5CardIn .4s .05s cubic-bezier(.34,1.56,.64,1) both;
+    }
+    .d5-card-back-1 {
+      position: absolute; inset: 0; background: #f3f4f6; border-radius: 20px;
+      transform: scale(.94) translateY(10px); opacity: .5; z-index: 2;
+      animation: d5CardIn .4s .15s cubic-bezier(.34,1.56,.64,1) both;
+    }
+    .d5-card-front {
+      position: absolute; inset: 0; background: #fff; border-radius: 20px; z-index: 3;
+      box-shadow: 0 12px 40px rgba(0,0,0,.14); padding: 28px 24px;
+      display: flex; flex-direction: column; align-items: center; text-align: center;
+      animation: d5CardIn .45s .25s cubic-bezier(.34,1.56,.64,1) both;
+    }
+    @keyframes d5CardIn { from { opacity: 0; transform: scale(.8) translateY(80px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+    .d5-card-front .announce-icon { background: #fef3c7; }
+    .d5-card-front .announce-icon .material-symbols-outlined { color: #d97706; }
+    .d5-card-front .announce-title { color: #111827; }
+    .d5-card-front .announce-msg { color: #4b5563; flex: 1; }
+    .d5-card-front .announce-time { color: #9ca3af; justify-content: center; }
+    .d5-card-front .btn-dismiss { background: #f59e0b; color: #fff; width: 100%; box-shadow: 0 4px 14px rgba(245,158,11,.3); }
+    .d5-swipe-hint {
+      position: absolute; bottom: -32px; left: 0; right: 0; text-align: center;
+      font-size: 11px; color: rgba(255,255,255,.6); z-index: 4;
+      animation: d5FadeIn .4s .6s ease both;
+    }
+    @keyframes d5FadeIn { from { opacity: 0; } to { opacity: 1; } }
+    /* Floating idle animation */
+    .d5-stack { animation: d5Float 3s ease-in-out infinite; }
+    @keyframes d5Float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+
+    /* ── Description cards ─────────────────────── */
+    .desc-section { max-width: 500px; margin: 0 auto; padding: 0 20px 32px; }
+    .desc-card {
+      background: #fff; border-radius: 16px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.06);
+      border: 1px solid #e5e7eb;
+    }
+    .desc-card h3 { font-size: 15px; font-weight: 700; color: #111827; margin-bottom: 4px; }
+    .desc-card .desc-sub { font-size: 12px; color: #6b7280; margin-bottom: 12px; }
+    .desc-card ul { list-style: none; padding: 0; }
+    .desc-card li {
+      font-size: 13px; color: #374151; padding: 5px 0; padding-left: 20px;
+      position: relative; line-height: 1.45;
+    }
+    .desc-card li::before { content: ''; position: absolute; left: 0; top: 12px; width: 6px; height: 6px; border-radius: 50%; background: #0d9488; }
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 600; margin-right: 4px; }
+    .tag-low { background: #d1fae5; color: #065f46; }
+    .tag-med { background: #fef3c7; color: #92400e; }
+    .tag-high { background: #fee2e2; color: #991b1b; }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════ NAV ═══════════ -->
+<nav class="nav">
+  <h1>Announcement Overlay Designs</h1>
+  <div class="nav-tabs">
+    <button class="nav-tab" data-tab="current">Current</button>
+    <button class="nav-tab active" data-tab="d1">1 — Bottom Sheet</button>
+    <button class="nav-tab" data-tab="d2">2 — Glassmorphism</button>
+    <button class="nav-tab" data-tab="d3">3 — Slide-Down</button>
+    <button class="nav-tab" data-tab="d4">4 — Split-Screen</button>
+    <button class="nav-tab" data-tab="d5">5 — Card Stack</button>
+  </div>
+</nav>
+
+<!-- ═══════════ PHONE FRAMES ═══════════ -->
+
+<!-- ── CURRENT (reference) ── -->
+<div class="design-panel" id="panel-current">
+  <div class="phone-container">
+    <div class="phone-frame">
+      <div class="status-page">
+        <span class="clinic-name">Cabinet Dr Skander Kamoun</span>
+        <div class="status-title">Vous approchez!</div>
+        <div class="current-banner">
+          <span class="material-symbols-outlined">campaign</span>
+          <span>En retard, délai estimé 15 minutes</span>
+        </div>
+        <div class="ticket">
+          <span class="pos-label">Position</span>
+          <span class="pos-num">#3</span>
+        </div>
+        <div class="wait-card">
+          <span class="material-symbols-outlined">schedule</span>
+          <div class="wait-text">Attente estimée: <strong>~20 min</strong></div>
+        </div>
+        <div class="journey-bar">
+          <div class="journey-dot"></div><div class="journey-line"></div>
+          <div class="journey-dot"></div><div class="journey-line"></div>
+          <div class="journey-dot active"></div><div class="journey-line"></div>
+          <div class="journey-dot"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="desc-section">
+    <div class="desc-card">
+      <h3>Current Implementation</h3>
+      <p class="desc-sub">Small inline banner — easy to miss</p>
+      <ul>
+        <li>Simple blue banner at top of content</li>
+        <li>Blends in with the rest of the page</li>
+        <li>No overlay, no backdrop, no animation</li>
+        <li>Can be scrolled past and forgotten</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ── DESIGN 1 — Bottom Sheet ── -->
+<div class="design-panel active" id="panel-d1">
+  <div class="phone-container">
+    <div class="phone-frame">
+      <div class="status-page">
+        <span class="clinic-name">Cabinet Dr Skander Kamoun</span>
+        <div class="status-title">Vous approchez!</div>
+        <div class="ticket">
+          <span class="pos-label">Position</span>
+          <span class="pos-num">#3</span>
+        </div>
+        <div class="wait-card">
+          <span class="material-symbols-outlined">schedule</span>
+          <div class="wait-text">Attente estimée: <strong>~20 min</strong></div>
+        </div>
+      </div>
+      <!-- Overlay -->
+      <div class="scrim d1-scrim"></div>
+      <div class="d1-sheet">
+        <div class="d1-handle"></div>
+        <div class="announce-icon">
+          <span class="material-symbols-outlined">campaign</span>
+        </div>
+        <div class="announce-title">Annonce du cabinet</div>
+        <div class="announce-msg">En retard, délai estimé 15 minutes. Nous nous excusons pour l'attente et vous remercions de votre patience.</div>
+        <div class="announce-time">
+          <span class="material-symbols-outlined">schedule</span>
+          Il y a 2 minutes
+        </div>
+        <button class="btn-dismiss">Compris</button>
+      </div>
+    </div>
+  </div>
+  <div class="desc-section">
+    <div class="desc-card">
+      <h3>1 — Bottom Sheet Drawer</h3>
+      <p class="desc-sub"><span class="tag tag-low">Low complexity</span> <span class="tag tag-low">Low perf. cost</span></p>
+      <ul>
+        <li>Slides up from bottom, familiar mobile pattern (maps, banking apps)</li>
+        <li>Drag handle signals it can be swiped down to dismiss</li>
+        <li>Patient status page remains partially visible behind the scrim</li>
+        <li>Large touch target for "Compris" button in thumb zone</li>
+        <li>Works great for longer announcement text (scrollable)</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ── DESIGN 2 — Glassmorphism Modal ── -->
+<div class="design-panel" id="panel-d2">
+  <div class="phone-container">
+    <div class="phone-frame">
+      <div class="status-page">
+        <span class="clinic-name">Cabinet Dr Skander Kamoun</span>
+        <div class="status-title">Vous approchez!</div>
+        <div class="ticket">
+          <span class="pos-label">Position</span>
+          <span class="pos-num">#3</span>
+        </div>
+        <div class="wait-card">
+          <span class="material-symbols-outlined">schedule</span>
+          <div class="wait-text">Attente estimée: <strong>~20 min</strong></div>
+        </div>
+      </div>
+      <!-- Overlay -->
+      <div class="scrim d2-scrim"></div>
+      <div class="d2-modal-wrap">
+        <div class="d2-card">
+          <div class="announce-icon">
+            <span class="material-symbols-outlined">campaign</span>
+          </div>
+          <div class="announce-title">Annonce du cabinet</div>
+          <div class="announce-msg">En retard, délai estimé 15 minutes. Nous nous excusons pour l'attente et vous remercions de votre patience.</div>
+          <div class="announce-time">
+            <span class="material-symbols-outlined">schedule</span>
+            Il y a 2 minutes
+          </div>
+          <button class="btn-dismiss">Compris</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="desc-section">
+    <div class="desc-card">
+      <h3>2 — Glassmorphism Modal</h3>
+      <p class="desc-sub"><span class="tag tag-low">Low complexity</span> <span class="tag tag-med">Medium perf. cost</span></p>
+      <ul>
+        <li>Frosted glass effect — the teal gradient bleeds through beautifully</li>
+        <li>Adapts visually to each queue state (teal/amber/green background)</li>
+        <li>Centered, focused attention — impossible to miss</li>
+        <li>Elegant pop-in animation with subtle bounce</li>
+        <li>Note: <code>backdrop-filter</code> may be heavy on older Android devices</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ── DESIGN 3 — Slide-Down Gradient Panel ── -->
+<div class="design-panel" id="panel-d3">
+  <div class="phone-container">
+    <div class="phone-frame">
+      <div class="status-page">
+        <span class="clinic-name">Cabinet Dr Skander Kamoun</span>
+        <div class="status-title">Vous approchez!</div>
+        <div class="ticket">
+          <span class="pos-label">Position</span>
+          <span class="pos-num">#3</span>
+        </div>
+        <div class="wait-card">
+          <span class="material-symbols-outlined">schedule</span>
+          <div class="wait-text">Attente estimée: <strong>~20 min</strong></div>
+        </div>
+      </div>
+      <!-- Overlay -->
+      <div class="d3-panel">
+        <button class="d3-close">&times;</button>
+        <div class="announce-icon">
+          <span class="material-symbols-outlined">campaign</span>
+        </div>
+        <div class="d3-title">Annonce du cabinet</div>
+        <div class="d3-msg">En retard, délai estimé 15 minutes. Nous nous excusons pour l'attente et vous remercions de votre patience.</div>
+        <div class="announce-time">
+          <span class="material-symbols-outlined">schedule</span>
+          Il y a 2 minutes
+        </div>
+        <button class="btn-dismiss">Compris</button>
+      </div>
+    </div>
+  </div>
+  <div class="desc-section">
+    <div class="desc-card">
+      <h3>3 — Slide-Down Gradient Panel</h3>
+      <p class="desc-sub"><span class="tag tag-med">Medium complexity</span> <span class="tag tag-low">Low perf. cost</span></p>
+      <ul>
+        <li>Dramatic slide-down from top — feels like a system-level alert</li>
+        <li>Staggered content animation (icon → title → message → button)</li>
+        <li>Feathered gradient edge fades into the page below</li>
+        <li>Bold blue gradient creates strong visual contrast</li>
+        <li>Best for urgent announcements ("Doctor leaving", "Clinic closing")</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ── DESIGN 4 — Split-Screen ── -->
+<div class="design-panel" id="panel-d4">
+  <div class="phone-container">
+    <div class="phone-frame">
+      <div class="d4-wrapper">
+        <div class="d4-top">
+          <div class="announce-icon">
+            <span class="material-symbols-outlined">campaign</span>
+          </div>
+          <div class="announce-title">Annonce du cabinet</div>
+          <div class="announce-msg">En retard, délai estimé 15 minutes. Nous nous excusons pour l'attente et vous remercions de votre patience.</div>
+          <div class="announce-time">
+            <span class="material-symbols-outlined">schedule</span>
+            Il y a 2 minutes
+          </div>
+          <button class="btn-dismiss">Compris</button>
+        </div>
+        <div class="d4-bottom">
+          <div class="d4-mini-status">
+            <span class="mini-label">Votre position</span>
+            <div class="mini-ticket">
+              <span class="pos-label">Position</span>
+              <span class="pos-num">#3</span>
+            </div>
+            <span class="mini-wait">Attente estimée: ~20 min</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="desc-section">
+    <div class="desc-card">
+      <h3>4 — Split-Screen</h3>
+      <p class="desc-sub"><span class="tag tag-med">Medium complexity</span> <span class="tag tag-low">Low perf. cost</span></p>
+      <ul>
+        <li>Page layout transforms — announcement takes top 60%, status compresses below</li>
+        <li>Patient can still see their position at all times (no information loss)</li>
+        <li>Curved divider between zones adds a polished feel</li>
+        <li>Least disruptive — ideal for persistent, long-duration announcements</li>
+        <li>Smooth expand/collapse animation when dismissed</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ── DESIGN 5 — Card Stack ── -->
+<div class="design-panel" id="panel-d5">
+  <div class="phone-container">
+    <div class="phone-frame">
+      <div class="status-page">
+        <span class="clinic-name">Cabinet Dr Skander Kamoun</span>
+        <div class="status-title">Vous approchez!</div>
+        <div class="ticket">
+          <span class="pos-label">Position</span>
+          <span class="pos-num">#3</span>
+        </div>
+        <div class="wait-card">
+          <span class="material-symbols-outlined">schedule</span>
+          <div class="wait-text">Attente estimée: <strong>~20 min</strong></div>
+        </div>
+      </div>
+      <!-- Overlay -->
+      <div class="scrim d5-scrim"></div>
+      <div class="d5-stack-wrap">
+        <div class="d5-stack">
+          <div class="d5-card-back-2"></div>
+          <div class="d5-card-back-1"></div>
+          <div class="d5-card-front">
+            <div class="announce-icon">
+              <span class="material-symbols-outlined">campaign</span>
+            </div>
+            <div class="announce-title">Annonce du cabinet</div>
+            <div class="announce-msg">En retard, délai estimé 15 minutes. Nous nous excusons pour l'attente et vous remercions de votre patience.</div>
+            <div class="announce-time">
+              <span class="material-symbols-outlined">schedule</span>
+              Il y a 2 minutes
+            </div>
+            <button class="btn-dismiss">Compris</button>
+          </div>
+          <div class="d5-swipe-hint">Glisser pour fermer</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="desc-section">
+    <div class="desc-card">
+      <h3>5 — Card Stack</h3>
+      <p class="desc-sub"><span class="tag tag-high">High complexity</span> <span class="tag tag-low">Low perf. cost</span></p>
+      <ul>
+        <li>iOS Notification Center inspired — stacked cards with depth illusion</li>
+        <li>Bouncy sequential entry animation (back cards appear first)</li>
+        <li>Subtle floating idle animation adds a "living" feel</li>
+        <li>Scales naturally if you later support multiple announcements</li>
+        <li>Swipe-to-dismiss gesture possible (would need touch handling)</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ TAB LOGIC ═══════════ -->
+<script>
+  document.querySelectorAll('.nav-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.design-panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>

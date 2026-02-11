@@ -1,0 +1,149 @@
+<script>
+// ============================================================
+// DEMO 2: PARCOURS PATIENT (Patient Journey)
+// ============================================================
+const PJ = (function() {
+  const $ = id => document.getElementById(id);
+  let currentScreen = 0;
+  const totalScreens = 7;
+  const stepLabels = ['Bienvenue','QR Code','Inscription','Suivi en direct','Notification SMS','Votre tour !','Terminee'];
+
+  function updateStepBar() {
+    for (let i = 0; i < 6; i++) {
+      const pip = $('pjPip' + i);
+      pip.className = 'step-pip';
+      if (i < currentScreen) pip.classList.add('done');
+      if (i === currentScreen) pip.classList.add('active');
+    }
+    $('pjStepLabel').textContent = stepLabels[currentScreen] || '';
+  }
+
+  function showScreen(idx) {
+    for (let i = 0; i < totalScreens; i++) {
+      const s = $('pjScreen' + i);
+      if (s) s.classList.toggle('active', i === idx);
+    }
+    currentScreen = idx;
+    updateStepBar();
+
+    // Trigger screen-specific animations
+    if (idx === 1) startQRScan();
+    if (idx === 3) startWaitingAnimation();
+    if (idx === 5) startConfetti();
+  }
+
+  function next() {
+    if (currentScreen < totalScreens - 1) {
+      showScreen(currentScreen + 1);
+    }
+  }
+
+  function startQRScan() {
+    // After 2s, show QR code appearing
+    safeTimeout(() => {
+      $('pjQrCode').classList.add('visible');
+      $('pjScanMsg').textContent = 'QR code detecte...';
+    }, 1500);
+
+    // After 3.5s, show success check
+    safeTimeout(() => {
+      $('pjScanLine').style.display = 'none';
+      $('pjScanCheck').classList.add('visible');
+      $('pjScanMsg').textContent = 'Scan reussi ! Redirection...';
+    }, 3000);
+
+    // After 4.5s, go to check-in form
+    safeTimeout(() => {
+      showScreen(2);
+    }, 4200);
+  }
+
+  function submitCheckin() {
+    const btn = $('pjCheckinBtn');
+    btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:18px;vertical-align:middle;animation:spin 0.8s linear infinite;margin-right:4px;">sync</span> Inscription...';
+    safeTimeout(() => {
+      btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:18px;vertical-align:middle;margin-right:4px;color:#22C55E;">check_circle</span> Inscrit !';
+      btn.style.background = 'linear-gradient(135deg, #22C55E, #16A34A)';
+      safeTimeout(() => showScreen(3), 800);
+    }, 1200);
+  }
+
+  function startWaitingAnimation() {
+    // Position starts at 3, goes 3 -> 2 -> 1
+    let pos = 3;
+    $('pjPosition').textContent = '3';
+    $('pjPosLabel').textContent = '2 personnes avant vous';
+    $('pjWaitTime').textContent = '~20 min';
+    $('pjProgressFill').style.width = '10%';
+
+    safeTimeout(() => {
+      $('pjProgressFill').style.width = '33%';
+    }, 300);
+
+    // Position 2 after 2.5s
+    safeTimeout(() => {
+      pos = 2;
+      $('pjPosition').textContent = '2';
+      $('pjPosition').style.animation = 'none'; $('pjPosition').offsetHeight;
+      $('pjPosition').style.animation = 'popIn 0.4s cubic-bezier(0.34,1.56,0.64,1)';
+      $('pjPosLabel').textContent = '1 personne avant vous';
+      $('pjWaitTime').textContent = '~10 min';
+      $('pjProgressFill').style.width = '55%';
+    }, 2500);
+
+    // Position 1 after 5s
+    safeTimeout(() => {
+      pos = 1;
+      $('pjPosition').textContent = '1';
+      $('pjPosition').style.animation = 'none'; $('pjPosition').offsetHeight;
+      $('pjPosition').style.animation = 'popIn 0.4s cubic-bezier(0.34,1.56,0.64,1)';
+      $('pjPosLabel').textContent = 'Vous etes le prochain !';
+      $('pjWaitTime').textContent = '~5 min';
+      $('pjProgressFill').style.width = '80%';
+    }, 5000);
+
+    // SMS notification after 7s
+    safeTimeout(() => {
+      showScreen(4);
+    }, 7500);
+  }
+
+  function startConfetti() {
+    const box = $('pjConfettiBox');
+    box.innerHTML = '';
+    const colors = ['#0EA5E9','#7C3AED','#22C55E','#F59E0B','#EC4899','#EF4444'];
+    for (let i = 0; i < 40; i++) {
+      const piece = document.createElement('div');
+      piece.style.cssText = 'position:absolute;width:' + (6 + Math.random()*6) + 'px;height:' + (6 + Math.random()*6) + 'px;border-radius:' + (Math.random() > 0.5 ? '50%' : '2px') + ';background:' + colors[Math.floor(Math.random()*colors.length)] + ';left:' + (Math.random()*100) + '%;top:-10px;opacity:0;animation:confetti-fall ' + (1.5 + Math.random()*2) + 's ease-out ' + (Math.random()*0.8) + 's forwards;';
+      box.appendChild(piece);
+    }
+  }
+
+  function restart() {
+    currentScreen = 0;
+    // Reset QR scan
+    const qrCode = $('pjQrCode'); if(qrCode) qrCode.classList.remove('visible');
+    const scanCheck = $('pjScanCheck'); if(scanCheck) scanCheck.classList.remove('visible');
+    const scanLine = $('pjScanLine'); if(scanLine) scanLine.style.display = '';
+    const scanMsg = $('pjScanMsg'); if(scanMsg) scanMsg.textContent = 'Le patient scanne le QR code affiche dans la salle d\'attente...';
+
+    // Reset check-in button
+    const btn = $('pjCheckinBtn');
+    if (btn) {
+      btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:18px;vertical-align:middle;margin-right:4px;">group_add</span> Rejoindre la file';
+      btn.style.background = 'linear-gradient(135deg,#0EA5E9,#7C3AED)';
+    }
+
+    // Reset progress
+    const fill = $('pjProgressFill'); if(fill) fill.style.width = '0%';
+
+    showScreen(0);
+  }
+
+  function cleanup() {
+    // No persistent elements to clean up
+  }
+
+  return { next, submitCheckin, restart, cleanup };
+})();
+</script>

@@ -16,7 +16,7 @@ export default function ClinicDetailTabBar({ activeTab, onTabChange }: ClinicDet
   return (
     <div className="border-b border-[#E6F2F0]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <nav className="flex gap-6 overflow-x-auto">
+        <nav className="flex gap-6 overflow-x-auto no-scrollbar">
           {TABS.map((tab) => (
             <button
               key={tab.key}

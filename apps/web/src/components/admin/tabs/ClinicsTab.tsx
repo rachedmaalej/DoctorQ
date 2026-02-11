@@ -12,7 +12,7 @@ export default function ClinicsTab() {
   const [clinics, setClinics] = useState<ClinicHealth[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'at_risk'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'at_risk' | 'paused'>('all');
   const [subStatusFilter, setSubStatusFilter] = useState<SubStatusFilter>('all');
   const [paymentFilter, setPaymentFilter] = useState<'all' | 'paid' | 'overdue'>('all');
   const [sortBy, setSortBy] = useState<'name' | 'patients' | 'lastActive' | 'created'>('name');
@@ -49,7 +49,8 @@ export default function ClinicsTab() {
             !clinic.doctorName?.toLowerCase().includes(q) &&
             !clinic.email.toLowerCase().includes(q)) return false;
       }
-      if (statusFilter !== 'all' && clinic.status !== statusFilter) return false;
+      if (statusFilter === 'paused' && clinic.isActive !== false) return false;
+      if (statusFilter !== 'all' && statusFilter !== 'paused' && clinic.status !== statusFilter) return false;
       if (subStatusFilter !== 'all' && clinic.subscriptionStatus !== subStatusFilter) return false;
       if (paymentFilter !== 'all' && clinic.paymentStatus !== paymentFilter) return false;
       return true;
@@ -143,6 +144,7 @@ export default function ClinicsTab() {
             <option value="all">All Activity</option>
             <option value="active">Active</option>
             <option value="at_risk">At Risk</option>
+            <option value="paused">Paused</option>
           </select>
           <select
             value={subStatusFilter}
@@ -208,7 +210,12 @@ export default function ClinicsTab() {
                       className="cursor-pointer"
                       onClick={() => navigate(`/admin/clinic/${clinic.id}`)}
                     >
-                      <div className="text-sm font-medium text-[#267B75] hover:underline">{clinic.name}</div>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-sm font-medium hover:underline ${clinic.isActive ? 'text-[#267B75]' : 'text-[#8AADAA]'}`}>{clinic.name}</span>
+                        {!clinic.isActive && (
+                          <span className="px-1.5 py-0.5 text-[10px] font-bold uppercase rounded bg-[#FEF3EE] text-[#E15720]">Paused</span>
+                        )}
+                      </div>
                       <div className="text-xs text-[#8AADAA]">{clinic.email}</div>
                     </div>
                   </td>

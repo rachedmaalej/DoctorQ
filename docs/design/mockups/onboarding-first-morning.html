@@ -1,0 +1,3667 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>BleSaf – Votre Premier Matin (Demo Onboarding)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<style>
+/* ═══ RESET & BASE ═══ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; -webkit-text-size-adjust: 100%; }
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #F1F5F9;
+  color: #1E293B;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+button { font-family: inherit; cursor: pointer; border: none; }
+input, select { font-family: inherit; }
+
+/* ═══ LAYOUT ═══ */
+.page-frame {
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: #F8FAFC;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ═══ STEP INDICATOR (top bar) ═══ */
+.step-bar {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 430px;
+  width: 100%;
+  z-index: 200;
+  background: linear-gradient(135deg, #0EA5E9, #0284C7);
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 2px 12px rgba(14, 165, 233, 0.3);
+}
+.step-bar .step-pip {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255,255,255,0.25);
+  transition: background 0.5s;
+}
+.step-bar .step-pip.done { background: rgba(255,255,255,0.9); }
+.step-bar .step-pip.active { background: #FFF; animation: pip-pulse 1.5s infinite; }
+@keyframes pip-pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+.step-bar .step-label {
+  color: #FFF;
+  font-size: 11px;
+  font-weight: 600;
+  margin-left: 10px;
+  white-space: nowrap;
+  letter-spacing: 0.3px;
+}
+
+/* ═══ DASHBOARD ═══ */
+.dashboard {
+  padding-top: 34px; /* step bar height */
+  opacity: 0;
+  transition: opacity 0.6s;
+}
+.dashboard.visible { opacity: 1; }
+
+/* Header */
+.dash-header {
+  background: #FFF;
+  padding: 12px 16px;
+  border-bottom: 1px solid #E2E8F0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.dash-header .logo {
+  font-size: 18px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #0EA5E9, #7C3AED);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.dash-header .clinic-info {
+  text-align: center;
+  flex: 1;
+}
+.dash-header .clinic-label {
+  font-size: 10px;
+  color: #94A3B8;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.dash-header .clinic-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1E293B;
+}
+.dash-header .header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.dash-header .lang-btn {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748B;
+  background: #F1F5F9;
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+.dash-header .logout-btn {
+  color: #94A3B8;
+  font-size: 20px;
+  background: none;
+  display: flex;
+}
+
+/* Stats bar */
+.dash-stats {
+  background: #FFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #E2E8F0;
+  position: sticky;
+  top: 34px;
+  z-index: 10;
+}
+.dash-stat {
+  flex: 1;
+  text-align: center;
+}
+.dash-stat .stat-value {
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1.1;
+  transition: all 0.4s;
+}
+.dash-stat .stat-value.primary { color: #0284C7; }
+.dash-stat .stat-value.green { color: #059669; }
+.dash-stat .stat-value.muted { color: #CBD5E1; }
+.dash-stat .stat-label {
+  font-size: 10px;
+  color: #94A3B8;
+  font-weight: 500;
+  margin-top: 2px;
+}
+.dash-stats .stat-divider {
+  width: 1px;
+  height: 36px;
+  background: #E2E8F0;
+}
+
+/* Estimates bar */
+.dash-estimates {
+  background: #FFF;
+  padding: 8px 16px;
+  border-bottom: 1px solid #E2E8F0;
+  display: flex;
+  justify-content: space-around;
+}
+.dash-estimate {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #94A3B8;
+}
+.dash-estimate .material-symbols-outlined { font-size: 14px; }
+.dash-estimate strong { color: #475569; font-weight: 600; }
+
+/* Controls (presence + announcement) */
+.dash-controls {
+  padding: 10px 16px;
+  display: flex;
+  gap: 8px;
+}
+.presence-btn, .announce-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  border: 2px solid #E2E8F0;
+  background: #F8FAFC;
+  color: #64748B;
+  transition: all 0.3s;
+}
+.presence-btn.active {
+  background: #DCFCE7;
+  border-color: #86EFAC;
+  color: #166534;
+}
+.presence-btn .material-symbols-outlined,
+.announce-btn .material-symbols-outlined {
+  font-size: 18px;
+  font-variation-settings: 'FILL' 1;
+}
+.toggle-track {
+  margin-left: auto;
+  width: 36px;
+  height: 20px;
+  border-radius: 10px;
+  background: #CBD5E1;
+  position: relative;
+  transition: background 0.3s;
+  flex-shrink: 0;
+}
+.toggle-track.on { background: #34D399; }
+.toggle-track .toggle-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #FFF;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.3s;
+}
+.toggle-track.on .toggle-thumb { transform: translateX(16px); }
+
+/* Action bar */
+.dash-actions {
+  padding: 0 16px 10px;
+  display: flex;
+  gap: 8px;
+}
+.add-patient-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #E2E8F0;
+  background: #FFF;
+  font-size: 14px;
+  font-weight: 500;
+  color: #475569;
+}
+.icon-btn {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  border: 1px solid #E2E8F0;
+  background: #FFF;
+  color: #64748B;
+}
+.icon-btn .material-symbols-outlined { font-size: 22px; }
+
+/* Call Next button */
+.call-next-section {
+  padding: 0 16px 12px;
+}
+.call-next-btn {
+  width: 100%;
+  padding: 16px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #0EA5E9, #7C3AED);
+  color: #FFF;
+  font-size: 16px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 16px rgba(14, 165, 233, 0.35);
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+.call-next-btn:active { transform: scale(0.97); }
+.call-next-btn .material-symbols-outlined {
+  font-size: 24px;
+  font-variation-settings: 'FILL' 1;
+}
+.call-next-btn.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Consultation section (shown after call next) */
+.consultation-section {
+  padding: 0 16px 8px;
+  display: none;
+}
+.consultation-section.visible { display: block; }
+.consultation-row {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+}
+.consultation-card {
+  flex: 1;
+  background: #F0FDF4;
+  border: 2px solid #BBF7D0;
+  border-radius: 16px;
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.consultation-card .patient-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #DCFCE7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.consultation-card .patient-avatar .material-symbols-outlined {
+  font-size: 24px;
+  color: #16A34A;
+  font-variation-settings: 'FILL' 1;
+}
+.consultation-card .patient-info { flex: 1; }
+.consultation-card .patient-name { font-size: 14px; font-weight: 600; color: #166534; }
+.consultation-card .patient-time { font-size: 11px; color: #4ADE80; display: flex; align-items: center; gap: 3px; }
+.consultation-card .patient-time .material-symbols-outlined { font-size: 13px; }
+.call-next-compact {
+  flex: 2;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #0EA5E9, #7C3AED);
+  color: #FFF;
+  font-size: 15px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 16px rgba(14, 165, 233, 0.35);
+}
+.call-next-compact .material-symbols-outlined {
+  font-size: 22px;
+  font-variation-settings: 'FILL' 1;
+}
+.consultation-labels {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.consultation-labels span {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #94A3B8;
+}
+.consultation-labels span:first-child { flex: 1; }
+.consultation-labels span:last-child { flex: 2; text-align: center; }
+
+/* Queue section */
+.queue-section {
+  padding: 0 16px 80px;
+}
+.queue-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #94A3B8;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.queue-title .material-symbols-outlined { font-size: 16px; }
+
+/* Patient card */
+.patient-card {
+  background: #FFF;
+  border-radius: 16px;
+  border: 1px solid #F1F5F9;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  margin-bottom: 10px;
+  overflow: hidden;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: top center;
+}
+.patient-card.entering {
+  animation: card-enter 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+.patient-card.exiting {
+  animation: card-exit 0.4s ease-in forwards;
+}
+.patient-card.shifting {
+  animation: card-shift 0.5s ease-out;
+}
+@keyframes card-enter {
+  0% { opacity: 0; transform: translateX(60px) scale(0.95); }
+  100% { opacity: 1; transform: translateX(0) scale(1); }
+}
+@keyframes card-exit {
+  0% { opacity: 1; transform: translateY(0) scale(1); max-height: 130px; margin-bottom: 10px; }
+  100% { opacity: 0; transform: translateY(-20px) scale(0.9); max-height: 0; margin-bottom: 0; }
+}
+@keyframes card-shift {
+  0% { transform: translateY(10px); opacity: 0.7; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+.patient-card-top {
+  padding: 14px 14px 10px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.position-badge {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 800;
+  color: #0284C7;
+  background: #E0F2FE;
+  flex-shrink: 0;
+  transition: all 0.5s;
+}
+.patient-info { flex: 1; min-width: 0; }
+.patient-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1E293B;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.patient-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 3px;
+}
+.patient-detail {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 12px;
+  color: #64748B;
+}
+.patient-detail .material-symbols-outlined { font-size: 14px; }
+.patient-detail.wait { font-weight: 600; }
+.patient-detail.wait.short { color: #059669; }
+.patient-detail.wait.medium { color: #D97706; }
+.patient-detail.wait.long { color: #EF4444; }
+
+/* Notified badge */
+.notified-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: #E0F2FE;
+  color: #0284C7;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 6px;
+  margin-top: 4px;
+}
+.notified-badge .material-symbols-outlined {
+  font-size: 13px;
+  font-variation-settings: 'FILL' 1;
+}
+
+/* Card bottom (actions) */
+.patient-card-bottom {
+  border-top: 1px solid #F1F5F9;
+  padding: 6px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.card-status-icons {
+  display: flex;
+  gap: 4px;
+}
+.status-icon-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #F3E8FF;
+}
+.status-icon-btn .material-symbols-outlined { font-size: 16px; color: #7C3AED; }
+.status-icon-btn.sms-sent { background: #DCFCE7; }
+.status-icon-btn.sms-sent .material-symbols-outlined { color: #22C55E; font-variation-settings: 'FILL' 1; }
+.status-icon-btn.sms-pending { background: #F1F5F9; }
+.status-icon-btn.sms-pending .material-symbols-outlined { color: #CBD5E1; }
+
+.card-action-btns {
+  display: flex;
+  gap: 4px;
+}
+.action-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #F8FAFC;
+  transition: background 0.2s;
+}
+.action-btn .material-symbols-outlined { font-size: 17px; color: #94A3B8; }
+.action-btn.priority { background: #FFFBEB; }
+.action-btn.priority .material-symbols-outlined { color: #F59E0B; font-variation-settings: 'FILL' 1; }
+.action-btn.remove { background: #FEF2F2; }
+.action-btn.remove .material-symbols-outlined { color: #EF4444; }
+
+/* Empty state */
+.empty-queue {
+  text-align: center;
+  padding: 48px 16px;
+}
+.empty-queue .empty-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #F1F5F9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+}
+.empty-queue .empty-icon .material-symbols-outlined { font-size: 28px; color: #94A3B8; }
+.empty-queue p { color: #94A3B8; font-size: 14px; }
+
+/* ═══ OVERLAYS ═══ */
+
+/* Welcome screen */
+.welcome-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: linear-gradient(135deg, #0EA5E9 0%, #7C3AED 50%, #EC4899 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.5s, transform 0.5s;
+}
+.welcome-overlay.hidden { opacity: 0; pointer-events: none; transform: scale(1.05); }
+.welcome-content {
+  text-align: center;
+  color: #FFF;
+  padding: 32px;
+  max-width: 380px;
+}
+.welcome-logo {
+  font-size: 42px;
+  font-weight: 900;
+  margin-bottom: 8px;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.15);
+}
+.welcome-subtitle {
+  font-size: 16px;
+  opacity: 0.85;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+.welcome-tagline {
+  font-size: 13px;
+  opacity: 0.65;
+  margin-bottom: 36px;
+  line-height: 1.5;
+}
+.welcome-btn {
+  background: #FFF;
+  color: #0EA5E9;
+  font-size: 16px;
+  font-weight: 700;
+  padding: 14px 48px;
+  border-radius: 14px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  transition: transform 0.2s;
+}
+.welcome-btn:active { transform: scale(0.95); }
+.welcome-step-hint {
+  margin-top: 20px;
+  font-size: 12px;
+  opacity: 0.5;
+}
+
+/* Wizard overlay */
+.wizard-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 250;
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.4s;
+  padding: 20px;
+}
+.wizard-overlay.hidden { opacity: 0; pointer-events: none; }
+.wizard-card {
+  background: #FFF;
+  border-radius: 20px;
+  padding: 28px 24px;
+  max-width: 380px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  transition: transform 0.3s;
+}
+.wizard-step-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #0EA5E9;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 4px;
+}
+.wizard-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #1E293B;
+  margin-bottom: 20px;
+}
+.wizard-field {
+  margin-bottom: 16px;
+}
+.wizard-field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748B;
+  margin-bottom: 6px;
+}
+.wizard-field input,
+.wizard-field select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 2px solid #E2E8F0;
+  border-radius: 12px;
+  font-size: 15px;
+  color: #1E293B;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.wizard-field input:focus,
+.wizard-field select:focus { border-color: #0EA5E9; }
+.wizard-field input::placeholder { color: #CBD5E1; }
+.wizard-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #0EA5E9, #7C3AED);
+  color: #FFF;
+  font-size: 15px;
+  font-weight: 700;
+  margin-top: 8px;
+  transition: transform 0.2s;
+}
+.wizard-btn:active { transform: scale(0.97); }
+
+/* Presence toggle (wizard step 3) */
+.presence-toggle-big {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 0;
+}
+.presence-toggle-big .toggle-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: #F1F5F9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.4s;
+  border: 3px solid #E2E8F0;
+}
+.presence-toggle-big .toggle-circle.on {
+  background: #DCFCE7;
+  border-color: #34D399;
+}
+.presence-toggle-big .toggle-circle .material-symbols-outlined {
+  font-size: 36px;
+  color: #94A3B8;
+  font-variation-settings: 'FILL' 1;
+  transition: color 0.4s;
+}
+.presence-toggle-big .toggle-circle.on .material-symbols-outlined { color: #16A34A; }
+.presence-toggle-big .toggle-label {
+  font-size: 15px;
+  font-weight: 600;
+  color: #64748B;
+  transition: color 0.3s;
+}
+.presence-toggle-big .toggle-label.on { color: #166534; }
+
+/* Coach mark overlay */
+.coach-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  transition: opacity 0.4s;
+  pointer-events: none;
+}
+.coach-overlay.hidden { opacity: 0; }
+.coach-overlay.active { pointer-events: auto; }
+.coach-overlay.passthrough { pointer-events: none; }
+.coach-overlay.passthrough .coach-tooltip { pointer-events: none; }
+.coach-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+}
+.coach-overlay.passthrough .coach-backdrop { background: rgba(15, 23, 42, 0.3); }
+.coach-tooltip {
+  position: absolute;
+  background: #FFF;
+  border-radius: 16px;
+  padding: 20px;
+  max-width: 340px;
+  width: calc(100% - 40px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+}
+.coach-tooltip .coach-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0EA5E9, #7C3AED);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+.coach-tooltip .coach-icon .material-symbols-outlined { font-size: 22px; color: #FFF; }
+.coach-tooltip h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1E293B;
+  margin-bottom: 6px;
+}
+.coach-tooltip p {
+  font-size: 13px;
+  color: #64748B;
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+.coach-tooltip .coach-btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #0EA5E9, #7C3AED);
+  color: #FFF;
+  font-size: 14px;
+  font-weight: 700;
+}
+.coach-tooltip .coach-btn:active { transform: scale(0.97); }
+
+/* Spotlight hole */
+.spotlight {
+  position: absolute;
+  border-radius: 16px;
+  box-shadow: 0 0 0 4000px rgba(15, 23, 42, 0.6);
+  z-index: 5;
+  transition: all 0.5s;
+  pointer-events: none;
+}
+
+/* Phone mockup (patient view) — iPhone 13 frame
+ * Approach: solid black ::before creates the filled bezel, .phone-screen
+ * sits inside it, frame PNG overlays on top for detail.
+ * PNG: 1000x1000 canvas. Phone bezel at ~x:286-716, y:56-942 (430x886px)
+ * Screen area: ~x:310-690, y:110-930. Scale: 200/430=0.465 → img 465x465
+ * At that scale phone=200x412, screen insets≈12/25/12/6
+ */
+.phone-mockup {
+  position: fixed;
+  bottom: 16px;
+  right: 50%;
+  transform: translateX(50%) translateY(450px);
+  width: 200px;
+  height: 412px;
+  z-index: 160;
+  transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  overflow: visible;
+}
+.phone-mockup.visible { transform: translateX(50%) translateY(0); }
+/* Solid black bezel backdrop — fills in where the frame PNG is transparent */
+.phone-mockup::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #000;
+  border-radius: 22px;
+  z-index: 0;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+.phone-frame-img {
+  position: absolute;
+  width: 465px;
+  height: 465px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 3;
+}
+.phone-notch { display: none; }
+.phone-screen {
+  position: absolute;
+  top: 25px;
+  left: 12px;
+  right: 12px;
+  bottom: 6px;
+  border-radius: 20px;
+  overflow: hidden;
+  z-index: 1;
+  padding: 10px 8px;
+  background: linear-gradient(to bottom, #F0F9FF, #E0F2FE);
+}
+.phone-screen .phone-live {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+.phone-screen .phone-live .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #22C55E;
+  animation: blink 1.5s infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.phone-screen .phone-live span {
+  font-size: 9px;
+  color: #22C55E;
+  font-weight: 600;
+}
+.phone-screen .phone-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1E293B;
+  text-align: center;
+  margin-bottom: 4px;
+}
+.phone-screen .phone-ahead {
+  font-size: 10px;
+  color: #64748B;
+  text-align: center;
+  margin-bottom: 8px;
+}
+.phone-screen .phone-wait-card {
+  background: #FFF;
+  border-radius: 10px;
+  padding: 10px;
+  text-align: center;
+  margin-bottom: 8px;
+  border: 1px solid #BAE6FD;
+}
+.phone-screen .phone-wait-label {
+  font-size: 8px;
+  font-weight: 700;
+  color: #0284C7;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.phone-screen .phone-wait-value {
+  font-size: 24px;
+  font-weight: 900;
+  color: #1E293B;
+}
+.phone-screen .phone-ticket {
+  width: 64px;
+  height: 64px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #3B82F6, #6366F1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  color: #FFF;
+  font-size: 24px;
+  font-weight: 900;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  transition: all 0.5s;
+}
+.phone-screen .phone-ticket.green {
+  background: linear-gradient(135deg, #22C55E, #16A34A);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+.phone-screen .phone-turn-msg {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #16A34A;
+  margin-top: 8px;
+  display: none;
+}
+
+/* Final screen */
+.final-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: linear-gradient(165deg, #0F172A 0%, #1E3A5F 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  transition: opacity 0.5s;
+  overflow-y: auto;
+}
+.final-overlay.hidden { opacity: 0; pointer-events: none; }
+.final-card {
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+}
+/* Completion badge */
+.final-check {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #22C55E, #16A34A);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  box-shadow: 0 0 0 8px rgba(34, 197, 94, 0.15), 0 0 0 16px rgba(34, 197, 94, 0.07);
+  animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.final-check .material-symbols-outlined {
+  font-size: 36px;
+  color: #FFF;
+  font-variation-settings: 'FILL' 1;
+}
+.final-card h2 {
+  font-size: 24px;
+  font-weight: 800;
+  color: #FFF;
+  margin-bottom: 6px;
+}
+.final-card .final-sub {
+  font-size: 14px;
+  color: #94A3B8;
+  margin-bottom: 24px;
+}
+/* Recap bullets */
+.final-recap {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  text-align: left;
+}
+.final-recap-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 0;
+}
+.final-recap-item + .final-recap-item {
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.final-recap-item .recap-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.final-recap-item .recap-icon .material-symbols-outlined {
+  font-size: 16px;
+  font-variation-settings: 'FILL' 1;
+}
+.final-recap-item .recap-icon.green { background: rgba(34,197,94,0.15); }
+.final-recap-item .recap-icon.green .material-symbols-outlined { color: #4ADE80; }
+.final-recap-item .recap-icon.blue { background: rgba(56,189,248,0.15); }
+.final-recap-item .recap-icon.blue .material-symbols-outlined { color: #38BDF8; }
+.final-recap-item .recap-icon.purple { background: rgba(167,139,250,0.15); }
+.final-recap-item .recap-icon.purple .material-symbols-outlined { color: #A78BFA; }
+.final-recap-item span {
+  font-size: 13px;
+  color: #CBD5E1;
+  line-height: 1.4;
+}
+.final-recap-item strong { color: #FFF; font-weight: 600; }
+/* Reassurance */
+.final-reassure {
+  background: rgba(250, 204, 21, 0.08);
+  border: 1px solid rgba(250, 204, 21, 0.15);
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  text-align: left;
+}
+.final-reassure .material-symbols-outlined {
+  font-size: 20px;
+  color: #FACC15;
+  flex-shrink: 0;
+  margin-top: 1px;
+  font-variation-settings: 'FILL' 1;
+}
+.final-reassure p {
+  font-size: 13px;
+  color: #E2E8F0;
+  line-height: 1.5;
+}
+/* Primary CTA */
+.final-cta {
+  width: 100%;
+  padding: 16px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #22C55E, #16A34A);
+  color: #FFF;
+  font-size: 16px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 20px rgba(34, 197, 94, 0.35);
+  transition: transform 0.2s;
+  margin-bottom: 10px;
+}
+.final-cta:active { transform: scale(0.97); }
+.final-cta .material-symbols-outlined { font-size: 22px; }
+/* Secondary actions */
+.final-secondary {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.final-sec-btn {
+  flex: 1;
+  padding: 11px 10px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #CBD5E1;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: background 0.2s;
+}
+.final-sec-btn:active { background: rgba(255,255,255,0.15); }
+.final-sec-btn .material-symbols-outlined { font-size: 16px; }
+.final-restart {
+  background: transparent;
+  color: #64748B;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 8px;
+  width: 100%;
+}
+
+/* ═══ ANIMATIONS ═══ */
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+@keyframes slideUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+@keyframes popIn { 0%{opacity:0;transform:scale(0.8)} 60%{transform:scale(1.05)} 100%{opacity:1;transform:scale(1)} }
+@keyframes glow-green {
+  0%,100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+  50% { box-shadow: 0 0 0 8px rgba(34, 197, 94, 0.2); }
+}
+@keyframes counter-up {
+  0% { transform: translateY(100%); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+.animate-glow-green { animation: glow-green 1.5s ease-in-out 3; }
+.animate-pop { animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+@keyframes pulse-btn {
+  0%, 100% { box-shadow: 0 4px 16px rgba(14, 165, 233, 0.35); transform: scale(1); }
+  50% { box-shadow: 0 4px 28px rgba(14, 165, 233, 0.6), 0 0 0 8px rgba(14, 165, 233, 0.15); transform: scale(1.03); }
+}
+
+/* ═══ RESPONSIVE ═══ */
+@media (min-width: 768px) {
+  .phone-mockup {
+    right: calc(50% - 430px/2 - 220px);
+    transform: translateX(0) translateY(450px);
+    bottom: 20px;
+  }
+  .phone-mockup.visible { transform: translateX(0) translateY(0); }
+}
+
+/* ═══ DEMO TAB SWITCHER ═══ */
+.demo-tabs {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 500;
+  background: #0F172A;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+.demo-tab {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #94A3B8;
+  background: transparent;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+.demo-tab .material-symbols-outlined { font-size: 16px; }
+.demo-tab:hover { color: #E2E8F0; background: rgba(255,255,255,0.05); }
+.demo-tab.active {
+  color: #FFF;
+  background: linear-gradient(135deg, #0EA5E9, #7C3AED);
+  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.3);
+}
+.demo-container { display: none; }
+.demo-container.active { display: block; }
+
+/* Offset all demos for the tab bar */
+.demo-container .page-frame { margin-top: 0; }
+.demo-container .step-bar { top: 44px; }
+.demo-container .welcome-overlay { padding-top: 44px; }
+
+/* ═══ PATIENT JOURNEY STYLES ═══ */
+.pj-phone-frame {
+  max-width: 390px;
+  margin: 44px auto 0;
+  min-height: calc(100vh - 44px);
+  background: #F8FAFC;
+  position: relative;
+  overflow: hidden;
+}
+.pj-scene {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  transform: translateX(60px);
+  transition: opacity 0.5s, transform 0.5s;
+  pointer-events: none;
+}
+.pj-scene.active {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+.pj-scene.exit {
+  opacity: 0;
+  transform: translateX(-60px);
+}
+
+/* Scene 1: Clinic arrival */
+.pj-clinic-wall {
+  flex: 1;
+  background: linear-gradient(180deg, #FEF3C7 0%, #FDE68A 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  position: relative;
+}
+.pj-clinic-wall::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.4) 0%, transparent 100%);
+}
+.pj-clinic-sign {
+  background: #FFF;
+  border-radius: 16px;
+  padding: 20px 30px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  margin-bottom: 30px;
+}
+.pj-clinic-sign h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1E293B;
+}
+.pj-clinic-sign p {
+  font-size: 12px;
+  color: #64748B;
+  margin-top: 4px;
+}
+.pj-qr-poster {
+  background: #FFF;
+  border-radius: 20px;
+  padding: 24px;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  animation: float 3s ease-in-out infinite;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.pj-qr-poster:hover { transform: scale(1.05); }
+.pj-qr-poster:active { transform: scale(0.97); }
+@keyframes float {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.pj-qr-poster .qr-icon {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 12px;
+  background: linear-gradient(135deg, #0EA5E9, #7C3AED);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pj-qr-poster .qr-icon .material-symbols-outlined {
+  font-size: 64px;
+  color: #FFF;
+}
+.pj-qr-poster h4 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1E293B;
+  margin-bottom: 4px;
+}
+.pj-qr-poster p {
+  font-size: 12px;
+  color: #64748B;
+}
+.pj-arrive-hint {
+  margin-top: 24px;
+  font-size: 13px;
+  color: #92400E;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  animation: pulse-hint 2s ease-in-out infinite;
+}
+@keyframes pulse-hint {
+  0%,100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+/* Scene 2: Scan animation */
+.pj-scan-view {
+  flex: 1;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.pj-viewfinder {
+  width: 220px;
+  height: 220px;
+  border: 3px solid rgba(255,255,255,0.3);
+  border-radius: 20px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pj-viewfinder::before,
+.pj-viewfinder::after {
+  content: '';
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border-color: #22C55E;
+  border-style: solid;
+  border-width: 0;
+}
+.pj-viewfinder::before {
+  top: -2px;
+  left: -2px;
+  border-top-width: 3px;
+  border-left-width: 3px;
+  border-top-left-radius: 20px;
+}
+.pj-viewfinder::after {
+  bottom: -2px;
+  right: -2px;
+  border-bottom-width: 3px;
+  border-right-width: 3px;
+  border-bottom-right-radius: 20px;
+}
+.pj-scan-line {
+  position: absolute;
+  top: 10%;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #22C55E, transparent);
+  animation: scan-sweep 2s ease-in-out infinite;
+}
+@keyframes scan-sweep {
+  0% { top: 10%; }
+  50% { top: 85%; }
+  100% { top: 10%; }
+}
+.pj-qr-target {
+  width: 100px;
+  height: 100px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pj-qr-target .material-symbols-outlined {
+  font-size: 60px;
+  color: rgba(255,255,255,0.4);
+}
+.pj-scan-status {
+  margin-top: 24px;
+  font-size: 14px;
+  color: #94A3B8;
+  font-weight: 500;
+}
+.pj-scan-status.detected {
+  color: #22C55E;
+  font-weight: 700;
+}
+
+/* Scene 3: Check-in form */
+.pj-checkin {
+  flex: 1;
+  background: linear-gradient(to bottom, #F0F9FF, #E0F2FE);
+  padding: 60px 24px 24px;
+  display: flex;
+  flex-direction: column;
+}
+.pj-checkin-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+.pj-checkin-header .clinic-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #FFF;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #0284C7;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.pj-checkin-header .clinic-badge .material-symbols-outlined { font-size: 14px; }
+.pj-checkin-header h2 {
+  font-size: 22px;
+  font-weight: 800;
+  color: #1E293B;
+  margin-bottom: 4px;
+}
+.pj-checkin-header p {
+  font-size: 13px;
+  color: #64748B;
+}
+.pj-form {
+  background: #FFF;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  flex: 0 0 auto;
+}
+.pj-form .field {
+  margin-bottom: 16px;
+}
+.pj-form .field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 6px;
+}
+.pj-form .field input {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #E2E8F0;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #1E293B;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.pj-form .field input:focus { border-color: #0EA5E9; }
+.pj-form .field input.filled {
+  border-color: #22C55E;
+  background: #F0FDF4;
+}
+.pj-form-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #0EA5E9, #0284C7);
+  color: #FFF;
+  font-size: 15px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 16px rgba(14, 165, 233, 0.3);
+}
+.pj-form-btn:active { transform: scale(0.97); }
+
+/* Scene 4: Confirmation */
+.pj-confirm {
+  flex: 1;
+  background: linear-gradient(to bottom, #F0F9FF, #E0F2FE);
+  padding: 60px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.pj-confirm .success-check {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #22C55E, #16A34A);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.pj-confirm .success-check .material-symbols-outlined {
+  font-size: 32px;
+  color: #FFF;
+  font-variation-settings: 'FILL' 1;
+}
+.pj-confirm h2 {
+  font-size: 20px;
+  font-weight: 800;
+  color: #1E293B;
+  margin-bottom: 4px;
+}
+.pj-confirm .position-text {
+  font-size: 14px;
+  color: #64748B;
+  margin-bottom: 24px;
+}
+
+/* Scene 5: Live tracker */
+.pj-tracker {
+  flex: 1;
+  background: linear-gradient(to bottom, #F0F9FF, #E0F2FE);
+  padding: 50px 20px 20px;
+  display: flex;
+  flex-direction: column;
+}
+.pj-tracker-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+.pj-tracker-header .live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22C55E;
+  animation: blink 1.5s infinite;
+}
+.pj-tracker-header span {
+  font-size: 12px;
+  font-weight: 600;
+  color: #22C55E;
+}
+.pj-position-card {
+  background: #FFF;
+  border-radius: 20px;
+  padding: 24px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  margin-bottom: 16px;
+}
+.pj-big-number {
+  font-size: 72px;
+  font-weight: 900;
+  background: linear-gradient(135deg, #3B82F6, #6366F1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+  transition: all 0.5s;
+}
+.pj-big-number.your-turn {
+  background: linear-gradient(135deg, #22C55E, #16A34A);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+.pj-position-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748B;
+  margin-top: 4px;
+}
+.pj-ahead-text {
+  font-size: 13px;
+  color: #94A3B8;
+  margin-top: 8px;
+}
+.pj-wait-estimate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: #FFF;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.pj-wait-estimate .material-symbols-outlined {
+  font-size: 20px;
+  color: #0284C7;
+}
+.pj-wait-estimate .wait-label {
+  font-size: 12px;
+  color: #94A3B8;
+}
+.pj-wait-estimate .wait-value {
+  font-size: 18px;
+  font-weight: 800;
+  color: #1E293B;
+}
+.pj-progress-bar {
+  background: #FFF;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  margin-bottom: 16px;
+}
+.pj-progress-bar .bar-bg {
+  height: 8px;
+  background: #E2E8F0;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.pj-progress-bar .bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #0EA5E9, #22C55E);
+  border-radius: 4px;
+  transition: width 1s ease-out;
+}
+.pj-progress-bar .progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #94A3B8;
+}
+.pj-notification {
+  background: #FFF;
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  border-left: 4px solid #0EA5E9;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.4s;
+  margin-bottom: 12px;
+}
+.pj-notification.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.pj-notification.urgent {
+  border-left-color: #22C55E;
+  background: #F0FDF4;
+}
+.pj-notification .notif-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.pj-notification .notif-icon.blue { background: #E0F2FE; }
+.pj-notification .notif-icon.blue .material-symbols-outlined { color: #0284C7; font-size: 18px; }
+.pj-notification .notif-icon.green { background: #DCFCE7; }
+.pj-notification .notif-icon.green .material-symbols-outlined { color: #16A34A; font-size: 18px; }
+.pj-notification .notif-text h4 {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1E293B;
+  margin-bottom: 2px;
+}
+.pj-notification .notif-text p {
+  font-size: 11px;
+  color: #64748B;
+}
+
+/* Scene 6: Your turn! */
+.pj-your-turn {
+  flex: 1;
+  background: linear-gradient(165deg, #0F172A 0%, #064E3B 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  text-align: center;
+}
+.pj-your-turn .turn-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #22C55E, #16A34A);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  box-shadow: 0 0 0 12px rgba(34, 197, 94, 0.15), 0 0 0 24px rgba(34, 197, 94, 0.07);
+  animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), glow-green 2s ease-in-out infinite;
+}
+.pj-your-turn .turn-icon .material-symbols-outlined {
+  font-size: 40px;
+  color: #FFF;
+  font-variation-settings: 'FILL' 1;
+}
+.pj-your-turn h2 {
+  font-size: 28px;
+  font-weight: 900;
+  color: #FFF;
+  margin-bottom: 8px;
+}
+.pj-your-turn .turn-sub {
+  font-size: 15px;
+  color: #86EFAC;
+  margin-bottom: 24px;
+}
+.pj-your-turn .turn-room {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 14px;
+  padding: 16px 24px;
+  margin-bottom: 30px;
+}
+.pj-your-turn .room-label {
+  font-size: 11px;
+  color: #94A3B8;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+.pj-your-turn .room-name {
+  font-size: 20px;
+  font-weight: 800;
+  color: #FFF;
+}
+.pj-restart-btn {
+  padding: 14px 28px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #CBD5E1;
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: 16px;
+}
+
+/* ═══ RECEPTIONIST VIEW STYLES ═══ */
+.rv-frame {
+  max-width: 680px;
+  margin: 44px auto 0;
+  min-height: calc(100vh - 44px);
+  background: #F1F5F9;
+  position: relative;
+}
+.rv-scene {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transform: scale(0.97);
+  transition: opacity 0.4s, transform 0.4s;
+  pointer-events: none;
+  overflow-y: auto;
+}
+.rv-scene.active {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+
+/* RV Header */
+.rv-header {
+  background: #FFF;
+  padding: 14px 20px;
+  border-bottom: 1px solid #E2E8F0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.rv-header .rv-logo {
+  font-size: 18px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #0EA5E9, #7C3AED);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.rv-header .rv-time {
+  font-size: 13px;
+  color: #64748B;
+  font-weight: 600;
+}
+.rv-header .rv-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #475569;
+  font-weight: 500;
+}
+.rv-header .rv-user .avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #E0F2FE;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.rv-header .rv-user .avatar .material-symbols-outlined { font-size: 16px; color: #0284C7; }
+
+/* RV Stats row */
+.rv-stats {
+  display: flex;
+  gap: 12px;
+  padding: 16px 20px;
+}
+.rv-stat-card {
+  flex: 1;
+  background: #FFF;
+  border-radius: 12px;
+  padding: 14px;
+  text-align: center;
+  border: 1px solid #E2E8F0;
+}
+.rv-stat-card .rv-stat-val {
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+.rv-stat-card .rv-stat-val.blue { color: #0284C7; }
+.rv-stat-card .rv-stat-val.green { color: #059669; }
+.rv-stat-card .rv-stat-val.muted { color: #CBD5E1; }
+.rv-stat-card .rv-stat-label {
+  font-size: 10px;
+  color: #94A3B8;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+/* RV Queue list */
+.rv-queue {
+  padding: 0 20px 20px;
+}
+.rv-queue-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1E293B;
+  margin-bottom: 10px;
+}
+.rv-queue-title .material-symbols-outlined { font-size: 18px; color: #0284C7; }
+.rv-patient-row {
+  background: #FFF;
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid #E2E8F0;
+  animation: slideUp 0.4s ease-out;
+  transition: all 0.3s;
+}
+.rv-patient-row.highlight {
+  border-color: #0EA5E9;
+  background: #F0F9FF;
+  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.1);
+}
+.rv-patient-row.consulting {
+  border-color: #22C55E;
+  background: #F0FDF4;
+}
+.rv-patient-row.notified {
+  border-color: #F59E0B;
+  background: #FFFBEB;
+}
+.rv-patient-row.no-show {
+  opacity: 0.5;
+  border-color: #EF4444;
+}
+.rv-patient-row .rv-pos {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #F1F5F9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 800;
+  color: #475569;
+  flex-shrink: 0;
+}
+.rv-patient-row .rv-pos.green { background: #DCFCE7; color: #166534; }
+.rv-patient-row .rv-pos.orange { background: #FEF3C7; color: #92400E; }
+.rv-patient-row .rv-info { flex: 1; }
+.rv-patient-row .rv-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1E293B;
+}
+.rv-patient-row .rv-meta {
+  font-size: 11px;
+  color: #94A3B8;
+  display: flex;
+  gap: 10px;
+  margin-top: 2px;
+}
+.rv-patient-row .rv-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+.rv-badge.qr { background: #E0F2FE; color: #0284C7; }
+.rv-badge.manual { background: #F3E8FF; color: #7C3AED; }
+.rv-badge.phone { background: #FEF3C7; color: #92400E; }
+.rv-badge.notified-badge { background: #FEF3C7; color: #92400E; }
+.rv-badge.consulting-badge { background: #DCFCE7; color: #166534; }
+.rv-badge.no-show-badge { background: #FEE2E2; color: #DC2626; }
+.rv-badge.priority { background: #FEE2E2; color: #DC2626; }
+
+/* RV Action buttons */
+.rv-actions {
+  padding: 0 20px 16px;
+  display: flex;
+  gap: 8px;
+}
+.rv-action-btn {
+  flex: 1;
+  padding: 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s;
+  border: 1px solid #E2E8F0;
+  background: #FFF;
+  color: #475569;
+}
+.rv-action-btn:active { transform: scale(0.97); }
+.rv-action-btn .material-symbols-outlined { font-size: 18px; }
+.rv-action-btn.primary {
+  background: linear-gradient(135deg, #0EA5E9, #7C3AED);
+  color: #FFF;
+  border: none;
+  box-shadow: 0 4px 16px rgba(14, 165, 233, 0.3);
+}
+.rv-action-btn.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* RV Add patient form */
+.rv-add-form {
+  background: #FFF;
+  border-radius: 16px;
+  padding: 20px;
+  margin: 0 20px 16px;
+  border: 2px solid #0EA5E9;
+  box-shadow: 0 4px 20px rgba(14, 165, 233, 0.1);
+  animation: slideUp 0.3s ease-out;
+}
+.rv-add-form h4 {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1E293B;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.rv-add-form h4 .material-symbols-outlined { font-size: 18px; color: #0EA5E9; }
+.rv-add-form .rv-form-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.rv-add-form input {
+  flex: 1;
+  padding: 10px 12px;
+  border: 2px solid #E2E8F0;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #1E293B;
+  outline: none;
+}
+.rv-add-form input:focus { border-color: #0EA5E9; }
+.rv-add-form .rv-form-submit {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  background: #0EA5E9;
+  color: #FFF;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* RV Coach bubble */
+.rv-coach {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 400px;
+  width: calc(100% - 40px);
+  background: #0F172A;
+  border-radius: 16px;
+  padding: 16px 20px;
+  color: #FFF;
+  z-index: 400;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+  opacity: 0;
+  transform: translateX(-50%) translateY(20px);
+  transition: all 0.4s;
+  pointer-events: none;
+}
+.rv-coach.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+.rv-coach h4 {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.rv-coach h4 .material-symbols-outlined { font-size: 18px; color: #38BDF8; }
+.rv-coach p {
+  font-size: 12px;
+  color: #94A3B8;
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+.rv-coach-btn {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #0EA5E9, #7C3AED);
+  color: #FFF;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* RV End-of-day stats */
+.rv-summary {
+  padding: 20px;
+}
+.rv-summary-card {
+  background: #FFF;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 12px;
+  border: 1px solid #E2E8F0;
+}
+.rv-summary-card h4 {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1E293B;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.rv-summary-card h4 .material-symbols-outlined { font-size: 18px; }
+.rv-summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.rv-summary-item {
+  text-align: center;
+  padding: 12px;
+  background: #F8FAFC;
+  border-radius: 10px;
+}
+.rv-summary-item .val {
+  font-size: 24px;
+  font-weight: 800;
+  color: #1E293B;
+}
+.rv-summary-item .label {
+  font-size: 11px;
+  color: #94A3B8;
+  margin-top: 2px;
+}
+.rv-final-msg {
+  text-align: center;
+  padding: 20px;
+}
+.rv-final-msg h3 {
+  font-size: 18px;
+  font-weight: 800;
+  color: #1E293B;
+  margin-bottom: 8px;
+}
+.rv-final-msg p {
+  font-size: 13px;
+  color: #64748B;
+  margin-bottom: 16px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- ═══ DEMO TAB SWITCHER ═══ -->
+<div class="demo-tabs">
+  <button class="demo-tab active" onclick="switchDemo('first-morning')">
+    <span class="material-symbols-outlined">wb_sunny</span>
+    Premier Matin
+  </button>
+  <button class="demo-tab" onclick="switchDemo('patient-journey')">
+    <span class="material-symbols-outlined">directions_walk</span>
+    Parcours Patient
+  </button>
+  <button class="demo-tab" onclick="switchDemo('receptionist-view')">
+    <span class="material-symbols-outlined">desktop_windows</span>
+    Vue Receptionniste
+  </button>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- DEMO 1: PREMIER MATIN (existing)           -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="demo-container active" id="demo-first-morning">
+<div class="page-frame" id="app">
+
+  <!-- ═══ STEP INDICATOR ═══ -->
+  <div class="step-bar" id="stepBar">
+    <div class="step-pip" id="pip0"></div>
+    <div class="step-pip" id="pip1"></div>
+    <div class="step-pip" id="pip2"></div>
+    <div class="step-pip" id="pip3"></div>
+    <div class="step-pip" id="pip4"></div>
+    <span class="step-label" id="stepLabel">Votre cabinet</span>
+  </div>
+
+  <!-- ═══ DASHBOARD (base layer) ═══ -->
+  <div class="dashboard" id="dashboard">
+    <!-- Header -->
+    <div class="dash-header">
+      <div class="logo">BléSAF</div>
+      <div class="clinic-info">
+        <div class="clinic-label">Cabinet</div>
+        <div class="clinic-name" id="dashClinicName">Dr. —</div>
+      </div>
+      <div class="header-actions">
+        <button class="lang-btn">عربي</button>
+        <button class="logout-btn"><span class="material-symbols-outlined">logout</span></button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="dash-stats" id="dashStats">
+      <div class="dash-stat">
+        <div class="stat-value primary" id="statWaiting">0</div>
+        <div class="stat-label">En Attente</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="dash-stat">
+        <div class="stat-value green" id="statConsultation">0</div>
+        <div class="stat-label">En Consultation</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="dash-stat">
+        <div class="stat-value muted" id="statSeen">0</div>
+        <div class="stat-label">Vus aujourd'hui</div>
+      </div>
+    </div>
+
+    <!-- Estimates -->
+    <div class="dash-estimates" id="dashEstimates">
+      <div class="dash-estimate">
+        <span class="material-symbols-outlined">avg_pace</span>
+        Attente moy: <strong id="estAvg">—</strong>
+      </div>
+      <div class="dash-estimate">
+        <span class="material-symbols-outlined">schedule</span>
+        Prochain: <strong id="estNext">—</strong>
+      </div>
+      <div class="dash-estimate">
+        <span class="material-symbols-outlined">flag</span>
+        Fin: <strong id="estEnd">—</strong>
+      </div>
+    </div>
+
+    <!-- Presence & Announce controls -->
+    <div class="dash-controls">
+      <button class="presence-btn active" id="presenceBtn">
+        <span class="material-symbols-outlined">stethoscope</span>
+        <span id="presenceLabel">Docteur présent</span>
+        <div class="toggle-track on" id="presenceTrack"><div class="toggle-thumb"></div></div>
+      </button>
+      <button class="announce-btn">
+        <span class="material-symbols-outlined">campaign</span>
+        Annonce
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </button>
+    </div>
+
+    <!-- Actions -->
+    <div class="dash-actions">
+      <button class="add-patient-btn">
+        <span class="material-symbols-outlined" style="font-size:20px">person_add</span>
+        Ajouter un Patient
+      </button>
+      <button class="icon-btn"><span class="material-symbols-outlined">qr_code_2</span></button>
+      <button class="icon-btn"><span class="material-symbols-outlined">settings</span></button>
+    </div>
+
+    <!-- Consultation section (hidden initially) -->
+    <div class="consultation-section" id="consultSection">
+      <div class="consultation-labels">
+        <span>En Consultation</span>
+        <span>Appel Suivant</span>
+      </div>
+      <div class="consultation-row">
+        <div class="consultation-card" id="consultCard">
+          <div class="patient-avatar"><span class="material-symbols-outlined">person</span></div>
+          <div class="patient-info">
+            <div class="patient-name" id="consultName">—</div>
+            <div class="patient-time"><span class="material-symbols-outlined">schedule</span> <span id="consultTime">0 min</span></div>
+          </div>
+        </div>
+        <button class="call-next-compact" id="callNextCompact">
+          <span class="material-symbols-outlined">directions_walk</span>
+          Suivant
+        </button>
+      </div>
+    </div>
+
+    <!-- Call Next (full width, shown when no consultation) -->
+    <div class="call-next-section" id="callNextSection">
+      <button class="call-next-btn" id="callNextBtn">
+        <span class="material-symbols-outlined">directions_walk</span>
+        Appeler Suivant
+      </button>
+    </div>
+
+    <!-- Queue -->
+    <div class="queue-section">
+      <div class="queue-title">
+        <span class="material-symbols-outlined">groups</span>
+        File d'attente
+      </div>
+      <div id="queueContainer">
+        <div class="empty-queue" id="emptyState">
+          <div class="empty-icon"><span class="material-symbols-outlined">groups</span></div>
+          <p>Aucun patient pour le moment</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ WELCOME SCREEN ═══ -->
+  <div class="welcome-overlay" id="welcomeOverlay">
+    <div class="welcome-content">
+      <div class="welcome-logo">BléSAF</div>
+      <div class="welcome-subtitle">Votre premier matin</div>
+      <div class="welcome-tagline">
+        En 7 minutes, découvrez comment votre journée<br>va changer avec la file d'attente virtuelle.
+      </div>
+      <button class="welcome-btn" onclick="startOnboarding()">Commencer</button>
+      <div class="welcome-step-hint">~7 minutes · 5 étapes</div>
+    </div>
+  </div>
+
+  <!-- ═══ WIZARD OVERLAY ═══ -->
+  <div class="wizard-overlay hidden" id="wizardOverlay">
+    <div class="wizard-card" id="wizardCard">
+      <!-- Wizard content injected by JS -->
+    </div>
+  </div>
+
+  <!-- ═══ COACH MARK OVERLAY ═══ -->
+  <div class="coach-overlay hidden" id="coachOverlay">
+    <div class="coach-backdrop"></div>
+    <div class="coach-tooltip" id="coachTooltip" style="bottom: 60px;">
+      <!-- Coach content injected by JS -->
+    </div>
+  </div>
+
+  <!-- ═══ PHONE MOCKUP (iPhone 13 frame) ═══ -->
+  <div class="phone-mockup" id="phoneMockup">
+    <img class="phone-frame-img" src="../../go-to-market/mockup_apple_iphone_13.png" alt="" draggable="false">
+    <div class="phone-notch"></div>
+    <div class="phone-screen">
+      <div class="phone-live"><div class="dot"></div><span>En direct</span></div>
+      <div class="phone-name" id="phonePatientName">Fatma K.</div>
+      <div class="phone-ahead" id="phoneAhead">—</div>
+      <div class="phone-wait-card">
+        <div class="phone-wait-label">Attente estimée</div>
+        <div class="phone-wait-value" id="phoneWait">—</div>
+      </div>
+      <div class="phone-ticket" id="phoneTicket">#1</div>
+      <div class="phone-turn-msg" id="phoneTurnMsg">C'est votre tour !</div>
+    </div>
+  </div>
+
+  <!-- ═══ FINAL SCREEN ═══ -->
+  <div class="final-overlay hidden" id="qrOverlay">
+    <div class="final-card">
+
+      <!-- Completion badge -->
+      <div class="final-check">
+        <span class="material-symbols-outlined">check</span>
+      </div>
+
+      <h2>Vous êtes prêt.</h2>
+      <div class="final-sub">Vous venez de tout apprendre en 2 minutes.</div>
+
+      <!-- Recap of what they mastered -->
+      <div class="final-recap">
+        <div class="final-recap-item">
+          <div class="recap-icon green"><span class="material-symbols-outlined">qr_code_2</span></div>
+          <span>Les patients <strong>s'enregistrent tout seuls</strong> en scannant le QR code. Zéro appel téléphonique.</span>
+        </div>
+        <div class="final-recap-item">
+          <div class="recap-icon blue"><span class="material-symbols-outlined">touch_app</span></div>
+          <span><strong>Un clic</strong> pour appeler le patient suivant. La file se réorganise automatiquement.</span>
+        </div>
+        <div class="final-recap-item">
+          <div class="recap-icon purple"><span class="material-symbols-outlined">smartphone</span></div>
+          <span>Chaque patient <strong>suit sa position en temps réel</strong> depuis son téléphone.</span>
+        </div>
+      </div>
+
+      <!-- Reassurance -->
+      <div class="final-reassure">
+        <span class="material-symbols-outlined">shield</span>
+        <p>Vous ne pouvez rien casser. Ajoutez un patient, appelez-le, supprimez-le — <strong>c'est fait pour ça.</strong> Vos 30 jours d'essai gratuit commencent maintenant.</p>
+      </div>
+
+      <!-- Primary CTA -->
+      <button class="final-cta" onclick="restartDemo()">
+        <span class="material-symbols-outlined">arrow_forward</span>
+        Commencer pour de vrai
+      </button>
+
+      <!-- Secondary actions -->
+      <div class="final-secondary">
+        <button class="final-sec-btn" onclick="window.print()">
+          <span class="material-symbols-outlined">print</span>
+          Imprimer le QR poster
+        </button>
+        <button class="final-sec-btn">
+          <span class="material-symbols-outlined">share</span>
+          Partager avec l'équipe
+        </button>
+      </div>
+
+      <button class="final-restart" onclick="restartDemo()">Revoir la démo</button>
+    </div>
+  </div>
+
+</div><!-- end page-frame -->
+</div><!-- end demo-first-morning -->
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- DEMO 2: PARCOURS PATIENT                    -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="demo-container" id="demo-patient-journey">
+<div class="pj-phone-frame">
+
+  <!-- Scene 1: Arrive at clinic -->
+  <div class="pj-scene active" id="pj-scene-1">
+    <div class="pj-clinic-wall">
+      <div class="pj-clinic-sign">
+        <h3>Cabinet Dr. Skander Kamoun</h3>
+        <p>Medecine Generale - Lac 2, Tunis</p>
+      </div>
+      <div class="pj-qr-poster" onclick="pjScanQR()">
+        <div class="qr-icon">
+          <span class="material-symbols-outlined">qr_code_2</span>
+        </div>
+        <h4>Scannez pour prendre votre place</h4>
+        <p>File d'attente virtuelle BleSaf</p>
+      </div>
+      <div class="pj-arrive-hint">
+        <span class="material-symbols-outlined" style="font-size:16px">touch_app</span>
+        Appuyez sur le QR code pour le scanner
+      </div>
+    </div>
+  </div>
+
+  <!-- Scene 2: Scanning animation -->
+  <div class="pj-scene" id="pj-scene-2">
+    <div class="pj-scan-view">
+      <div class="pj-viewfinder">
+        <div class="pj-scan-line"></div>
+        <div class="pj-qr-target">
+          <span class="material-symbols-outlined">qr_code_2</span>
+        </div>
+      </div>
+      <div class="pj-scan-status" id="pjScanStatus">Recherche du QR code...</div>
+    </div>
+  </div>
+
+  <!-- Scene 3: Check-in form -->
+  <div class="pj-scene" id="pj-scene-3">
+    <div class="pj-checkin">
+      <div class="pj-checkin-header">
+        <div class="clinic-badge">
+          <span class="material-symbols-outlined">verified</span>
+          Cabinet Dr. Kamoun
+        </div>
+        <h2>Bienvenue !</h2>
+        <p>Inscrivez-vous pour prendre votre place dans la file</p>
+      </div>
+      <div class="pj-form">
+        <div class="field">
+          <label>Votre prenom</label>
+          <input type="text" id="pjPatientName" placeholder="ex: Fatma" value="Fatma">
+        </div>
+        <div class="field">
+          <label>Telephone (pour les notifications)</label>
+          <input type="tel" id="pjPatientPhone" placeholder="+216 XX XXX XXX" value="+216 98 765 432">
+        </div>
+        <button class="pj-form-btn" onclick="pjSubmitCheckin()">
+          <span class="material-symbols-outlined" style="font-size:18px">check_circle</span>
+          Prendre ma place
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scene 4: Confirmation -->
+  <div class="pj-scene" id="pj-scene-4">
+    <div class="pj-confirm">
+      <div class="success-check">
+        <span class="material-symbols-outlined">check</span>
+      </div>
+      <h2>Vous etes inscrit(e) !</h2>
+      <p class="position-text">Vous etes en position <strong>#4</strong> dans la file</p>
+
+      <div class="pj-position-card" style="width:100%">
+        <div class="pj-big-number" id="pjConfirmPos">4</div>
+        <div class="pj-position-label">Votre position</div>
+        <div class="pj-ahead-text">3 personnes avant vous</div>
+      </div>
+
+      <div class="pj-wait-estimate" style="width:100%">
+        <span class="material-symbols-outlined">schedule</span>
+        <div>
+          <div class="wait-label">Attente estimee</div>
+          <div class="wait-value">~30 min</div>
+        </div>
+      </div>
+
+      <button class="pj-form-btn" onclick="pjStartTracking()" style="width:100%;margin-top:8px">
+        <span class="material-symbols-outlined" style="font-size:18px">visibility</span>
+        Suivre ma position en direct
+      </button>
+    </div>
+  </div>
+
+  <!-- Scene 5: Live tracking -->
+  <div class="pj-scene" id="pj-scene-5">
+    <div class="pj-tracker">
+      <div class="pj-tracker-header">
+        <div class="live-dot"></div>
+        <span>En direct - Cabinet Dr. Kamoun</span>
+      </div>
+
+      <div class="pj-position-card">
+        <div class="pj-big-number" id="pjPosition">4</div>
+        <div class="pj-position-label" id="pjPosLabel">Votre position</div>
+        <div class="pj-ahead-text" id="pjAheadText">3 personnes avant vous</div>
+      </div>
+
+      <div class="pj-wait-estimate">
+        <span class="material-symbols-outlined">schedule</span>
+        <div>
+          <div class="wait-label">Attente estimee</div>
+          <div class="wait-value" id="pjWaitTime">~30 min</div>
+        </div>
+      </div>
+
+      <div class="pj-progress-bar">
+        <div class="bar-bg">
+          <div class="bar-fill" id="pjProgressFill" style="width: 25%"></div>
+        </div>
+        <div class="progress-label">
+          <span>Enregistrement</span>
+          <span id="pjProgressText">Position #4</span>
+        </div>
+      </div>
+
+      <div id="pjNotifications">
+        <!-- Notifications will appear here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Scene 6: Your turn! -->
+  <div class="pj-scene" id="pj-scene-6">
+    <div class="pj-your-turn">
+      <div class="turn-icon">
+        <span class="material-symbols-outlined">notifications_active</span>
+      </div>
+      <h2>C'est votre tour !</h2>
+      <div class="turn-sub">Le docteur vous attend</div>
+      <div class="turn-room">
+        <div class="room-label">Dirigez-vous vers</div>
+        <div class="room-name">Salle de consultation</div>
+      </div>
+      <button class="pj-restart-btn" onclick="pjRestart()">
+        <span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle">replay</span>
+        Revoir le parcours
+      </button>
+    </div>
+  </div>
+
+</div><!-- end pj-phone-frame -->
+</div><!-- end demo-patient-journey -->
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- DEMO 3: VUE RECEPTIONNISTE                  -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="demo-container" id="demo-receptionist-view">
+<div class="rv-frame">
+
+  <!-- Scene 1: Morning opening -->
+  <div class="rv-scene active" id="rv-scene-1">
+    <div class="rv-header">
+      <div class="rv-logo">BleSAF</div>
+      <div class="rv-time" id="rvTime">08:55</div>
+      <div class="rv-user">
+        <div class="avatar"><span class="material-symbols-outlined">person</span></div>
+        Sana (receptionniste)
+      </div>
+    </div>
+    <div class="rv-stats">
+      <div class="rv-stat-card">
+        <div class="rv-stat-val blue" id="rvStatWaiting">0</div>
+        <div class="rv-stat-label">En Attente</div>
+      </div>
+      <div class="rv-stat-card">
+        <div class="rv-stat-val green" id="rvStatConsult">0</div>
+        <div class="rv-stat-label">Consultation</div>
+      </div>
+      <div class="rv-stat-card">
+        <div class="rv-stat-val muted" id="rvStatSeen">0</div>
+        <div class="rv-stat-label">Vus</div>
+      </div>
+    </div>
+
+    <div class="rv-actions">
+      <button class="rv-action-btn primary" id="rvAddBtn" onclick="rvShowAddForm()">
+        <span class="material-symbols-outlined">person_add</span>
+        Ajouter patient
+      </button>
+      <button class="rv-action-btn disabled" id="rvCallBtn" onclick="rvCallNext()">
+        <span class="material-symbols-outlined">directions_walk</span>
+        Appeler suivant
+      </button>
+    </div>
+
+    <div id="rvAddFormContainer"></div>
+
+    <div class="rv-queue">
+      <div class="rv-queue-title">
+        <span class="material-symbols-outlined">groups</span>
+        File d'attente
+      </div>
+      <div id="rvQueueList">
+        <div style="text-align:center;padding:30px;color:#94A3B8;font-size:13px">
+          <span class="material-symbols-outlined" style="font-size:40px;display:block;margin-bottom:8px;color:#CBD5E1">groups</span>
+          Aucun patient pour le moment
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scene 2: End of day summary -->
+  <div class="rv-scene" id="rv-scene-2">
+    <div class="rv-header">
+      <div class="rv-logo">BleSAF</div>
+      <div class="rv-time">17:30</div>
+      <div class="rv-user">
+        <div class="avatar"><span class="material-symbols-outlined">person</span></div>
+        Sana (receptionniste)
+      </div>
+    </div>
+
+    <div class="rv-summary">
+      <div class="rv-summary-card">
+        <h4><span class="material-symbols-outlined" style="color:#22C55E">insights</span> Bilan de la journee</h4>
+        <div class="rv-summary-grid">
+          <div class="rv-summary-item">
+            <div class="val" style="color:#0284C7">12</div>
+            <div class="label">Patients vus</div>
+          </div>
+          <div class="rv-summary-item">
+            <div class="val" style="color:#059669">8 min</div>
+            <div class="label">Attente moyenne</div>
+          </div>
+          <div class="rv-summary-item">
+            <div class="val" style="color:#7C3AED">7</div>
+            <div class="label">Via QR code</div>
+          </div>
+          <div class="rv-summary-item">
+            <div class="val" style="color:#F59E0B">1</div>
+            <div class="label">No-show</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rv-summary-card">
+        <h4><span class="material-symbols-outlined" style="color:#0EA5E9">trending_up</span> Comparaison</h4>
+        <div style="padding:8px 0">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+            <div style="flex:1">
+              <div style="font-size:12px;color:#94A3B8;margin-bottom:4px">Avant BleSaf</div>
+              <div style="height:8px;background:#FEE2E2;border-radius:4px"><div style="height:100%;width:100%;background:#EF4444;border-radius:4px"></div></div>
+              <div style="font-size:13px;font-weight:700;color:#EF4444;margin-top:4px">~35 min d'attente</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="flex:1">
+              <div style="font-size:12px;color:#94A3B8;margin-bottom:4px">Avec BleSaf</div>
+              <div style="height:8px;background:#DCFCE7;border-radius:4px"><div style="height:100%;width:23%;background:#22C55E;border-radius:4px"></div></div>
+              <div style="font-size:13px;font-weight:700;color:#22C55E;margin-top:4px">~8 min d'attente</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rv-final-msg">
+        <h3>Une journee sans stress</h3>
+        <p>Plus de files physiques, plus de noms cries dans la salle. Sana a gere 12 patients sans quitter son bureau.</p>
+        <button class="rv-action-btn primary" onclick="rvRestart()" style="justify-content:center">
+          <span class="material-symbols-outlined">replay</span>
+          Revoir la demo
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end rv-frame -->
+
+<!-- RV Coach bubble (floating) -->
+<div class="rv-coach" id="rvCoach">
+  <h4 id="rvCoachTitle"><span class="material-symbols-outlined">tips_and_updates</span> <span id="rvCoachTitleText">Bienvenue</span></h4>
+  <p id="rvCoachBody">Texte</p>
+  <button class="rv-coach-btn" id="rvCoachBtn" onclick="rvCoachAction()">Continuer</button>
+</div>
+
+</div><!-- end demo-receptionist-view -->
+
+<script>
+// ═══ STATE ═══
+const state = {
+  step: 'welcome', // welcome | wizard-1 | wizard-2 | wizard-3 | first-patient | filling | call-prompt | cascade | qr
+  clinicName: '',
+  doctorName: '',
+  specialty: '',
+  patients: [
+    { name: 'Fatma Khalil', time: '09:15', wait: 4 },
+    { name: 'Mehdi Trabelsi', time: '09:22', wait: 3 },
+    { name: 'Amira Jebali', time: '09:28', wait: 2 },
+    { name: 'Nizar Ben Salem', time: '09:35', wait: 1 },
+  ],
+  visiblePatients: 0,
+  inConsultation: null,
+};
+
+// ═══ ELEMENTS ═══
+const $ = id => document.getElementById(id);
+
+// ═══ STEP LABELS ═══
+const stepLabels = {
+  'welcome': 'Bienvenue',
+  'wizard-1': 'Étape 1 · Votre cabinet',
+  'wizard-2': 'Étape 1 · Votre cabinet',
+  'wizard-3': 'Étape 1 · Le docteur est là',
+  'first-patient': 'Étape 2 · Premier patient',
+  'filling': 'Étape 3 · Salle d\'attente',
+  'call-prompt': 'Étape 4 · Appeler suivant',
+  'cascade': 'Étape 4 · Appeler suivant',
+  'qr': 'Étape 5 · Votre QR Code',
+};
+
+const stepPipIndex = {
+  'welcome': -1,
+  'wizard-1': 0, 'wizard-2': 0, 'wizard-3': 0,
+  'first-patient': 1,
+  'filling': 2,
+  'call-prompt': 3, 'cascade': 3,
+  'qr': 4,
+};
+
+function updateStepBar() {
+  const idx = stepPipIndex[state.step];
+  for (let i = 0; i < 5; i++) {
+    const pip = $('pip' + i);
+    pip.className = 'step-pip';
+    if (i < idx) pip.classList.add('done');
+    if (i === idx) pip.classList.add('active');
+  }
+  $('stepLabel').textContent = stepLabels[state.step] || '';
+}
+
+// ═══ PATIENT CARD RENDERING ═══
+function renderPatientCard(patient, index, isNew) {
+  const waitClass = patient.wait >= 30 ? 'long' : patient.wait >= 15 ? 'medium' : 'short';
+  const isNotified = index === 0 && state.inConsultation;
+  const showUp = index > 0;
+  const showDown = !state.inConsultation ? index < state.visiblePatients - 1 : index < state.visiblePatients - 2;
+
+  const card = document.createElement('div');
+  card.className = 'patient-card' + (isNew ? ' entering' : '');
+  card.id = 'pcard-' + index;
+  card.innerHTML = `
+    <div class="patient-card-top">
+      <div class="position-badge">#${index + (state.inConsultation ? 2 : 1)}</div>
+      <div class="patient-info">
+        <div class="patient-name">${patient.name}</div>
+        <div class="patient-details">
+          <span class="patient-detail"><span class="material-symbols-outlined">login</span> ${patient.time}</span>
+          <span class="patient-detail wait ${waitClass}"><span class="material-symbols-outlined">hourglass_empty</span> ${patient.wait} min</span>
+        </div>
+        ${isNotified ? '<div class="notified-badge"><span class="material-symbols-outlined">notifications_active</span> Notifié</div>' : ''}
+      </div>
+    </div>
+    <div class="patient-card-bottom">
+      <div class="card-status-icons">
+        <div class="status-icon-btn"><span class="material-symbols-outlined">directions_walk</span></div>
+        <div class="status-icon-btn sms-pending"><span class="material-symbols-outlined">send</span></div>
+      </div>
+      <div class="card-action-btns">
+        <div class="action-btn priority"><span class="material-symbols-outlined">star</span></div>
+        ${showUp ? '<div class="action-btn"><span class="material-symbols-outlined">arrow_upward</span></div>' : ''}
+        ${showDown ? '<div class="action-btn"><span class="material-symbols-outlined">arrow_downward</span></div>' : ''}
+        <div class="action-btn remove"><span class="material-symbols-outlined">close</span></div>
+      </div>
+    </div>
+  `;
+  return card;
+}
+
+function renderQueue(animateNew) {
+  const container = $('queueContainer');
+  const start = state.inConsultation ? 1 : 0;
+  const patientsToShow = state.patients.slice(start, state.visiblePatients);
+
+  if (patientsToShow.length === 0 && !state.inConsultation) {
+    container.innerHTML = `<div class="empty-queue" id="emptyState">
+      <div class="empty-icon"><span class="material-symbols-outlined">groups</span></div>
+      <p>Aucun patient pour le moment</p>
+    </div>`;
+    return;
+  }
+
+  container.innerHTML = '';
+  patientsToShow.forEach((p, i) => {
+    const isNew = animateNew && i === patientsToShow.length - 1;
+    container.appendChild(renderPatientCard(p, i, isNew));
+  });
+}
+
+function updateStats() {
+  const waiting = state.inConsultation
+    ? Math.max(0, state.visiblePatients - 1)
+    : state.visiblePatients;
+  const consultation = state.inConsultation ? 1 : 0;
+  const seen = state.inConsultation ? 0 : 0; // Stays 0 in demo until call-next completes
+
+  animateCounter('statWaiting', waiting);
+  animateCounter('statConsultation', consultation);
+
+  if (state.visiblePatients > 0) {
+    const avgWait = Math.round(state.patients.slice(0, state.visiblePatients).reduce((s, p) => s + p.wait, 0) / state.visiblePatients);
+    $('estAvg').textContent = avgWait + ' min';
+
+    const now = new Date();
+    const next = new Date(now.getTime() + avgWait * 60000);
+    $('estNext').textContent = '~' + next.getHours().toString().padStart(2,'0') + ':' + next.getMinutes().toString().padStart(2,'0');
+
+    const end = new Date(now.getTime() + avgWait * state.visiblePatients * 60000);
+    $('estEnd').textContent = '~' + end.getHours().toString().padStart(2,'0') + ':' + end.getMinutes().toString().padStart(2,'0');
+  }
+}
+
+function animateCounter(id, target) {
+  const el = $(id);
+  const current = parseInt(el.textContent) || 0;
+  if (current === target) return;
+  el.style.animation = 'none';
+  el.offsetHeight; // trigger reflow
+  el.textContent = target;
+  el.style.animation = 'popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
+}
+
+// ═══ WIZARD ═══
+function showWizardStep(step) {
+  const card = $('wizardCard');
+
+  if (step === 1) {
+    state.step = 'wizard-1';
+    card.innerHTML = `
+      <div class="wizard-step-label">Étape 1 sur 3</div>
+      <div class="wizard-title">Votre cabinet</div>
+      <div class="wizard-field">
+        <label>Nom du cabinet</label>
+        <input type="text" id="wizClinicName" placeholder="ex: Cabinet Dr. Kamoun" value="Cabinet Dr. Skander Kamoun">
+      </div>
+      <div class="wizard-field">
+        <label>Nom du docteur</label>
+        <input type="text" id="wizDoctorName" placeholder="ex: Dr. Skander Kamoun" value="Dr. Skander Kamoun">
+      </div>
+      <button class="wizard-btn" onclick="wizardNext(1)">Suivant</button>
+    `;
+  } else if (step === 2) {
+    state.step = 'wizard-2';
+    card.innerHTML = `
+      <div class="wizard-step-label">Étape 2 sur 3</div>
+      <div class="wizard-title">Quelques détails</div>
+      <div class="wizard-field">
+        <label>Spécialité</label>
+        <select id="wizSpecialty">
+          <option value="general">Médecine Générale</option>
+          <option value="dentist">Dentiste</option>
+          <option value="dermato">Dermatologie</option>
+          <option value="pediatre">Pédiatrie</option>
+          <option value="ophtalmo">Ophtalmologie</option>
+          <option value="cardio">Cardiologie</option>
+        </select>
+      </div>
+      <div class="wizard-field">
+        <label>Téléphone du cabinet</label>
+        <input type="tel" id="wizPhone" placeholder="+216 XX XXX XXX" value="+216 71 234 567">
+      </div>
+      <button class="wizard-btn" onclick="wizardNext(2)">Suivant</button>
+    `;
+  } else if (step === 3) {
+    state.step = 'wizard-3';
+    card.innerHTML = `
+      <div class="wizard-step-label">Étape 3 sur 3</div>
+      <div class="wizard-title">Le docteur est arrivé ?</div>
+      <div class="presence-toggle-big">
+        <div class="toggle-circle on" id="wizPresenceCircle" onclick="toggleWizPresence()">
+          <span class="material-symbols-outlined">stethoscope</span>
+        </div>
+        <div class="toggle-label on" id="wizPresenceLabel">${state.doctorName} est arrivé(e)</div>
+      </div>
+      <button class="wizard-btn" onclick="wizardNext(3)">Ouvrir mon cabinet</button>
+    `;
+  }
+  updateStepBar();
+}
+
+function toggleWizPresence() {
+  const circle = $('wizPresenceCircle');
+  const label = $('wizPresenceLabel');
+  const isOn = circle.classList.contains('on');
+  circle.classList.toggle('on', !isOn);
+  label.classList.toggle('on', !isOn);
+  label.textContent = isOn ? 'Pas encore arrivé(e)' : state.doctorName + ' est arrivé(e)';
+}
+
+function wizardNext(currentStep) {
+  if (currentStep === 1) {
+    state.clinicName = $('wizClinicName').value || 'Cabinet Dr. Kamoun';
+    state.doctorName = $('wizDoctorName').value || 'Dr. Kamoun';
+    showWizardStep(2);
+  } else if (currentStep === 2) {
+    state.specialty = $('wizSpecialty').value;
+    showWizardStep(3);
+  } else if (currentStep === 3) {
+    // Wizard complete → show dashboard
+    $('dashClinicName').textContent = state.doctorName;
+    $('wizardOverlay').classList.add('hidden');
+    $('dashboard').classList.add('visible');
+
+    // Short delay then start patient arrival sequence
+    setTimeout(() => startFirstPatient(), 1200);
+  }
+}
+
+// ═══ STEP 2: FIRST PATIENT ARRIVES ═══
+function startFirstPatient() {
+  state.step = 'first-patient';
+  updateStepBar();
+
+  // Show the empty dashboard for a beat
+  setTimeout(() => {
+    // Patient appears!
+    state.visiblePatients = 1;
+    state.patients[0].wait = 0;
+    renderQueue(true);
+    updateStats();
+
+    // Show phone mockup
+    updatePhoneMockup(0);
+    setTimeout(() => {
+      $('phoneMockup').classList.add('visible');
+    }, 400);
+
+    // Show coach mark after patient appears
+    setTimeout(() => showCoachMark('first-patient'), 900);
+  }, 1500);
+}
+
+// ═══ STEP 3: FILLING UP ═══
+function startFilling() {
+  state.step = 'filling';
+  updateStepBar();
+  hideCoachMark();
+
+  let patientIndex = 1;
+  const addNextPatient = () => {
+    if (patientIndex >= state.patients.length) {
+      // All patients added, show coach
+      setTimeout(() => {
+        updatePhoneMockup(state.visiblePatients - 1);
+        showCoachMark('filling');
+      }, 600);
+      return;
+    }
+
+    state.patients[patientIndex].wait = patientIndex * 5;
+    state.visiblePatients = patientIndex + 1;
+    renderQueue(true);
+    updateStats();
+    updatePhoneMockup(state.visiblePatients - 1);
+
+    patientIndex++;
+    setTimeout(addNextPatient, 900);
+  };
+
+  setTimeout(addNextPatient, 500);
+}
+
+// ═══ STEP 4: CALL NEXT ═══
+function startCallPrompt() {
+  state.step = 'call-prompt';
+  updateStepBar();
+  hideCoachMark();
+  $('phoneMockup').classList.remove('visible');
+
+  // Enable the call next button
+  $('callNextBtn').classList.remove('disabled');
+  $('callNextBtn').onclick = performCascade;
+
+  // Highlight the button with a spotlight effect
+  setTimeout(() => showCoachMark('call-prompt'), 400);
+}
+
+function performCascade() {
+  state.step = 'cascade';
+  hideCoachMark();
+
+  // Stop pulse, button press animation
+  const btn = $('callNextBtn');
+  btn.style.animation = '';
+  btn.classList.add('disabled');
+  btn.innerHTML = '<span class="material-symbols-outlined" style="animation:spin 0.8s linear infinite">sync</span> Appel en cours...';
+
+  setTimeout(() => {
+    // Move first patient to consultation
+    state.inConsultation = state.patients[0];
+
+    // Update consultation card
+    $('consultName').textContent = state.patients[0].name;
+    $('consultTime').textContent = '0 min';
+
+    // Hide full-width call button, show consultation section
+    $('callNextSection').style.display = 'none';
+    $('consultSection').classList.add('visible');
+    $('consultSection').style.animation = 'fadeIn 0.5s ease-out';
+
+    // Update patients' wait times (they've been waiting longer now)
+    state.patients.forEach((p, i) => { if (i > 0) p.wait += 2; });
+
+    // Re-render queue (without first patient, second becomes NOTIFIED)
+    renderQueue(false);
+
+    // Animate all cards shifting
+    document.querySelectorAll('.patient-card').forEach((card, i) => {
+      card.classList.add('shifting');
+      setTimeout(() => card.classList.remove('shifting'), 600);
+    });
+
+    // Update stats
+    animateCounter('statConsultation', 1);
+    animateCounter('statWaiting', state.visiblePatients - 1);
+
+    // Show phone mockup with "Your Turn!" for first patient
+    updatePhoneMockupYourTurn();
+    setTimeout(() => $('phoneMockup').classList.add('visible'), 300);
+
+    // Show coach mark: the aha moment
+    setTimeout(() => showCoachMark('cascade'), 1200);
+
+  }, 800);
+}
+
+// ═══ STEP 5: QR CODE ═══
+function showQRPoster() {
+  state.step = 'qr';
+  updateStepBar();
+  hideCoachMark();
+  $('phoneMockup').classList.remove('visible');
+  $('qrOverlay').classList.remove('hidden');
+}
+
+// ═══ PHONE MOCKUP ═══
+function updatePhoneMockup(lastPatientIndex) {
+  const p = state.patients[lastPatientIndex];
+  if (!p) return;
+
+  const firstName = p.name.split(' ')[0];
+  $('phonePatientName').textContent = firstName + ', vous êtes dans le Saf!';
+
+  const position = lastPatientIndex + 1;
+  const ahead = position - 1;
+  $('phoneAhead').textContent = ahead === 0
+    ? 'Vous êtes le prochain !'
+    : ahead + ' personne' + (ahead > 1 ? 's' : '') + ' avant vous';
+
+  const waitMins = ahead * 10;
+  $('phoneWait').textContent = waitMins === 0 ? '< 5 min' : '~' + waitMins + ' min';
+  $('phoneTicket').textContent = '#' + position;
+  $('phoneTicket').className = 'phone-ticket';
+  $('phoneTurnMsg').style.display = 'none';
+}
+
+function updatePhoneMockupYourTurn() {
+  const p = state.patients[0];
+  const firstName = p.name.split(' ')[0];
+  $('phonePatientName').textContent = firstName + ', c\'est votre tour !';
+  $('phoneAhead').textContent = '';
+  $('phoneWait').textContent = 'Maintenant !';
+  $('phoneTicket').textContent = '✓';
+  $('phoneTicket').className = 'phone-ticket green';
+  $('phoneTurnMsg').style.display = 'block';
+}
+
+// ═══ COACH MARKS ═══
+const coachContent = {
+  'first-patient': {
+    icon: 'person_pin',
+    title: 'Un patient vient d\'arriver !',
+    body: 'Fatma a scanné votre QR code depuis le parking. Elle est apparue dans votre file d\'attente <strong>automatiquement</strong>.<br><br>Pas d\'appel téléphonique. Pas de papier.',
+    btn: 'Continuer',
+    action: 'startFilling',
+    position: 'middle',
+  },
+  'filling': {
+    icon: 'groups',
+    title: 'La salle d\'attente se remplit',
+    body: '4 patients se sont enregistrés <strong>tout seuls</strong>, chacun en scannant le QR code. Votre réceptionniste n\'a rien eu à faire.<br><br>Prête à recevoir Fatma ?',
+    btn: 'Appeler le premier patient',
+    action: 'startCallPrompt',
+    position: 'middle',
+  },
+  'call-prompt': {
+    icon: 'touch_app',
+    title: 'Cliquez sur « Appeler Suivant »',
+    body: 'Un seul clic pour appeler Fatma, notifier le patient suivant, et réorganiser toute la file.<br><br>Essayez maintenant !',
+    btn: '',
+    action: '',
+    position: 'top',
+    hideBtn: true,
+  },
+  'cascade': {
+    icon: 'auto_awesome',
+    title: 'Un clic. Toute la file s\'est réorganisée.',
+    body: 'Fatma est en consultation. Mehdi est notifié qu\'il passe bientôt. Les autres ont avancé d\'une place.<br><br><strong>Plus besoin de crier un nom dans la salle d\'attente.</strong>',
+    btn: 'Voir mon QR code',
+    action: 'showQRPoster',
+    position: 'middle',
+  },
+};
+
+function showCoachMark(key) {
+  const coach = coachContent[key];
+  if (!coach) return;
+
+  const overlay = $('coachOverlay');
+  const tooltip = $('coachTooltip');
+
+  tooltip.innerHTML = `
+    <div class="coach-icon"><span class="material-symbols-outlined">${coach.icon}</span></div>
+    <h3>${coach.title}</h3>
+    <p>${coach.body}</p>
+    ${coach.hideBtn ? '' : `<button class="coach-btn" onclick="${coach.action}()">${coach.btn}</button>`}
+  `;
+
+  // Position tooltip — avoid overlapping the phone mockup on mobile
+  tooltip.style.transform = 'translateX(-50%)'; // reset
+  if (coach.position === 'top') {
+    tooltip.style.top = '50px';
+    tooltip.style.bottom = 'auto';
+  } else if (coach.position === 'middle') {
+    // Position above the phone mockup (fixed at bottom, ~412px tall)
+    tooltip.style.top = '80px';
+    tooltip.style.bottom = 'auto';
+    tooltip.style.transform = 'translateX(-50%)';
+  } else {
+    tooltip.style.top = 'auto';
+    tooltip.style.bottom = '60px';
+  }
+
+  overlay.classList.remove('hidden');
+  overlay.classList.remove('active');
+  overlay.classList.remove('passthrough');
+
+  if (coach.hideBtn) {
+    // Passthrough mode: user must click the actual UI element (e.g. "Appeler Suivant")
+    overlay.classList.add('passthrough');
+    // Pulse the call-next button to draw attention
+    const btn = $('callNextBtn');
+    if (btn) btn.style.animation = 'pulse-btn 1.5s infinite';
+  } else {
+    overlay.classList.add('active');
+  }
+}
+
+function hideCoachMark() {
+  const overlay = $('coachOverlay');
+  overlay.classList.add('hidden');
+  overlay.classList.remove('active');
+  overlay.classList.remove('passthrough');
+}
+
+// ═══ FLOW CONTROL ═══
+function startOnboarding() {
+  $('welcomeOverlay').classList.add('hidden');
+  $('wizardOverlay').classList.remove('hidden');
+  showWizardStep(1);
+}
+
+function restartDemo() {
+  // Reset state
+  state.step = 'welcome';
+  state.visiblePatients = 0;
+  state.inConsultation = null;
+  state.patients.forEach((p, i) => { p.wait = (i + 1) * 2; });
+
+  // Reset UI
+  $('dashboard').classList.remove('visible');
+  $('welcomeOverlay').classList.remove('hidden');
+  $('qrOverlay').classList.add('hidden');
+  $('phoneMockup').classList.remove('visible');
+  $('consultSection').classList.remove('visible');
+  $('callNextSection').style.display = '';
+  $('callNextBtn').innerHTML = '<span class="material-symbols-outlined">directions_walk</span> Appeler Suivant';
+  $('callNextBtn').classList.remove('disabled');
+  $('statWaiting').textContent = '0';
+  $('statConsultation').textContent = '0';
+  $('statSeen').textContent = '0';
+  $('estAvg').textContent = '—';
+  $('estNext').textContent = '—';
+  $('estEnd').textContent = '—';
+  $('queueContainer').innerHTML = `<div class="empty-queue"><div class="empty-icon"><span class="material-symbols-outlined">groups</span></div><p>Aucun patient pour le moment</p></div>`;
+  hideCoachMark();
+  updateStepBar();
+}
+
+// Spinning animation for sync icon
+const style = document.createElement('style');
+style.textContent = '@keyframes spin { from{transform:rotate(0)} to{transform:rotate(360deg)} }';
+document.head.appendChild(style);
+
+// Initialize
+updateStepBar();
+$('callNextBtn').classList.add('disabled');
+
+// ═══════════════════════════════════════════════════════
+// DEMO TAB SWITCHER
+// ═══════════════════════════════════════════════════════
+function switchDemo(demoId) {
+  // Update tabs
+  document.querySelectorAll('.demo-tab').forEach(tab => tab.classList.remove('active'));
+  document.querySelector(`[onclick="switchDemo('${demoId}')"]`).classList.add('active');
+
+  // Switch containers
+  document.querySelectorAll('.demo-container').forEach(c => c.classList.remove('active'));
+  document.getElementById('demo-' + demoId).classList.add('active');
+
+  // Hide RV coach when switching away
+  const rvCoach = document.getElementById('rvCoach');
+  if (rvCoach) rvCoach.classList.remove('visible');
+}
+
+// ═══════════════════════════════════════════════════════
+// DEMO 2: PATIENT JOURNEY
+// ═══════════════════════════════════════════════════════
+let pjCurrentScene = 1;
+let pjTrackingInterval = null;
+
+function pjGoToScene(n) {
+  const current = document.getElementById('pj-scene-' + pjCurrentScene);
+  const next = document.getElementById('pj-scene-' + n);
+
+  if (current) {
+    current.classList.remove('active');
+    current.classList.add('exit');
+    setTimeout(() => current.classList.remove('exit'), 500);
+  }
+
+  if (next) {
+    setTimeout(() => next.classList.add('active'), 100);
+  }
+
+  pjCurrentScene = n;
+}
+
+function pjScanQR() {
+  pjGoToScene(2);
+
+  // Simulate scanning
+  setTimeout(() => {
+    const status = document.getElementById('pjScanStatus');
+    status.textContent = 'QR code detecte !';
+    status.classList.add('detected');
+
+    setTimeout(() => pjGoToScene(3), 800);
+  }, 2000);
+}
+
+function pjSubmitCheckin() {
+  // Auto-fill animation
+  const nameInput = document.getElementById('pjPatientName');
+  const phoneInput = document.getElementById('pjPatientPhone');
+  nameInput.classList.add('filled');
+  phoneInput.classList.add('filled');
+
+  setTimeout(() => pjGoToScene(4), 600);
+}
+
+function pjStartTracking() {
+  pjGoToScene(5);
+
+  // Animate position countdown: 4 → 3 → 2 → 1 → your turn
+  let position = 4;
+  const posEl = document.getElementById('pjPosition');
+  const labelEl = document.getElementById('pjPosLabel');
+  const aheadEl = document.getElementById('pjAheadText');
+  const waitEl = document.getElementById('pjWaitTime');
+  const fillEl = document.getElementById('pjProgressFill');
+  const progTextEl = document.getElementById('pjProgressText');
+  const notifsEl = document.getElementById('pjNotifications');
+
+  const notifications = [
+    { delay: 3000, icon: 'blue', iconName: 'info', title: 'File mise a jour', text: 'Un patient est passe. Vous avancez dans la file.', urgent: false },
+    { delay: 6500, icon: 'blue', iconName: 'notifications', title: 'Plus que 2 personnes', text: 'Restez a proximite du cabinet.', urgent: false },
+    { delay: 10000, icon: 'green', iconName: 'priority_high', title: 'C\'est bientot a vous !', text: 'Preparez-vous, vous passez apres le patient actuel.', urgent: true },
+  ];
+
+  // Position countdown
+  pjTrackingInterval = setInterval(() => {
+    if (position <= 1) {
+      clearInterval(pjTrackingInterval);
+      // Final: your turn!
+      setTimeout(() => pjGoToScene(6), 1500);
+      return;
+    }
+
+    position--;
+    posEl.textContent = position;
+    posEl.style.animation = 'none';
+    posEl.offsetHeight;
+    posEl.style.animation = 'popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+
+    const ahead = position - 1;
+    aheadEl.textContent = ahead === 0 ? 'Vous etes le prochain !' : ahead + ' personne' + (ahead > 1 ? 's' : '') + ' avant vous';
+    waitEl.textContent = ahead === 0 ? '< 5 min' : '~' + (ahead * 10) + ' min';
+    progTextEl.textContent = 'Position #' + position;
+
+    const progress = ((4 - position) / 4) * 100;
+    fillEl.style.width = progress + '%';
+
+    if (position === 1) {
+      posEl.classList.add('your-turn');
+      labelEl.textContent = 'Presque !';
+    }
+  }, 3500);
+
+  // Timed notifications
+  notifications.forEach(notif => {
+    setTimeout(() => {
+      const div = document.createElement('div');
+      div.className = 'pj-notification' + (notif.urgent ? ' urgent' : '');
+      div.innerHTML = `
+        <div class="notif-icon ${notif.icon}"><span class="material-symbols-outlined">${notif.iconName}</span></div>
+        <div class="notif-text">
+          <h4>${notif.title}</h4>
+          <p>${notif.text}</p>
+        </div>
+      `;
+      notifsEl.prepend(div);
+      setTimeout(() => div.classList.add('visible'), 50);
+    }, notif.delay);
+  });
+}
+
+function pjRestart() {
+  // Clear intervals
+  if (pjTrackingInterval) clearInterval(pjTrackingInterval);
+
+  // Reset all scenes
+  document.querySelectorAll('.pj-scene').forEach(s => {
+    s.classList.remove('active', 'exit');
+  });
+
+  // Reset state
+  pjCurrentScene = 1;
+  document.getElementById('pj-scene-1').classList.add('active');
+
+  // Reset tracking UI
+  const posEl = document.getElementById('pjPosition');
+  posEl.textContent = '4';
+  posEl.classList.remove('your-turn');
+  posEl.style.animation = '';
+  document.getElementById('pjPosLabel').textContent = 'Votre position';
+  document.getElementById('pjAheadText').textContent = '3 personnes avant vous';
+  document.getElementById('pjWaitTime').textContent = '~30 min';
+  document.getElementById('pjProgressFill').style.width = '25%';
+  document.getElementById('pjProgressText').textContent = 'Position #4';
+  document.getElementById('pjNotifications').innerHTML = '';
+  document.getElementById('pjScanStatus').textContent = 'Recherche du QR code...';
+  document.getElementById('pjScanStatus').classList.remove('detected');
+  document.getElementById('pjPatientName').classList.remove('filled');
+  document.getElementById('pjPatientPhone').classList.remove('filled');
+}
+
+
+// ═══════════════════════════════════════════════════════
+// DEMO 3: RECEPTIONIST VIEW
+// ═══════════════════════════════════════════════════════
+const rvState = {
+  patients: [],
+  step: 0, // tracks which coach step we're on
+  inConsultation: null,
+  seen: 0,
+};
+
+const rvScenario = [
+  // Step 0: Welcome coach
+  {
+    title: 'Bonjour Sana !',
+    body: 'C\'est votre premier jour avec BleSaf. Le cabinet ouvre a 9h. Commencez par ajouter le premier patient qui vient d\'arriver.',
+    btn: 'Compris',
+    action: 'rvStep1',
+  },
+  // Step 1: After adding first patient manually
+  {
+    title: 'Patient ajoute !',
+    body: 'Vous venez d\'ajouter Mme Khalil manuellement. Mais regardez — un autre patient vient de scanner le QR code tout seul ! Aucune action de votre part.',
+    btn: 'Continuer',
+    action: 'rvStep2',
+  },
+  // Step 2: After QR patient auto-arrives
+  {
+    title: 'Inscription automatique',
+    body: 'M. Trabelsi s\'est inscrit en scannant le QR code depuis la salle d\'attente. Pas besoin de l\'appeler ni de noter son nom. Ajoutons maintenant un patient par telephone.',
+    btn: 'Ajouter par telephone',
+    action: 'rvStep3',
+  },
+  // Step 3: After phone patient
+  {
+    title: '3 modes d\'inscription',
+    body: 'Manuel, QR code, ou par telephone — les 3 methodes coexistent. Mme Jebali a appele pour prendre rendez-vous. Maintenant, le docteur est pret. Appelez le premier patient !',
+    btn: 'Appeler le suivant',
+    action: 'rvStep4',
+  },
+  // Step 4: After calling next
+  {
+    title: 'Cascade automatique',
+    body: 'Mme Khalil est en consultation. M. Trabelsi a ete notifie sur son telephone qu\'il passe bientot. Toute la file s\'est reorganisee automatiquement.',
+    btn: 'Continuer',
+    action: 'rvStep5',
+  },
+  // Step 5: Priority + no-show
+  {
+    title: 'Gestion intelligente',
+    body: 'Un patient age vient d\'arriver. Vous pouvez le faire passer en priorite. Et si un patient ne se presente pas, marquez-le absent en un clic.',
+    btn: 'Voir le bilan',
+    action: 'rvStep6',
+  },
+];
+
+function rvShowCoach(stepIdx) {
+  const coach = document.getElementById('rvCoach');
+  const scenario = rvScenario[stepIdx];
+  if (!scenario) return;
+
+  document.getElementById('rvCoachTitleText').textContent = scenario.title;
+  document.getElementById('rvCoachBody').textContent = scenario.body;
+  document.getElementById('rvCoachBtn').textContent = scenario.btn;
+
+  rvState.step = stepIdx;
+
+  setTimeout(() => coach.classList.add('visible'), 300);
+}
+
+function rvHideCoach() {
+  document.getElementById('rvCoach').classList.remove('visible');
+}
+
+function rvCoachAction() {
+  rvHideCoach();
+  const scenario = rvScenario[rvState.step];
+  if (scenario && scenario.action) {
+    window[scenario.action]();
+  }
+}
+
+function rvRenderQueue() {
+  const list = document.getElementById('rvQueueList');
+  if (rvState.patients.length === 0 && !rvState.inConsultation) {
+    list.innerHTML = `<div style="text-align:center;padding:30px;color:#94A3B8;font-size:13px">
+      <span class="material-symbols-outlined" style="font-size:40px;display:block;margin-bottom:8px;color:#CBD5E1">groups</span>
+      Aucun patient pour le moment
+    </div>`;
+    return;
+  }
+
+  let html = '';
+
+  // Show in-consultation patient
+  if (rvState.inConsultation) {
+    const p = rvState.inConsultation;
+    html += `<div class="rv-patient-row consulting">
+      <div class="rv-pos green"><span class="material-symbols-outlined" style="font-size:16px;color:#166534">stethoscope</span></div>
+      <div class="rv-info">
+        <div class="rv-name">${p.name}</div>
+        <div class="rv-meta"><span>${p.time}</span><span class="rv-badge ${p.method}">${p.methodLabel}</span></div>
+      </div>
+      <span class="rv-badge consulting-badge">En consultation</span>
+    </div>`;
+  }
+
+  // Show waiting patients
+  rvState.patients.forEach((p, i) => {
+    const classes = [];
+    if (p.highlight) classes.push('highlight');
+    if (p.notified) classes.push('notified');
+    if (p.noshow) classes.push('no-show');
+    if (p.priority) classes.push('highlight');
+
+    const posClass = p.notified ? 'orange' : (p.priority ? 'green' : '');
+    const badges = [];
+    badges.push(`<span class="rv-badge ${p.method}">${p.methodLabel}</span>`);
+    if (p.notified) badges.push('<span class="rv-badge notified-badge">Notifie</span>');
+    if (p.noshow) badges.push('<span class="rv-badge no-show-badge">Absent</span>');
+    if (p.priority) badges.push('<span class="rv-badge priority">Priorite</span>');
+
+    html += `<div class="rv-patient-row ${classes.join(' ')}">
+      <div class="rv-pos ${posClass}">#${i + 1}</div>
+      <div class="rv-info">
+        <div class="rv-name">${p.name}</div>
+        <div class="rv-meta"><span>${p.time}</span>${badges.join('')}</div>
+      </div>
+    </div>`;
+  });
+
+  list.innerHTML = html;
+}
+
+function rvUpdateStats() {
+  document.getElementById('rvStatWaiting').textContent = rvState.patients.filter(p => !p.noshow).length;
+  document.getElementById('rvStatConsult').textContent = rvState.inConsultation ? 1 : 0;
+  document.getElementById('rvStatSeen').textContent = rvState.seen;
+}
+
+function rvShowAddForm() {
+  const container = document.getElementById('rvAddFormContainer');
+  container.innerHTML = `<div class="rv-add-form">
+    <h4><span class="material-symbols-outlined">person_add</span> Ajouter un patient</h4>
+    <div class="rv-form-row">
+      <input type="text" id="rvAddName" placeholder="Nom du patient" value="">
+      <input type="tel" id="rvAddPhone" placeholder="+216 XX XXX XXX" value="">
+    </div>
+    <button class="rv-form-submit" onclick="rvAddPatient()">Ajouter a la file</button>
+  </div>`;
+}
+
+function rvAddPatient() {
+  const nameInput = document.getElementById('rvAddName');
+  const name = nameInput ? nameInput.value : '';
+
+  if (name) {
+    rvState.patients.push({
+      name: name,
+      time: '09:' + String(5 + rvState.patients.length * 8).padStart(2, '0'),
+      method: 'manual',
+      methodLabel: 'Manuel',
+      highlight: true,
+    });
+  }
+
+  // Clear form
+  document.getElementById('rvAddFormContainer').innerHTML = '';
+  rvRenderQueue();
+  rvUpdateStats();
+
+  // Enable call btn if patients
+  if (rvState.patients.length > 0) {
+    document.getElementById('rvCallBtn').classList.remove('disabled');
+  }
+
+  // Remove highlight after a moment
+  setTimeout(() => {
+    rvState.patients.forEach(p => p.highlight = false);
+    rvRenderQueue();
+  }, 1500);
+}
+
+function rvCallNext() {
+  if (rvState.patients.length === 0) return;
+
+  // Find first non-noshow patient
+  const idx = rvState.patients.findIndex(p => !p.noshow);
+  if (idx === -1) return;
+
+  const patient = rvState.patients.splice(idx, 1)[0];
+  rvState.inConsultation = patient;
+
+  // Mark next as notified
+  const nextNonNoshow = rvState.patients.find(p => !p.noshow);
+  if (nextNonNoshow) nextNonNoshow.notified = true;
+
+  rvRenderQueue();
+  rvUpdateStats();
+
+  if (rvState.patients.filter(p => !p.noshow).length === 0) {
+    document.getElementById('rvCallBtn').classList.add('disabled');
+  }
+}
+
+// Scenario steps
+function rvStep1() {
+  // Show add form with pre-filled first patient
+  const container = document.getElementById('rvAddFormContainer');
+  container.innerHTML = `<div class="rv-add-form">
+    <h4><span class="material-symbols-outlined">person_add</span> Ajouter un patient</h4>
+    <div class="rv-form-row">
+      <input type="text" id="rvAddName" placeholder="Nom du patient" value="Fatma Khalil">
+      <input type="tel" id="rvAddPhone" placeholder="+216 XX XXX XXX" value="+216 98 123 456">
+    </div>
+    <button class="rv-form-submit" onclick="rvStep1Add()">Ajouter a la file</button>
+  </div>`;
+}
+
+function rvStep1Add() {
+  rvState.patients.push({
+    name: 'Fatma Khalil',
+    time: '09:05',
+    method: 'manual',
+    methodLabel: 'Manuel',
+    highlight: true,
+  });
+  document.getElementById('rvAddFormContainer').innerHTML = '';
+  document.getElementById('rvCallBtn').classList.remove('disabled');
+  rvRenderQueue();
+  rvUpdateStats();
+
+  setTimeout(() => {
+    rvState.patients.forEach(p => p.highlight = false);
+    rvRenderQueue();
+    rvShowCoach(1);
+  }, 800);
+}
+
+function rvStep2() {
+  // QR patient auto-arrives
+  setTimeout(() => {
+    rvState.patients.push({
+      name: 'Mehdi Trabelsi',
+      time: '09:12',
+      method: 'qr',
+      methodLabel: 'QR Code',
+      highlight: true,
+    });
+    rvRenderQueue();
+    rvUpdateStats();
+
+    setTimeout(() => {
+      rvState.patients.forEach(p => p.highlight = false);
+      rvRenderQueue();
+      rvShowCoach(2);
+    }, 1200);
+  }, 800);
+}
+
+function rvStep3() {
+  // Phone patient
+  setTimeout(() => {
+    rvState.patients.push({
+      name: 'Amira Jebali',
+      time: '09:18',
+      method: 'phone',
+      methodLabel: 'Telephone',
+      highlight: true,
+    });
+    rvRenderQueue();
+    rvUpdateStats();
+
+    setTimeout(() => {
+      rvState.patients.forEach(p => p.highlight = false);
+      rvRenderQueue();
+      rvShowCoach(3);
+    }, 800);
+  }, 600);
+}
+
+function rvStep4() {
+  // Call first patient
+  rvCallNext();
+  rvState.seen++;
+  rvUpdateStats();
+
+  setTimeout(() => rvShowCoach(4), 1000);
+}
+
+function rvStep5() {
+  // Add priority patient + no-show scenario
+  setTimeout(() => {
+    // Add elderly priority patient
+    rvState.patients.unshift({
+      name: 'Haj Salah Mansour',
+      time: '09:25',
+      method: 'manual',
+      methodLabel: 'Manuel',
+      highlight: true,
+      priority: true,
+    });
+    rvRenderQueue();
+    rvUpdateStats();
+
+    setTimeout(() => {
+      // Mark one as no-show
+      const amira = rvState.patients.find(p => p.name === 'Amira Jebali');
+      if (amira) amira.noshow = true;
+      rvState.patients.forEach(p => p.highlight = false);
+      rvRenderQueue();
+      rvUpdateStats();
+
+      setTimeout(() => rvShowCoach(5), 800);
+    }, 1500);
+  }, 600);
+}
+
+function rvStep6() {
+  // Show end-of-day summary
+  document.getElementById('rv-scene-1').classList.remove('active');
+  document.getElementById('rv-scene-2').classList.add('active');
+}
+
+function rvRestart() {
+  // Reset state
+  rvState.patients = [];
+  rvState.step = 0;
+  rvState.inConsultation = null;
+  rvState.seen = 0;
+
+  // Reset UI
+  document.getElementById('rv-scene-2').classList.remove('active');
+  document.getElementById('rv-scene-1').classList.add('active');
+  document.getElementById('rvAddFormContainer').innerHTML = '';
+  document.getElementById('rvCallBtn').classList.add('disabled');
+  rvRenderQueue();
+  rvUpdateStats();
+
+  // Show first coach
+  setTimeout(() => rvShowCoach(0), 500);
+}
+
+// Initialize RV when tab is clicked — use MutationObserver
+const rvContainer = document.getElementById('demo-receptionist-view');
+let rvInitialized = false;
+const rvObserver = new MutationObserver(() => {
+  if (rvContainer.classList.contains('active') && !rvInitialized) {
+    rvInitialized = true;
+    setTimeout(() => rvShowCoach(0), 600);
+  }
+});
+rvObserver.observe(rvContainer, { attributes: true, attributeFilter: ['class'] });
+</script>
+</body>
+</html>

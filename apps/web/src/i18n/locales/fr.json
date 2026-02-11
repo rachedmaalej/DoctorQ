@@ -239,45 +239,55 @@
       "signup": "Essai gratuit"
     },
     "hero": {
-      "title": "Fini les salles d'attente bondées",
-      "subtitle": "Vos patients savent exactement quand c'est leur tour. Ils attendent où ils veulent.",
+      "title": "Transformez votre salle d'attente. Détendez vos patients.",
+      "titleLine1": "Transformez votre salle d'attente.",
+      "titleLine2": "Détendez vos patients.",
+      "subtitle": "Vos patients suivent leur position en temps réel et attendent où ils veulent. Fini le stress, les plaintes et les départs impatients.",
       "cta": "Essayez gratuitement pendant 30 jours",
       "learnMore": "Comment ça marche?",
-      "noCard": "Aucune carte bancaire requise"
+      "noCard": "Aucune carte bancaire requise",
+      "socialProof": "Rejoint par {{count}}+ cabinets en Tunisie",
+      "cabinetName": "Cabinet Dr. Mansour",
+      "yourPosition": "Votre position dans la file",
+      "estimatedWait": "Temps d'attente estimé",
+      "liveUpdate": "Mise à jour en temps réel",
+      "yourTurn": "C'est votre tour !"
     },
-    "problem": {
-      "title": "Le problème que vous connaissez bien",
-      "item1Title": "Patients frustrés",
-      "item1Desc": "Des heures d'attente sans visibilité sur leur tour",
-      "item2Title": "Salle d'attente surchargée",
-      "item2Desc": "Trop de monde, pas assez de place, ambiance tendue",
-      "item3Title": "Patients qui partent",
-      "item3Desc": "Lassés d'attendre, ils quittent sans être vus",
-      "item4Title": "Stress pour tous",
-      "item4Desc": "Équipe débordée, patients mécontents"
-    },
-    "solution": {
-      "title": "La solution BleSaf",
-      "subtitle": "Transformez l'expérience de vos patients en 4 étapes simples",
-      "step1Title": "Scan rapide",
-      "step1Desc": "Le patient scanne le QR code à son arrivée",
-      "step2Title": "Suivi en temps réel",
-      "step2Desc": "Il voit sa position sur son téléphone",
-      "step3Title": "Notification SMS",
-      "step3Desc": "Il reçoit un SMS quand c'est bientôt son tour",
-      "step4Title": "Attente libre",
-      "step4Desc": "Il attend au café, dans sa voiture, ou chez lui"
+    "beforeAfter": {
+      "beforeTitle": "Avant BleSaf",
+      "afterTitle": "Avec BleSaf",
+      "before1": "Salle d'attente bondée, patients frustrés",
+      "before2": "Appels incessants : « C'est quand mon tour ? »",
+      "before3": "Patients qui partent sans être vus",
+      "before4": "Risque de contamination dans une salle bondée",
+      "after1": "Salle calme, patients informés en temps réel",
+      "after2": "Notifications en temps réel, zéro appels",
+      "after3": "Les patients attendent où ils veulent",
+      "after4": "Patients en sécurité, attente à distance"
     },
     "howItWorks": {
       "title": "Comment ça marche?",
-      "step1Title": "Affichez le QR code",
-      "step1Desc": "Placez le QR code BleSaf dans votre salle d'attente. C'est tout!",
-      "step2Title": "Le patient s'enregistre",
-      "step2Desc": "En 5 secondes, il scanne le code et entre son numéro de téléphone.",
-      "step3Title": "Il suit sa position",
-      "step3Desc": "Sur son téléphone, il voit en temps réel sa place dans la file et l'attente estimée.",
-      "step4Title": "Il reçoit un SMS",
-      "step4Desc": "Quand c'est bientôt son tour, il reçoit automatiquement un SMS pour se présenter."
+      "step1Title": "Inscrivez-vous",
+      "step1Desc": "Créez votre compte en 2 minutes. C'est gratuit pendant 30 jours.",
+      "step2Title": "Partagez le QR code",
+      "step2Desc": "Imprimez-le et affichez-le dans votre salle d'attente.",
+      "step3Title": "Gérez votre file",
+      "step3Desc": "Les patients s'enregistrent seuls. Vous gérez tout depuis votre tableau de bord."
+    },
+    "benefits": {
+      "title": "Pourquoi choisir BleSaf?",
+      "card1Title": "Gagnez du temps",
+      "card1Desc": "Plus de gestion manuelle. Les patients s'enregistrent seuls et suivent leur position en temps réel sur leur téléphone.",
+      "card2Title": "Patients satisfaits",
+      "card2Desc": "Vos patients évitent la foule et les risques de contamination. Ils suivent leur tour depuis le café, leur voiture ou chez eux.",
+      "card3Title": "Zéro papier",
+      "card3Desc": "Tout est digital. Historique, statistiques et suivi complet sur votre tableau de bord."
+    },
+    "testimonial": {
+      "quote": "Depuis que nous utilisons BleSaf, notre salle d'attente est transformée. Les patients sont plus calmes et mon équipe moins stressée.",
+      "author": "Dr. Mohamed Ben Ali",
+      "role": "Médecin généraliste",
+      "clinic": "Cabinet Médical Lac 2, Tunis"
     },
     "pricing": {
       "title": "Tarifs simples, sans surprise",
@@ -289,11 +299,10 @@
       "feature1": "Tableau de bord complet",
       "feature2": "Patients illimités",
       "feature3": "QR code personnalisé",
-      "feature4": "Support WhatsApp",
+      "feature4": "Alertes sonores et vibrations",
       "selectMonthly": "Choisir mensuel",
       "selectYearly": "Choisir annuel",
-      "smsTitle": "Packs SMS (achat séparé)",
-      "trialNote": "Premier mois gratuit + 50 SMS offerts pour démarrer",
+      "trialNote": "Premier mois gratuit pour démarrer",
       "startTrial": "Commencer mon essai gratuit"
     },
     "faq": {
@@ -305,12 +314,17 @@
       "q3": "Et si je n'ai pas internet?",
       "a3": "Le tableau de bord fonctionne aussi hors-ligne. Les mises à jour se synchronisent automatiquement.",
       "q4": "Je peux annuler quand je veux?",
-      "a4": "Oui, sans engagement. Vous pouvez annuler à tout moment depuis votre compte."
+      "a4": "Oui, sans engagement. Vous pouvez annuler à tout moment depuis votre compte.",
+      "q5": "Est-ce que les données de mes patients sont sécurisées?",
+      "a5": "Oui. Toutes les données sont chiffrées et hébergées sur des serveurs sécurisés. Nous ne partageons jamais vos informations.",
+      "q6": "Puis-je utiliser BleSaf avec plusieurs médecins?",
+      "a6": "Oui! BleSaf supporte plusieurs médecins dans le même cabinet, chacun avec sa propre file d'attente."
     },
     "cta": {
-      "title": "Rejoignez les cabinets qui ont dit adieu aux salles d'attente chaotiques",
+      "title": "Créez votre cabinet en 2 minutes",
       "subtitle": "Commencez gratuitement et voyez la différence dès le premier jour.",
-      "button": "Commencer mon essai gratuit"
+      "button": "Commencer mon essai gratuit",
+      "emailPlaceholder": "Votre email professionnel"
     },
     "footer": {
       "privacy": "Confidentialité",

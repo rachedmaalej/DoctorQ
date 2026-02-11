@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -47,6 +47,7 @@ function PasswordStrength({ password }: { password: string }) {
 
 export default function SignupPage() {
   const { t, i18n } = useTranslation();
+  const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -59,6 +60,7 @@ export default function SignupPage() {
   } = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
+      email: searchParams.get('email') || '',
       acceptTerms: false,
     },
   });

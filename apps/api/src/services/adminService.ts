@@ -180,6 +180,7 @@ export interface ClinicHealth {
   id: string;
   name: string;
   doctorName: string | null;
+  isActive: boolean;
   lastLoginAt: string | null;
   patientsToday: number;
   avgWaitMins: number | null;
@@ -590,12 +591,12 @@ export async function getClinicHealthList(): Promise<ClinicHealth[]> {
   const startOfMonth = getStartOfMonth();
 
   const clinics = await prisma.clinic.findMany({
-    where: { isActive: true },
     select: {
       id: true,
       name: true,
       doctorName: true,
       email: true,
+      isActive: true,
       lastLoginAt: true,
       subscriptionStatus: true,
       subscriptionPlan: true,
@@ -653,6 +654,7 @@ export async function getClinicHealthList(): Promise<ClinicHealth[]> {
       id: clinic.id,
       name: clinic.name,
       doctorName: clinic.doctorName,
+      isActive: clinic.isActive,
       lastLoginAt: clinic.lastLoginAt?.toISOString() ?? null,
       patientsToday,
       avgWaitMins,

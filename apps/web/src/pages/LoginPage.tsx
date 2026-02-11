@@ -76,8 +76,8 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => {
-                    setEmail('test@blesaf.tn');
-                    setPassword('Test2024!');
+                    setEmail('dr.skander@example.tn');
+                    setPassword('password123');
                   }}
                   className="flex-1 text-xs bg-yellow-100 hover:bg-yellow-200 text-yellow-800 py-1.5 px-2 rounded transition-colors"
                 >

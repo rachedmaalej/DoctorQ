@@ -179,6 +179,7 @@ export interface ClinicHealth {
   id: string;
   name: string;
   doctorName: string | null;
+  isActive: boolean;
   lastLoginAt: string | null;
   patientsToday: number;
   avgWaitMins: number | null;
