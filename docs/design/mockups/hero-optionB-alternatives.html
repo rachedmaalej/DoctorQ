@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BleSaf — Hero Option B : 5 Alternatives (Double Réalité)</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" rel="stylesheet">
+  <style>
+    /* ============================================
+       RESET & GLOBAL
+       ============================================ */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'IBM Plex Sans', system-ui, sans-serif;
+      background: #F1F5F9;
+      color: #1E293B;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .material-symbols-outlined.filled {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+
+    /* ============================================
+       PAGE HEADER
+       ============================================ */
+    .page-header {
+      text-align: center;
+      margin-bottom: 28px;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .page-header h1 {
+      font-size: 24px;
+      font-weight: 800;
+      color: #0F172A;
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+    .page-header p {
+      font-size: 14px;
+      color: #64748B;
+      line-height: 1.6;
+    }
+
+    /* ============================================
+       TAB NAVIGATION
+       ============================================ */
+    .tab-nav {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 36px;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .tab-btn {
+      flex: 1;
+      min-width: 155px;
+      max-width: 170px;
+      padding: 12px 12px;
+      border: 2px solid #E2E8F0;
+      border-radius: 14px;
+      background: #FFFFFF;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .tab-btn:hover { transform: translateY(-2px); }
+    .tab-btn .tab-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: #F1F5F9;
+      color: #64748B;
+      font-size: 11px;
+      font-weight: 800;
+      margin-bottom: 2px;
+      transition: all 0.2s ease;
+    }
+    .tab-btn .tab-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #0F172A;
+      transition: color 0.2s ease;
+    }
+    .tab-btn .tab-desc {
+      font-size: 10px;
+      font-weight: 400;
+      color: #94A3B8;
+      line-height: 1.3;
+      transition: color 0.2s ease;
+    }
+
+    /* Color per tab */
+    .tab-btn[data-color="teal"]:hover { border-color: #14B8A6; background: #F0FDFA; box-shadow: 0 4px 12px rgba(20,184,166,0.12); }
+    .tab-btn[data-color="teal"]:hover .tab-num { background: #CCFBF1; color: #0D9488; }
+    .tab-btn[data-color="teal"].active { background: #14B8A6; border-color: #14B8A6; box-shadow: 0 4px 16px rgba(20,184,166,0.3); transform: translateY(-2px); }
+
+    .tab-btn[data-color="blue"]:hover { border-color: #0EA5E9; background: #F0F9FF; box-shadow: 0 4px 12px rgba(14,165,233,0.12); }
+    .tab-btn[data-color="blue"]:hover .tab-num { background: #E0F2FE; color: #0284C7; }
+    .tab-btn[data-color="blue"].active { background: #0EA5E9; border-color: #0EA5E9; box-shadow: 0 4px 16px rgba(14,165,233,0.3); transform: translateY(-2px); }
+
+    .tab-btn[data-color="rose"]:hover { border-color: #F43F5E; background: #FFF1F2; box-shadow: 0 4px 12px rgba(244,63,94,0.12); }
+    .tab-btn[data-color="rose"]:hover .tab-num { background: #FFE4E6; color: #BE123C; }
+    .tab-btn[data-color="rose"].active { background: #F43F5E; border-color: #F43F5E; box-shadow: 0 4px 16px rgba(244,63,94,0.3); transform: translateY(-2px); }
+
+    .tab-btn[data-color="violet"]:hover { border-color: #8B5CF6; background: #F5F3FF; box-shadow: 0 4px 12px rgba(139,92,246,0.12); }
+    .tab-btn[data-color="violet"]:hover .tab-num { background: #EDE9FE; color: #6D28D9; }
+    .tab-btn[data-color="violet"].active { background: #8B5CF6; border-color: #8B5CF6; box-shadow: 0 4px 16px rgba(139,92,246,0.3); transform: translateY(-2px); }
+
+    .tab-btn[data-color="amber"]:hover { border-color: #F59E0B; background: #FFFBEB; box-shadow: 0 4px 12px rgba(245,158,11,0.12); }
+    .tab-btn[data-color="amber"]:hover .tab-num { background: #FEF3C7; color: #B45309; }
+    .tab-btn[data-color="amber"].active { background: #F59E0B; border-color: #F59E0B; box-shadow: 0 4px 16px rgba(245,158,11,0.3); transform: translateY(-2px); }
+
+    .tab-btn.active .tab-num { background: rgba(255,255,255,0.25); color: #FFFFFF; }
+    .tab-btn.active .tab-title { color: #FFFFFF; }
+    .tab-btn.active .tab-desc { color: rgba(255,255,255,0.8); }
+
+    /* ============================================
+       LAYOUT
+       ============================================ */
+    .design-container { display: none; justify-content: center; align-items: flex-start; gap: 40px; }
+    .design-container.active { display: flex; }
+
+    .design-meta { max-width: 300px; padding-top: 40px; }
+    .design-meta h2 { font-size: 18px; font-weight: 700; color: #0F172A; margin-bottom: 6px; }
+    .design-meta .philosophy { font-size: 13px; font-weight: 600; margin-bottom: 10px; }
+    .design-meta p { font-size: 12px; color: #64748B; line-height: 1.6; margin-bottom: 10px; }
+    .design-meta .detail-list { font-size: 11px; color: #475569; line-height: 1.8; margin-bottom: 14px; }
+    .design-meta .detail-list strong { color: #0F172A; }
+    .design-meta .tag {
+      display: inline-block; padding: 3px 9px; border-radius: 20px;
+      font-size: 10px; font-weight: 600; margin-right: 3px; margin-bottom: 3px;
+    }
+    .tag-teal { background: #CCFBF1; color: #115E59; }
+    .tag-blue { background: #E0F2FE; color: #0369A1; }
+    .tag-green { background: #D1FAE5; color: #065F46; }
+    .tag-amber { background: #FEF3C7; color: #92400E; }
+    .tag-purple { background: #EDE9FE; color: #5B21B6; }
+    .tag-rose { background: #FFE4E6; color: #9F1239; }
+
+    @media (max-width: 800px) { .design-meta { display: none; } }
+
+    /* ============================================
+       PHONE FRAME
+       ============================================ */
+    .phone-frame {
+      width: 375px; height: 812px;
+      border-radius: 44px; border: 8px solid #1E293B;
+      overflow: hidden; position: relative;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.15), 0 0 0 2px #475569;
+      flex-shrink: 0;
+    }
+    .phone-notch {
+      position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+      width: 126px; height: 34px; background: #1E293B;
+      border-radius: 0 0 20px 20px; z-index: 100;
+    }
+    .phone-notch::after {
+      content: ''; position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+      width: 80px; height: 20px; border-radius: 20px; background: #000;
+    }
+    .phone-screen {
+      width: 100%; height: 100%; overflow-y: auto; position: relative; background: #FFFFFF;
+    }
+    .phone-screen::-webkit-scrollbar { display: none; }
+
+    /* ============================================
+       SHARED ELEMENTS
+       ============================================ */
+    .lp-nav {
+      position: sticky; top: 0; z-index: 50;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 40px 16px 10px;
+      background: rgba(255,255,255,0.92); backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    .lp-nav-logo { font-size: 15px; font-weight: 800; color: #0F172A; letter-spacing: -0.5px; }
+    .lp-nav-logo span { color: #0EA5E9; }
+    .lp-nav-cta {
+      padding: 6px 14px; border-radius: 8px; font-size: 11px; font-weight: 700;
+      border: none; cursor: pointer; background: #0EA5E9; color: #FFFFFF;
+    }
+
+    .hero-cta-row {
+      display: flex; flex-direction: column; gap: 8px; align-items: center;
+      padding: 0 16px;
+    }
+    .hero-btn-primary {
+      padding: 12px 28px; background: #0EA5E9; color: #FFF; border: none;
+      border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer;
+      box-shadow: 0 2px 8px rgba(14,165,233,0.3);
+      font-family: inherit;
+    }
+    .hero-btn-secondary {
+      padding: 8px 16px; background: transparent; color: #0EA5E9;
+      border: 1.5px solid #BAE6FD; border-radius: 10px;
+      font-size: 11px; font-weight: 600; cursor: pointer;
+      font-family: inherit;
+    }
+    .hero-trust { margin-top: 10px; font-size: 10px; color: #94A3B8; text-align: center; }
+
+    .page-continues {
+      padding: 32px 20px; text-align: center; background: #F8FAFC;
+      border-top: 1px dashed #CBD5E1;
+    }
+    .page-continues p { font-size: 12px; color: #94A3B8; font-style: italic; }
+    .page-continues .dots { font-size: 24px; color: #CBD5E1; letter-spacing: 6px; margin-top: 8px; }
+
+    /* ============================================
+       1. DIAGONAL SLASH
+       ============================================ */
+    .diag-hero { position: relative; }
+    .diag-headline {
+      padding: 48px 20px 14px; text-align: center;
+      background: linear-gradient(135deg, #0F172A 0%, #1E3A5F 100%);
+    }
+    .diag-headline h1 {
+      font-size: 20px; font-weight: 900; color: #FFFFFF; line-height: 1.3; margin-bottom: 6px;
+    }
+    .diag-headline h1 em { font-style: normal; color: #7DD3FC; }
+    .diag-headline p { font-size: 11px; color: rgba(255,255,255,0.6); }
+
+    .diag-visual {
+      position: relative; width: 100%; height: 300px; overflow: hidden;
+    }
+    .diag-img {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;
+    }
+    .diag-img-before {
+      z-index: 2;
+      clip-path: polygon(0 0, 100% 0, 0 100%);
+      filter: saturate(0.5) brightness(0.8) contrast(1.1);
+    }
+    .diag-img-after {
+      z-index: 1;
+      filter: saturate(1.15) brightness(1.05);
+    }
+    .diag-line {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      z-index: 3; pointer-events: none;
+    }
+    .diag-line::after {
+      content: '';
+      position: absolute; top: -2px; left: -2px;
+      width: calc(141.4% + 4px); height: 4px;
+      background: linear-gradient(90deg, #0EA5E9, #14B8A6);
+      transform-origin: top left;
+      transform: rotate(45deg);
+      box-shadow: 0 0 12px rgba(14,165,233,0.5);
+      /* Corrected: the diagonal from top-right to bottom-left */
+    }
+    /* More precise diagonal line using SVG-like approach */
+    .diag-line {
+      background: linear-gradient(to bottom right, transparent calc(50% - 2px), #0EA5E9 calc(50% - 2px), #14B8A6 calc(50% + 2px), transparent calc(50% + 2px));
+    }
+
+    .diag-badge {
+      position: absolute; z-index: 5;
+      padding: 4px 12px; border-radius: 20px;
+      font-size: 10px; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase;
+    }
+    .diag-badge-before {
+      top: 14px; left: 12px;
+      background: rgba(239,68,68,0.9); color: #FFF;
+    }
+    .diag-badge-after {
+      bottom: 14px; right: 12px;
+      background: rgba(16,185,129,0.9); color: #FFF;
+    }
+
+    .diag-body {
+      padding: 20px 20px 24px; text-align: center; background: #FFFFFF;
+    }
+    .diag-body h2 { font-size: 16px; font-weight: 700; color: #0F172A; margin-bottom: 6px; }
+    .diag-body p { font-size: 12px; color: #64748B; line-height: 1.6; margin-bottom: 16px; }
+
+    /* ============================================
+       2. PARALLAX SCROLLYTELLING — Photo over photo
+       ============================================ */
+    .cards-hero { position: relative; }
+
+    .cards-scene {
+      position: relative;
+    }
+
+    /* --- Before photo: sticky, stays behind --- */
+    .cards-photo-before {
+      position: sticky;
+      top: 0;
+      width: 100%;
+      height: 680px;
+      z-index: 1;
+      overflow: hidden;
+    }
+    .cards-photo-before img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      filter: saturate(0.5) brightness(0.7) contrast(1.1);
+    }
+    .cards-photo-before-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(to bottom,
+        rgba(0,0,0,0.15) 0%,
+        rgba(0,0,0,0.2) 30%,
+        rgba(0,0,0,0.65) 70%,
+        rgba(0,0,0,0.8) 100%
+      );
+    }
+    .cards-photo-before-text {
+      position: absolute;
+      top: 50px; left: 0; right: 0;
+      text-align: center;
+      padding: 0 20px;
+      z-index: 2;
+    }
+    .cards-badge {
+      display: inline-block;
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .cards-badge-before {
+      background: rgba(239,68,68,0.9);
+      color: #FFF;
+    }
+    .cards-badge-after {
+      background: rgba(16,185,129,0.9);
+      color: #FFF;
+    }
+    .cards-photo-before-text h1 {
+      font-size: 22px;
+      font-weight: 900;
+      color: #FFFFFF;
+      line-height: 1.3;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.5);
+      margin-bottom: 8px;
+    }
+    .cards-photo-before-text h1 em {
+      font-style: normal;
+      color: #FCA5A5;
+    }
+    .cards-photo-before-text p {
+      font-size: 12px;
+      color: rgba(255,255,255,0.8);
+      line-height: 1.5;
+    }
+    /* Scroll hint */
+    .cards-scroll-cue {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      animation: cards-cue-bob 2s ease-in-out infinite;
+    }
+    .cards-scroll-cue span {
+      font-size: 10px; color: rgba(255,255,255,0.6); font-weight: 600;
+    }
+    .cards-scroll-cue .material-symbols-outlined {
+      font-size: 20px; color: rgba(255,255,255,0.6);
+    }
+    @keyframes cards-cue-bob {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(6px); }
+    }
+
+    /* --- After photo: scrolls up, covers the before --- */
+    .cards-photo-after {
+      position: relative;
+      z-index: 5;
+      width: 100%;
+      overflow: hidden;
+    }
+    .cards-photo-after img {
+      width: 100%;
+      height: 680px;
+      object-fit: cover;
+      display: block;
+      filter: saturate(1.15) brightness(1.05);
+    }
+    .cards-photo-after-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(to bottom,
+        rgba(0,0,0,0.1) 0%,
+        rgba(0,0,0,0.15) 30%,
+        rgba(0,0,0,0.55) 70%,
+        rgba(0,0,0,0.75) 100%
+      );
+    }
+    .cards-photo-after-text {
+      position: absolute;
+      top: 50px; left: 0; right: 0;
+      text-align: center;
+      padding: 0 20px;
+      z-index: 2;
+    }
+    .cards-photo-after-text h1 {
+      font-size: 22px;
+      font-weight: 900;
+      color: #FFFFFF;
+      line-height: 1.3;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.4);
+      margin-bottom: 8px;
+    }
+    .cards-photo-after-text h1 em {
+      font-style: normal;
+      color: #6EE7B7;
+    }
+    .cards-photo-after-text p {
+      font-size: 12px;
+      color: rgba(255,255,255,0.85);
+      line-height: 1.5;
+    }
+    /* Bottom text on the After photo, just above CTA */
+    .cards-photo-after-bottom {
+      position: absolute;
+      bottom: 20px; left: 0; right: 0;
+      text-align: center;
+      padding: 0 20px;
+      z-index: 2;
+    }
+    .cards-photo-after-bottom p {
+      font-size: 11px;
+      color: rgba(255,255,255,0.7);
+      line-height: 1.5;
+      font-weight: 500;
+    }
+
+    /* --- CTA: white section at the very end --- */
+    .cards-body {
+      position: relative;
+      z-index: 6;
+      padding: 24px 20px;
+      text-align: center;
+      background: #FFFFFF;
+    }
+    .cards-body h2 { font-size: 16px; font-weight: 700; color: #0F172A; margin-bottom: 6px; }
+    .cards-body p { font-size: 12px; color: #64748B; line-height: 1.6; margin-bottom: 16px; }
+
+    /* ============================================
+       3. LIVING SPLIT
+       ============================================ */
+    .split-hero { position: relative; }
+    .split-headline {
+      padding: 48px 20px 10px; text-align: center; background: #FFFFFF;
+    }
+    .split-headline h1 {
+      font-size: 20px; font-weight: 900; color: #0F172A; line-height: 1.3; margin-bottom: 6px;
+    }
+    .split-headline h1 em { font-style: normal; color: #0EA5E9; }
+    .split-headline p { font-size: 11px; color: #64748B; margin-bottom: 12px; }
+
+    .split-panels {
+      display: flex; height: 280px; overflow: hidden; position: relative;
+    }
+    .split-panel {
+      flex: 1; position: relative; overflow: hidden;
+    }
+    .split-panel img {
+      width: 100%; height: 100%; object-fit: cover;
+    }
+    .split-panel-before img {
+      filter: saturate(0.6) brightness(0.85) contrast(1.1);
+      animation: split-ken-before 12s ease-in-out infinite alternate;
+    }
+    @keyframes split-ken-before {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.08); }
+    }
+    .split-panel-after img {
+      filter: saturate(1.1) brightness(1.05);
+    }
+    .split-panel-overlay {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 40px 10px 10px;
+    }
+    .split-panel-before .split-panel-overlay {
+      background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
+    }
+    .split-panel-after .split-panel-overlay {
+      background: linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 100%);
+    }
+    .split-label {
+      font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
+      padding: 3px 8px; border-radius: 4px; display: inline-block; margin-bottom: 4px;
+    }
+    .split-panel-before .split-label { background: rgba(239,68,68,0.9); color: #FFF; }
+    .split-panel-after .split-label { background: rgba(16,185,129,0.9); color: #FFF; }
+    .split-panel-text { font-size: 11px; font-weight: 600; color: #FFFFFF; line-height: 1.4; }
+
+    .split-divider {
+      position: absolute; top: 0; bottom: 0; left: 50%;
+      transform: translateX(-50%); width: 3px; z-index: 10;
+      background: linear-gradient(to bottom, #0EA5E9, #14B8A6);
+      box-shadow: 0 0 10px rgba(14,165,233,0.4);
+    }
+    .split-vs {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      z-index: 11; width: 32px; height: 32px; border-radius: 50%;
+      background: #FFFFFF; display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 900; color: #0EA5E9;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+
+    /* Floating notification mockup on right panel */
+    .split-notif {
+      position: absolute; top: 14px; right: 8px; z-index: 5;
+      background: #FFFFFF; border-radius: 10px; padding: 8px 10px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+      display: flex; align-items: center; gap: 6px;
+      animation: split-notif-float 4s ease-in-out infinite;
+      opacity: 0; animation-delay: 1s;
+      animation-fill-mode: forwards;
+    }
+    @keyframes split-notif-float {
+      0% { opacity: 0; transform: translateX(20px); }
+      10% { opacity: 1; transform: translateX(0); }
+      80% { opacity: 1; transform: translateX(0); }
+      100% { opacity: 0; transform: translateX(-10px); }
+    }
+    .split-notif-icon {
+      width: 24px; height: 24px; border-radius: 6px;
+      background: linear-gradient(135deg, #0EA5E9, #14B8A6);
+      display: flex; align-items: center; justify-content: center;
+      color: #FFF; font-size: 14px; flex-shrink: 0;
+    }
+    .split-notif-text { font-size: 9px; color: #0F172A; font-weight: 600; line-height: 1.3; }
+    .split-notif-text span { color: #0EA5E9; font-weight: 800; }
+
+    .split-body {
+      padding: 16px 20px 24px; text-align: center; background: #FFFFFF;
+    }
+    .split-body h2 { font-size: 16px; font-weight: 700; color: #0F172A; margin-bottom: 6px; }
+    .split-body p { font-size: 12px; color: #64748B; line-height: 1.6; margin-bottom: 16px; }
+
+    /* ============================================
+       4. GRAYSCALE REVEAL
+       ============================================ */
+    .gray-hero { position: relative; }
+    .gray-visual {
+      position: relative; width: 100%; height: 340px; overflow: hidden;
+    }
+    .gray-img {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;
+      transition: opacity 1.5s ease-in-out, filter 1.5s ease-in-out;
+    }
+    .gray-img-before {
+      z-index: 2;
+      filter: grayscale(100%) brightness(0.8) contrast(1.15);
+    }
+    .gray-img-before.faded { opacity: 0; }
+    .gray-img-after {
+      z-index: 1;
+      filter: saturate(1.2) brightness(1.05);
+    }
+
+    .gray-overlay {
+      position: absolute; bottom: 0; left: 0; right: 0; z-index: 5;
+      padding: 80px 16px 16px;
+      background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.35) 60%, transparent 100%);
+    }
+    .gray-text-wrap { position: relative; min-height: 80px; }
+    .gray-text {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      transition: opacity 1s ease-in-out, transform 1s ease-in-out;
+    }
+    .gray-text.hidden { opacity: 0; transform: translateY(10px); }
+    .gray-text.visible { opacity: 1; transform: translateY(0); }
+    .gray-text h1 {
+      font-size: 20px; font-weight: 900; color: #FFFFFF; line-height: 1.3; margin-bottom: 5px;
+    }
+    .gray-text h1 em { font-style: normal; color: #7DD3FC; }
+    .gray-text p { font-size: 11px; color: rgba(255,255,255,0.8); line-height: 1.5; }
+
+    .gray-badge {
+      position: absolute; top: 46px; left: 12px; z-index: 6;
+      padding: 4px 12px; border-radius: 20px;
+      font-size: 10px; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase;
+      transition: all 1s ease-in-out;
+    }
+    .gray-badge.before { background: rgba(100,100,100,0.8); color: #FFF; }
+    .gray-badge.after { background: rgba(16,185,129,0.9); color: #FFF; }
+
+    .gray-progress {
+      position: absolute; bottom: 6px; left: 16px; right: 16px; z-index: 10;
+      height: 3px; background: rgba(255,255,255,0.2); border-radius: 3px; overflow: hidden;
+    }
+    .gray-progress-bar {
+      height: 100%; background: linear-gradient(90deg, #64748B, #14B8A6);
+      border-radius: 3px; width: 0%;
+      animation: gray-progress-fill 5s linear infinite;
+    }
+    @keyframes gray-progress-fill {
+      0% { width: 0%; }
+      45% { width: 45%; background: linear-gradient(90deg, #64748B, #94A3B8); }
+      55% { width: 55%; background: linear-gradient(90deg, #0EA5E9, #14B8A6); }
+      100% { width: 100%; background: linear-gradient(90deg, #0EA5E9, #14B8A6); }
+    }
+
+    .gray-body {
+      padding: 20px 20px 24px; text-align: center; background: #FFFFFF;
+    }
+    .gray-body h2 { font-size: 16px; font-weight: 700; color: #0F172A; margin-bottom: 6px; }
+    .gray-body p { font-size: 12px; color: #64748B; line-height: 1.6; margin-bottom: 16px; }
+
+    /* ============================================
+       5. CROSSFADE FLIP
+       ============================================ */
+    .flip-hero { position: relative; }
+    .flip-visual {
+      position: relative; width: 100%; height: 340px; overflow: hidden;
+    }
+    .flip-img {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;
+      transition: opacity 1.2s ease-in-out;
+    }
+    .flip-img.cf-hidden { opacity: 0; }
+    .flip-img.cf-visible { opacity: 1; }
+    .flip-img-before { filter: saturate(0.6) brightness(0.88); }
+    .flip-img-after { filter: saturate(1.1) brightness(1.05); }
+
+    .flip-overlay {
+      position: absolute; bottom: 0; left: 0; right: 0; z-index: 5;
+      padding: 60px 16px 16px;
+      background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
+    }
+    .flip-text-wrap { position: relative; min-height: 72px; }
+    .flip-text {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      transition: opacity 0.8s ease-in-out, transform 0.8s ease-in-out;
+    }
+    .flip-text.cf-hidden { opacity: 0; transform: translateY(10px); }
+    .flip-text.cf-visible { opacity: 1; transform: translateY(0); }
+    .flip-text h1 {
+      font-size: 20px; font-weight: 900; color: #FFFFFF; line-height: 1.3; margin-bottom: 5px;
+    }
+    .flip-text h1 em { font-style: normal; color: #7DD3FC; }
+    .flip-text p { font-size: 11px; color: rgba(255,255,255,0.8); line-height: 1.5; }
+
+    .flip-badge {
+      position: absolute; top: 46px; left: 12px; z-index: 6;
+      padding: 4px 12px; border-radius: 20px;
+      font-size: 10px; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase;
+      transition: all 0.8s ease-in-out;
+    }
+    .flip-badge.before { background: rgba(239,68,68,0.9); color: #FFF; }
+    .flip-badge.after { background: rgba(16,185,129,0.9); color: #FFF; }
+
+    .flip-dots {
+      position: absolute; bottom: 10px; right: 14px; z-index: 10;
+      display: flex; gap: 6px;
+    }
+    .flip-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: rgba(255,255,255,0.4); transition: all 0.4s ease;
+      cursor: pointer; border: none; padding: 0;
+    }
+    .flip-dot.active { background: #FFFFFF; width: 24px; border-radius: 4px; }
+
+    .flip-body {
+      padding: 20px 20px 24px; text-align: center; background: #FFFFFF;
+    }
+    .flip-body h2 { font-size: 16px; font-weight: 700; color: #0F172A; margin-bottom: 6px; }
+    .flip-body p { font-size: 12px; color: #64748B; line-height: 1.6; margin-bottom: 16px; }
+  </style>
+</head>
+<body>
+
+  <!-- PAGE HEADER -->
+  <div class="page-header">
+    <h1>Hero « Double Réalité » : quelle mise en scène pour les photos avant/après ?</h1>
+    <p>5 traitements visuels différents pour les mêmes photos tunisiennes. Chaque option exploite le contraste « Sans BleSaf / Avec BleSaf » d'une manière unique.</p>
+  </div>
+
+  <!-- TAB NAVIGATION -->
+  <div class="tab-nav">
+    <button class="tab-btn active" data-tab="diag" data-color="teal" onclick="switchTab('diag',this)">
+      <span class="tab-num">1</span>
+      <span class="tab-title">Coupe Diagonale</span>
+      <span class="tab-desc">Deux réalités tranchées par une ligne</span>
+    </button>
+    <button class="tab-btn" data-tab="cards" data-color="blue" onclick="switchTab('cards',this)">
+      <span class="tab-num">2</span>
+      <span class="tab-title">Parallax Scroll</span>
+      <span class="tab-desc">Photo fixe + panneau qui glisse au scroll</span>
+    </button>
+    <button class="tab-btn" data-tab="split" data-color="rose" onclick="switchTab('split',this)">
+      <span class="tab-num">3</span>
+      <span class="tab-title">Split Vivant</span>
+      <span class="tab-desc">Côte à côte avec micro-animations</span>
+    </button>
+    <button class="tab-btn" data-tab="gray" data-color="violet" onclick="switchTab('gray',this)">
+      <span class="tab-num">4</span>
+      <span class="tab-title">Révélation N&B</span>
+      <span class="tab-desc">Du noir et blanc à la couleur</span>
+    </button>
+    <button class="tab-btn" data-tab="flip" data-color="amber" onclick="switchTab('flip',this)">
+      <span class="tab-num">5</span>
+      <span class="tab-title">Fondu Alterné</span>
+      <span class="tab-desc">Crossfade automatique avec texte</span>
+    </button>
+  </div>
+
+  <!-- ================================================================
+       1. DIAGONAL SLASH
+       ================================================================ -->
+  <div class="design-container active" id="design-diag">
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <div class="lp-nav">
+          <div class="lp-nav-logo">Ble<span>Saf</span></div>
+          <button class="lp-nav-cta">Essai gratuit</button>
+        </div>
+        <div class="diag-hero">
+          <div class="diag-headline">
+            <h1>Transformez l'attente en <em>liberté</em></h1>
+            <p>Deux réalités. Une seule solution.</p>
+          </div>
+          <div class="diag-visual">
+            <img class="diag-img diag-img-before" src="photo-1A.png" alt="Sans BleSaf">
+            <img class="diag-img diag-img-after" src="photo-1B.png" alt="Avec BleSaf">
+            <div class="diag-line"></div>
+            <span class="diag-badge diag-badge-before">Sans BleSaf</span>
+            <span class="diag-badge diag-badge-after">Avec BleSaf</span>
+          </div>
+          <div class="diag-body">
+            <h2>Fini les salles d'attente bondées</h2>
+            <p>Vos patients suivent leur position en temps réel depuis leur téléphone. Ils arrivent détendus, vous consultez sereinement.</p>
+            <div class="hero-cta-row">
+              <button class="hero-btn-primary">Essayez gratuitement 30 jours</button>
+              <button class="hero-btn-secondary">Voir la démo</button>
+            </div>
+            <div class="hero-trust">Aucune carte bancaire requise</div>
+          </div>
+        </div>
+        <div class="page-continues">
+          <p>Le reste de la landing page continue ici...</p>
+          <div class="dots">...</div>
+        </div>
+      </div>
+    </div>
+    <div class="design-meta">
+      <h2>1. Coupe Diagonale</h2>
+      <div class="philosophy" style="color:#14B8A6;">Impact visuel immédiat, zéro interaction requise</div>
+      <p>Les deux photos occupent le même espace, tranchées par une diagonale lumineuse en teal. Le cerveau compare instantanément. La diagonale évoque le mouvement, la transformation — l'avant qui bascule vers l'après.</p>
+      <div class="detail-list">
+        <strong>Traitement photo :</strong><br>
+        &#x2022; Avant : désaturé, assombri, contraste renforcé<br>
+        &#x2022; Après : couleurs chaudes, luminosité rehaussée<br>
+        &#x2022; Ligne diagonale teal avec lueur (glow)<br><br>
+        <strong>Points forts :</strong><br>
+        &#x2022; Compréhension instantanée sans lire<br>
+        &#x2022; Pattern graphique audacieux et mémorable<br>
+        &#x2022; Aucune interaction nécessaire
+      </div>
+      <span class="tag tag-teal">Graphique</span>
+      <span class="tag tag-blue">Instantané</span>
+      <span class="tag tag-green">Contrasté</span>
+    </div>
+  </div>
+
+  <!-- ================================================================
+       2. PHOTO CARDS EMPILÉES
+       ================================================================ -->
+  <div class="design-container" id="design-cards">
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <div class="lp-nav">
+          <div class="lp-nav-logo">Ble<span>Saf</span></div>
+          <button class="lp-nav-cta">Essai gratuit</button>
+        </div>
+        <div class="cards-hero">
+          <div class="cards-scene">
+            <!-- Photo 1: Before — stays sticky behind -->
+            <div class="cards-photo-before">
+              <img src="photo-2A.png" alt="Sans BleSaf">
+              <div class="cards-photo-before-overlay"></div>
+              <div class="cards-photo-before-text">
+                <span class="cards-badge cards-badge-before">Aujourd'hui</span>
+                <h1>Salle bondée, patients <em>stressés</em></h1>
+                <p>« C'est quand mon tour ? » — la question qui revient 100 fois par jour</p>
+              </div>
+              <div class="cards-scroll-cue">
+                <span>Défilez</span>
+                <span class="material-symbols-outlined">expand_more</span>
+              </div>
+            </div>
+
+            <!-- Photo 2: After — scrolls up, covers the before -->
+            <div class="cards-photo-after">
+              <img src="photo-2B.png" alt="Avec BleSaf">
+              <div class="cards-photo-after-overlay"></div>
+              <div class="cards-photo-after-text">
+                <span class="cards-badge cards-badge-after">Avec BleSaf</span>
+                <h1>Patients <em>sereins</em>, qui attendent où ils veulent</h1>
+                <p>Position en temps réel sur leur téléphone. Notification automatique quand c'est leur tour.</p>
+              </div>
+              <div class="cards-photo-after-bottom">
+                <p>Un simple QR code à l'accueil transforme l'expérience d'attente</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- CTA: only white section, appears at the very end -->
+          <div class="cards-body">
+            <h2>QR code, suivi en temps réel, c'est tout.</h2>
+            <p>Pas d'app à télécharger. Vos patients scannent, suivent leur position, et arrivent détendus.</p>
+            <div class="hero-cta-row">
+              <button class="hero-btn-primary">Essayez gratuitement 30 jours</button>
+              <button class="hero-btn-secondary">Voir la démo</button>
+            </div>
+            <div class="hero-trust">Aucune carte bancaire requise</div>
+          </div>
+        </div>
+        <div class="page-continues">
+          <p>Le reste de la landing page continue ici...</p>
+          <div class="dots">...</div>
+        </div>
+      </div>
+    </div>
+    <div class="design-meta">
+      <h2>2. Parallax Scrollytelling</h2>
+      <div class="philosophy" style="color:#0EA5E9;">Photo sur photo, immersion totale jusqu'au CTA</div>
+      <p>La photo « Avant » reste fixe en arrière-plan (sticky) pendant que l'utilisateur scrolle. La photo « Après » monte et la recouvre progressivement. Le texte est toujours superposé sur les photos — aucun panneau blanc ne brise l'immersion. Le blanc n'apparaît qu'à la toute fin pour le CTA.</p>
+      <div class="detail-list">
+        <strong>Technique :</strong><br>
+        &#x2022; Photo « Avant » en position sticky — reste fixe<br>
+        &#x2022; Photo « Après » scrolle par-dessus et la recouvre<br>
+        &#x2022; Texte superposé en blanc sur les deux photos<br>
+        &#x2022; Zéro blanc jusqu'au CTA final<br><br>
+        <strong>Points forts :</strong><br>
+        &#x2022; Immersion photo totale — effet cinématographique<br>
+        &#x2022; Le scroll = la transformation (avant → après)<br>
+        &#x2022; Le contraste chromatique est maximal (sombre → lumineux)<br>
+        &#x2022; 100% CSS, zéro JavaScript
+      </div>
+      <span class="tag tag-blue">Parallax</span>
+      <span class="tag tag-purple">Scrollytelling</span>
+      <span class="tag tag-green">Immersif</span>
+    </div>
+  </div>
+
+  <!-- ================================================================
+       3. LIVING SPLIT
+       ================================================================ -->
+  <div class="design-container" id="design-split">
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <div class="lp-nav">
+          <div class="lp-nav-logo">Ble<span>Saf</span></div>
+          <button class="lp-nav-cta">Essai gratuit</button>
+        </div>
+        <div class="split-hero">
+          <div class="split-headline">
+            <h1>Deux réalités. <em>Laquelle choisissez-vous ?</em></h1>
+            <p>La même matinée, deux expériences</p>
+          </div>
+          <div class="split-panels">
+            <div class="split-panel split-panel-before">
+              <img src="photo-3A.png" alt="Sans BleSaf">
+              <div class="split-panel-overlay">
+                <span class="split-label">Sans BleSaf</span>
+                <div class="split-panel-text">Attente interminable<br>Stress et frustration</div>
+              </div>
+            </div>
+            <div class="split-divider"></div>
+            <div class="split-vs">VS</div>
+            <div class="split-panel split-panel-after">
+              <img src="photo-3B.png" alt="Avec BleSaf">
+              <div class="split-panel-overlay">
+                <span class="split-label">Avec BleSaf</span>
+                <div class="split-panel-text">Attente libre<br>Calme et sérénité</div>
+              </div>
+              <div class="split-notif" id="split-notif">
+                <div class="split-notif-icon">
+                  <span class="material-symbols-outlined" style="font-size:14px;">notifications</span>
+                </div>
+                <div class="split-notif-text">Position : <span>#3</span><br>Encore ~8 min</div>
+              </div>
+            </div>
+          </div>
+          <div class="split-body">
+            <h2>Vos patients choisissent où attendre</h2>
+            <p>File d'attente virtuelle, suivi en temps réel, notification automatique. Pas d'app à télécharger.</p>
+            <div class="hero-cta-row">
+              <button class="hero-btn-primary">Essayez gratuitement 30 jours</button>
+              <button class="hero-btn-secondary">Voir la démo</button>
+            </div>
+            <div class="hero-trust">Aucune carte bancaire requise</div>
+          </div>
+        </div>
+        <div class="page-continues">
+          <p>Le reste de la landing page continue ici...</p>
+          <div class="dots">...</div>
+        </div>
+      </div>
+    </div>
+    <div class="design-meta">
+      <h2>3. Split Vivant</h2>
+      <div class="philosophy" style="color:#F43F5E;">Comparaison directe avec animation produit</div>
+      <p>Les deux photos côte à côte, séparées par une ligne teal. Le côté « Avant » a un lent zoom Ken Burns (crée l'inconfort). Le côté « Après » a une notification flottante qui apparaît périodiquement — montrant le produit en action.</p>
+      <div class="detail-list">
+        <strong>Traitement photo :</strong><br>
+        &#x2022; Photos portrait 3:4 — cadrage serré<br>
+        &#x2022; Avant : désaturé + slow zoom anxiogène<br>
+        &#x2022; Après : couleurs chaudes + notification flottante<br><br>
+        <strong>Points forts :</strong><br>
+        &#x2022; Comparaison immédiate sans défilement<br>
+        &#x2022; La notification flottante démontre le produit<br>
+        &#x2022; Le mouvement attire l'œil vers la solution
+      </div>
+      <span class="tag tag-rose">Animé</span>
+      <span class="tag tag-teal">Produit</span>
+      <span class="tag tag-blue">Contrasté</span>
+    </div>
+  </div>
+
+  <!-- ================================================================
+       4. GRAYSCALE REVEAL
+       ================================================================ -->
+  <div class="design-container" id="design-gray">
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-screen" id="gray-screen">
+        <div class="lp-nav">
+          <div class="lp-nav-logo">Ble<span>Saf</span></div>
+          <button class="lp-nav-cta">Essai gratuit</button>
+        </div>
+        <div class="gray-hero">
+          <div class="gray-visual" id="gray-visual">
+            <img class="gray-img gray-img-before" id="gray-before" src="photo-4A.png" alt="Sans BleSaf">
+            <img class="gray-img gray-img-after" src="photo-4B.png" alt="Avec BleSaf">
+
+            <div class="gray-badge before" id="gray-badge">SANS BLESAF</div>
+
+            <div class="gray-overlay">
+              <div class="gray-text-wrap">
+                <div class="gray-text visible" id="gray-text-before">
+                  <h1>Votre salle d'attente <em>aujourd'hui</em></h1>
+                  <p>Couloirs sombres, patients qui attendent sans savoir quand viendra leur tour</p>
+                </div>
+                <div class="gray-text hidden" id="gray-text-after">
+                  <h1>Votre salle d'attente <em>avec BleSaf</em></h1>
+                  <p>Patients libres, sereins, qui suivent leur position depuis leur téléphone</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="gray-progress"><div class="gray-progress-bar" id="gray-bar"></div></div>
+          </div>
+
+          <div class="gray-body">
+            <h2>Du noir et blanc à la couleur</h2>
+            <p>BleSaf transforme l'expérience d'attente. QR code à l'accueil, suivi en temps réel, zéro stress.</p>
+            <div class="hero-cta-row">
+              <button class="hero-btn-primary">Essayez gratuitement 30 jours</button>
+              <button class="hero-btn-secondary">Voir la démo</button>
+            </div>
+            <div class="hero-trust">Aucune carte bancaire requise</div>
+          </div>
+        </div>
+        <div class="page-continues">
+          <p>Le reste de la landing page continue ici...</p>
+          <div class="dots">...</div>
+        </div>
+      </div>
+    </div>
+    <div class="design-meta">
+      <h2>4. Révélation N&B → Couleur</h2>
+      <div class="philosophy" style="color:#8B5CF6;">Cinématographique, transformation temporelle</div>
+      <p>La section commence en noir et blanc (le couloir sombre de la clinique). Après quelques secondes, la photo se dissout et laisse place à une explosion de couleurs — le café Sidi Bou Said. Le cerveau lit N&B = passé/problème et couleur = futur/solution.</p>
+      <div class="detail-list">
+        <strong>Traitement photo :</strong><br>
+        &#x2022; Avant : N&B total, haute contraste, sombre<br>
+        &#x2022; Après : couleurs saturées, lumière méditerranéenne<br>
+        &#x2022; Barre de progression temporelle en bas<br><br>
+        <strong>Points forts :</strong><br>
+        &#x2022; Effet « wow » garanti au moment du switch<br>
+        &#x2022; Technique empruntée au cinéma (Schindler's List)<br>
+        &#x2022; Le contraste N&B→couleur est maximal
+      </div>
+      <span class="tag tag-purple">Cinématique</span>
+      <span class="tag tag-amber">Émotionnel</span>
+      <span class="tag tag-green">Automatique</span>
+    </div>
+  </div>
+
+  <!-- ================================================================
+       5. CROSSFADE FLIP
+       ================================================================ -->
+  <div class="design-container" id="design-flip">
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <div class="lp-nav">
+          <div class="lp-nav-logo">Ble<span>Saf</span></div>
+          <button class="lp-nav-cta">Essai gratuit</button>
+        </div>
+        <div class="flip-hero">
+          <div class="flip-visual" id="flip-visual">
+            <img class="flip-img flip-img-before cf-visible" id="flip-before" src="photo-5A.png" alt="Sans BleSaf">
+            <img class="flip-img flip-img-after cf-hidden" id="flip-after" src="photo-5B.png" alt="Avec BleSaf">
+
+            <div class="flip-badge before" id="flip-badge">SANS BLESAF</div>
+
+            <div class="flip-overlay">
+              <div class="flip-text-wrap">
+                <div class="flip-text cf-visible" id="flip-text-before">
+                  <h1>Des patients <em>épuisés</em> par l'attente</h1>
+                  <p>Regard vide, frustration silencieuse, temps perdu pour tous</p>
+                </div>
+                <div class="flip-text cf-hidden" id="flip-text-after">
+                  <h1>Des patients <em>sereins</em>, café en main</h1>
+                  <p>Position en temps réel, notification automatique, zéro stress</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="flip-dots">
+              <button class="flip-dot active" id="flip-dot-0" onclick="setFlipState(0)"></button>
+              <button class="flip-dot" id="flip-dot-1" onclick="setFlipState(1)"></button>
+            </div>
+          </div>
+
+          <div class="flip-body">
+            <h2>BleSaf transforme l'attente en liberté</h2>
+            <p>Même patiente, même matinée. La seule différence : un QR code à l'accueil.</p>
+            <div class="hero-cta-row">
+              <button class="hero-btn-primary">Essayez gratuitement 30 jours</button>
+              <button class="hero-btn-secondary">Voir la démo</button>
+            </div>
+            <div class="hero-trust">Aucune carte bancaire requise</div>
+          </div>
+        </div>
+        <div class="page-continues">
+          <p>Le reste de la landing page continue ici...</p>
+          <div class="dots">...</div>
+        </div>
+      </div>
+    </div>
+    <div class="design-meta">
+      <h2>5. Fondu Alterné</h2>
+      <div class="philosophy" style="color:#F59E0B;">Narratif séquentiel, même cadrage</div>
+      <p>Les deux photos ont un cadrage quasi-identique (même femme, même angle). Le fondu enchaîné crée l'illusion d'une transformation — la même personne passe de l'attente stressante au café serein. Le texte change avec l'image pour guider l'émotion.</p>
+      <div class="detail-list">
+        <strong>Traitement photo :</strong><br>
+        &#x2022; Avant : désaturé, froid, assombri<br>
+        &#x2022; Après : couleurs chaudes, lumineux<br>
+        &#x2022; Cadrage identique = crossfade fluide<br><br>
+        <strong>Points forts :</strong><br>
+        &#x2022; L'illusion « même personne, autre réalité »<br>
+        &#x2022; Zéro effort du visiteur — tourne tout seul<br>
+        &#x2022; Dots cliquables pour contrôle manuel
+      </div>
+      <span class="tag tag-amber">Automatique</span>
+      <span class="tag tag-purple">Narratif</span>
+      <span class="tag tag-rose">Émotionnel</span>
+    </div>
+  </div>
+
+  <!-- ================================================================
+       JAVASCRIPT
+       ================================================================ -->
+  <script>
+    // ---- Tab switching ----
+    function switchTab(id, btn) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.design-container').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('design-' + id).classList.add('active');
+
+      // Restart animations for the active tab
+      if (id === 'gray') startGrayReveal();
+      if (id === 'flip') startFlipCrossfade();
+      if (id === 'split') restartSplitNotif();
+    }
+
+    // ---- 3. LIVING SPLIT — Restart notification animation ----
+    function restartSplitNotif() {
+      const notif = document.getElementById('split-notif');
+      if (!notif) return;
+      notif.style.animation = 'none';
+      void notif.offsetWidth;
+      notif.style.animation = 'split-notif-float 4s ease-in-out infinite';
+      notif.style.animationDelay = '1s';
+    }
+
+    // ---- 4. GRAYSCALE REVEAL ----
+    let grayInterval = null;
+    let grayState = 0;
+
+    function setGrayState(state) {
+      grayState = state;
+      const before = document.getElementById('gray-before');
+      const badge = document.getElementById('gray-badge');
+      const textBefore = document.getElementById('gray-text-before');
+      const textAfter = document.getElementById('gray-text-after');
+
+      if (state === 0) {
+        before.classList.remove('faded');
+        badge.className = 'gray-badge before';
+        badge.textContent = 'SANS BLESAF';
+        textBefore.className = 'gray-text visible';
+        textAfter.className = 'gray-text hidden';
+      } else {
+        before.classList.add('faded');
+        badge.className = 'gray-badge after';
+        badge.textContent = 'AVEC BLESAF';
+        textBefore.className = 'gray-text hidden';
+        textAfter.className = 'gray-text visible';
+      }
+    }
+
+    function startGrayReveal() {
+      if (grayInterval) clearInterval(grayInterval);
+      setGrayState(0);
+      grayInterval = setInterval(() => {
+        grayState = grayState === 0 ? 1 : 0;
+        setGrayState(grayState);
+      }, 5000);
+    }
+
+    startGrayReveal();
+
+    // ---- 5. CROSSFADE FLIP ----
+    let flipState = 0;
+    let flipInterval = null;
+
+    window.setFlipState = function(state) {
+      flipState = state;
+      const imgBefore = document.getElementById('flip-before');
+      const imgAfter = document.getElementById('flip-after');
+      const textBefore = document.getElementById('flip-text-before');
+      const textAfter = document.getElementById('flip-text-after');
+      const badge = document.getElementById('flip-badge');
+      const dot0 = document.getElementById('flip-dot-0');
+      const dot1 = document.getElementById('flip-dot-1');
+
+      if (state === 0) {
+        imgBefore.className = 'flip-img flip-img-before cf-visible';
+        imgAfter.className = 'flip-img flip-img-after cf-hidden';
+        textBefore.className = 'flip-text cf-visible';
+        textAfter.className = 'flip-text cf-hidden';
+        badge.className = 'flip-badge before';
+        badge.textContent = 'SANS BLESAF';
+        dot0.className = 'flip-dot active';
+        dot1.className = 'flip-dot';
+      } else {
+        imgBefore.className = 'flip-img flip-img-before cf-hidden';
+        imgAfter.className = 'flip-img flip-img-after cf-visible';
+        textBefore.className = 'flip-text cf-hidden';
+        textAfter.className = 'flip-text cf-visible';
+        badge.className = 'flip-badge after';
+        badge.textContent = 'AVEC BLESAF';
+        dot0.className = 'flip-dot';
+        dot1.className = 'flip-dot active';
+      }
+
+      // Reset timer on manual click
+      if (flipInterval) {
+        clearInterval(flipInterval);
+        flipInterval = setInterval(() => {
+          flipState = flipState === 0 ? 1 : 0;
+          setFlipState(flipState);
+        }, 3500);
+      }
+    };
+
+    function startFlipCrossfade() {
+      if (flipInterval) clearInterval(flipInterval);
+      flipState = 0;
+      setFlipState(0);
+      flipInterval = setInterval(() => {
+        flipState = flipState === 0 ? 1 : 0;
+        setFlipState(flipState);
+      }, 3500);
+    }
+
+    startFlipCrossfade();
+  </script>
+</body>
+</html>
