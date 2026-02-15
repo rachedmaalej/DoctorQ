@@ -6,7 +6,7 @@
 import { prisma } from '../lib/prisma.js';
 import { QueueStatus, CheckInMethod, QueueEntry } from '@prisma/client';
 import { recalculatePositionsAndStatuses, getNextPosition } from './positionService.js';
-import { emitQueueUpdate, emitPatientUpdate, emitAllPatientUpdates, sendSmsNotification } from './notificationService.js';
+import { emitQueueUpdate, emitPatientUpdate, emitAllPatientUpdates } from './notificationService.js';
 import { getQueueStats, getStartOfToday, computeSmartWaitEstimate } from './statsService.js';
 import { brand } from '../lib/brand.js';
 
@@ -124,9 +124,7 @@ export async function addPatient(input: AddPatientInput): Promise<AddPatientResu
     emitPatientUpdate(updatedEntry.id, updatedEntry.position, updatedEntry.status);
   }
 
-  // Send SMS notification to patient (fire-and-forget)
   const finalEntry = updatedEntry || result.entry;
-  sendSmsNotification(finalEntry.id, 'QUEUE_JOINED').catch(() => {});
 
   return {
     entry: finalEntry,
@@ -272,19 +270,6 @@ export async function callNextPatient(clinicId: string): Promise<QueueEntry | nu
       status: QueueStatus.IN_CONSULTATION,
     },
   });
-
-  // Send SMS notifications (fire-and-forget)
-  if (calledPatient) {
-    sendSmsNotification(calledPatient.id, 'YOUR_TURN').catch(() => {});
-  }
-
-  // Send ALMOST_TURN to the NOTIFIED patient (position #2)
-  const notifiedPatient = await prisma.queueEntry.findFirst({
-    where: { clinicId, status: QueueStatus.NOTIFIED },
-  });
-  if (notifiedPatient) {
-    sendSmsNotification(notifiedPatient.id, 'ALMOST_TURN').catch(() => {});
-  }
 
   return calledPatient;
 }

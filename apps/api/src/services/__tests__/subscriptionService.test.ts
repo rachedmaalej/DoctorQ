@@ -46,7 +46,6 @@ describe('getSubscriptionStatus', () => {
       subscriptionPlan: null,
       trialEndsAt,
       subscriptionEndsAt: null,
-      smsCredits: 50,
     } as any);
 
     const result = await getSubscriptionStatus('clinic-1');
@@ -54,7 +53,6 @@ describe('getSubscriptionStatus', () => {
     expect(result.status).toBe('TRIAL');
     expect(result.canUseApp).toBe(true);
     expect(result.plan).toBeNull();
-    expect(result.smsCredits).toBe(50);
     expect(result.daysRemaining).toBeGreaterThan(0);
   });
 
@@ -65,7 +63,8 @@ describe('getSubscriptionStatus', () => {
       subscriptionPlan: 'MONTHLY',
       trialEndsAt: null,
       subscriptionEndsAt,
-      smsCredits: 100,
+
+
     } as any);
 
     const result = await getSubscriptionStatus('clinic-1');
@@ -82,7 +81,8 @@ describe('getSubscriptionStatus', () => {
       subscriptionPlan: 'YEARLY',
       trialEndsAt: null,
       subscriptionEndsAt: new Date(Date.now() - 1000), // past
-      smsCredits: 10,
+
+
     } as any);
 
     const result = await getSubscriptionStatus('clinic-1');
@@ -99,7 +99,8 @@ describe('getSubscriptionStatus', () => {
       subscriptionPlan: null,
       trialEndsAt: null,
       subscriptionEndsAt: pastDate,
-      smsCredits: 0,
+
+
     } as any);
 
     const result = await getSubscriptionStatus('clinic-1');
@@ -119,7 +120,7 @@ describe('getSubscriptionStatus', () => {
       subscriptionPlan: null,
       trialEndsAt,
       subscriptionEndsAt,
-      smsCredits: 50,
+
     } as any);
 
     const trialResult = await getSubscriptionStatus('clinic-1');
@@ -132,7 +133,7 @@ describe('getSubscriptionStatus', () => {
       subscriptionPlan: 'MONTHLY',
       trialEndsAt,
       subscriptionEndsAt,
-      smsCredits: 50,
+
     } as any);
 
     const activeResult = await getSubscriptionStatus('clinic-1');
@@ -146,7 +147,8 @@ describe('getSubscriptionStatus', () => {
       subscriptionPlan: null,
       trialEndsAt: null,
       subscriptionEndsAt: null,
-      smsCredits: 0,
+
+
     } as any);
 
     const result = await getSubscriptionStatus('clinic-1');

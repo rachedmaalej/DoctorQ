@@ -66,7 +66,7 @@ describe('subscriptionGate', () => {
       trialEndsAt: null,
       subscriptionEndsAt: '2026-12-31T00:00:00.000Z',
       daysRemaining: 300,
-      smsCredits: 50,
+
       canUseApp: true,
     });
 
@@ -86,7 +86,7 @@ describe('subscriptionGate', () => {
       trialEndsAt: '2026-03-01T00:00:00.000Z',
       subscriptionEndsAt: null,
       daysRemaining: 20,
-      smsCredits: 50,
+
       canUseApp: true,
     });
 
@@ -106,7 +106,7 @@ describe('subscriptionGate', () => {
       trialEndsAt: '2026-01-01T00:00:00.000Z',
       subscriptionEndsAt: null,
       daysRemaining: 0,
-      smsCredits: 50,
+
       canUseApp: false,
     });
 
@@ -144,7 +144,7 @@ describe('subscriptionGate', () => {
       trialEndsAt: null,
       subscriptionEndsAt: null,
       daysRemaining: 0,
-      smsCredits: 0,
+
       canUseApp: false,
     });
 

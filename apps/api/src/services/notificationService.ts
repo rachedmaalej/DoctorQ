@@ -1,13 +1,12 @@
 /**
  * Notification Service
- * Handles real-time Socket.io notifications and SMS to clinics and patients
+ * Handles real-time Socket.io notifications to clinics and patients
  */
 
 import { prisma } from '../lib/prisma.js';
 import { QueueStatus } from '@prisma/client';
 import { emitToRoom } from '../lib/socket.js';
 import { getQueueStats, computeSmartWaitEstimate } from './statsService.js';
-import { sendSms, buildSmsBody, type SmsTemplate } from '../lib/sms.js';
 import { logger } from '../lib/logger.js';
 
 /**
@@ -78,72 +77,5 @@ export async function emitAllPatientUpdates(clinicId: string): Promise<void> {
   }
 }
 
-/**
- * Send SMS notification to a patient
- * Checks SMS credits before sending, deducts on success
- */
-export async function sendSmsNotification(
-  entryId: string,
-  template: SmsTemplate
-): Promise<boolean> {
-  try {
-    const entry = await prisma.queueEntry.findUnique({
-      where: { id: entryId },
-      include: {
-        clinic: {
-          select: {
-            id: true,
-            name: true,
-            language: true,
-            smsCredits: true,
-            avgConsultationMins: true,
-          },
-        },
-      },
-    });
 
-    if (!entry || !entry.clinic) return false;
-
-    // Check SMS credits
-    if (entry.clinic.smsCredits <= 0) {
-      logger.warn({ clinicName: entry.clinic.name }, 'No SMS credits remaining');
-      return false;
-    }
-
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-    const lang = (entry.clinic.language === 'ar' ? 'ar' : 'fr') as 'fr' | 'ar';
-
-    const { estimatedWaitMins } = await computeSmartWaitEstimate(
-      entry.clinicId,
-      entry.position,
-      entry.doctorId
-    );
-
-    const body = buildSmsBody(template, {
-      clinicName: entry.clinic.name,
-      position: entry.position,
-      waitTime: estimatedWaitMins,
-      remaining: entry.position - 1,
-      statusLink: `${frontendUrl}/patient/${entry.id}`,
-    }, lang);
-
-    const result = await sendSms(entry.patientPhone, body);
-
-    if (result.success) {
-      // Deduct SMS credit
-      await prisma.clinic.update({
-        where: { id: entry.clinic.id },
-        data: {
-          smsCredits: { decrement: 1 },
-          smsCreditsUsed: { increment: 1 },
-        },
-      });
-    }
-
-    return result.success;
-  } catch (error) {
-    logger.error({ err: error }, 'SMS notification error');
-    return false;
-  }
-}
 

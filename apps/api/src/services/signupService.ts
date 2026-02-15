@@ -108,8 +108,6 @@ export async function registerClinic(data: SignupData): Promise<SignupResult> {
       // Onboarding
       onboardingCompleted: false,
       onboardingStep: 0,
-      // Give 50 free SMS credits to start
-      smsCredits: 50,
       // Market isolation
       country: brand.country,
     },

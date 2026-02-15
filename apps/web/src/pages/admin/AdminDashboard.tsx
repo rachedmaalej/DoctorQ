@@ -9,6 +9,7 @@ import { useAuthStore } from '../../stores/authStore';
 import type { AdminTab } from '../../types';
 import AdminTabBar from '../../components/admin/AdminTabBar';
 import CreateClinicModal from '../../components/admin/CreateClinicModal';
+import { webBrand } from '../../lib/brand';
 import OverviewTab from '../../components/admin/tabs/OverviewTab';
 import ClinicsTab from '../../components/admin/tabs/ClinicsTab';
 import FinancialTab from '../../components/admin/tabs/FinancialTab';
@@ -65,7 +66,11 @@ export default function AdminDashboard() {
           <div className="flex items-center gap-4">
             <button
               onClick={() => setShowCreateModal(true)}
-              className="px-3 py-1.5 text-sm bg-[#267B75] text-white rounded hover:bg-[#1F6560] font-medium transition-colors"
+              className={`px-3 py-1.5 text-sm text-white rounded font-medium transition-colors ${
+                webBrand.id === 'france'
+                  ? 'bg-red-600 hover:bg-red-700'
+                  : 'bg-[#267B75] hover:bg-[#1F6560]'
+              }`}
             >
               + New Clinic
             </button>

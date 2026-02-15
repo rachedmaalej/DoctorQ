@@ -33,7 +33,7 @@ const router = Router();
 const addPatientSchema = z.object({
   patientPhone: z.string().min(8),
   patientName: z.string().optional(),
-  checkInMethod: z.enum(['QR_CODE', 'MANUAL', 'WHATSAPP', 'SMS']).default('MANUAL'),
+  checkInMethod: z.enum(['QR_CODE', 'MANUAL', 'WHATSAPP']).default('MANUAL'),
   appointmentTime: z.string().optional(),
   arrivedAt: z.string().optional(),
 });

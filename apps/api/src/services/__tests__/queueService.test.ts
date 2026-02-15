@@ -44,7 +44,6 @@ vi.mock('../notificationService.js', () => ({
   emitQueueUpdate: vi.fn(),
   emitPatientUpdate: vi.fn(),
   emitAllPatientUpdates: vi.fn(),
-  sendSmsNotification: vi.fn(),
 }));
 
 vi.mock('../statsService.js', () => ({

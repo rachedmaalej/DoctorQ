@@ -11,13 +11,9 @@ import { AuthRequest } from '../types/index.js';
 import {
   getSubscriptionStatus,
   createSubscriptionCheckout,
-  createSmsPackageCheckout,
-  getSmsBalance,
   getPaymentHistory,
   processSubscriptionPayment,
-  processSmsPackagePayment,
   PRICING,
-  SMS_PACKAGES,
 } from '../services/subscriptionService.js';
 import {
   updateOnboardingStep,
@@ -33,10 +29,6 @@ const router = Router();
 
 const checkoutSchema = z.object({
   plan: z.enum(['MONTHLY', 'YEARLY']),
-});
-
-const smsPackageSchema = z.object({
-  package: z.enum(['starter', 'standard', 'pro']),
 });
 
 const onboardingStepSchema = z.object({
@@ -63,27 +55,6 @@ router.post('/webhooks/subscription', async (req: Request, res: Response) => {
     res.json({ success: true });
   } catch (error) {
     logger.error({ err: error }, "Subscription webhook error");
-    res.status(500).json({ error: 'Webhook processing failed' });
-  }
-});
-
-/**
- * POST /api/subscription/webhooks/sms-package
- * Konnect webhook for SMS package payments
- */
-router.post('/webhooks/sms-package', async (req: Request, res: Response) => {
-  try {
-    const { payment_ref } = req.body;
-
-    if (!payment_ref) {
-      return res.status(400).json({ error: 'Missing payment_ref' });
-    }
-
-    await processSmsPackagePayment(payment_ref);
-
-    res.json({ success: true });
-  } catch (error) {
-    logger.error({ err: error }, "SMS package webhook error");
     res.status(500).json({ error: 'Webhook processing failed' });
   }
 });
@@ -170,66 +141,6 @@ router.post('/checkout', authMiddleware, async (req: AuthRequest, res: Response)
     }
 
     logger.error({ err: error }, "Checkout error");
-    res.status(500).json({
-      error: {
-        code: 'SERVER_ERROR',
-        message: 'Failed to create checkout session',
-      },
-    });
-  }
-});
-
-/**
- * GET /api/subscription/sms
- * Get SMS credit balance
- */
-router.get('/sms', authMiddleware, async (req: AuthRequest, res: Response) => {
-  try {
-    const balance = await getSmsBalance(req.clinic!.id);
-
-    res.json({ data: balance });
-  } catch (error) {
-    logger.error({ err: error }, "Get SMS balance error");
-    res.status(500).json({
-      error: {
-        code: 'SERVER_ERROR',
-        message: 'Failed to get SMS balance',
-      },
-    });
-  }
-});
-
-/**
- * POST /api/subscription/sms/checkout
- * Create checkout session for SMS package
- */
-router.post('/sms/checkout', authMiddleware, async (req: AuthRequest, res: Response) => {
-  try {
-    const { package: packageName } = smsPackageSchema.parse(req.body);
-
-    // Get base URL from request or env
-    const baseUrl = process.env.FRONTEND_URL || `${req.protocol}://${req.get('host')}`;
-
-    const result = await createSmsPackageCheckout(req.clinic!.id, packageName, baseUrl);
-
-    res.json({
-      data: {
-        payUrl: result.payUrl,
-        paymentRef: result.paymentRef,
-      },
-    });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({
-        error: {
-          code: 'VALIDATION_ERROR',
-          message: 'Invalid request data',
-          details: error.errors,
-        },
-      });
-    }
-
-    logger.error({ err: error }, "SMS checkout error");
     res.status(500).json({
       error: {
         code: 'SERVER_ERROR',

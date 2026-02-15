@@ -5,7 +5,6 @@ import { useDashboard } from '@/hooks/useDashboard';
 import { useUILabels } from '@/hooks/useUILabels';
 import { useAuthStore } from '@/stores/authStore';
 import { api } from '@/lib/api';
-import { webBrand } from '@/lib/brand';
 import QueueList from '@/components/queue/QueueList';
 import QueueStats from '@/components/queue/QueueStats';
 import QRCodeCard from '@/components/queue/QRCodeCard';

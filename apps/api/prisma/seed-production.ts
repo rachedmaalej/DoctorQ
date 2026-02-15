@@ -36,7 +36,6 @@ async function main() {
       onboardingStep: 3,
       subscriptionStatus: 'TRIAL',
       trialEndsAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-      smsCredits: 50,
     },
   });
 

@@ -22,9 +22,7 @@ export interface CurrencyConfig {
 export interface PricingConfig {
   monthly: number;     // in minor currency units
   yearly: number;
-  smsPackages: Record<string, { credits: number; amount: number; name: string }>;
   freeTrialDays: number;
-  freeSmsTrial: number;
 }
 
 export interface BrandConfig {
@@ -86,13 +84,7 @@ const brands: Record<BrandId, BrandDefaults> = {
     pricing: {
       monthly: 65000,    // 65 TND
       yearly: 650000,    // 650 TND
-      smsPackages: {
-        starter: { credits: 100, amount: 10000, name: 'Starter' },
-        standard: { credits: 300, amount: 25000, name: 'Standard' },
-        pro: { credits: 1000, amount: 70000, name: 'Pro' },
-      },
       freeTrialDays: 30,
-      freeSmsTrial: 50,
     },
     payment: { provider: 'konnect' },
   },
@@ -121,13 +113,7 @@ const brands: Record<BrandId, BrandDefaults> = {
     pricing: {
       monthly: 4900,     // 49 EUR
       yearly: 49000,     // 490 EUR
-      smsPackages: {
-        starter: { credits: 100, amount: 1000, name: 'Starter' },
-        standard: { credits: 300, amount: 2500, name: 'Standard' },
-        pro: { credits: 1000, amount: 7000, name: 'Pro' },
-      },
       freeTrialDays: 30,
-      freeSmsTrial: 0,
     },
     payment: { provider: 'stripe' },
   },

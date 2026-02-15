@@ -187,7 +187,6 @@ export default function ClinicsTab() {
                   onClick={() => handleSort('patients')}>
                 Patients {getSortIcon('patients')}
               </th>
-              <th className="px-4 py-3 text-left text-xs font-bold text-[#4E7572] uppercase">SMS</th>
               <th className="px-4 py-3 text-left text-xs font-bold text-[#4E7572] uppercase cursor-pointer hover:bg-[#F3FAF9]"
                   onClick={() => handleSort('created')}>
                 Joined {getSortIcon('created')}
@@ -198,7 +197,7 @@ export default function ClinicsTab() {
           <tbody className="divide-y divide-[#E6F2F0]">
             {filteredClinics.length === 0 ? (
               <tr>
-                <td colSpan={8} className="px-4 py-8 text-center text-[#8AADAA]">
+                <td colSpan={7} className="px-4 py-8 text-center text-[#8AADAA]">
                   {clinics.length === 0 ? 'No clinics yet.' : 'No clinics match filters.'}
                 </td>
               </tr>
@@ -235,9 +234,6 @@ export default function ClinicsTab() {
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap text-sm text-[#132E2C] font-medium">
                     {clinic.patientsToday}
-                  </td>
-                  <td className="px-4 py-3 whitespace-nowrap text-sm text-[#4E7572]">
-                    {clinic.smsCredits}
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap text-sm text-[#4E7572]">
                     {new Date(clinic.createdAt).toLocaleDateString('fr-FR')}

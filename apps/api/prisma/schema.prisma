@@ -76,10 +76,6 @@ model Clinic {
   onboardingCompleted   Boolean   @default(false)
   onboardingStep        Int       @default(0)
 
-  // SMS credits (separate from subscription)
-  smsCredits            Int       @default(0)    // Current balance
-  smsCreditsUsed        Int       @default(0)    // Total used (for analytics)
-
   createdAt           DateTime     @default(now())
   updatedAt           DateTime     @updatedAt
 
@@ -87,7 +83,6 @@ model Clinic {
   dailyStats            DailyStat[]
   paymentRecords        PaymentRecord[]
   subscriptionEvents    SubscriptionEvent[]
-  smsPackagePurchases   SmsPackagePurchase[]
   doctors               Doctor[]
 
   @@index([email])
@@ -172,7 +167,6 @@ enum CheckInMethod {
   QR_CODE
   MANUAL
   WHATSAPP
-  SMS
 }
 
 enum SubscriptionStatus {
@@ -243,24 +237,6 @@ model SubscriptionEvent {
 
   @@index([clinicId])
   @@index([eventType])
-  @@index([createdAt])
-}
-
-// Track SMS package purchases
-model SmsPackagePurchase {
-  id          String   @id @default(uuid())
-  clinicId    String
-  clinic      Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
-
-  packageName String   // "starter", "standard", "pro"
-  credits     Int      // Number of SMS credits purchased
-  amount      Int      // Amount in millimes
-  paymentRef  String?  // Konnect reference
-  status      String   @default("completed") // "completed", "pending", "failed"
-
-  createdAt   DateTime @default(now())
-
-  @@index([clinicId])
   @@index([createdAt])
 }
 

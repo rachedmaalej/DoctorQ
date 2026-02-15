@@ -165,7 +165,6 @@ export interface ClinicHealth {
   subscriptionPlan: string | null;
   trialEndsAt: string | null;
   createdAt: string;
-  smsCredits: number;
   onboardingStep: number;
   onboardingCompleted: boolean;
 }
@@ -188,8 +187,6 @@ export interface ClinicDetail {
     subscriptionPlan: string | null;
     trialEndsAt: string | null;
     subscriptionEndsAt: string | null;
-    smsCredits: number;
-    smsCreditsUsed: number;
     onboardingStep: number;
     onboardingCompleted: boolean;
     createdAt: string;
@@ -578,7 +575,6 @@ export async function getClinicHealthList(): Promise<ClinicHealth[]> {
       subscriptionPlan: true,
       trialEndsAt: true,
       createdAt: true,
-      smsCredits: true,
       onboardingStep: true,
       onboardingCompleted: true,
       queueEntries: {
@@ -641,7 +637,6 @@ export async function getClinicHealthList(): Promise<ClinicHealth[]> {
       subscriptionPlan: clinic.subscriptionPlan,
       trialEndsAt: clinic.trialEndsAt?.toISOString() ?? null,
       createdAt: clinic.createdAt.toISOString(),
-      smsCredits: clinic.smsCredits,
       onboardingStep: clinic.onboardingStep,
       onboardingCompleted: clinic.onboardingCompleted,
     };
@@ -681,8 +676,6 @@ export async function getClinicDetails(clinicId: string): Promise<ClinicDetail> 
       subscriptionPlan: true,
       trialEndsAt: true,
       subscriptionEndsAt: true,
-      smsCredits: true,
-      smsCreditsUsed: true,
       onboardingStep: true,
       onboardingCompleted: true,
       createdAt: true,
@@ -908,7 +901,7 @@ export async function createClinic(data: CreateClinicData) {
 
   const passwordHash = await bcrypt.hash(data.password, 10);
 
-  // Admin-created clinics are pre-verified with a 30-day trial and 50 free SMS
+  // Admin-created clinics are pre-verified with a 30-day trial
   const trialEndsAt = new Date();
   trialEndsAt.setDate(trialEndsAt.getDate() + 30);
 
@@ -926,7 +919,6 @@ export async function createClinic(data: CreateClinicData) {
       emailVerified: true,
       subscriptionStatus: 'TRIAL',
       trialEndsAt,
-      smsCredits: 50,
       country: brand.country,
     },
     select: {
@@ -1369,12 +1361,6 @@ export interface FeatureAdoption {
     qrCode: { count: number; percentage: number };
     manual: { count: number; percentage: number };
     whatsApp: { count: number; percentage: number };
-    sms: { count: number; percentage: number };
-  };
-  smsUsage: {
-    totalSent: number;
-    clinicsUsingSms: number;
-    avgPerClinic: number;
   };
   multiDoctorAdoption: number;
   avgPatientsPerClinicPerDay: number;
@@ -1396,20 +1382,9 @@ export async function getFeatureAdoption(): Promise<FeatureAdoption> {
   const qrCount = cMap['QR_CODE'] || 0;
   const manualCount = cMap['MANUAL'] || 0;
   const whatsAppCount = cMap['WHATSAPP'] || 0;
-  const smsCount = cMap['SMS'] || 0;
   const totalEntries = Object.values(cMap).reduce((a, b) => a + b, 0);
 
   const pct = (n: number) => totalEntries > 0 ? Math.round((n / totalEntries) * 100) : 0;
-
-  // SMS usage
-  const smsAgg = await prisma.clinic.aggregate({
-    where: { ...countryFilter },
-    _sum: { smsCreditsUsed: true },
-    _count: true,
-  });
-  const clinicsUsingSms = await prisma.clinic.count({ where: { smsCreditsUsed: { gt: 0 }, ...countryFilter } });
-  const totalSent = smsAgg._sum.smsCreditsUsed || 0;
-  const totalClinics = smsAgg._count;
 
   // Multi-doctor adoption
   const clinicsWithDoctors = await prisma.doctor.findMany({
@@ -1429,12 +1404,6 @@ export async function getFeatureAdoption(): Promise<FeatureAdoption> {
       qrCode: { count: qrCount, percentage: pct(qrCount) },
       manual: { count: manualCount, percentage: pct(manualCount) },
       whatsApp: { count: whatsAppCount, percentage: pct(whatsAppCount) },
-      sms: { count: smsCount, percentage: pct(smsCount) },
-    },
-    smsUsage: {
-      totalSent,
-      clinicsUsingSms,
-      avgPerClinic: totalClinics > 0 ? Math.round(totalSent / totalClinics) : 0,
     },
     multiDoctorAdoption: clinicsWithDoctors.length,
     avgPatientsPerClinicPerDay,
@@ -1447,12 +1416,6 @@ export interface PlatformHealth {
   services: {
     api: 'healthy' | 'degraded' | 'down';
     database: 'healthy' | 'degraded' | 'down';
-    sms: 'configured' | 'not_configured';
-  };
-  smsStats: {
-    totalCreditsIssued: number;
-    totalCreditsUsed: number;
-    remainingCredits: number;
   };
   clinicStats: {
     totalClinics: number;
@@ -1471,19 +1434,6 @@ export async function getPlatformHealth(): Promise<PlatformHealth> {
     dbStatus = 'down';
   }
 
-  // SMS configuration check
-  const smsConfigured = !!(process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN);
-
-  // SMS stats
-  const smsAgg = await prisma.clinic.aggregate({
-    where: { ...countryFilter },
-    _sum: { smsCredits: true, smsCreditsUsed: true },
-  });
-
-  const totalCreditsUsed = smsAgg._sum.smsCreditsUsed || 0;
-  const remainingCredits = smsAgg._sum.smsCredits || 0;
-  const totalCreditsIssued = totalCreditsUsed + remainingCredits;
-
   // Clinic breakdown
   // Sequential to prevent pool exhaustion
   const totalClinics = await prisma.clinic.count({ where: { ...countryFilter } });
@@ -1495,9 +1445,7 @@ export async function getPlatformHealth(): Promise<PlatformHealth> {
     services: {
       api: 'healthy', // If we're responding, API is healthy
       database: dbStatus,
-      sms: smsConfigured ? 'configured' : 'not_configured',
     },
-    smsStats: { totalCreditsIssued, totalCreditsUsed, remainingCredits },
     clinicStats: { totalClinics, activeClinics, clinicsOnTrial, clinicsPaid },
   };
 }

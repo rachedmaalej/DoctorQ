@@ -11,7 +11,6 @@ export enum CheckInMethod {
   QR_CODE = 'QR_CODE',
   MANUAL = 'MANUAL',
   WHATSAPP = 'WHATSAPP',
-  SMS = 'SMS',
 }
 
 export interface QueueEntry {
@@ -192,7 +191,6 @@ export interface ClinicHealth {
   subscriptionPlan: string | null;
   trialEndsAt: string | null;
   createdAt: string;
-  smsCredits: number;
   onboardingStep: number;
   onboardingCompleted: boolean;
 }
@@ -237,8 +235,6 @@ export interface ClinicDetail {
     subscriptionPlan: string | null;
     trialEndsAt: string | null;
     subscriptionEndsAt: string | null;
-    smsCredits: number;
-    smsCreditsUsed: number;
     onboardingStep: number;
     onboardingCompleted: boolean;
     createdAt: string;
@@ -369,12 +365,6 @@ export interface FeatureAdoption {
     qrCode: { count: number; percentage: number };
     manual: { count: number; percentage: number };
     whatsApp: { count: number; percentage: number };
-    sms: { count: number; percentage: number };
-  };
-  smsUsage: {
-    totalSent: number;
-    clinicsUsingSms: number;
-    avgPerClinic: number;
   };
   multiDoctorAdoption: number;
   avgPatientsPerClinicPerDay: number;
@@ -384,12 +374,6 @@ export interface PlatformHealth {
   services: {
     api: 'healthy' | 'degraded' | 'down';
     database: 'healthy' | 'degraded' | 'down';
-    sms: 'configured' | 'not_configured';
-  };
-  smsStats: {
-    totalCreditsIssued: number;
-    totalCreditsUsed: number;
-    remainingCredits: number;
   };
   clinicStats: {
     totalClinics: number;

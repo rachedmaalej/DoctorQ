@@ -227,7 +227,6 @@ class ApiClient {
     trialEndsAt: string | null;
     subscriptionEndsAt: string | null;
     daysRemaining: number | null;
-    smsCredits: number;
     canUseApp: boolean;
   }> {
     return this.request('/api/subscription');
@@ -238,9 +237,7 @@ class ApiClient {
       monthly: { amount: number; amountDisplay: number; currency: string; description: string };
       yearly: { amount: number; amountDisplay: number; currency: string; description: string; savings: number };
     };
-    smsPackages: Record<string, { credits: number; amount: number; amountDisplay: number; perSms: number }>;
     trialDays: number;
-    freeSmsTrial: number;
   }> {
     return this.request('/api/subscription/pricing');
   }
@@ -249,17 +246,6 @@ class ApiClient {
     return this.request('/api/subscription/checkout', {
       method: 'POST',
       body: JSON.stringify({ plan }),
-    });
-  }
-
-  async getSmsBalance(): Promise<{ credits: number; used: number }> {
-    return this.request('/api/subscription/sms');
-  }
-
-  async createSmsCheckout(packageName: 'starter' | 'standard' | 'pro'): Promise<{ payUrl: string; paymentRef: string }> {
-    return this.request('/api/subscription/sms/checkout', {
-      method: 'POST',
-      body: JSON.stringify({ package: packageName }),
     });
   }
 

@@ -1,6 +1,6 @@
 # DoctorQ (BleSaf)
 
-SaaS queue management for Tunisian medical clinics. Monorepo: `apps/api` (Express+Prisma+Socket.io) + `apps/web` (React+Vite+Tailwind). PostgreSQL via Supabase, Konnect payments, Twilio SMS, Resend email.
+SaaS queue management for Tunisian medical clinics. Monorepo: `apps/api` (Express+Prisma+Socket.io) + `apps/web` (React+Vite+Tailwind). PostgreSQL via Supabase, Konnect payments, Resend email.
 
 ## Commands
 
