@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>DoctorQ - Queue Notification Sound & Vibration Tester</title>
+<style>
+  :root {
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
+    --success: #16a34a;
+    --warning: #f59e0b;
+    --danger: #dc2626;
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --text: #1e293b;
+    --text-muted: #64748b;
+    --border: #e2e8f0;
+    --radius: 12px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 16px;
+    padding-bottom: 100px;
+  }
+
+  .header {
+    text-align: center;
+    padding: 20px 0;
+    margin-bottom: 16px;
+  }
+
+  .header h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 4px;
+  }
+
+  .header p {
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+
+  /* Unlock banner */
+  .unlock-banner {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    padding: 20px;
+    border-radius: var(--radius);
+    text-align: center;
+    margin-bottom: 20px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    transition: transform 0.15s;
+  }
+
+  .unlock-banner:active {
+    transform: scale(0.97);
+  }
+
+  .unlock-banner.unlocked {
+    background: linear-gradient(135deg, var(--success), #15803d);
+    box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+    cursor: default;
+  }
+
+  .unlock-banner h2 { font-size: 18px; margin-bottom: 6px; }
+  .unlock-banner p { font-size: 13px; opacity: 0.9; }
+
+  /* Section titles */
+  .section-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 24px 0 12px;
+    padding-left: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-title .badge {
+    font-size: 11px;
+    background: var(--primary);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 99px;
+    font-weight: 600;
+  }
+
+  /* Sound cards */
+  .sound-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .sound-card {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+
+  .sound-card:active {
+    transform: scale(0.97);
+    border-color: var(--primary);
+    background: #f0f5ff;
+  }
+
+  .sound-card.playing {
+    border-color: var(--primary);
+    background: #eff6ff;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  }
+
+  .sound-card.selected {
+    border-color: var(--success);
+    background: #f0fdf4;
+  }
+
+  .sound-num {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--primary);
+    flex-shrink: 0;
+  }
+
+  .sound-info { flex: 1; min-width: 0; }
+
+  .sound-name {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 2px;
+  }
+
+  .sound-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+
+  .play-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .play-icon svg {
+    width: 16px;
+    height: 16px;
+    fill: white;
+    margin-left: 2px;
+  }
+
+  /* Vibration cards */
+  .vib-card {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+
+  .vib-card:active {
+    transform: scale(0.97);
+    border-color: var(--warning);
+    background: #fffbeb;
+  }
+
+  .vib-card.playing {
+    border-color: var(--warning);
+    background: #fffbeb;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+  }
+
+  .vib-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #fef3c7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .vib-pattern {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    background: #f8fafc;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-top: 3px;
+    display: inline-block;
+  }
+
+  .vib-warning {
+    background: #fef3c7;
+    border: 1px solid #fde68a;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: #92400e;
+    margin-bottom: 12px;
+  }
+
+  /* Queue simulation */
+  .sim-section {
+    margin-top: 28px;
+  }
+
+  .sim-card {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .sim-card:active { transform: scale(0.97); }
+
+  .sim-card.pos2 { border-color: #93c5fd; }
+  .sim-card.pos2:active { background: #eff6ff; }
+  .sim-card.pos1 { border-color: #fbbf24; }
+  .sim-card.pos1:active { background: #fffbeb; }
+  .sim-card.turn { border-color: #f87171; }
+  .sim-card.turn:active { background: #fef2f2; }
+
+  .sim-card.active { animation: pulse-border 1s ease-in-out; }
+
+  @keyframes pulse-border {
+    0%, 100% { box-shadow: none; }
+    50% { box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.15); }
+  }
+
+  .sim-position {
+    font-size: 42px;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .sim-position.p2 { color: var(--primary); }
+  .sim-position.p1 { color: var(--warning); }
+  .sim-position.turn { color: var(--danger); }
+
+  .sim-label {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .sim-detail {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  /* Volume slider */
+  .volume-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    margin-bottom: 16px;
+  }
+
+  .volume-control label {
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .volume-control input[type=range] {
+    flex: 1;
+    height: 6px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: var(--border);
+    border-radius: 3px;
+    outline: none;
+  }
+
+  .volume-control input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--primary);
+    cursor: pointer;
+  }
+
+  .volume-value {
+    font-size: 13px;
+    font-weight: 600;
+    min-width: 35px;
+    text-align: right;
+  }
+
+  /* Selection dropdowns for simulation */
+  .sim-config {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  .sim-config h3 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--primary);
+  }
+
+  .config-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    gap: 10px;
+  }
+
+  .config-row:last-child { margin-bottom: 0; }
+
+  .config-label {
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .config-row select {
+    flex: 1;
+    max-width: 200px;
+    padding: 8px 10px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-size: 13px;
+    background: white;
+    color: var(--text);
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 30px;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 24px 0;
+    color: var(--text-muted);
+    font-size: 12px;
+  }
+
+  .footer a { color: var(--primary); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>DoctorQ Notifications</h1>
+  <p>Test sounds & vibrations for queue alerts</p>
+</div>
+
+<!-- Unlock banner (required for iOS) -->
+<div class="unlock-banner" id="unlockBanner" onclick="unlockAudio()">
+  <h2 id="unlockTitle">Tap here first to enable audio</h2>
+  <p id="unlockDesc">Required on iOS and some Android browsers</p>
+</div>
+
+<!-- Volume control -->
+<div class="volume-control">
+  <label>Volume</label>
+  <input type="range" id="volumeSlider" min="0" max="100" value="60" oninput="updateVolume()">
+  <span class="volume-value" id="volumeValue">60%</span>
+</div>
+
+<!-- ========== SOUNDS ========== -->
+<div class="section-title">
+  Notification Sounds <span class="badge">10</span>
+</div>
+
+<div class="sound-grid" id="soundGrid">
+  <!-- Generated by JS -->
+</div>
+
+<!-- ========== VIBRATIONS ========== -->
+<div class="section-title" style="margin-top:28px">
+  Vibration Patterns <span class="badge">5</span>
+</div>
+
+<div class="vib-warning">
+  Vibration works on Android (Chrome/Firefox). Not supported on iOS Safari.
+</div>
+
+<div class="sound-grid" id="vibGrid">
+  <!-- Generated by JS -->
+</div>
+
+<!-- ========== QUEUE SIMULATION ========== -->
+<div class="sim-section">
+  <div class="section-title">
+    Queue Position Simulation
+  </div>
+
+  <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">
+    Configure which sound + vibration plays at each position, then tap to simulate.
+  </p>
+
+  <!-- Configuration -->
+  <div class="sim-config">
+    <h3>Configure Alerts</h3>
+
+    <div class="config-row">
+      <span class="config-label">Position #2:</span>
+      <select id="sel-sound-p2"></select>
+    </div>
+    <div class="config-row">
+      <span class="config-label" style="opacity:0.5">Vibration:</span>
+      <select id="sel-vib-p2" style="opacity:0.5" disabled>
+        <option>None (spec: sound only)</option>
+      </select>
+    </div>
+
+    <hr style="border:none;border-top:1px solid var(--border);margin:12px 0">
+
+    <div class="config-row">
+      <span class="config-label">Position #1:</span>
+      <select id="sel-sound-p1"></select>
+    </div>
+    <div class="config-row">
+      <span class="config-label">Vibration:</span>
+      <select id="sel-vib-p1"></select>
+    </div>
+
+    <hr style="border:none;border-top:1px solid var(--border);margin:12px 0">
+
+    <div class="config-row">
+      <span class="config-label">Your Turn:</span>
+      <select id="sel-sound-turn"></select>
+    </div>
+    <div class="config-row">
+      <span class="config-label">Vibration:</span>
+      <select id="sel-vib-turn"></select>
+    </div>
+  </div>
+
+  <!-- Simulation buttons -->
+  <div class="sim-card pos2" onclick="simulatePosition(2)">
+    <div class="sim-position p2">#2</div>
+    <div class="sim-label">Almost There</div>
+    <div class="sim-detail">1 sound, no vibration</div>
+  </div>
+
+  <div class="sim-card pos1" onclick="simulatePosition(1)">
+    <div class="sim-position p1">#1</div>
+    <div class="sim-label">You're Next!</div>
+    <div class="sim-detail">1 sound + 1 vibration</div>
+  </div>
+
+  <div class="sim-card turn" onclick="simulatePosition(0)">
+    <div class="sim-position turn">YOUR TURN</div>
+    <div class="sim-label">Go to the Doctor</div>
+    <div class="sim-detail">2 sounds + 2 vibrations</div>
+  </div>
+</div>
+
+<div class="footer">
+  DoctorQ (BleSaf) &mdash; Queue Notification Tester<br>
+  <a href="https://github.com/rachedidev/IjaTawa">github.com/rachedidev/IjaTawa</a>
+</div>
+
+<script>
+// ===== AUDIO CONTEXT =====
+let audioCtx = null;
+let isUnlocked = false;
+
+function getAudioContext() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+  return audioCtx;
+}
+
+function unlockAudio() {
+  try {
+    const ctx = getAudioContext();
+    const buffer = ctx.createBuffer(1, 1, ctx.sampleRate);
+    const source = ctx.createBufferSource();
+    source.buffer = buffer;
+    source.connect(ctx.destination);
+    source.start(0);
+    isUnlocked = true;
+    document.getElementById('unlockBanner').classList.add('unlocked');
+    document.getElementById('unlockTitle').textContent = 'Audio Enabled';
+    document.getElementById('unlockDesc').textContent = 'You can now test all sounds and vibrations';
+  } catch (e) {
+    console.warn('Failed to unlock audio:', e);
+  }
+}
+
+function getVolume() {
+  return parseInt(document.getElementById('volumeSlider').value) / 100;
+}
+
+function updateVolume() {
+  const v = document.getElementById('volumeSlider').value;
+  document.getElementById('volumeValue').textContent = v + '%';
+}
+
+// ===== VIBRATION HELPER =====
+function vibrate(pattern) {
+  if (navigator.vibrate) {
+    try { navigator.vibrate(pattern); } catch(e) {}
+  }
+}
+
+// ===== 10 NOTIFICATION SOUNDS =====
+const SOUNDS = [
+  {
+    id: 'soft-chime',
+    name: 'Soft Chime',
+    desc: 'Single high bell tone, gentle fade. Like a distant wind chime.',
+    category: 'gentle',
+    play: function(vol) {
+      const ctx = getAudioContext(); const t = ctx.currentTime;
+      const osc = ctx.createOscillator(); const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(1046.50, t);
+      gain.gain.setValueAtTime(vol * 0.25, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.8);
+      osc.start(t); osc.stop(t + 0.8);
+    }
+  },
+  {
+    id: 'two-tone',
+    name: 'Two-Tone Ding-Dong',
+    desc: 'Classic ascending pair: E5 then G5. Gentle doorbell feel.',
+    category: 'gentle',
+    play: function(vol) {
+      const ctx = getAudioContext(); const t = ctx.currentTime;
+      [659.25, 783.99].forEach((freq, i) => {
+        const osc = ctx.createOscillator(); const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, t + i * 0.18);
+        gain.gain.setValueAtTime(vol * 0.3, t + i * 0.18);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.18 + 0.3);
+        osc.start(t + i * 0.18); osc.stop(t + i * 0.18 + 0.3);
+      });
+    }
+  },
+  {
+    id: 'gentle-ping',
+    name: 'Gentle Ping',
+    desc: 'Warm triangle-wave tap at F5. Mellow and non-startling.',
+    category: 'gentle',
+    play: function(vol) {
+      const ctx = getAudioContext(); const t = ctx.currentTime;
+      const osc = ctx.createOscillator(); const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(698.46, t);
+      gain.gain.setValueAtTime(vol * 0.35, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+      osc.start(t); osc.stop(t + 0.4);
+    }
+  },
+  {
+    id: 'warm-chord',
+    name: 'Warm Chord',
+    desc: 'C-major triad (C4-E4-G4) with triangle waves. Piano-like warmth.',
+    category: 'gentle',
+    play: function(vol) {
+      const ctx = getAudioContext(); const t = ctx.currentTime;
+      [261.63, 329.63, 392].forEach(freq => {
+        const osc = ctx.createOscillator(); const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, t);
+        gain.gain.setValueAtTime(vol * 0.18, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.55);
+        osc.start(t); osc.stop(t + 0.55);
+      });
+    }
+  },
+  {
+    id: 'rising-tone',
+    name: 'Rising Tone',
+    desc: 'Smooth sweep from A4 to A5. Feels like progress, moving forward.',
+    category: 'moderate',
+    play: function(vol) {
+      const ctx = getAudioContext(); const t = ctx.currentTime;
+      const osc = ctx.createOscillator(); const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(440, t);
+      osc.frequency.linearRampToValueAtTime(880, t + 0.3);
+      gain.gain.setValueAtTime(vol * 0.3, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
+      osc.start(t); osc.stop(t + 0.5);
+    }
+  },
+  {
+    id: 'triple-beep',
+    name: 'Triple Beep',
+    desc: 'Three short beeps at A5. Classic notification cadence.',
+    category: 'moderate',
+    play: function(vol) {
+      const ctx = getAudioContext(); const t = ctx.currentTime;
+      [0, 0.13, 0.26].forEach(delay => {
+        const osc = ctx.createOscillator(); const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, t + delay);
+        gain.gain.setValueAtTime(vol * 0.28, t + delay);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + delay + 0.09);
+        osc.start(t + delay); osc.stop(t + delay + 0.09);
+      });
+    }
+  },
+  {
+    id: 'medical-chime',
+    name: 'Medical Chime',
+    desc: 'Hospital-style A4 to C#5 two-tone. Professional and clinical.',
+    category: 'moderate',
+    play: function(vol) {
+      const ctx = getAudioContext(); const t = ctx.currentTime;
+      [440, 554.37].forEach((freq, i) => {
+        const osc = ctx.createOscillator(); const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, t + i * 0.22);
+        gain.gain.setValueAtTime(vol * 0.38, t + i * 0.22);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.22 + 0.4);
+        osc.start(t + i * 0.22); osc.stop(t + i * 0.22 + 0.4);
+      });
+    }
+  },
+  {
+    id: 'bright-alert',
+    name: 'Bright Alert',
+    desc: 'Fast ascending C-major arpeggio (C5-E5-G5-C6). Bright ta-da!',
+    category: 'urgent',
+    play: function(vol) {
+      const ctx = getAudioContext(); const t = ctx.currentTime;
+      [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+        const osc = ctx.createOscillator(); const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, t + i * 0.09);
+        gain.gain.setValueAtTime(vol * 0.28, t + i * 0.09);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.09 + 0.18);
+        osc.start(t + i * 0.09); osc.stop(t + i * 0.09 + 0.18);
+      });
+    }
+  },
+  {
+    id: 'urgent-pulse',
+    name: 'Urgent Double Pulse',
+    desc: 'Two firm 1kHz pulses. Demands attention without being harsh.',
+    category: 'urgent',
+    play: function(vol) {
+      const ctx = getAudioContext(); const t = ctx.currentTime;
+      [0, 0.24].forEach(delay => {
+        const osc = ctx.createOscillator(); const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(1000, t + delay);
+        gain.gain.setValueAtTime(vol * 0.38, t + delay);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + delay + 0.12);
+        osc.start(t + delay); osc.stop(t + delay + 0.12);
+      });
+    }
+  },
+  {
+    id: 'priority-alarm',
+    name: 'Priority Alarm',
+    desc: 'Ascending G4-C5-E5 played twice. Unmissable "go now" alert.',
+    category: 'urgent',
+    play: function(vol) {
+      const ctx = getAudioContext(); const t = ctx.currentTime;
+      const pattern = [392, 523.25, 659.25, 392, 523.25, 659.25];
+      pattern.forEach((freq, i) => {
+        const osc = ctx.createOscillator(); const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, t + i * 0.1);
+        gain.gain.setValueAtTime(vol * 0.38, t + i * 0.1);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.1 + 0.1);
+        osc.start(t + i * 0.1); osc.stop(t + i * 0.1 + 0.1);
+      });
+    }
+  }
+];
+
+// ===== 5 VIBRATION PATTERNS =====
+const VIBRATIONS = [
+  {
+    id: 'gentle-tap',
+    name: 'Gentle Tap',
+    desc: 'Single short pulse. Subtle nudge.',
+    pattern: 100,
+    display: '100ms'
+  },
+  {
+    id: 'soft-double',
+    name: 'Soft Double Tap',
+    desc: 'Two quick taps with brief pause.',
+    pattern: [100, 80, 100],
+    display: '100-80-100ms'
+  },
+  {
+    id: 'firm-buzz',
+    name: 'Firm Buzz',
+    desc: 'One sustained 400ms vibration. Noticeable.',
+    pattern: 400,
+    display: '400ms'
+  },
+  {
+    id: 'strong-double',
+    name: 'Strong Double Pulse',
+    desc: 'Two firm buzzes. Hard to miss.',
+    pattern: [300, 150, 300],
+    display: '300-150-300ms'
+  },
+  {
+    id: 'priority-buzz',
+    name: 'Priority Triple Buzz',
+    desc: 'Three escalating pulses. Maximum urgency.',
+    pattern: [300, 100, 300, 100, 400],
+    display: '300-100-300-100-400ms'
+  }
+];
+
+// ===== RENDER SOUND CARDS =====
+function renderSounds() {
+  const grid = document.getElementById('soundGrid');
+  const categoryColors = { gentle: '#16a34a', moderate: '#f59e0b', urgent: '#dc2626' };
+  const categoryLabels = { gentle: 'Gentle', moderate: 'Moderate', urgent: 'Urgent' };
+
+  grid.innerHTML = SOUNDS.map((s, i) => `
+    <div class="sound-card" id="sound-${s.id}" onclick="playSound(${i})">
+      <div class="sound-num" style="color:${categoryColors[s.category]};background:${s.category === 'gentle' ? '#f0fdf4' : s.category === 'moderate' ? '#fffbeb' : '#fef2f2'}">${i + 1}</div>
+      <div class="sound-info">
+        <div class="sound-name">${s.name} <span style="font-size:10px;color:${categoryColors[s.category]};font-weight:700">${categoryLabels[s.category].toUpperCase()}</span></div>
+        <div class="sound-desc">${s.desc}</div>
+      </div>
+      <div class="play-icon">
+        <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderVibrations() {
+  const grid = document.getElementById('vibGrid');
+  grid.innerHTML = VIBRATIONS.map((v, i) => `
+    <div class="vib-card" id="vib-${v.id}" onclick="playVibration(${i})">
+      <div class="vib-icon">📳</div>
+      <div class="sound-info">
+        <div class="sound-name">${v.name}</div>
+        <div class="sound-desc">${v.desc}</div>
+        <div class="vib-pattern">${v.display}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ===== POPULATE SELECTS =====
+function populateSelects() {
+  const soundSelects = ['sel-sound-p2', 'sel-sound-p1', 'sel-sound-turn'];
+  const vibSelects = ['sel-vib-p1', 'sel-vib-turn'];
+
+  soundSelects.forEach(id => {
+    const sel = document.getElementById(id);
+    SOUNDS.forEach((s, i) => {
+      const opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = `${i + 1}. ${s.name}`;
+      sel.appendChild(opt);
+    });
+  });
+
+  // Defaults: gentle for p2, moderate for p1, urgent for turn
+  document.getElementById('sel-sound-p2').value = 1;  // Two-Tone
+  document.getElementById('sel-sound-p1').value = 7;  // Bright Alert
+  document.getElementById('sel-sound-turn').value = 9; // Priority Alarm
+
+  vibSelects.forEach(id => {
+    const sel = document.getElementById(id);
+    VIBRATIONS.forEach((v, i) => {
+      const opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = `${v.name}`;
+      sel.appendChild(opt);
+    });
+  });
+
+  // Defaults
+  document.getElementById('sel-vib-p1').value = 2;  // Firm Buzz
+  document.getElementById('sel-vib-turn').value = 4; // Priority Triple Buzz
+}
+
+// ===== PLAY FUNCTIONS =====
+function playSound(index) {
+  if (!isUnlocked) { unlockAudio(); }
+  const card = document.getElementById('sound-' + SOUNDS[index].id);
+  card.classList.add('playing');
+  SOUNDS[index].play(getVolume());
+  setTimeout(() => card.classList.remove('playing'), 800);
+}
+
+function playVibration(index) {
+  const card = document.getElementById('vib-' + VIBRATIONS[index].id);
+  card.classList.add('playing');
+  vibrate(VIBRATIONS[index].pattern);
+
+  // Calculate total duration for visual feedback
+  const p = VIBRATIONS[index].pattern;
+  const dur = Array.isArray(p) ? p.reduce((a, b) => a + b, 0) : p;
+  setTimeout(() => card.classList.remove('playing'), dur + 100);
+}
+
+// ===== QUEUE SIMULATION =====
+function simulatePosition(pos) {
+  if (!isUnlocked) { unlockAudio(); }
+
+  const vol = getVolume();
+
+  if (pos === 2) {
+    // Position #2: 1 sound, no vibration
+    const soundIdx = parseInt(document.getElementById('sel-sound-p2').value);
+    SOUNDS[soundIdx].play(vol);
+  }
+  else if (pos === 1) {
+    // Position #1: 1 sound + 1 vibration
+    const soundIdx = parseInt(document.getElementById('sel-sound-p1').value);
+    const vibIdx = parseInt(document.getElementById('sel-vib-p1').value);
+    SOUNDS[soundIdx].play(vol);
+    vibrate(VIBRATIONS[vibIdx].pattern);
+  }
+  else if (pos === 0) {
+    // Your turn: 2 sounds + 2 vibrations (second after a pause)
+    const soundIdx = parseInt(document.getElementById('sel-sound-turn').value);
+    const vibIdx = parseInt(document.getElementById('sel-vib-turn').value);
+
+    // First round
+    SOUNDS[soundIdx].play(vol);
+    vibrate(VIBRATIONS[vibIdx].pattern);
+
+    // Second round after 1.2 seconds
+    setTimeout(() => {
+      SOUNDS[soundIdx].play(vol);
+      vibrate(VIBRATIONS[vibIdx].pattern);
+    }, 1200);
+  }
+
+  // Visual feedback on the sim card
+  const cards = document.querySelectorAll('.sim-card');
+  const cardIdx = pos === 2 ? 0 : pos === 1 ? 1 : 2;
+  cards[cardIdx].classList.add('active');
+  setTimeout(() => cards[cardIdx].classList.remove('active'), 1000);
+}
+
+// ===== INIT =====
+renderSounds();
+renderVibrations();
+populateSelects();
+
+// Auto-unlock on first interaction
+['click', 'touchstart'].forEach(evt => {
+  document.addEventListener(evt, function autoUnlock() {
+    if (!isUnlocked) unlockAudio();
+    document.removeEventListener(evt, autoUnlock);
+  }, { once: true });
+});
+</script>
+
+</body>
+</html>
