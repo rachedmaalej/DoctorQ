@@ -46,7 +46,7 @@ function getApiUrl(): string {
     }
   }
 
-  // Default to localhost for development
+  // Default to localhost for development (override with VITE_API_URL in .env)
   return 'http://localhost:3001';
 }
 

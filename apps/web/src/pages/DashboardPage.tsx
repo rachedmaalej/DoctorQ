@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDashboard } from '@/hooks/useDashboard';
 import { useUILabels } from '@/hooks/useUILabels';
 import { useAuthStore } from '@/stores/authStore';
+import { webBrand } from '@/lib/brand';
 import { api } from '@/lib/api';
 import QueueList from '@/components/queue/QueueList';
 import QueueStats from '@/components/queue/QueueStats';
@@ -18,7 +19,6 @@ import Header from '@/components/layout/Header';
 import TrialBanner from '@/components/ui/TrialBanner';
 import { MD3Button } from '@/components/md3/button';
 import DailyRecapOverlay from '@/components/dashboard/DailyRecapOverlay';
-import FirstMorningChecklist from '@/components/dashboard/FirstMorningChecklist';
 
 export default function DashboardPage() {
   const { t } = useTranslation();
@@ -35,13 +35,6 @@ export default function DashboardPage() {
         setSubscriptionExpired(!sub.canUseApp);
       })
       .catch(() => {});
-  }, []);
-
-  // First-patient celebration toast
-  const [showCelebration, setShowCelebration] = useState(false);
-  const handleFirstPatient = useCallback(() => {
-    setShowCelebration(true);
-    setTimeout(() => setShowCelebration(false), 4000);
   }, []);
 
   // Show daily recap on first visit of the day
@@ -113,9 +106,12 @@ export default function DashboardPage() {
       {/* Trial Expiration Banner */}
       <TrialBanner />
 
-      {/* Impersonation Banner */}
+      {/* Impersonation Banner — Tunisian red for BleSaf, French blue for FiloSoin */}
       {isImpersonating && (
-        <div className="bg-purple-600 text-white px-4 py-2 flex items-center justify-between">
+        <div
+          className="text-white px-4 py-2 flex items-center justify-between"
+          style={{ backgroundColor: webBrand.id === 'france' ? '#002395' : '#E70013' }}
+        >
           <div className="flex items-center gap-2">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -127,7 +123,8 @@ export default function DashboardPage() {
           </div>
           <button
             onClick={handleExitImpersonation}
-            className="px-3 py-1 text-sm bg-white text-purple-600 rounded-lg font-medium hover:bg-purple-50 transition-colors"
+            className="px-3 py-1 text-sm bg-white rounded-lg font-medium hover:bg-white/90 transition-colors"
+            style={{ color: webBrand.id === 'france' ? '#002395' : '#E70013' }}
           >
             Exit to Admin
           </button>
@@ -158,14 +155,6 @@ export default function DashboardPage() {
           onAnnouncementClick={() => setIsAnnouncementModalOpen(true)}
           onAnnouncementClear={() => handleSetAnnouncement(null)}
         />
-        {/* First Morning Checklist (mobile) */}
-        <div className="px-4 -mt-2 mb-4">
-          <FirstMorningChecklist
-            hasPatients={queue.length > 0 || (stats?.seen ?? 0) > 0}
-            hasCalled={(stats?.seen ?? 0) > 0}
-            onFirstPatient={handleFirstPatient}
-          />
-        </div>
       </div>
 
       {/* Desktop Layout - hidden on mobile */}
@@ -181,13 +170,6 @@ export default function DashboardPage() {
           <div className="space-y-6">
             {/* Stats */}
             {stats && <QueueStats stats={stats} onResetStats={resetStats} isDoctorPresent={isDoctorPresent} queue={queue} />}
-
-            {/* First Morning Checklist */}
-            <FirstMorningChecklist
-              hasPatients={queue.length > 0 || (stats?.seen ?? 0) > 0}
-              hasCalled={(stats?.seen ?? 0) > 0}
-              onFirstPatient={handleFirstPatient}
-            />
 
             {/* Action Bar */}
             <div className="flex flex-wrap items-center justify-between gap-3 sm:gap-4">
@@ -333,14 +315,6 @@ export default function DashboardPage() {
       />
 
       {/* First-patient celebration toast */}
-      <Toast
-        message={t('firstMorning.firstPatientToast')}
-        type="success"
-        isVisible={showCelebration}
-        onClose={() => setShowCelebration(false)}
-        duration={4000}
-      />
-
       {/* Daily Recap Overlay - shown once per day on first visit */}
       {showDailyRecap && (
         <DailyRecapOverlay

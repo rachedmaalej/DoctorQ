@@ -5,6 +5,7 @@ import { api } from '@/lib/api';
 import { logger } from '@/lib/logger';
 import { useSocket } from '@/hooks/useSocket';
 import { formatTime } from '@/lib/time';
+import { initAudioContext, playSoftChime, playMedicalChime, playBrightAlert, playPriorityAlarm } from '@/lib/sounds';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 import { Toast } from '@/components/ui/Toast';
@@ -78,6 +79,23 @@ export default function PatientStatusPage() {
   const [doctorGender, setDoctorGender] = useState<string | null>(null);
   const [positionToast, setPositionToast] = useState<{ visible: boolean; message: string }>({ visible: false, message: '' });
   const previousPositionRef = useRef<number | null>(null);
+  const audioInitRef = useRef(false);
+
+  // Initialize audio context on first user interaction (required for iOS)
+  useEffect(() => {
+    const handleFirstInteraction = () => {
+      if (!audioInitRef.current) {
+        initAudioContext();
+        audioInitRef.current = true;
+      }
+    };
+    document.addEventListener('click', handleFirstInteraction, { once: true });
+    document.addEventListener('touchstart', handleFirstInteraction, { once: true });
+    return () => {
+      document.removeEventListener('click', handleFirstInteraction);
+      document.removeEventListener('touchstart', handleFirstInteraction);
+    };
+  }, []);
 
   // Gender context for i18next (undefined = default/masculine fallback)
   const genderContext = doctorGender === 'F' ? 'female' : undefined;
@@ -129,21 +147,33 @@ export default function PatientStatusPage() {
           ? t('patient.movedUpOne')
           : t('patient.movedUpMultiple', { count: positionsMoved });
         setPositionToast({ visible: true, message });
-        // Stronger single vibration when reaching position #1 (NOTIFIED = next in line)
+
+        // Sound + vibration based on new position
         if (status === QueueStatus.NOTIFIED) {
+          // Position #1: Bright Alert + Firm Buzz vibration
+          playBrightAlert();
           vibrate(400);
+        } else if (newPosition === 3) {
+          // Position #2 (backend 3): Medical Chime, no vibration
+          playMedicalChime();
         } else {
-          vibrate(200);
+          // Position >= 3 (backend >= 4): Soft Chime, no vibration
+          playSoftChime();
         }
       }
 
       // Update ref for next comparison
       previousPositionRef.current = newPosition;
 
-      // Strong vibration when called into the doctor's office
+      // Patient's turn — play Priority Alarm + Priority Triple Buzz, twice
       if (status === QueueStatus.IN_CONSULTATION && prev.status !== QueueStatus.IN_CONSULTATION) {
-        // Two distinct vibrations for "go to the doctor's office"
-        vibrate([300, 150, 300]);
+        playPriorityAlarm();
+        vibrate([300, 100, 300, 100, 400]);
+        // Second round after 1.2 seconds
+        setTimeout(() => {
+          playPriorityAlarm();
+          vibrate([300, 100, 300, 100, 400]);
+        }, 1200);
       }
 
       return {
@@ -168,11 +198,18 @@ export default function PatientStatusPage() {
             ? t('patient.movedUpOne')
             : t('patient.movedUpMultiple', { count: positionsMoved });
           setPositionToast({ visible: true, message });
-          // Stronger single vibration when reaching position #1 (backend pos 2 = NOTIFIED/next)
+
+          // Sound + vibration based on new position
           if (newPosition <= 2) {
+            // Position #1 (backend 2): Bright Alert + Firm Buzz
+            playBrightAlert();
             vibrate(400);
+          } else if (newPosition === 3) {
+            // Position #2 (backend 3): Medical Chime, no vibration
+            playMedicalChime();
           } else {
-            vibrate(200);
+            // Position >= 3 (backend >= 4): Soft Chime, no vibration
+            playSoftChime();
           }
         }
 
