@@ -1,8 +1,10 @@
 /**
- * BléSaf Logo Component
- * "Blé" uses Reem Kufi (Arabic/oriental style font)
- * "Saf" uses Bebas Neue (strict, geometric, serious font)
+ * Brand Logo Component
+ * BleSaf: "Blé" uses Reem Kufi + "Saf" uses Bebas Neue
+ * FiloSoin: "Filo" uses IBM Plex Sans + "Soin" uses Bebas Neue
  */
+
+import { webBrand } from '../../lib/brand';
 
 interface LogoProps {
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
@@ -18,6 +20,15 @@ const sizeClasses = {
 };
 
 export default function Logo({ size = 'md', className = '' }: LogoProps) {
+  if (webBrand.id === 'france') {
+    return (
+      <h1 className={`font-bold text-primary-700 ${sizeClasses[size]} ${className}`}>
+        <span style={{ fontFamily: "'IBM Plex Sans', sans-serif" }}>Filo</span>
+        <span style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.05em' }}>SOIN</span>
+      </h1>
+    );
+  }
+
   return (
     <h1 className={`font-bold text-primary-700 ${sizeClasses[size]} ${className}`}>
       <span style={{ fontFamily: "'Reem Kufi', sans-serif" }}>Blé</span>

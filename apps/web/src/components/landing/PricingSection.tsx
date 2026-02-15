@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useInView } from '../../hooks/useInView';
+import { webBrand } from '../../lib/brand';
 
 function Check() {
   return (
@@ -31,6 +32,22 @@ export default function PricingSection() {
           {t('landing.pricing.subtitle')}
         </p>
 
+        {/* Founding Clinic Banner */}
+        <div className="bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 rounded-2xl p-5 sm:p-6 mb-8 text-center">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <span className="text-2xl">🏅</span>
+            <h3 className="text-lg font-bold text-amber-900">
+              {t('landing.pricing.founderTitle')}
+            </h3>
+          </div>
+          <p className="text-amber-800 text-sm sm:text-base mb-1">
+            {t('landing.pricing.founderSubtitle')}
+          </p>
+          <p className="text-amber-600 text-xs">
+            {t('landing.pricing.founderNote')}
+          </p>
+        </div>
+
         {/* Subscription Cards */}
         <div className="grid md:grid-cols-2 gap-8 mb-12">
           {/* Monthly */}
@@ -39,8 +56,8 @@ export default function PricingSection() {
               {t('landing.pricing.monthly')}
             </h3>
             <div className="flex items-baseline gap-1 mb-6">
-              <span className="text-4xl font-bold text-gray-900">50</span>
-              <span className="text-xl text-gray-600">TND/mois</span>
+              <span className="text-4xl font-bold text-gray-900">{webBrand.pricing.monthlyDisplay.split(' ')[0]}</span>
+              <span className="text-xl text-gray-600">{webBrand.pricing.monthlyUnit}</span>
             </div>
             <ul className="space-y-3 mb-8">
               {features.map((f, i) => (
@@ -67,8 +84,8 @@ export default function PricingSection() {
               {t('landing.pricing.yearly')}
             </h3>
             <div className="flex items-baseline gap-1 mb-2">
-              <span className="text-4xl font-bold text-gray-900">500</span>
-              <span className="text-xl text-gray-600">TND/an</span>
+              <span className="text-4xl font-bold text-gray-900">{webBrand.pricing.yearlyDisplay.split(' ')[0]}</span>
+              <span className="text-xl text-gray-600">{webBrand.pricing.yearlyUnit}</span>
             </div>
             <p className="text-green-600 font-medium mb-6">
               {t('landing.pricing.yearlySavings')}

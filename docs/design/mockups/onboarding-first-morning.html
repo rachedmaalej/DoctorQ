@@ -150,8 +150,8 @@ input, select { font-family: inherit; }
   line-height: 1.1;
   transition: all 0.4s;
 }
-.dash-stat .stat-value.primary { color: #0284C7; }
-.dash-stat .stat-value.green { color: #059669; }
+.dash-stat .stat-value.primary { color: #0369A1; }
+.dash-stat .stat-value.green { color: #16a34a; }
 .dash-stat .stat-value.muted { color: #CBD5E1; }
 .dash-stat .stat-label {
   font-size: 10px;
@@ -278,7 +278,7 @@ input, select { font-family: inherit; }
   width: 100%;
   padding: 16px;
   border-radius: 16px;
-  background: linear-gradient(135deg, #0EA5E9, #7C3AED);
+  background: #0284C7;
   color: #FFF;
   font-size: 16px;
   font-weight: 700;
@@ -286,12 +286,12 @@ input, select { font-family: inherit; }
   align-items: center;
   justify-content: center;
   gap: 8px;
-  box-shadow: 0 4px 16px rgba(14, 165, 233, 0.35);
+  box-shadow: 0 4px 16px rgba(2, 132, 199, 0.35);
   transition: all 0.3s;
   position: relative;
   overflow: hidden;
 }
-.call-next-btn:active { transform: scale(0.97); }
+.call-next-btn:active { transform: scale(0.97); background: #0369A1; }
 .call-next-btn .material-symbols-outlined {
   font-size: 24px;
   font-variation-settings: 'FILL' 1;
@@ -343,7 +343,7 @@ input, select { font-family: inherit; }
 .call-next-compact {
   flex: 2;
   border-radius: 16px;
-  background: linear-gradient(135deg, #0EA5E9, #7C3AED);
+  background: #0284C7;
   color: #FFF;
   font-size: 15px;
   font-weight: 700;
@@ -351,7 +351,7 @@ input, select { font-family: inherit; }
   align-items: center;
   justify-content: center;
   gap: 8px;
-  box-shadow: 0 4px 16px rgba(14, 165, 233, 0.35);
+  box-shadow: 0 4px 16px rgba(2, 132, 199, 0.35);
 }
 .call-next-compact .material-symbols-outlined {
   font-size: 22px;
@@ -436,7 +436,7 @@ input, select { font-family: inherit; }
   justify-content: center;
   font-size: 15px;
   font-weight: 800;
-  color: #0284C7;
+  color: #0369A1;
   background: #E0F2FE;
   flex-shrink: 0;
   transition: all 0.5s;
@@ -500,15 +500,15 @@ input, select { font-family: inherit; }
   gap: 4px;
 }
 .status-icon-btn {
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #F3E8FF;
+  background: #faf5ff;
 }
-.status-icon-btn .material-symbols-outlined { font-size: 16px; color: #7C3AED; }
+.status-icon-btn .material-symbols-outlined { font-size: 16px; color: #a78bfa; }
 .status-icon-btn.sms-sent { background: #DCFCE7; }
 .status-icon-btn.sms-sent .material-symbols-outlined { color: #22C55E; font-variation-settings: 'FILL' 1; }
 .status-icon-btn.sms-pending { background: #F1F5F9; }
@@ -519,8 +519,8 @@ input, select { font-family: inherit; }
   gap: 4px;
 }
 .action-btn {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 10px;
   display: flex;
   align-items: center;
@@ -720,212 +720,372 @@ input, select { font-family: inherit; }
 }
 .presence-toggle-big .toggle-label.on { color: #166534; }
 
-/* Coach mark overlay */
-.coach-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 150;
-  transition: opacity 0.4s;
-  pointer-events: none;
-}
-.coach-overlay.hidden { opacity: 0; }
-.coach-overlay.active { pointer-events: auto; }
-.coach-overlay.passthrough { pointer-events: none; }
-.coach-overlay.passthrough .coach-tooltip { pointer-events: none; }
-.coach-backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.6);
-}
-.coach-overlay.passthrough .coach-backdrop { background: rgba(15, 23, 42, 0.3); }
-.coach-tooltip {
-  position: absolute;
-  background: #FFF;
-  border-radius: 16px;
-  padding: 20px;
-  max-width: 340px;
-  width: calc(100% - 40px);
-  box-shadow: 0 12px 40px rgba(0,0,0,0.2);
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 10;
-}
-.coach-tooltip .coach-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #0EA5E9, #7C3AED);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 10px;
-}
-.coach-tooltip .coach-icon .material-symbols-outlined { font-size: 22px; color: #FFF; }
-.coach-tooltip h3 {
-  font-size: 16px;
-  font-weight: 700;
-  color: #1E293B;
-  margin-bottom: 6px;
-}
-.coach-tooltip p {
-  font-size: 13px;
-  color: #64748B;
-  line-height: 1.5;
-  margin-bottom: 16px;
-}
-.coach-tooltip .coach-btn {
-  width: 100%;
-  padding: 12px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #0EA5E9, #7C3AED);
-  color: #FFF;
-  font-size: 14px;
-  font-weight: 700;
-}
-.coach-tooltip .coach-btn:active { transform: scale(0.97); }
-
-/* Spotlight hole */
-.spotlight {
-  position: absolute;
-  border-radius: 16px;
-  box-shadow: 0 0 0 4000px rgba(15, 23, 42, 0.6);
-  z-index: 5;
-  transition: all 0.5s;
-  pointer-events: none;
-}
-
-/* Phone mockup (patient view) — iPhone 13 frame
- * Approach: solid black ::before creates the filled bezel, .phone-screen
- * sits inside it, frame PNG overlays on top for detail.
- * PNG: 1000x1000 canvas. Phone bezel at ~x:286-716, y:56-942 (430x886px)
- * Screen area: ~x:310-690, y:110-930. Scale: 200/430=0.465 → img 465x465
- * At that scale phone=200x412, screen insets≈12/25/12/6
- */
-.phone-mockup {
+/* ═══ iPHONE MOCKUP FRAME ═══ */
+.iphone-mockup {
   position: fixed;
   bottom: 16px;
   right: 50%;
-  transform: translateX(50%) translateY(450px);
-  width: 200px;
-  height: 412px;
+  transform: translateX(50%) translateY(110%);
+  width: 180px;
   z-index: 160;
-  transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-  overflow: visible;
+  transition: transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+  filter: drop-shadow(0 12px 40px rgba(0,0,0,0.25));
 }
-.phone-mockup.visible { transform: translateX(50%) translateY(0); }
-/* Solid black bezel backdrop — fills in where the frame PNG is transparent */
-.phone-mockup::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: #000;
-  border-radius: 22px;
-  z-index: 0;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+.iphone-mockup.visible { transform: translateX(50%) translateY(0); }
+.iphone-bezel {
+  background: #1a1a1a;
+  border-radius: 24px;
+  padding: 5px;
+  aspect-ratio: 71.5 / 146.7;
+  position: relative;
 }
-.phone-frame-img {
+.iphone-dynamic-island {
   position: absolute;
-  width: 465px;
-  height: 465px;
-  top: 50%;
+  top: 8px;
   left: 50%;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-  z-index: 3;
+  transform: translateX(-50%);
+  width: 38px;
+  height: 9px;
+  background: #000;
+  border-radius: 8px;
+  z-index: 10;
 }
-.phone-notch { display: none; }
-.phone-screen {
-  position: absolute;
-  top: 25px;
-  left: 12px;
-  right: 12px;
-  bottom: 6px;
+.iphone-screen {
+  background: #fff;
   border-radius: 20px;
   overflow: hidden;
-  z-index: 1;
-  padding: 10px 8px;
-  background: linear-gradient(to bottom, #F0F9FF, #E0F2FE);
+  height: 100%;
+  position: relative;
+  padding-top: 20px;
 }
-.phone-screen .phone-live {
+
+/* ═══ PATIENT STATUS STATES (inside phone) ═══ */
+/* Phone screen is ~170×340px usable. Real app fills ~390×750.
+   Scale factor ≈ 0.45. All sizes calibrated to fill the screen. */
+.phone-state {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 18px 12px 12px;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.7s ease-in-out;
+  pointer-events: none;
+  text-align: center;
+}
+.phone-state.active { opacity: 1; pointer-events: auto; }
+
+/* State backgrounds — matches PatientStatusPage stateConfig */
+.ps-bg-far { background: linear-gradient(135deg, #F0F9FF, #f0fdfa); }
+.ps-bg-closer { background: linear-gradient(135deg, #f0fdfa, #ecfeff); }
+.ps-bg-almost { background: linear-gradient(135deg, #fffbeb, #fff7ed); }
+.ps-bg-next { background: linear-gradient(135deg, #f0fdf4, #ecfdf5); }
+.ps-bg-yourturn { background: linear-gradient(135deg, #dcfce7, #d1fae5); }
+
+/* Live indicator — matches PatientStatusPage flex+ping pattern */
+.ps-live {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 4px;
-  margin-bottom: 6px;
 }
-.phone-screen .phone-live .dot {
-  width: 6px;
-  height: 6px;
+.ps-live-dot {
+  width: 7px; height: 7px;
   border-radius: 50%;
-  background: #22C55E;
-  animation: blink 1.5s infinite;
+  background: #22c55e;
+  position: relative;
+  display: inline-flex;
 }
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.4} }
-.phone-screen .phone-live span {
-  font-size: 9px;
-  color: #22C55E;
-  font-weight: 600;
+.ps-live-dot::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: #4ade80;
+  animation: ps-ping 1.5s infinite;
 }
-.phone-screen .phone-name {
-  font-size: 12px;
+@keyframes ps-ping {
+  0% { transform: scale(1); opacity: 0.75; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+.ps-live-text { font-size: 8px; font-weight: 600; color: #16a34a; }
+
+/* Title — matches PatientStatusPage heading hierarchy */
+.ps-title {
+  font-size: 11px;
   font-weight: 700;
-  color: #1E293B;
+  line-height: 1.3;
   text-align: center;
-  margin-bottom: 4px;
+  color: #1e293b;
 }
-.phone-screen .phone-ahead {
-  font-size: 10px;
-  color: #64748B;
-  text-align: center;
-  margin-bottom: 8px;
-}
-.phone-screen .phone-wait-card {
-  background: #FFF;
+.ps-bg-far .ps-title { color: #1e293b; }
+.ps-bg-closer .ps-title { color: #0d9488; }
+.ps-bg-almost .ps-title { color: #b45309; }
+.ps-bg-next .ps-title { color: #15803d; }
+.ps-bg-yourturn .ps-title { color: #166534; font-size: 12px; font-weight: 900; }
+
+/* People ahead — matches PatientStatusPage subtitle */
+.ps-ahead { font-size: 8px; color: #64748b; font-weight: 500; text-align: center; }
+.ps-bg-almost .ps-ahead { color: #b45309; font-weight: 700; }
+
+/* Wait estimate card — matches WaitEstimateCard hero variant */
+.ps-wait-card {
+  background: rgba(255,255,255,0.8);
+  backdrop-filter: blur(4px);
+  border: 1px solid #E0F2FE;
   border-radius: 10px;
-  padding: 10px;
+  padding: 8px 14px;
   text-align: center;
-  margin-bottom: 8px;
-  border: 1px solid #BAE6FD;
+  width: 88%;
 }
-.phone-screen .phone-wait-label {
-  font-size: 8px;
+.ps-bg-almost .ps-wait-card { border-color: #fcd34d; background: rgba(255,251,235,0.9); }
+.ps-bg-almost .ps-wait-label { color: #b45309; }
+.ps-wait-label {
+  font-size: 6px;
   font-weight: 700;
   color: #0284C7;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  margin-bottom: 1px;
 }
-.phone-screen .phone-wait-value {
-  font-size: 24px;
+.ps-wait-value {
+  font-size: 20px;
   font-weight: 900;
-  color: #1E293B;
+  color: #1e293b;
 }
-.phone-screen .phone-ticket {
-  width: 64px;
-  height: 64px;
+
+/* Journey visual — matches PatientJourneyVisual component */
+.ps-journey {
+  background: rgba(255,255,255,0.7);
+  backdrop-filter: blur(4px);
   border-radius: 10px;
-  background: linear-gradient(135deg, #3B82F6, #6366F1);
+  padding: 8px 8px 5px;
+  width: 88%;
+}
+.ps-journey-inner {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin: 0 auto;
+  transition: width 0.5s ease-out;
+}
+.ps-journey .material-symbols-outlined { font-size: 14px; }
+.ps-j-patient, .ps-j-door {
+  display: flex; flex-direction: column; align-items: center;
+  flex-shrink: 0;
+}
+.ps-j-patient-icon, .ps-j-door-icon {
+  width: 26px; height: 26px;
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+}
+.ps-j-patient-name {
+  font-size: 6px; color: #64748b; font-weight: 500; margin-top: 1px;
+}
+.ps-j-chairs { display: flex; align-items: center; gap: 2px; height: 26px; }
+.ps-journey-label { text-align: center; font-size: 7px; color: #64748b; margin-top: 4px; }
+
+/* Compact ticket — matches CompactTicketCard component */
+.ps-ticket {
+  width: 64px; height: 64px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
   margin: 0 auto;
-  color: #FFF;
-  font-size: 24px;
-  font-weight: 900;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-  transition: all 0.5s;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.18);
+  overflow: hidden;
 }
-.phone-screen .phone-ticket.green {
-  background: linear-gradient(135deg, #22C55E, #16A34A);
-  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+/* Decorative notches (like CompactTicketCard) */
+.ps-ticket::before, .ps-ticket::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 10px;
+  z-index: 1;
 }
-.phone-screen .phone-turn-msg {
+.ps-ticket::before {
+  left: -3px;
+  border-radius: 0 5px 5px 0;
+  background: rgba(255,255,255,0.3);
+}
+.ps-ticket::after {
+  right: -3px;
+  border-radius: 5px 0 0 5px;
+  background: rgba(255,255,255,0.3);
+}
+.ps-ticket-calm { background: linear-gradient(135deg, #60a5fa, #3b82f6, #2563eb); }
+.ps-ticket-teal { background: linear-gradient(135deg, #2dd4bf, #14b8a6, #0d9488); }
+.ps-ticket-amber { background: linear-gradient(135deg, #fbbf24, #facc15, #f59e0b); animation: pulse-ticket 2s infinite; }
+.ps-ticket-green { background: linear-gradient(135deg, #34d399, #22c55e, #059669); }
+.ps-ticket-number { font-size: 22px; font-weight: 900; color: #fff; }
+@keyframes pulse-ticket { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+
+/* Perforation dots */
+.ps-ticket-perforations {
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  width: 5px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  padding: 6px 0;
+}
+.ps-perf-dot { width: 4px; height: 4px; border-radius: 50%; background: rgba(255,255,255,0.5); }
+
+/* Leave queue link */
+.ps-leave {
+  display: flex; align-items: center; justify-content: center; gap: 2px;
+  font-size: 7px; color: #f87171;
+}
+.ps-leave .material-symbols-outlined { font-size: 10px; }
+
+/* Celebration card — matches PatientStatusPage yourTurn card */
+.ps-celebration-card {
+  background: #bbf7d0;
+  border: 2px solid #22c55e;
+  border-radius: 10px;
+  padding: 10px 12px;
   text-align: center;
-  font-size: 11px;
-  font-weight: 700;
-  color: #16A34A;
-  margin-top: 8px;
-  display: none;
+  width: 88%;
 }
+.ps-celebration-icon {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: #86efac;
+  display: inline-flex; align-items: center; justify-content: center;
+  margin-bottom: 4px;
+}
+.ps-celebration-icon .material-symbols-outlined {
+  font-size: 18px; color: #166534;
+  font-variation-settings: 'FILL' 1;
+}
+.ps-celebration-msg {
+  font-size: 9px;
+  font-weight: 600;
+  color: #166534;
+  text-align: center;
+}
+/* Urgency card — matches PatientStatusPage next state card */
+.ps-urgency-card {
+  background: #f0fdf4;
+  border: 2px solid #86efac;
+  border-radius: 8px;
+  padding: 6px 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  width: 88%;
+  animation: pulse-urgency 2s infinite;
+}
+@keyframes pulse-urgency { 0%,100% { opacity:1; } 50% { opacity:0.7; } }
+.ps-urgency-card .material-symbols-outlined { font-size: 14px; color: #16a34a; font-variation-settings: 'FILL' 1; flex-shrink: 0; }
+.ps-urgency-card span:last-child { font-size: 8px; color: #166534; font-weight: 500; line-height: 1.4; text-align: left; }
+
+/* Confetti inside phone */
+@keyframes confetti-fall {
+  0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(120px) rotate(720deg); opacity: 0; }
+}
+.ps-confetti-dot {
+  position: absolute;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  animation: confetti-fall 2s ease-out forwards;
+}
+
+/* ═══ FLOATING TOOLTIP ═══ */
+.float-tooltip {
+  position: fixed;
+  z-index: 170;
+  max-width: 260px;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+  pointer-events: none;
+}
+.float-tooltip.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.float-tooltip-content {
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(8px);
+  border-radius: 14px;
+  padding: 14px 16px;
+  color: #fff;
+}
+.float-tooltip-arrow {
+  width: 12px; height: 12px;
+  background: rgba(15, 23, 42, 0.92);
+  transform: rotate(45deg);
+  position: absolute;
+}
+.float-tooltip-icon {
+  display: inline-flex;
+  align-items: center; justify-content: center;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: #0d9488;
+  margin-bottom: 8px;
+}
+.float-tooltip-icon .material-symbols-outlined { font-size: 16px; color: #fff; }
+.float-tooltip-text {
+  font-size: 12px;
+  line-height: 1.5;
+  color: #e2e8f0;
+  margin-bottom: 10px;
+}
+.float-tooltip-text strong { color: #fff; }
+.float-tooltip-btn {
+  width: 100%;
+  padding: 8px;
+  border-radius: 8px;
+  background: #0d9488;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s;
+}
+.float-tooltip-btn:hover { background: #0f766e; }
+.float-tooltip-btn:active { transform: scale(0.97); }
+
+/* ═══ ARRIVAL TOAST ═══ */
+.arrival-toast {
+  position: fixed;
+  top: 90px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  background: #fff;
+  border-radius: 12px;
+  padding: 10px 16px;
+  display: flex; align-items: center; gap: 8px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+  border-left: 4px solid #22c55e;
+  font-size: 13px; font-weight: 600; color: #166534;
+  z-index: 180;
+  opacity: 0;
+  transition: opacity 0.4s, transform 0.4s;
+  pointer-events: none;
+  max-width: 380px;
+  white-space: nowrap;
+}
+.arrival-toast .material-symbols-outlined { font-size: 20px; color: #22c55e; }
+.arrival-toast.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
 /* Final screen */
 .final-overlay {
@@ -1114,12 +1274,13 @@ input, select { font-family: inherit; }
 
 /* ═══ RESPONSIVE ═══ */
 @media (min-width: 768px) {
-  .phone-mockup {
-    right: calc(50% - 430px/2 - 220px);
-    transform: translateX(0) translateY(450px);
+  .iphone-mockup {
+    right: calc(50% - 430px/2 - 200px);
+    transform: translateX(0) translateY(110%);
     bottom: 20px;
   }
-  .phone-mockup.visible { transform: translateX(0) translateY(0); }
+  .iphone-mockup.visible { transform: translateX(0) translateY(0); }
+  .float-tooltip { max-width: 280px; }
 }
 
 /* ═══ DEMO TAB SWITCHER ═══ */
@@ -2162,7 +2323,7 @@ input, select { font-family: inherit; }
       </div>
       <div class="dash-estimate">
         <span class="material-symbols-outlined">flag</span>
-        Fin: <strong id="estEnd">—</strong>
+        Fin estimée: <strong id="estEnd">—</strong>
       </div>
     </div>
 
@@ -2254,30 +2415,177 @@ input, select { font-family: inherit; }
     </div>
   </div>
 
-  <!-- ═══ COACH MARK OVERLAY ═══ -->
-  <div class="coach-overlay hidden" id="coachOverlay">
-    <div class="coach-backdrop"></div>
-    <div class="coach-tooltip" id="coachTooltip" style="bottom: 60px;">
-      <!-- Coach content injected by JS -->
+  <!-- ═══ FLOATING TOOLTIP ═══ -->
+  <div class="float-tooltip" id="floatTooltip">
+    <div class="float-tooltip-arrow" id="tooltipArrow"></div>
+    <div class="float-tooltip-content">
+      <div class="float-tooltip-icon"><span class="material-symbols-outlined">tips_and_updates</span></div>
+      <p class="float-tooltip-text" id="tooltipText"></p>
+      <button class="float-tooltip-btn" id="tooltipBtn" style="display:none">Continuer</button>
     </div>
   </div>
 
-  <!-- ═══ PHONE MOCKUP (iPhone 13 frame) ═══ -->
-  <div class="phone-mockup" id="phoneMockup">
-    <img class="phone-frame-img" src="../../go-to-market/mockup_apple_iphone_13.png" alt="" draggable="false">
-    <div class="phone-notch"></div>
-    <div class="phone-screen">
-      <div class="phone-live"><div class="dot"></div><span>En direct</span></div>
-      <div class="phone-name" id="phonePatientName">Fatma K.</div>
-      <div class="phone-ahead" id="phoneAhead">—</div>
-      <div class="phone-wait-card">
-        <div class="phone-wait-label">Attente estimée</div>
-        <div class="phone-wait-value" id="phoneWait">—</div>
-      </div>
-      <div class="phone-ticket" id="phoneTicket">#1</div>
-      <div class="phone-turn-msg" id="phoneTurnMsg">C'est votre tour !</div>
-    </div>
+  <!-- ═══ ARRIVAL TOAST ═══ -->
+  <div class="arrival-toast" id="arrivalToast">
+    <span class="material-symbols-outlined">person_add</span>
+    <span id="arrivalToastText"></span>
   </div>
+
+  <!-- ═══ PATIENT PHONE (iPhone 14 frame) ═══ -->
+  <div class="iphone-mockup" id="phoneMockup">
+    <div class="iphone-bezel">
+      <div class="iphone-dynamic-island"></div>
+      <div class="iphone-screen">
+
+        <!-- State: FAR (#4) — primary = sky-blue #0EA5E9 -->
+        <div class="phone-state ps-bg-far" id="phoneStateFar">
+          <div class="ps-live"><span class="ps-live-dot"></span><span class="ps-live-text">En direct</span></div>
+          <div class="ps-title">Fatma, vous êtes dans le Saf!</div>
+          <div class="ps-ahead">3 personnes avant vous</div>
+          <div class="ps-wait-card">
+            <div class="ps-wait-label">ATTENTE ESTIMÉE</div>
+            <div class="ps-wait-value">~40 min</div>
+          </div>
+          <div class="ps-journey">
+            <div class="ps-journey-inner" style="width:100%">
+              <div class="ps-j-patient">
+                <div class="ps-j-patient-icon" style="background:#E0F2FE"><span class="material-symbols-outlined" style="color:#0284C7;font-variation-settings:'FILL' 1">person</span></div>
+                <span class="ps-j-patient-name">Fatma</span>
+              </div>
+              <div class="ps-j-chairs">
+                <span class="material-symbols-outlined" style="color:#38BDF8;font-variation-settings:'FILL' 1">event_seat</span>
+                <span class="material-symbols-outlined" style="color:#38BDF8;font-variation-settings:'FILL' 1">event_seat</span>
+                <span class="material-symbols-outlined" style="color:#38BDF8;font-variation-settings:'FILL' 1">event_seat</span>
+              </div>
+              <div class="ps-j-door">
+                <div class="ps-j-door-icon" style="background:#f1f5f9"><span class="material-symbols-outlined" style="color:#9ca3af;font-variation-settings:'FILL' 1">door_front</span></div>
+              </div>
+            </div>
+            <div class="ps-journey-label">3 patients en attente devant vous</div>
+          </div>
+          <div class="ps-ticket ps-ticket-calm">
+            <span class="ps-ticket-number">#4</span>
+            <div class="ps-ticket-perforations"><div class="ps-perf-dot"></div><div class="ps-perf-dot"></div><div class="ps-perf-dot"></div></div>
+          </div>
+          <div class="ps-leave"><span class="material-symbols-outlined">logout</span> Quitter le Saf</div>
+        </div>
+
+        <!-- State: CLOSER (#3) -->
+        <div class="phone-state ps-bg-closer" id="phoneStateCloser">
+          <div class="ps-live"><span class="ps-live-dot"></span><span class="ps-live-text">En direct</span></div>
+          <div class="ps-title">Fatma, vous approchez!</div>
+          <div class="ps-ahead">2 personnes avant vous</div>
+          <div class="ps-wait-card">
+            <div class="ps-wait-label">ATTENTE ESTIMÉE</div>
+            <div class="ps-wait-value">~30 min</div>
+          </div>
+          <div class="ps-journey">
+            <div class="ps-journey-inner" style="width:85%">
+              <div class="ps-j-patient">
+                <div class="ps-j-patient-icon" style="background:#ccfbf1"><span class="material-symbols-outlined" style="color:#0d9488;font-variation-settings:'FILL' 1">person</span></div>
+                <span class="ps-j-patient-name">Fatma</span>
+              </div>
+              <div class="ps-j-chairs">
+                <span class="material-symbols-outlined" style="color:#2dd4bf;font-variation-settings:'FILL' 1">event_seat</span>
+                <span class="material-symbols-outlined" style="color:#2dd4bf;font-variation-settings:'FILL' 1">event_seat</span>
+              </div>
+              <div class="ps-j-door">
+                <div class="ps-j-door-icon" style="background:#f1f5f9"><span class="material-symbols-outlined" style="color:#9ca3af;font-variation-settings:'FILL' 1">door_front</span></div>
+              </div>
+            </div>
+            <div class="ps-journey-label">2 patients devant vous</div>
+          </div>
+          <div class="ps-ticket ps-ticket-teal">
+            <span class="ps-ticket-number">#3</span>
+            <div class="ps-ticket-perforations"><div class="ps-perf-dot"></div><div class="ps-perf-dot"></div><div class="ps-perf-dot"></div></div>
+          </div>
+          <div class="ps-leave"><span class="material-symbols-outlined">logout</span> Quitter le Saf</div>
+        </div>
+
+        <!-- State: ALMOST (#2) -->
+        <div class="phone-state ps-bg-almost" id="phoneStateAlmost">
+          <div class="ps-live"><span class="ps-live-dot"></span><span class="ps-live-text">En direct</span></div>
+          <div class="ps-title">Fatma, c'est bientôt votre tour!</div>
+          <div class="ps-ahead">Plus qu'UNE personne!</div>
+          <div class="ps-wait-card">
+            <div class="ps-wait-label">ATTENTE ESTIMÉE</div>
+            <div class="ps-wait-value">~20 min</div>
+          </div>
+          <div class="ps-journey">
+            <div class="ps-journey-inner" style="width:65%">
+              <div class="ps-j-patient">
+                <div class="ps-j-patient-icon" style="background:#fde68a"><span class="material-symbols-outlined" style="color:#b45309;font-variation-settings:'FILL' 1">person</span></div>
+                <span class="ps-j-patient-name" style="color:#b45309">Fatma</span>
+              </div>
+              <div class="ps-j-chairs">
+                <span class="material-symbols-outlined" style="color:#f59e0b;font-variation-settings:'FILL' 1">event_seat</span>
+              </div>
+              <div class="ps-j-door">
+                <div class="ps-j-door-icon" style="background:#fef3c7"><span class="material-symbols-outlined" style="color:#d97706;font-variation-settings:'FILL' 1">door_front</span></div>
+              </div>
+            </div>
+            <div class="ps-journey-label" style="color:#b45309;font-weight:600">Plus qu'UNE personne!</div>
+          </div>
+          <div class="ps-ticket ps-ticket-amber">
+            <span class="ps-ticket-number">#2</span>
+            <div class="ps-ticket-perforations"><div class="ps-perf-dot"></div><div class="ps-perf-dot"></div><div class="ps-perf-dot"></div></div>
+          </div>
+          <div class="ps-leave"><span class="material-symbols-outlined">logout</span> Quitter le Saf</div>
+        </div>
+
+        <!-- State: NEXT (#1) -->
+        <div class="phone-state ps-bg-next" id="phoneStateNext">
+          <div class="ps-live"><span class="ps-live-dot"></span><span class="ps-live-text">En direct</span></div>
+          <div class="ps-title">Fatma, vous êtes la prochaine!</div>
+          <div class="ps-journey">
+            <div class="ps-journey-inner" style="width:45%">
+              <div class="ps-j-patient">
+                <div class="ps-j-patient-icon" style="background:#bbf7d0"><span class="material-symbols-outlined" style="color:#166534;font-variation-settings:'FILL' 1">person</span></div>
+                <span class="ps-j-patient-name" style="color:#166534">Fatma</span>
+              </div>
+              <div class="ps-j-door">
+                <div class="ps-j-door-icon" style="background:#dcfce7"><span class="material-symbols-outlined" style="color:#16a34a;font-variation-settings:'FILL' 1">door_front</span></div>
+              </div>
+            </div>
+            <div class="ps-journey-label" style="color:#166534;font-weight:600">Présentez-vous à l'accueil</div>
+          </div>
+          <div class="ps-ticket ps-ticket-green">
+            <span class="ps-ticket-number">#1</span>
+            <div class="ps-ticket-perforations"><div class="ps-perf-dot"></div><div class="ps-perf-dot"></div><div class="ps-perf-dot"></div></div>
+          </div>
+          <div class="ps-urgency-card">
+            <span class="material-symbols-outlined">directions_run</span>
+            <span>Restez à proximité, le docteur va vous appeler!</span>
+          </div>
+        </div>
+
+        <!-- State: YOUR TURN -->
+        <div class="phone-state ps-bg-yourturn" id="phoneStateYourturn">
+          <div id="phoneConfetti"></div>
+          <div class="ps-title">C'EST VOTRE TOUR!</div>
+          <div class="ps-journey">
+            <div class="ps-journey-inner" style="width:45%">
+              <div class="ps-j-patient">
+                <div class="ps-j-patient-icon" style="background:#86efac"><span class="material-symbols-outlined" style="color:#166534;font-variation-settings:'FILL' 1">person</span></div>
+                <span class="ps-j-patient-name" style="color:#166534">Fatma</span>
+              </div>
+              <div class="ps-j-door">
+                <div class="ps-j-door-icon" style="background:#bbf7d0"><span class="material-symbols-outlined" style="color:#166534;font-variation-settings:'FILL' 1">door_open</span></div>
+              </div>
+            </div>
+            <div class="ps-journey-label" style="color:#166534;font-weight:700">Entrez dans le cabinet</div>
+          </div>
+          <div class="ps-celebration-card">
+            <div class="ps-celebration-icon">
+              <span class="material-symbols-outlined">celebration</span>
+            </div>
+            <div class="ps-celebration-msg">Le docteur vous attend!</div>
+          </div>
+        </div>
+
+      </div><!-- end iphone-screen -->
+    </div><!-- end iphone-bezel -->
+  </div><!-- end iphone-mockup -->
 
   <!-- ═══ FINAL SCREEN ═══ -->
   <div class="final-overlay hidden" id="qrOverlay">
@@ -2633,42 +2941,45 @@ input, select { font-family: inherit; }
 <script>
 // ═══ STATE ═══
 const state = {
-  step: 'welcome', // welcome | wizard-1 | wizard-2 | wizard-3 | first-patient | filling | call-prompt | cascade | qr
+  step: 'welcome',
   clinicName: '',
   doctorName: '',
   specialty: '',
+  // Fatma is LAST (index 3) so she can traverse all 5 states
   patients: [
-    { name: 'Fatma Khalil', time: '09:15', wait: 4 },
-    { name: 'Mehdi Trabelsi', time: '09:22', wait: 3 },
-    { name: 'Amira Jebali', time: '09:28', wait: 2 },
-    { name: 'Nizar Ben Salem', time: '09:35', wait: 1 },
+    { name: 'Mehdi Trabelsi', time: '08:55', wait: 0 },
+    { name: 'Amira Jebali', time: '08:58', wait: 0 },
+    { name: 'Nizar Ben Salem', time: '09:01', wait: 0 },
+    { name: 'Fatma Khalil', time: '09:04', wait: 0 },
   ],
   visiblePatients: 0,
   inConsultation: null,
+  calledCount: 0,
 };
 
 // ═══ ELEMENTS ═══
 const $ = id => document.getElementById(id);
 
-// ═══ STEP LABELS ═══
+// ═══ STEP BAR ═══
 const stepLabels = {
   'welcome': 'Bienvenue',
   'wizard-1': 'Étape 1 · Votre cabinet',
   'wizard-2': 'Étape 1 · Votre cabinet',
   'wizard-3': 'Étape 1 · Le docteur est là',
-  'first-patient': 'Étape 2 · Premier patient',
-  'filling': 'Étape 3 · Salle d\'attente',
-  'call-prompt': 'Étape 4 · Appeler suivant',
-  'cascade': 'Étape 4 · Appeler suivant',
+  'prefill': 'Étape 2 · Premiers patients',
+  'fatma-arrives': 'Étape 2 · QR code scanné',
+  'phone-in': 'Étape 3 · Vue du patient',
+  'calling-seq': 'Étape 4 · Appeler suivant',
+  'call-fatma': 'Étape 4 · Appeler Fatma',
+  'fatma-called': 'Étape 4 · C\'est son tour !',
   'qr': 'Étape 5 · Votre QR Code',
 };
-
 const stepPipIndex = {
   'welcome': -1,
   'wizard-1': 0, 'wizard-2': 0, 'wizard-3': 0,
-  'first-patient': 1,
-  'filling': 2,
-  'call-prompt': 3, 'cascade': 3,
+  'prefill': 1, 'fatma-arrives': 1,
+  'phone-in': 2,
+  'calling-seq': 3, 'call-fatma': 3, 'fatma-called': 3,
   'qr': 4,
 };
 
@@ -2686,16 +2997,20 @@ function updateStepBar() {
 // ═══ PATIENT CARD RENDERING ═══
 function renderPatientCard(patient, index, isNew) {
   const waitClass = patient.wait >= 30 ? 'long' : patient.wait >= 15 ? 'medium' : 'short';
+  const actualIndex = state.inConsultation ? index : index;
+  const posNum = actualIndex + 1 + state.calledCount;
+  const displayPos = actualIndex + 1;
   const isNotified = index === 0 && state.inConsultation;
+  const totalVisible = state.visiblePatients - state.calledCount;
   const showUp = index > 0;
-  const showDown = !state.inConsultation ? index < state.visiblePatients - 1 : index < state.visiblePatients - 2;
+  const showDown = index < totalVisible - (state.inConsultation ? 2 : 1);
 
   const card = document.createElement('div');
   card.className = 'patient-card' + (isNew ? ' entering' : '');
   card.id = 'pcard-' + index;
   card.innerHTML = `
     <div class="patient-card-top">
-      <div class="position-badge">#${index + (state.inConsultation ? 2 : 1)}</div>
+      <div class="position-badge">#${displayPos}</div>
       <div class="patient-info">
         <div class="patient-name">${patient.name}</div>
         <div class="patient-details">
@@ -2723,7 +3038,7 @@ function renderPatientCard(patient, index, isNew) {
 
 function renderQueue(animateNew) {
   const container = $('queueContainer');
-  const start = state.inConsultation ? 1 : 0;
+  const start = state.calledCount + (state.inConsultation ? 1 : 0);
   const patientsToShow = state.patients.slice(start, state.visiblePatients);
 
   if (patientsToShow.length === 0 && !state.inConsultation) {
@@ -2742,25 +3057,25 @@ function renderQueue(animateNew) {
 }
 
 function updateStats() {
-  const waiting = state.inConsultation
-    ? Math.max(0, state.visiblePatients - 1)
-    : state.visiblePatients;
+  const start = state.calledCount + (state.inConsultation ? 1 : 0);
+  const waiting = Math.max(0, state.visiblePatients - start);
   const consultation = state.inConsultation ? 1 : 0;
-  const seen = state.inConsultation ? 0 : 0; // Stays 0 in demo until call-next completes
 
   animateCounter('statWaiting', waiting);
   animateCounter('statConsultation', consultation);
+  animateCounter('statSeen', state.calledCount);
 
   if (state.visiblePatients > 0) {
-    const avgWait = Math.round(state.patients.slice(0, state.visiblePatients).reduce((s, p) => s + p.wait, 0) / state.visiblePatients);
-    $('estAvg').textContent = avgWait + ' min';
-
-    const now = new Date();
-    const next = new Date(now.getTime() + avgWait * 60000);
-    $('estNext').textContent = '~' + next.getHours().toString().padStart(2,'0') + ':' + next.getMinutes().toString().padStart(2,'0');
-
-    const end = new Date(now.getTime() + avgWait * state.visiblePatients * 60000);
-    $('estEnd').textContent = '~' + end.getHours().toString().padStart(2,'0') + ':' + end.getMinutes().toString().padStart(2,'0');
+    const activePatients = state.patients.slice(start, state.visiblePatients);
+    if (activePatients.length > 0) {
+      const avgWait = Math.round(activePatients.reduce((s, p) => s + p.wait, 0) / activePatients.length);
+      $('estAvg').textContent = avgWait + ' min';
+      const now = new Date();
+      const next = new Date(now.getTime() + 10 * 60000);
+      $('estNext').textContent = '~' + next.getHours().toString().padStart(2,'0') + ':' + next.getMinutes().toString().padStart(2,'0');
+      const end = new Date(now.getTime() + activePatients.length * 10 * 60000);
+      $('estEnd').textContent = '~' + end.getHours().toString().padStart(2,'0') + ':' + end.getMinutes().toString().padStart(2,'0');
+    }
   }
 }
 
@@ -2769,9 +3084,88 @@ function animateCounter(id, target) {
   const current = parseInt(el.textContent) || 0;
   if (current === target) return;
   el.style.animation = 'none';
-  el.offsetHeight; // trigger reflow
+  el.offsetHeight;
   el.textContent = target;
   el.style.animation = 'popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
+}
+
+// ═══ PHONE STATE MANAGEMENT ═══
+function setPhoneState(stateName) {
+  document.querySelectorAll('.phone-state').forEach(el => el.classList.remove('active'));
+  const target = $('phoneState' + stateName.charAt(0).toUpperCase() + stateName.slice(1));
+  if (target) target.classList.add('active');
+}
+
+function showPhoneConfetti() {
+  const container = $('phoneConfetti');
+  container.innerHTML = '';
+  const colors = ['#22c55e', '#86efac', '#fbbf24', '#60a5fa', '#f472b6', '#a78bfa'];
+  for (let i = 0; i < 12; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'ps-confetti-dot';
+    dot.style.left = (10 + Math.random() * 80) + '%';
+    dot.style.top = (5 + Math.random() * 20) + '%';
+    dot.style.background = colors[i % colors.length];
+    dot.style.animationDelay = (Math.random() * 0.8) + 's';
+    dot.style.width = (3 + Math.random() * 3) + 'px';
+    dot.style.height = dot.style.width;
+    container.appendChild(dot);
+  }
+}
+
+// ═══ TOOLTIP MANAGEMENT ═══
+function showTooltip(config) {
+  const tooltip = $('floatTooltip');
+  const arrow = $('tooltipArrow');
+  $('tooltipText').innerHTML = config.text;
+
+  const btn = $('tooltipBtn');
+  if (config.btnText) {
+    btn.style.display = 'block';
+    btn.textContent = config.btnText;
+    btn.onclick = config.btnAction;
+  } else {
+    btn.style.display = 'none';
+  }
+
+  // Position: left of phone on desktop, above phone on mobile
+  const phone = $('phoneMockup');
+  const phoneRect = phone.getBoundingClientRect();
+
+  if (window.innerWidth >= 768) {
+    tooltip.style.right = (window.innerWidth - phoneRect.left + 16) + 'px';
+    tooltip.style.bottom = '60px';
+    tooltip.style.left = 'auto';
+    tooltip.style.top = 'auto';
+    arrow.style.right = '-6px';
+    arrow.style.top = '30px';
+    arrow.style.left = 'auto';
+    arrow.style.bottom = 'auto';
+  } else {
+    tooltip.style.left = '50%';
+    tooltip.style.transform = 'translateX(-50%)';
+    tooltip.style.bottom = (window.innerHeight - phoneRect.top + 12) + 'px';
+    tooltip.style.right = 'auto';
+    tooltip.style.top = 'auto';
+    arrow.style.bottom = '-6px';
+    arrow.style.left = '50%';
+    arrow.style.right = 'auto';
+    arrow.style.top = 'auto';
+  }
+
+  tooltip.classList.add('visible');
+}
+
+function hideTooltip() {
+  $('floatTooltip').classList.remove('visible');
+}
+
+// ═══ ARRIVAL TOAST ═══
+function showArrivalToast(text) {
+  const toast = $('arrivalToast');
+  $('arrivalToastText').textContent = text;
+  toast.classList.add('visible');
+  setTimeout(() => toast.classList.remove('visible'), 2500);
 }
 
 // ═══ WIZARD ═══
@@ -2850,261 +3244,219 @@ function wizardNext(currentStep) {
     state.specialty = $('wizSpecialty').value;
     showWizardStep(3);
   } else if (currentStep === 3) {
-    // Wizard complete → show dashboard
     $('dashClinicName').textContent = state.doctorName;
     $('wizardOverlay').classList.add('hidden');
     $('dashboard').classList.add('visible');
-
-    // Short delay then start patient arrival sequence
-    setTimeout(() => startFirstPatient(), 1200);
+    setTimeout(() => startPrefill(), 1200);
   }
 }
 
-// ═══ STEP 2: FIRST PATIENT ARRIVES ═══
-function startFirstPatient() {
-  state.step = 'first-patient';
+// ═══ PHASE: PREFILL (3 patients arrive quickly) ═══
+function startPrefill() {
+  state.step = 'prefill';
   updateStepBar();
 
-  // Show the empty dashboard for a beat
+  let idx = 0;
+  function addPrefillPatient() {
+    if (idx >= 3) {
+      setTimeout(() => startFatmaArrival(), 1000);
+      return;
+    }
+    state.patients[idx].wait = (idx + 1) * 3;
+    state.visiblePatients = idx + 1;
+    renderQueue(true);
+    updateStats();
+    idx++;
+    setTimeout(addPrefillPatient, 600);
+  }
+  addPrefillPatient();
+}
+
+// ═══ PHASE: FATMA ARRIVES ═══
+function startFatmaArrival() {
+  state.step = 'fatma-arrives';
+  updateStepBar();
+
+  showArrivalToast('Fatma Khalil a scanné votre QR code !');
+
   setTimeout(() => {
-    // Patient appears!
-    state.visiblePatients = 1;
-    state.patients[0].wait = 0;
+    state.patients[3].wait = 0;
+    state.visiblePatients = 4;
     renderQueue(true);
     updateStats();
 
-    // Show phone mockup
-    updatePhoneMockup(0);
+    // Phone slides up with FAR state
     setTimeout(() => {
+      state.step = 'phone-in';
+      updateStepBar();
+      setPhoneState('far');
       $('phoneMockup').classList.add('visible');
-    }, 400);
 
-    // Show coach mark after patient appears
-    setTimeout(() => showCoachMark('first-patient'), 900);
-  }, 1500);
+      // Tooltip appears
+      setTimeout(() => {
+        showTooltip({
+          text: 'Pendant ce temps, <strong>Fatma suit sa position en temps réel</strong> sur son téléphone. Elle sait exactement combien de personnes sont devant elle.',
+          btnText: 'Continuer',
+          btnAction: () => startCallingSequence(),
+        });
+      }, 800);
+    }, 600);
+  }, 500);
 }
 
-// ═══ STEP 3: FILLING UP ═══
-function startFilling() {
-  state.step = 'filling';
-  updateStepBar();
-  hideCoachMark();
+// ═══ PHASE: CALLING SEQUENCE (auto-call 3, then user calls Fatma) ═══
+let callingTimeout = null;
 
-  let patientIndex = 1;
-  const addNextPatient = () => {
-    if (patientIndex >= state.patients.length) {
-      // All patients added, show coach
-      setTimeout(() => {
-        updatePhoneMockup(state.visiblePatients - 1);
-        showCoachMark('filling');
-      }, 600);
+function startCallingSequence() {
+  state.step = 'calling-seq';
+  updateStepBar();
+  hideTooltip();
+
+  let callIndex = 0;
+  const phoneStates = ['closer', 'almost', 'next'];
+  const tooltipTexts = [
+    'Un patient a été appelé. <strong>Fatma avance à la position #3.</strong>',
+    'Encore un appel. <strong>Plus qu\'UNE personne</strong> devant Fatma !',
+    'Fatma est <strong>la prochaine</strong>. Un dernier clic pour l\'appeler...',
+  ];
+
+  function callNextInSequence() {
+    if (callIndex >= 3) {
+      // All pre-Fatma patients called. Prompt user to call Fatma.
+      setTimeout(() => promptUserCallFatma(), 1500);
       return;
     }
 
-    state.patients[patientIndex].wait = patientIndex * 5;
-    state.visiblePatients = patientIndex + 1;
-    renderQueue(true);
+    // Move current first patient to consultation (visually)
+    const patientIdx = state.calledCount;
+    state.inConsultation = state.patients[patientIdx];
+    state.calledCount++;
+
+    // Update consultation card
+    $('consultName').textContent = state.inConsultation.name;
+    $('consultTime').textContent = '0 min';
+    $('callNextSection').style.display = 'none';
+    $('consultSection').classList.add('visible');
+    $('consultSection').style.animation = 'fadeIn 0.5s ease-out';
+
+    // Update wait times
+    state.patients.forEach((p, i) => { if (i >= state.calledCount) p.wait += 2; });
+
+    renderQueue(false);
+    document.querySelectorAll('.patient-card').forEach(card => {
+      card.classList.add('shifting');
+      setTimeout(() => card.classList.remove('shifting'), 600);
+    });
     updateStats();
-    updatePhoneMockup(state.visiblePatients - 1);
 
-    patientIndex++;
-    setTimeout(addNextPatient, 900);
-  };
+    // Capture index before incrementing (setTimeout reads it async)
+    const currentIndex = callIndex;
+    callIndex++;
 
-  setTimeout(addNextPatient, 500);
+    // Update phone
+    setPhoneState(phoneStates[currentIndex]);
+
+    // Show tooltip
+    setTimeout(() => {
+      showTooltip({
+        text: tooltipTexts[currentIndex],
+        btnText: null,
+      });
+    }, 400);
+
+    // Auto-advance after 2.5s for the first two calls, 2s for the third
+    const delay = callIndex < 3 ? 2500 : 2000;
+    callingTimeout = setTimeout(() => {
+      hideTooltip();
+      // After first 2 calls, briefly show "next consultation" state
+      if (callIndex < 3) {
+        state.inConsultation = null;
+        $('consultSection').classList.remove('visible');
+        $('callNextSection').style.display = '';
+        renderQueue(false);
+        updateStats();
+        setTimeout(callNextInSequence, 400);
+      } else {
+        // Before Fatma's call, clear consultation and show her alone
+        state.inConsultation = null;
+        $('consultSection').classList.remove('visible');
+        $('callNextSection').style.display = '';
+        renderQueue(false);
+        updateStats();
+        callNextInSequence();
+      }
+    }, delay);
+  }
+
+  callNextInSequence();
 }
 
-// ═══ STEP 4: CALL NEXT ═══
-function startCallPrompt() {
-  state.step = 'call-prompt';
+function promptUserCallFatma() {
+  state.step = 'call-fatma';
   updateStepBar();
-  hideCoachMark();
-  $('phoneMockup').classList.remove('visible');
+  hideTooltip();
 
-  // Enable the call next button
+  // Enable call-next button
   $('callNextBtn').classList.remove('disabled');
-  $('callNextBtn').onclick = performCascade;
+  $('callNextBtn').onclick = performFatmaCall;
+  $('callNextBtn').style.animation = 'pulse-btn 1.5s infinite';
 
-  // Highlight the button with a spotlight effect
-  setTimeout(() => showCoachMark('call-prompt'), 400);
+  // Show tooltip pointing at the button
+  setTimeout(() => {
+    showTooltip({
+      text: 'Cliquez <strong>« Appeler Suivant »</strong> pour faire entrer Fatma en consultation !',
+      btnText: null,
+    });
+  }, 300);
 }
 
-function performCascade() {
-  state.step = 'cascade';
-  hideCoachMark();
+function performFatmaCall() {
+  state.step = 'fatma-called';
+  updateStepBar();
+  hideTooltip();
 
-  // Stop pulse, button press animation
   const btn = $('callNextBtn');
   btn.style.animation = '';
   btn.classList.add('disabled');
   btn.innerHTML = '<span class="material-symbols-outlined" style="animation:spin 0.8s linear infinite">sync</span> Appel en cours...';
 
   setTimeout(() => {
-    // Move first patient to consultation
-    state.inConsultation = state.patients[0];
+    // Fatma goes to consultation
+    state.inConsultation = state.patients[3];
+    state.calledCount++;
 
-    // Update consultation card
-    $('consultName').textContent = state.patients[0].name;
+    $('consultName').textContent = 'Fatma Khalil';
     $('consultTime').textContent = '0 min';
-
-    // Hide full-width call button, show consultation section
     $('callNextSection').style.display = 'none';
     $('consultSection').classList.add('visible');
     $('consultSection').style.animation = 'fadeIn 0.5s ease-out';
 
-    // Update patients' wait times (they've been waiting longer now)
-    state.patients.forEach((p, i) => { if (i > 0) p.wait += 2; });
-
-    // Re-render queue (without first patient, second becomes NOTIFIED)
     renderQueue(false);
+    updateStats();
 
-    // Animate all cards shifting
-    document.querySelectorAll('.patient-card').forEach((card, i) => {
-      card.classList.add('shifting');
-      setTimeout(() => card.classList.remove('shifting'), 600);
-    });
+    // Phone → YOUR TURN with confetti
+    setPhoneState('yourturn');
+    showPhoneConfetti();
 
-    // Update stats
-    animateCounter('statConsultation', 1);
-    animateCounter('statWaiting', state.visiblePatients - 1);
-
-    // Show phone mockup with "Your Turn!" for first patient
-    updatePhoneMockupYourTurn();
-    setTimeout(() => $('phoneMockup').classList.add('visible'), 300);
-
-    // Show coach mark: the aha moment
-    setTimeout(() => showCoachMark('cascade'), 1200);
+    // Tooltip: celebration
+    setTimeout(() => {
+      showTooltip({
+        text: '<strong>C\'est son tour !</strong> Fatma sait exactement quand venir. Plus besoin de crier un nom dans la salle d\'attente.',
+        btnText: 'Voir le QR Code',
+        btnAction: () => showQRPoster(),
+      });
+    }, 1200);
 
   }, 800);
 }
 
-// ═══ STEP 5: QR CODE ═══
+// ═══ PHASE: QR CODE ═══
 function showQRPoster() {
   state.step = 'qr';
   updateStepBar();
-  hideCoachMark();
+  hideTooltip();
   $('phoneMockup').classList.remove('visible');
-  $('qrOverlay').classList.remove('hidden');
-}
-
-// ═══ PHONE MOCKUP ═══
-function updatePhoneMockup(lastPatientIndex) {
-  const p = state.patients[lastPatientIndex];
-  if (!p) return;
-
-  const firstName = p.name.split(' ')[0];
-  $('phonePatientName').textContent = firstName + ', vous êtes dans le Saf!';
-
-  const position = lastPatientIndex + 1;
-  const ahead = position - 1;
-  $('phoneAhead').textContent = ahead === 0
-    ? 'Vous êtes le prochain !'
-    : ahead + ' personne' + (ahead > 1 ? 's' : '') + ' avant vous';
-
-  const waitMins = ahead * 10;
-  $('phoneWait').textContent = waitMins === 0 ? '< 5 min' : '~' + waitMins + ' min';
-  $('phoneTicket').textContent = '#' + position;
-  $('phoneTicket').className = 'phone-ticket';
-  $('phoneTurnMsg').style.display = 'none';
-}
-
-function updatePhoneMockupYourTurn() {
-  const p = state.patients[0];
-  const firstName = p.name.split(' ')[0];
-  $('phonePatientName').textContent = firstName + ', c\'est votre tour !';
-  $('phoneAhead').textContent = '';
-  $('phoneWait').textContent = 'Maintenant !';
-  $('phoneTicket').textContent = '✓';
-  $('phoneTicket').className = 'phone-ticket green';
-  $('phoneTurnMsg').style.display = 'block';
-}
-
-// ═══ COACH MARKS ═══
-const coachContent = {
-  'first-patient': {
-    icon: 'person_pin',
-    title: 'Un patient vient d\'arriver !',
-    body: 'Fatma a scanné votre QR code depuis le parking. Elle est apparue dans votre file d\'attente <strong>automatiquement</strong>.<br><br>Pas d\'appel téléphonique. Pas de papier.',
-    btn: 'Continuer',
-    action: 'startFilling',
-    position: 'middle',
-  },
-  'filling': {
-    icon: 'groups',
-    title: 'La salle d\'attente se remplit',
-    body: '4 patients se sont enregistrés <strong>tout seuls</strong>, chacun en scannant le QR code. Votre réceptionniste n\'a rien eu à faire.<br><br>Prête à recevoir Fatma ?',
-    btn: 'Appeler le premier patient',
-    action: 'startCallPrompt',
-    position: 'middle',
-  },
-  'call-prompt': {
-    icon: 'touch_app',
-    title: 'Cliquez sur « Appeler Suivant »',
-    body: 'Un seul clic pour appeler Fatma, notifier le patient suivant, et réorganiser toute la file.<br><br>Essayez maintenant !',
-    btn: '',
-    action: '',
-    position: 'top',
-    hideBtn: true,
-  },
-  'cascade': {
-    icon: 'auto_awesome',
-    title: 'Un clic. Toute la file s\'est réorganisée.',
-    body: 'Fatma est en consultation. Mehdi est notifié qu\'il passe bientôt. Les autres ont avancé d\'une place.<br><br><strong>Plus besoin de crier un nom dans la salle d\'attente.</strong>',
-    btn: 'Voir mon QR code',
-    action: 'showQRPoster',
-    position: 'middle',
-  },
-};
-
-function showCoachMark(key) {
-  const coach = coachContent[key];
-  if (!coach) return;
-
-  const overlay = $('coachOverlay');
-  const tooltip = $('coachTooltip');
-
-  tooltip.innerHTML = `
-    <div class="coach-icon"><span class="material-symbols-outlined">${coach.icon}</span></div>
-    <h3>${coach.title}</h3>
-    <p>${coach.body}</p>
-    ${coach.hideBtn ? '' : `<button class="coach-btn" onclick="${coach.action}()">${coach.btn}</button>`}
-  `;
-
-  // Position tooltip — avoid overlapping the phone mockup on mobile
-  tooltip.style.transform = 'translateX(-50%)'; // reset
-  if (coach.position === 'top') {
-    tooltip.style.top = '50px';
-    tooltip.style.bottom = 'auto';
-  } else if (coach.position === 'middle') {
-    // Position above the phone mockup (fixed at bottom, ~412px tall)
-    tooltip.style.top = '80px';
-    tooltip.style.bottom = 'auto';
-    tooltip.style.transform = 'translateX(-50%)';
-  } else {
-    tooltip.style.top = 'auto';
-    tooltip.style.bottom = '60px';
-  }
-
-  overlay.classList.remove('hidden');
-  overlay.classList.remove('active');
-  overlay.classList.remove('passthrough');
-
-  if (coach.hideBtn) {
-    // Passthrough mode: user must click the actual UI element (e.g. "Appeler Suivant")
-    overlay.classList.add('passthrough');
-    // Pulse the call-next button to draw attention
-    const btn = $('callNextBtn');
-    if (btn) btn.style.animation = 'pulse-btn 1.5s infinite';
-  } else {
-    overlay.classList.add('active');
-  }
-}
-
-function hideCoachMark() {
-  const overlay = $('coachOverlay');
-  overlay.classList.add('hidden');
-  overlay.classList.remove('active');
-  overlay.classList.remove('passthrough');
+  setTimeout(() => $('qrOverlay').classList.remove('hidden'), 400);
 }
 
 // ═══ FLOW CONTROL ═══
@@ -3115,11 +3467,18 @@ function startOnboarding() {
 }
 
 function restartDemo() {
+  // Clear any pending timeouts
+  if (callingTimeout) clearTimeout(callingTimeout);
+
   // Reset state
   state.step = 'welcome';
   state.visiblePatients = 0;
   state.inConsultation = null;
-  state.patients.forEach((p, i) => { p.wait = (i + 1) * 2; });
+  state.calledCount = 0;
+  state.patients[0] = { name: 'Mehdi Trabelsi', time: '08:55', wait: 0 };
+  state.patients[1] = { name: 'Amira Jebali', time: '08:58', wait: 0 };
+  state.patients[2] = { name: 'Nizar Ben Salem', time: '09:01', wait: 0 };
+  state.patients[3] = { name: 'Fatma Khalil', time: '09:04', wait: 0 };
 
   // Reset UI
   $('dashboard').classList.remove('visible');
@@ -3130,6 +3489,8 @@ function restartDemo() {
   $('callNextSection').style.display = '';
   $('callNextBtn').innerHTML = '<span class="material-symbols-outlined">directions_walk</span> Appeler Suivant';
   $('callNextBtn').classList.remove('disabled');
+  $('callNextBtn').style.animation = '';
+  $('callNextBtn').onclick = null;
   $('statWaiting').textContent = '0';
   $('statConsultation').textContent = '0';
   $('statSeen').textContent = '0';
@@ -3137,7 +3498,12 @@ function restartDemo() {
   $('estNext').textContent = '—';
   $('estEnd').textContent = '—';
   $('queueContainer').innerHTML = `<div class="empty-queue"><div class="empty-icon"><span class="material-symbols-outlined">groups</span></div><p>Aucun patient pour le moment</p></div>`;
-  hideCoachMark();
+
+  // Reset phone states
+  document.querySelectorAll('.phone-state').forEach(el => el.classList.remove('active'));
+  $('phoneConfetti').innerHTML = '';
+
+  hideTooltip();
   updateStepBar();
 }
 

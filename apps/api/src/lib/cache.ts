@@ -128,6 +128,8 @@ export const CacheKeys = {
   queue: (clinicId: string) => `queue:${clinicId}`,
   stats: (clinicId: string) => `stats:${clinicId}`,
   clinic: (clinicId: string) => `clinic:${clinicId}`,
+  effectiveAvg: (clinicId: string, doctorId?: string | null) =>
+    `effectiveAvg:${clinicId}:${doctorId ?? 'clinic'}`,
 };
 
 // Default TTL values (milliseconds)
@@ -135,4 +137,5 @@ export const CacheTTL = {
   QUEUE: 5000,      // 5 seconds - queue changes frequently
   STATS: 10000,     // 10 seconds - stats can be slightly stale
   CLINIC: 60000,    // 1 minute - clinic info rarely changes
+  EFFECTIVE_AVG: 30000, // 30 seconds - consultation avg changes after each patient
 };

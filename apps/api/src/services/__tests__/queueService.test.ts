@@ -54,6 +54,7 @@ vi.mock('../statsService.js', () => ({
     completed: 0,
     noShow: 0,
     avgWaitMins: 0,
+    effectiveAvgMins: 10,
   }),
 }));
 

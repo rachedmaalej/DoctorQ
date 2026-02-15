@@ -17,6 +17,9 @@ const SettingsPage = lazy(() => import('./pages/SettingsPage'));
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
 const ClinicDetailPage = lazy(() => import('./pages/admin/ClinicDetailPage'));
 const LandingPage = lazy(() => import('./pages/LandingPage'));
+const TermsPage = lazy(() => import('./pages/TermsPage'));
+const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
+const TeaserPage = lazy(() => import('./pages/TeaserPage'));
 
 // Lightweight loading spinner for Suspense fallback
 function PageLoader() {
@@ -59,6 +62,9 @@ function App() {
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/patient/:entryId" element={<PatientStatusPage />} />
         <Route path="/checkin/:clinicId" element={<CheckInPage />} />
+        <Route path="/terms" element={<TermsPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/teaser" element={<TeaserPage />} />
 
         {/* Protected routes */}
         <Route

@@ -30,14 +30,13 @@ import {
   upgradeToActive,
   updateClinicInfo,
 } from '../services/adminService.js';
-import { initPayment, getPaymentDetails } from '../lib/konnect.js';
+import { initPayment, getPaymentDetails } from '../lib/payment/index.js';
+import { brand } from '../lib/brand.js';
 import { logger } from '../lib/logger.js';
 
 const router = Router();
 
-export const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || 'admin@doctorq.tn')
-  .split(',')
-  .map((e) => e.trim().toLowerCase());
+export const ADMIN_EMAILS = brand.adminEmails;
 
 function isAdmin(req: AuthRequest, res: Response, next: () => void) {
   const clinicEmail = req.clinic?.email;
@@ -413,9 +412,9 @@ router.post('/clinics/:id/payments/konnect', authMiddleware, isAdmin, async (req
     const frontendUrl = process.env.FRONTEND_URL || 'https://web-zeta-five-39.vercel.app';
 
     const result = await initPayment({
-      amount: 50000, // 50 TND in millimes
+      amount: brand.pricing.monthly,
       orderId: `${clinicId}-${month}`,
-      description: `BléSaf subscription - ${month}`,
+      description: `${brand.name} subscription - ${month}`,
       webhookUrl: `${webhookBase}/api/admin/webhooks/konnect`,
       successUrl: `${frontendUrl}/admin?payment=success`,
       failUrl: `${frontendUrl}/admin?payment=failed`,
@@ -423,7 +422,7 @@ router.post('/clinics/:id/payments/konnect', authMiddleware, isAdmin, async (req
 
     // Create pending payment record
     await recordPayment(clinicId, {
-      amount: 50000,
+      amount: brand.pricing.monthly,
       month,
       method: 'konnect',
       reference: result.paymentRef,

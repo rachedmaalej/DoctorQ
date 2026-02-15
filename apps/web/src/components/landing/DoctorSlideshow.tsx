@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { webBrand } from '../../lib/brand';
 
 const SLIDE_DURATION = 4000;
 const SLIDE_COUNT = 5;
@@ -106,7 +107,7 @@ function Scene2() {
       <div className="flex flex-col items-center justify-center px-2 py-2">
         <div className="bg-white rounded-lg border border-gray-200 shadow-sm w-full px-2 py-2">
           <div className="text-[8px] sm:text-[9px] font-bold text-gray-900 mb-1.5">Ajouter un Patient</div>
-          <div className="bg-gray-50 rounded border border-gray-200 px-1.5 py-1 mb-1 text-[7px] sm:text-[8px] text-gray-500">+216 22 222 222</div>
+          <div className="bg-gray-50 rounded border border-gray-200 px-1.5 py-1 mb-1 text-[7px] sm:text-[8px] text-gray-500">{webBrand.phone.placeholder}</div>
           <div className="bg-gray-50 rounded border border-gray-200 px-1.5 py-1 mb-1 text-[7px] sm:text-[8px] text-gray-700">Maya</div>
           <div className="flex gap-1 mb-1.5">
             <div className="flex-1 bg-gray-50 rounded border border-gray-200 px-1 py-0.5 text-center text-[7px] sm:text-[8px] text-gray-700">10</div>

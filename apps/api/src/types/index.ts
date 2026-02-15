@@ -27,4 +27,5 @@ export interface QueueStats {
   lastConsultationMins: number | null;
   noShows: number;
   maxWait: number | null;
+  effectiveAvgMins: number;
 }

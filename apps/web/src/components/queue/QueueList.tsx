@@ -3,6 +3,7 @@ import type { QueueEntry } from '@/types';
 import { QueueStatus } from '@/types';
 import clsx from 'clsx';
 import { formatTime } from '@/lib/time';
+import { formatPhone } from '@/lib/phone';
 
 interface QueueListProps {
   queue: QueueEntry[];
@@ -335,7 +336,7 @@ export default function QueueList({ queue, onRemove, onReorder, onEmergency, onC
                     </div>
                   </td>
                   <td className="px-3 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{entry.patientPhone}</div>
+                    <div className="text-sm text-gray-900">{formatPhone(entry.patientPhone)}</div>
                   </td>
                   <td className="px-3 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-1 flex-wrap">

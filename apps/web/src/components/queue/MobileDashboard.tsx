@@ -87,20 +87,29 @@ export default function MobileDashboard({
   // Count for disabled state - also disabled when doctor is not present
   const canCallNext = isDoctorPresent && queue.some(p => p.status === QueueStatus.WAITING || p.status === QueueStatus.NOTIFIED);
 
-  // Estimates calculations
-  const avgConsultMins = clinic?.avgConsultationMins || 10;
-  const avgWaitMins = stats?.avgWait ?? avgConsultMins;
+  // Estimates calculations — use the smart effective avg from backend (same source as patient page)
+  const avgConsultMins = stats?.effectiveAvgMins ?? clinic?.avgConsultationMins ?? 10;
   const now = new Date();
 
+  // How long the current consultation has been running
+  const elapsedConsultMins = inConsultation?.calledAt
+    ? (now.getTime() - new Date(inConsultation.calledAt).getTime()) / 60000
+    : 0;
+  // Remaining time for the current consultation (can't be negative)
+  const remainingCurrentMins = inConsultation
+    ? Math.max(0, avgConsultMins - elapsedConsultMins)
+    : 0;
+
+  // "Attente moy" — show the average consultation duration (what patients care about)
+  const avgWaitMins = avgConsultMins;
+
   // Next estimate: when the next patient will be called
-  const nextEstTime = inConsultation
-    ? new Date(now.getTime() + avgConsultMins * 60000)
-    : now;
+  const nextEstTime = new Date(now.getTime() + remainingCurrentMins * 60000);
   const nextEstStr = `~${String(nextEstTime.getHours()).padStart(2, '0')}:${String(nextEstTime.getMinutes()).padStart(2, '0')}`;
 
   // End estimate: when the last patient in queue will be seen
   const endEstTime = new Date(
-    now.getTime() + waitingQueue.length * avgConsultMins * 60000
+    now.getTime() + remainingCurrentMins * 60000 + (waitingQueue.length > 0 ? (waitingQueue.length - 1) * avgConsultMins * 60000 : 0)
   );
   const endEstStr = `~${String(endEstTime.getHours()).padStart(2, '0')}:${String(endEstTime.getMinutes()).padStart(2, '0')}`;
 
@@ -591,29 +600,6 @@ export default function MobileDashboard({
                             </span>
                           </div>
                         )
-                      )}
-                      {/* SMS status icon */}
-                      {isNotified || entry.notifiedAt ? (
-                        <div
-                          className="w-7 h-7 rounded-lg bg-green-50 flex items-center justify-center"
-                          title={t('queue.smsSent')}
-                        >
-                          <span
-                            className="material-symbols-outlined text-green-500 text-base"
-                            style={{ fontVariationSettings: "'FILL' 1" }}
-                          >
-                            send
-                          </span>
-                        </div>
-                      ) : (
-                        <div
-                          className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center"
-                          title={t('queue.smsPending')}
-                        >
-                          <span className="material-symbols-outlined text-gray-300 text-base">
-                            send
-                          </span>
-                        </div>
                       )}
                     </div>
 

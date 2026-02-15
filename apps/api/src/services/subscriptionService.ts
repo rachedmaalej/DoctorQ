@@ -4,25 +4,18 @@
  */
 
 import { prisma } from '../lib/prisma.js';
-import { initPayment, getPaymentDetails } from '../lib/konnect.js';
+import { initPayment, getPaymentDetails } from '../lib/payment/index.js';
 import { logger } from '../lib/logger.js';
+import { brand } from '../lib/brand.js';
 
 // ─── Constants ───────────────────────────────────────────────
 
-// Pricing in millimes (1 TND = 1000 millimes)
 export const PRICING = {
-  MONTHLY: 50000, // 50 TND
-  YEARLY: 500000, // 500 TND (2 months free)
-  SMS_STARTER: 10000, // 10 TND for 100 SMS
-  SMS_STANDARD: 25000, // 25 TND for 300 SMS
-  SMS_PRO: 70000, // 70 TND for 1000 SMS
+  MONTHLY: brand.pricing.monthly,
+  YEARLY: brand.pricing.yearly,
 };
 
-export const SMS_PACKAGES = {
-  starter: { credits: 100, amount: PRICING.SMS_STARTER, name: 'Starter' },
-  standard: { credits: 300, amount: PRICING.SMS_STANDARD, name: 'Standard' },
-  pro: { credits: 1000, amount: PRICING.SMS_PRO, name: 'Pro' },
-};
+export const SMS_PACKAGES = brand.pricing.smsPackages;
 
 // ─── Interfaces ──────────────────────────────────────────────
 
@@ -121,7 +114,7 @@ export async function createSubscriptionCheckout(
 
   const amount = plan === 'MONTHLY' ? PRICING.MONTHLY : PRICING.YEARLY;
   const orderId = `sub_${clinicId}_${Date.now()}`;
-  const description = `BleSaf ${plan === 'MONTHLY' ? 'Monthly' : 'Yearly'} Subscription`;
+  const description = `${brand.name} ${plan === 'MONTHLY' ? 'Monthly' : 'Yearly'} Subscription`;
 
   const result = await initPayment({
     amount,
@@ -228,7 +221,7 @@ export async function createSmsPackageCheckout(
   }
 
   const orderId = `sms_${clinicId}_${packageName}_${Date.now()}`;
-  const description = `BleSaf SMS Package - ${pkg.name} (${pkg.credits} SMS)`;
+  const description = `${brand.name} SMS Package - ${pkg.name} (${pkg.credits} SMS)`;
 
   const result = await initPayment({
     amount: pkg.amount,
@@ -360,6 +353,7 @@ export async function checkExpiredSubscriptions(): Promise<void> {
     where: {
       subscriptionStatus: 'TRIAL',
       trialEndsAt: { lt: now },
+      country: brand.country,
     },
     select: { id: true },
   });
@@ -387,6 +381,7 @@ export async function checkExpiredSubscriptions(): Promise<void> {
     where: {
       subscriptionStatus: 'ACTIVE',
       subscriptionEndsAt: { lt: now },
+      country: brand.country,
     },
     select: { id: true },
   });

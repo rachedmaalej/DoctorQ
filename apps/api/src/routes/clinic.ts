@@ -5,6 +5,7 @@ import QRCode from 'qrcode';
 import { z } from 'zod';
 import { prisma } from '../lib/prisma.js';
 import { authMiddleware } from '../lib/auth.js';
+import { subscriptionGate } from '../lib/subscriptionGate.js';
 import { AuthRequest } from '../types/index.js';
 import { emitToRoom } from '../lib/socket.js';
 import { logger } from '../lib/logger.js';
@@ -56,14 +57,13 @@ const updateClinicSchema = z.object({
   phone: z.string().optional(),
   address: z.string().optional(),
   language: z.enum(['fr', 'ar']).optional(),
-  avgConsultationMins: z.number().int().min(5).max(120).optional(),
   notifyAtPosition: z.number().int().min(1).max(10).optional(),
   enableWhatsApp: z.boolean().optional(),
   specialty: z.string().max(50).optional(),
   funFactsEnabled: z.boolean().optional(),
 });
 
-router.patch('/', authMiddleware, async (req: AuthRequest, res: Response) => {
+router.patch('/', authMiddleware, subscriptionGate, async (req: AuthRequest, res: Response) => {
   try {
     const clinicId = req.clinic?.id;
     if (!clinicId) {
@@ -101,7 +101,7 @@ router.patch('/', authMiddleware, async (req: AuthRequest, res: Response) => {
 });
 
 // POST /api/clinic/doctor-presence - Toggle doctor presence
-router.post('/doctor-presence', authMiddleware, async (req: AuthRequest, res: Response) => {
+router.post('/doctor-presence', authMiddleware, subscriptionGate, async (req: AuthRequest, res: Response) => {
   try {
     const clinicId = req.clinic?.id;
     if (!clinicId) {
@@ -141,7 +141,7 @@ router.post('/doctor-presence', authMiddleware, async (req: AuthRequest, res: Re
 });
 
 // POST /api/clinic/announcement - Set or clear announcement for all patients
-router.post('/announcement', authMiddleware, async (req: AuthRequest, res: Response) => {
+router.post('/announcement', authMiddleware, subscriptionGate, async (req: AuthRequest, res: Response) => {
   try {
     const clinicId = req.clinic?.id;
     if (!clinicId) {

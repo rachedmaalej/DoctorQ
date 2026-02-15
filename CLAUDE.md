@@ -30,6 +30,10 @@ pnpm db:seed          # Seed dev data
 - Admin: hardcoded `ADMIN_EMAILS` in `apps/api/src/routes/admin.ts`
 - Subscription: TRIAL (30d) -> ACTIVE -> EXPIRED
 
+## Roadmap
+
+See `ROADMAP.md` for the official launch timeline (3 phases: Pre-Ramadan Sprint → Ramadan Build → Post-Eid Launch). Current phase tasks guide development priorities.
+
 ## Branching
 
 - `main`: active dev (local only)

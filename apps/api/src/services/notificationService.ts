@@ -6,7 +6,7 @@
 import { prisma } from '../lib/prisma.js';
 import { QueueStatus } from '@prisma/client';
 import { emitToRoom } from '../lib/socket.js';
-import { getQueueStats } from './statsService.js';
+import { getQueueStats, computeSmartWaitEstimate } from './statsService.js';
 import { sendSms, buildSmsBody, type SmsTemplate } from '../lib/sms.js';
 import { logger } from '../lib/logger.js';
 
@@ -40,16 +40,22 @@ export async function emitQueueUpdate(clinicId: string): Promise<void> {
 
 /**
  * Emit patient position/status update to a specific patient's status page
+ * Includes estimatedWaitMins so the patient page stays accurate after position changes.
  */
-export function emitPatientUpdate(entryId: string, position: number, status: string): void {
+export function emitPatientUpdate(
+  entryId: string,
+  position: number,
+  status: string,
+  estimatedWaitMins?: number,
+): void {
   const roomName = `patient:${entryId}`;
-  logger.debug({ room: roomName, position, status }, 'Emitting patient:called');
-  emitToRoom(roomName, 'patient:called', { position, status });
+  logger.debug({ room: roomName, position, status, estimatedWaitMins }, 'Emitting patient:called');
+  emitToRoom(roomName, 'patient:called', { position, status, estimatedWaitMins });
 }
 
 /**
  * Emit position changes to all patients in a queue
- * Useful after reorder or when a patient leaves
+ * Recomputes wait estimates so patient pages show accurate numbers.
  */
 export async function emitAllPatientUpdates(clinicId: string): Promise<void> {
   const patients = await prisma.queueEntry.findMany({
@@ -63,7 +69,12 @@ export async function emitAllPatientUpdates(clinicId: string): Promise<void> {
   });
 
   for (const patient of patients) {
-    emitPatientUpdate(patient.id, patient.position, patient.status);
+    const { estimatedWaitMins } = await computeSmartWaitEstimate(
+      clinicId,
+      patient.position,
+      patient.doctorId,
+    );
+    emitPatientUpdate(patient.id, patient.position, patient.status, estimatedWaitMins);
   }
 }
 
@@ -102,10 +113,16 @@ export async function sendSmsNotification(
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
     const lang = (entry.clinic.language === 'ar' ? 'ar' : 'fr') as 'fr' | 'ar';
 
+    const { estimatedWaitMins } = await computeSmartWaitEstimate(
+      entry.clinicId,
+      entry.position,
+      entry.doctorId
+    );
+
     const body = buildSmsBody(template, {
       clinicName: entry.clinic.name,
       position: entry.position,
-      waitTime: entry.position * entry.clinic.avgConsultationMins,
+      waitTime: estimatedWaitMins,
       remaining: entry.position - 1,
       statusLink: `${frontendUrl}/patient/${entry.id}`,
     }, lang);

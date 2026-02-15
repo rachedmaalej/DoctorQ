@@ -1,0 +1,121 @@
+{
+  "patient": {
+    "yourPosition": "Vous êtes #{{position}} dans la file",
+    "yourPositionNamed": "{{name}}, vous êtes #{{position}} dans la file",
+    "inTheSaf": "Vous êtes dans la file!",
+    "inTheSafNamed": "{{name}}, vous êtes dans la file!",
+    "leaveQueue": "Quitter la file",
+    "leftQueue": "Vous avez quitté la file",
+    "leftQueueNamed": "{{name}}, vous avez quitté la file",
+    "timeline": {
+      "waitingDesc": "Position #{{position}} dans la file"
+    }
+  },
+  "checkin": {
+    "title": "Rejoignez la file d'attente",
+    "phonePlaceholder": "+33 X XX XX XX XX",
+    "phoneHelp": "Format: +33 X XX XX XX XX",
+    "success": "Vous êtes dans la file!",
+    "alreadyCheckedIn": "Vous êtes déjà dans la file"
+  },
+  "landing": {
+    "hero": {
+      "socialProof": "Rejoint par {{count}}+ cabinets en France"
+    },
+    "beforeAfter": {
+      "beforeTitle": "Avant FiloSoin",
+      "afterTitle": "Avec FiloSoin"
+    },
+    "benefits": {
+      "title": "Pourquoi choisir FiloSoin?"
+    },
+    "testimonial": {
+      "quote": "Depuis que nous utilisons FiloSoin, notre salle d'attente est transformée. Les patients sont plus calmes et mon équipe moins stressée.",
+      "author": "Dr. Sophie Martin",
+      "role": "Médecin généraliste",
+      "clinic": "Cabinet Médical Rivoli, Paris"
+    },
+    "faq": {
+      "q6": "Puis-je utiliser FiloSoin avec plusieurs médecins?",
+      "a6": "Oui! FiloSoin supporte plusieurs médecins dans le même cabinet, chacun avec sa propre file d'attente."
+    }
+  },
+  "signup": {
+    "clinicNamePlaceholder": "Ex: Cabinet Dr. Martin",
+    "doctorNamePlaceholder": "Ex: Dr. Sophie Martin"
+  },
+  "onboarding": {
+    "clinic": {
+      "clinicNamePlaceholder": "Ex: Cabinet Dr. Martin",
+      "doctorNamePlaceholder": "Ex: Dr. Sophie Martin"
+    }
+  },
+  "legal": {
+    "terms": {
+      "title": "Conditions Générales d'Utilisation",
+      "section1": {
+        "title": "1. Objet",
+        "content": "Les présentes conditions générales régissent l'utilisation de la plateforme FiloSoin, un service de gestion de file d'attente pour les cabinets médicaux en France, édité par la société FiloSoin SAS. En utilisant FiloSoin, vous acceptez ces conditions dans leur intégralité."
+      },
+      "section2": {
+        "title": "2. Description du Service",
+        "content": "FiloSoin est une plateforme SaaS (Software as a Service) qui permet aux professionnels de santé de gérer leur file d'attente de manière numérique. Le service inclut : la gestion de la file d'attente en temps réel, l'enregistrement des patients via QR code, le suivi en temps réel de la position pour les patients, et un tableau de bord de statistiques."
+      },
+      "section3": {
+        "title": "3. Inscription et Compte",
+        "content": "Pour utiliser FiloSoin, vous devez créer un compte en fournissant des informations exactes et complètes. Vous êtes responsable de la confidentialité de vos identifiants de connexion. Chaque compte correspond à un cabinet médical. Vous devez être un professionnel de santé autorisé à exercer en France."
+      },
+      "section4": {
+        "title": "4. Période d'Essai et Abonnement",
+        "content": "FiloSoin offre une période d'essai gratuite de 30 jours. À l'issue de cette période, un abonnement payant est nécessaire pour continuer à utiliser le service. Les tarifs en vigueur sont affichés sur la page d'abonnement. Le paiement s'effectue par carte bancaire via Stripe. L'abonnement est renouvelable mensuellement ou annuellement selon le plan choisi."
+      },
+      "section5": {
+        "title": "5. Protection des Données (RGPD)",
+        "content": "FiloSoin s'engage à protéger les données personnelles conformément au Règlement Général sur la Protection des Données (RGPD - Règlement UE 2016/679) et à la loi Informatique et Libertés. Les données des patients sont traitées uniquement dans le cadre de la gestion de la file d'attente et ne sont jamais partagées avec des tiers. Le responsable de traitement est FiloSoin SAS. Pour plus de détails, consultez notre Politique de Confidentialité."
+      },
+      "section6": {
+        "title": "6. Disponibilité du Service",
+        "content": "FiloSoin s'efforce de maintenir le service disponible 24h/24 et 7j/7. Toutefois, des interruptions temporaires peuvent survenir pour des raisons de maintenance ou de mise à jour. FiloSoin ne saurait être tenu responsable des dommages résultant d'une interruption temporaire du service."
+      },
+      "section7": {
+        "title": "7. Résiliation et Droit de Rétractation",
+        "content": "Vous pouvez résilier votre abonnement à tout moment. La résiliation prend effet à la fin de la période d'abonnement en cours. Conformément au Code de la consommation, vous disposez d'un droit de rétractation de 14 jours à compter de la souscription. En cas de résiliation, vos données seront conservées pendant 30 jours, après quoi elles seront supprimées définitivement. FiloSoin se réserve le droit de suspendre ou résilier un compte en cas de violation des présentes conditions."
+      },
+      "section8": {
+        "title": "8. Droit Applicable",
+        "content": "Les présentes conditions sont régies par le droit français. Tout litige relatif à l'interprétation ou l'exécution des présentes conditions sera soumis aux tribunaux compétents de Paris. Pour toute question, contactez-nous à support@filosoin.fr."
+      }
+    },
+    "privacy": {
+      "title": "Politique de Confidentialité",
+      "section1": {
+        "title": "1. Données Collectées",
+        "content": "FiloSoin collecte les données suivantes : pour les professionnels de santé — nom du cabinet, nom du médecin, adresse email, numéro de téléphone, adresse du cabinet ; pour les patients — prénom (ou pseudonyme), numéro de téléphone (optionnel), position dans la file d'attente et heures de passage."
+      },
+      "section2": {
+        "title": "2. Base Légale et Utilisation des Données",
+        "content": "Les données collectées sont traitées sur la base de l'exécution du contrat (gestion de la file d'attente) et de l'intérêt légitime (amélioration du service). Elles sont utilisées exclusivement pour : la gestion de la file d'attente en temps réel, l'amélioration du service via des statistiques anonymisées, la communication relative au service (notifications, alertes), et la facturation de l'abonnement."
+      },
+      "section3": {
+        "title": "3. Stockage et Sécurité",
+        "content": "Les données sont stockées sur des serveurs sécurisés situés dans l'Union Européenne. Les communications sont chiffrées via HTTPS/TLS. Les mots de passe sont hachés avec l'algorithme bcrypt. L'accès aux données est strictement limité au personnel autorisé."
+      },
+      "section4": {
+        "title": "4. Conservation des Données",
+        "content": "Les données de file d'attente des patients sont conservées pendant la durée nécessaire au service (journée en cours) puis anonymisées pour les statistiques. Les données de compte du professionnel de santé sont conservées pendant la durée de l'abonnement et 30 jours après sa résiliation, conformément aux obligations légales."
+      },
+      "section5": {
+        "title": "5. Partage des Données",
+        "content": "FiloSoin ne vend, ne loue et ne partage pas vos données personnelles avec des tiers, à l'exception des sous-traitants techniques nécessaires au fonctionnement du service (hébergement, paiement). Ces sous-traitants sont soumis aux mêmes obligations de protection des données. Les données ne sont jamais utilisées à des fins publicitaires. Aucun transfert de données hors de l'Union Européenne n'est effectué."
+      },
+      "section6": {
+        "title": "6. Vos Droits (RGPD)",
+        "content": "Conformément au RGPD, vous disposez des droits suivants : droit d'accès, de rectification, d'effacement, de limitation du traitement, de portabilité des données, et d'opposition. Vous pouvez également introduire une réclamation auprès de la CNIL. Pour exercer ces droits, contactez-nous à support@filosoin.fr. Nous traiterons votre demande dans un délai de 30 jours."
+      },
+      "section7": {
+        "title": "7. Délégué à la Protection des Données",
+        "content": "Pour toute question relative à la protection de vos données personnelles, vous pouvez nous contacter à : support@filosoin.fr. Responsable du traitement : FiloSoin SAS, Paris, France."
+      }
+    }
+  }
+}

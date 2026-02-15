@@ -24,7 +24,6 @@ export default function SettingsPage() {
 
   // Queue settings form
   const [queueForm, setQueueForm] = useState({
-    avgConsultationMins: 15,
     notifyAtPosition: 2,
   });
 
@@ -58,7 +57,7 @@ export default function SettingsPage() {
   // Subscription state
   const [subInfo, setSubInfo] = useState<{
     status: string; plan: string | null; daysRemaining: number | null;
-    smsCredits: number; canUseApp: boolean;
+    canUseApp: boolean;
     trialEndsAt: string | null; subscriptionEndsAt: string | null;
   } | null>(null);
 
@@ -77,7 +76,6 @@ export default function SettingsPage() {
         address: (clinic as any).address || '',
       });
       setQueueForm({
-        avgConsultationMins: clinic.avgConsultationMins || 15,
         notifyAtPosition: clinic.notifyAtPosition || 2,
       });
       setSpecialty((clinic as any).specialty || '');
@@ -112,7 +110,6 @@ export default function SettingsPage() {
     setQueueMessage(null);
     try {
       await api.updateClinic({
-        avgConsultationMins: queueForm.avgConsultationMins,
         notifyAtPosition: queueForm.notifyAtPosition,
       });
       await checkAuth();
@@ -313,20 +310,6 @@ export default function SettingsPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="avgConsultation" className="block text-sm font-medium text-gray-700 mb-1">
-                {t('settings.avgConsultation')}
-              </label>
-              <input
-                id="avgConsultation"
-                type="number"
-                min={1}
-                max={120}
-                value={queueForm.avgConsultationMins}
-                onChange={(e) => setQueueForm({ ...queueForm, avgConsultationMins: parseInt(e.target.value) || 15 })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-              />
-            </div>
-            <div>
               <label htmlFor="notifyAt" className="block text-sm font-medium text-gray-700 mb-1">
                 {t('settings.notifyAt')}
               </label>
@@ -363,7 +346,7 @@ export default function SettingsPage() {
           <div className="bg-white rounded-2xl p-6 shadow-sm space-y-4">
             <h2 className="text-lg font-semibold text-gray-900">{t('settings.subscription', 'Subscription & Billing')}</h2>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Plan & Status */}
               <div className="p-4 bg-gray-50 rounded-xl">
                 <p className="text-xs font-medium text-gray-500 mb-1">{t('settings.currentPlan', 'Current Plan')}</p>
@@ -398,17 +381,6 @@ export default function SettingsPage() {
                 </p>
               </div>
 
-              {/* SMS Credits */}
-              <div className="p-4 bg-gray-50 rounded-xl">
-                <p className="text-xs font-medium text-gray-500 mb-1">{t('settings.smsCredits', 'SMS Credits')}</p>
-                <p className={`text-lg font-bold ${
-                  subInfo.smsCredits === 0 ? 'text-red-600' :
-                  subInfo.smsCredits < 10 ? 'text-amber-600' : 'text-gray-900'
-                }`}>
-                  {subInfo.smsCredits}
-                </p>
-                <p className="text-xs text-gray-500 mt-1">{t('settings.creditsAvailable', 'credits available')}</p>
-              </div>
             </div>
 
             {/* Upgrade CTA */}

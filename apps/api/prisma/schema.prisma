@@ -184,8 +184,8 @@ enum SubscriptionStatus {
 }
 
 enum SubscriptionPlan {
-  MONTHLY         // 50 TND/month
-  YEARLY          // 500 TND/year (2 months free)
+  MONTHLY         // 65 TND/month
+  YEARLY          // 650 TND/year (2 months free)
 }
 
 model DailyStat {
@@ -211,7 +211,7 @@ model PaymentRecord {
   clinicId   String
   clinic     Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
 
-  amount     Int      // Amount in millimes (50000 = 50 TND)
+  amount     Int      // Amount in millimes (65000 = 65 TND)
   month      DateTime @db.Date  // Payment for which month (first day of month)
   method     String   // "konnect", "bank_transfer", "cash", "cheque"
   reference  String?  // Konnect paymentRef or bank transfer ref
@@ -261,5 +261,14 @@ model SmsPackagePurchase {
   createdAt   DateTime @default(now())
 
   @@index([clinicId])
+  @@index([createdAt])
+}
+
+model Lead {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  source    String   @default("teaser") // "teaser", "landing", etc.
+  createdAt DateTime @default(now())
+
   @@index([createdAt])
 }

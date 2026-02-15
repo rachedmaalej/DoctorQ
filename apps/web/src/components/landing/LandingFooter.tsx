@@ -1,5 +1,7 @@
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Logo from '../ui/Logo';
+import { webBrand } from '../../lib/brand';
 
 export default function LandingFooter() {
   const { t } = useTranslation();
@@ -10,18 +12,18 @@ export default function LandingFooter() {
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <Logo size="sm" className="!text-white" />
           <div className="flex gap-6 text-sm">
-            <a href="#" className="hover:text-white transition-colors">
+            <Link to="/privacy" className="hover:text-white transition-colors">
               {t('landing.footer.privacy')}
-            </a>
-            <a href="#" className="hover:text-white transition-colors">
+            </Link>
+            <Link to="/terms" className="hover:text-white transition-colors">
               {t('landing.footer.terms')}
-            </a>
-            <a href="#" className="hover:text-white transition-colors">
+            </Link>
+            <a href={`mailto:${webBrand.supportEmail}`} className="hover:text-white transition-colors">
               {t('landing.footer.contact')}
             </a>
           </div>
           <p className="text-sm">
-            &copy; {new Date().getFullYear()} BleSaf. {t('landing.footer.rights')}
+            &copy; {new Date().getFullYear()} {webBrand.name}. {t('landing.footer.rights')}
           </p>
         </div>
       </div>

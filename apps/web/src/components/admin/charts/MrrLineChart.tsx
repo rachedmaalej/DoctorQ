@@ -1,4 +1,5 @@
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, Legend, CartesianGrid } from 'recharts';
+import { webBrand } from '../../../lib/brand';
 
 interface MrrLineChartProps {
   data: Array<{
@@ -28,7 +29,7 @@ export default function MrrLineChart({ data }: MrrLineChartProps) {
             <YAxis tick={{ fontSize: 12, fill: '#8AADAA' }} tickFormatter={(v) => `${v}`} />
             <Tooltip
               formatter={(value, name) => [
-                `${value ?? 0} TND`,
+                `${value ?? 0} ${webBrand.currency.symbol}`,
                 name === 'totalMrr' ? 'Total MRR' : name === 'newMrr' ? 'New MRR' : 'Churned MRR',
               ]}
               labelFormatter={(label) => `Month: ${label}`}

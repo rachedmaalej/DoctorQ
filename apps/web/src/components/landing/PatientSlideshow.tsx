@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { webBrand } from '../../lib/brand';
 
 const SLIDE_DURATION = 4000;
 const SLIDE_COUNT = 6;
@@ -83,7 +84,7 @@ function Scene1() {
       </div>
       <div className="px-2.5">
         <div className="text-[6px] sm:text-[7px] text-gray-600 font-medium mb-0.5">📞 Téléphone *</div>
-        <div className="bg-gray-50 rounded border border-gray-200 px-1.5 py-1 mb-1.5 text-[7px] sm:text-[8px] text-gray-400">+216</div>
+        <div className="bg-gray-50 rounded border border-gray-200 px-1.5 py-1 mb-1.5 text-[7px] sm:text-[8px] text-gray-400">{webBrand.phone.countryCode}</div>
         <div className="text-[6px] sm:text-[7px] text-gray-600 font-medium mb-0.5">👤 Votre nom</div>
         <div className="bg-gray-50 rounded border border-gray-200 px-1.5 py-1 mb-2 text-[7px] sm:text-[8px] text-gray-400">Comment vous appelez-vous?</div>
         <div className="bg-primary-500 rounded-lg py-1.5 text-center">

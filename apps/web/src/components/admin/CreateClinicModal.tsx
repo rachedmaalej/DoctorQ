@@ -1,32 +1,7 @@
 import { useState } from 'react';
 import { api } from '@/lib/api';
-
-/**
- * Format a raw phone input into +216 XX XXX XXX
- */
-function formatTunisianPhone(raw: string): string {
-  let digits = raw.replace(/\D/g, '');
-
-  // Remove leading 216 if user typed it after the +
-  if (digits.startsWith('216')) {
-    digits = digits.slice(3);
-  }
-
-  // Cap at 8 digits (Tunisian local number)
-  digits = digits.slice(0, 8);
-
-  if (digits.length <= 2) return digits ? `+216 ${digits}` : '';
-  if (digits.length <= 5) return `+216 ${digits.slice(0, 2)} ${digits.slice(2)}`;
-  return `+216 ${digits.slice(0, 2)} ${digits.slice(2, 5)} ${digits.slice(5)}`;
-}
-
-/** Extract +216XXXXXXXX for API submission */
-function phoneToE164(formatted: string): string {
-  const digits = formatted.replace(/\D/g, '');
-  if (!digits) return '';
-  if (digits.startsWith('216')) return `+${digits}`;
-  return `+216${digits}`;
-}
+import { formatPhone, extractPhoneDigits, DEFAULT_PHONE_VALUE } from '@/lib/phone';
+import { webBrand } from '@/lib/brand';
 
 interface CreateClinicModalProps {
   isOpen: boolean;
@@ -41,7 +16,6 @@ export default function CreateClinicModal({ isOpen, onClose, onCreated }: Create
   const [password, setPassword] = useState('');
   const [phone, setPhone] = useState('');
   const [language, setLanguage] = useState('fr');
-  const [avgConsultationMins, setAvgConsultationMins] = useState(10);
   const [businessType, setBusinessType] = useState('general');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -54,7 +28,6 @@ export default function CreateClinicModal({ isOpen, onClose, onCreated }: Create
     setPassword('');
     setPhone('');
     setLanguage('fr');
-    setAvgConsultationMins(10);
     setBusinessType('general');
     setError(null);
     setCreatedClinic(null);
@@ -71,7 +44,7 @@ export default function CreateClinicModal({ isOpen, onClose, onCreated }: Create
     setIsSubmitting(true);
 
     try {
-      const e164Phone = phoneToE164(phone);
+      const e164Phone = extractPhoneDigits(phone);
       const clinic = await api.createClinic({
         name,
         email,
@@ -79,7 +52,6 @@ export default function CreateClinicModal({ isOpen, onClose, onCreated }: Create
         doctorName: doctorName || undefined,
         phone: e164Phone || undefined,
         language,
-        avgConsultationMins,
         businessType,
       });
       setCreatedClinic(clinic);
@@ -170,13 +142,13 @@ export default function CreateClinicModal({ isOpen, onClose, onCreated }: Create
                     type="tel"
                     value={phone}
                     onChange={(e) => {
-                      const formatted = formatTunisianPhone(e.target.value);
+                      const formatted = formatPhone(e.target.value);
                       setPhone(formatted);
                     }}
-                    onFocus={() => { if (!phone) setPhone('+216 '); }}
-                    onBlur={() => { if (phone === '+216 ' || phone === '+216') setPhone(''); }}
+                    onFocus={() => { if (!phone) setPhone(DEFAULT_PHONE_VALUE); }}
+                    onBlur={() => { if (phone === DEFAULT_PHONE_VALUE || phone === webBrand.phone.countryCode) setPhone(''); }}
                     className={inputClass}
-                    placeholder="+216 XX XXX XXX"
+                    placeholder={webBrand.phone.placeholder}
                   />
                 </div>
                 <div>
@@ -185,10 +157,6 @@ export default function CreateClinicModal({ isOpen, onClose, onCreated }: Create
                     <option value="fr">Francais</option>
                     <option value="ar">العربية</option>
                   </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-[#4E7572] mb-1">Avg Consultation (min)</label>
-                  <input type="number" value={avgConsultationMins} onChange={(e) => setAvgConsultationMins(Number(e.target.value))} min={1} max={120} className={inputClass} />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-[#4E7572] mb-1">Spécialité</label>

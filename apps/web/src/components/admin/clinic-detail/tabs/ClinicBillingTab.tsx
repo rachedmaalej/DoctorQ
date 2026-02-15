@@ -1,4 +1,5 @@
 import type { ClinicDetail } from '../../../../types';
+import { webBrand } from '../../../../lib/brand';
 
 interface ClinicBillingTabProps {
   detail: ClinicDetail;
@@ -23,7 +24,7 @@ export default function ClinicBillingTab({ detail, actionLoading, onRecordPaymen
         <div className="grid grid-cols-3 gap-0 py-4 border-b border-[#E6F2F0]">
           <div className="text-center border-r border-[#E6F2F0]">
             <p className="text-xs text-[#8AADAA] uppercase mb-1">Total Paid</p>
-            <p className="text-2xl font-bold text-[#132E2C]">{totalPaid / 1000} TND</p>
+            <p className="text-2xl font-bold text-[#132E2C]">{totalPaid / webBrand.currency.multiplier} {webBrand.currency.symbol}</p>
           </div>
           <div className="text-center border-r border-[#E6F2F0]">
             <p className="text-xs text-[#8AADAA] uppercase mb-1">Plan</p>
@@ -78,7 +79,7 @@ export default function ClinicBillingTab({ detail, actionLoading, onRecordPaymen
                     <td className="px-6 py-3 text-sm text-[#132E2C]">
                       {new Date(p.month).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}
                     </td>
-                    <td className="px-6 py-3 text-sm font-medium text-[#132E2C]">{p.amount / 1000} TND</td>
+                    <td className="px-6 py-3 text-sm font-medium text-[#132E2C]">{p.amount / webBrand.currency.multiplier} {webBrand.currency.symbol}</td>
                     <td className="px-6 py-3 text-sm text-[#4E7572] capitalize">{p.method.replace('_', ' ')}</td>
                     <td className="px-6 py-3 text-sm text-[#8AADAA]">{p.reference || '—'}</td>
                     <td className="px-6 py-3">

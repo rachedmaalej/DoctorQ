@@ -22,9 +22,10 @@ import {
   updatePatientStatus,
 } from '../services/queueService.js';
 import { reorderPatient, updateStatusesAfterReorder } from '../services/positionService.js';
-import { resetStats } from '../services/statsService.js';
+import { resetStats, computeSmartWaitEstimate } from '../services/statsService.js';
 import { logger } from '../lib/logger.js';
 import { emitQueueUpdate, emitPatientUpdate, emitAllPatientUpdates } from '../services/notificationService.js';
+import { localTimeToUtc } from '../lib/timezone.js';
 
 const router = Router();
 
@@ -68,19 +69,12 @@ router.post('/', authMiddleware, subscriptionGate, async (req: AuthRequest, res:
     const clinicId = req.clinic!.id;
     const { patientPhone, patientName, checkInMethod, appointmentTime, arrivedAt } = addPatientSchema.parse(req.body);
 
-    // Parse appointment time if provided (Tunisia timezone: UTC+1)
+    // Parse appointment time if provided (converts local time to UTC using brand timezone)
     let appointmentDateTime: Date | undefined;
     if (appointmentTime) {
       const [hours, minutes] = appointmentTime.split(':').map(Number);
       if (!isNaN(hours) && !isNaN(minutes)) {
-        // Create date in UTC, adjusting for Tunisia timezone (UTC+1)
-        // When user submits 14:00 Tunisia time, we need to store 13:00 UTC
-        const now = new Date();
-        const year = now.getUTCFullYear();
-        const month = now.getUTCMonth();
-        const day = now.getUTCDate();
-        // Tunisia is UTC+1, so subtract 1 hour to convert local time to UTC
-        appointmentDateTime = new Date(Date.UTC(year, month, day, hours - 1, minutes, 0, 0));
+        appointmentDateTime = localTimeToUtc(hours, minutes);
       }
     }
 
@@ -331,7 +325,11 @@ router.post('/checkin/:clinicId', async (req, res: Response) => {
       });
     }
 
-    const estimatedWaitMins = result.entry.position * clinic.avgConsultationMins;
+    const { estimatedWaitMins } = await computeSmartWaitEstimate(
+      clinic.id,
+      result.entry.position,
+      result.entry.doctorId
+    );
 
     res.status(201).json({
       data: {

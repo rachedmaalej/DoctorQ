@@ -87,8 +87,6 @@
     "nextEstimate": "Prochain",
     "endEstimate": "Fin estimée",
     "priority": "Priorité",
-    "smsSent": "SMS envoyé",
-    "smsPending": "SMS en attente",
     "remove": "Retirer"
   },
   "patient": {
@@ -169,7 +167,23 @@
     "doctorAbsent": "{{doctorName}} est absent. Il sera de retour prochainement",
     "doctorAbsent_female": "{{doctorName}} est absente. Elle sera de retour prochainement",
     "movedUpOne": "Vous avez avancé d'une place!",
-    "movedUpMultiple": "Vous avez avancé de {{count}} places!"
+    "movedUpMultiple": "Vous avez avancé de {{count}} places!",
+    "timeline": {
+      "checkedIn": "Enregistré",
+      "waiting": "En attente",
+      "almostThere": "Bientôt votre tour",
+      "yourTurn": "C'est votre tour",
+      "done": "Terminé",
+      "waitingDesc": "Position #{{position}} dans le saf",
+      "almostDesc": "Préparez-vous à vous rapprocher",
+      "yourTurnDesc": "Dirigez-vous vers la salle",
+      "peopleAhead": "Personnes devant vous",
+      "avgConsultation": "Durée moy. consultation",
+      "tipCoffee": "Vous avez le temps pour un café",
+      "tipStayClose": "Restez à proximité du cabinet",
+      "tipGetReady": "Tenez-vous prêt, vous allez être appelé d'un moment à l'autre!",
+      "tipEnter": "Dirigez-vous vers la salle de consultation"
+    }
   },
   "checkin": {
     "title": "Rejoignez le Saf",
@@ -303,7 +317,10 @@
       "selectMonthly": "Choisir mensuel",
       "selectYearly": "Choisir annuel",
       "trialNote": "Premier mois gratuit pour démarrer",
-      "startTrial": "Commencer mon essai gratuit"
+      "startTrial": "Commencer mon essai gratuit",
+      "founderTitle": "Clinique Fondatrice — 50% à vie",
+      "founderSubtitle": "Les premières cliniques bénéficient d'un tarif fondateur permanent : 32,5 TND/mois au lieu de 65 TND.",
+      "founderNote": "Places limitées · Badge fondateur · Accès prioritaire aux nouvelles fonctionnalités"
     },
     "faq": {
       "title": "Questions fréquentes",
@@ -355,7 +372,7 @@
     "privacyLink": "politique de confidentialité",
     "createAccount": "Créer mon compte",
     "creating": "Création en cours...",
-    "trialInfo": "Essai gratuit de 30 jours + 50 SMS offerts",
+    "trialInfo": "Essai gratuit de 30 jours",
     "success": {
       "title": "Compte créé avec succès!",
       "message": "Vérifiez votre email pour activer votre compte.",
@@ -402,10 +419,31 @@
       "tip1Desc": "Cliquez sur \"Ajouter un patient\" pour tester le système",
       "tip2Title": "Appelez le suivant",
       "tip2Desc": "Quand vous êtes prêt, cliquez sur \"Appeler suivant\"",
-      "tip3Title": "Notifications automatiques",
-      "tip3Desc": "Les patients reçoivent un SMS quand c'est bientôt leur tour",
-      "trialInfo": "Vous avez 30 jours d'essai gratuit",
-      "smsInfo": "+ 50 SMS offerts pour démarrer"
+      "tip3Title": "Suivi en temps réel",
+      "tip3Desc": "Les patients suivent leur position en direct sur leur téléphone",
+      "trialInfo": "Vous avez 30 jours d'essai gratuit"
+    },
+    "simulation": {
+      "addTitle": "Ajoutons un patient test",
+      "addSubtitle": "Découvrez comment fonctionne votre file d'attente",
+      "testPatientNote": "Patient fictif — pour la démonstration uniquement",
+      "adding": "Ajout en cours...",
+      "addToQueue": "Ajouter à la file",
+      "yourQueue": "Votre file d'attente",
+      "oneWaiting": "1 patient en attente",
+      "inConsultation": "0 en attente · 1 en consultation",
+      "justNow": "À l'instant",
+      "statusWaiting": "En attente",
+      "statusConsultation": "En consultation",
+      "callNext": "Appeler suivant",
+      "calling": "Notification en cours...",
+      "trackingLabel": "Suivi en temps réel",
+      "trackingText": "Sami B. peut suivre sa position en direct sur son téléphone. Il sait que c'est son tour.",
+      "bravoTitle": "Bravo !",
+      "bravoSubtitle": "Vous venez de gérer votre première file d'attente numérique.",
+      "trialBanner": "30 jours d'essai gratuit",
+      "noCreditCard": "Aucune carte bancaire requise",
+      "viewDashboard": "Voir mon tableau de bord"
     }
   },
   "verify": {
@@ -499,10 +537,6 @@
     },
     "daysRemaining": "{{days}} jours restants",
     "expiredMessage": "Votre abonnement a expiré. Abonnez-vous pour continuer.",
-    "smsCredits": "Crédits SMS",
-    "smsRemaining": "restants",
-    "lowCreditsWarning": "Vos crédits SMS sont bientôt épuisés. Pensez à en acheter.",
-    "buyMoreSms": "Acheter des SMS",
     "popular": "Populaire",
     "upgradePlan": "Choisir un abonnement",
     "monthly": "Mensuel",
@@ -516,8 +550,6 @@
       "unlimited": "Patients illimités",
       "support": "Support WhatsApp"
     },
-    "usage": "Utilisation",
-    "totalSmsSent": "Total SMS envoyés",
     "needHelp": "Besoin d'aide?"
   },
   "announcement": {
@@ -570,5 +602,88 @@
     "vsPrevDay": "vs veille",
     "vsMonthly": "vs mois",
     "dismiss": "Fermer"
+  },
+  "support": {
+    "whatsapp": "Support WhatsApp",
+    "needHelp": "Besoin d'aide ?"
+  },
+  "firstMorning": {
+    "title": "Votre premier matin",
+    "qrPoster": "Affichez le QR code dans la salle d'attente",
+    "firstPatient": "Premier patient enregistré via le QR",
+    "firstCall": "Appelez votre premier patient",
+    "tapToConfirm": "Appuyez ✓",
+    "allDone": "Bravo ! Vous êtes prêt pour une journée sans stress 🎉",
+    "dismiss": "Masquer ce guide",
+    "firstPatientToast": "Premier patient enregistré ! Votre file d'attente est lancée 🎉"
+  },
+  "legal": {
+    "lastUpdated": "Dernière mise à jour",
+    "terms": {
+      "title": "Conditions Générales d'Utilisation",
+      "section1": {
+        "title": "1. Objet",
+        "content": "Les présentes conditions générales régissent l'utilisation de la plateforme BleSaf, un service de gestion de file d'attente pour les cabinets médicaux en Tunisie, édité par la société Blesaf SARL. En utilisant BleSaf, vous acceptez ces conditions dans leur intégralité."
+      },
+      "section2": {
+        "title": "2. Description du Service",
+        "content": "BleSaf est une plateforme SaaS (Software as a Service) qui permet aux professionnels de santé de gérer leur file d'attente de manière numérique. Le service inclut : la gestion de la file d'attente en temps réel, l'enregistrement des patients via QR code, le suivi en temps réel de la position pour les patients, et un tableau de bord de statistiques."
+      },
+      "section3": {
+        "title": "3. Inscription et Compte",
+        "content": "Pour utiliser BleSaf, vous devez créer un compte en fournissant des informations exactes et complètes. Vous êtes responsable de la confidentialité de vos identifiants de connexion. Chaque compte correspond à un cabinet médical. Vous devez être un professionnel de santé autorisé à exercer en Tunisie."
+      },
+      "section4": {
+        "title": "4. Période d'Essai et Abonnement",
+        "content": "BleSaf offre une période d'essai gratuite de 30 jours. À l'issue de cette période, un abonnement payant est nécessaire pour continuer à utiliser le service. Les tarifs en vigueur sont affichés sur la page d'abonnement. Le paiement s'effectue via la plateforme Konnect. L'abonnement est renouvelable mensuellement ou annuellement selon le plan choisi."
+      },
+      "section5": {
+        "title": "5. Protection des Données",
+        "content": "BleSaf s'engage à protéger les données personnelles conformément à la législation tunisienne en matière de protection des données personnelles (Loi organique n° 2004-63). Les données des patients sont traitées uniquement dans le cadre de la gestion de la file d'attente et ne sont jamais partagées avec des tiers. Pour plus de détails, consultez notre Politique de Confidentialité."
+      },
+      "section6": {
+        "title": "6. Disponibilité du Service",
+        "content": "BleSaf s'efforce de maintenir le service disponible 24h/24 et 7j/7. Toutefois, des interruptions temporaires peuvent survenir pour des raisons de maintenance ou de mise à jour. BleSaf ne saurait être tenu responsable des dommages résultant d'une interruption temporaire du service."
+      },
+      "section7": {
+        "title": "7. Résiliation",
+        "content": "Vous pouvez résilier votre abonnement à tout moment. La résiliation prend effet à la fin de la période d'abonnement en cours. En cas de résiliation, vos données seront conservées pendant 30 jours, après quoi elles seront supprimées définitivement. BleSaf se réserve le droit de suspendre ou résilier un compte en cas de violation des présentes conditions."
+      },
+      "section8": {
+        "title": "8. Droit Applicable",
+        "content": "Les présentes conditions sont régies par le droit tunisien. Tout litige relatif à l'interprétation ou l'exécution des présentes conditions sera soumis aux tribunaux compétents de Tunis. Pour toute question, contactez-nous à support@blesaf.tn."
+      }
+    },
+    "privacy": {
+      "title": "Politique de Confidentialité",
+      "section1": {
+        "title": "1. Données Collectées",
+        "content": "BleSaf collecte les données suivantes : pour les professionnels de santé — nom du cabinet, nom du médecin, adresse email, numéro de téléphone, adresse du cabinet ; pour les patients — prénom (ou pseudonyme), numéro de téléphone (optionnel), position dans la file d'attente et heures de passage."
+      },
+      "section2": {
+        "title": "2. Utilisation des Données",
+        "content": "Les données collectées sont utilisées exclusivement pour : la gestion de la file d'attente en temps réel, l'amélioration du service via des statistiques anonymisées, la communication relative au service (notifications, alertes), et la facturation de l'abonnement."
+      },
+      "section3": {
+        "title": "3. Stockage et Sécurité",
+        "content": "Les données sont stockées sur des serveurs sécurisés hébergés par Supabase (infrastructure cloud). Les communications sont chiffrées via HTTPS/TLS. Les mots de passe sont hachés avec l'algorithme bcrypt. L'accès aux données est strictement limité au personnel autorisé."
+      },
+      "section4": {
+        "title": "4. Conservation des Données",
+        "content": "Les données de file d'attente des patients sont conservées pendant la durée nécessaire au service (journée en cours) puis anonymisées pour les statistiques. Les données de compte du professionnel de santé sont conservées pendant la durée de l'abonnement et 30 jours après sa résiliation."
+      },
+      "section5": {
+        "title": "5. Partage des Données",
+        "content": "BleSaf ne vend, ne loue et ne partage pas vos données personnelles avec des tiers, à l'exception des prestataires techniques nécessaires au fonctionnement du service (hébergement, paiement). Les données ne sont jamais utilisées à des fins publicitaires."
+      },
+      "section6": {
+        "title": "6. Vos Droits",
+        "content": "Conformément à la loi tunisienne, vous disposez d'un droit d'accès, de rectification et de suppression de vos données personnelles. Pour exercer ces droits, contactez-nous à support@blesaf.tn. Nous traiterons votre demande dans un délai de 30 jours."
+      },
+      "section7": {
+        "title": "7. Contact",
+        "content": "Pour toute question relative à la protection de vos données personnelles, vous pouvez nous contacter à : support@blesaf.tn. Responsable du traitement : Blesaf SARL, Tunis, Tunisie."
+      }
+    }
   }
 }

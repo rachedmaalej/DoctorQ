@@ -1,12 +1,23 @@
+import 'dotenv/config';       // Must be first — loads .env before other modules evaluate
 import dns from 'node:dns';
 dns.setDefaultResultOrder('ipv4first');
+
+import * as Sentry from '@sentry/node';
+
+// Initialize Sentry before other imports
+if (process.env.SENTRY_DSN) {
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    environment: process.env.NODE_ENV || 'development',
+    tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.2 : 1.0,
+  });
+}
 
 import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import helmet from 'helmet';
-import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
 import bcrypt from 'bcryptjs';
 import { setSocketIO } from './lib/socket.js';
@@ -21,11 +32,10 @@ import clinicRoutes from './routes/clinic.js';
 import adminRoutes from './routes/admin.js';
 import doctorRoutes from './routes/doctor.js';
 import metricsRoutes from './routes/metrics.js';
+import leadsRoutes from './routes/leads.js';
 import { metricsMiddleware, activeSocketConnections } from './lib/metrics.js';
 import { logger } from './lib/logger.js';
-
-// Load environment variables
-dotenv.config();
+import { brand } from './lib/brand.js';
 
 const app = express();
 const httpServer = createServer(app);
@@ -230,6 +240,7 @@ app.post('/api/seed', async (req, res) => {
           enableWhatsApp: false,
           businessType: businessType || 'general',
           showAppointments: showAppointments !== false,
+          country: brand.country,
         },
       });
 
@@ -263,6 +274,7 @@ app.post('/api/seed', async (req, res) => {
         avgConsultationMins: 10,
         notifyAtPosition: 2,
         enableWhatsApp: false,
+        country: brand.country,
       },
     });
 
@@ -283,10 +295,12 @@ app.use('/metrics', metricsRoutes);
 app.use('/api/queue/checkin', publicRateLimiter);
 app.use('/api/queue/patient', publicRateLimiter);
 app.use('/api/signup', publicRateLimiter);
+app.use('/api/leads', publicRateLimiter);
 
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/signup', signupRoutes);
+app.use('/api/leads', leadsRoutes);
 app.use('/api/subscription', subscriptionRoutes);
 app.use('/api/queue', queueRoutes);
 app.use('/api/clinic', clinicRoutes);
@@ -380,6 +394,9 @@ io.on('connection', (socket) => {
 });
 
 // Socket.io instance is available via lib/socket.ts
+
+// Sentry error handler (must be before custom error handler)
+Sentry.setupExpressErrorHandler(app);
 
 // Error handling
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {

@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useDashboard } from '@/hooks/useDashboard';
 import { useUILabels } from '@/hooks/useUILabels';
 import { useAuthStore } from '@/stores/authStore';
 import { api } from '@/lib/api';
+import { webBrand } from '@/lib/brand';
 import QueueList from '@/components/queue/QueueList';
 import QueueStats from '@/components/queue/QueueStats';
 import QRCodeCard from '@/components/queue/QRCodeCard';
@@ -18,6 +19,7 @@ import Header from '@/components/layout/Header';
 import TrialBanner from '@/components/ui/TrialBanner';
 import { MD3Button } from '@/components/md3/button';
 import DailyRecapOverlay from '@/components/dashboard/DailyRecapOverlay';
+import FirstMorningChecklist from '@/components/dashboard/FirstMorningChecklist';
 
 export default function DashboardPage() {
   const { t } = useTranslation();
@@ -26,16 +28,21 @@ export default function DashboardPage() {
   const { clinic, isImpersonating, impersonatedClinicName, stopImpersonation } = useAuthStore();
   const [showDailyRecap, setShowDailyRecap] = useState(false);
   const [subscriptionExpired, setSubscriptionExpired] = useState(false);
-  const [smsCredits, setSmsCredits] = useState<number | null>(null);
 
-  // Check subscription status and SMS credits
+  // Check subscription status
   useEffect(() => {
     api.getSubscription()
       .then(sub => {
         setSubscriptionExpired(!sub.canUseApp);
-        setSmsCredits(sub.smsCredits);
       })
       .catch(() => {});
+  }, []);
+
+  // First-patient celebration toast
+  const [showCelebration, setShowCelebration] = useState(false);
+  const handleFirstPatient = useCallback(() => {
+    setShowCelebration(true);
+    setTimeout(() => setShowCelebration(false), 4000);
   }, []);
 
   // Show daily recap on first visit of the day
@@ -152,6 +159,14 @@ export default function DashboardPage() {
           onAnnouncementClick={() => setIsAnnouncementModalOpen(true)}
           onAnnouncementClear={() => handleSetAnnouncement(null)}
         />
+        {/* First Morning Checklist (mobile) */}
+        <div className="px-4 -mt-2 mb-4">
+          <FirstMorningChecklist
+            hasPatients={queue.length > 0 || (stats?.seen ?? 0) > 0}
+            hasCalled={(stats?.seen ?? 0) > 0}
+            onFirstPatient={handleFirstPatient}
+          />
+        </div>
       </div>
 
       {/* Desktop Layout - hidden on mobile */}
@@ -167,6 +182,13 @@ export default function DashboardPage() {
           <div className="space-y-6">
             {/* Stats */}
             {stats && <QueueStats stats={stats} onResetStats={resetStats} isDoctorPresent={isDoctorPresent} queue={queue} />}
+
+            {/* First Morning Checklist */}
+            <FirstMorningChecklist
+              hasPatients={queue.length > 0 || (stats?.seen ?? 0) > 0}
+              hasCalled={(stats?.seen ?? 0) > 0}
+              onFirstPatient={handleFirstPatient}
+            />
 
             {/* Action Bar */}
             <div className="flex flex-wrap items-center justify-between gap-3 sm:gap-4">
@@ -209,23 +231,6 @@ export default function DashboardPage() {
                     <div className={`w-5 h-5 rounded-full bg-white shadow transition-transform ${isDoctorPresent ? 'ltr:translate-x-4 rtl:-translate-x-4' : 'translate-x-0'}`} />
                   </div>
                 </button>
-
-                {/* SMS Credit Badge */}
-                {smsCredits !== null && (
-                  <div
-                    className={`flex items-center gap-1.5 px-3 py-2.5 rounded-full text-sm font-medium ${
-                      smsCredits === 0
-                        ? 'bg-red-100 text-red-700 border-2 border-red-200'
-                        : smsCredits < 10
-                          ? 'bg-amber-100 text-amber-700 border-2 border-amber-200'
-                          : 'bg-gray-100 text-gray-600 border-2 border-gray-200'
-                    }`}
-                    title={t('settings.smsCredits', 'SMS Credits')}
-                  >
-                    <span className="material-symbols-outlined text-lg">sms</span>
-                    <span>{smsCredits}</span>
-                  </div>
-                )}
 
                 {/* Announcement Button */}
                 <button
@@ -326,6 +331,15 @@ export default function DashboardPage() {
         type={toast.type}
         isVisible={toast.isVisible}
         onClose={hideToast}
+      />
+
+      {/* First-patient celebration toast */}
+      <Toast
+        message={t('firstMorning.firstPatientToast')}
+        type="success"
+        isVisible={showCelebration}
+        onClose={() => setShowCelebration(false)}
+        duration={4000}
       />
 
       {/* Daily Recap Overlay - shown once per day on first visit */}

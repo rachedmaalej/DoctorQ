@@ -8,6 +8,13 @@
     "dev": "concurrently \"pnpm dev:api\" \"pnpm dev:web\"",
     "dev:api": "pnpm --filter @doctorq/api dev",
     "dev:web": "pnpm --filter @doctorq/web dev",
+    "dev:tn": "concurrently \"pnpm dev:api:tn\" \"pnpm dev:web:tn\"",
+    "dev:fr": "concurrently \"pnpm dev:api:fr\" \"pnpm dev:web:fr\"",
+    "dev:all": "concurrently \"pnpm dev:api:tn\" \"pnpm dev:web:tn\" \"pnpm dev:api:fr\" \"pnpm dev:web:fr\"",
+    "dev:api:tn": "pnpm --filter @doctorq/api dev:tn",
+    "dev:api:fr": "pnpm --filter @doctorq/api dev:fr",
+    "dev:web:tn": "pnpm --filter @doctorq/web dev:tn",
+    "dev:web:fr": "pnpm --filter @doctorq/web dev:fr",
     "build": "pnpm --filter @doctorq/api build && pnpm --filter @doctorq/web build",
     "build:api": "pnpm --filter @doctorq/api build",
     "build:web": "pnpm --filter @doctorq/web build",
@@ -25,6 +32,7 @@
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
+    "cross-env": "^10.1.0",
     "prettier": "^3.1.1",
     "typescript": "^5.3.3"
   },

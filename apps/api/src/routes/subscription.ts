@@ -6,6 +6,7 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { authMiddleware } from '../lib/auth.js';
+import { brand } from '../lib/brand.js';
 import { AuthRequest } from '../types/index.js';
 import {
   getSubscriptionStatus,
@@ -23,6 +24,8 @@ import {
   getOnboardingStatus,
 } from '../services/signupService.js';
 import { logger } from '../lib/logger.js';
+import { sendFirstMorningEmail } from '../lib/email.js';
+import { prisma } from '../lib/prisma.js';
 
 const router = Router();
 
@@ -97,35 +100,19 @@ router.get('/pricing', (req: Request, res: Response) => {
       subscription: {
         monthly: {
           amount: PRICING.MONTHLY,
-          amountTND: PRICING.MONTHLY / 1000,
+          amountDisplay: PRICING.MONTHLY / brand.currency.multiplier,
+          currency: brand.currency.symbol,
           description: 'Monthly subscription',
         },
         yearly: {
           amount: PRICING.YEARLY,
-          amountTND: PRICING.YEARLY / 1000,
+          amountDisplay: PRICING.YEARLY / brand.currency.multiplier,
+          currency: brand.currency.symbol,
           description: 'Yearly subscription (2 months free)',
-          savings: (PRICING.MONTHLY * 12 - PRICING.YEARLY) / 1000,
+          savings: (PRICING.MONTHLY * 12 - PRICING.YEARLY) / brand.currency.multiplier,
         },
       },
-      smsPackages: {
-        starter: {
-          ...SMS_PACKAGES.starter,
-          amountTND: SMS_PACKAGES.starter.amount / 1000,
-          perSms: SMS_PACKAGES.starter.amount / SMS_PACKAGES.starter.credits / 1000,
-        },
-        standard: {
-          ...SMS_PACKAGES.standard,
-          amountTND: SMS_PACKAGES.standard.amount / 1000,
-          perSms: SMS_PACKAGES.standard.amount / SMS_PACKAGES.standard.credits / 1000,
-        },
-        pro: {
-          ...SMS_PACKAGES.pro,
-          amountTND: SMS_PACKAGES.pro.amount / 1000,
-          perSms: SMS_PACKAGES.pro.amount / SMS_PACKAGES.pro.credits / 1000,
-        },
-      },
-      trialDays: 30,
-      freeSmsTrial: 50,
+      trialDays: brand.pricing.freeTrialDays,
     },
   });
 });
@@ -303,6 +290,21 @@ router.post('/onboarding', authMiddleware, async (req: AuthRequest, res: Respons
     const { step, completed } = onboardingStepSchema.parse(req.body);
 
     await updateOnboardingStep(req.clinic!.id, step, completed);
+
+    // Send "first morning" email when onboarding is completed
+    if (completed) {
+      const clinic = await prisma.clinic.findUnique({
+        where: { id: req.clinic!.id },
+        select: { email: true, doctorName: true, language: true },
+      });
+      if (clinic?.email) {
+        sendFirstMorningEmail(
+          clinic.email,
+          clinic.doctorName || 'Docteur',
+          (clinic.language as 'fr' | 'ar') || 'fr'
+        ).catch(err => logger.error({ err }, 'Failed to send first morning email'));
+      }
+    }
 
     res.json({
       data: {

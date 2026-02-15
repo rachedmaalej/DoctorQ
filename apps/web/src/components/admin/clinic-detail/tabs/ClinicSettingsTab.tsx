@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { api } from '../../../../lib/api';
+import { webBrand } from '../../../../lib/brand';
 import type { ClinicDetail, ClinicEditableFields } from '../../../../types';
 
 interface ClinicSettingsTabProps {
@@ -20,7 +21,6 @@ export default function ClinicSettingsTab({ detail, onRefresh, onResetPassword }
     email: clinic.email,
     phone: clinic.phone || '',
     language: clinic.language,
-    avgConsultationMins: clinic.avgConsultationMins,
     businessType: clinic.businessType,
     address: clinic.address || '',
     notifyAtPosition: clinic.notifyAtPosition,
@@ -33,7 +33,6 @@ export default function ClinicSettingsTab({ detail, onRefresh, onResetPassword }
       email: clinic.email,
       phone: clinic.phone || '',
       language: clinic.language,
-      avgConsultationMins: clinic.avgConsultationMins,
       businessType: clinic.businessType,
       address: clinic.address || '',
       notifyAtPosition: clinic.notifyAtPosition,
@@ -126,7 +125,7 @@ export default function ClinicSettingsTab({ detail, onRefresh, onResetPassword }
 
           <SettingsField label="Phone" editing={editing}>
             {editing ? (
-              <input type="tel" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className={inputClass} placeholder="+216 XX XXX XXX" />
+              <input type="tel" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className={inputClass} placeholder={webBrand.phone.placeholder} />
             ) : (
               <p className="text-sm text-[#132E2C] font-medium">{clinic.phone || '—'}</p>
             )}
@@ -140,14 +139,6 @@ export default function ClinicSettingsTab({ detail, onRefresh, onResetPassword }
               </select>
             ) : (
               <p className="text-sm text-[#132E2C] font-medium">{clinic.language === 'ar' ? 'Arabic' : 'French'}</p>
-            )}
-          </SettingsField>
-
-          <SettingsField label="Avg Consultation (min)" editing={editing}>
-            {editing ? (
-              <input type="number" value={form.avgConsultationMins} onChange={(e) => setForm({ ...form, avgConsultationMins: Number(e.target.value) })} min={1} max={120} className={inputClass} />
-            ) : (
-              <p className="text-sm text-[#132E2C] font-medium">{clinic.avgConsultationMins} min</p>
             )}
           </SettingsField>
 

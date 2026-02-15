@@ -7,7 +7,8 @@ import { prisma } from '../lib/prisma.js';
 import { QueueStatus, CheckInMethod, QueueEntry } from '@prisma/client';
 import { recalculatePositionsAndStatuses, getNextPosition } from './positionService.js';
 import { emitQueueUpdate, emitPatientUpdate, emitAllPatientUpdates, sendSmsNotification } from './notificationService.js';
-import { getQueueStats, getStartOfToday } from './statsService.js';
+import { getQueueStats, getStartOfToday, computeSmartWaitEstimate } from './statsService.js';
+import { brand } from '../lib/brand.js';
 
 export interface AddPatientInput {
   clinicId: string;
@@ -25,12 +26,14 @@ export interface AddPatientResult {
 }
 
 /**
- * Format a Tunisian phone number to standard format
+ * Format a phone number to standard international format.
+ * Uses the brand's country code (e.g. +216 for Tunisia, +33 for France).
  */
 export function formatPhoneNumber(phone: string): string {
-  return phone.startsWith('+216')
+  const cc = brand.phone.countryCode;
+  return phone.startsWith(cc)
     ? phone
-    : `+216${phone.replace(/\D/g, '')}`;
+    : `${cc}${phone.replace(/\D/g, '')}`;
 }
 
 /**
@@ -188,6 +191,53 @@ export async function callNextPatient(clinicId: string): Promise<QueueEntry | nu
           completedAt: new Date(),
         },
       });
+
+      // Auto-update doctor's avgConsultationMins via Exponential Moving Average
+      if (currentInConsultation.calledAt && currentInConsultation.doctorId) {
+        const durationMins = Math.round(
+          (Date.now() - currentInConsultation.calledAt.getTime()) / 60000
+        );
+        // Only update for reasonable durations (1-120 min) to filter anomalies
+        if (durationMins >= 1 && durationMins <= 120) {
+          const doctor = await tx.doctor.findUnique({
+            where: { id: currentInConsultation.doctorId },
+            select: { avgConsultationMins: true },
+          });
+          if (doctor) {
+            const alpha = 0.3;
+            const newAvg = Math.round(
+              alpha * durationMins + (1 - alpha) * doctor.avgConsultationMins
+            );
+            await tx.doctor.update({
+              where: { id: currentInConsultation.doctorId },
+              data: { avgConsultationMins: newAvg },
+            });
+          }
+        }
+      }
+
+      // Auto-update clinic's avgConsultationMins via EMA (works even without doctorId)
+      if (currentInConsultation.calledAt) {
+        const durationMins = Math.round(
+          (Date.now() - currentInConsultation.calledAt.getTime()) / 60000
+        );
+        if (durationMins >= 1 && durationMins <= 120) {
+          const clinicRecord = await tx.clinic.findUnique({
+            where: { id: clinicId },
+            select: { avgConsultationMins: true },
+          });
+          if (clinicRecord) {
+            const alpha = 0.3;
+            const newAvg = Math.round(
+              alpha * durationMins + (1 - alpha) * clinicRecord.avgConsultationMins
+            );
+            await tx.clinic.update({
+              where: { id: clinicId },
+              data: { avgConsultationMins: newAvg },
+            });
+          }
+        }
+      }
     }
 
     // Check if there are remaining patients
@@ -429,7 +479,11 @@ export async function getPatientStatus(entryId: string) {
     return null;
   }
 
-  const estimatedWaitMins = entry.position * entry.clinic.avgConsultationMins;
+  const { estimatedWaitMins, effectiveAvgMins } = await computeSmartWaitEstimate(
+    entry.clinicId,
+    entry.position,
+    entry.doctorId
+  );
 
   return {
     id: entry.id,
@@ -445,7 +499,7 @@ export async function getPatientStatus(entryId: string) {
     calledAt: entry.calledAt,
     completedAt: entry.completedAt,
     estimatedWaitMins,
-    avgConsultationMins: entry.clinic.avgConsultationMins,
+    avgConsultationMins: effectiveAvgMins,
     clinicName: entry.clinic.name,
     doctorName: entry.clinic.doctorName,
     doctorGender: entry.clinic.doctorGender,

@@ -7,6 +7,7 @@
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import { prisma } from '../lib/prisma.js';
+import { brand } from '../lib/brand.js';
 
 // ─── Interfaces ──────────────────────────────────────────────
 
@@ -109,6 +110,8 @@ export async function registerClinic(data: SignupData): Promise<SignupResult> {
       onboardingStep: 0,
       // Give 50 free SMS credits to start
       smsCredits: 50,
+      // Market isolation
+      country: brand.country,
     },
     select: {
       id: true,

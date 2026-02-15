@@ -6,6 +6,7 @@
 import { Router, Response } from 'express';
 import { z } from 'zod';
 import { authMiddleware } from '../lib/auth.js';
+import { subscriptionGate } from '../lib/subscriptionGate.js';
 import { AuthRequest } from '../types/index.js';
 import {
   getDoctors,
@@ -63,7 +64,7 @@ router.get('/:id', authMiddleware, async (req: AuthRequest, res: Response) => {
 });
 
 // POST /api/clinic/doctors - Create doctor
-router.post('/', authMiddleware, async (req: AuthRequest, res: Response) => {
+router.post('/', authMiddleware, subscriptionGate, async (req: AuthRequest, res: Response) => {
   try {
     const data = createDoctorSchema.parse(req.body);
     const doctor = await createDoctor({
@@ -85,7 +86,7 @@ router.post('/', authMiddleware, async (req: AuthRequest, res: Response) => {
 });
 
 // PATCH /api/clinic/doctors/:id - Update doctor
-router.patch('/:id', authMiddleware, async (req: AuthRequest, res: Response) => {
+router.patch('/:id', authMiddleware, subscriptionGate, async (req: AuthRequest, res: Response) => {
   try {
     const data = updateDoctorSchema.parse(req.body);
     const doctor = await updateDoctor(req.clinic!.id, req.params.id, data);
@@ -109,7 +110,7 @@ router.patch('/:id', authMiddleware, async (req: AuthRequest, res: Response) => 
 });
 
 // DELETE /api/clinic/doctors/:id - Delete doctor
-router.delete('/:id', authMiddleware, async (req: AuthRequest, res: Response) => {
+router.delete('/:id', authMiddleware, subscriptionGate, async (req: AuthRequest, res: Response) => {
   try {
     const deleted = await deleteDoctor(req.clinic!.id, req.params.id);
     if (!deleted) {

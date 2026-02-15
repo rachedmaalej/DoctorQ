@@ -4,6 +4,7 @@ import { useQueueStore } from '@/stores/queueStore';
 import { useUILabels } from '@/hooks/useUILabels';
 import { logger } from '@/lib/logger';
 import { formatTunisianPhone, isValidTunisianPhone, extractPhoneDigits, DEFAULT_PHONE_VALUE } from '@/lib/phone';
+import { webBrand } from '@/lib/brand';
 
 interface AddPatientModalProps {
   isOpen: boolean;
@@ -114,7 +115,7 @@ export default function AddPatientModal({ isOpen, onClose }: AddPatientModalProp
               onChange={handlePhoneChange}
               required
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              placeholder="+216 XX XXX XXX"
+              placeholder={webBrand.phone.placeholder}
               aria-describedby="phone-format-hint"
             />
             <p id="phone-format-hint" className="mt-1 text-sm text-gray-500">

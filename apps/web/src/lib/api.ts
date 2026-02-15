@@ -36,9 +36,13 @@ function getApiUrl(): string {
   // In production (Vercel), detect based on hostname
   if (typeof window !== 'undefined') {
     const hostname = window.location.hostname;
-    // Production Vercel deployment
-    if (hostname.includes('vercel.app') || hostname.includes('doctor-q')) {
+    // BleSaf production (Tunisia)
+    if (hostname.includes('vercel.app') || hostname.includes('doctor-q') || hostname.includes('blesaf')) {
       return 'https://doctorqapi-production-ac8b.up.railway.app';
+    }
+    // FiloSoin production (France) — override VITE_API_URL in Vercel env for France deployments
+    if (hostname.includes('filosoin')) {
+      return import.meta.env.VITE_API_URL || 'https://doctorqapi-production-ac8b.up.railway.app';
     }
   }
 
@@ -231,10 +235,10 @@ class ApiClient {
 
   async getPricing(): Promise<{
     subscription: {
-      monthly: { amount: number; amountTND: number; description: string };
-      yearly: { amount: number; amountTND: number; description: string; savings: number };
+      monthly: { amount: number; amountDisplay: number; currency: string; description: string };
+      yearly: { amount: number; amountDisplay: number; currency: string; description: string; savings: number };
     };
-    smsPackages: Record<string, { credits: number; amount: number; amountTND: number; perSms: number }>;
+    smsPackages: Record<string, { credits: number; amount: number; amountDisplay: number; perSms: number }>;
     trialDays: number;
     freeSmsTrial: number;
   }> {
