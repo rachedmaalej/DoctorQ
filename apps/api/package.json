@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
+    "dev": "cross-env BRAND=blesaf PORT=3001 FRONTEND_URL=http://localhost:5174 tsx watch src/index.ts",
     "dev:tn": "cross-env BRAND=blesaf PORT=3001 FRONTEND_URL=http://localhost:5174 tsx watch src/index.ts",
     "dev:fr": "cross-env BRAND=france PORT=3002 FRONTEND_URL=http://localhost:5175 tsx watch src/index.ts",
     "build": "prisma generate && tsc",

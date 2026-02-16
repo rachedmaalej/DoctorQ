@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useDashboard } from '@/hooks/useDashboard';
@@ -11,6 +11,7 @@ import QueueStats from '@/components/queue/QueueStats';
 import QRCodeCard from '@/components/queue/QRCodeCard';
 import QRCodeModal from '@/components/queue/QRCodeModal';
 import MobileDashboard from '@/components/queue/MobileDashboard';
+import AuSuivantDashboard from '@/components/ausuivant/AuSuivantDashboard';
 import AddPatientModal from '@/components/queue/AddPatientModal';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 import AnnouncementModal from '@/components/queue/AnnouncementModal';
@@ -138,23 +139,38 @@ export default function DashboardPage() {
 
       {/* Mobile Dashboard - visible only on small screens */}
       <div className="lg:hidden">
-        <MobileDashboard
-          queue={queue}
-          stats={stats}
-          onCallNext={handleCallNext}
-          onAddPatient={() => setIsAddModalOpen(true)}
-          onRemovePatient={handleRemovePatient}
-          onReorder={handleReorderPatient}
-          onEmergency={(id) => handleReorderPatient(id, 1)}
-          onShowQR={() => setIsQRModalOpen(true)}
-          onCompleteConsultation={handleCompleteConsultation}
-          isCallingNext={isCallingNext}
-          isDoctorPresent={isDoctorPresent}
-          onToggleDoctorPresent={handleToggleDoctorPresent}
-          announcement={announcement}
-          onAnnouncementClick={() => setIsAnnouncementModalOpen(true)}
-          onAnnouncementClear={() => handleSetAnnouncement(null)}
-        />
+        {webBrand.id === 'france' ? (
+          <AuSuivantDashboard
+            queue={queue}
+            stats={stats}
+            onCallNext={handleCallNext}
+            onRemovePatient={handleRemovePatient}
+            onReorder={handleReorderPatient}
+            onEmergency={(id) => handleReorderPatient(id, 1)}
+            isCallingNext={isCallingNext}
+            isDoctorPresent={isDoctorPresent}
+            onToggleDoctorPresent={handleToggleDoctorPresent}
+            isTogglingPresence={isTogglingPresence}
+          />
+        ) : (
+          <MobileDashboard
+            queue={queue}
+            stats={stats}
+            onCallNext={handleCallNext}
+            onAddPatient={() => setIsAddModalOpen(true)}
+            onRemovePatient={handleRemovePatient}
+            onReorder={handleReorderPatient}
+            onEmergency={(id) => handleReorderPatient(id, 1)}
+            onShowQR={() => setIsQRModalOpen(true)}
+            onCompleteConsultation={handleCompleteConsultation}
+            isCallingNext={isCallingNext}
+            isDoctorPresent={isDoctorPresent}
+            onToggleDoctorPresent={handleToggleDoctorPresent}
+            announcement={announcement}
+            onAnnouncementClick={() => setIsAnnouncementModalOpen(true)}
+            onAnnouncementClear={() => handleSetAnnouncement(null)}
+          />
+        )}
       </div>
 
       {/* Desktop Layout - hidden on mobile */}

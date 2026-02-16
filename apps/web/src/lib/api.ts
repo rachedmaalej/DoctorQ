@@ -25,6 +25,7 @@ import type {
   DailyRecapResponse,
 } from '@/types';
 import { logger } from './logger';
+import { webBrand } from './brand';
 
 // Auto-detect production API URL based on hostname
 function getApiUrl(): string {
@@ -58,6 +59,30 @@ class ApiClient {
   constructor() {
     // Load token from localStorage on initialization
     this.token = localStorage.getItem('auth_token');
+
+    // In dev, validate that frontend brand matches API brand
+    if (import.meta.env.DEV) {
+      this.validateBrand();
+    }
+  }
+
+  private async validateBrand(): Promise<void> {
+    try {
+      const res = await fetch(`${API_URL}/api/brand`);
+      const data = await res.json();
+      if (data.brand && data.brand !== webBrand.id) {
+        const msg = `BRAND MISMATCH: Frontend is "${webBrand.id}" but API is "${data.brand}". Use "pnpm dev:tn" for BleSaf or "pnpm dev:fr" for France.`;
+        console.error(`[BRAND] ${msg}`);
+        // Show a visible warning banner so it's impossible to miss
+        const banner = document.createElement('div');
+        banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#dc2626;color:white;padding:12px 16px;font:bold 14px/1.4 system-ui;text-align:center;';
+        banner.textContent = msg;
+        banner.addEventListener('click', () => banner.remove());
+        document.body.appendChild(banner);
+      }
+    } catch {
+      // API not ready yet, skip
+    }
   }
 
   private async request<T>(

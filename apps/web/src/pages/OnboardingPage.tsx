@@ -297,7 +297,7 @@ function StepClinicSetup({
               <p className="text-xs text-primary-600 mb-2">{t('funFacts.valueProposition')}</p>
               <div className="bg-white/80 border border-primary-100 rounded-lg p-3">
                 <p className="text-xs font-medium text-primary-600 uppercase tracking-wide mb-1">
-                  {i18n.language === 'ar' ? 'هل تعلم؟' : 'Le saviez-vous ?'}
+                  {t('funFacts.didYouKnow')}
                 </p>
                 <p className="text-sm text-gray-700">
                   {(() => {
@@ -388,13 +388,13 @@ function StepQRCode({
           </head>
           <body>
             <div class="container">
-              <h1>Scannez pour rejoindre la file</h1>
-              <p>Prenez votre place sans attendre</p>
+              <h1>${t('onboarding.qrcode.posterTitle')}</h1>
+              <p>${t('onboarding.qrcode.posterSubtitle')}</p>
               <img src="${qrData.qrCode}" alt="QR Code" />
               <div class="instructions">
-                1. Scannez ce QR code avec votre téléphone<br/>
-                2. Entrez votre numéro<br/>
-                3. Suivez votre position en temps réel
+                1. ${t('onboarding.qrcode.posterStep1')}<br/>
+                2. ${t('onboarding.qrcode.posterStep2')}<br/>
+                3. ${t('onboarding.qrcode.posterStep3')}
               </div>
             </div>
           </body>
@@ -547,7 +547,7 @@ function StepSimulation({
                 </svg>
               </div>
               <div>
-                <div className="font-semibold text-gray-800">Sami B.</div>
+                <div className="font-semibold text-gray-800">{t('onboarding.simulation.testPatientName')}</div>
                 <div className="text-xs text-gray-500">{webBrand.phone.placeholder}</div>
               </div>
             </div>
@@ -618,7 +618,7 @@ function StepSimulation({
               1
             </div>
             <div className="flex-1">
-              <div className="font-semibold text-gray-800">Sami B.</div>
+              <div className="font-semibold text-gray-800">{t('onboarding.simulation.testPatientName')}</div>
               <div className="flex items-center gap-1.5 text-xs text-gray-500">
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -674,7 +674,7 @@ function StepSimulation({
                 {t('onboarding.simulation.trackingLabel')}
               </div>
               <div className="text-sm text-gray-700 leading-relaxed">
-                {t('onboarding.simulation.trackingText')}
+                {t('onboarding.simulation.trackingText', { patientName: t('onboarding.simulation.testPatientName') })}
               </div>
             </div>
           </div>
@@ -688,7 +688,7 @@ function StepSimulation({
           <div className="border-2 border-green-400 bg-green-50 rounded-xl p-4 flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-lg bg-green-500 flex items-center justify-center text-white font-bold">1</div>
             <div className="flex-1">
-              <div className="font-semibold text-gray-800">Sami B.</div>
+              <div className="font-semibold text-gray-800">{t('onboarding.simulation.testPatientName')}</div>
               <div className="flex items-center gap-1.5 text-xs text-gray-500">
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />

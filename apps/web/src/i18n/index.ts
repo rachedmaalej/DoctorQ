@@ -40,6 +40,10 @@ if (webBrand.supportedLanguages.includes('ar')) {
   resources.ar = { translation: ar as typeof fr };
 }
 
+// Compute founder price (50% of monthly)
+const founderAmount = webBrand.pricing.monthlyAmount / 2;
+const founderDisplay = `${(founderAmount / webBrand.currency.multiplier).toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 1 })} ${webBrand.currency.symbol}`;
+
 i18n
   .use(initReactI18next)
   .init({
@@ -48,6 +52,20 @@ i18n
     fallbackLng: 'fr',
     interpolation: {
       escapeValue: false,
+      defaultVariables: {
+        brandName: webBrand.name,
+        supportEmail: webBrand.supportEmail,
+        entityName: webBrand.legal.entityName,
+        jurisdiction: webBrand.legal.jurisdiction,
+        domain: webBrand.domain,
+        monthlyPrice: webBrand.pricing.monthlyDisplay,
+        yearlyPrice: webBrand.pricing.yearlyDisplay,
+        monthlyUnit: webBrand.pricing.monthlyUnit,
+        yearlyUnit: webBrand.pricing.yearlyUnit,
+        countryCode: webBrand.phone.countryCode,
+        phonePlaceholder: webBrand.phone.placeholder,
+        founderPrice: founderDisplay,
+      },
     },
   });
 

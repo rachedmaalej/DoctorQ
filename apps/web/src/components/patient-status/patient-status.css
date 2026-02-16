@@ -1,0 +1,582 @@
+/* Patient Status Page — Design System */
+
+.ps-page {
+  /* ─── Color Tokens (Spec §2.2) ─── */
+  --bg: #F8F7F4;
+  --surface: #FFFFFF;
+  --surface-alt: #F0EFEB;
+  --border: #E8E6E1;
+  --text-primary: #1A1917;
+  --text-secondary: #6E6B63;
+  --text-tertiary: #A09B92;
+  --accent: #1B6B4A;
+  --accent-soft: #E6F2EC;
+  --warm: #C4841D;
+  --warm-soft: #FEF7EC;
+  --warm-border: #F0DDB8;
+  --danger: #B5352A;
+  --danger-soft: #FDF0EE;
+
+  /* ─── Radii ─── */
+  --radius: 14px;
+  --radius-sm: 10px;
+  --radius-lg: 20px;
+
+  /* ─── Transitions ─── */
+  --transition-mood: background 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* ─── Base Resets ─── */
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+  font-family: 'DM Sans', -apple-system, sans-serif;
+  color: var(--text-primary);
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+.ps-page *, .ps-page *::before, .ps-page *::after {
+  box-sizing: border-box;
+}
+
+/* ─── Mood Background (Spec §2.3, §3) ─── */
+
+.ps-mood-bg {
+  position: fixed;
+  inset: 0;
+  max-width: 430px;
+  margin: 0 auto;
+  z-index: 0;
+  transition: var(--transition-mood);
+}
+
+.ps-mood-bg.phase-far    { background: #F8F7F4; }
+.ps-mood-bg.phase-mid    { background: #F7F5F0; }
+.ps-mood-bg.phase-soon   { background: #FBF8F1; }
+.ps-mood-bg.phase-next   { background: #F5F0E8; }
+.ps-mood-bg.phase-called { background: #EFF8F3; }
+.ps-mood-bg.phase-done   { background: #F8F7F4; }
+
+/* ─── Content Layer ─── */
+
+.ps-content {
+  position: relative;
+  z-index: 1;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── Hero Time Sizes (Spec §4.4.2) ─── */
+
+.ps-hero-time {
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 500;
+  letter-spacing: -3px;
+  line-height: 0.95;
+  transition: all 0.5s var(--ease-spring);
+}
+
+.ps-hero-time.size-xl { font-size: 72px; }
+.ps-hero-time.size-lg { font-size: 64px; }
+.ps-hero-time.size-md { font-size: 56px; }
+
+.ps-hero-time-suffix {
+  font-size: 0.5em;
+  font-weight: 300;
+  letter-spacing: -1px;
+  opacity: 0.6;
+}
+
+/* ─── Eyebrow (Spec §4.4.1) ─── */
+
+.ps-eyebrow {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.8px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  transition: color 0.5s var(--ease-spring);
+}
+
+.ps-eyebrow.phase-far,
+.ps-eyebrow.phase-mid  { color: var(--text-tertiary); }
+.ps-eyebrow.phase-soon { color: var(--warm); }
+.ps-eyebrow.phase-next { color: var(--accent); }
+
+/* ─── Context Card Variants (Spec §4.7) ─── */
+
+.ps-ctx-card {
+  margin: 0 20px 16px;
+  padding: 16px 18px;
+  border-radius: var(--radius);
+  transition: all 0.8s var(--ease-spring);
+}
+
+.ps-ctx-card.ctx-leave {
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+.ps-ctx-card.ctx-leave .ps-ctx-icon-box {
+  background: var(--surface-alt);
+  color: var(--text-secondary);
+}
+
+.ps-ctx-card.ctx-stay {
+  background: var(--warm-soft);
+  border: 1px solid var(--warm-border);
+}
+.ps-ctx-card.ctx-stay .ps-ctx-icon-box {
+  background: rgba(196, 132, 29, 0.12);
+  color: var(--warm);
+}
+
+.ps-ctx-card.ctx-ready {
+  background: var(--accent-soft);
+  border: 1px solid rgba(27, 107, 74, 0.15);
+}
+.ps-ctx-card.ctx-ready .ps-ctx-icon-box {
+  background: rgba(27, 107, 74, 0.1);
+  color: var(--accent);
+}
+
+.ps-ctx-icon-box {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ps-ctx-icon-box svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ─── Alert Banner (Spec §4.2) ─── */
+
+.ps-alert {
+  margin: 0 20px 8px;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--warm-soft);
+  border: 1px solid var(--warm-border);
+  color: #8B5E14;
+  font-size: 13px;
+  line-height: 1.35;
+  overflow: hidden;
+  transition: all 0.4s ease;
+}
+
+.ps-alert.hidden {
+  max-height: 0;
+  opacity: 0;
+  margin-bottom: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-width: 0;
+}
+
+.ps-alert strong { font-weight: 600; }
+
+.ps-alert svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: #8B5E14;
+}
+
+/* ─── RDV Context Bar (Spec §4.3) ─── */
+
+.ps-rdv {
+  margin: 0 20px 4px;
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-alt);
+  font-size: 12px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+  transition: all 0.4s ease;
+}
+
+.ps-rdv.hidden {
+  max-height: 0;
+  opacity: 0;
+  padding: 0 14px;
+  margin-bottom: 0;
+}
+
+.ps-rdv svg {
+  width: 14px;
+  height: 14px;
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+
+.ps-rdv-time {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* ─── Toggle Switch (same as ausuivant.css) ─── */
+
+.ps-toggle {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  flex-shrink: 0;
+  border: none;
+  padding: 0;
+}
+
+.ps-toggle[aria-checked="true"]  { background-color: var(--accent); }
+.ps-toggle[aria-checked="false"] { background-color: var(--border); }
+
+.ps-toggle-knob {
+  position: absolute;
+  top: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  transition: left 0.2s ease;
+}
+
+.ps-toggle[aria-checked="true"]  .ps-toggle-knob { left: 23px; }
+.ps-toggle[aria-checked="false"] .ps-toggle-knob { left: 3px; }
+
+/* ─── Called Hero Breathing Circle (Spec §4.5) ─── */
+
+.ps-called-circle {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+  animation: ps-called-breathe 2s ease-in-out infinite;
+}
+
+.ps-called-circle svg {
+  width: 32px;
+  height: 32px;
+  color: white;
+}
+
+/* ─── Done Icon Circle (Spec §4.6) ─── */
+
+.ps-done-circle {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--surface-alt);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.ps-done-circle svg {
+  width: 28px;
+  height: 28px;
+  color: var(--accent);
+}
+
+/* ─── Visit Summary (Spec §4.8) ─── */
+
+.ps-summary {
+  margin: 0 20px;
+  padding: 18px;
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+
+.ps-summary-header {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-tertiary);
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+.ps-summary-value {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 26px;
+  font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: -1px;
+  line-height: 1.1;
+}
+
+.ps-summary-label {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+.ps-summary-cta {
+  width: 100%;
+  padding: 12px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.ps-summary-cta:hover { background: #D6ECE2; }
+
+/* ─── Manage Footer (Spec §4.9) ─── */
+
+.ps-manage-btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--text-tertiary);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  min-height: 44px;
+}
+
+.ps-manage-btn:hover {
+  background: var(--surface);
+  color: var(--text-secondary);
+  border-color: var(--text-tertiary);
+}
+
+.ps-manage-btn svg {
+  width: 15px;
+  height: 15px;
+}
+
+/* ─── Brand Footer (Spec §4.10) ─── */
+
+.ps-brand {
+  text-align: center;
+  padding: 12px 20px 20px;
+  font-size: 11px;
+  color: var(--text-tertiary);
+  letter-spacing: 0.3px;
+}
+
+.ps-brand a {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* ─── Progress Toast (Spec §4.11) ─── */
+
+.ps-toast {
+  position: fixed;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  z-index: 200;
+  background: var(--text-primary);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 40px;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.35s var(--ease-spring);
+}
+
+.ps-toast svg {
+  width: 16px;
+  height: 16px;
+}
+
+.ps-toast.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+
+/* ─── Quit Modal (Spec §4.12) ─── */
+
+.ps-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 500;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.ps-modal-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.ps-modal-sheet {
+  background: white;
+  border-radius: 20px 20px 0 0;
+  max-width: 430px;
+  width: 100%;
+  padding: 24px 20px 36px;
+  transform: translateY(100%);
+  transition: transform 0.35s var(--ease-spring);
+}
+
+.ps-modal-overlay.open .ps-modal-sheet {
+  transform: translateY(0);
+}
+
+.ps-modal-handle {
+  width: 36px;
+  height: 4px;
+  background: #D9D9D9;
+  border-radius: 2px;
+  margin: 0 auto 20px;
+}
+
+.ps-modal-title {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+}
+
+.ps-modal-desc {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 24px;
+}
+
+.ps-modal-danger-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: var(--radius-sm);
+  background: var(--danger);
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  margin-bottom: 8px;
+  min-height: 44px;
+}
+
+.ps-modal-cancel-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-alt);
+  color: var(--text-primary);
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  min-height: 44px;
+}
+
+/* ─── Keyframe Animations ─── */
+
+/* Page load stagger (Spec §7.1) */
+@keyframes ps-fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.ps-fade-up   { animation: ps-fadeUp 0.5s ease both; }
+.ps-fade-up-d1 { animation: ps-fadeUp 0.5s ease 0.08s both; }
+.ps-fade-up-d2 { animation: ps-fadeUp 0.5s ease 0.16s both; }
+.ps-fade-up-d3 { animation: ps-fadeUp 0.5s ease 0.24s both; }
+
+/* Connection dot pulse (Spec §7.2) */
+@keyframes ps-conn-pulse {
+  0%, 100% { opacity: 0; transform: scale(1); }
+  50%      { opacity: 0.3; transform: scale(1.4); }
+}
+
+/* Time update pulse (Spec §7.3) */
+@keyframes ps-countPulse {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+
+.ps-count-pulse {
+  animation: ps-countPulse 0.5s ease;
+}
+
+/* Context card slide down (Spec §7.4) */
+@keyframes ps-slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.ps-slide-down {
+  animation: ps-slideDown 0.4s ease both;
+}
+
+/* Called icon breathing (Spec §7.5) */
+@keyframes ps-called-breathe {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(27, 107, 74, 0.2); }
+  50%      { box-shadow: 0 0 0 16px rgba(27, 107, 74, 0); }
+}
+
+/* Connection dot ring */
+.ps-conn-dot {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+  margin-top: 8px;
+}
+
+.ps-conn-dot::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 1.5px solid var(--accent);
+  animation: ps-conn-pulse 2.5s ease-in-out infinite;
+}

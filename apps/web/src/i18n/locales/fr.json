@@ -260,7 +260,7 @@
       "cta": "Essayez gratuitement pendant 30 jours",
       "learnMore": "Comment ça marche?",
       "noCard": "Aucune carte bancaire requise",
-      "socialProof": "Rejoint par {{count}}+ cabinets en Tunisie",
+      "socialProof": "Rejoint par {{count}}+ cabinets",
       "cabinetName": "Cabinet Dr. Mansour",
       "yourPosition": "Votre position dans la file",
       "estimatedWait": "Temps d'attente estimé",
@@ -268,8 +268,8 @@
       "yourTurn": "C'est votre tour !"
     },
     "beforeAfter": {
-      "beforeTitle": "Avant BleSaf",
-      "afterTitle": "Avec BleSaf",
+      "beforeTitle": "Avant {{brandName}}",
+      "afterTitle": "Avec {{brandName}}",
       "before1": "Salle d'attente bondée, patients frustrés",
       "before2": "Appels incessants : « C'est quand mon tour ? »",
       "before3": "Patients qui partent sans être vus",
@@ -289,7 +289,7 @@
       "step3Desc": "Les patients s'enregistrent seuls. Vous gérez tout depuis votre tableau de bord."
     },
     "benefits": {
-      "title": "Pourquoi choisir BleSaf?",
+      "title": "Pourquoi choisir {{brandName}}?",
       "card1Title": "Gagnez du temps",
       "card1Desc": "Plus de gestion manuelle. Les patients s'enregistrent seuls et suivent leur position en temps réel sur leur téléphone.",
       "card2Title": "Patients satisfaits",
@@ -298,7 +298,7 @@
       "card3Desc": "Tout est digital. Historique, statistiques et suivi complet sur votre tableau de bord."
     },
     "testimonial": {
-      "quote": "Depuis que nous utilisons BleSaf, notre salle d'attente est transformée. Les patients sont plus calmes et mon équipe moins stressée.",
+      "quote": "Depuis que nous utilisons {{brandName}}, notre salle d'attente est transformée. Les patients sont plus calmes et mon équipe moins stressée.",
       "author": "Dr. Mohamed Ben Ali",
       "role": "Médecin généraliste",
       "clinic": "Cabinet Médical Lac 2, Tunis"
@@ -319,7 +319,7 @@
       "trialNote": "Premier mois gratuit pour démarrer",
       "startTrial": "Commencer mon essai gratuit",
       "founderTitle": "Clinique Fondatrice — 50% à vie",
-      "founderSubtitle": "Les premières cliniques bénéficient d'un tarif fondateur permanent : 32,5 TND/mois au lieu de 65 TND.",
+      "founderSubtitle": "Les premières cliniques bénéficient d'un tarif fondateur permanent : {{founderPrice}} au lieu de {{monthlyPrice}}.",
       "founderNote": "Places limitées · Badge fondateur · Accès prioritaire aux nouvelles fonctionnalités"
     },
     "faq": {
@@ -334,8 +334,8 @@
       "a4": "Oui, sans engagement. Vous pouvez annuler à tout moment depuis votre compte.",
       "q5": "Est-ce que les données de mes patients sont sécurisées?",
       "a5": "Oui. Toutes les données sont chiffrées et hébergées sur des serveurs sécurisés. Nous ne partageons jamais vos informations.",
-      "q6": "Puis-je utiliser BleSaf avec plusieurs médecins?",
-      "a6": "Oui! BleSaf supporte plusieurs médecins dans le même cabinet, chacun avec sa propre file d'attente."
+      "q6": "Puis-je utiliser {{brandName}} avec plusieurs médecins?",
+      "a6": "Oui! {{brandName}} supporte plusieurs médecins dans le même cabinet, chacun avec sa propre file d'attente."
     },
     "cta": {
       "title": "Créez votre cabinet en 2 minutes",
@@ -348,6 +348,42 @@
       "terms": "Conditions",
       "contact": "Contact",
       "rights": "Tous droits réservés."
+    },
+    "mockup": {
+      "doctorName": "Rached Maalej",
+      "cabinetLabel": "Cabinet",
+      "langToggle": "عربي",
+      "addPatient": "Ajouter un Patient",
+      "register": "Enregistrer",
+      "queueLabel": "File d'attente",
+      "consultLabel": "En consultation",
+      "doctorPresent": "Docteur présent",
+      "emptyQueue": "La salle d'attente est vide",
+      "notified": "Notifié",
+      "patient1": "Maya",
+      "patient2": "Yasmine",
+      "patient3": "Hedi",
+      "patientBubble": "Patient satisfait",
+      "bubbleMessage": "Attente au café d'à côté",
+      "liveIndicator": "En direct",
+      "estimatedWait": "Attente estimée",
+      "leaveQueue": "Quitter le Saf",
+      "joinQueue": "Rejoignez le Saf",
+      "phonePlaceholder": "Téléphone *",
+      "namePlaceholder": "Votre nom",
+      "nameHint": "Comment vous appelez-vous?",
+      "submitCheckin": "Prendre ma place",
+      "privacyBadge": "Infos privées",
+      "trackingBadge": "Suivi en temps réel",
+      "patientHela": "Hela",
+      "inQueue": "{{name}}, vous êtes dans le Saf!",
+      "peopleAhead": "{{count}} personnes avant vous",
+      "gettingCloser": "{{name}}, vous approchez!",
+      "youAreNext": "{{name}}, vous êtes le prochain!",
+      "yourTurn": "C'EST VOTRE TOUR!",
+      "goToReception": "Présentez-vous à l'accueil",
+      "enterOffice": "Entrez dans le cabinet",
+      "doctorWaiting": "{{name}}, le docteur vous attend!"
     }
   },
   "signup": {
@@ -410,7 +446,12 @@
       "step1": "Imprimez l'affiche et placez-la à l'entrée",
       "step2": "Les patients scannent le code avec leur téléphone",
       "step3": "Ils suivent leur position en temps réel",
-      "printPoster": "Imprimer l'affiche"
+      "printPoster": "Imprimer l'affiche",
+      "posterTitle": "Scannez pour rejoindre la file",
+      "posterSubtitle": "Prenez votre place sans attendre",
+      "posterStep1": "Scannez ce QR code avec votre téléphone",
+      "posterStep2": "Entrez votre numéro",
+      "posterStep3": "Suivez votre position en temps réel"
     },
     "tutorial": {
       "title": "Vous êtes prêt!",
@@ -426,6 +467,7 @@
     "simulation": {
       "addTitle": "Ajoutons un patient test",
       "addSubtitle": "Découvrez comment fonctionne votre file d'attente",
+      "testPatientName": "Sami B.",
       "testPatientNote": "Patient fictif — pour la démonstration uniquement",
       "adding": "Ajout en cours...",
       "addToQueue": "Ajouter à la file",
@@ -438,7 +480,7 @@
       "callNext": "Appeler suivant",
       "calling": "Notification en cours...",
       "trackingLabel": "Suivi en temps réel",
-      "trackingText": "Sami B. peut suivre sa position en direct sur son téléphone. Il sait que c'est son tour.",
+      "trackingText": "{{patientName}} peut suivre sa position en direct sur son téléphone. Il sait que c'est son tour.",
       "bravoTitle": "Bravo !",
       "bravoSubtitle": "Vous venez de gérer votre première file d'attente numérique.",
       "trialBanner": "30 jours d'essai gratuit",
@@ -572,6 +614,7 @@
     "toggleOff": "Annonce"
   },
   "funFacts": {
+    "didYouKnow": "Le saviez-vous ?",
     "sectionTitle": "Expérience patient",
     "specialtyLabel": "Spécialité médicale",
     "specialtyPlaceholder": "Sélectionnez votre spécialité",

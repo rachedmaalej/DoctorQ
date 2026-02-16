@@ -63,7 +63,12 @@ app.use(cors({
   origin: corsOrigins,
   credentials: true,
 }));
-app.use(express.json());
+app.use(express.json({
+  verify: (req, _res, buf) => {
+    // Preserve raw body for Stripe webhook signature verification
+    (req as any).rawBody = buf;
+  },
+}));
 
 // HTTP security headers
 app.use(helmet({
@@ -129,6 +134,11 @@ app.get('/health', async (req, res) => {
     timestamp: new Date().toISOString(),
     checks,
   });
+});
+
+// Brand identity endpoint (used by frontend to detect brand mismatches in dev)
+app.get('/api/brand', (_req, res) => {
+  res.json({ brand: brand.id, country: brand.country });
 });
 
 // Seed endpoint (disabled in production, protected by JWT_SECRET)

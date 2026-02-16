@@ -3,7 +3,20 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/authStore';
 import { api } from '@/lib/api';
+import { webBrand } from '@/lib/brand';
 import Logo from '@/components/ui/Logo';
+
+// Dev credentials per brand
+const DEV_CREDS = {
+  blesaf: {
+    admin: { email: 'admin@doctorq.tn', password: 'BlesafAdmin2024!' },
+    clinic: { email: 'dr.skander@example.tn', password: 'password123' },
+  },
+  france: {
+    admin: { email: 'admin@filosoin.fr', password: 'FiloSoinAdmin2024!' },
+    clinic: { email: 'dr.perrin@example.fr', password: 'password123' },
+  },
+} as const;
 
 export default function LoginPage() {
   const { t } = useTranslation();
@@ -66,8 +79,9 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => {
-                    setEmail('admin@doctorq.tn');
-                    setPassword('BlesafAdmin2024!');
+                    const creds = DEV_CREDS[webBrand.id] || DEV_CREDS.blesaf;
+                    setEmail(creds.admin.email);
+                    setPassword(creds.admin.password);
                   }}
                   className="flex-1 text-xs bg-yellow-100 hover:bg-yellow-200 text-yellow-800 py-1.5 px-2 rounded transition-colors"
                 >
@@ -76,8 +90,9 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => {
-                    setEmail('dr.skander@example.tn');
-                    setPassword('password123');
+                    const creds = DEV_CREDS[webBrand.id] || DEV_CREDS.blesaf;
+                    setEmail(creds.clinic.email);
+                    setPassword(creds.clinic.password);
                   }}
                   className="flex-1 text-xs bg-yellow-100 hover:bg-yellow-200 text-yellow-800 py-1.5 px-2 rounded transition-colors"
                 >

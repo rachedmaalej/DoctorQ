@@ -119,7 +119,7 @@ export async function createSubscriptionCheckout(
     lastName: clinic.doctorName?.split(' ').slice(1).join(' '),
     email: clinic.email,
     phone: clinic.phone ?? undefined,
-    webhookUrl: `${baseUrl}/api/webhooks/subscription`,
+    webhookUrl: `${baseUrl}/api/subscription/webhooks/subscription`,
     successUrl: `${baseUrl}/subscription/success?ref=${orderId}`,
     failUrl: `${baseUrl}/subscription/failed?ref=${orderId}`,
   });
@@ -145,7 +145,7 @@ export async function createSubscriptionCheckout(
  * Process subscription payment webhook
  */
 export async function processSubscriptionPayment(paymentRef: string): Promise<void> {
-  // Get payment details from Konnect
+  // Get payment details from payment gateway
   const paymentDetails = await getPaymentDetails(paymentRef);
 
   if (paymentDetails.payment.status !== 'completed') {

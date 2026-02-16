@@ -59,6 +59,48 @@ router.post('/webhooks/subscription', async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * POST /api/subscription/webhooks/stripe
+ * Stripe webhook for subscription payments (France)
+ * Verifies signature, then processes checkout.session.completed events.
+ */
+router.post('/webhooks/stripe', async (req: Request, res: Response) => {
+  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  if (!endpointSecret) {
+    logger.error('STRIPE_WEBHOOK_SECRET not configured');
+    return res.status(500).json({ error: 'Webhook not configured' });
+  }
+
+  const sig = req.headers['stripe-signature'] as string | undefined;
+  if (!sig) {
+    return res.status(400).json({ error: 'Missing stripe-signature header' });
+  }
+
+  try {
+    const { default: Stripe } = await import('stripe');
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+
+    const rawBody = (req as any).rawBody as Buffer;
+    const event = stripe.webhooks.constructEvent(rawBody, sig, endpointSecret);
+
+    logger.info({ type: event.type, id: event.id }, 'Stripe webhook received');
+
+    if (event.type === 'checkout.session.completed') {
+      const session = event.data.object;
+      // session.id is our paymentRef (stored when creating the checkout)
+      await processSubscriptionPayment(session.id);
+      logger.info({ sessionId: session.id }, 'Stripe checkout session processed');
+    }
+
+    // Return 200 for all events (Stripe retries on non-2xx)
+    res.json({ received: true });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    logger.error({ err: error }, 'Stripe webhook verification failed');
+    res.status(400).json({ error: `Webhook Error: ${message}` });
+  }
+});
+
 // ─── Public Routes (Pricing) ─────────────────────────────────
 
 /**

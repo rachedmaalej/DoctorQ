@@ -22,22 +22,23 @@
     "hero": {
       "socialProof": "Rejoint par {{count}}+ cabinets en France"
     },
-    "beforeAfter": {
-      "beforeTitle": "Avant FiloSoin",
-      "afterTitle": "Avec FiloSoin"
-    },
-    "benefits": {
-      "title": "Pourquoi choisir FiloSoin?"
-    },
     "testimonial": {
-      "quote": "Depuis que nous utilisons FiloSoin, notre salle d'attente est transformée. Les patients sont plus calmes et mon équipe moins stressée.",
       "author": "Dr. Sophie Martin",
       "role": "Médecin généraliste",
       "clinic": "Cabinet Médical Rivoli, Paris"
     },
-    "faq": {
-      "q6": "Puis-je utiliser FiloSoin avec plusieurs médecins?",
-      "a6": "Oui! FiloSoin supporte plusieurs médecins dans le même cabinet, chacun avec sa propre file d'attente."
+    "mockup": {
+      "doctorName": "Sophie Martin",
+      "langToggle": "",
+      "patient1": "Camille",
+      "patient2": "Léa",
+      "patient3": "Lucas",
+      "leaveQueue": "Quitter la file",
+      "joinQueue": "Rejoignez la file",
+      "patientHela": "Camille",
+      "inQueue": "{{name}}, vous êtes dans la file!",
+      "gettingCloser": "{{name}}, vous approchez!",
+      "youAreNext": "{{name}}, vous êtes le prochain!"
     }
   },
   "signup": {
@@ -48,6 +49,9 @@
     "clinic": {
       "clinicNamePlaceholder": "Ex: Cabinet Dr. Martin",
       "doctorNamePlaceholder": "Ex: Dr. Sophie Martin"
+    },
+    "simulation": {
+      "testPatientName": "Camille L."
     }
   },
   "legal": {

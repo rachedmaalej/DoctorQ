@@ -67,6 +67,24 @@ export default {
       fontFamily: {
         sans: ['IBM Plex Sans', 'system-ui', 'sans-serif'],
         arabic: ['IBM Plex Sans Arabic', 'system-ui', 'sans-serif'],
+        outfit: ['Outfit', 'system-ui', 'sans-serif'],
+        playfair: ['Playfair Display', 'Georgia', 'serif'],
+        dm: ['DM Sans', 'system-ui', 'sans-serif'],
+        fraunces: ['Fraunces', 'Georgia', 'serif'],
+      },
+      keyframes: {
+        fadeInUp: {
+          from: { opacity: '0', transform: 'translateY(8px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
+        slideInDown: {
+          from: { opacity: '0', transform: 'translateY(-8px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
+      },
+      animation: {
+        'fade-in-up': 'fadeInUp 300ms ease-out both',
+        'slide-in-down': 'slideInDown 200ms ease-out both',
       },
     },
   },

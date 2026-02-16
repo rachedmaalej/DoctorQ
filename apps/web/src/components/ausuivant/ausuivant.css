@@ -1,0 +1,179 @@
+/* AuSuivant Design System — scoped to .as-dashboard */
+
+.as-dashboard {
+  /* Color Tokens */
+  --bg: #F7F6F3;
+  --surface: #FFFFFF;
+  --surface-alt: #F0EFEC;
+  --border: #E4E2DD;
+  --border-light: #ECEAE5;
+  --text-primary: #1A1A1A;
+  --text-secondary: #6B6560;
+  --text-tertiary: #9C9690;
+  --accent: #1B6B4A;
+  --accent-light: #E8F5EE;
+  --accent-hover: #15553B;
+  --warning: #C4841D;
+  --warning-light: #FFF8EC;
+  --danger: #C0392B;
+  --danger-light: #FDEEEC;
+  --blue: #2C5F8A;
+  --blue-light: #EDF3F8;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 2px 8px rgba(0,0,0,0.06);
+  --shadow-lg: 0 4px 20px rgba(0,0,0,0.08);
+
+  /* Radii */
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-lg: 16px;
+
+  /* Base */
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+  font-family: 'DM Sans', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text-primary);
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+.as-dashboard *, .as-dashboard *::before, .as-dashboard *::after {
+  box-sizing: border-box;
+}
+
+/* ─── Animations ─── */
+
+@keyframes as-fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes as-pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+@keyframes as-hint-fade {
+  0% { opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes as-hint-slide {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(-6px); }
+}
+
+@keyframes as-successPop {
+  0% { transform: scale(0.5); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Staggered fade-up utility classes */
+.as-fade-up { animation: as-fadeUp 0.4s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.as-fade-up-1 { animation-delay: 0s; }
+.as-fade-up-2 { animation-delay: 0.05s; }
+.as-fade-up-3 { animation-delay: 0.1s; }
+.as-fade-up-4 { animation-delay: 0.15s; }
+.as-fade-up-5 { animation-delay: 0.2s; }
+.as-fade-up-6 { animation-delay: 0.25s; }
+.as-fade-up-7 { animation-delay: 0.3s; }
+.as-fade-up-8 { animation-delay: 0.35s; }
+
+/* Queue card stagger (0.35s duration) */
+.as-fade-up-card { animation: as-fadeUp 0.35s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+/* Pulse dots */
+.as-pulse-session { animation: as-pulse-dot 2s ease-in-out infinite; }
+.as-pulse-consultation { animation: as-pulse-dot 1.5s ease-in-out infinite; }
+
+/* Swipe hint */
+.as-swipe-hint {
+  animation: as-hint-fade 4s ease-in-out 2s forwards;
+}
+.as-swipe-hint-arrow {
+  animation: as-hint-slide 1.5s ease-in-out infinite;
+}
+
+/* Success pop */
+.as-success-pop {
+  animation: as-successPop 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Shared transition curve */
+.as-spring {
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ─── Form Inputs ─── */
+
+.as-dashboard input,
+.as-dashboard textarea {
+  font-family: 'DM Sans', -apple-system, sans-serif;
+  font-size: 15px;
+  color: var(--text-primary);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 13px 14px;
+  width: 100%;
+  outline: none;
+  background: var(--surface);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.as-dashboard input::placeholder,
+.as-dashboard textarea::placeholder {
+  color: var(--text-tertiary);
+}
+
+.as-dashboard input:focus,
+.as-dashboard textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(27, 107, 74, 0.08);
+}
+
+/* ─── Toggle Switch ─── */
+
+.as-toggle {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.as-toggle[aria-checked="true"] {
+  background-color: var(--accent);
+}
+
+.as-toggle[aria-checked="false"] {
+  background-color: var(--border);
+}
+
+.as-toggle-knob {
+  position: absolute;
+  top: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  transition: left 0.2s ease;
+}
+
+.as-toggle[aria-checked="true"] .as-toggle-knob {
+  left: 23px;
+}
+
+.as-toggle[aria-checked="false"] .as-toggle-knob {
+  left: 3px;
+}

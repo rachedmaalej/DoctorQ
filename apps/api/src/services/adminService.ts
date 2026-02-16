@@ -1191,6 +1191,7 @@ export async function getRecentActivity(limit = 20): Promise<ActivityItem[]> {
     payment_success: (name, amount) => `${name} subscribed${amount ? ` (${(amount / brand.currency.multiplier).toFixed(0)} ${brand.currency.symbol})` : ''}`,
     payment_failed: (name) => `Payment failed for ${name}`,
     payment_initiated: (name) => `${name} initiated a payment`,
+    subscription_activated: (name) => `${name}'s subscription activated`,
     subscription_expired: (name) => `${name}'s subscription expired`,
     subscription_cancelled: (name) => `${name} cancelled their subscription`,
   };
