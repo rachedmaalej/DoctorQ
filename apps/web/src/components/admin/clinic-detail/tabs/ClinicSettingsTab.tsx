@@ -135,7 +135,9 @@ export default function ClinicSettingsTab({ detail, onRefresh, onResetPassword }
             {editing ? (
               <select value={form.language} onChange={(e) => setForm({ ...form, language: e.target.value })} className={`${inputClass} bg-white`}>
                 <option value="fr">Francais</option>
-                <option value="ar">العربية</option>
+                {webBrand.supportedLanguages.includes('ar') && (
+                  <option value="ar">العربية</option>
+                )}
               </select>
             ) : (
               <p className="text-sm text-[#132E2C] font-medium">{clinic.language === 'ar' ? 'Arabic' : 'French'}</p>

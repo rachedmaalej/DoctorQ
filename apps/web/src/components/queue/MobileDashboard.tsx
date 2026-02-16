@@ -4,6 +4,7 @@ import type { QueueEntry, QueueStats } from '@/types';
 import { QueueStatus } from '@/types';
 import { useAuthStore } from '@/stores/authStore';
 import { useUILabels } from '@/hooks/useUILabels';
+import { webBrand } from '@/lib/brand';
 import Logo from '@/components/ui/Logo';
 import { formatTime, getWaitingMinutes } from '@/lib/time';
 
@@ -140,13 +141,15 @@ export default function MobileDashboard({
 
           {/* Right: Language toggle and logout */}
           <div className="flex items-center gap-1">
-            <button
-              onClick={toggleLanguage}
-              className="px-2 py-1.5 text-xs text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-              aria-label={i18n.language === 'fr' ? 'Switch to Arabic' : 'Basculer vers le français'}
-            >
-              {i18n.language === 'fr' ? 'عربي' : 'FR'}
-            </button>
+            {webBrand.supportedLanguages.length > 1 && (
+              <button
+                onClick={toggleLanguage}
+                className="px-2 py-1.5 text-xs text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                aria-label={i18n.language === 'fr' ? 'Switch to Arabic' : 'Basculer vers le français'}
+              >
+                {i18n.language === 'fr' ? 'عربي' : 'FR'}
+              </button>
+            )}
             <button
               onClick={handleLogout}
               className="p-1.5 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors"

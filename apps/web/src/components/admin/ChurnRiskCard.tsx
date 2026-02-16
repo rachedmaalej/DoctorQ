@@ -45,7 +45,7 @@ export default function ChurnRiskCard({ clinics }: ChurnRiskCardProps) {
                   <div
                     key={clinic.id}
                     className="flex items-center justify-between py-2 border-b border-[#E6F2F0] last:border-b-0 cursor-pointer hover:bg-[#F3FAF9] transition-colors"
-                    onClick={() => navigate(`/admin/clinic/${clinic.id}`)}
+                    onClick={() => navigate(`/admin/clinics/${clinic.id}`)}
                   >
                     <div className="min-w-0">
                       <p className="text-sm font-medium text-[#132E2C] truncate">{clinic.name}</p>
@@ -55,7 +55,7 @@ export default function ChurnRiskCard({ clinics }: ChurnRiskCardProps) {
                     </div>
                     <button
                       className="ml-2 px-2 py-1 text-xs text-[#E15720] border border-[#E15720] rounded hover:bg-[#E15720] hover:text-white transition-colors"
-                      onClick={(e) => { e.stopPropagation(); navigate(`/admin/clinic/${clinic.id}`); }}
+                      onClick={(e) => { e.stopPropagation(); navigate(`/admin/clinics/${clinic.id}`); }}
                     >
                       View
                     </button>
@@ -78,7 +78,7 @@ export default function ChurnRiskCard({ clinics }: ChurnRiskCardProps) {
                   <div
                     key={clinic.id}
                     className="flex items-center justify-between py-2 border-b border-[#E6F2F0] last:border-b-0 cursor-pointer hover:bg-[#F3FAF9] transition-colors"
-                    onClick={() => navigate(`/admin/clinic/${clinic.id}`)}
+                    onClick={() => navigate(`/admin/clinics/${clinic.id}`)}
                   >
                     <div className="min-w-0">
                       <p className="text-sm font-medium text-[#132E2C] truncate">{clinic.name}</p>

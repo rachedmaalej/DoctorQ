@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { webBrand } from '@/lib/brand';
 
 interface LanguageSwitcherProps {
   className?: string;
@@ -6,6 +7,9 @@ interface LanguageSwitcherProps {
 
 export default function LanguageSwitcher({ className = '' }: LanguageSwitcherProps) {
   const { i18n } = useTranslation();
+
+  // Hide when brand only supports one language (e.g. FiloSoin = fr only)
+  if (webBrand.supportedLanguages.length < 2) return null;
 
   const toggleLanguage = () => {
     const newLang = i18n.language === 'fr' ? 'ar' : 'fr';

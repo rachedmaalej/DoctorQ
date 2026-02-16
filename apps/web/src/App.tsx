@@ -1,5 +1,5 @@
 import { useEffect, lazy, Suspense } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { useAuthStore } from './stores/authStore';
 
 // Lazy load pages for code splitting - reduces initial bundle by ~40%
@@ -15,7 +15,9 @@ const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage'));
 const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage'));
 const SettingsPage = lazy(() => import('./pages/SettingsPage'));
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
-const ClinicDetailPage = lazy(() => import('./pages/admin/ClinicDetailPage'));
+// Legacy ClinicDetailPage no longer used — /admin/clinic/:id redirects to /admin/clinics/:id
+const ClinicsDirectoryPage = lazy(() => import('./pages/admin/clinics/ClinicsDirectoryPage'));
+const ClinicsClinicDetailPage = lazy(() => import('./pages/admin/clinics/ClinicDetailPage'));
 const LandingPage = lazy(() => import('./pages/LandingPage'));
 const TermsPage = lazy(() => import('./pages/TermsPage'));
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
@@ -28,6 +30,11 @@ function PageLoader() {
       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
     </div>
   );
+}
+
+function LegacyClinicRedirect() {
+  const { clinicId } = useParams();
+  return <Navigate to={`/admin/clinics/${clinicId}`} replace />;
 }
 
 function App() {
@@ -92,8 +99,17 @@ function App() {
           element={isAuthenticated ? <AdminDashboard /> : <Navigate to="/login" />}
         />
         <Route
+          path="/admin/clinics"
+          element={isAuthenticated ? <ClinicsDirectoryPage /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/admin/clinics/:clinicId"
+          element={isAuthenticated ? <ClinicsClinicDetailPage /> : <Navigate to="/login" />}
+        />
+        {/* Legacy route → redirect to new path */}
+        <Route
           path="/admin/clinic/:clinicId"
-          element={isAuthenticated ? <ClinicDetailPage /> : <Navigate to="/login" />}
+          element={<LegacyClinicRedirect />}
         />
       </Routes>
     </Suspense>

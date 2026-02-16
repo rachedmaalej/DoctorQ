@@ -207,7 +207,7 @@ export default function ClinicsTab() {
                   <td className="px-4 py-3 whitespace-nowrap">
                     <div
                       className="cursor-pointer"
-                      onClick={() => navigate(`/admin/clinic/${clinic.id}`)}
+                      onClick={() => navigate(`/admin/clinics/${clinic.id}`)}
                     >
                       <div className="flex items-center gap-2">
                         <span className={`text-sm font-medium hover:underline ${clinic.isActive ? 'text-[#267B75]' : 'text-[#8AADAA]'}`}>{clinic.name}</span>
@@ -259,7 +259,7 @@ export default function ClinicsTab() {
                         </button>
                       )}
                       <button
-                        onClick={() => navigate(`/admin/clinic/${clinic.id}`)}
+                        onClick={() => navigate(`/admin/clinics/${clinic.id}`)}
                         className="px-2 py-1 text-xs text-[#4E7572] border border-[#E6F2F0] rounded hover:bg-[#F3FAF9] transition-colors"
                       >
                         View

@@ -155,7 +155,9 @@ export default function CreateClinicModal({ isOpen, onClose, onCreated }: Create
                   <label className="block text-sm font-medium text-[#4E7572] mb-1">Language</label>
                   <select value={language} onChange={(e) => setLanguage(e.target.value)} className={`${inputClass} bg-white`}>
                     <option value="fr">Francais</option>
-                    <option value="ar">العربية</option>
+                    {webBrand.supportedLanguages.includes('ar') && (
+                      <option value="ar">العربية</option>
+                    )}
                   </select>
                 </div>
                 <div>
