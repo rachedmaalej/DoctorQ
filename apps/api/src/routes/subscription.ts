@@ -6,22 +6,22 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { authMiddleware } from '../lib/auth.js';
+import { brand } from '../lib/brand.js';
 import { AuthRequest } from '../types/index.js';
 import {
   getSubscriptionStatus,
   createSubscriptionCheckout,
-  createSmsPackageCheckout,
-  getSmsBalance,
   getPaymentHistory,
   processSubscriptionPayment,
-  processSmsPackagePayment,
   PRICING,
-  SMS_PACKAGES,
 } from '../services/subscriptionService.js';
 import {
   updateOnboardingStep,
   getOnboardingStatus,
 } from '../services/signupService.js';
+import { logger } from '../lib/logger.js';
+import { sendFirstMorningEmail } from '../lib/email.js';
+import { prisma } from '../lib/prisma.js';
 
 const router = Router();
 
@@ -29,10 +29,6 @@ const router = Router();
 
 const checkoutSchema = z.object({
   plan: z.enum(['MONTHLY', 'YEARLY']),
-});
-
-const smsPackageSchema = z.object({
-  package: z.enum(['starter', 'standard', 'pro']),
 });
 
 const onboardingStepSchema = z.object({
@@ -58,29 +54,50 @@ router.post('/webhooks/subscription', async (req: Request, res: Response) => {
 
     res.json({ success: true });
   } catch (error) {
-    console.error('Subscription webhook error:', error);
+    logger.error({ err: error }, "Subscription webhook error");
     res.status(500).json({ error: 'Webhook processing failed' });
   }
 });
 
 /**
- * POST /api/subscription/webhooks/sms-package
- * Konnect webhook for SMS package payments
+ * POST /api/subscription/webhooks/stripe
+ * Stripe webhook for subscription payments (France)
+ * Verifies signature, then processes checkout.session.completed events.
  */
-router.post('/webhooks/sms-package', async (req: Request, res: Response) => {
-  try {
-    const { payment_ref } = req.body;
+router.post('/webhooks/stripe', async (req: Request, res: Response) => {
+  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  if (!endpointSecret) {
+    logger.error('STRIPE_WEBHOOK_SECRET not configured');
+    return res.status(500).json({ error: 'Webhook not configured' });
+  }
 
-    if (!payment_ref) {
-      return res.status(400).json({ error: 'Missing payment_ref' });
+  const sig = req.headers['stripe-signature'] as string | undefined;
+  if (!sig) {
+    return res.status(400).json({ error: 'Missing stripe-signature header' });
+  }
+
+  try {
+    const { default: Stripe } = await import('stripe');
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+
+    const rawBody = (req as any).rawBody as Buffer;
+    const event = stripe.webhooks.constructEvent(rawBody, sig, endpointSecret);
+
+    logger.info({ type: event.type, id: event.id }, 'Stripe webhook received');
+
+    if (event.type === 'checkout.session.completed') {
+      const session = event.data.object;
+      // session.id is our paymentRef (stored when creating the checkout)
+      await processSubscriptionPayment(session.id);
+      logger.info({ sessionId: session.id }, 'Stripe checkout session processed');
     }
 
-    await processSmsPackagePayment(payment_ref);
-
-    res.json({ success: true });
+    // Return 200 for all events (Stripe retries on non-2xx)
+    res.json({ received: true });
   } catch (error) {
-    console.error('SMS package webhook error:', error);
-    res.status(500).json({ error: 'Webhook processing failed' });
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    logger.error({ err: error }, 'Stripe webhook verification failed');
+    res.status(400).json({ error: `Webhook Error: ${message}` });
   }
 });
 
@@ -96,35 +113,19 @@ router.get('/pricing', (req: Request, res: Response) => {
       subscription: {
         monthly: {
           amount: PRICING.MONTHLY,
-          amountTND: PRICING.MONTHLY / 1000,
+          amountDisplay: PRICING.MONTHLY / brand.currency.multiplier,
+          currency: brand.currency.symbol,
           description: 'Monthly subscription',
         },
         yearly: {
           amount: PRICING.YEARLY,
-          amountTND: PRICING.YEARLY / 1000,
+          amountDisplay: PRICING.YEARLY / brand.currency.multiplier,
+          currency: brand.currency.symbol,
           description: 'Yearly subscription (2 months free)',
-          savings: (PRICING.MONTHLY * 12 - PRICING.YEARLY) / 1000,
+          savings: (PRICING.MONTHLY * 12 - PRICING.YEARLY) / brand.currency.multiplier,
         },
       },
-      smsPackages: {
-        starter: {
-          ...SMS_PACKAGES.starter,
-          amountTND: SMS_PACKAGES.starter.amount / 1000,
-          perSms: SMS_PACKAGES.starter.amount / SMS_PACKAGES.starter.credits / 1000,
-        },
-        standard: {
-          ...SMS_PACKAGES.standard,
-          amountTND: SMS_PACKAGES.standard.amount / 1000,
-          perSms: SMS_PACKAGES.standard.amount / SMS_PACKAGES.standard.credits / 1000,
-        },
-        pro: {
-          ...SMS_PACKAGES.pro,
-          amountTND: SMS_PACKAGES.pro.amount / 1000,
-          perSms: SMS_PACKAGES.pro.amount / SMS_PACKAGES.pro.credits / 1000,
-        },
-      },
-      trialDays: 30,
-      freeSmsTrial: 50,
+      trialDays: brand.pricing.freeTrialDays,
     },
   });
 });
@@ -141,7 +142,7 @@ router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {
 
     res.json({ data: status });
   } catch (error) {
-    console.error('Get subscription error:', error);
+    logger.error({ err: error }, "Get subscription error");
     res.status(500).json({
       error: {
         code: 'SERVER_ERROR',
@@ -181,67 +182,7 @@ router.post('/checkout', authMiddleware, async (req: AuthRequest, res: Response)
       });
     }
 
-    console.error('Checkout error:', error);
-    res.status(500).json({
-      error: {
-        code: 'SERVER_ERROR',
-        message: 'Failed to create checkout session',
-      },
-    });
-  }
-});
-
-/**
- * GET /api/subscription/sms
- * Get SMS credit balance
- */
-router.get('/sms', authMiddleware, async (req: AuthRequest, res: Response) => {
-  try {
-    const balance = await getSmsBalance(req.clinic!.id);
-
-    res.json({ data: balance });
-  } catch (error) {
-    console.error('Get SMS balance error:', error);
-    res.status(500).json({
-      error: {
-        code: 'SERVER_ERROR',
-        message: 'Failed to get SMS balance',
-      },
-    });
-  }
-});
-
-/**
- * POST /api/subscription/sms/checkout
- * Create checkout session for SMS package
- */
-router.post('/sms/checkout', authMiddleware, async (req: AuthRequest, res: Response) => {
-  try {
-    const { package: packageName } = smsPackageSchema.parse(req.body);
-
-    // Get base URL from request or env
-    const baseUrl = process.env.FRONTEND_URL || `${req.protocol}://${req.get('host')}`;
-
-    const result = await createSmsPackageCheckout(req.clinic!.id, packageName, baseUrl);
-
-    res.json({
-      data: {
-        payUrl: result.payUrl,
-        paymentRef: result.paymentRef,
-      },
-    });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({
-        error: {
-          code: 'VALIDATION_ERROR',
-          message: 'Invalid request data',
-          details: error.errors,
-        },
-      });
-    }
-
-    console.error('SMS checkout error:', error);
+    logger.error({ err: error }, "Checkout error");
     res.status(500).json({
       error: {
         code: 'SERVER_ERROR',
@@ -261,7 +202,7 @@ router.get('/history', authMiddleware, async (req: AuthRequest, res: Response) =
 
     res.json({ data: history });
   } catch (error) {
-    console.error('Get payment history error:', error);
+    logger.error({ err: error }, "Get payment history error");
     res.status(500).json({
       error: {
         code: 'SERVER_ERROR',
@@ -283,7 +224,7 @@ router.get('/onboarding', authMiddleware, async (req: AuthRequest, res: Response
 
     res.json({ data: status });
   } catch (error) {
-    console.error('Get onboarding status error:', error);
+    logger.error({ err: error }, "Get onboarding status error");
     res.status(500).json({
       error: {
         code: 'SERVER_ERROR',
@@ -303,6 +244,21 @@ router.post('/onboarding', authMiddleware, async (req: AuthRequest, res: Respons
 
     await updateOnboardingStep(req.clinic!.id, step, completed);
 
+    // Send "first morning" email when onboarding is completed
+    if (completed) {
+      const clinic = await prisma.clinic.findUnique({
+        where: { id: req.clinic!.id },
+        select: { email: true, doctorName: true, language: true },
+      });
+      if (clinic?.email) {
+        sendFirstMorningEmail(
+          clinic.email,
+          clinic.doctorName || 'Docteur',
+          (clinic.language as 'fr' | 'ar') || 'fr'
+        ).catch(err => logger.error({ err }, 'Failed to send first morning email'));
+      }
+    }
+
     res.json({
       data: {
         message: 'Onboarding progress updated',
@@ -321,7 +277,7 @@ router.post('/onboarding', authMiddleware, async (req: AuthRequest, res: Respons
       });
     }
 
-    console.error('Update onboarding error:', error);
+    logger.error({ err: error }, "Update onboarding error");
     res.status(500).json({
       error: {
         code: 'SERVER_ERROR',

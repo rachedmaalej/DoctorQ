@@ -155,7 +155,7 @@ export default function ClinicDetailPage() {
   }
 
   return (
-    <div className="h-screen overflow-y-auto bg-[#FDFFFF] [&::-webkit-scrollbar]:hidden" style={{ fontFamily: "'Inter', sans-serif", scrollbarWidth: 'none' }}>
+    <div className="h-screen overflow-y-auto bg-[#FDFFFF] no-scrollbar" style={{ fontFamily: "'Inter', sans-serif" }}>
       <ClinicDetailHeader
         clinic={detail.clinic}
         actionLoading={actionLoading}

@@ -82,7 +82,12 @@
     "doctorArrived": "Le docteur est arrivé",
     "waitingForDoctor": "En attente du docteur",
     "fillQueue": "Remplir (Démo)",
-    "fillingQueue": "Remplissage..."
+    "fillingQueue": "Remplissage...",
+    "avgWaitShort": "Attente moy",
+    "nextEstimate": "Prochain",
+    "endEstimate": "Fin estimée",
+    "priority": "Priorité",
+    "remove": "Retirer"
   },
   "patient": {
     "hello": "Bonjour",
@@ -132,7 +137,9 @@
     "yourTurnNow": "C'EST VOTRE TOUR!",
     "yourTurnNowNamed": "{{name}}, C'EST VOTRE TOUR!",
     "doctorWaiting": "Le docteur vous attend!",
+    "doctorWaiting_female": "La docteure vous attend!",
     "doctorWaitingNamed": "{{name}}, le docteur vous attend!",
+    "doctorWaitingNamed_female": "{{name}}, la docteure vous attend!",
     "enterOffice": "Entrez dans le cabinet",
     "enterOfficeNamed": "{{name}}, entrez dans le cabinet",
     "thankYou": "Merci pour votre visite!",
@@ -141,6 +148,7 @@
     "consultationCompleteNamed": "{{name}}, votre consultation est terminée. À bientôt!",
     "waitingInQueue": "Votre progression",
     "autoRefresh": "Cette page se met à jour automatiquement",
+    "liveIndicator": "En direct",
     "cancelled": "Votre rendez-vous a été annulé",
     "cancelledNamed": "{{name}}, votre rendez-vous a été annulé",
     "noShow": "Vous avez été marqué absent",
@@ -157,8 +165,25 @@
     "yourAppointment": "Votre rendez-vous",
     "doctorNotYetArrived": "Le médecin n'est pas encore arrivé",
     "doctorAbsent": "{{doctorName}} est absent. Il sera de retour prochainement",
+    "doctorAbsent_female": "{{doctorName}} est absente. Elle sera de retour prochainement",
     "movedUpOne": "Vous avez avancé d'une place!",
-    "movedUpMultiple": "Vous avez avancé de {{count}} places!"
+    "movedUpMultiple": "Vous avez avancé de {{count}} places!",
+    "timeline": {
+      "checkedIn": "Enregistré",
+      "waiting": "En attente",
+      "almostThere": "Bientôt votre tour",
+      "yourTurn": "C'est votre tour",
+      "done": "Terminé",
+      "waitingDesc": "Position #{{position}} dans le saf",
+      "almostDesc": "Préparez-vous à vous rapprocher",
+      "yourTurnDesc": "Dirigez-vous vers la salle",
+      "peopleAhead": "Personnes devant vous",
+      "avgConsultation": "Durée moy. consultation",
+      "tipCoffee": "Vous avez le temps pour un café",
+      "tipStayClose": "Restez à proximité du cabinet",
+      "tipGetReady": "Tenez-vous prêt, vous allez être appelé d'un moment à l'autre!",
+      "tipEnter": "Dirigez-vous vers la salle de consultation"
+    }
   },
   "checkin": {
     "title": "Rejoignez le Saf",
@@ -228,45 +253,55 @@
       "signup": "Essai gratuit"
     },
     "hero": {
-      "title": "Fini les salles d'attente bondées",
-      "subtitle": "Vos patients savent exactement quand c'est leur tour. Ils attendent où ils veulent.",
+      "title": "Transformez votre salle d'attente. Détendez vos patients.",
+      "titleLine1": "Transformez votre salle d'attente.",
+      "titleLine2": "Détendez vos patients.",
+      "subtitle": "Vos patients suivent leur position en temps réel et attendent où ils veulent. Fini le stress, les plaintes et les départs impatients.",
       "cta": "Essayez gratuitement pendant 30 jours",
       "learnMore": "Comment ça marche?",
-      "noCard": "Aucune carte bancaire requise"
+      "noCard": "Aucune carte bancaire requise",
+      "socialProof": "Rejoint par {{count}}+ cabinets",
+      "cabinetName": "Cabinet Dr. Mansour",
+      "yourPosition": "Votre position dans la file",
+      "estimatedWait": "Temps d'attente estimé",
+      "liveUpdate": "Mise à jour en temps réel",
+      "yourTurn": "C'est votre tour !"
     },
-    "problem": {
-      "title": "Le problème que vous connaissez bien",
-      "item1Title": "Patients frustrés",
-      "item1Desc": "Des heures d'attente sans visibilité sur leur tour",
-      "item2Title": "Salle d'attente surchargée",
-      "item2Desc": "Trop de monde, pas assez de place, ambiance tendue",
-      "item3Title": "Patients qui partent",
-      "item3Desc": "Lassés d'attendre, ils quittent sans être vus",
-      "item4Title": "Stress pour tous",
-      "item4Desc": "Équipe débordée, patients mécontents"
-    },
-    "solution": {
-      "title": "La solution BleSaf",
-      "subtitle": "Transformez l'expérience de vos patients en 4 étapes simples",
-      "step1Title": "Scan rapide",
-      "step1Desc": "Le patient scanne le QR code à son arrivée",
-      "step2Title": "Suivi en temps réel",
-      "step2Desc": "Il voit sa position sur son téléphone",
-      "step3Title": "Notification SMS",
-      "step3Desc": "Il reçoit un SMS quand c'est bientôt son tour",
-      "step4Title": "Attente libre",
-      "step4Desc": "Il attend au café, dans sa voiture, ou chez lui"
+    "beforeAfter": {
+      "beforeTitle": "Avant {{brandName}}",
+      "afterTitle": "Avec {{brandName}}",
+      "before1": "Salle d'attente bondée, patients frustrés",
+      "before2": "Appels incessants : « C'est quand mon tour ? »",
+      "before3": "Patients qui partent sans être vus",
+      "before4": "Risque de contamination dans une salle bondée",
+      "after1": "Salle calme, patients informés en temps réel",
+      "after2": "Notifications en temps réel, zéro appels",
+      "after3": "Les patients attendent où ils veulent",
+      "after4": "Patients en sécurité, attente à distance"
     },
     "howItWorks": {
       "title": "Comment ça marche?",
-      "step1Title": "Affichez le QR code",
-      "step1Desc": "Placez le QR code BleSaf dans votre salle d'attente. C'est tout!",
-      "step2Title": "Le patient s'enregistre",
-      "step2Desc": "En 5 secondes, il scanne le code et entre son numéro de téléphone.",
-      "step3Title": "Il suit sa position",
-      "step3Desc": "Sur son téléphone, il voit en temps réel sa place dans la file et l'attente estimée.",
-      "step4Title": "Il reçoit un SMS",
-      "step4Desc": "Quand c'est bientôt son tour, il reçoit automatiquement un SMS pour se présenter."
+      "step1Title": "Inscrivez-vous",
+      "step1Desc": "Créez votre compte en 2 minutes. C'est gratuit pendant 30 jours.",
+      "step2Title": "Partagez le QR code",
+      "step2Desc": "Imprimez-le et affichez-le dans votre salle d'attente.",
+      "step3Title": "Gérez votre file",
+      "step3Desc": "Les patients s'enregistrent seuls. Vous gérez tout depuis votre tableau de bord."
+    },
+    "benefits": {
+      "title": "Pourquoi choisir {{brandName}}?",
+      "card1Title": "Gagnez du temps",
+      "card1Desc": "Plus de gestion manuelle. Les patients s'enregistrent seuls et suivent leur position en temps réel sur leur téléphone.",
+      "card2Title": "Patients satisfaits",
+      "card2Desc": "Vos patients évitent la foule et les risques de contamination. Ils suivent leur tour depuis le café, leur voiture ou chez eux.",
+      "card3Title": "Zéro papier",
+      "card3Desc": "Tout est digital. Historique, statistiques et suivi complet sur votre tableau de bord."
+    },
+    "testimonial": {
+      "quote": "Depuis que nous utilisons {{brandName}}, notre salle d'attente est transformée. Les patients sont plus calmes et mon équipe moins stressée.",
+      "author": "Dr. Mohamed Ben Ali",
+      "role": "Médecin généraliste",
+      "clinic": "Cabinet Médical Lac 2, Tunis"
     },
     "pricing": {
       "title": "Tarifs simples, sans surprise",
@@ -278,12 +313,14 @@
       "feature1": "Tableau de bord complet",
       "feature2": "Patients illimités",
       "feature3": "QR code personnalisé",
-      "feature4": "Support WhatsApp",
+      "feature4": "Alertes sonores et vibrations",
       "selectMonthly": "Choisir mensuel",
       "selectYearly": "Choisir annuel",
-      "smsTitle": "Packs SMS (achat séparé)",
-      "trialNote": "Premier mois gratuit + 50 SMS offerts pour démarrer",
-      "startTrial": "Commencer mon essai gratuit"
+      "trialNote": "Premier mois gratuit pour démarrer",
+      "startTrial": "Commencer mon essai gratuit",
+      "founderTitle": "Clinique Fondatrice — 50% à vie",
+      "founderSubtitle": "Les premières cliniques bénéficient d'un tarif fondateur permanent : {{founderPrice}} au lieu de {{monthlyPrice}}.",
+      "founderNote": "Places limitées · Badge fondateur · Accès prioritaire aux nouvelles fonctionnalités"
     },
     "faq": {
       "title": "Questions fréquentes",
@@ -294,18 +331,59 @@
       "q3": "Et si je n'ai pas internet?",
       "a3": "Le tableau de bord fonctionne aussi hors-ligne. Les mises à jour se synchronisent automatiquement.",
       "q4": "Je peux annuler quand je veux?",
-      "a4": "Oui, sans engagement. Vous pouvez annuler à tout moment depuis votre compte."
+      "a4": "Oui, sans engagement. Vous pouvez annuler à tout moment depuis votre compte.",
+      "q5": "Est-ce que les données de mes patients sont sécurisées?",
+      "a5": "Oui. Toutes les données sont chiffrées et hébergées sur des serveurs sécurisés. Nous ne partageons jamais vos informations.",
+      "q6": "Puis-je utiliser {{brandName}} avec plusieurs médecins?",
+      "a6": "Oui! {{brandName}} supporte plusieurs médecins dans le même cabinet, chacun avec sa propre file d'attente."
     },
     "cta": {
-      "title": "Rejoignez les cabinets qui ont dit adieu aux salles d'attente chaotiques",
+      "title": "Créez votre cabinet en 2 minutes",
       "subtitle": "Commencez gratuitement et voyez la différence dès le premier jour.",
-      "button": "Commencer mon essai gratuit"
+      "button": "Commencer mon essai gratuit",
+      "emailPlaceholder": "Votre email professionnel"
     },
     "footer": {
       "privacy": "Confidentialité",
       "terms": "Conditions",
       "contact": "Contact",
       "rights": "Tous droits réservés."
+    },
+    "mockup": {
+      "doctorName": "Rached Maalej",
+      "cabinetLabel": "Cabinet",
+      "langToggle": "عربي",
+      "addPatient": "Ajouter un Patient",
+      "register": "Enregistrer",
+      "queueLabel": "File d'attente",
+      "consultLabel": "En consultation",
+      "doctorPresent": "Docteur présent",
+      "emptyQueue": "La salle d'attente est vide",
+      "notified": "Notifié",
+      "patient1": "Maya",
+      "patient2": "Yasmine",
+      "patient3": "Hedi",
+      "patientBubble": "Patient satisfait",
+      "bubbleMessage": "Attente au café d'à côté",
+      "liveIndicator": "En direct",
+      "estimatedWait": "Attente estimée",
+      "leaveQueue": "Quitter le Saf",
+      "joinQueue": "Rejoignez le Saf",
+      "phonePlaceholder": "Téléphone *",
+      "namePlaceholder": "Votre nom",
+      "nameHint": "Comment vous appelez-vous?",
+      "submitCheckin": "Prendre ma place",
+      "privacyBadge": "Infos privées",
+      "trackingBadge": "Suivi en temps réel",
+      "patientHela": "Hela",
+      "inQueue": "{{name}}, vous êtes dans le Saf!",
+      "peopleAhead": "{{count}} personnes avant vous",
+      "gettingCloser": "{{name}}, vous approchez!",
+      "youAreNext": "{{name}}, vous êtes le prochain!",
+      "yourTurn": "C'EST VOTRE TOUR!",
+      "goToReception": "Présentez-vous à l'accueil",
+      "enterOffice": "Entrez dans le cabinet",
+      "doctorWaiting": "{{name}}, le docteur vous attend!"
     }
   },
   "signup": {
@@ -330,7 +408,7 @@
     "privacyLink": "politique de confidentialité",
     "createAccount": "Créer mon compte",
     "creating": "Création en cours...",
-    "trialInfo": "Essai gratuit de 30 jours + 50 SMS offerts",
+    "trialInfo": "Essai gratuit de 30 jours",
     "success": {
       "title": "Compte créé avec succès!",
       "message": "Vérifiez votre email pour activer votre compte.",
@@ -357,7 +435,9 @@
       "phone": "Téléphone du cabinet",
       "avgConsultation": "Durée moyenne d'une consultation",
       "avgConsultationHelp": "Aide à estimer le temps d'attente pour vos patients",
-      "minutes": "minutes"
+      "minutes": "minutes",
+      "genderMr": "M.",
+      "genderMs": "Mme"
     },
     "qrcode": {
       "title": "Votre QR Code",
@@ -366,7 +446,12 @@
       "step1": "Imprimez l'affiche et placez-la à l'entrée",
       "step2": "Les patients scannent le code avec leur téléphone",
       "step3": "Ils suivent leur position en temps réel",
-      "printPoster": "Imprimer l'affiche"
+      "printPoster": "Imprimer l'affiche",
+      "posterTitle": "Scannez pour rejoindre la file",
+      "posterSubtitle": "Prenez votre place sans attendre",
+      "posterStep1": "Scannez ce QR code avec votre téléphone",
+      "posterStep2": "Entrez votre numéro",
+      "posterStep3": "Suivez votre position en temps réel"
     },
     "tutorial": {
       "title": "Vous êtes prêt!",
@@ -375,10 +460,32 @@
       "tip1Desc": "Cliquez sur \"Ajouter un patient\" pour tester le système",
       "tip2Title": "Appelez le suivant",
       "tip2Desc": "Quand vous êtes prêt, cliquez sur \"Appeler suivant\"",
-      "tip3Title": "Notifications automatiques",
-      "tip3Desc": "Les patients reçoivent un SMS quand c'est bientôt leur tour",
-      "trialInfo": "Vous avez 30 jours d'essai gratuit",
-      "smsInfo": "+ 50 SMS offerts pour démarrer"
+      "tip3Title": "Suivi en temps réel",
+      "tip3Desc": "Les patients suivent leur position en direct sur leur téléphone",
+      "trialInfo": "Vous avez 30 jours d'essai gratuit"
+    },
+    "simulation": {
+      "addTitle": "Ajoutons un patient test",
+      "addSubtitle": "Découvrez comment fonctionne votre file d'attente",
+      "testPatientName": "Sami B.",
+      "testPatientNote": "Patient fictif — pour la démonstration uniquement",
+      "adding": "Ajout en cours...",
+      "addToQueue": "Ajouter à la file",
+      "yourQueue": "Votre file d'attente",
+      "oneWaiting": "1 patient en attente",
+      "inConsultation": "0 en attente · 1 en consultation",
+      "justNow": "À l'instant",
+      "statusWaiting": "En attente",
+      "statusConsultation": "En consultation",
+      "callNext": "Appeler suivant",
+      "calling": "Notification en cours...",
+      "trackingLabel": "Suivi en temps réel",
+      "trackingText": "{{patientName}} peut suivre sa position en direct sur son téléphone. Il sait que c'est son tour.",
+      "bravoTitle": "Bravo !",
+      "bravoSubtitle": "Vous venez de gérer votre première file d'attente numérique.",
+      "trialBanner": "30 jours d'essai gratuit",
+      "noCreditCard": "Aucune carte bancaire requise",
+      "viewDashboard": "Voir mon tableau de bord"
     }
   },
   "verify": {
@@ -472,10 +579,6 @@
     },
     "daysRemaining": "{{days}} jours restants",
     "expiredMessage": "Votre abonnement a expiré. Abonnez-vous pour continuer.",
-    "smsCredits": "Crédits SMS",
-    "smsRemaining": "restants",
-    "lowCreditsWarning": "Vos crédits SMS sont bientôt épuisés. Pensez à en acheter.",
-    "buyMoreSms": "Acheter des SMS",
     "popular": "Populaire",
     "upgradePlan": "Choisir un abonnement",
     "monthly": "Mensuel",
@@ -489,8 +592,6 @@
       "unlimited": "Patients illimités",
       "support": "Support WhatsApp"
     },
-    "usage": "Utilisation",
-    "totalSmsSent": "Total SMS envoyés",
     "needHelp": "Besoin d'aide?"
   },
   "announcement": {
@@ -508,9 +609,12 @@
     "cleared": "Annonce effacée",
     "buttonLabel": "Annonce",
     "activeLabel": "Annonce active",
-    "presetsLabel": "Messages rapides"
+    "presetsLabel": "Messages rapides",
+    "toggleOn": "Annonce active",
+    "toggleOff": "Annonce"
   },
   "funFacts": {
+    "didYouKnow": "Le saviez-vous ?",
     "sectionTitle": "Expérience patient",
     "specialtyLabel": "Spécialité médicale",
     "specialtyPlaceholder": "Sélectionnez votre spécialité",
@@ -541,5 +645,88 @@
     "vsPrevDay": "vs veille",
     "vsMonthly": "vs mois",
     "dismiss": "Fermer"
+  },
+  "support": {
+    "whatsapp": "Support WhatsApp",
+    "needHelp": "Besoin d'aide ?"
+  },
+  "firstMorning": {
+    "title": "Votre premier matin",
+    "qrPoster": "Affichez le QR code dans la salle d'attente",
+    "firstPatient": "Premier patient enregistré via le QR",
+    "firstCall": "Appelez votre premier patient",
+    "tapToConfirm": "Appuyez ✓",
+    "allDone": "Bravo ! Vous êtes prêt pour une journée sans stress 🎉",
+    "dismiss": "Masquer ce guide",
+    "firstPatientToast": "Premier patient enregistré ! Votre file d'attente est lancée 🎉"
+  },
+  "legal": {
+    "lastUpdated": "Dernière mise à jour",
+    "terms": {
+      "title": "Conditions Générales d'Utilisation",
+      "section1": {
+        "title": "1. Objet",
+        "content": "Les présentes conditions générales régissent l'utilisation de la plateforme BleSaf, un service de gestion de file d'attente pour les cabinets médicaux en Tunisie, édité par la société Blesaf SARL. En utilisant BleSaf, vous acceptez ces conditions dans leur intégralité."
+      },
+      "section2": {
+        "title": "2. Description du Service",
+        "content": "BleSaf est une plateforme SaaS (Software as a Service) qui permet aux professionnels de santé de gérer leur file d'attente de manière numérique. Le service inclut : la gestion de la file d'attente en temps réel, l'enregistrement des patients via QR code, le suivi en temps réel de la position pour les patients, et un tableau de bord de statistiques."
+      },
+      "section3": {
+        "title": "3. Inscription et Compte",
+        "content": "Pour utiliser BleSaf, vous devez créer un compte en fournissant des informations exactes et complètes. Vous êtes responsable de la confidentialité de vos identifiants de connexion. Chaque compte correspond à un cabinet médical. Vous devez être un professionnel de santé autorisé à exercer en Tunisie."
+      },
+      "section4": {
+        "title": "4. Période d'Essai et Abonnement",
+        "content": "BleSaf offre une période d'essai gratuite de 30 jours. À l'issue de cette période, un abonnement payant est nécessaire pour continuer à utiliser le service. Les tarifs en vigueur sont affichés sur la page d'abonnement. Le paiement s'effectue via la plateforme Konnect. L'abonnement est renouvelable mensuellement ou annuellement selon le plan choisi."
+      },
+      "section5": {
+        "title": "5. Protection des Données",
+        "content": "BleSaf s'engage à protéger les données personnelles conformément à la législation tunisienne en matière de protection des données personnelles (Loi organique n° 2004-63). Les données des patients sont traitées uniquement dans le cadre de la gestion de la file d'attente et ne sont jamais partagées avec des tiers. Pour plus de détails, consultez notre Politique de Confidentialité."
+      },
+      "section6": {
+        "title": "6. Disponibilité du Service",
+        "content": "BleSaf s'efforce de maintenir le service disponible 24h/24 et 7j/7. Toutefois, des interruptions temporaires peuvent survenir pour des raisons de maintenance ou de mise à jour. BleSaf ne saurait être tenu responsable des dommages résultant d'une interruption temporaire du service."
+      },
+      "section7": {
+        "title": "7. Résiliation",
+        "content": "Vous pouvez résilier votre abonnement à tout moment. La résiliation prend effet à la fin de la période d'abonnement en cours. En cas de résiliation, vos données seront conservées pendant 30 jours, après quoi elles seront supprimées définitivement. BleSaf se réserve le droit de suspendre ou résilier un compte en cas de violation des présentes conditions."
+      },
+      "section8": {
+        "title": "8. Droit Applicable",
+        "content": "Les présentes conditions sont régies par le droit tunisien. Tout litige relatif à l'interprétation ou l'exécution des présentes conditions sera soumis aux tribunaux compétents de Tunis. Pour toute question, contactez-nous à support@blesaf.tn."
+      }
+    },
+    "privacy": {
+      "title": "Politique de Confidentialité",
+      "section1": {
+        "title": "1. Données Collectées",
+        "content": "BleSaf collecte les données suivantes : pour les professionnels de santé — nom du cabinet, nom du médecin, adresse email, numéro de téléphone, adresse du cabinet ; pour les patients — prénom (ou pseudonyme), numéro de téléphone (optionnel), position dans la file d'attente et heures de passage."
+      },
+      "section2": {
+        "title": "2. Utilisation des Données",
+        "content": "Les données collectées sont utilisées exclusivement pour : la gestion de la file d'attente en temps réel, l'amélioration du service via des statistiques anonymisées, la communication relative au service (notifications, alertes), et la facturation de l'abonnement."
+      },
+      "section3": {
+        "title": "3. Stockage et Sécurité",
+        "content": "Les données sont stockées sur des serveurs sécurisés hébergés par Supabase (infrastructure cloud). Les communications sont chiffrées via HTTPS/TLS. Les mots de passe sont hachés avec l'algorithme bcrypt. L'accès aux données est strictement limité au personnel autorisé."
+      },
+      "section4": {
+        "title": "4. Conservation des Données",
+        "content": "Les données de file d'attente des patients sont conservées pendant la durée nécessaire au service (journée en cours) puis anonymisées pour les statistiques. Les données de compte du professionnel de santé sont conservées pendant la durée de l'abonnement et 30 jours après sa résiliation."
+      },
+      "section5": {
+        "title": "5. Partage des Données",
+        "content": "BleSaf ne vend, ne loue et ne partage pas vos données personnelles avec des tiers, à l'exception des prestataires techniques nécessaires au fonctionnement du service (hébergement, paiement). Les données ne sont jamais utilisées à des fins publicitaires."
+      },
+      "section6": {
+        "title": "6. Vos Droits",
+        "content": "Conformément à la loi tunisienne, vous disposez d'un droit d'accès, de rectification et de suppression de vos données personnelles. Pour exercer ces droits, contactez-nous à support@blesaf.tn. Nous traiterons votre demande dans un délai de 30 jours."
+      },
+      "section7": {
+        "title": "7. Contact",
+        "content": "Pour toute question relative à la protection de vos données personnelles, vous pouvez nous contacter à : support@blesaf.tn. Responsable du traitement : Blesaf SARL, Tunis, Tunisie."
+      }
+    }
   }
 }

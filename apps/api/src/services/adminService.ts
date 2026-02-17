@@ -6,39 +6,12 @@
 
 import bcrypt from 'bcryptjs';
 import { prisma } from '../lib/prisma.js';
+import { getStartOfToday, getStartOfMonth, getTimezoneOffsetMinutes } from '../lib/timezone.js';
+import { brand, formatPrice } from '../lib/brand.js';
 
-// Tunisia is UTC+1 year-round (no DST since 2009)
-const TUNISIA_OFFSET_MINUTES = 60;
-
-/**
- * Get start of today in Tunisia timezone (Africa/Tunis, UTC+1)
- * Returns the UTC timestamp that corresponds to midnight in Tunisia
- */
-function getStartOfToday(): Date {
-  const now = new Date();
-  // Convert current UTC time to Tunisia time
-  const tunisiaTime = new Date(now.getTime() + TUNISIA_OFFSET_MINUTES * 60000);
-  // Get date parts in Tunisia time
-  const year = tunisiaTime.getUTCFullYear();
-  const month = tunisiaTime.getUTCMonth();
-  const day = tunisiaTime.getUTCDate();
-  // Create midnight in Tunisia, convert back to UTC
-  return new Date(Date.UTC(year, month, day) - TUNISIA_OFFSET_MINUTES * 60000);
-}
-
-/**
- * Get start of current month in Tunisia timezone
- */
-function getStartOfMonth(): Date {
-  const now = new Date();
-  // Convert current UTC time to Tunisia time
-  const tunisiaTime = new Date(now.getTime() + TUNISIA_OFFSET_MINUTES * 60000);
-  // Get year/month in Tunisia time
-  const year = tunisiaTime.getUTCFullYear();
-  const month = tunisiaTime.getUTCMonth();
-  // Create first day of month at midnight Tunisia, convert to UTC
-  return new Date(Date.UTC(year, month, 1) - TUNISIA_OFFSET_MINUTES * 60000);
-}
+// Country filter constants for brand-level data isolation
+const countryFilter = { country: brand.country };
+const clinicCountryFilter = { clinic: { country: brand.country } };
 
 /**
  * Get date range based on period
@@ -180,6 +153,7 @@ export interface ClinicHealth {
   id: string;
   name: string;
   doctorName: string | null;
+  isActive: boolean;
   lastLoginAt: string | null;
   patientsToday: number;
   avgWaitMins: number | null;
@@ -191,7 +165,6 @@ export interface ClinicHealth {
   subscriptionPlan: string | null;
   trialEndsAt: string | null;
   createdAt: string;
-  smsCredits: number;
   onboardingStep: number;
   onboardingCompleted: boolean;
 }
@@ -214,8 +187,6 @@ export interface ClinicDetail {
     subscriptionPlan: string | null;
     trialEndsAt: string | null;
     subscriptionEndsAt: string | null;
-    smsCredits: number;
-    smsCreditsUsed: number;
     onboardingStep: number;
     onboardingCompleted: boolean;
     createdAt: string;
@@ -275,7 +246,6 @@ export interface CreateClinicData {
   phone?: string;
   address?: string;
   language?: string;
-  avgConsultationMins?: number;
   businessType?: string;
   showAppointments?: boolean;
 }
@@ -295,27 +265,21 @@ export async function getAdminMetrics(): Promise<AdminMetrics> {
   const startOfToday = getStartOfToday();
   const startOfMonth = getStartOfMonth();
 
-  const [
-    totalClinics,
-    patientsToday,
-    qrCheckinsToday,
-    totalCheckinsToday,
-    paidThisMonth,
-  ] = await Promise.all([
-    prisma.clinic.count({ where: { isActive: true } }),
-    prisma.queueEntry.count({ where: { arrivedAt: { gte: startOfToday } } }),
-    prisma.queueEntry.count({ where: { arrivedAt: { gte: startOfToday }, checkInMethod: 'QR_CODE' } }),
-    prisma.queueEntry.count({ where: { arrivedAt: { gte: startOfToday } } }),
-    prisma.paymentRecord.count({
-      where: { month: startOfMonth, status: 'paid' },
-    }),
-  ]);
+  // Sequential queries to prevent pgbouncer pool exhaustion
+  const totalClinics = await prisma.clinic.count({ where: { isActive: true, ...countryFilter } });
+  const patientsToday = await prisma.queueEntry.count({ where: { arrivedAt: { gte: startOfToday }, ...clinicCountryFilter } });
+  const qrCheckinsToday = await prisma.queueEntry.count({ where: { arrivedAt: { gte: startOfToday }, checkInMethod: 'QR_CODE', ...clinicCountryFilter } });
+  const totalCheckinsToday = patientsToday; // Same query, reuse result
+  const paidThisMonth = await prisma.paymentRecord.count({
+    where: { month: startOfMonth, status: 'paid', ...clinicCountryFilter },
+  });
 
   // Activity tracking: clinics with no login in 7+ days
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
   const atRiskClinics = await prisma.clinic.count({
     where: {
       isActive: true,
+      ...countryFilter,
       OR: [
         { lastLoginAt: null },
         { lastLoginAt: { lt: sevenDaysAgo } },
@@ -328,12 +292,17 @@ export async function getAdminMetrics(): Promise<AdminMetrics> {
     ? Math.round((qrCheckinsToday / totalCheckinsToday) * 100)
     : 0;
 
-  // Actual MRR from subscription data
-  const [monthlyActive, yearlyActive] = await Promise.all([
-    prisma.clinic.count({ where: { subscriptionStatus: 'ACTIVE', subscriptionPlan: 'MONTHLY' } }),
-    prisma.clinic.count({ where: { subscriptionStatus: 'ACTIVE', subscriptionPlan: 'YEARLY' } }),
-  ]);
-  const mrrTND = (monthlyActive * 50) + Math.round(yearlyActive * (500 / 12));
+  // MRR from subscription data — use groupBy to avoid parallel queries
+  const planGroups = await prisma.clinic.groupBy({
+    by: ['subscriptionPlan'],
+    where: { subscriptionStatus: 'ACTIVE', ...countryFilter },
+    _count: true,
+  });
+  const planMap: Record<string, number> = {};
+  for (const g of planGroups) { planMap[g.subscriptionPlan || ''] = g._count; }
+  const monthlyMajor = brand.pricing.monthly / brand.currency.multiplier;
+  const yearlyMajor = brand.pricing.yearly / brand.currency.multiplier;
+  const mrrTND = ((planMap['MONTHLY'] || 0) * monthlyMajor) + Math.round((planMap['YEARLY'] || 0) * (yearlyMajor / 12));
   const overdueCount = totalClinics - paidThisMonth;
 
   return {
@@ -361,29 +330,29 @@ export async function getAdminMetricsWithTrends(
 
   // Current period patients
   const currentPatients = await prisma.queueEntry.count({
-    where: { arrivedAt: { gte: start, lt: end } },
+    where: { arrivedAt: { gte: start, lt: end }, ...clinicCountryFilter },
   });
 
   // Previous period patients
   const prevPatients = await prisma.queueEntry.count({
-    where: { arrivedAt: { gte: prevStart, lt: prevEnd } },
+    where: { arrivedAt: { gte: prevStart, lt: prevEnd }, ...clinicCountryFilter },
   });
 
   // Current period QR check-ins
   const currentQr = await prisma.queueEntry.count({
-    where: { arrivedAt: { gte: start, lt: end }, checkInMethod: 'QR_CODE' },
+    where: { arrivedAt: { gte: start, lt: end }, checkInMethod: 'QR_CODE', ...clinicCountryFilter },
   });
   const currentTotal = await prisma.queueEntry.count({
-    where: { arrivedAt: { gte: start, lt: end } },
+    where: { arrivedAt: { gte: start, lt: end }, ...clinicCountryFilter },
   });
   const currentQrRate = currentTotal > 0 ? Math.round((currentQr / currentTotal) * 100) : 0;
 
   // Previous period QR rate
   const prevQr = await prisma.queueEntry.count({
-    where: { arrivedAt: { gte: prevStart, lt: prevEnd }, checkInMethod: 'QR_CODE' },
+    where: { arrivedAt: { gte: prevStart, lt: prevEnd }, checkInMethod: 'QR_CODE', ...clinicCountryFilter },
   });
   const prevTotal = await prisma.queueEntry.count({
-    where: { arrivedAt: { gte: prevStart, lt: prevEnd } },
+    where: { arrivedAt: { gte: prevStart, lt: prevEnd }, ...clinicCountryFilter },
   });
   const prevQrRate = prevTotal > 0 ? Math.round((prevQr / prevTotal) * 100) : 0;
 
@@ -403,7 +372,7 @@ export async function getAdminMetricsWithTrends(
 
   // Fetch archived stats from DailyStat (past days)
   const dailyStats = await prisma.dailyStat.findMany({
-    where: { date: { gte: thirtyDaysAgo, lt: startOfToday } },
+    where: { date: { gte: thirtyDaysAgo, lt: startOfToday }, ...clinicCountryFilter },
     select: { date: true, totalPatients: true },
   });
 
@@ -415,9 +384,9 @@ export async function getAdminMetricsWithTrends(
 
   // Fetch today's live data from QueueEntry
   const todayPatientCount = await prisma.queueEntry.count({
-    where: { arrivedAt: { gte: startOfToday } },
+    where: { arrivedAt: { gte: startOfToday }, ...clinicCountryFilter },
   });
-  const todayKey = new Date(startOfToday.getTime() + TUNISIA_OFFSET_MINUTES * 60000)
+  const todayKey = new Date(startOfToday.getTime() + getTimezoneOffsetMinutes() * 60000)
     .toISOString().split('T')[0];
   patientsByDayMap.set(todayKey, todayPatientCount);
 
@@ -433,7 +402,7 @@ export async function getAdminMetricsWithTrends(
   sixMonthsAgo.setHours(0, 0, 0, 0);
 
   const paymentsLast6Months = await prisma.paymentRecord.findMany({
-    where: { month: { gte: sixMonthsAgo }, status: 'paid' },
+    where: { month: { gte: sixMonthsAgo }, status: 'paid', ...clinicCountryFilter },
     select: { amount: true, month: true },
   });
 
@@ -445,7 +414,7 @@ export async function getAdminMetricsWithTrends(
     const monthKey = d.toISOString().slice(0, 7); // YYYY-MM
     revenueByMonthMap.set(monthKey, {
       collected: 0,
-      expected: basicMetrics.totalClinics * 50000, // 50 TND in millimes
+      expected: basicMetrics.totalClinics * brand.pricing.monthly,
     });
   }
 
@@ -460,8 +429,8 @@ export async function getAdminMetricsWithTrends(
   const revenueByMonth = Array.from(revenueByMonthMap.entries())
     .map(([month, data]) => ({
       month,
-      collected: Math.round(data.collected / 1000), // Convert millimes to TND
-      expected: Math.round(data.expected / 1000),
+      collected: Math.round(data.collected / brand.currency.multiplier),
+      expected: Math.round(data.expected / brand.currency.multiplier),
     }))
     .reverse();
 
@@ -478,7 +447,7 @@ export async function getAdminMetricsWithTrends(
   prevMonthStart.setMonth(prevMonthStart.getMonth() - 1);
 
   const clinicsWithPatients = await prisma.clinic.findMany({
-    where: { isActive: true },
+    where: { isActive: true, ...countryFilter },
     select: {
       id: true,
       name: true,
@@ -492,7 +461,7 @@ export async function getAdminMetricsWithTrends(
 
   // Get previous month patient counts for trends
   const clinicsWithPrevPatients = await prisma.clinic.findMany({
-    where: { isActive: true },
+    where: { isActive: true, ...countryFilter },
     select: {
       id: true,
       queueEntries: {
@@ -525,7 +494,7 @@ export async function getAdminMetricsWithTrends(
   // ─── Churn Risk Analysis ────────────────────────────────────
   const now = new Date();
   const clinicsForChurnAnalysis = await prisma.clinic.findMany({
-    where: { isActive: true },
+    where: { isActive: true, ...countryFilter },
     select: {
       id: true,
       name: true,
@@ -594,18 +563,18 @@ export async function getClinicHealthList(): Promise<ClinicHealth[]> {
   const startOfMonth = getStartOfMonth();
 
   const clinics = await prisma.clinic.findMany({
-    where: { isActive: true },
+    where: { ...countryFilter },
     select: {
       id: true,
       name: true,
       doctorName: true,
       email: true,
+      isActive: true,
       lastLoginAt: true,
       subscriptionStatus: true,
       subscriptionPlan: true,
       trialEndsAt: true,
       createdAt: true,
-      smsCredits: true,
       onboardingStep: true,
       onboardingCompleted: true,
       queueEntries: {
@@ -657,6 +626,7 @@ export async function getClinicHealthList(): Promise<ClinicHealth[]> {
       id: clinic.id,
       name: clinic.name,
       doctorName: clinic.doctorName,
+      isActive: clinic.isActive,
       lastLoginAt: clinic.lastLoginAt?.toISOString() ?? null,
       patientsToday,
       avgWaitMins,
@@ -667,7 +637,6 @@ export async function getClinicHealthList(): Promise<ClinicHealth[]> {
       subscriptionPlan: clinic.subscriptionPlan,
       trialEndsAt: clinic.trialEndsAt?.toISOString() ?? null,
       createdAt: clinic.createdAt.toISOString(),
-      smsCredits: clinic.smsCredits,
       onboardingStep: clinic.onboardingStep,
       onboardingCompleted: clinic.onboardingCompleted,
     };
@@ -707,8 +676,6 @@ export async function getClinicDetails(clinicId: string): Promise<ClinicDetail> 
       subscriptionPlan: true,
       trialEndsAt: true,
       subscriptionEndsAt: true,
-      smsCredits: true,
-      smsCreditsUsed: true,
       onboardingStep: true,
       onboardingCompleted: true,
       createdAt: true,
@@ -755,7 +722,7 @@ export async function getClinicDetails(clinicId: string): Promise<ClinicDetail> 
   const todayCount = await prisma.queueEntry.count({
     where: { clinicId, arrivedAt: { gte: clinicStartOfToday } },
   });
-  const todayDateKey = new Date(clinicStartOfToday.getTime() + TUNISIA_OFFSET_MINUTES * 60000)
+  const todayDateKey = new Date(clinicStartOfToday.getTime() + getTimezoneOffsetMinutes() * 60000)
     .toISOString().split('T')[0];
 
   const weeklyPatients = weekDates.map((date) => {
@@ -934,7 +901,7 @@ export async function createClinic(data: CreateClinicData) {
 
   const passwordHash = await bcrypt.hash(data.password, 10);
 
-  // Admin-created clinics are pre-verified with a 30-day trial and 50 free SMS
+  // Admin-created clinics are pre-verified with a 30-day trial
   const trialEndsAt = new Date();
   trialEndsAt.setDate(trialEndsAt.getDate() + 30);
 
@@ -947,13 +914,12 @@ export async function createClinic(data: CreateClinicData) {
       phone: data.phone,
       address: data.address,
       language: data.language ?? 'fr',
-      avgConsultationMins: data.avgConsultationMins ?? 10,
       businessType: data.businessType ?? 'general',
       showAppointments: data.showAppointments ?? true,
       emailVerified: true,
       subscriptionStatus: 'TRIAL',
       trialEndsAt,
-      smsCredits: 50,
+      country: brand.country,
     },
     select: {
       id: true,
@@ -1098,19 +1064,32 @@ export interface SubscriptionMetrics {
 export async function getSubscriptionMetrics(): Promise<SubscriptionMetrics> {
   const startOfToday = getStartOfToday();
 
-  const [trialCount, activeCount, expiredCount, cancelledCount, totalClinics, dailyActive] =
-    await Promise.all([
-      prisma.clinic.count({ where: { subscriptionStatus: 'TRIAL' } }),
-      prisma.clinic.count({ where: { subscriptionStatus: 'ACTIVE' } }),
-      prisma.clinic.count({ where: { subscriptionStatus: 'EXPIRED' } }),
-      prisma.clinic.count({ where: { subscriptionStatus: 'CANCELLED' } }),
-      prisma.clinic.count(),
-      prisma.clinic.count({ where: { lastLoginAt: { gte: startOfToday } } }),
-    ]);
+  // Use groupBy to get all subscription status counts in a single query
+  // instead of 6+ parallel count queries that exhaust the pgbouncer pool
+  const statusGroups = await prisma.clinic.groupBy({
+    by: ['subscriptionStatus'],
+    where: { isActive: true, ...countryFilter },
+    _count: true,
+  });
 
-  // Conversion rate: clinics that ever paid / clinics that ever had a trial
+  const statusMap: Record<string, number> = {};
+  for (const g of statusGroups) {
+    statusMap[g.subscriptionStatus || ''] = g._count;
+  }
+
+  const trialCount = statusMap['TRIAL'] || 0;
+  const activeCount = statusMap['ACTIVE'] || 0;
+  const expiredCount = statusMap['EXPIRED'] || 0;
+  const cancelledCount = statusMap['CANCELLED'] || 0;
+  const totalClinics = Object.values(statusMap).reduce((a, b) => a + b, 0);
+
+  // Sequential queries to avoid pool exhaustion
+  const dailyActive = await prisma.clinic.count({
+    where: { lastLoginAt: { gte: startOfToday }, isActive: true, ...countryFilter },
+  });
+
   const everPaid = await prisma.subscriptionEvent.findMany({
-    where: { eventType: 'payment_success' },
+    where: { eventType: 'payment_success', ...clinicCountryFilter },
     select: { clinicId: true },
     distinct: ['clinicId'],
   });
@@ -1118,12 +1097,19 @@ export async function getSubscriptionMetrics(): Promise<SubscriptionMetrics> {
     ? Math.round((everPaid.length / totalClinics) * 100)
     : 0;
 
-  // Actual MRR
-  const [monthlyActive, yearlyActive] = await Promise.all([
-    prisma.clinic.count({ where: { subscriptionStatus: 'ACTIVE', subscriptionPlan: 'MONTHLY' } }),
-    prisma.clinic.count({ where: { subscriptionStatus: 'ACTIVE', subscriptionPlan: 'YEARLY' } }),
-  ]);
-  const mrrActual = (monthlyActive * 50) + Math.round(yearlyActive * (500 / 12));
+  // MRR: use groupBy on plan for active clinics
+  const planGroups = await prisma.clinic.groupBy({
+    by: ['subscriptionPlan'],
+    where: { subscriptionStatus: 'ACTIVE', ...countryFilter },
+    _count: true,
+  });
+  const planMap: Record<string, number> = {};
+  for (const g of planGroups) {
+    planMap[g.subscriptionPlan || ''] = g._count;
+  }
+  const mrrMonthly = brand.pricing.monthly / brand.currency.multiplier;
+  const mrrYearly = brand.pricing.yearly / brand.currency.multiplier;
+  const mrrActual = ((planMap['MONTHLY'] || 0) * mrrMonthly) + Math.round((planMap['YEARLY'] || 0) * (mrrYearly / 12));
 
   return {
     activeTrials: trialCount,
@@ -1150,13 +1136,11 @@ export interface OnboardingFunnel {
 }
 
 export async function getOnboardingFunnel(): Promise<OnboardingFunnel> {
-  const totalSignups = await prisma.clinic.count();
-
-  const [step1Plus, step2Plus, completed] = await Promise.all([
-    prisma.clinic.count({ where: { onboardingStep: { gte: 1 } } }),
-    prisma.clinic.count({ where: { onboardingStep: { gte: 2 } } }),
-    prisma.clinic.count({ where: { onboardingCompleted: true } }),
-  ]);
+  // Use sequential queries to avoid pgbouncer pool exhaustion
+  const totalSignups = await prisma.clinic.count({ where: { ...countryFilter } });
+  const step1Plus = await prisma.clinic.count({ where: { onboardingStep: { gte: 1 }, ...countryFilter } });
+  const step2Plus = await prisma.clinic.count({ where: { onboardingStep: { gte: 2 }, ...countryFilter } });
+  const completed = await prisma.clinic.count({ where: { onboardingCompleted: true, ...countryFilter } });
 
   const steps = [
     { step: 0, name: 'Signed Up', count: totalSignups, dropOffRate: 0 },
@@ -1193,6 +1177,7 @@ export interface ActivityItem {
 
 export async function getRecentActivity(limit = 20): Promise<ActivityItem[]> {
   const events = await prisma.subscriptionEvent.findMany({
+    where: { ...clinicCountryFilter },
     orderBy: { createdAt: 'desc' },
     take: limit,
     include: {
@@ -1203,9 +1188,10 @@ export async function getRecentActivity(limit = 20): Promise<ActivityItem[]> {
   const typeDescriptions: Record<string, (clinicName: string, amount?: number | null) => string> = {
     trial_started: (name) => `${name} started a free trial`,
     trial_expired: (name) => `${name}'s trial has expired`,
-    payment_success: (name, amount) => `${name} subscribed${amount ? ` (${(amount / 1000).toFixed(0)} TND)` : ''}`,
+    payment_success: (name, amount) => `${name} subscribed${amount ? ` (${(amount / brand.currency.multiplier).toFixed(0)} ${brand.currency.symbol})` : ''}`,
     payment_failed: (name) => `Payment failed for ${name}`,
     payment_initiated: (name) => `${name} initiated a payment`,
+    subscription_activated: (name) => `${name}'s subscription activated`,
     subscription_expired: (name) => `${name}'s subscription expired`,
     subscription_cancelled: (name) => `${name} cancelled their subscription`,
   };
@@ -1250,16 +1236,32 @@ export interface FinancialAnalytics {
 
 export async function getFinancialAnalytics(): Promise<FinancialAnalytics> {
   // Current subscription counts
-  const [trial, monthlyActive, yearlyActive, pastDue, expired, cancelled] = await Promise.all([
-    prisma.clinic.count({ where: { subscriptionStatus: 'TRIAL' } }),
-    prisma.clinic.count({ where: { subscriptionStatus: 'ACTIVE', subscriptionPlan: 'MONTHLY' } }),
-    prisma.clinic.count({ where: { subscriptionStatus: 'ACTIVE', subscriptionPlan: 'YEARLY' } }),
-    prisma.clinic.count({ where: { subscriptionStatus: 'PAST_DUE' } }),
-    prisma.clinic.count({ where: { subscriptionStatus: 'EXPIRED' } }),
-    prisma.clinic.count({ where: { subscriptionStatus: 'CANCELLED' } }),
-  ]);
+  // Single groupBy instead of 6 parallel counts
+  const statusCounts = await prisma.clinic.groupBy({
+    by: ['subscriptionStatus'],
+    where: { ...countryFilter },
+    _count: true,
+  });
+  const sMap: Record<string, number> = {};
+  for (const g of statusCounts) { sMap[g.subscriptionStatus || ''] = g._count; }
+  const trial = sMap['TRIAL'] || 0;
+  const pastDue = sMap['PAST_DUE'] || 0;
+  const expired = sMap['EXPIRED'] || 0;
+  const cancelled = sMap['CANCELLED'] || 0;
 
-  const currentMrr = (monthlyActive * 50) + Math.round(yearlyActive * (500 / 12));
+  const planCounts = await prisma.clinic.groupBy({
+    by: ['subscriptionPlan'],
+    where: { subscriptionStatus: 'ACTIVE', ...countryFilter },
+    _count: true,
+  });
+  const pMap: Record<string, number> = {};
+  for (const g of planCounts) { pMap[g.subscriptionPlan || ''] = g._count; }
+  const monthlyActive = pMap['MONTHLY'] || 0;
+  const yearlyActive = pMap['YEARLY'] || 0;
+
+  const finMonthlyMajor = brand.pricing.monthly / brand.currency.multiplier;
+  const finYearlyMajor = brand.pricing.yearly / brand.currency.multiplier;
+  const currentMrr = (monthlyActive * finMonthlyMajor) + Math.round(yearlyActive * (finYearlyMajor / 12));
   const totalPaying = monthlyActive + yearlyActive;
   const arpu = totalPaying > 0 ? Math.round(currentMrr / totalPaying) : 0;
 
@@ -1270,13 +1272,13 @@ export async function getFinancialAnalytics(): Promise<FinancialAnalytics> {
   twelveMonthsAgo.setHours(0, 0, 0, 0);
 
   const payments = await prisma.paymentRecord.findMany({
-    where: { month: { gte: twelveMonthsAgo }, status: 'paid' },
+    where: { month: { gte: twelveMonthsAgo }, status: 'paid', ...clinicCountryFilter },
     select: { amount: true, month: true },
   });
 
   // Subscription events for new/churned MRR
   const subEvents = await prisma.subscriptionEvent.findMany({
-    where: { createdAt: { gte: twelveMonthsAgo } },
+    where: { createdAt: { gte: twelveMonthsAgo }, ...clinicCountryFilter },
     select: { eventType: true, amount: true, createdAt: true },
     orderBy: { createdAt: 'asc' },
   });
@@ -1294,7 +1296,7 @@ export async function getFinancialAnalytics(): Promise<FinancialAnalytics> {
     const monthKey = p.month.toISOString().slice(0, 7);
     const entry = mrrHistoryMap.get(monthKey);
     if (entry) {
-      entry.totalMrr += Math.round(p.amount / 1000);
+      entry.totalMrr += Math.round(p.amount / brand.currency.multiplier);
     }
   });
 
@@ -1303,11 +1305,11 @@ export async function getFinancialAnalytics(): Promise<FinancialAnalytics> {
     const monthKey = event.createdAt.toISOString().slice(0, 7);
     const entry = mrrHistoryMap.get(monthKey);
     if (!entry) return;
-    const amountTND = event.amount ? Math.round(event.amount / 1000) : 50;
+    const amountMajor = event.amount ? Math.round(event.amount / brand.currency.multiplier) : finMonthlyMajor;
     if (event.eventType === 'payment_success') {
-      entry.newMrr += amountTND;
+      entry.newMrr += amountMajor;
     } else if (event.eventType === 'subscription_expired' || event.eventType === 'subscription_cancelled' || event.eventType === 'trial_expired') {
-      entry.churnedMrr += 50; // Lost potential MRR
+      entry.churnedMrr += finMonthlyMajor; // Lost potential MRR
     }
   });
 
@@ -1328,6 +1330,7 @@ export async function getFinancialAnalytics(): Promise<FinancialAnalytics> {
     where: {
       createdAt: { gte: thisMonthStart },
       eventType: { in: ['subscription_expired', 'subscription_cancelled', 'trial_expired'] },
+      ...clinicCountryFilter,
     },
   });
   const totalActive = monthlyActive + yearlyActive + trial;
@@ -1359,12 +1362,6 @@ export interface FeatureAdoption {
     qrCode: { count: number; percentage: number };
     manual: { count: number; percentage: number };
     whatsApp: { count: number; percentage: number };
-    sms: { count: number; percentage: number };
-  };
-  smsUsage: {
-    totalSent: number;
-    clinicsUsingSms: number;
-    avgPerClinic: number;
   };
   multiDoctorAdoption: number;
   avgPatientsPerClinicPerDay: number;
@@ -1375,34 +1372,30 @@ export async function getFeatureAdoption(): Promise<FeatureAdoption> {
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
   // Check-in method distribution (last 30 days)
-  const [qrCount, manualCount, whatsAppCount, smsCount, totalEntries] = await Promise.all([
-    prisma.queueEntry.count({ where: { arrivedAt: { gte: thirtyDaysAgo }, checkInMethod: 'QR_CODE' } }),
-    prisma.queueEntry.count({ where: { arrivedAt: { gte: thirtyDaysAgo }, checkInMethod: 'MANUAL' } }),
-    prisma.queueEntry.count({ where: { arrivedAt: { gte: thirtyDaysAgo }, checkInMethod: 'WHATSAPP' } }),
-    prisma.queueEntry.count({ where: { arrivedAt: { gte: thirtyDaysAgo }, checkInMethod: 'SMS' } }),
-    prisma.queueEntry.count({ where: { arrivedAt: { gte: thirtyDaysAgo } } }),
-  ]);
+  // Single groupBy instead of 5 parallel counts
+  const checkinGroups = await prisma.queueEntry.groupBy({
+    by: ['checkInMethod'],
+    where: { arrivedAt: { gte: thirtyDaysAgo }, ...clinicCountryFilter },
+    _count: true,
+  });
+  const cMap: Record<string, number> = {};
+  for (const g of checkinGroups) { cMap[g.checkInMethod || ''] = g._count; }
+  const qrCount = cMap['QR_CODE'] || 0;
+  const manualCount = cMap['MANUAL'] || 0;
+  const whatsAppCount = cMap['WHATSAPP'] || 0;
+  const totalEntries = Object.values(cMap).reduce((a, b) => a + b, 0);
 
   const pct = (n: number) => totalEntries > 0 ? Math.round((n / totalEntries) * 100) : 0;
 
-  // SMS usage
-  const smsAgg = await prisma.clinic.aggregate({
-    _sum: { smsCreditsUsed: true },
-    _count: true,
-  });
-  const clinicsUsingSms = await prisma.clinic.count({ where: { smsCreditsUsed: { gt: 0 } } });
-  const totalSent = smsAgg._sum.smsCreditsUsed || 0;
-  const totalClinics = smsAgg._count;
-
   // Multi-doctor adoption
   const clinicsWithDoctors = await prisma.doctor.findMany({
-    where: { isActive: true },
+    where: { isActive: true, ...clinicCountryFilter },
     select: { clinicId: true },
     distinct: ['clinicId'],
   });
 
   // Avg patients per clinic per day (last 30 days)
-  const activeClinics = await prisma.clinic.count({ where: { isActive: true } });
+  const activeClinics = await prisma.clinic.count({ where: { isActive: true, ...countryFilter } });
   const avgPatientsPerClinicPerDay = activeClinics > 0 && totalEntries > 0
     ? Math.round((totalEntries / 30 / activeClinics) * 10) / 10
     : 0;
@@ -1412,12 +1405,6 @@ export async function getFeatureAdoption(): Promise<FeatureAdoption> {
       qrCode: { count: qrCount, percentage: pct(qrCount) },
       manual: { count: manualCount, percentage: pct(manualCount) },
       whatsApp: { count: whatsAppCount, percentage: pct(whatsAppCount) },
-      sms: { count: smsCount, percentage: pct(smsCount) },
-    },
-    smsUsage: {
-      totalSent,
-      clinicsUsingSms,
-      avgPerClinic: totalClinics > 0 ? Math.round(totalSent / totalClinics) : 0,
     },
     multiDoctorAdoption: clinicsWithDoctors.length,
     avgPatientsPerClinicPerDay,
@@ -1430,12 +1417,6 @@ export interface PlatformHealth {
   services: {
     api: 'healthy' | 'degraded' | 'down';
     database: 'healthy' | 'degraded' | 'down';
-    sms: 'configured' | 'not_configured';
-  };
-  smsStats: {
-    totalCreditsIssued: number;
-    totalCreditsUsed: number;
-    remainingCredits: number;
   };
   clinicStats: {
     totalClinics: number;
@@ -1454,33 +1435,18 @@ export async function getPlatformHealth(): Promise<PlatformHealth> {
     dbStatus = 'down';
   }
 
-  // SMS configuration check
-  const smsConfigured = !!(process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN);
-
-  // SMS stats
-  const smsAgg = await prisma.clinic.aggregate({
-    _sum: { smsCredits: true, smsCreditsUsed: true },
-  });
-
-  const totalCreditsUsed = smsAgg._sum.smsCreditsUsed || 0;
-  const remainingCredits = smsAgg._sum.smsCredits || 0;
-  const totalCreditsIssued = totalCreditsUsed + remainingCredits;
-
   // Clinic breakdown
-  const [totalClinics, activeClinics, clinicsOnTrial, clinicsPaid] = await Promise.all([
-    prisma.clinic.count(),
-    prisma.clinic.count({ where: { isActive: true } }),
-    prisma.clinic.count({ where: { subscriptionStatus: 'TRIAL' } }),
-    prisma.clinic.count({ where: { subscriptionStatus: 'ACTIVE' } }),
-  ]);
+  // Sequential to prevent pool exhaustion
+  const totalClinics = await prisma.clinic.count({ where: { ...countryFilter } });
+  const activeClinics = await prisma.clinic.count({ where: { isActive: true, ...countryFilter } });
+  const clinicsOnTrial = await prisma.clinic.count({ where: { subscriptionStatus: 'TRIAL', ...countryFilter } });
+  const clinicsPaid = await prisma.clinic.count({ where: { subscriptionStatus: 'ACTIVE', ...countryFilter } });
 
   return {
     services: {
       api: 'healthy', // If we're responding, API is healthy
       database: dbStatus,
-      sms: smsConfigured ? 'configured' : 'not_configured',
     },
-    smsStats: { totalCreditsIssued, totalCreditsUsed, remainingCredits },
     clinicStats: { totalClinics, activeClinics, clinicsOnTrial, clinicsPaid },
   };
 }
@@ -1544,7 +1510,7 @@ export async function upgradeToActive(clinicId: string, plan: 'MONTHLY' | 'YEARL
     data: {
       clinicId,
       eventType: 'subscription_activated',
-      amount: plan === 'MONTHLY' ? 50000 : 500000,
+      amount: plan === 'MONTHLY' ? brand.pricing.monthly : brand.pricing.yearly,
       notes: `Manually upgraded to ${plan} by admin`,
     },
   });

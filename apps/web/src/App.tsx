@@ -1,5 +1,5 @@
 import { useEffect, lazy, Suspense } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { useAuthStore } from './stores/authStore';
 
 // Lazy load pages for code splitting - reduces initial bundle by ~40%
@@ -15,7 +15,14 @@ const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage'));
 const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage'));
 const SettingsPage = lazy(() => import('./pages/SettingsPage'));
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
-const ClinicDetailPage = lazy(() => import('./pages/admin/ClinicDetailPage'));
+// Legacy ClinicDetailPage no longer used — /admin/clinic/:id redirects to /admin/clinics/:id
+const ClinicsDirectoryPage = lazy(() => import('./pages/admin/clinics/ClinicsDirectoryPage'));
+const ClinicsClinicDetailPage = lazy(() => import('./pages/admin/clinics/ClinicDetailPage'));
+const LandingPage = lazy(() => import('./pages/LandingPage'));
+const TermsPage = lazy(() => import('./pages/TermsPage'));
+const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
+const TeaserPage = lazy(() => import('./pages/TeaserPage'));
+const ReceptionistPreview = lazy(() => import('./components/receptionist/ReceptionistPreview'));
 
 // Lightweight loading spinner for Suspense fallback
 function PageLoader() {
@@ -26,8 +33,13 @@ function PageLoader() {
   );
 }
 
+function LegacyClinicRedirect() {
+  const { clinicId } = useParams();
+  return <Navigate to={`/admin/clinics/${clinicId}`} replace />;
+}
+
 function App() {
-  const { isAuthenticated, isLoading, checkAuth, clinic } = useAuthStore();
+  const { isAuthenticated, isLoading, checkAuth } = useAuthStore();
 
   useEffect(() => {
     checkAuth();
@@ -48,7 +60,7 @@ function App() {
     <Suspense fallback={<PageLoader />}>
       <Routes>
         {/* Root redirects to dashboard (if logged in) or login */}
-        <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" /> : <Navigate to="/login" />} />
+        <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" /> : <LandingPage />} />
         <Route path="/signup" element={!isAuthenticated ? <SignupPage /> : <Navigate to="/dashboard" />} />
 
         {/* Public auth routes */}
@@ -58,15 +70,17 @@ function App() {
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/patient/:entryId" element={<PatientStatusPage />} />
         <Route path="/checkin/:clinicId" element={<CheckInPage />} />
+        <Route path="/terms" element={<TermsPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/teaser" element={<TeaserPage />} />
+        <Route path="/receptionist" element={<ReceptionistPreview />} />
 
         {/* Protected routes */}
         <Route
           path="/dashboard"
           element={
             isAuthenticated
-              ? clinic?.onboardingCompleted === false
-                ? <Navigate to="/onboarding" />
-                : <DashboardPage />
+              ? <DashboardPage />
               : <Navigate to="/login" />
           }
         />
@@ -87,8 +101,17 @@ function App() {
           element={isAuthenticated ? <AdminDashboard /> : <Navigate to="/login" />}
         />
         <Route
+          path="/admin/clinics"
+          element={isAuthenticated ? <ClinicsDirectoryPage /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/admin/clinics/:clinicId"
+          element={isAuthenticated ? <ClinicsClinicDetailPage /> : <Navigate to="/login" />}
+        />
+        {/* Legacy route → redirect to new path */}
+        <Route
           path="/admin/clinic/:clinicId"
-          element={isAuthenticated ? <ClinicDetailPage /> : <Navigate to="/login" />}
+          element={<LegacyClinicRedirect />}
         />
       </Routes>
     </Suspense>

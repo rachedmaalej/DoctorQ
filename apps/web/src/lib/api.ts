@@ -25,6 +25,7 @@ import type {
   DailyRecapResponse,
 } from '@/types';
 import { logger } from './logger';
+import { webBrand } from './brand';
 
 // Auto-detect production API URL based on hostname
 function getApiUrl(): string {
@@ -36,13 +37,17 @@ function getApiUrl(): string {
   // In production (Vercel), detect based on hostname
   if (typeof window !== 'undefined') {
     const hostname = window.location.hostname;
-    // Production Vercel deployment
-    if (hostname.includes('vercel.app') || hostname.includes('doctor-q')) {
+    // BleSaf production (Tunisia)
+    if (hostname.includes('vercel.app') || hostname.includes('doctor-q') || hostname.includes('blesaf')) {
       return 'https://doctorqapi-production-ac8b.up.railway.app';
+    }
+    // FiloSoin production (France) — override VITE_API_URL in Vercel env for France deployments
+    if (hostname.includes('filosoin')) {
+      return import.meta.env.VITE_API_URL || 'https://doctorqapi-production-ac8b.up.railway.app';
     }
   }
 
-  // Default to localhost for development
+  // Default to localhost for development (override with VITE_API_URL in .env)
   return 'http://localhost:3001';
 }
 
@@ -54,6 +59,30 @@ class ApiClient {
   constructor() {
     // Load token from localStorage on initialization
     this.token = localStorage.getItem('auth_token');
+
+    // In dev, validate that frontend brand matches API brand
+    if (import.meta.env.DEV) {
+      this.validateBrand();
+    }
+  }
+
+  private async validateBrand(): Promise<void> {
+    try {
+      const res = await fetch(`${API_URL}/api/brand`);
+      const data = await res.json();
+      if (data.brand && data.brand !== webBrand.id) {
+        const msg = `BRAND MISMATCH: Frontend is "${webBrand.id}" but API is "${data.brand}". Use "pnpm dev:tn" for BleSaf or "pnpm dev:fr" for France.`;
+        console.error(`[BRAND] ${msg}`);
+        // Show a visible warning banner so it's impossible to miss
+        const banner = document.createElement('div');
+        banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#dc2626;color:white;padding:12px 16px;font:bold 14px/1.4 system-ui;text-align:center;';
+        banner.textContent = msg;
+        banner.addEventListener('click', () => banner.remove());
+        document.body.appendChild(banner);
+      }
+    } catch {
+      // API not ready yet, skip
+    }
   }
 
   private async request<T>(
@@ -92,6 +121,11 @@ class ApiClient {
           this.clearToken();
           window.location.href = '/login';
           throw { code: 'SESSION_EXPIRED', message: 'Session expired. Please log in again.' };
+        }
+
+        // Handle subscription expired — let caller handle the error
+        if (response.status === 403 && data.error?.code === 'SUBSCRIPTION_EXPIRED') {
+          throw { code: 'SUBSCRIPTION_EXPIRED', message: data.error.message };
         }
 
         const error: ApiError & { data?: any } = {
@@ -218,7 +252,6 @@ class ApiClient {
     trialEndsAt: string | null;
     subscriptionEndsAt: string | null;
     daysRemaining: number | null;
-    smsCredits: number;
     canUseApp: boolean;
   }> {
     return this.request('/api/subscription');
@@ -226,12 +259,10 @@ class ApiClient {
 
   async getPricing(): Promise<{
     subscription: {
-      monthly: { amount: number; amountTND: number; description: string };
-      yearly: { amount: number; amountTND: number; description: string; savings: number };
+      monthly: { amount: number; amountDisplay: number; currency: string; description: string };
+      yearly: { amount: number; amountDisplay: number; currency: string; description: string; savings: number };
     };
-    smsPackages: Record<string, { credits: number; amount: number; amountTND: number; perSms: number }>;
     trialDays: number;
-    freeSmsTrial: number;
   }> {
     return this.request('/api/subscription/pricing');
   }
@@ -240,17 +271,6 @@ class ApiClient {
     return this.request('/api/subscription/checkout', {
       method: 'POST',
       body: JSON.stringify({ plan }),
-    });
-  }
-
-  async getSmsBalance(): Promise<{ credits: number; used: number }> {
-    return this.request('/api/subscription/sms');
-  }
-
-  async createSmsCheckout(packageName: 'starter' | 'standard' | 'pro'): Promise<{ payUrl: string; paymentRef: string }> {
-    return this.request('/api/subscription/sms/checkout', {
-      method: 'POST',
-      body: JSON.stringify({ package: packageName }),
     });
   }
 
@@ -355,6 +375,7 @@ class ApiClient {
   async updateClinic(data: {
     name?: string;
     doctorName?: string;
+    doctorGender?: 'M' | 'F';
     phone?: string;
     address?: string;
     language?: 'fr' | 'ar';

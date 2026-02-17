@@ -10,10 +10,15 @@ import { QueueStatus } from '@prisma/client';
 /**
  * Recalculate positions and auto-assign statuses for a clinic's queue
  *
- * Rules:
- * - Position #1 should always be IN_CONSULTATION
- * - Position #2 should always be NOTIFIED
- * - All others should be WAITING
+ * Rules (when doctor IS present):
+ * - Position #1 → IN_CONSULTATION
+ * - Position #2 → NOTIFIED
+ * - All others → WAITING
+ *
+ * Rules (when doctor is NOT present):
+ * - Position #1 → NOTIFIED (next up, but no active consultation)
+ * - All others → WAITING
+ * - No patient is placed IN_CONSULTATION
  *
  * Position ordering priority:
  * 1. Manually reordered patients (priorityOrder IS NOT NULL) - ordered by priorityOrder timestamp
@@ -28,6 +33,13 @@ import { QueueStatus } from '@prisma/client';
  * OPTIMIZED: Uses batch SQL update instead of N individual updates
  */
 export async function recalculatePositionsAndStatuses(clinicId: string): Promise<void> {
+  // Check doctor presence to determine status rules
+  const clinic = await prisma.clinic.findUnique({
+    where: { id: clinicId },
+    select: { isDoctorPresent: true },
+  });
+  const doctorPresent = clinic?.isDoctorPresent ?? false;
+
   await prisma.$transaction(async (tx) => {
     // Step 1: Renumber positions based on priority rules
     // Order: 1) Manually pinned (priorityOrder NOT NULL), 2) Appointments, 3) Walk-ins
@@ -55,34 +67,59 @@ export async function recalculatePositionsAndStatuses(clinicId: string): Promise
       WHERE "QueueEntry".id = ranked.id
     `;
 
-    // Step 2: Update status for position #1 to IN_CONSULTATION
-    await tx.$executeRaw`
-      UPDATE "QueueEntry"
-      SET status = 'IN_CONSULTATION',
-          "calledAt" = COALESCE("calledAt", NOW())
-      WHERE "clinicId" = ${clinicId}
-      AND position = 1
-      AND status IN ('WAITING', 'NOTIFIED', 'IN_CONSULTATION')
-    `;
+    if (doctorPresent) {
+      // Doctor present: position #1 → IN_CONSULTATION, #2 → NOTIFIED, 3+ → WAITING
 
-    // Step 3: Update status for position #2 to NOTIFIED
-    await tx.$executeRaw`
-      UPDATE "QueueEntry"
-      SET status = 'NOTIFIED',
-          "notifiedAt" = COALESCE("notifiedAt", NOW())
-      WHERE "clinicId" = ${clinicId}
-      AND position = 2
-      AND status IN ('WAITING', 'NOTIFIED', 'IN_CONSULTATION')
-    `;
+      // Step 2a: Update status for position #1 to IN_CONSULTATION
+      await tx.$executeRaw`
+        UPDATE "QueueEntry"
+        SET status = 'IN_CONSULTATION',
+            "calledAt" = COALESCE("calledAt", NOW())
+        WHERE "clinicId" = ${clinicId}
+        AND position = 1
+        AND status IN ('WAITING', 'NOTIFIED', 'IN_CONSULTATION')
+      `;
 
-    // Step 4: Update status for positions 3+ to WAITING
-    await tx.$executeRaw`
-      UPDATE "QueueEntry"
-      SET status = 'WAITING'
-      WHERE "clinicId" = ${clinicId}
-      AND position > 2
-      AND status IN ('NOTIFIED', 'IN_CONSULTATION')
-    `;
+      // Step 2b: Update status for position #2 to NOTIFIED
+      await tx.$executeRaw`
+        UPDATE "QueueEntry"
+        SET status = 'NOTIFIED',
+            "notifiedAt" = COALESCE("notifiedAt", NOW())
+        WHERE "clinicId" = ${clinicId}
+        AND position = 2
+        AND status IN ('WAITING', 'NOTIFIED', 'IN_CONSULTATION')
+      `;
+
+      // Step 2c: Update status for positions 3+ to WAITING
+      await tx.$executeRaw`
+        UPDATE "QueueEntry"
+        SET status = 'WAITING'
+        WHERE "clinicId" = ${clinicId}
+        AND position > 2
+        AND status IN ('NOTIFIED', 'IN_CONSULTATION')
+      `;
+    } else {
+      // Doctor NOT present: position #1 → NOTIFIED, 2+ → WAITING, no IN_CONSULTATION
+
+      // Step 2a: Position #1 → NOTIFIED (next up, ready when doctor arrives)
+      await tx.$executeRaw`
+        UPDATE "QueueEntry"
+        SET status = 'NOTIFIED',
+            "notifiedAt" = COALESCE("notifiedAt", NOW())
+        WHERE "clinicId" = ${clinicId}
+        AND position = 1
+        AND status IN ('WAITING', 'NOTIFIED', 'IN_CONSULTATION')
+      `;
+
+      // Step 2b: Positions 2+ → WAITING
+      await tx.$executeRaw`
+        UPDATE "QueueEntry"
+        SET status = 'WAITING'
+        WHERE "clinicId" = ${clinicId}
+        AND position > 1
+        AND status IN ('NOTIFIED', 'IN_CONSULTATION')
+      `;
+    }
   });
 }
 
@@ -149,38 +186,65 @@ export async function reorderPatient(
 
 /**
  * Update statuses based on current positions using batch SQL
- * OPTIMIZED: Uses 3 batch queries instead of N individual updates
+ * Respects doctor presence — same rules as recalculatePositionsAndStatuses()
+ * OPTIMIZED: Uses batch queries instead of N individual updates
  */
 export async function updateStatusesAfterReorder(clinicId: string): Promise<void> {
+  const clinic = await prisma.clinic.findUnique({
+    where: { id: clinicId },
+    select: { isDoctorPresent: true },
+  });
+  const doctorPresent = clinic?.isDoctorPresent ?? false;
+
   await prisma.$transaction(async (tx) => {
-    // Update position #1 to IN_CONSULTATION
-    await tx.$executeRaw`
-      UPDATE "QueueEntry"
-      SET status = 'IN_CONSULTATION',
-          "calledAt" = COALESCE("calledAt", NOW())
-      WHERE "clinicId" = ${clinicId}
-      AND position = 1
-      AND status IN ('WAITING', 'NOTIFIED', 'IN_CONSULTATION')
-    `;
+    if (doctorPresent) {
+      // Update position #1 to IN_CONSULTATION
+      await tx.$executeRaw`
+        UPDATE "QueueEntry"
+        SET status = 'IN_CONSULTATION',
+            "calledAt" = COALESCE("calledAt", NOW())
+        WHERE "clinicId" = ${clinicId}
+        AND position = 1
+        AND status IN ('WAITING', 'NOTIFIED', 'IN_CONSULTATION')
+      `;
 
-    // Update position #2 to NOTIFIED
-    await tx.$executeRaw`
-      UPDATE "QueueEntry"
-      SET status = 'NOTIFIED',
-          "notifiedAt" = COALESCE("notifiedAt", NOW())
-      WHERE "clinicId" = ${clinicId}
-      AND position = 2
-      AND status IN ('WAITING', 'NOTIFIED', 'IN_CONSULTATION')
-    `;
+      // Update position #2 to NOTIFIED
+      await tx.$executeRaw`
+        UPDATE "QueueEntry"
+        SET status = 'NOTIFIED',
+            "notifiedAt" = COALESCE("notifiedAt", NOW())
+        WHERE "clinicId" = ${clinicId}
+        AND position = 2
+        AND status IN ('WAITING', 'NOTIFIED', 'IN_CONSULTATION')
+      `;
 
-    // Update positions 3+ to WAITING
-    await tx.$executeRaw`
-      UPDATE "QueueEntry"
-      SET status = 'WAITING'
-      WHERE "clinicId" = ${clinicId}
-      AND position > 2
-      AND status IN ('NOTIFIED', 'IN_CONSULTATION')
-    `;
+      // Update positions 3+ to WAITING
+      await tx.$executeRaw`
+        UPDATE "QueueEntry"
+        SET status = 'WAITING'
+        WHERE "clinicId" = ${clinicId}
+        AND position > 2
+        AND status IN ('NOTIFIED', 'IN_CONSULTATION')
+      `;
+    } else {
+      // Doctor NOT present: position #1 → NOTIFIED, 2+ → WAITING
+      await tx.$executeRaw`
+        UPDATE "QueueEntry"
+        SET status = 'NOTIFIED',
+            "notifiedAt" = COALESCE("notifiedAt", NOW())
+        WHERE "clinicId" = ${clinicId}
+        AND position = 1
+        AND status IN ('WAITING', 'NOTIFIED', 'IN_CONSULTATION')
+      `;
+
+      await tx.$executeRaw`
+        UPDATE "QueueEntry"
+        SET status = 'WAITING'
+        WHERE "clinicId" = ${clinicId}
+        AND position > 1
+        AND status IN ('NOTIFIED', 'IN_CONSULTATION')
+      `;
+    }
   });
 }
 

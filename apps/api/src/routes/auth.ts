@@ -4,6 +4,8 @@ import { z } from 'zod';
 import { prisma } from '../lib/prisma.js';
 import { signToken, authMiddleware } from '../lib/auth.js';
 import { AuthRequest } from '../types/index.js';
+import { ADMIN_EMAILS } from './admin.js';
+import { logger } from '../lib/logger.js';
 
 const router = Router();
 
@@ -100,6 +102,7 @@ router.post('/login', async (req: Request, res: Response) => {
           subscriptionStatus: clinic.subscriptionStatus,
           subscriptionPlan: clinic.subscriptionPlan,
           daysRemaining,
+          isAdmin: ADMIN_EMAILS.includes(clinic.email.toLowerCase()),
           uiLabels,
         },
       },
@@ -115,7 +118,7 @@ router.post('/login', async (req: Request, res: Response) => {
       });
     }
 
-    console.error('Login error:', error);
+    logger.error({ err: error }, "Login error");
     res.status(500).json({
       error: {
         code: 'SERVER_ERROR',
@@ -186,7 +189,7 @@ router.get('/me', authMiddleware, async (req: AuthRequest, res: Response) => {
       }
     });
   } catch (error) {
-    console.error('Get clinic error:', error);
+    logger.error({ err: error }, "Get clinic error");
     res.status(500).json({
       error: {
         code: 'SERVER_ERROR',
@@ -237,7 +240,7 @@ router.post('/change-password', authMiddleware, async (req: AuthRequest, res: Re
         error: { code: 'VALIDATION_ERROR', message: 'Invalid request data', details: error.errors },
       });
     }
-    console.error('Change password error:', error);
+    logger.error({ err: error }, "Change password error");
     res.status(500).json({
       error: { code: 'SERVER_ERROR', message: 'Failed to change password' },
     });

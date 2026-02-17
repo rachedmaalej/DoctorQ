@@ -272,7 +272,7 @@ export function useDashboard() {
     try {
       await clearQueue();
       // Optimistically clear the local queue immediately
-      useQueueStore.getState().setQueue([], stats ? { ...stats, waiting: 0 } : { waiting: 0, seen: 0, avgWait: null, lastConsultationMins: null, noShows: 0, maxWait: null });
+      useQueueStore.getState().setQueue([], stats ? { ...stats, waiting: 0 } : { waiting: 0, seen: 0, avgWait: null, lastConsultationMins: null, noShows: 0, maxWait: null, effectiveAvgMins: 10 });
       setIsClearQueueModalOpen(false);
     } catch (error) {
       logger.error('Failed to clear queue:', error);

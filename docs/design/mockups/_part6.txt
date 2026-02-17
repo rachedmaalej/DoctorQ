@@ -1,0 +1,312 @@
+<script>
+// ============================================================
+// DEMO 3: VUE RECEPTIONNISTE (Receptionist View)
+// ============================================================
+const RV = (function() {
+  const $ = id => document.getElementById(id);
+  let currentScreen = 0;
+  let smsCredits = 50;
+  let patientsManaged = 0;
+  let queueData = [];
+  let consultingPatient = null;
+
+  const allPatients = [
+    { name:'Youssef Bouazizi', time:'08:31', method:'qr' },
+    { name:'Salma Trabelsi', time:'08:33', method:'qr' },
+    { name:'Karim Jlassi', time:'08:36', method:'qr' },
+    { name:'Nadia Hamdi', time:'08:38', method:'manual' },
+    { name:'Amine Khemiri', time:'08:40', method:'qr' },
+    { name:'Fatma Ben Ali', time:'08:42', method:'manual' },
+    { name:'Mehdi Sfar', time:'08:45', method:'qr' },
+    { name:'Leila Riahi', time:'08:48', method:'qr' },
+  ];
+
+  const stepLabels = ['Bienvenue','Ouverture','Arrivees','Gestion','Notifications','No-show','Bilan'];
+
+  function updateStepBar(stepIdx) {
+    for (let i = 0; i < 6; i++) {
+      const pip = $('rvPip' + i);
+      pip.className = 'step-pip';
+      if (i < stepIdx) pip.classList.add('done');
+      if (i === stepIdx) pip.classList.add('active');
+    }
+    $('rvStepLabel').textContent = stepLabels[stepIdx] || '';
+  }
+
+  function showScreen(idx) {
+    ['rvScreen0','rvScreen1','rvScreen2'].forEach(id => {
+      const el = $(id);
+      if (el) {
+        el.classList.remove('active');
+        // For screens using pj-screen class
+        if (el.classList.contains('pj-screen')) {
+          el.style.opacity = '0';
+          el.style.transform = 'translateY(20px)';
+          el.style.pointerEvents = 'none';
+        }
+      }
+    });
+    const target = $('rvScreen' + idx);
+    if (target) {
+      target.classList.add('active');
+      if (target.classList.contains('pj-screen')) {
+        target.style.opacity = '1';
+        target.style.transform = 'translateY(0)';
+        target.style.pointerEvents = 'auto';
+      }
+    }
+    currentScreen = idx;
+  }
+
+  function updateStats() {
+    const waiting = queueData.filter(p => p.status === 'waiting').length;
+    const consulting = consultingPatient ? 1 : 0;
+    const done = patientsManaged;
+    $('rvStatWait').textContent = waiting;
+    $('rvStatConsult').textContent = consulting;
+    $('rvStatDone').textContent = done;
+  }
+
+  function renderQueue() {
+    const list = $('rvQueueList');
+    list.innerHTML = '';
+
+    // Show consulting patient first
+    if (consultingPatient) {
+      const div = document.createElement('div');
+      div.className = 'rv-patient consulting';
+      div.innerHTML = '<div class="rv-pos green"><span class="material-symbols-outlined" style="font-size:16px;color:#16A34A;font-variation-settings:\'FILL\' 1;">stethoscope</span></div><div class="rv-pinfo"><div class="rv-pname">' + consultingPatient.name + '</div><div class="rv-pdetail"><span class="material-symbols-outlined">schedule</span> ' + consultingPatient.time + '</div></div><div class="rv-pbadge consulting">En consultation</div>';
+      list.appendChild(div);
+    }
+
+    // Show waiting patients
+    let pos = 1;
+    queueData.forEach((p, i) => {
+      if (p.status === 'removed') return;
+      const div = document.createElement('div');
+      if (p.status === 'noshow') {
+        div.className = 'rv-patient noshow';
+        div.innerHTML = '<div class="rv-pos red"><span class="material-symbols-outlined" style="font-size:14px;color:#EF4444;">close</span></div><div class="rv-pinfo"><div class="rv-pname" style="text-decoration:line-through;opacity:0.6;">' + p.name + '</div><div class="rv-pdetail"><span class="material-symbols-outlined">schedule</span> ' + p.time + '</div></div><div class="rv-pbadge noshow">No-show</div>';
+      } else if (p.status === 'notified') {
+        div.className = 'rv-patient entering';
+        div.innerHTML = '<div class="rv-pos" style="background:#FEF3C7;color:#D97706;">' + pos + '</div><div class="rv-pinfo"><div class="rv-pname">' + p.name + '</div><div class="rv-pdetail"><span class="material-symbols-outlined">schedule</span> ' + p.time + '</div></div><div class="rv-pbadge notified">Notifie</div>';
+        pos++;
+      } else {
+        div.className = 'rv-patient' + (p.isNew ? ' entering' : '');
+        div.innerHTML = '<div class="rv-pos">' + pos + '</div><div class="rv-pinfo"><div class="rv-pname">' + p.name + '</div><div class="rv-pdetail"><span class="material-symbols-outlined">schedule</span> ' + p.time + '</div></div><div class="rv-pbadge ' + p.method + '">' + (p.method === 'qr' ? 'QR' : 'Manuel') + '</div>';
+        pos++;
+      }
+      list.appendChild(div);
+      // Remove entering class after animation
+      if (p.isNew) safeTimeout(() => { div.classList.remove('entering'); p.isNew = false; }, 600);
+    });
+
+    updateStats();
+  }
+
+  function showToast(icon, iconClass, title, body, duration) {
+    $('rvToastIconSpan').textContent = icon;
+    $('rvToastIcon').className = 'rv-toast-icon ' + iconClass;
+    $('rvToastTitle').textContent = title;
+    $('rvToastBody').textContent = body;
+    $('rvToast').classList.add('visible');
+    safeTimeout(() => $('rvToast').classList.remove('visible'), duration || 2500);
+  }
+
+  function showSpeech(speaker, text, duration) {
+    $('rvSpeechSpeaker').textContent = speaker;
+    $('rvSpeechText').innerHTML = text;
+    $('rvSpeech').classList.add('visible');
+    safeTimeout(() => $('rvSpeech').classList.remove('visible'), duration || 3000);
+  }
+
+  function next() {
+    if (currentScreen === 0) {
+      // Go to dashboard
+      showScreen(1);
+      updateStepBar(1);
+      // Start the morning sequence
+      safeTimeout(() => startMorning(), 600);
+    }
+  }
+
+  function startMorning() {
+    // Step 1: Toggle doctor present
+    showToast('stethoscope', 'green', 'Docteur present', 'Dr. Kamoun est arrive au cabinet', 2500);
+    updateStepBar(1);
+
+    // Step 2: Patients start arriving (after 3s)
+    safeTimeout(() => {
+      updateStepBar(2);
+      startArrivals();
+    }, 3000);
+  }
+
+  function startArrivals() {
+    let idx = 0;
+    const addPatient = () => {
+      if (idx >= allPatients.length) {
+        // All patients arrived, start management phase
+        safeTimeout(() => startManagement(), 1500);
+        return;
+      }
+      const p = { ...allPatients[idx], status: 'waiting', isNew: true };
+      queueData.push(p);
+
+      // Show toast for some patients
+      if (idx < 3 || p.method === 'manual') {
+        const methodStr = p.method === 'qr' ? 'Scan QR' : 'Ajout manuel';
+        showToast(p.method === 'qr' ? 'qr_code_2' : 'person_add', p.method === 'qr' ? 'blue' : 'orange', p.name, methodStr + ' - ' + p.time, 1800);
+      }
+
+      // Show add form animation for manual patients
+      if (p.method === 'manual' && idx === 3) {
+        showSpeech('Receptionniste', '"Je l\'ajoute manuellement, elle a appele par telephone."', 2800);
+      }
+
+      renderQueue();
+      smsCredits--;
+      $('rvCreditCount').textContent = smsCredits;
+      idx++;
+      safeTimeout(addPatient, idx <= 3 ? 1400 : 900);
+    };
+    addPatient();
+  }
+
+  function startManagement() {
+    updateStepBar(3);
+    // Doctor calls first patient
+    showToast('directions_walk', 'green', 'Appel suivant', 'Le docteur appelle Youssef Bouazizi', 2500);
+
+    safeTimeout(() => {
+      consultingPatient = queueData.shift();
+      consultingPatient.status = 'consulting';
+
+      // Notify next patient
+      if (queueData.length > 0) {
+        queueData[0].status = 'notified';
+        smsCredits--;
+        $('rvCreditCount').textContent = smsCredits;
+      }
+      renderQueue();
+      patientsManaged++;
+      updateStats();
+    }, 1500);
+
+    // Patient asks "when is my turn?"
+    safeTimeout(() => {
+      showSpeech('Patient (Amine)', '"Excusez-moi, c\'est quand mon tour ?"', 3500);
+    }, 4000);
+
+    // Receptionist responds
+    safeTimeout(() => {
+      showSpeech('Receptionniste', '"Consultez votre telephone, vous recevrez un SMS quand ce sera bientot votre tour." &#128522;', 3500);
+    }, 8000);
+
+    // SMS notifications phase
+    safeTimeout(() => {
+      updateStepBar(4);
+      showToast('sms', 'green', 'SMS envoye', 'Salma Trabelsi notifiee automatiquement', 2500);
+      smsCredits--;
+      $('rvCreditCount').textContent = smsCredits;
+    }, 12000);
+
+    // Complete another patient
+    safeTimeout(() => {
+      patientsManaged++;
+      consultingPatient = queueData.shift();
+      if (consultingPatient) consultingPatient.status = 'consulting';
+      if (queueData.length > 0) {
+        queueData[0].status = 'notified';
+        smsCredits--;
+        $('rvCreditCount').textContent = smsCredits;
+      }
+      renderQueue();
+      updateStats();
+      showToast('check_circle', 'green', 'Consultation terminee', 'Youssef Bouazizi - termine', 2000);
+    }, 14500);
+
+    // No-show phase
+    safeTimeout(() => {
+      updateStepBar(5);
+      startNoShow();
+    }, 17500);
+  }
+
+  function startNoShow() {
+    // Find Karim in queue
+    const karimIdx = queueData.findIndex(p => p.name === 'Karim Jlassi');
+    if (karimIdx >= 0) {
+      showToast('person_off', 'red', 'No-show', 'Karim Jlassi ne repond pas', 2500);
+      safeTimeout(() => {
+        queueData[karimIdx].status = 'noshow';
+        renderQueue();
+        showSpeech('Systeme', 'File reorganisee automatiquement. Les patients suivants avancent.', 3000);
+      }, 1500);
+    }
+
+    // Process a few more patients quickly
+    safeTimeout(() => {
+      // Quick cycle through remaining patients
+      let cycleCount = 0;
+      const quickCycle = () => {
+        if (cycleCount >= 3 || queueData.filter(p => p.status === 'waiting' || p.status === 'notified').length === 0) {
+          // Done - show end screen
+          safeTimeout(() => showEndScreen(), 1000);
+          return;
+        }
+        patientsManaged++;
+        // Remove noshow patients from queue display
+        queueData = queueData.filter(p => p.status !== 'noshow');
+        if (queueData.length > 0) {
+          consultingPatient = queueData.shift();
+          if (consultingPatient) consultingPatient.status = 'consulting';
+        }
+        if (queueData.length > 0 && queueData[0].status === 'waiting') {
+          queueData[0].status = 'notified';
+          smsCredits--;
+          $('rvCreditCount').textContent = smsCredits;
+        }
+        renderQueue(); updateStats();
+        cycleCount++;
+        safeTimeout(quickCycle, 1200);
+      };
+      quickCycle();
+    }, 4500);
+  }
+
+  function showEndScreen() {
+    patientsManaged = Math.max(patientsManaged, 8);
+    $('rvEndPatients').textContent = patientsManaged;
+    $('rvEndTitle').textContent = 'Ce matin, vous avez gere ' + patientsManaged + ' patients sans lever la voix.';
+    updateStepBar(5);
+    showScreen(2);
+  }
+
+  function restart() {
+    currentScreen = 0;
+    smsCredits = 50;
+    patientsManaged = 0;
+    queueData = [];
+    consultingPatient = null;
+    $('rvCreditCount').textContent = '50';
+    $('rvStatWait').textContent = '0';
+    $('rvStatConsult').textContent = '0';
+    $('rvStatDone').textContent = '0';
+    $('rvQueueList').innerHTML = '';
+    $('rvToast').classList.remove('visible');
+    $('rvSpeech').classList.remove('visible');
+    updateStepBar(0);
+    showScreen(0);
+  }
+
+  function cleanup() {
+    $('rvToast').classList.remove('visible');
+    $('rvSpeech').classList.remove('visible');
+  }
+
+  return { next, restart, cleanup };
+})();
+</script>
+</body>
+</html>

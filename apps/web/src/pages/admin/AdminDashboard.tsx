@@ -1,21 +1,33 @@
 /**
- * Admin Dashboard v2 - BléSaf SaaS Command Center
- * Linear Monochrome design with Teal Clinical palette
+ * Admin Dashboard — Brand-aware router shell
+ * Renders BleSaf "Emerald Cards" or AuSuivant "Warm Beige Editorial"
+ * overview based on VITE_BRAND, with existing tabs for non-overview content.
  */
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, lazy, Suspense } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 import type { AdminTab } from '../../types';
-import AdminTabBar from '../../components/admin/AdminTabBar';
 import CreateClinicModal from '../../components/admin/CreateClinicModal';
-import OverviewTab from '../../components/admin/tabs/OverviewTab';
+import { webBrand } from '../../lib/brand';
+
+// Brand-specific top navs (direct import — small components)
+import BlesafTopNav from './blesaf/components/BlesafTopNav';
+import AusuivantDarkTopBar from './ausuivant/components/AusuivantDarkTopBar';
+
+// Brand-specific overview dashboards (lazy-loaded)
+const BlesafAdminDashboard = lazy(() => import('./blesaf/BlesafAdminDashboard'));
+const AusuivantAdminDashboard = lazy(() => import('./ausuivant/AusuivantAdminDashboard'));
+
+// Existing tab components for non-overview tabs
 import ClinicsTab from '../../components/admin/tabs/ClinicsTab';
 import FinancialTab from '../../components/admin/tabs/FinancialTab';
 import EngagementTab from '../../components/admin/tabs/EngagementTab';
 import PlatformHealthTab from '../../components/admin/tabs/PlatformHealthTab';
 
 const VALID_TABS: AdminTab[] = ['overview', 'clinics', 'financial', 'engagement', 'platform'];
+
+const isFrance = webBrand.id === 'france';
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -57,38 +69,57 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="h-screen overflow-y-auto no-scrollbar bg-[#FDFFFF]" style={{ fontFamily: "'Inter', sans-serif" }}>
-      {/* Header — clean white */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center pt-6 pb-2">
-          <h1 className="text-xl font-bold text-[#132E2C] tracking-tight">Admin Dashboard</h1>
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => setShowCreateModal(true)}
-              className="px-3 py-1.5 text-sm bg-[#267B75] text-white rounded hover:bg-[#1F6560] font-medium transition-colors"
-            >
-              + New Clinic
-            </button>
-            <button
-              onClick={handleLogout}
-              className="text-sm text-[#E15720] hover:text-[#ff7040] transition-colors"
-            >
-              Logout
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Tab Navigation */}
-      <AdminTabBar activeTab={activeTab} onTabChange={handleTabChange} />
+    <div className="h-screen overflow-y-auto no-scrollbar" style={{ background: isFrance ? '#f4f1ec' : '#f7f5f1' }}>
+      {/* Brand-specific Top Navigation */}
+      {isFrance ? (
+        <AusuivantDarkTopBar
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+          onNewClinic={() => setShowCreateModal(true)}
+          onLogout={handleLogout}
+        />
+      ) : (
+        <BlesafTopNav
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+          onNewClinic={() => setShowCreateModal(true)}
+          onLogout={handleLogout}
+        />
+      )}
 
       {/* Tab Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {activeTab === 'overview' && <OverviewTab key={`overview-${refreshKey}`} />}
-        {activeTab === 'clinics' && <ClinicsTab key={`clinics-${refreshKey}`} />}
-        {activeTab === 'financial' && <FinancialTab />}
-        {activeTab === 'engagement' && <EngagementTab />}
-        {activeTab === 'platform' && <PlatformHealthTab />}
+      <main role="main">
+        {activeTab === 'overview' && (
+          <Suspense
+            fallback={
+              <div className="flex justify-center py-16">
+                <div
+                  className="animate-spin rounded-full h-8 w-8 border-b-2"
+                  style={{ borderBottomColor: isFrance ? '#c0392b' : '#2a9d6e' }}
+                />
+              </div>
+            }
+          >
+            {isFrance ? (
+              <AusuivantAdminDashboard key={`overview-${refreshKey}`} />
+            ) : (
+              <BlesafAdminDashboard key={`overview-${refreshKey}`} />
+            )}
+          </Suspense>
+        )}
+
+        {/* Non-overview tabs use existing components with brand-appropriate wrapper */}
+        {activeTab !== 'overview' && (
+          <div
+            className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
+            style={{ background: isFrance ? '#f4f1ec' : '#f7f5f1', minHeight: 'calc(100vh - 56px)' }}
+          >
+            {activeTab === 'clinics' && <ClinicsTab key={`clinics-${refreshKey}`} />}
+            {activeTab === 'financial' && <FinancialTab />}
+            {activeTab === 'engagement' && <EngagementTab />}
+            {activeTab === 'platform' && <PlatformHealthTab />}
+          </div>
+        )}
       </main>
 
       <CreateClinicModal

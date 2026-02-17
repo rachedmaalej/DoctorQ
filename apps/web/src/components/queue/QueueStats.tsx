@@ -59,18 +59,18 @@ export default function QueueStats({ stats, isDoctorPresent = false, queue = [] 
           </div>
         </div>
 
-        {/* Attente moyenne (displayed but inactive for demo) */}
-        <div className="bg-white rounded-lg shadow p-3 sm:p-6 opacity-60">
+        {/* Attente Moyenne */}
+        <div className="bg-white rounded-lg shadow p-3 sm:p-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div className="order-2 sm:order-1">
               <p className="text-xs sm:text-sm font-medium text-gray-600">{t('queue.avgWaitLabel')}</p>
-              <p className="text-xl sm:text-3xl font-bold text-gray-400 mt-1 sm:mt-2">
-                -
+              <p className={`text-xl sm:text-3xl font-bold mt-1 sm:mt-2 ${stats.avgWait != null ? 'text-amber-700' : 'text-gray-400'}`}>
+                {stats.avgWait != null ? `${stats.avgWait} min` : '-'}
               </p>
             </div>
-            <div className="order-1 sm:order-2 bg-gray-100 p-2 sm:p-3 rounded-full w-fit mb-2 sm:mb-0">
+            <div className={`order-1 sm:order-2 p-2 sm:p-3 rounded-full w-fit mb-2 sm:mb-0 ${stats.avgWait != null ? 'bg-amber-100' : 'bg-gray-100'}`}>
               <span
-                className="material-symbols-outlined w-5 h-5 sm:w-8 sm:h-8 text-gray-400 text-xl sm:text-3xl"
+                className={`material-symbols-outlined w-5 h-5 sm:w-8 sm:h-8 text-xl sm:text-3xl ${stats.avgWait != null ? 'text-amber-600' : 'text-gray-400'}`}
                 style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
               >
                 schedule

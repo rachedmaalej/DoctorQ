@@ -37,7 +37,7 @@ export default function ClinicRankingCard({ rankings }: ClinicRankingCardProps) 
             <div
               key={clinic.id}
               className="flex items-center gap-3 py-2 border-b border-[#E6F2F0] last:border-b-0 cursor-pointer hover:bg-[#F3FAF9] transition-colors"
-              onClick={() => navigate(`/admin/clinic/${clinic.id}`)}
+              onClick={() => navigate(`/admin/clinics/${clinic.id}`)}
             >
               <div className="w-5 text-xs font-bold text-[#8AADAA] text-right">
                 {index + 1}

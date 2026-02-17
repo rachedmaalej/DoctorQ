@@ -1,0 +1,336 @@
+<script>
+// ============================================================
+// TAB SWITCHER
+// ============================================================
+let activeDemo = 'fm';
+const demoTimeouts = [];
+
+function clearAllTimeouts() {
+  demoTimeouts.forEach(t => clearTimeout(t));
+  demoTimeouts.length = 0;
+}
+
+function safeTimeout(fn, ms) {
+  const id = setTimeout(fn, ms);
+  demoTimeouts.push(id);
+  return id;
+}
+
+function switchDemo(id) {
+  if (id === activeDemo) return;
+  clearAllTimeouts();
+
+  // Reset all demos
+  if (activeDemo === 'fm') FM.cleanup();
+  if (activeDemo === 'pj') PJ.cleanup();
+  if (activeDemo === 'rv') RV.cleanup();
+
+  activeDemo = id;
+
+  // Update tabs
+  document.querySelectorAll('.demo-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab' + id.toUpperCase()).classList.add('active');
+
+  // Show/hide containers
+  document.querySelectorAll('.demo-container').forEach(c => c.classList.remove('active'));
+  document.getElementById('demo' + id.toUpperCase()).classList.add('active');
+
+  // Start chosen demo
+  if (id === 'fm') FM.restart();
+  if (id === 'pj') PJ.restart();
+  if (id === 'rv') RV.restart();
+}
+
+// ============================================================
+// DEMO 1: PREMIER MATIN (First Morning) -- Original
+// ============================================================
+const FM = (function() {
+  const $ = id => document.getElementById(id);
+
+  const state = {
+    step: 'welcome',
+    clinicName: '', doctorName: '', specialty: '',
+    patients: [
+      { name: 'Fatma Khalil', time: '09:15', wait: 4 },
+      { name: 'Mehdi Trabelsi', time: '09:22', wait: 3 },
+      { name: 'Amira Jebali', time: '09:28', wait: 2 },
+      { name: 'Nizar Ben Salem', time: '09:35', wait: 1 },
+    ],
+    visiblePatients: 0,
+    inConsultation: null,
+  };
+
+  const stepLabels = {
+    'welcome': 'Bienvenue',
+    'wizard-1': 'Etape 1 - Votre cabinet', 'wizard-2': 'Etape 1 - Votre cabinet',
+    'wizard-3': 'Etape 1 - Le docteur est la',
+    'first-patient': 'Etape 2 - Premier patient',
+    'filling': 'Etape 3 - Salle d\'attente',
+    'call-prompt': 'Etape 4 - Appeler suivant', 'cascade': 'Etape 4 - Appeler suivant',
+    'qr': 'Etape 5 - Votre QR Code',
+  };
+  const stepPipIndex = {
+    'welcome': -1, 'wizard-1': 0, 'wizard-2': 0, 'wizard-3': 0,
+    'first-patient': 1, 'filling': 2, 'call-prompt': 3, 'cascade': 3, 'qr': 4,
+  };
+
+  function updateStepBar() {
+    const idx = stepPipIndex[state.step];
+    for (let i = 0; i < 5; i++) {
+      const pip = $('pip' + i);
+      pip.className = 'step-pip';
+      if (i < idx) pip.classList.add('done');
+      if (i === idx) pip.classList.add('active');
+    }
+    $('stepLabel').textContent = stepLabels[state.step] || '';
+  }
+
+  function renderPatientCard(patient, index, isNew) {
+    const waitClass = patient.wait >= 30 ? 'long' : patient.wait >= 15 ? 'medium' : 'short';
+    const isNotified = index === 0 && state.inConsultation;
+    const showUp = index > 0;
+    const showDown = !state.inConsultation ? index < state.visiblePatients - 1 : index < state.visiblePatients - 2;
+    const card = document.createElement('div');
+    card.className = 'patient-card' + (isNew ? ' entering' : '');
+    card.id = 'pcard-' + index;
+    card.innerHTML = '<div class="patient-card-top"><div class="position-badge">#' + (index + (state.inConsultation ? 2 : 1)) + '</div><div class="patient-info"><div class="patient-name">' + patient.name + '</div><div class="patient-details"><span class="patient-detail"><span class="material-symbols-outlined">login</span> ' + patient.time + '</span><span class="patient-detail wait ' + waitClass + '"><span class="material-symbols-outlined">hourglass_empty</span> ' + patient.wait + ' min</span></div>' + (isNotified ? '<div class="notified-badge"><span class="material-symbols-outlined">notifications_active</span> Notifie</div>' : '') + '</div></div><div class="patient-card-bottom"><div class="card-status-icons"><div class="status-icon-btn"><span class="material-symbols-outlined">directions_walk</span></div><div class="status-icon-btn sms-pending"><span class="material-symbols-outlined">send</span></div></div><div class="card-action-btns"><div class="action-btn priority"><span class="material-symbols-outlined">star</span></div>' + (showUp ? '<div class="action-btn"><span class="material-symbols-outlined">arrow_upward</span></div>' : '') + (showDown ? '<div class="action-btn"><span class="material-symbols-outlined">arrow_downward</span></div>' : '') + '<div class="action-btn remove"><span class="material-symbols-outlined">close</span></div></div></div>';
+    return card;
+  }
+
+  function renderQueue(animateNew) {
+    const container = $('queueContainer');
+    const start = state.inConsultation ? 1 : 0;
+    const patientsToShow = state.patients.slice(start, state.visiblePatients);
+    if (patientsToShow.length === 0 && !state.inConsultation) {
+      container.innerHTML = '<div class="empty-queue"><div class="empty-icon"><span class="material-symbols-outlined">groups</span></div><p>Aucun patient pour le moment</p></div>';
+      return;
+    }
+    container.innerHTML = '';
+    patientsToShow.forEach((p, i) => {
+      container.appendChild(renderPatientCard(p, i, animateNew && i === patientsToShow.length - 1));
+    });
+  }
+
+  function animateCounter(id, target) {
+    const el = $(id);
+    const current = parseInt(el.textContent) || 0;
+    if (current === target) return;
+    el.style.animation = 'none'; el.offsetHeight;
+    el.textContent = target;
+    el.style.animation = 'popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
+  }
+
+  function updateStats() {
+    const waiting = state.inConsultation ? Math.max(0, state.visiblePatients - 1) : state.visiblePatients;
+    animateCounter('statWaiting', waiting);
+    animateCounter('statConsultation', state.inConsultation ? 1 : 0);
+    if (state.visiblePatients > 0) {
+      const avgWait = Math.round(state.patients.slice(0, state.visiblePatients).reduce((s, p) => s + p.wait, 0) / state.visiblePatients);
+      $('estAvg').textContent = avgWait + ' min';
+      const now = new Date();
+      const next = new Date(now.getTime() + avgWait * 60000);
+      $('estNext').textContent = '~' + String(next.getHours()).padStart(2,'0') + ':' + String(next.getMinutes()).padStart(2,'0');
+      const end = new Date(now.getTime() + avgWait * state.visiblePatients * 60000);
+      $('estEnd').textContent = '~' + String(end.getHours()).padStart(2,'0') + ':' + String(end.getMinutes()).padStart(2,'0');
+    }
+  }
+
+  function showWizardStep(step) {
+    const card = $('wizardCard');
+    if (step === 1) {
+      state.step = 'wizard-1';
+      card.innerHTML = '<div class="wizard-step-label">Etape 1 sur 3</div><div class="wizard-title">Votre cabinet</div><div class="wizard-field"><label>Nom du cabinet</label><input type="text" id="wizClinicName" placeholder="ex: Cabinet Dr. Kamoun" value="Cabinet Dr. Skander Kamoun"></div><div class="wizard-field"><label>Nom du docteur</label><input type="text" id="wizDoctorName" placeholder="ex: Dr. Skander Kamoun" value="Dr. Skander Kamoun"></div><button class="wizard-btn" onclick="FM.wizardNext(1)">Suivant</button>';
+    } else if (step === 2) {
+      state.step = 'wizard-2';
+      card.innerHTML = '<div class="wizard-step-label">Etape 2 sur 3</div><div class="wizard-title">Quelques details</div><div class="wizard-field"><label>Specialite</label><select id="wizSpecialty"><option value="general">Medecine Generale</option><option value="dentist">Dentiste</option><option value="dermato">Dermatologie</option><option value="pediatre">Pediatrie</option></select></div><div class="wizard-field"><label>Telephone du cabinet</label><input type="tel" id="wizPhone" placeholder="+216 XX XXX XXX" value="+216 71 234 567"></div><button class="wizard-btn" onclick="FM.wizardNext(2)">Suivant</button>';
+    } else if (step === 3) {
+      state.step = 'wizard-3';
+      card.innerHTML = '<div class="wizard-step-label">Etape 3 sur 3</div><div class="wizard-title">Le docteur est arrive ?</div><div class="presence-toggle-big"><div class="toggle-circle on" id="wizPresenceCircle" onclick="FM.toggleWizPresence()"><span class="material-symbols-outlined">stethoscope</span></div><div class="toggle-label on" id="wizPresenceLabel">' + state.doctorName + ' est arrive(e)</div></div><button class="wizard-btn" onclick="FM.wizardNext(3)">Ouvrir mon cabinet</button>';
+    }
+    updateStepBar();
+  }
+
+  function toggleWizPresence() {
+    const circle = $('wizPresenceCircle');
+    const label = $('wizPresenceLabel');
+    const isOn = circle.classList.contains('on');
+    circle.classList.toggle('on', !isOn);
+    label.classList.toggle('on', !isOn);
+    label.textContent = isOn ? 'Pas encore arrive(e)' : state.doctorName + ' est arrive(e)';
+  }
+
+  function wizardNext(currentStep) {
+    if (currentStep === 1) {
+      state.clinicName = ($('wizClinicName') || {}).value || 'Cabinet Dr. Kamoun';
+      state.doctorName = ($('wizDoctorName') || {}).value || 'Dr. Kamoun';
+      showWizardStep(2);
+    } else if (currentStep === 2) {
+      state.specialty = ($('wizSpecialty') || {}).value;
+      showWizardStep(3);
+    } else if (currentStep === 3) {
+      $('dashClinicName').textContent = state.doctorName;
+      $('wizardOverlay').classList.add('hidden');
+      $('dashboard').classList.add('visible');
+      safeTimeout(() => startFirstPatient(), 1200);
+    }
+  }
+
+  function updatePhoneMockup(lastPatientIndex) {
+    const p = state.patients[lastPatientIndex];
+    if (!p) return;
+    const firstName = p.name.split(' ')[0];
+    $('phonePatientName').textContent = firstName + ', vous etes dans le Saf!';
+    const position = lastPatientIndex + 1;
+    const ahead = position - 1;
+    $('phoneAhead').textContent = ahead === 0 ? 'Vous etes le prochain !' : ahead + ' personne' + (ahead > 1 ? 's' : '') + ' avant vous';
+    const waitMins = ahead * 10;
+    $('phoneWait').textContent = waitMins === 0 ? '< 5 min' : '~' + waitMins + ' min';
+    $('phoneTicket').textContent = '#' + position;
+    $('phoneTicket').className = 'phone-ticket';
+    $('phoneTurnMsg').style.display = 'none';
+  }
+
+  function updatePhoneMockupYourTurn() {
+    const p = state.patients[0];
+    const firstName = p.name.split(' ')[0];
+    $('phonePatientName').textContent = firstName + ', c\'est votre tour !';
+    $('phoneAhead').textContent = '';
+    $('phoneWait').textContent = 'Maintenant !';
+    $('phoneTicket').textContent = '\u2713';
+    $('phoneTicket').className = 'phone-ticket green';
+    $('phoneTurnMsg').style.display = 'block';
+  }
+
+  const coachContent = {
+    'first-patient': { icon:'person_pin', title:'Un patient vient d\'arriver !', body:'Fatma a scanne votre QR code depuis le parking. Elle est apparue dans votre file d\'attente <strong>automatiquement</strong>.<br><br>Pas d\'appel telephonique. Pas de papier.', btn:'Continuer', action:'FM.startFilling', position:'middle' },
+    'filling': { icon:'groups', title:'La salle d\'attente se remplit', body:'4 patients se sont enregistres <strong>tout seuls</strong>, chacun en scannant le QR code. Votre receptionniste n\'a rien eu a faire.<br><br>Prete a recevoir Fatma ?', btn:'Appeler le premier patient', action:'FM.startCallPrompt', position:'middle' },
+    'call-prompt': { icon:'touch_app', title:'Cliquez sur "Appeler Suivant"', body:'Un seul clic pour appeler Fatma, notifier le patient suivant, et reorganiser toute la file.<br><br>Essayez maintenant !', btn:'', action:'', position:'top', hideBtn:true },
+    'cascade': { icon:'auto_awesome', title:'Un clic. Toute la file s\'est reorganisee.', body:'Fatma est en consultation. Mehdi est notifie qu\'il passe bientot. Les autres ont avance d\'une place.<br><br><strong>Plus besoin de crier un nom dans la salle d\'attente.</strong>', btn:'Voir mon QR code', action:'FM.showQRPoster', position:'middle' },
+  };
+
+  function showCoachMark(key) {
+    const coach = coachContent[key]; if (!coach) return;
+    const overlay = $('coachOverlay'); const tooltip = $('coachTooltip');
+    tooltip.innerHTML = '<div class="coach-icon"><span class="material-symbols-outlined">' + coach.icon + '</span></div><h3>' + coach.title + '</h3><p>' + coach.body + '</p>' + (coach.hideBtn ? '' : '<button class="coach-btn" onclick="' + coach.action + '()">' + coach.btn + '</button>');
+    tooltip.style.transform = 'translateX(-50%)';
+    if (coach.position === 'top') { tooltip.style.top = '90px'; tooltip.style.bottom = 'auto'; }
+    else if (coach.position === 'middle') { tooltip.style.top = '50%'; tooltip.style.bottom = 'auto'; tooltip.style.transform = 'translateX(-50%) translateY(-50%)'; }
+    else { tooltip.style.top = 'auto'; tooltip.style.bottom = '60px'; }
+    overlay.classList.remove('hidden','active','passthrough');
+    if (coach.hideBtn) {
+      overlay.classList.add('passthrough');
+      const btn = $('callNextBtn'); if (btn) btn.style.animation = 'pulse-btn 1.5s infinite';
+    } else { overlay.classList.add('active'); }
+  }
+
+  function hideCoachMark() {
+    const overlay = $('coachOverlay');
+    overlay.classList.add('hidden'); overlay.classList.remove('active','passthrough');
+  }
+
+  function startFirstPatient() {
+    state.step = 'first-patient'; updateStepBar();
+    safeTimeout(() => {
+      state.visiblePatients = 1; state.patients[0].wait = 0;
+      renderQueue(true); updateStats();
+      updatePhoneMockup(0);
+      safeTimeout(() => $('phoneMockup').classList.add('visible'), 400);
+      safeTimeout(() => showCoachMark('first-patient'), 900);
+    }, 1500);
+  }
+
+  function startFilling() {
+    state.step = 'filling'; updateStepBar(); hideCoachMark();
+    let patientIndex = 1;
+    const addNext = () => {
+      if (patientIndex >= state.patients.length) {
+        safeTimeout(() => { updatePhoneMockup(state.visiblePatients - 1); showCoachMark('filling'); }, 600);
+        return;
+      }
+      state.patients[patientIndex].wait = patientIndex * 5;
+      state.visiblePatients = patientIndex + 1;
+      renderQueue(true); updateStats(); updatePhoneMockup(state.visiblePatients - 1);
+      patientIndex++;
+      safeTimeout(addNext, 900);
+    };
+    safeTimeout(addNext, 500);
+  }
+
+  function startCallPrompt() {
+    state.step = 'call-prompt'; updateStepBar(); hideCoachMark();
+    $('phoneMockup').classList.remove('visible');
+    $('callNextBtn').classList.remove('disabled');
+    $('callNextBtn').onclick = performCascade;
+    safeTimeout(() => showCoachMark('call-prompt'), 400);
+  }
+
+  function performCascade() {
+    state.step = 'cascade'; hideCoachMark();
+    const btn = $('callNextBtn');
+    btn.style.animation = ''; btn.classList.add('disabled');
+    btn.innerHTML = '<span class="material-symbols-outlined" style="animation:spin 0.8s linear infinite">sync</span> Appel en cours...';
+    safeTimeout(() => {
+      state.inConsultation = state.patients[0];
+      $('consultName').textContent = state.patients[0].name;
+      $('consultTime').textContent = '0 min';
+      $('callNextSection').style.display = 'none';
+      $('consultSection').classList.add('visible');
+      $('consultSection').style.animation = 'fadeIn 0.5s ease-out';
+      state.patients.forEach((p, i) => { if (i > 0) p.wait += 2; });
+      renderQueue(false);
+      document.querySelectorAll('#demoFM .patient-card').forEach(card => {
+        card.classList.add('shifting');
+        safeTimeout(() => card.classList.remove('shifting'), 600);
+      });
+      animateCounter('statConsultation', 1);
+      animateCounter('statWaiting', state.visiblePatients - 1);
+      updatePhoneMockupYourTurn();
+      safeTimeout(() => $('phoneMockup').classList.add('visible'), 300);
+      safeTimeout(() => showCoachMark('cascade'), 1200);
+    }, 800);
+  }
+
+  function showQRPoster() {
+    state.step = 'qr'; updateStepBar(); hideCoachMark();
+    $('phoneMockup').classList.remove('visible');
+    $('qrOverlay').classList.remove('hidden');
+  }
+
+  function startOnboarding() {
+    $('welcomeOverlay').classList.add('hidden');
+    $('wizardOverlay').classList.remove('hidden');
+    showWizardStep(1);
+  }
+
+  function restart() {
+    state.step = 'welcome'; state.visiblePatients = 0; state.inConsultation = null;
+    state.patients.forEach((p, i) => { p.wait = (i + 1) * 2; });
+    $('dashboard').classList.remove('visible');
+    $('welcomeOverlay').classList.remove('hidden');
+    $('qrOverlay').classList.add('hidden');
+    $('phoneMockup').classList.remove('visible');
+    $('consultSection').classList.remove('visible');
+    $('callNextSection').style.display = '';
+    $('callNextBtn').innerHTML = '<span class="material-symbols-outlined">directions_walk</span> Appeler Suivant';
+    $('callNextBtn').classList.remove('disabled');
+    $('statWaiting').textContent = '0'; $('statConsultation').textContent = '0'; $('statSeen').textContent = '0';
+    $('estAvg').textContent = '--'; $('estNext').textContent = '--'; $('estEnd').textContent = '--';
+    $('queueContainer').innerHTML = '<div class="empty-queue"><div class="empty-icon"><span class="material-symbols-outlined">groups</span></div><p>Aucun patient pour le moment</p></div>';
+    hideCoachMark(); updateStepBar();
+  }
+
+  function cleanup() {
+    $('phoneMockup').classList.remove('visible');
+    hideCoachMark();
+  }
+
+  return {
+    startOnboarding, restart, cleanup, wizardNext, toggleWizPresence,
+    startFilling: startFilling, startCallPrompt, showQRPoster,
+  };
+})();
+
+// Initialize FM
+FM.restart();
+document.getElementById('callNextBtn').classList.add('disabled');
+</script>

@@ -6,8 +6,9 @@
 import { prisma } from '../lib/prisma.js';
 import { QueueStatus, CheckInMethod, QueueEntry } from '@prisma/client';
 import { recalculatePositionsAndStatuses, getNextPosition } from './positionService.js';
-import { emitQueueUpdate, emitPatientUpdate, emitAllPatientUpdates, sendSmsNotification } from './notificationService.js';
-import { getQueueStats, getStartOfToday } from './statsService.js';
+import { emitQueueUpdate, emitPatientUpdate, emitAllPatientUpdates } from './notificationService.js';
+import { getQueueStats, getStartOfToday, computeSmartWaitEstimate } from './statsService.js';
+import { brand } from '../lib/brand.js';
 
 export interface AddPatientInput {
   clinicId: string;
@@ -25,12 +26,14 @@ export interface AddPatientResult {
 }
 
 /**
- * Format a Tunisian phone number to standard format
+ * Format a phone number to standard international format.
+ * Uses the brand's country code (e.g. +216 for Tunisia, +33 for France).
  */
 export function formatPhoneNumber(phone: string): string {
-  return phone.startsWith('+216')
+  const cc = brand.phone.countryCode;
+  return phone.startsWith(cc)
     ? phone
-    : `+216${phone.replace(/\D/g, '')}`;
+    : `${cc}${phone.replace(/\D/g, '')}`;
 }
 
 /**
@@ -121,9 +124,7 @@ export async function addPatient(input: AddPatientInput): Promise<AddPatientResu
     emitPatientUpdate(updatedEntry.id, updatedEntry.position, updatedEntry.status);
   }
 
-  // Send SMS notification to patient (fire-and-forget)
   const finalEntry = updatedEntry || result.entry;
-  sendSmsNotification(finalEntry.id, 'QUEUE_JOINED').catch(() => {});
 
   return {
     entry: finalEntry,
@@ -188,6 +189,53 @@ export async function callNextPatient(clinicId: string): Promise<QueueEntry | nu
           completedAt: new Date(),
         },
       });
+
+      // Auto-update doctor's avgConsultationMins via Exponential Moving Average
+      if (currentInConsultation.calledAt && currentInConsultation.doctorId) {
+        const durationMins = Math.round(
+          (Date.now() - currentInConsultation.calledAt.getTime()) / 60000
+        );
+        // Only update for reasonable durations (1-120 min) to filter anomalies
+        if (durationMins >= 1 && durationMins <= 120) {
+          const doctor = await tx.doctor.findUnique({
+            where: { id: currentInConsultation.doctorId },
+            select: { avgConsultationMins: true },
+          });
+          if (doctor) {
+            const alpha = 0.3;
+            const newAvg = Math.round(
+              alpha * durationMins + (1 - alpha) * doctor.avgConsultationMins
+            );
+            await tx.doctor.update({
+              where: { id: currentInConsultation.doctorId },
+              data: { avgConsultationMins: newAvg },
+            });
+          }
+        }
+      }
+
+      // Auto-update clinic's avgConsultationMins via EMA (works even without doctorId)
+      if (currentInConsultation.calledAt) {
+        const durationMins = Math.round(
+          (Date.now() - currentInConsultation.calledAt.getTime()) / 60000
+        );
+        if (durationMins >= 1 && durationMins <= 120) {
+          const clinicRecord = await tx.clinic.findUnique({
+            where: { id: clinicId },
+            select: { avgConsultationMins: true },
+          });
+          if (clinicRecord) {
+            const alpha = 0.3;
+            const newAvg = Math.round(
+              alpha * durationMins + (1 - alpha) * clinicRecord.avgConsultationMins
+            );
+            await tx.clinic.update({
+              where: { id: clinicId },
+              data: { avgConsultationMins: newAvg },
+            });
+          }
+        }
+      }
     }
 
     // Check if there are remaining patients
@@ -222,19 +270,6 @@ export async function callNextPatient(clinicId: string): Promise<QueueEntry | nu
       status: QueueStatus.IN_CONSULTATION,
     },
   });
-
-  // Send SMS notifications (fire-and-forget)
-  if (calledPatient) {
-    sendSmsNotification(calledPatient.id, 'YOUR_TURN').catch(() => {});
-  }
-
-  // Send ALMOST_TURN to the NOTIFIED patient (position #2)
-  const notifiedPatient = await prisma.queueEntry.findFirst({
-    where: { clinicId, status: QueueStatus.NOTIFIED },
-  });
-  if (notifiedPatient) {
-    sendSmsNotification(notifiedPatient.id, 'ALMOST_TURN').catch(() => {});
-  }
 
   return calledPatient;
 }
@@ -290,18 +325,17 @@ export async function patientLeaveQueue(entryId: string): Promise<{ success: boo
  * Get the active queue for a clinic
  */
 export async function getQueue(clinicId: string) {
-  const [queue, stats] = await Promise.all([
-    prisma.queueEntry.findMany({
-      where: {
-        clinicId,
-        status: {
-          in: [QueueStatus.WAITING, QueueStatus.NOTIFIED, QueueStatus.IN_CONSULTATION],
-        },
+  // Sequential to prevent pgbouncer pool exhaustion
+  const queue = await prisma.queueEntry.findMany({
+    where: {
+      clinicId,
+      status: {
+        in: [QueueStatus.WAITING, QueueStatus.NOTIFIED, QueueStatus.IN_CONSULTATION],
       },
-      orderBy: { position: 'asc' },
-    }),
-    getQueueStats(clinicId),
-  ]);
+    },
+    orderBy: { position: 'asc' },
+  });
+  const stats = await getQueueStats(clinicId);
 
   return { queue, stats };
 }
@@ -340,18 +374,16 @@ export async function archiveAndClearQueue(clinicId: string): Promise<{ archived
 
   // Step 2: Snapshot today's stats into DailyStat
   const startOfToday = getStartOfToday();
-  const [totalPatients, noShows, patientsWithWait] = await Promise.all([
-    prisma.queueEntry.count({
-      where: { clinicId, arrivedAt: { gte: startOfToday } },
-    }),
-    prisma.queueEntry.count({
-      where: { clinicId, status: QueueStatus.NO_SHOW, arrivedAt: { gte: startOfToday } },
-    }),
-    prisma.queueEntry.findMany({
-      where: { clinicId, status: QueueStatus.COMPLETED, arrivedAt: { gte: startOfToday }, calledAt: { not: null } },
-      select: { arrivedAt: true, calledAt: true, completedAt: true },
-    }),
-  ]);
+  const totalPatients = await prisma.queueEntry.count({
+    where: { clinicId, arrivedAt: { gte: startOfToday } },
+  });
+  const noShows = await prisma.queueEntry.count({
+    where: { clinicId, status: QueueStatus.NO_SHOW, arrivedAt: { gte: startOfToday } },
+  });
+  const patientsWithWait = await prisma.queueEntry.findMany({
+    where: { clinicId, status: QueueStatus.COMPLETED, arrivedAt: { gte: startOfToday }, calledAt: { not: null } },
+    select: { arrivedAt: true, calledAt: true, completedAt: true },
+  });
 
   // Exclude the last patient (latest calledAt) from average calculation.
   // Receptionists often forget to close the queue, so the last patient's
@@ -416,6 +448,7 @@ export async function getPatientStatus(entryId: string) {
         select: {
           name: true,
           doctorName: true,
+          doctorGender: true,
           avgConsultationMins: true,
           isDoctorPresent: true,
           announcement: true,
@@ -431,7 +464,11 @@ export async function getPatientStatus(entryId: string) {
     return null;
   }
 
-  const estimatedWaitMins = entry.position * entry.clinic.avgConsultationMins;
+  const { estimatedWaitMins, effectiveAvgMins } = await computeSmartWaitEstimate(
+    entry.clinicId,
+    entry.position,
+    entry.doctorId
+  );
 
   return {
     id: entry.id,
@@ -447,9 +484,10 @@ export async function getPatientStatus(entryId: string) {
     calledAt: entry.calledAt,
     completedAt: entry.completedAt,
     estimatedWaitMins,
-    avgConsultationMins: entry.clinic.avgConsultationMins,
+    avgConsultationMins: effectiveAvgMins,
     clinicName: entry.clinic.name,
     doctorName: entry.clinic.doctorName,
+    doctorGender: entry.clinic.doctorGender,
     isDoctorPresent: entry.clinic.isDoctorPresent,
     announcement: entry.clinic.announcement,
     announcementAt: entry.clinic.announcementAt,

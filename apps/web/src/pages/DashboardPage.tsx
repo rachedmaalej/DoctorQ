@@ -4,11 +4,14 @@ import { useNavigate } from 'react-router-dom';
 import { useDashboard } from '@/hooks/useDashboard';
 import { useUILabels } from '@/hooks/useUILabels';
 import { useAuthStore } from '@/stores/authStore';
+import { webBrand } from '@/lib/brand';
+import { api } from '@/lib/api';
 import QueueList from '@/components/queue/QueueList';
 import QueueStats from '@/components/queue/QueueStats';
 import QRCodeCard from '@/components/queue/QRCodeCard';
 import QRCodeModal from '@/components/queue/QRCodeModal';
-import MobileDashboard from '@/components/queue/MobileDashboard';
+import ReceptionistDashboard from '@/components/receptionist/ReceptionistDashboard';
+import AuSuivantDashboard from '@/components/ausuivant/AuSuivantDashboard';
 import AddPatientModal from '@/components/queue/AddPatientModal';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 import AnnouncementModal from '@/components/queue/AnnouncementModal';
@@ -24,6 +27,16 @@ export default function DashboardPage() {
   const { labels, isMedical } = useUILabels();
   const { clinic, isImpersonating, impersonatedClinicName, stopImpersonation } = useAuthStore();
   const [showDailyRecap, setShowDailyRecap] = useState(false);
+  const [subscriptionExpired, setSubscriptionExpired] = useState(false);
+
+  // Check subscription status
+  useEffect(() => {
+    api.getSubscription()
+      .then(sub => {
+        setSubscriptionExpired(!sub.canUseApp);
+      })
+      .catch(() => {});
+  }, []);
 
   // Show daily recap on first visit of the day
   useEffect(() => {
@@ -94,9 +107,12 @@ export default function DashboardPage() {
       {/* Trial Expiration Banner */}
       <TrialBanner />
 
-      {/* Impersonation Banner */}
+      {/* Impersonation Banner — Tunisian red for BleSaf, French blue for FiloSoin */}
       {isImpersonating && (
-        <div className="bg-purple-600 text-white px-4 py-2 flex items-center justify-between">
+        <div
+          className="text-white px-4 py-2 flex items-center justify-between"
+          style={{ backgroundColor: webBrand.id === 'france' ? '#002395' : '#E70013' }}
+        >
           <div className="flex items-center gap-2">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -108,7 +124,8 @@ export default function DashboardPage() {
           </div>
           <button
             onClick={handleExitImpersonation}
-            className="px-3 py-1 text-sm bg-white text-purple-600 rounded-lg font-medium hover:bg-purple-50 transition-colors"
+            className="px-3 py-1 text-sm bg-white rounded-lg font-medium hover:bg-white/90 transition-colors"
+            style={{ color: webBrand.id === 'france' ? '#002395' : '#E70013' }}
           >
             Exit to Admin
           </button>
@@ -122,22 +139,33 @@ export default function DashboardPage() {
 
       {/* Mobile Dashboard - visible only on small screens */}
       <div className="lg:hidden">
-        <MobileDashboard
-          queue={queue}
-          stats={stats}
-          onCallNext={handleCallNext}
-          onAddPatient={() => setIsAddModalOpen(true)}
-          onRemovePatient={handleRemovePatient}
-          onReorder={handleReorderPatient}
-          onEmergency={(id) => handleReorderPatient(id, 1)}
-          onShowQR={() => setIsQRModalOpen(true)}
-          onCompleteConsultation={handleCompleteConsultation}
-          isCallingNext={isCallingNext}
-          isDoctorPresent={isDoctorPresent}
-          onToggleDoctorPresent={handleToggleDoctorPresent}
-          announcement={announcement}
-          onAnnouncementClick={() => setIsAnnouncementModalOpen(true)}
-        />
+        {webBrand.id === 'france' ? (
+          <AuSuivantDashboard
+            queue={queue}
+            stats={stats}
+            onCallNext={handleCallNext}
+            onRemovePatient={handleRemovePatient}
+            onReorder={handleReorderPatient}
+            onEmergency={(id) => handleReorderPatient(id, 1)}
+            isCallingNext={isCallingNext}
+            isDoctorPresent={isDoctorPresent}
+            onToggleDoctorPresent={handleToggleDoctorPresent}
+            isTogglingPresence={isTogglingPresence}
+          />
+        ) : (
+          <ReceptionistDashboard
+            queue={queue}
+            stats={stats}
+            clinic={clinic}
+            isDoctorPresent={isDoctorPresent}
+            onCallNext={handleCallNext}
+            onRemovePatient={handleRemovePatient}
+            onReorderPatient={handleReorderPatient}
+            onCompleteConsultation={handleCompleteConsultation}
+            onToggleDoctorPresent={handleToggleDoctorPresent}
+            isCallingNext={isCallingNext}
+          />
+        )}
       </div>
 
       {/* Desktop Layout - hidden on mobile */}
@@ -162,6 +190,7 @@ export default function DashboardPage() {
                 <MD3Button
                   variant="tonal"
                   onClick={() => setIsAddModalOpen(true)}
+                  disabled={subscriptionExpired}
                   icon={<span className="material-symbols-outlined text-xl">person_add</span>}
                 >
                   {labels.addCustomer}
@@ -222,8 +251,8 @@ export default function DashboardPage() {
               {/* Right side: Call Next Button */}
               <button
                 onClick={handleCallNext}
-                disabled={waitingCount === 0 || isCallingNext || !isDoctorPresent}
-                title={isDoctorPresent ? t('queue.callNext') : t('queue.waitingForDoctor')}
+                disabled={waitingCount === 0 || isCallingNext || !isDoctorPresent || subscriptionExpired}
+                title={subscriptionExpired ? t('trial.expired') : isDoctorPresent ? t('queue.callNext') : t('queue.waitingForDoctor')}
                 className="flex items-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium rounded-full transition-colors shadow-md"
               >
                 <span className="material-symbols-outlined text-xl">directions_walk</span>
@@ -296,6 +325,7 @@ export default function DashboardPage() {
         onClose={hideToast}
       />
 
+      {/* First-patient celebration toast */}
       {/* Daily Recap Overlay - shown once per day on first visit */}
       {showDailyRecap && (
         <DailyRecapOverlay

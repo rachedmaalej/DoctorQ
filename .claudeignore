@@ -162,8 +162,14 @@ temp-git/
 apps/medibook-api/
 apps/medibook-web/
 
-# Documentation files that are not code-relevant
+# Documentation and design files (large, load on-demand via Read)
 docs/wireframes.html
+docs/design/mockups/*.html
+docs/design/showcases/*.html
+docs/go-to-market/*.md
+docs/planning/*.md
+docs/technical/*.md
+docs/roadmap/*.md
 
 # Credentials file (sensitive)
 CREDENTIALS.md

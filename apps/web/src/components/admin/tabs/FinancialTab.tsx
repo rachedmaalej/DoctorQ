@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { api } from '../../../lib/api';
 import type { FinancialAnalytics } from '../../../types';
+import { webBrand } from '../../../lib/brand';
 import MetricCardWithTrend from '../MetricCardWithTrend';
 import MrrLineChart from '../charts/MrrLineChart';
 import SubscriptionPieChart from '../charts/SubscriptionPieChart';
@@ -41,10 +42,10 @@ export default function FinancialTab() {
 
       {/* Financial KPIs — flat on page, no card container */}
       <div className="grid grid-cols-5 gap-0 py-5 border-b border-[#E6F2F0] mb-8">
-        <MetricCardWithTrend label="MRR" value={`${data.mrr} TND`} subtext="" color="purple" />
+        <MetricCardWithTrend label="MRR" value={`${data.mrr} ${webBrand.currency.symbol}`} subtext="" color="purple" />
         <MetricCardWithTrend label="MRR Growth" value={`${data.mrrGrowthRate > 0 ? '+' : ''}${data.mrrGrowthRate}%`} subtext="" color={data.mrrGrowthRate >= 0 ? 'green' : 'red'} />
-        <MetricCardWithTrend label="ARPU" value={`${data.arpu} TND`} subtext="" color="blue" />
-        <MetricCardWithTrend label="CLTV" value={`${data.cltv} TND`} subtext="" color="indigo" />
+        <MetricCardWithTrend label="ARPU" value={`${data.arpu} ${webBrand.currency.symbol}`} subtext="" color="blue" />
+        <MetricCardWithTrend label="CLTV" value={`${data.cltv} ${webBrand.currency.symbol}`} subtext="" color="indigo" />
         <MetricCardWithTrend label="Churn Rate" value={`${data.churnRateRevenue}%`} subtext="" color={data.churnRateRevenue <= 5 ? 'green' : 'red'} />
       </div>
 
@@ -71,12 +72,12 @@ export default function FinancialTab() {
             {data.mrrHistory.slice().reverse().map((month) => (
               <tr key={month.month} className="hover:bg-[#F3FAF9] transition-colors">
                 <td className="px-6 py-3 text-sm text-[#132E2C]">{month.month}</td>
-                <td className="px-6 py-3 text-sm text-[#132E2C]">{month.totalMrr} TND</td>
-                <td className="px-6 py-3 text-sm text-[#337023]">+{month.newMrr} TND</td>
-                <td className="px-6 py-3 text-sm text-[#E15720]">-{month.churnedMrr} TND</td>
+                <td className="px-6 py-3 text-sm text-[#132E2C]">{month.totalMrr} {webBrand.currency.symbol}</td>
+                <td className="px-6 py-3 text-sm text-[#337023]">+{month.newMrr} {webBrand.currency.symbol}</td>
+                <td className="px-6 py-3 text-sm text-[#E15720]">-{month.churnedMrr} {webBrand.currency.symbol}</td>
                 <td className="px-6 py-3 text-sm font-medium">
                   <span className={month.newMrr - month.churnedMrr >= 0 ? 'text-[#337023]' : 'text-[#E15720]'}>
-                    {month.newMrr - month.churnedMrr >= 0 ? '+' : ''}{month.newMrr - month.churnedMrr} TND
+                    {month.newMrr - month.churnedMrr >= 0 ? '+' : ''}{month.newMrr - month.churnedMrr} {webBrand.currency.symbol}
                   </span>
                 </td>
               </tr>

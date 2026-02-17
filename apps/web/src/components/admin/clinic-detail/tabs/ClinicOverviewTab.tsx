@@ -1,6 +1,5 @@
 import type { ClinicDetail } from '../../../../types';
 import SubscriptionStatusPanel from '../SubscriptionStatusPanel';
-import SmsCreditsPanel from '../SmsCreditsPanel';
 
 interface ClinicOverviewTabProps {
   detail: ClinicDetail;
@@ -17,16 +16,14 @@ export default function ClinicOverviewTab({ detail, onRefresh, onUpgrade, upgrad
 
   return (
     <div className="space-y-8">
-      {/* Subscription + SMS panels */}
-      <div className="flex gap-8 py-5 border-b border-[#E6F2F0]">
+      {/* Subscription panel */}
+      <div className="py-5 border-b border-[#E6F2F0]">
         <SubscriptionStatusPanel
           clinic={clinic}
           onExtended={onRefresh}
           onUpgrade={onUpgrade}
           upgradeLoading={upgradeLoading}
         />
-        <div className="w-px bg-[#E6F2F0]" />
-        <SmsCreditsPanel smsCredits={clinic.smsCredits} smsCreditsUsed={clinic.smsCreditsUsed} />
       </div>
 
       {/* Clinic Info */}

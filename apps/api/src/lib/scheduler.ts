@@ -1,13 +1,15 @@
 import cron from 'node-cron';
+import { logger } from './logger.js';
 import { prisma } from './prisma.js';
 import { archiveAndClearQueue } from '../services/queueService.js';
 import { emitToRoom } from './socket.js';
 import { sendTrialExpiringEmail } from './email.js';
+import { brand } from './brand.js';
 
 export function initScheduledTasks() {
   // Reset all queues and set doctors absent at midnight Tunisia time
   cron.schedule('0 0 * * *', async () => {
-    console.log('[Midnight Reset] Starting daily queue reset...');
+    logger.info('[Midnight Reset] Starting daily queue reset...');
 
     try {
       const clinics = await prisma.clinic.findMany({
@@ -50,20 +52,20 @@ export function initScheduledTasks() {
           announcementAt: null,
         });
 
-        console.log(`[Midnight Reset] ${clinic.name}: archived ${archived} patients, deleted ${deleted} stale entries, doctor set absent, announcement cleared`);
+        logger.info(`[Midnight Reset] ${clinic.name}: archived ${archived} patients, deleted ${deleted} stale entries, doctor set absent, announcement cleared`);
       }
 
-      console.log(`[Midnight Reset] Complete. Reset ${clinics.length} clinic(s).`);
+      logger.info(`[Midnight Reset] Complete. Reset ${clinics.length} clinic(s).`);
     } catch (error) {
-      console.error('[Midnight Reset] Error:', error);
+      logger.error({ err: error }, 'Midnight reset error');
     }
   }, {
-    timezone: 'Africa/Tunis',
+    timezone: brand.timezone,
   });
 
   // Check trial expirations at 9 AM Tunisia time
   cron.schedule('0 9 * * *', async () => {
-    console.log('[Trial Check] Checking trial expirations...');
+    logger.info('[Trial Check] Checking trial expirations...');
 
     try {
       const now = new Date();
@@ -95,18 +97,18 @@ export function initScheduledTasks() {
           const lang = (clinic.language === 'ar' ? 'ar' : 'fr') as 'fr' | 'ar';
           await sendTrialExpiringEmail(clinic.email, clinic.name, daysRemaining, lang);
           emailsSent++;
-          console.log(`[Trial Check] Sent ${daysRemaining}-day warning to ${clinic.name}`);
+          logger.info(`[Trial Check] Sent ${daysRemaining}-day warning to ${clinic.name}`);
         }
       }
 
-      console.log(`[Trial Check] Complete. Sent ${emailsSent} warning email(s).`);
+      logger.info(`[Trial Check] Complete. Sent ${emailsSent} warning email(s).`);
     } catch (error) {
-      console.error('[Trial Check] Error:', error);
+      logger.error({ err: error }, 'Trial check error');
     }
   }, {
-    timezone: 'Africa/Tunis',
+    timezone: brand.timezone,
   });
 
-  console.log('⏰ Midnight queue reset scheduled (Africa/Tunis timezone)');
-  console.log('⏰ Trial expiration check scheduled at 9 AM (Africa/Tunis timezone)');
+  logger.info(`⏰ Midnight queue reset scheduled (${brand.timezone} timezone)`);
+  logger.info(`⏰ Trial expiration check scheduled at 9 AM (${brand.timezone} timezone)`);
 }

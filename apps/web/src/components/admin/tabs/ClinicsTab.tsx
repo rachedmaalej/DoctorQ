@@ -12,7 +12,7 @@ export default function ClinicsTab() {
   const [clinics, setClinics] = useState<ClinicHealth[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'at_risk'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'at_risk' | 'paused'>('all');
   const [subStatusFilter, setSubStatusFilter] = useState<SubStatusFilter>('all');
   const [paymentFilter, setPaymentFilter] = useState<'all' | 'paid' | 'overdue'>('all');
   const [sortBy, setSortBy] = useState<'name' | 'patients' | 'lastActive' | 'created'>('name');
@@ -33,7 +33,13 @@ export default function ClinicsTab() {
     }
   };
 
-  useEffect(() => { fetchClinics(); }, []);
+  useEffect(() => {
+    fetchClinics();
+
+    // Auto-refresh every 60 seconds
+    const interval = setInterval(fetchClinics, 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   const filteredClinics = clinics
     .filter((clinic) => {
@@ -43,7 +49,8 @@ export default function ClinicsTab() {
             !clinic.doctorName?.toLowerCase().includes(q) &&
             !clinic.email.toLowerCase().includes(q)) return false;
       }
-      if (statusFilter !== 'all' && clinic.status !== statusFilter) return false;
+      if (statusFilter === 'paused' && clinic.isActive !== false) return false;
+      if (statusFilter !== 'all' && statusFilter !== 'paused' && clinic.status !== statusFilter) return false;
       if (subStatusFilter !== 'all' && clinic.subscriptionStatus !== subStatusFilter) return false;
       if (paymentFilter !== 'all' && clinic.paymentStatus !== paymentFilter) return false;
       return true;
@@ -137,6 +144,7 @@ export default function ClinicsTab() {
             <option value="all">All Activity</option>
             <option value="active">Active</option>
             <option value="at_risk">At Risk</option>
+            <option value="paused">Paused</option>
           </select>
           <select
             value={subStatusFilter}
@@ -179,7 +187,6 @@ export default function ClinicsTab() {
                   onClick={() => handleSort('patients')}>
                 Patients {getSortIcon('patients')}
               </th>
-              <th className="px-4 py-3 text-left text-xs font-bold text-[#4E7572] uppercase">SMS</th>
               <th className="px-4 py-3 text-left text-xs font-bold text-[#4E7572] uppercase cursor-pointer hover:bg-[#F3FAF9]"
                   onClick={() => handleSort('created')}>
                 Joined {getSortIcon('created')}
@@ -190,7 +197,7 @@ export default function ClinicsTab() {
           <tbody className="divide-y divide-[#E6F2F0]">
             {filteredClinics.length === 0 ? (
               <tr>
-                <td colSpan={8} className="px-4 py-8 text-center text-[#8AADAA]">
+                <td colSpan={7} className="px-4 py-8 text-center text-[#8AADAA]">
                   {clinics.length === 0 ? 'No clinics yet.' : 'No clinics match filters.'}
                 </td>
               </tr>
@@ -200,9 +207,14 @@ export default function ClinicsTab() {
                   <td className="px-4 py-3 whitespace-nowrap">
                     <div
                       className="cursor-pointer"
-                      onClick={() => navigate(`/admin/clinic/${clinic.id}`)}
+                      onClick={() => navigate(`/admin/clinics/${clinic.id}`)}
                     >
-                      <div className="text-sm font-medium text-[#267B75] hover:underline">{clinic.name}</div>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-sm font-medium hover:underline ${clinic.isActive ? 'text-[#267B75]' : 'text-[#8AADAA]'}`}>{clinic.name}</span>
+                        {!clinic.isActive && (
+                          <span className="px-1.5 py-0.5 text-[10px] font-bold uppercase rounded bg-[#FEF3EE] text-[#E15720]">Paused</span>
+                        )}
+                      </div>
                       <div className="text-xs text-[#8AADAA]">{clinic.email}</div>
                     </div>
                   </td>
@@ -222,9 +234,6 @@ export default function ClinicsTab() {
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap text-sm text-[#132E2C] font-medium">
                     {clinic.patientsToday}
-                  </td>
-                  <td className="px-4 py-3 whitespace-nowrap text-sm text-[#4E7572]">
-                    {clinic.smsCredits}
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap text-sm text-[#4E7572]">
                     {new Date(clinic.createdAt).toLocaleDateString('fr-FR')}
@@ -250,7 +259,7 @@ export default function ClinicsTab() {
                         </button>
                       )}
                       <button
-                        onClick={() => navigate(`/admin/clinic/${clinic.id}`)}
+                        onClick={() => navigate(`/admin/clinics/${clinic.id}`)}
                         className="px-2 py-1 text-xs text-[#4E7572] border border-[#E6F2F0] rounded hover:bg-[#F3FAF9] transition-colors"
                       >
                         View

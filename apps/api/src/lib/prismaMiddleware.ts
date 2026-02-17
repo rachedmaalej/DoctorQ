@@ -17,7 +17,6 @@ const TENANT_SCOPED_MODELS = [
   'DailyStat',
   'PaymentRecord',
   'SubscriptionEvent',
-  'SmsPackagePurchase',
 ];
 
 // Operations where we inject clinicId filter

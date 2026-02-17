@@ -21,6 +21,14 @@ const globalForPrisma = globalThis as unknown as {
 function createPrismaClient(): PrismaClient {
   const isProduction = process.env.NODE_ENV === 'production';
 
+  // Append connection_limit to DATABASE_URL if not already present
+  // This prevents Prisma from opening more connections than pgbouncer allows
+  const dbUrl = process.env.DATABASE_URL || '';
+  if (dbUrl && !dbUrl.includes('connection_limit')) {
+    const separator = dbUrl.includes('?') ? '&' : '?';
+    process.env.DATABASE_URL = `${dbUrl}${separator}connection_limit=1`;
+  }
+
   return new PrismaClient({
     log: isProduction ? ['error'] : ['error', 'warn'],
   });

@@ -11,7 +11,6 @@ export enum CheckInMethod {
   QR_CODE = 'QR_CODE',
   MANUAL = 'MANUAL',
   WHATSAPP = 'WHATSAPP',
-  SMS = 'SMS',
 }
 
 export interface QueueEntry {
@@ -37,6 +36,7 @@ export interface QueueStats {
   lastConsultationMins: number | null;
   noShows: number;
   maxWait: number | null;
+  effectiveAvgMins: number;
 }
 
 export interface QueueResponse {
@@ -57,6 +57,7 @@ export interface Clinic {
   id: string;
   name: string;
   doctorName: string | null;
+  doctorGender: string | null;
   email: string;
   language: string;
   avgConsultationMins: number;
@@ -65,6 +66,7 @@ export interface Clinic {
   businessType?: string;        // "medical" (default) or "retail"
   showAppointments?: boolean;   // true (default) or false
   onboardingCompleted?: boolean;
+  isAdmin?: boolean;
   uiLabels?: UILabels;          // Dynamic labels based on businessType
 }
 
@@ -115,6 +117,7 @@ export interface PatientStatusResponse extends QueueEntry {
   avgConsultationMins?: number;
   clinicName?: string;
   doctorName?: string;
+  doctorGender?: string | null;
   announcement?: string | null;
   announcementAt?: string | null;
   specialty?: string | null;
@@ -176,6 +179,7 @@ export interface ClinicHealth {
   id: string;
   name: string;
   doctorName: string | null;
+  isActive: boolean;
   lastLoginAt: string | null;
   patientsToday: number;
   avgWaitMins: number | null;
@@ -187,7 +191,6 @@ export interface ClinicHealth {
   subscriptionPlan: string | null;
   trialEndsAt: string | null;
   createdAt: string;
-  smsCredits: number;
   onboardingStep: number;
   onboardingCompleted: boolean;
 }
@@ -232,8 +235,6 @@ export interface ClinicDetail {
     subscriptionPlan: string | null;
     trialEndsAt: string | null;
     subscriptionEndsAt: string | null;
-    smsCredits: number;
-    smsCreditsUsed: number;
     onboardingStep: number;
     onboardingCompleted: boolean;
     createdAt: string;
@@ -364,12 +365,6 @@ export interface FeatureAdoption {
     qrCode: { count: number; percentage: number };
     manual: { count: number; percentage: number };
     whatsApp: { count: number; percentage: number };
-    sms: { count: number; percentage: number };
-  };
-  smsUsage: {
-    totalSent: number;
-    clinicsUsingSms: number;
-    avgPerClinic: number;
   };
   multiDoctorAdoption: number;
   avgPatientsPerClinicPerDay: number;
@@ -379,12 +374,6 @@ export interface PlatformHealth {
   services: {
     api: 'healthy' | 'degraded' | 'down';
     database: 'healthy' | 'degraded' | 'down';
-    sms: 'configured' | 'not_configured';
-  };
-  smsStats: {
-    totalCreditsIssued: number;
-    totalCreditsUsed: number;
-    remainingCredits: number;
   };
   clinicStats: {
     totalClinics: number;

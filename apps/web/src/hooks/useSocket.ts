@@ -12,9 +12,13 @@ function getSocketUrl(): string {
   // In production (Vercel), detect based on hostname
   if (typeof window !== 'undefined') {
     const hostname = window.location.hostname;
-    // Production Vercel deployment
-    if (hostname.includes('vercel.app') || hostname.includes('doctor-q')) {
-      return 'https://doctorqapi-production-84e9.up.railway.app';
+    // BleSaf production (Tunisia)
+    if (hostname.includes('vercel.app') || hostname.includes('doctor-q') || hostname.includes('blesaf')) {
+      return 'https://doctorqapi-production-ac8b.up.railway.app';
+    }
+    // FiloSoin production (France) — override VITE_SOCKET_URL in Vercel env for France deployments
+    if (hostname.includes('filosoin')) {
+      return import.meta.env.VITE_SOCKET_URL || 'https://doctorqapi-production-ac8b.up.railway.app';
     }
   }
 
@@ -81,7 +85,7 @@ if (import.meta.hot) {
 
 interface UseSocketOptions {
   onQueueUpdated?: (data: { queue: QueueEntry[]; stats: QueueStats }) => void;
-  onPatientCalled?: (data: { position: number; status: string }) => void;
+  onPatientCalled?: (data: { position: number; status: string; estimatedWaitMins?: number }) => void;
   onPositionChanged?: (data: { entryId: string; newPosition: number; estimatedWait: number }) => void;
   onDoctorPresence?: (data: { clinicId: string; isDoctorPresent: boolean }) => void;
   onAnnouncement?: (data: { clinicId: string; announcement: string | null; announcementAt: string | null }) => void;

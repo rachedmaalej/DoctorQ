@@ -1,169 +1,87 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import { api } from '@/lib/api';
 import { logger } from '@/lib/logger';
 import { useSocket } from '@/hooks/useSocket';
-import { formatTime } from '@/lib/time';
-import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
-import Confetti from '@/components/ui/Confetti';
-import ConfirmModal from '@/components/ui/ConfirmModal';
-import { Toast } from '@/components/ui/Toast';
-import CompactTicketCard, { type TicketColorScheme } from '@/components/patient/CompactTicketCard';
-import PatientJourneyVisual from '@/components/patient/PatientJourneyVisual';
-import WaitEstimateCard from '@/components/patient/WaitEstimateCard';
-import FunFactCard from '@/components/patient/FunFactCard';
+import { initAudioContext, playSoftChime, playMedicalChime, playBrightAlert, playPriorityAlarm } from '@/lib/sounds';
 import type { PatientStatusResponse } from '@/types';
 import { QueueStatus } from '@/types';
 
-// Vibration helper - vibrates the device if supported
-// pattern: single number (ms) or array for pattern [vibrate, pause, vibrate, ...]
+// Patient Status redesign components
+import '@/components/patient-status/patient-status.css';
+import { derivePhase, deriveToastMessage, smoothEstimate } from '@/components/patient-status/utils';
+import type { Phase } from '@/components/patient-status/utils';
+import PSHeader from '@/components/patient-status/PSHeader';
+import PSAlertBanner from '@/components/patient-status/PSAlertBanner';
+import PSRdvContext from '@/components/patient-status/PSRdvContext';
+import PSHeroEstimate from '@/components/patient-status/PSHeroEstimate';
+import PSCalledHero from '@/components/patient-status/PSCalledHero';
+import PSDoneHero from '@/components/patient-status/PSDoneHero';
+import PSContextCard from '@/components/patient-status/PSContextCard';
+import PSVisitSummary from '@/components/patient-status/PSVisitSummary';
+import PSManageFooter from '@/components/patient-status/PSManageFooter';
+import PSBrandFooter from '@/components/patient-status/PSBrandFooter';
+import PSProgressToast from '@/components/patient-status/PSProgressToast';
+import PSQuitModal from '@/components/patient-status/PSQuitModal';
+
+// Vibration helper
 function vibrate(pattern: number | number[] = 200): void {
   if (navigator.vibrate) {
     try {
       navigator.vibrate(pattern);
     } catch (e) {
-      // Vibration not supported or failed - silently ignore
       logger.log('[Vibration] Not supported or failed:', e);
     }
   }
 }
 
-// Queue state types based on patient's journey
-type QueueState = 'far' | 'closer' | 'almost' | 'next' | 'yourTurn' | 'completed' | 'cancelled';
-
-// Calculate display position (backend position - 1, since IN_CONSULTATION is position 0)
-// When doctor is absent, the IN_CONSULTATION slot is "empty" so everyone moves up
-function getDisplayPosition(backendPosition: number, status: string, isDoctorPresent: boolean = true): number {
-  if (status === 'IN_CONSULTATION') return 0; // Not really in queue anymore
-  // When doctor is present: NOTIFIED (backend #2) becomes display #1
-  // When doctor is absent: No one is in consultation, so backend position = display position
-  if (isDoctorPresent) {
-    return backendPosition - 1;
-  }
-  // Doctor absent - display the actual queue position
-  return backendPosition;
-}
-
-// Determine queue state based on position and status
-// Note: position here is backend position (1 = IN_CONSULTATION, 2 = NOTIFIED, 3+ = WAITING)
-function getQueueState(position: number, status: string): QueueState {
-  if (status === 'COMPLETED') return 'completed';
-  if (status === 'CANCELLED' || status === 'NO_SHOW') return 'cancelled';
-  if (status === 'IN_CONSULTATION') return 'yourTurn';
-  if (status === 'NOTIFIED') return 'next';  // Display position #1
-  if (position === 3) return 'almost';       // Display position #2 - only 1 waiting ahead
-  if (position === 4) return 'closer';       // Display position #3
-  return 'far';
-}
-
-// Map queue state to ticket color scheme
-function getTicketColorScheme(state: QueueState): TicketColorScheme {
-  switch (state) {
-    case 'almost': return 'amber';
-    case 'next': return 'green';
-    case 'closer': return 'teal';
-    default: return 'calm';
-  }
-}
-
-// State-based styling configuration
-const stateConfig: Record<QueueState, {
-  bg: string;
-  card: string;
-  accent: string;
-  icon: string;
-  animate: string;
-}> = {
-  far: {
-    bg: 'bg-gradient-to-br from-primary-50 to-teal-50',
-    card: 'bg-white border border-gray-200',
-    accent: 'text-primary-600',
-    icon: 'schedule',
-    animate: ''
-  },
-  closer: {
-    bg: 'bg-gradient-to-br from-teal-50 to-cyan-50',
-    card: 'bg-white border border-teal-200',
-    accent: 'text-teal-600',
-    icon: 'directions_walk',
-    animate: ''
-  },
-  almost: {
-    bg: 'bg-gradient-to-br from-amber-50 to-orange-50',
-    card: 'bg-amber-100 border-2 border-amber-400',
-    accent: 'text-amber-700',
-    icon: 'priority_high',
-    animate: ''
-  },
-  next: {
-    bg: 'bg-gradient-to-br from-green-50 to-emerald-50',
-    card: 'bg-green-100 border-2 border-green-400',
-    accent: 'text-green-700',
-    icon: 'arrow_forward',
-    animate: ''
-  },
-  yourTurn: {
-    bg: 'bg-gradient-to-br from-green-100 to-emerald-100',
-    card: 'bg-green-200 border-2 border-green-500',
-    accent: 'text-green-800',
-    icon: 'celebration',
-    animate: 'animate-celebrate'
-  },
-  completed: {
-    bg: 'bg-gradient-to-br from-gray-50 to-slate-50',
-    card: 'bg-white border border-gray-200',
-    accent: 'text-gray-600',
-    icon: 'check_circle',
-    animate: ''
-  },
-  cancelled: {
-    bg: 'bg-gradient-to-br from-gray-50 to-slate-50',
-    card: 'bg-gray-100 border border-gray-300',
-    accent: 'text-gray-500',
-    icon: 'cancel',
-    animate: ''
-  }
-};
-
 export default function PatientStatusPage() {
-  const { t } = useTranslation();
   const { entryId } = useParams<{ entryId: string }>();
   const navigate = useNavigate();
+
+  // ─── Core State ───
   const [entry, setEntry] = useState<PatientStatusResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showConfetti, setShowConfetti] = useState(false);
-  const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
+
+  // ─── UI State ───
+  const [isQuitModalOpen, setIsQuitModalOpen] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
-  const [isDoctorPresent, setIsDoctorPresent] = useState(true); // Default to true until we know
+  const [isDoctorPresent, setIsDoctorPresent] = useState(true);
   const [announcement, setAnnouncement] = useState<string | null>(null);
-  const [announcementDismissed, setAnnouncementDismissed] = useState(false);
-  const lastAnnouncementRef = useRef<string | null>(null);
-  const [specialty, setSpecialty] = useState<string | null>(null);
-  const [funFactsEnabled, setFunFactsEnabled] = useState(true);
-  const [positionToast, setPositionToast] = useState<{ visible: boolean; message: string }>({ visible: false, message: '' });
+  const [notifyEnabled, setNotifyEnabled] = useState(false);
+  const [isAbsent, setIsAbsent] = useState(false);
+  const [toast, setToast] = useState<{ visible: boolean; message: string }>({ visible: false, message: '' });
+
+  // ─── Refs ───
   const previousPositionRef = useRef<number | null>(null);
+  const displayedEstimateRef = useRef<number | null>(null);
+  const initialPeopleAheadRef = useRef<number>(0);
+  const audioInitRef = useRef(false);
+  const lastAnnouncementRef = useRef<string | null>(null);
 
-  // Helper to get personalized translation (uses Named variant if name exists)
-  // Supports passing additional interpolation params
-  const tPersonal = (key: string, params: Record<string, unknown> = {}): string => {
-    const name = entry?.patientName;
-    if (name) {
-      // Try the Named version first (e.g., "patient.yourTurnNowNamed")
-      const namedKey = `${key}Named`;
-      const namedResult = t(namedKey, { name, ...params });
-      // If the Named key exists and was translated, use it
-      if (namedResult !== namedKey) {
-        return String(namedResult);
+  // ─── Stable Callbacks ───
+  const hideToast = useCallback(() => setToast({ visible: false, message: '' }), []);
+
+  // ─── Audio Context Init (iOS) ───
+  useEffect(() => {
+    const handleFirstInteraction = () => {
+      if (!audioInitRef.current) {
+        initAudioContext();
+        audioInitRef.current = true;
       }
-    }
-    // Fall back to regular key
-    return String(t(key, params));
-  };
+    };
+    document.addEventListener('click', handleFirstInteraction, { once: true });
+    document.addEventListener('touchstart', handleFirstInteraction, { once: true });
+    return () => {
+      document.removeEventListener('click', handleFirstInteraction);
+      document.removeEventListener('touchstart', handleFirstInteraction);
+    };
+  }, []);
 
-  // Memoize callbacks to prevent re-renders
-  const handlePatientCalled = useCallback((data: { position: number; status: string }) => {
+  // ─── Socket Handlers ───
+
+  const handlePatientCalled = useCallback((data: { position: number; status: string; estimatedWaitMins?: number }) => {
     logger.log('[PatientStatus] handlePatientCalled received:', data);
     setEntry((prev) => {
       if (!prev) return null;
@@ -171,70 +89,78 @@ export default function PatientStatusPage() {
       const status = data.status as QueueStatus;
       const newPosition = data.position;
       const oldPosition = previousPositionRef.current;
+      const peopleAhead = Math.max(0, newPosition - 1);
 
-      logger.log('[PatientStatus] Updating entry - old position:', oldPosition, 'new position:', newPosition, 'status:', status);
-
-      // Show toast notification if position improved (lower number = better)
+      // Show toast + sound if position improved
       if (oldPosition !== null && newPosition < oldPosition && status !== QueueStatus.IN_CONSULTATION) {
-        const positionsMoved = oldPosition - newPosition;
-        const message = positionsMoved === 1
-          ? t('patient.movedUpOne')
-          : t('patient.movedUpMultiple', { count: positionsMoved });
-        setPositionToast({ visible: true, message });
-        // Stronger single vibration when reaching position #1 (NOTIFIED = next in line)
+        const toastMsg = deriveToastMessage(peopleAhead);
+        if (toastMsg) {
+          setToast({ visible: true, message: toastMsg });
+        }
+
+        // Sound + vibration based on new position
         if (status === QueueStatus.NOTIFIED) {
+          playBrightAlert();
           vibrate(400);
+        } else if (newPosition === 3) {
+          playMedicalChime();
         } else {
-          vibrate(200);
+          playSoftChime();
         }
       }
 
-      // Update ref for next comparison
       previousPositionRef.current = newPosition;
 
-      // Trigger confetti when called into the doctor's office
+      // Patient called — Priority Alarm × 2
       if (status === QueueStatus.IN_CONSULTATION && prev.status !== QueueStatus.IN_CONSULTATION) {
-        setShowConfetti(true);
-        // Two distinct vibrations for "go to the doctor's office"
-        vibrate([300, 150, 300]);
+        playPriorityAlarm();
+        vibrate([300, 100, 300, 100, 400]);
+        setTimeout(() => {
+          playPriorityAlarm();
+          vibrate([300, 100, 300, 100, 400]);
+        }, 1200);
       }
 
-      return { ...prev, status, position: newPosition };
+      return {
+        ...prev,
+        status,
+        position: newPosition,
+        ...(data.estimatedWaitMins !== undefined && { estimatedWaitMins: data.estimatedWaitMins }),
+      };
     });
-  }, [t]);
+  }, []);
 
   const handlePositionChanged = useCallback((data: { entryId: string; newPosition: number; estimatedWait: number }) => {
     setEntry((prev) => {
       if (prev && data.entryId === prev.id) {
         const oldPosition = previousPositionRef.current;
         const newPosition = data.newPosition;
+        const peopleAhead = Math.max(0, newPosition - 1);
 
-        // Show toast notification if position improved (lower number = better)
         if (oldPosition !== null && newPosition < oldPosition) {
-          const positionsMoved = oldPosition - newPosition;
-          const message = positionsMoved === 1
-            ? t('patient.movedUpOne')
-            : t('patient.movedUpMultiple', { count: positionsMoved });
-          setPositionToast({ visible: true, message });
-          // Stronger single vibration when reaching position #1 (backend pos 2 = NOTIFIED/next)
+          const toastMsg = deriveToastMessage(peopleAhead);
+          if (toastMsg) {
+            setToast({ visible: true, message: toastMsg });
+          }
+
           if (newPosition <= 2) {
+            playBrightAlert();
             vibrate(400);
+          } else if (newPosition === 3) {
+            playMedicalChime();
           } else {
-            vibrate(200);
+            playSoftChime();
           }
         }
 
-        // Update ref for next comparison
         previousPositionRef.current = newPosition;
-
         return { ...prev, position: newPosition };
       }
       return prev;
     });
-  }, [t]);
+  }, []);
 
   const handleDoctorPresence = useCallback((data: { clinicId: string; isDoctorPresent: boolean }) => {
-    // Only update if it's for our clinic
     if (entry?.clinicId === data.clinicId || !entry) {
       setIsDoctorPresent(data.isDoctorPresent);
     }
@@ -242,16 +168,11 @@ export default function PatientStatusPage() {
 
   const handleAnnouncement = useCallback((data: { clinicId: string; announcement: string | null; announcementAt: string | null }) => {
     if (entry?.clinicId === data.clinicId || !entry) {
-      // Reset dismissed state when a new/different announcement arrives
-      if (data.announcement && data.announcement !== lastAnnouncementRef.current) {
-        setAnnouncementDismissed(false);
-      }
       lastAnnouncementRef.current = data.announcement;
       setAnnouncement(data.announcement);
     }
   }, [entry?.clinicId]);
 
-  // Refetch patient status when room is (re)joined to sync state after reconnection
   const handlePatientRoomJoined = useCallback(async (data: { entryId: string; success: boolean }) => {
     if (!data.success || !data.entryId) return;
     logger.log('[PatientStatus] Room joined, refetching status for:', data.entryId);
@@ -264,16 +185,6 @@ export default function PatientStatusPage() {
       }
       if (freshData.announcement !== undefined) {
         setAnnouncement(freshData.announcement);
-      }
-      if (freshData.specialty !== undefined) {
-        setSpecialty(freshData.specialty);
-      }
-      if (freshData.funFactsEnabled !== undefined) {
-        setFunFactsEnabled(freshData.funFactsEnabled);
-      }
-      // Show confetti if now in consultation (e.g., they were called while disconnected)
-      if (freshData.status === 'IN_CONSULTATION') {
-        setShowConfetti(true);
       }
     } catch (err) {
       logger.error('[PatientStatus] Failed to refetch status on room join:', err);
@@ -288,406 +199,273 @@ export default function PatientStatusPage() {
     onPatientRoomJoined: handlePatientRoomJoined,
   });
 
-  // Fetch patient status only once when entryId changes
+  // ─── Initial Fetch ───
   useEffect(() => {
     const fetchPatientStatus = async () => {
       if (!entryId) return;
-
       setIsLoading(true);
       try {
         const data = await api.getPatientStatus(entryId);
         setEntry(data);
-        // Initialize previous position ref for tracking changes
         previousPositionRef.current = data.position;
-        // Set doctor presence from the response
-        if (data.isDoctorPresent !== undefined) {
-          setIsDoctorPresent(data.isDoctorPresent);
+        displayedEstimateRef.current = data.estimatedWaitMins ?? null;
+        // Capture initial position for ring progress calculation
+        const initialAhead = Math.max(0, data.position - 1);
+        if (initialPeopleAheadRef.current === 0 && initialAhead > 0) {
+          initialPeopleAheadRef.current = initialAhead;
         }
-        // Set announcement from the response
-        if (data.announcement !== undefined) {
-          setAnnouncement(data.announcement);
-        }
-        // Set specialty for fun facts
-        if (data.specialty !== undefined) {
-          setSpecialty(data.specialty);
-        }
-        if (data.funFactsEnabled !== undefined) {
-          setFunFactsEnabled(data.funFactsEnabled);
-        }
-        // Show confetti if already in consultation when page loads
-        if (data.status === 'IN_CONSULTATION') {
-          setShowConfetti(true);
-        }
+        if (data.isDoctorPresent !== undefined) setIsDoctorPresent(data.isDoctorPresent);
+        if (data.announcement !== undefined) setAnnouncement(data.announcement);
       } catch (err: any) {
         setError(err.message || 'Failed to load patient status');
       } finally {
         setIsLoading(false);
       }
     };
-
     fetchPatientStatus();
   }, [entryId]);
 
-  // Join patient room separately after socket is ready
+  // ─── Join Socket Room ───
   useEffect(() => {
-    if (entryId) {
-      joinPatientRoom(entryId);
-    }
+    if (entryId) joinPatientRoom(entryId);
   }, [entryId, joinPatientRoom]);
 
-  // Handle leaving the queue
+  // ─── Leave Queue ───
   const handleLeaveQueue = async () => {
     if (!entryId || !entry?.clinicId) return;
-
     setIsLeaving(true);
     try {
       await api.leaveQueue(entryId);
-      setIsLeaveModalOpen(false);
-      // Redirect to check-in page so patient can rejoin if needed
+      setIsQuitModalOpen(false);
       navigate(`/checkin/${entry.clinicId}`);
     } catch (err: any) {
       logger.error('Failed to leave queue:', err);
-      setIsLeaveModalOpen(false);
+      setIsQuitModalOpen(false);
     } finally {
       setIsLeaving(false);
     }
   };
 
-  // Can leave queue in these states
-  const canLeaveQueue = entry && ['far', 'closer', 'almost', 'next', 'yourTurn'].includes(
-    getQueueState(entry.position, entry.status)
-  );
+  // ─── "J'arrive!" handler ───
+  const handleArrive = () => {
+    // Future: POST /api/patient/:entryId/arrive
+    logger.log('[PatientStatus] Patient confirmed arrival');
+  };
 
+  // ─── Loading State ───
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">{t('common.loading')}</p>
+      <div className="ps-page" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div
+            style={{
+              width: 40,
+              height: 40,
+              border: '3px solid var(--border, #E8E6DF)',
+              borderTopColor: 'var(--relax-accent, #2B8A7A)',
+              borderRadius: '50%',
+              margin: '0 auto',
+              animation: 'spin 0.8s linear infinite',
+            }}
+          />
+          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+          <p style={{ marginTop: 16, color: 'var(--text-secondary)', fontSize: 14 }}>Chargement...</p>
         </div>
       </div>
     );
   }
 
+  // ─── Error State ───
   if (error || !entry) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-        <div className="text-center">
-          <span className="material-symbols-outlined text-6xl text-gray-400 mb-4">error_outline</span>
-          <p className="text-red-600">{error || 'Patient not found'}</p>
+      <div className="ps-page" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+        <div style={{ textAlign: 'center' }}>
+          <p style={{ color: 'var(--red)', fontSize: 15 }}>{error || 'Patient introuvable'}</p>
         </div>
       </div>
     );
   }
 
-  const queueState = getQueueState(entry.position, entry.status);
-  const config = stateConfig[queueState];
-  const displayPosition = getDisplayPosition(entry.position, entry.status, isDoctorPresent);
-  // waitingAhead available for future use: getPatientsWaitingAhead(displayPosition)
+  // ─── Derived State ───
+  const peopleAhead = Math.max(0, entry.position - 1);
+  const phase: Phase = derivePhase(entry.status, peopleAhead);
+  const isCalled = entry.status === QueueStatus.IN_CONSULTATION;
+  const isWaiting = phase === 'relax' || phase === 'ready';
+  const isGo = phase === 'go';
 
-  // Determine if we should show the ticket card
-  const showTicket = ['far', 'closer', 'almost', 'next'].includes(queueState);
+  // Estimate smoothing
+  const rawEstimate = entry.estimatedWaitMins ?? 0;
+  const smoothedEstimate = smoothEstimate(rawEstimate, displayedEstimateRef.current);
+  displayedEstimateRef.current = smoothedEstimate;
 
-  // Split-screen announcement overlay
-  const showAnnouncementOverlay = !!announcement && !announcementDismissed
-    && queueState !== 'completed' && queueState !== 'cancelled';
+  // Initial people ahead (for ring progress)
+  const initialPeopleAhead = initialPeopleAheadRef.current || peopleAhead;
+
+  // RDV context: visible in relax phase when patient has appointment
+  const showRdv = !!entry.appointmentTime && phase === 'relax';
+  const appointmentDelayMins = entry.estimatedWaitMins ? Math.round(entry.estimatedWaitMins) : undefined;
+
+  // Alert banner: visible when doctor is absent and patient is waiting
+  const showAlert = !isDoctorPresent && (isWaiting || isGo);
+
+  // Cancelled state (NO_SHOW, CANCELLED)
+  const isCancelled = entry.status === 'CANCELLED' || entry.status === 'NO_SHOW';
 
   return (
-    <div className={`min-h-screen ${config.bg} flex flex-col relative`}>
-      {/* Confetti animation for "Your Turn" */}
-      {showConfetti && queueState === 'yourTurn' && <Confetti duration={4000} pieces={60} />}
+    <div className="ps-page">
+      {/* Layer 1: Mood Background */}
+      <div className={`ps-mood-bg phase-${phase}`} />
 
-      {/* Language Switcher - Fixed position top corner */}
-      <div className="absolute top-4 ltr:right-4 rtl:left-4 z-40">
-        <LanguageSwitcher />
-      </div>
+      {/* Layer 2: Content */}
+      <div className="ps-content">
+        {/* Header */}
+        <PSHeader
+          clinicName={entry.clinicName}
+          specialty={entry.specialty || undefined}
+          isDoctorPresent={isDoctorPresent}
+        />
 
-      {/* ═══ Split-Screen Announcement Overlay ═══ */}
-      {showAnnouncementOverlay && (
-        <div
-          className="flex-shrink-0 relative overflow-hidden bg-gradient-to-br from-teal-700 via-teal-600 to-emerald-500 text-white flex flex-col items-center justify-center text-center px-6 py-8 animate-[splitExpand_0.5s_ease-out_both]"
-          style={{ height: '60vh' }}
-        >
-          {/* Curved bottom edge */}
-          <div className="absolute -bottom-1 left-0 right-0 h-8 bg-transparent">
-            <svg viewBox="0 0 100 20" preserveAspectRatio="none" className="w-full h-full">
-              <path d="M0,0 Q50,20 100,0 L100,20 L0,20 Z" className={`${config.bg.includes('green-100') ? 'fill-green-100' : config.bg.includes('emerald-50') ? 'fill-emerald-50' : config.bg.includes('amber') ? 'fill-amber-50' : config.bg.includes('teal') ? 'fill-teal-50' : 'fill-gray-50'}`} />
-            </svg>
-          </div>
+        {/* Alert Banner (doctor absence) */}
+        <PSAlertBanner
+          visible={showAlert}
+          announcement={announcement}
+          isDoctorPresent={isDoctorPresent}
+        />
 
-          {/* Icon */}
-          <div className="w-14 h-14 rounded-full bg-white/20 border border-white/30 flex items-center justify-center mb-4">
-            <span
-              className="material-symbols-outlined text-3xl text-white"
-              style={{ fontVariationSettings: "'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24" }}
-            >
-              campaign
-            </span>
-          </div>
+        {/* RDV Context Bar */}
+        <PSRdvContext
+          visible={showRdv}
+          appointmentTime={entry.appointmentTime}
+          delayMinutes={appointmentDelayMins}
+        />
 
-          {/* Title */}
-          <h2 className="text-lg font-bold mb-2">{t('announcement.overlayTitle', 'Annonce du cabinet')}</h2>
+        {/* Hero Section — mutually exclusive */}
 
-          {/* Message */}
-          <p className="text-white/90 text-sm leading-relaxed max-w-xs mb-3">{announcement}</p>
-
-          {/* Timestamp */}
-          <p className="text-white/50 text-xs flex items-center gap-1 mb-5">
-            <span className="material-symbols-outlined text-sm">schedule</span>
-            {t('announcement.justNow', 'À l\'instant')}
-          </p>
-
-          {/* Dismiss button */}
-          <button
-            onClick={() => setAnnouncementDismissed(true)}
-            className="px-8 py-3 bg-white text-teal-700 font-bold rounded-xl shadow-lg hover:shadow-xl transition-all active:scale-95"
-          >
-            {t('announcement.dismiss', 'Compris')}
-          </button>
-        </div>
-      )}
-
-      {/* ═══ Main Status Content ═══ */}
-      <div className={`flex-1 flex items-center justify-center px-6 py-4 sm:p-4 transition-all duration-500 ${showAnnouncementOverlay ? 'opacity-85 scale-[0.92] origin-top' : ''}`}>
-      <div className="max-w-md w-full space-y-4">
-
-        {/* Doctor Absent Banner */}
-        {!isDoctorPresent && queueState !== 'completed' && queueState !== 'cancelled' && (
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-center">
-            <div className="flex items-center justify-center gap-2 text-amber-800">
-              <span className="material-symbols-outlined text-lg">schedule</span>
-              <span className="text-sm font-medium">
-                {entry.doctorName
-                  ? t('patient.doctorAbsent', { doctorName: entry.doctorName })
-                  : t('patient.doctorNotYetArrived')}
-              </span>
-            </div>
-          </div>
-        )}
-
-        {/* Title/Status Header */}
-        <div className="text-center mb-2">
-          {queueState === 'yourTurn' && (
-            <h1 className={`text-2xl font-bold ${config.accent} mb-1`}>
-              {tPersonal('patient.yourTurnNow')}
-            </h1>
-          )}
-          {queueState === 'next' && (
-            <h1 className={`text-2xl font-bold ${config.accent} mb-1`}>
-              {tPersonal('patient.youAreNext')}
-            </h1>
-          )}
-          {queueState === 'almost' && (
-            <h1 className={`text-xl font-bold ${config.accent} mb-1`}>
-              {tPersonal('patient.urgentAlmost')}
-            </h1>
-          )}
-          {queueState === 'closer' && (
-            <h1 className={`text-xl font-bold ${config.accent} mb-1`}>
-              {tPersonal('patient.gettingCloser')}
-            </h1>
-          )}
-          {queueState === 'far' && (
-            <h1 className={`text-xl font-bold text-gray-800 mb-1`}>
-              {tPersonal('patient.inTheSaf')}
-            </h1>
-          )}
-          {queueState === 'completed' && (
-            <h1 className={`text-2xl font-bold ${config.accent} mb-1`}>
-              {tPersonal('patient.thankYou')}
-            </h1>
-          )}
-          {queueState === 'cancelled' && (
-            <h1 className={`text-xl font-bold ${config.accent} mb-1`}>
-              {entry.status === 'NO_SHOW'
-                ? tPersonal('patient.noShow')
-                : tPersonal('patient.leftQueue')
-              }
-            </h1>
-          )}
-        </div>
-
-        {/* Visual Journey - shows patient's progress through queue */}
-        {showTicket && (
-          <PatientJourneyVisual
-            displayPosition={displayPosition}
-            queueState={queueState as 'far' | 'closer' | 'almost' | 'next' | 'yourTurn'}
-            patientName={entry.patientName || undefined}
+        {/* Relax/Ready: time estimate + progress ring */}
+        {isWaiting && !isCancelled && (
+          <PSHeroEstimate
+            phase={phase}
+            estimatedMins={smoothedEstimate}
+            peopleAhead={peopleAhead}
+            initialPeopleAhead={initialPeopleAhead}
+            status={entry.status}
+            isDoctorPresent={isDoctorPresent}
           />
         )}
 
-        {/* Ticket + Wait Estimate - side by side layout, or centered when #1 */}
-        {showTicket && (
-          <div className={`flex gap-3 items-stretch ${queueState === 'next' ? 'justify-center' : ''}`}>
-            {/* Compact Ticket Card */}
-            <CompactTicketCard
-              position={displayPosition}
-              colorScheme={getTicketColorScheme(queueState)}
-              animate={queueState === 'almost'}
-            />
-            {/* Wait Estimate Card - fills remaining space (hidden when #1) */}
-            {queueState !== 'next' && (
-              <div className="flex-1 min-w-0">
-                <WaitEstimateCard
-                  position={displayPosition}
-                  avgConsultationMins={entry.avgConsultationMins}
-                />
-              </div>
-            )}
+        {/* Go: next (#1) or called (#0) */}
+        {isGo && !isCancelled && (
+          <PSCalledHero
+            patientName={entry.patientName || undefined}
+            doctorGender={entry.doctorGender}
+            isCalled={isCalled}
+            calledAt={entry.calledAt}
+            onArrive={handleArrive}
+          />
+        )}
+
+        {/* Done */}
+        {phase === 'done' && (
+          <PSDoneHero doctorName={entry.doctorName} />
+        )}
+
+        {/* Cancelled state — simple message + rejoin */}
+        {isCancelled && (
+          <div style={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            textAlign: 'center',
+            padding: '40px 20px',
+            minHeight: 280,
+          }}>
+            <div className="ps-done-circle">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </div>
+            <div style={{
+              fontSize: 24,
+              fontWeight: 700,
+              color: 'var(--text-primary)',
+              letterSpacing: '-0.5px',
+              marginBottom: 8,
+            }}>
+              {entry.status === 'NO_SHOW' ? 'Absence signalée' : 'Place annulée'}
+            </div>
+            <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 24 }}>
+              Vous avez quitté la file d'attente.
+            </div>
+            <button
+              onClick={() => navigate(`/checkin/${entry.clinicId}`)}
+              style={{
+                padding: '12px 24px',
+                background: 'var(--relax-accent)',
+                color: 'white',
+                borderRadius: 'var(--radius-sm)',
+                fontSize: 14,
+                fontWeight: 600,
+                border: 'none',
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+              }}
+            >
+              Reprendre une place
+            </button>
           </div>
         )}
 
-        {/* Appointment Time Indicator - if patient has scheduled appointment */}
-        {showTicket && entry.appointmentTime && (
-          <div className="bg-purple-50 border border-purple-200 rounded-xl p-3 text-center">
-            <div className="flex items-center justify-center gap-2 text-purple-800">
-              <span className="material-symbols-outlined text-lg">schedule</span>
-              <span className="font-medium">{t('patient.yourAppointment') || 'Your appointment'}:</span>
-              <span className="font-bold">
-                {formatTime(entry.appointmentTime)}
-              </span>
-            </div>
-          </div>
+        {/* Context Cards (phase-specific) */}
+        {!isCancelled && phase !== 'done' && (
+          <PSContextCard
+            phase={phase}
+            peopleAhead={peopleAhead}
+            avgConsultMins={entry.avgConsultationMins}
+            estimatedMins={smoothedEstimate}
+            notifEnabled={notifyEnabled}
+            onNotifClick={() => setNotifyEnabled(true)}
+            isAbsent={isAbsent}
+            onAbsentClick={() => setIsAbsent(!isAbsent)}
+            isCalled={isCalled}
+          />
         )}
 
-        {/* Your Turn Card */}
-        {queueState === 'yourTurn' && (
-          <>
-            {/* Visual Journey for yourTurn - patient at door */}
-            <PatientJourneyVisual
-              displayPosition={0}
-              queueState="yourTurn"
-              patientName={entry.patientName || undefined}
-            />
-
-            <div className={`${config.card} rounded-2xl shadow-lg p-8 ${config.animate}`}>
-              <div className="text-center">
-                <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-300 mb-4">
-                  <span
-                    className="material-symbols-outlined text-5xl text-green-800"
-                    style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 48" }}
-                  >
-                    celebration
-                  </span>
-                </div>
-                <p className="text-green-700 text-lg font-medium">
-                  {tPersonal('patient.doctorWaiting')}
-                </p>
-              </div>
-            </div>
-          </>
+        {/* Visit Summary (done state) */}
+        {phase === 'done' && (
+          <PSVisitSummary
+            arrivedAt={entry.arrivedAt}
+            calledAt={entry.calledAt}
+            doctorName={entry.doctorName}
+          />
         )}
 
-        {/* Completed Card */}
-        {queueState === 'completed' && (
-          <div className={`${config.card} rounded-2xl shadow-lg p-8`}>
-            <div className="text-center">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
-                <span className="material-symbols-outlined text-4xl text-gray-600">check_circle</span>
-              </div>
-              <p className="text-gray-600">
-                {tPersonal('patient.consultationComplete')}
-              </p>
-            </div>
-          </div>
-        )}
+        {/* ⋯ Options footer (hidden on called/done) */}
+        <PSManageFooter
+          visible={!isCancelled && phase !== 'done' && !isCalled}
+          onManageClick={() => setIsQuitModalOpen(true)}
+        />
 
-        {/* Cancelled / Left Queue Card */}
-        {queueState === 'cancelled' && (
-          <div className={`${config.card} rounded-2xl shadow-lg p-8`}>
-            <div className="text-center space-y-4">
-              {/* Icon */}
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gray-200 mb-2">
-                <span className="material-symbols-outlined text-4xl text-gray-500">
-                  {entry.status === 'NO_SHOW' ? 'cancel' : 'exit_to_app'}
-                </span>
-              </div>
-
-              {/* Message */}
-              <p className="text-gray-600">
-                {entry.status === 'NO_SHOW'
-                  ? t('patient.noShow')
-                  : t('patient.leftQueueMessage')
-                }
-              </p>
-
-              {/* Rejoin Button - link to check-in page */}
-              {entry.clinicId && (
-                <button
-                  onClick={() => navigate(`/checkin/${entry.clinicId}`)}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-xl transition-colors"
-                >
-                  <span className="material-symbols-outlined">refresh</span>
-                  {t('patient.rejoinQueue')}
-                </button>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Urgency Card for position #1 (next state) */}
-        {queueState === 'next' && (
-          <div className="bg-green-50 border-2 border-green-300 rounded-xl p-4 animate-pulse">
-            <div className="flex items-start gap-3">
-              <span
-                className="material-symbols-outlined text-2xl text-green-600 flex-shrink-0"
-                style={{ fontVariationSettings: "'FILL' 1" }}
-              >
-                directions_run
-              </span>
-              <div>
-                <p className="text-sm font-medium text-green-800 leading-relaxed">
-                  {tPersonal('patient.urgentNextMessage')}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Fun Fact Card - rotates every 18 seconds */}
-        {showTicket && queueState !== 'next' && funFactsEnabled && (
-          <FunFactCard refreshInterval={18000} specialty={specialty} />
-        )}
-
-        {/* Leave Queue Button - only show in active queue states */}
-        {canLeaveQueue && (
-          <button
-            onClick={() => setIsLeaveModalOpen(true)}
-            className="w-full py-3 px-4 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm"
-          >
-            <span className="material-symbols-outlined text-lg">logout</span>
-            {t('patient.leaveQueue')}
-          </button>
-        )}
-
-        {/* Auto-refresh indicator */}
-        <p className="text-center text-gray-500 text-sm flex items-center justify-center gap-2">
-          <span className="material-symbols-outlined text-lg">sync</span>
-          {t('patient.autoRefresh')}
-        </p>
+        {/* Brand Footer */}
+        <PSBrandFooter />
       </div>
-      </div>{/* end flex-1 content wrapper */}
 
-      {/* Leave Queue Confirmation Modal */}
-      <ConfirmModal
-        isOpen={isLeaveModalOpen}
-        onClose={() => setIsLeaveModalOpen(false)}
-        onConfirm={handleLeaveQueue}
-        title={t('patient.confirmLeaveTitle')}
-        message={t('patient.confirmLeaveMessage')}
-        confirmText={t('patient.confirmLeaveButton')}
-        cancelText={t('patient.cancelLeaveButton')}
-        variant="danger"
-        isLoading={isLeaving}
+      {/* Floating: Progress Toast */}
+      <PSProgressToast
+        message={toast.message}
+        visible={toast.visible}
+        onHide={hideToast}
       />
 
-      {/* Position Change Toast */}
-      <Toast
-        message={positionToast.message}
-        type="success"
-        isVisible={positionToast.visible}
-        onClose={() => setPositionToast({ visible: false, message: '' })}
-        duration={3000}
+      {/* Floating: Quit Confirmation Modal */}
+      <PSQuitModal
+        isOpen={isQuitModalOpen}
+        onClose={() => setIsQuitModalOpen(false)}
+        onConfirm={handleLeaveQueue}
+        isLoading={isLeaving}
+        doctorName={entry.doctorName}
       />
     </div>
   );

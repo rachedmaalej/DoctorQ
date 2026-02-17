@@ -1,26 +1,18 @@
 /**
  * Subscription Service
- * Handles subscription lifecycle, payments, and SMS package purchases.
+ * Handles subscription lifecycle and payments.
  */
 
 import { prisma } from '../lib/prisma.js';
-import { initPayment, getPaymentDetails } from '../lib/konnect.js';
+import { initPayment, getPaymentDetails } from '../lib/payment/index.js';
+import { logger } from '../lib/logger.js';
+import { brand } from '../lib/brand.js';
 
 // ─── Constants ───────────────────────────────────────────────
 
-// Pricing in millimes (1 TND = 1000 millimes)
 export const PRICING = {
-  MONTHLY: 50000, // 50 TND
-  YEARLY: 500000, // 500 TND (2 months free)
-  SMS_STARTER: 10000, // 10 TND for 100 SMS
-  SMS_STANDARD: 25000, // 25 TND for 300 SMS
-  SMS_PRO: 70000, // 70 TND for 1000 SMS
-};
-
-export const SMS_PACKAGES = {
-  starter: { credits: 100, amount: PRICING.SMS_STARTER, name: 'Starter' },
-  standard: { credits: 300, amount: PRICING.SMS_STANDARD, name: 'Standard' },
-  pro: { credits: 1000, amount: PRICING.SMS_PRO, name: 'Pro' },
+  MONTHLY: brand.pricing.monthly,
+  YEARLY: brand.pricing.yearly,
 };
 
 // ─── Interfaces ──────────────────────────────────────────────
@@ -31,7 +23,6 @@ export interface SubscriptionInfo {
   trialEndsAt: string | null;
   subscriptionEndsAt: string | null;
   daysRemaining: number | null;
-  smsCredits: number;
   canUseApp: boolean;
 }
 
@@ -72,7 +63,6 @@ export async function getSubscriptionStatus(clinicId: string): Promise<Subscript
       subscriptionPlan: true,
       trialEndsAt: true,
       subscriptionEndsAt: true,
-      smsCredits: true,
     },
   });
 
@@ -94,7 +84,6 @@ export async function getSubscriptionStatus(clinicId: string): Promise<Subscript
     trialEndsAt: clinic.trialEndsAt?.toISOString() ?? null,
     subscriptionEndsAt: clinic.subscriptionEndsAt?.toISOString() ?? null,
     daysRemaining: getDaysRemaining(endDate),
-    smsCredits: clinic.smsCredits,
     canUseApp,
   };
 }
@@ -120,7 +109,7 @@ export async function createSubscriptionCheckout(
 
   const amount = plan === 'MONTHLY' ? PRICING.MONTHLY : PRICING.YEARLY;
   const orderId = `sub_${clinicId}_${Date.now()}`;
-  const description = `BleSaf ${plan === 'MONTHLY' ? 'Monthly' : 'Yearly'} Subscription`;
+  const description = `${brand.name} ${plan === 'MONTHLY' ? 'Monthly' : 'Yearly'} Subscription`;
 
   const result = await initPayment({
     amount,
@@ -130,7 +119,7 @@ export async function createSubscriptionCheckout(
     lastName: clinic.doctorName?.split(' ').slice(1).join(' '),
     email: clinic.email,
     phone: clinic.phone ?? undefined,
-    webhookUrl: `${baseUrl}/api/webhooks/subscription`,
+    webhookUrl: `${baseUrl}/api/subscription/webhooks/subscription`,
     successUrl: `${baseUrl}/subscription/success?ref=${orderId}`,
     failUrl: `${baseUrl}/subscription/failed?ref=${orderId}`,
   });
@@ -156,11 +145,11 @@ export async function createSubscriptionCheckout(
  * Process subscription payment webhook
  */
 export async function processSubscriptionPayment(paymentRef: string): Promise<void> {
-  // Get payment details from Konnect
+  // Get payment details from payment gateway
   const paymentDetails = await getPaymentDetails(paymentRef);
 
   if (paymentDetails.payment.status !== 'completed') {
-    console.log(`[Subscription] Payment ${paymentRef} not completed: ${paymentDetails.payment.status}`);
+    logger.info({ paymentRef, status: paymentDetails.payment.status }, 'Subscription payment not completed');
     return;
   }
 
@@ -171,7 +160,7 @@ export async function processSubscriptionPayment(paymentRef: string): Promise<vo
   });
 
   if (!event || !event.notes) {
-    console.error(`[Subscription] No event found for payment ${paymentRef}`);
+    logger.error({ paymentRef }, 'No subscription event found for payment');
     return;
   }
 
@@ -199,150 +188,7 @@ export async function processSubscriptionPayment(paymentRef: string): Promise<vo
     },
   });
 
-  console.log(`[Subscription] Clinic ${event.clinicId} activated ${plan} subscription`);
-}
-
-// ─── SMS Package Purchase ────────────────────────────────────
-
-/**
- * Create checkout for SMS package
- */
-export async function createSmsPackageCheckout(
-  clinicId: string,
-  packageName: keyof typeof SMS_PACKAGES,
-  baseUrl: string
-): Promise<CheckoutResult> {
-  const clinic = await prisma.clinic.findUnique({
-    where: { id: clinicId },
-    select: { id: true, email: true, doctorName: true, phone: true },
-  });
-
-  if (!clinic) {
-    throw Object.assign(new Error('Clinic not found'), { code: 'CLINIC_NOT_FOUND' });
-  }
-
-  const pkg = SMS_PACKAGES[packageName];
-  if (!pkg) {
-    throw Object.assign(new Error('Invalid package'), { code: 'INVALID_PACKAGE' });
-  }
-
-  const orderId = `sms_${clinicId}_${packageName}_${Date.now()}`;
-  const description = `BleSaf SMS Package - ${pkg.name} (${pkg.credits} SMS)`;
-
-  const result = await initPayment({
-    amount: pkg.amount,
-    orderId,
-    description,
-    firstName: clinic.doctorName?.split(' ')[0],
-    lastName: clinic.doctorName?.split(' ').slice(1).join(' '),
-    email: clinic.email,
-    phone: clinic.phone ?? undefined,
-    webhookUrl: `${baseUrl}/api/webhooks/sms-package`,
-    successUrl: `${baseUrl}/subscription/sms-success?ref=${orderId}`,
-    failUrl: `${baseUrl}/subscription/sms-failed?ref=${orderId}`,
-  });
-
-  // Store pending purchase
-  await prisma.smsPackagePurchase.create({
-    data: {
-      clinicId,
-      packageName,
-      credits: pkg.credits,
-      amount: pkg.amount,
-      paymentRef: result.paymentRef,
-      status: 'pending',
-    },
-  });
-
-  return {
-    payUrl: result.payUrl,
-    paymentRef: result.paymentRef,
-  };
-}
-
-/**
- * Process SMS package payment webhook
- */
-export async function processSmsPackagePayment(paymentRef: string): Promise<void> {
-  // Get payment details from Konnect
-  const paymentDetails = await getPaymentDetails(paymentRef);
-
-  if (paymentDetails.payment.status !== 'completed') {
-    console.log(`[SMS] Payment ${paymentRef} not completed: ${paymentDetails.payment.status}`);
-    return;
-  }
-
-  // Find the pending purchase
-  const purchase = await prisma.smsPackagePurchase.findFirst({
-    where: { paymentRef, status: 'pending' },
-  });
-
-  if (!purchase) {
-    console.error(`[SMS] No pending purchase found for payment ${paymentRef}`);
-    return;
-  }
-
-  // Update purchase status and add credits
-  await prisma.$transaction([
-    prisma.smsPackagePurchase.update({
-      where: { id: purchase.id },
-      data: { status: 'completed' },
-    }),
-    prisma.clinic.update({
-      where: { id: purchase.clinicId },
-      data: {
-        smsCredits: { increment: purchase.credits },
-      },
-    }),
-  ]);
-
-  console.log(`[SMS] Added ${purchase.credits} SMS credits to clinic ${purchase.clinicId}`);
-}
-
-// ─── SMS Credit Management ───────────────────────────────────
-
-/**
- * Deduct SMS credit (called when sending SMS)
- * Returns true if credit was deducted, false if insufficient credits
- */
-export async function deductSmsCredit(clinicId: string): Promise<boolean> {
-  const clinic = await prisma.clinic.findUnique({
-    where: { id: clinicId },
-    select: { smsCredits: true },
-  });
-
-  if (!clinic || clinic.smsCredits <= 0) {
-    return false;
-  }
-
-  await prisma.clinic.update({
-    where: { id: clinicId },
-    data: {
-      smsCredits: { decrement: 1 },
-      smsCreditsUsed: { increment: 1 },
-    },
-  });
-
-  return true;
-}
-
-/**
- * Get SMS credit balance
- */
-export async function getSmsBalance(clinicId: string): Promise<{ credits: number; used: number }> {
-  const clinic = await prisma.clinic.findUnique({
-    where: { id: clinicId },
-    select: { smsCredits: true, smsCreditsUsed: true },
-  });
-
-  if (!clinic) {
-    throw Object.assign(new Error('Clinic not found'), { code: 'CLINIC_NOT_FOUND' });
-  }
-
-  return {
-    credits: clinic.smsCredits,
-    used: clinic.smsCreditsUsed,
-  };
+  logger.info({ clinicId: event.clinicId, plan }, 'Subscription activated');
 }
 
 // ─── Subscription Expiry Check ───────────────────────────────
@@ -359,6 +205,7 @@ export async function checkExpiredSubscriptions(): Promise<void> {
     where: {
       subscriptionStatus: 'TRIAL',
       trialEndsAt: { lt: now },
+      country: brand.country,
     },
     select: { id: true },
   });
@@ -378,7 +225,7 @@ export async function checkExpiredSubscriptions(): Promise<void> {
       })),
     });
 
-    console.log(`[Subscription] Expired ${expiredTrials.length} trial subscriptions`);
+    logger.info({ count: expiredTrials.length }, 'Expired trial subscriptions');
   }
 
   // Find expired paid subscriptions
@@ -386,6 +233,7 @@ export async function checkExpiredSubscriptions(): Promise<void> {
     where: {
       subscriptionStatus: 'ACTIVE',
       subscriptionEndsAt: { lt: now },
+      country: brand.country,
     },
     select: { id: true },
   });
@@ -405,7 +253,7 @@ export async function checkExpiredSubscriptions(): Promise<void> {
       })),
     });
 
-    console.log(`[Subscription] Expired ${expiredPaid.length} paid subscriptions`);
+    logger.info({ count: expiredPaid.length }, 'Expired paid subscriptions');
   }
 }
 

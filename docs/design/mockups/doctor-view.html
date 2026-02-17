@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>BléSaf - Doctor/Secretary View Mockup</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --primary-50: #F0F9FF;
+      --primary-100: #E0F2FE;
+      --primary-200: #BAE6FD;
+      --primary-300: #7DD3FC;
+      --primary-400: #38BDF8;
+      --primary-500: #0EA5E9;
+      --primary-600: #0284C7;
+      --primary-700: #0369A1;
+      --primary-800: #075985;
+      --primary-900: #0C4A6E;
+
+      --green-50: #f0fdf4;
+      --green-100: #dcfce7;
+      --green-200: #bbf7d0;
+      --green-300: #86efac;
+      --green-400: #4ade80;
+      --green-500: #22c55e;
+      --green-600: #16a34a;
+      --green-700: #15803d;
+      --green-800: #166534;
+
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --gray-600: #4b5563;
+      --gray-700: #374151;
+      --gray-800: #1f2937;
+      --gray-900: #111827;
+
+      --red-50: #fef2f2;
+      --red-400: #f87171;
+      --red-500: #ef4444;
+      --red-600: #dc2626;
+
+      --blue-50: #eff6ff;
+      --blue-300: #93c5fd;
+      --blue-500: #3b82f6;
+      --blue-600: #2563eb;
+
+      --purple-400: #c084fc;
+      --purple-600: #9333ea;
+      --purple-700: #7e22ce;
+
+      --amber-50: #fffbeb;
+      --amber-500: #f59e0b;
+      --amber-600: #d97706;
+    }
+
+    body {
+      font-family: 'IBM Plex Sans', system-ui, sans-serif;
+      background: var(--gray-50);
+      color: var(--gray-900);
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100vh;
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+      vertical-align: middle;
+    }
+    .material-symbols-outlined.filled {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+    }
+    .material-symbols-outlined.filled-bold {
+      font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 20;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: white;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--gray-200);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header-logo {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--primary-600);
+      letter-spacing: -0.5px;
+    }
+    .header-logo span { color: var(--primary-500); }
+    .header-center {
+      text-align: center;
+    }
+    .header-center .label {
+      font-size: 10px;
+      color: var(--gray-500);
+      font-weight: 500;
+    }
+    .header-center .name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--gray-900);
+    }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .header-btn {
+      background: none;
+      border: none;
+      padding: 6px 8px;
+      font-size: 12px;
+      color: var(--gray-600);
+      cursor: pointer;
+      border-radius: 8px;
+    }
+    .header-btn:hover { background: var(--gray-100); }
+    .header-btn .material-symbols-outlined { font-size: 18px; color: var(--gray-500); }
+
+    /* ── Stats Cards ── */
+    .stats-bar {
+      background: white;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .stat-item { text-align: center; }
+    .stat-item .number {
+      font-size: 24px;
+      font-weight: 700;
+    }
+    .stat-item .number.teal { color: var(--primary-700); }
+    .stat-item .number.green { color: var(--green-600); }
+    .stat-item .number.muted { color: var(--gray-400); }
+    .stat-item .label {
+      font-size: 12px;
+      color: var(--gray-500);
+    }
+    .stat-divider {
+      width: 1px;
+      height: 40px;
+      background: var(--gray-200);
+    }
+
+    /* ── NEW: Estimates Bar ── */
+    .estimates-bar {
+      background: white;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--gray-100);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .estimate-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      color: var(--gray-500);
+    }
+    .estimate-item .material-symbols-outlined {
+      font-size: 14px;
+      color: var(--gray-400);
+    }
+    .estimate-item strong {
+      color: var(--gray-800);
+      font-weight: 600;
+    }
+
+    /* ── Presence Toggle ── */
+    .presence-section { padding: 12px 16px; }
+    .presence-toggle {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 14px;
+      border: 2px solid;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .presence-toggle.on {
+      background: var(--green-100);
+      color: var(--green-800);
+      border-color: var(--green-300);
+    }
+    .presence-toggle .left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .presence-toggle .left .material-symbols-outlined {
+      font-size: 24px;
+      font-variation-settings: 'FILL' 1;
+      color: var(--green-600);
+    }
+    .toggle-switch {
+      width: 48px;
+      height: 28px;
+      border-radius: 9999px;
+      padding: 2px;
+      background: var(--green-500);
+      transition: background 0.2s;
+    }
+    .toggle-switch .knob {
+      width: 24px;
+      height: 24px;
+      border-radius: 9999px;
+      background: white;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+      transform: translateX(20px);
+      transition: transform 0.2s;
+    }
+
+    /* ── Action Buttons (no container, individual buttons) ── */
+    .action-buttons {
+      margin: 0 16px 12px;
+      display: flex;
+      gap: 8px;
+    }
+    .action-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--gray-200);
+      background: white;
+      color: var(--gray-500);
+      font-weight: 500;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.15s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .action-btn:hover { background: var(--gray-50); }
+    .action-btn:active { background: var(--gray-100); }
+    .action-btn.add-patient {
+      flex: 1;
+      background: white;
+      color: var(--gray-700);
+      font-weight: 600;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+    .action-btn.announce {
+      background: var(--blue-50);
+      border-color: var(--blue-300);
+      color: var(--blue-600);
+    }
+    .action-btn.announce:hover { background: #dbeafe; }
+    .action-btn .material-symbols-outlined {
+      font-size: 20px;
+    }
+
+    /* ── Consultation Area ── */
+    .consultation-area {
+      padding: 0 16px 16px;
+    }
+    .consultation-headers {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    .consultation-headers .header-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--gray-500);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .consultation-headers .header-label:first-child { flex: 1; }
+    .consultation-headers .header-label:last-child { flex: 2; }
+    .consultation-headers .header-label .material-symbols-outlined {
+      font-size: 14px;
+    }
+    .consultation-headers .header-label .material-symbols-outlined.green {
+      color: var(--green-600);
+      font-variation-settings: 'FILL' 1, 'wght' 500;
+    }
+    .consultation-headers .header-label .material-symbols-outlined.teal {
+      color: var(--primary-600);
+      font-variation-settings: 'FILL' 1, 'wght' 500;
+    }
+
+    .consultation-cards {
+      display: flex;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    /* In-consultation card */
+    .in-consultation-card {
+      flex: 1;
+      background: var(--green-50);
+      border: 2px solid var(--green-200);
+      border-radius: 16px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    .in-consultation-card .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--green-200);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 8px;
+    }
+    .in-consultation-card .avatar .material-symbols-outlined {
+      color: var(--green-700);
+      font-variation-settings: 'FILL' 1;
+    }
+    .in-consultation-card .patient-name {
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--gray-900);
+    }
+    .in-consultation-card .time-info {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      color: var(--green-600);
+      margin-top: 4px;
+    }
+    .in-consultation-card .time-info .material-symbols-outlined {
+      font-size: 14px;
+    }
+
+    /* Call Next button */
+    .call-next-btn {
+      flex: 2;
+      background: var(--primary-600);
+      color: white;
+      border: none;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: 0 10px 15px -3px rgba(2, 132, 199, 0.3);
+      transition: all 0.15s;
+      padding: 20px;
+    }
+    .call-next-btn:hover { background: var(--primary-700); }
+    .call-next-btn:active { background: var(--primary-700); transform: scale(0.98); }
+    .call-next-btn .material-symbols-outlined {
+      font-size: 28px;
+      font-variation-settings: 'FILL' 1, 'wght' 500;
+    }
+
+    /* ── Queue Section ── */
+    .queue-section {
+      padding: 0 16px 24px;
+    }
+    .queue-header {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--gray-500);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .queue-header .material-symbols-outlined {
+      font-size: 16px;
+    }
+
+    /* ── NEW: Redesigned Patient Card ── */
+    .patient-card {
+      background: white;
+      border-radius: 16px;
+      border: 1px solid var(--gray-100);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+    .patient-card-top {
+      padding: 14px 14px 10px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .position-badge {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: var(--primary-100);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--primary-700);
+      flex-shrink: 0;
+    }
+    .patient-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .patient-info .name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--gray-900);
+    }
+    .patient-info .details {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px 12px;
+      margin-top: 4px;
+    }
+    .patient-info .detail-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 13px;
+      color: var(--gray-600);
+    }
+    .patient-info .detail-item .material-symbols-outlined {
+      font-size: 15px;
+      color: var(--gray-400);
+    }
+    .patient-info .detail-item .material-symbols-outlined.purple {
+      color: var(--purple-400);
+    }
+
+    /* Wait time color coding */
+    .wait-ok { color: var(--green-600) !important; }
+    .wait-warning { color: var(--amber-600) !important; }
+    .wait-danger { color: var(--red-500) !important; }
+
+    /* Status icons */
+    .patient-status-icons {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .status-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .status-icon .material-symbols-outlined {
+      font-size: 16px;
+    }
+    .status-icon.sms-sent {
+      background: var(--green-50);
+    }
+    .status-icon.sms-sent .material-symbols-outlined {
+      color: var(--green-500);
+      font-variation-settings: 'FILL' 1;
+    }
+    .status-icon.sms-pending {
+      background: var(--gray-100);
+    }
+    .status-icon.sms-pending .material-symbols-outlined {
+      color: var(--gray-300);
+    }
+    .status-icon.has-appointment {
+      background: var(--purple-600);
+    }
+    .status-icon.has-appointment .material-symbols-outlined {
+      color: white;
+      font-variation-settings: 'FILL' 1;
+      font-size: 14px;
+    }
+    .status-icon.walk-in {
+      background: #F5F3FF;
+    }
+    .status-icon.walk-in .material-symbols-outlined {
+      color: var(--purple-400);
+    }
+
+    /* ── Action row at bottom of card: status icons (left) + action buttons (right) ── */
+    .patient-card-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 14px 10px;
+      border-top: 1px solid var(--gray-100);
+    }
+    .card-status-icons {
+      display: flex;
+      gap: 6px;
+    }
+    .card-action-btns {
+      display: flex;
+      gap: 6px;
+    }
+    .card-action-btn {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .card-action-btn .material-symbols-outlined {
+      font-size: 18px;
+    }
+    .card-action-btn.priority {
+      background: var(--amber-50);
+      color: var(--amber-600);
+    }
+    .card-action-btn.priority:hover { background: #fef3c7; }
+    .card-action-btn.move-up {
+      background: var(--gray-100);
+      color: var(--gray-600);
+    }
+    .card-action-btn.move-up:hover { background: var(--gray-200); }
+    .card-action-btn.move-down {
+      background: var(--gray-100);
+      color: var(--gray-600);
+    }
+    .card-action-btn.move-down:hover { background: var(--gray-200); }
+    .card-action-btn.remove {
+      background: var(--red-50);
+      color: var(--red-500);
+    }
+    .card-action-btn.remove:hover { background: #fee2e2; }
+
+    /* ── Annotation badge (for mockup) ── */
+    .mockup-badge {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      background: var(--gray-800);
+      color: white;
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 500;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    /* ── Notified badge on patient ── */
+    .notified-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--primary-600);
+      background: var(--primary-50);
+      padding: 2px 8px;
+      border-radius: 6px;
+      margin-top: 4px;
+    }
+    .notified-badge .material-symbols-outlined {
+      font-size: 13px;
+      color: var(--primary-500);
+      font-variation-settings: 'FILL' 1;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-logo">Blé<span>SAF</span></div>
+    <div class="header-center">
+      <div class="label">Cabinet</div>
+      <div class="name">Dr. Emna Kallel</div>
+    </div>
+    <div class="header-right">
+      <button class="header-btn">عربي</button>
+      <button class="header-btn">
+        <span class="material-symbols-outlined">logout</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Stats Cards -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <div class="number teal">4</div>
+      <div class="label">En Attente</div>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <div class="number green">1</div>
+      <div class="label">En Consultation</div>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <div class="number muted">2</div>
+      <div class="label">Vus aujourd'hui</div>
+    </div>
+  </div>
+
+  <!-- NEW: Estimates Bar -->
+  <div class="estimates-bar">
+    <div class="estimate-item">
+      <span class="material-symbols-outlined">avg_pace</span>
+      Attente moy: <strong>12 min</strong>
+    </div>
+    <div class="estimate-item">
+      <span class="material-symbols-outlined">schedule</span>
+      Prochain: <strong>~14:50</strong>
+    </div>
+    <div class="estimate-item">
+      <span class="material-symbols-outlined">flag</span>
+      Fin estimée: <strong>~16:30</strong>
+    </div>
+  </div>
+
+  <!-- Presence Toggle -->
+  <div class="presence-section">
+    <button class="presence-toggle on">
+      <div class="left">
+        <span class="material-symbols-outlined filled">stethoscope</span>
+        <span>Docteur présent</span>
+      </div>
+      <div class="toggle-switch">
+        <div class="knob"></div>
+      </div>
+    </button>
+  </div>
+
+  <!-- Action Buttons (below presence toggle, no container) -->
+  <div class="action-buttons">
+    <button class="action-btn add-patient">
+      <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0, 'wght' 500;">person_add</span>
+      Ajouter un patient
+    </button>
+    <button class="action-btn" title="Code QR">
+      <span class="material-symbols-outlined">qr_code_2</span>
+    </button>
+    <button class="action-btn announce" title="Annonce">
+      <span class="material-symbols-outlined">campaign</span>
+    </button>
+    <button class="action-btn" title="Paramètres">
+      <span class="material-symbols-outlined">settings</span>
+    </button>
+  </div>
+
+  <!-- Consultation Area: Side-by-side -->
+  <div class="consultation-area">
+    <div class="consultation-headers">
+      <div class="header-label">
+        <span class="material-symbols-outlined green">stethoscope</span>
+        EN CONSULTATION
+      </div>
+      <div class="header-label">
+        <span class="material-symbols-outlined teal">arrow_forward</span>
+        APPELER SUIVANT
+      </div>
+    </div>
+    <div class="consultation-cards">
+      <!-- In Consultation -->
+      <div class="in-consultation-card">
+        <div class="avatar">
+          <span class="material-symbols-outlined">person</span>
+        </div>
+        <div class="patient-name">Slim</div>
+        <div class="time-info">
+          <span class="material-symbols-outlined">schedule</span>
+          5 min
+        </div>
+      </div>
+
+      <!-- Call Next Button -->
+      <button class="call-next-btn">
+        <span class="material-symbols-outlined">directions_walk</span>
+        Appeler Suivant
+      </button>
+    </div>
+  </div>
+
+  <!-- Queue Section -->
+  <div class="queue-section">
+    <div class="queue-header">
+      <span class="material-symbols-outlined">groups</span>
+      FILE D'ATTENTE
+    </div>
+
+    <!-- Patient #1 - Notified, walk-in, SMS sent, long wait -->
+    <div class="patient-card">
+      <div class="patient-card-top">
+        <div class="position-badge">#1</div>
+        <div class="patient-info">
+          <div class="name">Mounir</div>
+          <div class="details">
+            <div class="detail-item">
+              <span class="material-symbols-outlined">login</span>
+              14:30
+            </div>
+            <div class="detail-item">
+              <span class="material-symbols-outlined">hourglass_empty</span>
+              <span class="wait-warning">15 min</span>
+            </div>
+          </div>
+          <div class="notified-badge">
+            <span class="material-symbols-outlined">notifications_active</span>
+            Notifié
+          </div>
+        </div>
+      </div>
+      <div class="patient-card-actions">
+        <div class="card-status-icons">
+          <div class="status-icon walk-in" title="Sans RDV">
+            <span class="material-symbols-outlined">directions_walk</span>
+          </div>
+          <div class="status-icon sms-sent" title="SMS envoyé">
+            <span class="material-symbols-outlined">send</span>
+          </div>
+        </div>
+        <div class="card-action-btns">
+          <button class="card-action-btn priority" title="Priorité">
+            <span class="material-symbols-outlined filled">star</span>
+          </button>
+          <button class="card-action-btn move-up" title="Monter">
+            <span class="material-symbols-outlined">arrow_upward</span>
+          </button>
+          <button class="card-action-btn move-down" title="Descendre">
+            <span class="material-symbols-outlined">arrow_downward</span>
+          </button>
+          <button class="card-action-btn remove" title="Retirer">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Patient #2 - With appointment, SMS sent -->
+    <div class="patient-card">
+      <div class="patient-card-top">
+        <div class="position-badge">#2</div>
+        <div class="patient-info">
+          <div class="name">Mondher</div>
+          <div class="details">
+            <div class="detail-item">
+              <span class="material-symbols-outlined">login</span>
+              14:30
+            </div>
+            <div class="detail-item">
+              <span class="material-symbols-outlined purple">event</span>
+              <span style="color: var(--purple-700); font-weight: 500;">15:00</span>
+            </div>
+            <div class="detail-item">
+              <span class="material-symbols-outlined">hourglass_empty</span>
+              <span class="wait-danger">25 min</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="patient-card-actions">
+        <div class="card-status-icons">
+          <div class="status-icon has-appointment" title="RDV à 15:00">
+            <span class="material-symbols-outlined">event</span>
+          </div>
+          <div class="status-icon sms-sent" title="SMS envoyé">
+            <span class="material-symbols-outlined">send</span>
+          </div>
+        </div>
+        <div class="card-action-btns">
+          <button class="card-action-btn priority" title="Priorité">
+            <span class="material-symbols-outlined filled">star</span>
+          </button>
+          <button class="card-action-btn move-up" title="Monter">
+            <span class="material-symbols-outlined">arrow_upward</span>
+          </button>
+          <button class="card-action-btn move-down" title="Descendre">
+            <span class="material-symbols-outlined">arrow_downward</span>
+          </button>
+          <button class="card-action-btn remove" title="Retirer">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Patient #3 - Walk-in, SMS pending, moderate wait -->
+    <div class="patient-card">
+      <div class="patient-card-top">
+        <div class="position-badge">#3</div>
+        <div class="patient-info">
+          <div class="name">Kamel</div>
+          <div class="details">
+            <div class="detail-item">
+              <span class="material-symbols-outlined">login</span>
+              14:35
+            </div>
+            <div class="detail-item">
+              <span class="material-symbols-outlined">hourglass_empty</span>
+              <span class="wait-warning">20 min</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="patient-card-actions">
+        <div class="card-status-icons">
+          <div class="status-icon walk-in" title="Sans RDV">
+            <span class="material-symbols-outlined">directions_walk</span>
+          </div>
+          <div class="status-icon sms-pending" title="SMS en attente">
+            <span class="material-symbols-outlined">send</span>
+          </div>
+        </div>
+        <div class="card-action-btns">
+          <button class="card-action-btn priority" title="Priorité">
+            <span class="material-symbols-outlined filled">star</span>
+          </button>
+          <button class="card-action-btn move-up" title="Monter">
+            <span class="material-symbols-outlined">arrow_upward</span>
+          </button>
+          <button class="card-action-btn move-down" title="Descendre">
+            <span class="material-symbols-outlined">arrow_downward</span>
+          </button>
+          <button class="card-action-btn remove" title="Retirer">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Patient #4 - Walk-in, SMS pending, short wait -->
+    <div class="patient-card">
+      <div class="patient-card-top">
+        <div class="position-badge">#4</div>
+        <div class="patient-info">
+          <div class="name">Raoudha</div>
+          <div class="details">
+            <div class="detail-item">
+              <span class="material-symbols-outlined">login</span>
+              14:43
+            </div>
+            <div class="detail-item">
+              <span class="material-symbols-outlined">hourglass_empty</span>
+              <span class="wait-ok">9 min</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="patient-card-actions">
+        <div class="card-status-icons">
+          <div class="status-icon walk-in" title="Sans RDV">
+            <span class="material-symbols-outlined">directions_walk</span>
+          </div>
+          <div class="status-icon sms-pending" title="SMS en attente">
+            <span class="material-symbols-outlined">send</span>
+          </div>
+        </div>
+        <div class="card-action-btns">
+          <button class="card-action-btn priority" title="Priorité">
+            <span class="material-symbols-outlined filled">star</span>
+          </button>
+          <button class="card-action-btn move-up" title="Monter">
+            <span class="material-symbols-outlined">arrow_upward</span>
+          </button>
+          <button class="card-action-btn move-down" style="visibility: hidden;" title="Descendre">
+            <span class="material-symbols-outlined">arrow_downward</span>
+          </button>
+          <button class="card-action-btn remove" title="Retirer">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mockup-badge">Mockup — Doctor/Secretary View v3 (Ocean Blue)</div>
+
+</body>
+</html>

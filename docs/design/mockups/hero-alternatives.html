@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BleSaf Hero Section — 3 Alternatives (Before/After Photos)</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" rel="stylesheet">
+  <style>
+    /* ============================================
+       GLOBAL STYLES & RESET
+       ============================================ */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'IBM Plex Sans', system-ui, sans-serif;
+      background: #F1F5F9;
+      color: #1E293B;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .material-symbols-outlined.filled {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+
+    /* ============================================
+       PAGE HEADER
+       ============================================ */
+    .page-header {
+      text-align: center;
+      margin-bottom: 28px;
+      max-width: 640px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .page-header h1 {
+      font-size: 24px;
+      font-weight: 800;
+      color: #0F172A;
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+    .page-header p {
+      font-size: 14px;
+      color: #64748B;
+      line-height: 1.6;
+    }
+
+    /* ============================================
+       TAB NAVIGATION
+       ============================================ */
+    .tab-nav {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 36px;
+      max-width: 820px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .tab-btn {
+      flex: 1;
+      min-width: 220px;
+      max-width: 260px;
+      padding: 16px 18px;
+      border: 2px solid #E2E8F0;
+      border-radius: 16px;
+      background: #FFFFFF;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      color: #0F172A;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      position: relative;
+    }
+    .tab-btn .tab-letter {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: #F1F5F9;
+      color: #64748B;
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 4px;
+      transition: all 0.2s ease;
+    }
+    .tab-btn .tab-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #0F172A;
+      transition: color 0.2s ease;
+    }
+    .tab-btn .tab-desc {
+      font-size: 11px;
+      font-weight: 400;
+      color: #94A3B8;
+      line-height: 1.4;
+      transition: color 0.2s ease;
+    }
+    .tab-btn:hover { transform: translateY(-2px); }
+
+    /* Option 1 — Teal */
+    .tab-btn[data-color="teal"]:hover {
+      border-color: #14B8A6;
+      background: #F0FDFA;
+      box-shadow: 0 4px 12px rgba(20, 184, 166, 0.12);
+    }
+    .tab-btn[data-color="teal"]:hover .tab-letter {
+      background: #CCFBF1;
+      color: #0D9488;
+    }
+    .tab-btn[data-color="teal"].active {
+      background: #14B8A6;
+      border-color: #14B8A6;
+      box-shadow: 0 4px 16px rgba(20, 184, 166, 0.3);
+      transform: translateY(-2px);
+    }
+
+    /* Option 2 — Blue */
+    .tab-btn[data-color="blue"]:hover {
+      border-color: #0EA5E9;
+      background: #F0F9FF;
+      box-shadow: 0 4px 12px rgba(14, 165, 233, 0.12);
+    }
+    .tab-btn[data-color="blue"]:hover .tab-letter {
+      background: #E0F2FE;
+      color: #0284C7;
+    }
+    .tab-btn[data-color="blue"].active {
+      background: #0EA5E9;
+      border-color: #0EA5E9;
+      box-shadow: 0 4px 16px rgba(14, 165, 233, 0.3);
+      transform: translateY(-2px);
+    }
+
+    /* Option 3 — Amber */
+    .tab-btn[data-color="amber"]:hover {
+      border-color: #F59E0B;
+      background: #FFFBEB;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.12);
+    }
+    .tab-btn[data-color="amber"]:hover .tab-letter {
+      background: #FEF3C7;
+      color: #B45309;
+    }
+    .tab-btn[data-color="amber"].active {
+      background: #F59E0B;
+      border-color: #F59E0B;
+      box-shadow: 0 4px 16px rgba(245, 158, 11, 0.3);
+      transform: translateY(-2px);
+    }
+
+    /* Active state shared text */
+    .tab-btn.active .tab-letter {
+      background: rgba(255,255,255,0.25);
+      color: #FFFFFF;
+    }
+    .tab-btn.active .tab-title {
+      color: #FFFFFF;
+    }
+    .tab-btn.active .tab-desc {
+      color: rgba(255,255,255,0.8);
+    }
+
+    /* ============================================
+       LAYOUT: PHONE + SIDE DESCRIPTION
+       ============================================ */
+    .design-container {
+      display: none;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 40px;
+    }
+    .design-container.active {
+      display: flex;
+    }
+    .design-meta {
+      max-width: 320px;
+      padding-top: 40px;
+    }
+    .design-meta h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #0F172A;
+      margin-bottom: 8px;
+    }
+    .design-meta .philosophy {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .design-meta p {
+      font-size: 13px;
+      color: #64748B;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+    .design-meta .section-list {
+      font-size: 12px;
+      color: #475569;
+      line-height: 1.8;
+      margin-bottom: 16px;
+    }
+    .design-meta .section-list strong {
+      color: #0F172A;
+    }
+    .design-meta .tag {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-right: 4px;
+      margin-bottom: 4px;
+    }
+    .tag-teal { background: #CCFBF1; color: #115E59; }
+    .tag-blue { background: #E0F2FE; color: #0369A1; }
+    .tag-green { background: #D1FAE5; color: #065F46; }
+    .tag-amber { background: #FEF3C7; color: #92400E; }
+    .tag-purple { background: #EDE9FE; color: #5B21B6; }
+    .tag-rose { background: #FFE4E6; color: #9F1239; }
+
+    /* ============================================
+       PHONE FRAME
+       ============================================ */
+    .phone-frame {
+      width: 375px;
+      height: 812px;
+      border-radius: 44px;
+      border: 8px solid #1E293B;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15), 0 0 0 2px #475569;
+      flex-shrink: 0;
+    }
+    .phone-notch {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 126px;
+      height: 34px;
+      background: #1E293B;
+      border-radius: 0 0 20px 20px;
+      z-index: 100;
+    }
+    /* Dynamic Island pill */
+    .phone-notch::after {
+      content: '';
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 20px;
+      border-radius: 20px;
+      background: #000;
+    }
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      overflow-y: auto;
+      position: relative;
+      background: #FFFFFF;
+    }
+    .phone-screen::-webkit-scrollbar {
+      display: none;
+    }
+
+    @media (max-width: 800px) {
+      .design-meta { display: none; }
+    }
+
+    /* ============================================
+       SHARED — Mini nav inside phone
+       ============================================ */
+    .lp-nav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 40px 16px 10px;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    .lp-nav-logo {
+      font-size: 15px;
+      font-weight: 800;
+      color: #0F172A;
+      letter-spacing: -0.5px;
+    }
+    .lp-nav-logo span { color: #0EA5E9; }
+    .lp-nav-cta {
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      background: #0EA5E9;
+      color: #FFFFFF;
+    }
+
+    /* Shared CTA button */
+    .hero-cta {
+      display: inline-block;
+      padding: 12px 28px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #FFFFFF;
+      background: #0EA5E9;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .hero-cta:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(14, 165, 233, 0.3);
+    }
+    .hero-cta-secondary {
+      display: inline-block;
+      padding: 12px 28px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #0EA5E9;
+      background: transparent;
+      border: 2px solid #0EA5E9;
+      text-decoration: none;
+      cursor: pointer;
+      margin-left: 8px;
+      transition: background 0.2s;
+    }
+    .hero-cta-secondary:hover {
+      background: #F0F9FF;
+    }
+
+    /* ============================================
+       OPTION 1: REVEAL SLIDER
+       ============================================ */
+    .slider-hero {
+      position: relative;
+      padding: 0;
+      overflow: hidden;
+    }
+    .slider-headline {
+      text-align: center;
+      padding: 48px 20px 16px;
+      background: linear-gradient(135deg, #0F172A 0%, #1E3A5F 100%);
+    }
+    .slider-headline h1 {
+      font-size: 22px;
+      font-weight: 800;
+      color: #FFFFFF;
+      line-height: 1.3;
+      margin-bottom: 8px;
+    }
+    .slider-headline p {
+      font-size: 12px;
+      color: rgba(255,255,255,0.7);
+      line-height: 1.5;
+    }
+
+    .slider-container {
+      position: relative;
+      width: 100%;
+      height: 300px;
+      overflow: hidden;
+      cursor: ew-resize;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .slider-img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .slider-img-after {
+      z-index: 1;
+    }
+    .slider-img-before {
+      z-index: 2;
+      clip-path: inset(0 50% 0 0);
+    }
+    .slider-label {
+      position: absolute;
+      top: 12px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      z-index: 5;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .slider-label-before {
+      left: 12px;
+      background: rgba(239, 68, 68, 0.9);
+      color: #FFF;
+    }
+    .slider-label-after {
+      right: 12px;
+      background: rgba(16, 185, 129, 0.9);
+      color: #FFF;
+    }
+    .slider-handle {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 100%;
+      background: #FFFFFF;
+      z-index: 10;
+      box-shadow: 0 0 8px rgba(0,0,0,0.3);
+    }
+    .slider-handle::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #FFFFFF;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .slider-handle-arrows {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 11;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      font-size: 16px;
+      color: #0EA5E9;
+      font-weight: 900;
+      pointer-events: none;
+    }
+    .slider-hint {
+      position: absolute;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 12;
+      background: rgba(0,0,0,0.6);
+      color: #FFF;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 20px;
+      animation: slider-hint-pulse 2s ease-in-out infinite;
+    }
+    @keyframes slider-hint-pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .slider-body {
+      padding: 24px 20px;
+      text-align: center;
+    }
+    .slider-body h2 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #0F172A;
+      margin-bottom: 8px;
+    }
+    .slider-body p {
+      font-size: 12px;
+      color: #64748B;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    /* ============================================
+       OPTION 2: CROSSFADE LOOP
+       ============================================ */
+    .crossfade-hero {
+      position: relative;
+      overflow: hidden;
+    }
+    .crossfade-visual {
+      position: relative;
+      width: 100%;
+      height: 340px;
+      overflow: hidden;
+    }
+    .crossfade-img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: opacity 1.2s ease-in-out;
+    }
+    .crossfade-img.hidden { opacity: 0; }
+    .crossfade-img.visible { opacity: 1; }
+
+    .crossfade-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 60px 20px 20px;
+      background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
+      z-index: 5;
+    }
+    .crossfade-text-container {
+      position: relative;
+      min-height: 80px;
+    }
+    .crossfade-text {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      transition: opacity 0.8s ease-in-out, transform 0.8s ease-in-out;
+    }
+    .crossfade-text.hidden {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    .crossfade-text.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .crossfade-text h1 {
+      font-size: 20px;
+      font-weight: 800;
+      color: #FFFFFF;
+      line-height: 1.3;
+      margin-bottom: 6px;
+    }
+    .crossfade-text p {
+      font-size: 12px;
+      color: rgba(255,255,255,0.8);
+      line-height: 1.5;
+    }
+
+    .crossfade-indicator {
+      position: absolute;
+      bottom: 8px;
+      right: 16px;
+      z-index: 10;
+      display: flex;
+      gap: 6px;
+    }
+    .crossfade-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.4);
+      transition: all 0.4s ease;
+      cursor: pointer;
+    }
+    .crossfade-dot.active {
+      background: #FFFFFF;
+      width: 24px;
+      border-radius: 4px;
+    }
+
+    .crossfade-badge {
+      position: absolute;
+      top: 46px;
+      left: 12px;
+      z-index: 6;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      transition: all 0.8s ease-in-out;
+    }
+    .crossfade-badge.before {
+      background: rgba(239, 68, 68, 0.9);
+      color: #FFF;
+    }
+    .crossfade-badge.after {
+      background: rgba(16, 185, 129, 0.9);
+      color: #FFF;
+    }
+
+    .crossfade-body {
+      padding: 20px 20px 24px;
+      text-align: center;
+    }
+    .crossfade-body h2 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #0F172A;
+      margin-bottom: 8px;
+    }
+    .crossfade-body p {
+      font-size: 12px;
+      color: #64748B;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    /* ============================================
+       OPTION 3: STACK & SCROLL
+       ============================================ */
+    .stack-hero {
+      position: relative;
+      overflow: hidden;
+    }
+    .stack-headline {
+      padding: 48px 20px 16px;
+      text-align: center;
+      background: linear-gradient(135deg, #0F172A 0%, #1E3A5F 100%);
+    }
+    .stack-headline h1 {
+      font-size: 22px;
+      font-weight: 800;
+      color: #FFFFFF;
+      line-height: 1.3;
+      margin-bottom: 8px;
+    }
+    .stack-headline p {
+      font-size: 12px;
+      color: rgba(255,255,255,0.7);
+    }
+
+    .stack-cards {
+      padding: 20px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      background: #F8FAFC;
+    }
+    .stack-card {
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      transition: transform 0.6s ease, opacity 0.6s ease;
+    }
+    .stack-card-before {
+      position: relative;
+      z-index: 1;
+    }
+    .stack-card-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 0;
+      z-index: 2;
+      position: relative;
+    }
+    .stack-arrow-circle {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0EA5E9, #14B8A6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #FFFFFF;
+      font-size: 22px;
+      box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+      animation: stack-arrow-bounce 2s ease-in-out infinite;
+    }
+    @keyframes stack-arrow-bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(4px); }
+    }
+    .stack-card-after {
+      position: relative;
+      z-index: 1;
+    }
+
+    .stack-card-img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      display: block;
+    }
+    .stack-card-caption {
+      padding: 12px 16px;
+      background: #FFFFFF;
+    }
+    .stack-card-caption.before-caption {
+      border-left: 4px solid #EF4444;
+    }
+    .stack-card-caption.after-caption {
+      border-left: 4px solid #10B981;
+    }
+    .stack-card-caption .caption-tag {
+      display: inline-block;
+      font-size: 9px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-bottom: 4px;
+    }
+    .caption-tag.tag-before {
+      background: #FEE2E2;
+      color: #DC2626;
+    }
+    .caption-tag.tag-after {
+      background: #D1FAE5;
+      color: #059669;
+    }
+    .stack-card-caption h3 {
+      font-size: 14px;
+      font-weight: 700;
+      color: #0F172A;
+      margin-bottom: 2px;
+    }
+    .stack-card-caption p {
+      font-size: 11px;
+      color: #64748B;
+      line-height: 1.4;
+    }
+
+    .stack-body {
+      padding: 20px 20px 24px;
+      text-align: center;
+      background: #F8FAFC;
+    }
+    .stack-body h2 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #0F172A;
+      margin-bottom: 8px;
+    }
+    .stack-body p {
+      font-size: 12px;
+      color: #64748B;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    /* Stack scroll-reveal animation */
+    .stack-card-after {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    .stack-card-after.revealed {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .stack-card-arrow {
+      opacity: 0;
+      transform: scale(0.5);
+    }
+    .stack-card-arrow.revealed {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    /* ============================================
+       PLACEHOLDER: Rest of page teaser
+       ============================================ */
+    .page-continues {
+      padding: 32px 20px;
+      text-align: center;
+      background: #F8FAFC;
+      border-top: 1px dashed #CBD5E1;
+    }
+    .page-continues p {
+      font-size: 12px;
+      color: #94A3B8;
+      font-style: italic;
+    }
+    .page-continues .dots {
+      font-size: 24px;
+      color: #CBD5E1;
+      letter-spacing: 6px;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ================================
+       PAGE HEADER
+       ================================ -->
+  <div class="page-header">
+    <h1>Section Hero : quel traitement des photos avant/après ?</h1>
+    <p>3 approches pour intégrer les visuels « Sans BleSaf » et « Avec BleSaf » dans le hero de l'Option A (Récit Empathique). Glissez, observez, comparez.</p>
+  </div>
+
+  <!-- ================================
+       TAB NAVIGATION
+       ================================ -->
+  <div class="tab-nav">
+    <button class="tab-btn active" data-tab="slider" data-color="teal" onclick="switchTab('slider', this)">
+      <span class="tab-letter">1</span>
+      <span class="tab-title">Curseur Révélation</span>
+      <span class="tab-desc">Glisser pour comparer les deux réalités côte à côte</span>
+    </button>
+    <button class="tab-btn" data-tab="crossfade" data-color="blue" onclick="switchTab('crossfade', this)">
+      <span class="tab-letter">2</span>
+      <span class="tab-title">Fondu Enchaîné</span>
+      <span class="tab-desc">Transition automatique entre les deux images avec texte</span>
+    </button>
+    <button class="tab-btn" data-tab="stack" data-color="amber" onclick="switchTab('stack', this)">
+      <span class="tab-letter">3</span>
+      <span class="tab-title">Pile & Défilement</span>
+      <span class="tab-desc">Cartes empilées révélées au scroll</span>
+    </button>
+  </div>
+
+  <!-- ================================
+       OPTION 1: REVEAL SLIDER
+       ================================ -->
+  <div class="design-container active" id="design-slider">
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <!-- Nav -->
+        <div class="lp-nav">
+          <div class="lp-nav-logo">Ble<span>Saf</span></div>
+          <button class="lp-nav-cta">Essai gratuit</button>
+        </div>
+
+        <!-- Hero: Reveal Slider -->
+        <div class="slider-hero">
+          <div class="slider-headline">
+            <h1>Et si vos patients savaient exactement quand c'est leur tour ?</h1>
+            <p>Faites glisser pour voir la transformation</p>
+          </div>
+
+          <div class="slider-container" id="slider1">
+            <img class="slider-img slider-img-after" src="With-BleSaf.png" alt="Avec BleSaf">
+            <img class="slider-img slider-img-before" src="Without-BleSaf.png" alt="Sans BleSaf">
+            <span class="slider-label slider-label-before">Sans BleSaf</span>
+            <span class="slider-label slider-label-after">Avec BleSaf</span>
+            <div class="slider-handle" id="slider1-handle">
+              <span class="slider-handle-arrows">&#x276E; &#x276F;</span>
+            </div>
+            <div class="slider-hint">&#x2194; Glissez pour comparer</div>
+          </div>
+
+          <div class="slider-body">
+            <h2>Fini les salles d'attente bondées</h2>
+            <p>Vos patients suivent leur position en temps réel depuis leur téléphone. Ils arrivent détendus, vous consultez sereinement.</p>
+            <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+              <button class="hero-cta">Essayer gratuitement</button>
+              <button class="hero-cta-secondary">Voir la démo</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Page continues indicator -->
+        <div class="page-continues">
+          <p>Le reste de la landing page continue ici...</p>
+          <div class="dots">...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Side description -->
+    <div class="design-meta">
+      <h2>1. Curseur Révélation</h2>
+      <div class="philosophy" style="color: #14B8A6;">Interaction tactile, contrôle utilisateur</div>
+      <p>Le visiteur glisse un curseur pour révéler progressivement la transformation. C'est lui qui contrôle la comparaison — ce qui crée un engagement actif et un moment de découverte.</p>
+      <div class="section-list">
+        <strong>Points forts :</strong><br>
+        &#x2022; Interactif — le visiteur participe activement<br>
+        &#x2022; Compréhension instantanée du avant/après<br>
+        &#x2022; Pattern bien connu (sites immobiliers, retouche photo)<br>
+        &#x2022; Fonctionne au toucher sur mobile<br><br>
+        <strong>Attention :</strong><br>
+        &#x2022; Requiert une action de l'utilisateur<br>
+        &#x2022; Certains visiteurs ne glissent pas spontanément
+      </div>
+      <span class="tag tag-teal">Interactif</span>
+      <span class="tag tag-blue">Tactile</span>
+      <span class="tag tag-green">Avant/Après</span>
+    </div>
+  </div>
+
+  <!-- ================================
+       OPTION 2: CROSSFADE LOOP
+       ================================ -->
+  <div class="design-container" id="design-crossfade">
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <!-- Nav -->
+        <div class="lp-nav">
+          <div class="lp-nav-logo">Ble<span>Saf</span></div>
+          <button class="lp-nav-cta">Essai gratuit</button>
+        </div>
+
+        <!-- Hero: Crossfade Loop -->
+        <div class="crossfade-hero">
+          <div class="crossfade-visual" id="crossfade1">
+            <img class="crossfade-img visible" id="cf-img-before" src="Without-BleSaf.png" alt="Sans BleSaf">
+            <img class="crossfade-img hidden" id="cf-img-after" src="With-BleSaf.png" alt="Avec BleSaf">
+
+            <div class="crossfade-badge before" id="cf-badge">SANS BLESAF</div>
+
+            <div class="crossfade-overlay">
+              <div class="crossfade-text-container">
+                <div class="crossfade-text visible" id="cf-text-before">
+                  <h1>Des patients frustrés, une salle bondée</h1>
+                  <p>« C'est quand mon tour ? » — la question qui revient 100 fois par jour</p>
+                </div>
+                <div class="crossfade-text hidden" id="cf-text-after">
+                  <h1>Des patients sereins, qui attendent où ils veulent</h1>
+                  <p>Position en temps réel, estimation précise, notification automatique</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="crossfade-indicator">
+              <div class="crossfade-dot active" id="cf-dot-0" onclick="setCrossfadeState(0)"></div>
+              <div class="crossfade-dot" id="cf-dot-1" onclick="setCrossfadeState(1)"></div>
+            </div>
+          </div>
+
+          <div class="crossfade-body">
+            <h2>BleSaf transforme l'attente en liberté</h2>
+            <p>Vos patients consultent leur position depuis leur téléphone. Pas d'app à télécharger, juste un QR code à scanner.</p>
+            <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+              <button class="hero-cta">Essayer gratuitement</button>
+              <button class="hero-cta-secondary">Voir la démo</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Page continues indicator -->
+        <div class="page-continues">
+          <p>Le reste de la landing page continue ici...</p>
+          <div class="dots">...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Side description -->
+    <div class="design-meta">
+      <h2>2. Fondu Enchaîné</h2>
+      <div class="philosophy" style="color: #0EA5E9;">Automatique, narratif, émotionnel</div>
+      <p>Les deux photos alternent automatiquement avec un fondu doux, accompagnées d'un texte qui change pour raconter l'histoire. Le visiteur n'a rien à faire — l'histoire se raconte seule.</p>
+      <div class="section-list">
+        <strong>Points forts :</strong><br>
+        &#x2022; Zéro effort du visiteur — ça tourne tout seul<br>
+        &#x2022; Le texte guide l'émotion (frustration → sérénité)<br>
+        &#x2022; Effet cinématographique et premium<br>
+        &#x2022; L'alternance crée un rythme hypnotique<br><br>
+        <strong>Attention :</strong><br>
+        &#x2022; Le visiteur peut manquer une phase s'il scrolle vite<br>
+        &#x2022; Timing à bien calibrer (ni trop rapide, ni trop lent)
+      </div>
+      <span class="tag tag-blue">Automatique</span>
+      <span class="tag tag-purple">Narratif</span>
+      <span class="tag tag-rose">Émotionnel</span>
+    </div>
+  </div>
+
+  <!-- ================================
+       OPTION 3: STACK & SCROLL
+       ================================ -->
+  <div class="design-container" id="design-stack">
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-screen" id="stack-screen">
+        <!-- Nav -->
+        <div class="lp-nav">
+          <div class="lp-nav-logo">Ble<span>Saf</span></div>
+          <button class="lp-nav-cta">Essai gratuit</button>
+        </div>
+
+        <!-- Hero: Stack & Scroll -->
+        <div class="stack-hero">
+          <div class="stack-headline">
+            <h1>Et si vos patients savaient exactement quand c'est leur tour ?</h1>
+            <p>Découvrez la transformation en défilant</p>
+          </div>
+
+          <div class="stack-cards">
+            <!-- Before card -->
+            <div class="stack-card stack-card-before">
+              <img class="stack-card-img" src="Without-BleSaf.png" alt="Sans BleSaf">
+              <div class="stack-card-caption before-caption">
+                <span class="caption-tag tag-before">Aujourd'hui</span>
+                <h3>Salle d'attente bondée, patients stressés</h3>
+                <p>« C'est quand mon tour ? » — stress, frustration, temps perdu pour tous</p>
+              </div>
+            </div>
+
+            <!-- Arrow -->
+            <div class="stack-card-arrow" id="stack-arrow">
+              <div class="stack-arrow-circle">
+                <span class="material-symbols-outlined">arrow_downward</span>
+              </div>
+            </div>
+
+            <!-- After card -->
+            <div class="stack-card stack-card-after" id="stack-after-card">
+              <img class="stack-card-img" src="With-BleSaf.png" alt="Avec BleSaf">
+              <div class="stack-card-caption after-caption">
+                <span class="caption-tag tag-after">Avec BleSaf</span>
+                <h3>Patients sereins, qui attendent où ils veulent</h3>
+                <p>Position en temps réel sur leur téléphone, notification quand c'est leur tour</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="stack-body">
+            <h2>Transformez l'attente en liberté</h2>
+            <p>QR code à l'accueil, suivi en temps réel, notifications automatiques. Pas d'app à télécharger.</p>
+            <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+              <button class="hero-cta">Essayer gratuitement</button>
+              <button class="hero-cta-secondary">Voir la démo</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Page continues indicator -->
+        <div class="page-continues">
+          <p>Le reste de la landing page continue ici...</p>
+          <div class="dots">...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Side description -->
+    <div class="design-meta">
+      <h2>3. Pile & Défilement</h2>
+      <div class="philosophy" style="color: #F59E0B;">Narratif vertical, révélation progressive</div>
+      <p>Les deux photos sont empilées verticalement comme des cartes. La première (« Sans BleSaf ») est visible immédiatement. En scrollant, la flèche apparaît puis la deuxième carte (« Avec BleSaf ») se révèle avec une animation douce — comme tourner une page.</p>
+      <div class="section-list">
+        <strong>Points forts :</strong><br>
+        &#x2022; Narration naturelle — haut = avant, bas = après<br>
+        &#x2022; Scroll = le geste mobile par excellence<br>
+        &#x2022; Chaque image a son propre espace et texte<br>
+        &#x2022; Effet de surprise quand la 2e carte apparaît<br><br>
+        <strong>Attention :</strong><br>
+        &#x2022; Prend plus de place verticalement<br>
+        &#x2022; Moins compact que les 2 autres options
+      </div>
+      <span class="tag tag-amber">Scroll-reveal</span>
+      <span class="tag tag-green">Narratif</span>
+      <span class="tag tag-teal">Mobile-first</span>
+    </div>
+  </div>
+
+  <!-- ================================
+       JAVASCRIPT
+       ================================ -->
+  <script>
+    // ---- Tab switching ----
+    function switchTab(tabId, btn) {
+      // Deactivate all
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.design-container').forEach(c => c.classList.remove('active'));
+
+      // Activate selected
+      btn.classList.add('active');
+      document.getElementById('design-' + tabId).classList.add('active');
+
+      // Restart crossfade if switching to it
+      if (tabId === 'crossfade') {
+        startCrossfade();
+      }
+      // Restart stack scroll observer
+      if (tabId === 'stack') {
+        resetStackAnimation();
+      }
+    }
+
+    // ---- OPTION 1: Reveal Slider ----
+    (function initSlider() {
+      const container = document.getElementById('slider1');
+      if (!container) return;
+
+      const handle = document.getElementById('slider1-handle');
+      const beforeImg = container.querySelector('.slider-img-before');
+      let isDragging = false;
+
+      function updateSlider(x) {
+        const rect = container.getBoundingClientRect();
+        let pos = (x - rect.left) / rect.width;
+        pos = Math.max(0.05, Math.min(0.95, pos));
+        const pct = pos * 100;
+
+        beforeImg.style.clipPath = `inset(0 ${100 - pct}% 0 0)`;
+        handle.style.left = pct + '%';
+      }
+
+      // Mouse
+      container.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        updateSlider(e.clientX);
+      });
+      document.addEventListener('mousemove', (e) => {
+        if (isDragging) updateSlider(e.clientX);
+      });
+      document.addEventListener('mouseup', () => isDragging = false);
+
+      // Touch
+      container.addEventListener('touchstart', (e) => {
+        isDragging = true;
+        updateSlider(e.touches[0].clientX);
+      }, { passive: true });
+      container.addEventListener('touchmove', (e) => {
+        if (isDragging) {
+          updateSlider(e.touches[0].clientX);
+        }
+      }, { passive: true });
+      container.addEventListener('touchend', () => isDragging = false);
+    })();
+
+    // ---- OPTION 2: Crossfade Loop ----
+    let cfState = 0; // 0 = before, 1 = after
+    let cfInterval = null;
+
+    function setCrossfadeState(state) {
+      cfState = state;
+
+      const imgBefore = document.getElementById('cf-img-before');
+      const imgAfter = document.getElementById('cf-img-after');
+      const textBefore = document.getElementById('cf-text-before');
+      const textAfter = document.getElementById('cf-text-after');
+      const badge = document.getElementById('cf-badge');
+      const dot0 = document.getElementById('cf-dot-0');
+      const dot1 = document.getElementById('cf-dot-1');
+
+      if (state === 0) {
+        imgBefore.className = 'crossfade-img visible';
+        imgAfter.className = 'crossfade-img hidden';
+        textBefore.className = 'crossfade-text visible';
+        textAfter.className = 'crossfade-text hidden';
+        badge.className = 'crossfade-badge before';
+        badge.textContent = 'SANS BLESAF';
+        dot0.className = 'crossfade-dot active';
+        dot1.className = 'crossfade-dot';
+      } else {
+        imgBefore.className = 'crossfade-img hidden';
+        imgAfter.className = 'crossfade-img visible';
+        textBefore.className = 'crossfade-text hidden';
+        textAfter.className = 'crossfade-text visible';
+        badge.className = 'crossfade-badge after';
+        badge.textContent = 'AVEC BLESAF';
+        dot0.className = 'crossfade-dot';
+        dot1.className = 'crossfade-dot active';
+      }
+    }
+
+    function startCrossfade() {
+      if (cfInterval) clearInterval(cfInterval);
+      cfState = 0;
+      setCrossfadeState(0);
+      cfInterval = setInterval(() => {
+        cfState = cfState === 0 ? 1 : 0;
+        setCrossfadeState(cfState);
+      }, 3500);
+    }
+
+    // Auto-start crossfade
+    startCrossfade();
+
+    // ---- OPTION 3: Stack & Scroll ----
+    function resetStackAnimation() {
+      const afterCard = document.getElementById('stack-after-card');
+      const arrow = document.getElementById('stack-arrow');
+      if (afterCard) {
+        afterCard.classList.remove('revealed');
+        afterCard.style.opacity = '0';
+        afterCard.style.transform = 'translateY(30px)';
+      }
+      if (arrow) {
+        arrow.classList.remove('revealed');
+        arrow.style.opacity = '0';
+        arrow.style.transform = 'scale(0.5)';
+      }
+      // Re-observe
+      setTimeout(observeStack, 300);
+    }
+
+    function observeStack() {
+      const stackScreen = document.getElementById('stack-screen');
+      const afterCard = document.getElementById('stack-after-card');
+      const arrow = document.getElementById('stack-arrow');
+
+      if (!stackScreen || !afterCard || !arrow) return;
+
+      // Use IntersectionObserver scoped to the phone screen
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            // Small stagger: arrow first, then card
+            setTimeout(() => {
+              arrow.classList.add('revealed');
+              arrow.style.opacity = '1';
+              arrow.style.transform = 'scale(1)';
+            }, 200);
+            setTimeout(() => {
+              afterCard.classList.add('revealed');
+              afterCard.style.opacity = '1';
+              afterCard.style.transform = 'translateY(0)';
+            }, 500);
+            observer.disconnect();
+          }
+        });
+      }, {
+        root: stackScreen,
+        threshold: 0.1
+      });
+
+      observer.observe(afterCard);
+    }
+
+    // Init stack observer
+    observeStack();
+  </script>
+</body>
+</html>

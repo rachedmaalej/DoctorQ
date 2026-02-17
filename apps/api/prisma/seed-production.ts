@@ -31,6 +31,11 @@ async function main() {
       avgConsultationMins: 10,
       notifyAtPosition: 2,
       enableWhatsApp: false,
+      emailVerified: true,
+      onboardingCompleted: true,
+      onboardingStep: 3,
+      subscriptionStatus: 'TRIAL',
+      trialEndsAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
     },
   });
 

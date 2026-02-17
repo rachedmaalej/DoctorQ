@@ -1,4 +1,5 @@
 import type { ClinicDetail } from '../../../../types';
+import { formatPhone } from '../../../../lib/phone';
 
 interface ClinicPatientsTabProps {
   detail: ClinicDetail;
@@ -66,10 +67,12 @@ export default function ClinicPatientsTab({ detail }: ClinicPatientsTabProps) {
                     return (
                       <tr key={entry.id} className="hover:bg-[#F3FAF9] transition-colors">
                         <td className="px-4 py-2 text-sm text-[#132E2C]">{entry.patientName || '—'}</td>
-                        <td className="px-4 py-2 text-sm text-[#4E7572]">{entry.patientPhone}</td>
+                        <td className="px-4 py-2 text-sm text-[#4E7572]">{formatPhone(entry.patientPhone)}</td>
                         <td className="px-4 py-2 text-sm text-[#4E7572] capitalize">{entry.checkInMethod.replace('_', ' ').toLowerCase()}</td>
                         <td className="px-4 py-2">{statusBadge(entry.status)}</td>
                         <td className="px-4 py-2 text-sm text-[#4E7572]">
+                          <span className="text-[#8AADAA]">{new Date(entry.arrivedAt).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })}</span>
+                          {' '}
                           {new Date(entry.arrivedAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
                         </td>
                         <td className="px-4 py-2 text-sm text-[#4E7572]">

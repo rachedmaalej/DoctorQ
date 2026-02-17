@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { api } from '@/lib/api';
+import { webBrand } from '@/lib/brand';
 
 interface RecordPaymentModalProps {
   isOpen: boolean;
@@ -28,7 +29,7 @@ export default function RecordPaymentModal({ isOpen, clinicId, clinicName, onClo
   const currentMonth = monthOptions[2]; // Current month
 
   const [month, setMonth] = useState(currentMonth.value);
-  const [amount, setAmount] = useState(50000); // 50 TND in millimes
+  const [amount, setAmount] = useState(webBrand.pricing.monthlyAmount);
   const [method, setMethod] = useState('bank_transfer');
   const [reference, setReference] = useState('');
   const [notes, setNotes] = useState('');
@@ -93,11 +94,11 @@ export default function RecordPaymentModal({ isOpen, clinicId, clinicName, onClo
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[#4E7572] mb-1">Amount (TND)</label>
+            <label className="block text-sm font-medium text-[#4E7572] mb-1">Amount ({webBrand.currency.symbol})</label>
             <input
               type="number"
-              value={amount / 1000}
-              onChange={(e) => setAmount(Number(e.target.value) * 1000)}
+              value={amount / webBrand.currency.multiplier}
+              onChange={(e) => setAmount(Number(e.target.value) * webBrand.currency.multiplier)}
               min={1}
               className={inputClass}
             />

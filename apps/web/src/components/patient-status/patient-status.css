@@ -1,0 +1,1053 @@
+/* Patient Status Page — Three-Phase Design System */
+/* Phases: Relax (teal) → Get Ready (amber) → Go Now (green) */
+
+.ps-page {
+  /* ─── Phase: Relax ─── */
+  --relax-bg: #FAFAF8;
+  --relax-surface: #FFFFFF;
+  --relax-accent: #2B8A7A;
+  --relax-accent-soft: #E6F4F1;
+  --relax-ring: #2B8A7A;
+  --relax-ring-track: #E8E6E0;
+
+  /* ─── Phase: Get Ready ─── */
+  --ready-bg: #FBF8F0;
+  --ready-surface: #FFFFFF;
+  --ready-accent: #C47F17;
+  --ready-accent-soft: #FEF3DC;
+  --ready-ring: #D4920B;
+  --ready-ring-track: #EDE8DB;
+
+  /* ─── Phase: Go Now ─── */
+  --go-bg: #EEFBF3;
+  --go-surface: #FFFFFF;
+  --go-accent: #1A7A3A;
+  --go-accent-soft: #D4F5DF;
+  --go-ring: #22C55E;
+  --go-ring-track: #D1EDD8;
+
+  /* ─── Shared Tokens ─── */
+  --text-primary: #1A1917;
+  --text-secondary: #6B6960;
+  --text-tertiary: #9E9B90;
+  --border: #E8E6DF;
+  --red: #D94F3B;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.06);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.10);
+  --radius: 16px;
+  --radius-sm: 12px;
+  --radius-xs: 8px;
+
+  /* ─── Transitions ─── */
+  --transition-mood: background 0.6s ease;
+  --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* ─── Base ─── */
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+  font-family: 'Plus Jakarta Sans', 'IBM Plex Sans Arabic', -apple-system, sans-serif;
+  color: var(--text-primary);
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+.ps-page *, .ps-page *::before, .ps-page *::after {
+  box-sizing: border-box;
+}
+
+/* ─── Mood Background ─── */
+
+.ps-mood-bg {
+  position: fixed;
+  inset: 0;
+  max-width: 430px;
+  margin: 0 auto;
+  z-index: 0;
+  transition: var(--transition-mood);
+}
+
+.ps-mood-bg.phase-relax { background: var(--relax-bg); }
+.ps-mood-bg.phase-ready { background: var(--ready-bg); }
+.ps-mood-bg.phase-go    { background: var(--go-bg); }
+.ps-mood-bg.phase-done  { background: #F8F7F4; }
+
+/* ─── Content Layer ─── */
+
+.ps-content {
+  position: relative;
+  z-index: 1;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── Clinic Header ─── */
+
+.ps-clinic-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 16px 24px 12px;
+}
+
+.ps-clinic-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  transition: color 0.4s;
+}
+
+.ps-clinic-doc {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin-top: 1px;
+}
+
+.ps-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ps-doctor-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22C55E;
+  flex-shrink: 0;
+}
+
+.ps-doctor-dot.absent {
+  background: var(--text-tertiary);
+}
+
+.ps-lang-btn {
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  background: rgba(0,0,0,0.04);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 5px 14px;
+  cursor: pointer;
+  transition: all 0.3s;
+  color: var(--text-primary);
+}
+
+.ps-lang-btn:active {
+  background: rgba(0,0,0,0.08);
+}
+
+/* ─── Hero Section (Relax/Ready phases) ─── */
+
+.ps-hero-section {
+  flex-shrink: 0;
+  padding: 24px 24px 0;
+  text-align: center;
+  position: relative;
+}
+
+.ps-hero-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  transition: color 0.4s;
+}
+
+.ps-hero-eyebrow.phase-relax { color: var(--relax-accent); }
+.ps-hero-eyebrow.phase-ready { color: var(--ready-accent); }
+
+.ps-hero-time {
+  font-size: 64px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  transition: color 0.4s;
+  color: var(--text-primary);
+}
+
+.ps-hero-time .unit {
+  font-size: 36px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.ps-hero-time.phase-ready {
+  color: var(--ready-accent);
+}
+
+.ps-hero-sub {
+  font-size: 15px;
+  color: var(--text-secondary);
+  margin-top: 8px;
+  font-weight: 500;
+}
+
+/* ─── Progress Ring ─── */
+
+.ps-ring-container {
+  width: 200px;
+  height: 200px;
+  margin: 28px auto 0;
+  position: relative;
+}
+
+.ps-ring-svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.ps-ring-track {
+  fill: none;
+  stroke-width: 8;
+  transition: stroke 0.6s;
+}
+
+.ps-ring-progress {
+  fill: none;
+  stroke-width: 8;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.6s;
+}
+
+.ps-ring-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.ps-ring-number {
+  font-size: 48px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  transition: color 0.4s;
+}
+
+.ps-ring-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-top: 4px;
+}
+
+/* ─── Info Cards ─── */
+
+.ps-info-card {
+  border-radius: var(--radius-sm);
+  padding: 18px 20px;
+  margin-bottom: 12px;
+  transition: background 0.4s, border-color 0.4s;
+}
+
+.ps-info-card.phase-relax {
+  background: var(--relax-accent-soft);
+  border: 1px solid rgba(43,138,122,0.1);
+}
+
+.ps-info-card.phase-ready {
+  background: var(--ready-accent-soft);
+  border: 1px solid rgba(212,146,11,0.12);
+}
+
+.ps-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.ps-info-row + .ps-info-row {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(0,0,0,0.05);
+}
+
+.ps-info-label {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.ps-info-value {
+  font-size: 15px;
+  font-weight: 700;
+  transition: color 0.4s;
+}
+
+.ps-info-value.phase-relax { color: var(--relax-accent); }
+.ps-info-value.phase-ready { color: var(--ready-accent); }
+
+/* ─── Context Tips ─── */
+
+.ps-context-tip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: var(--radius-xs);
+  margin-top: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.4s;
+}
+
+.ps-context-tip .material-symbols-rounded {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.ps-context-tip.tip-cafe {
+  background: #FEF7E6;
+  color: #92690B;
+}
+.ps-context-tip.tip-cafe .material-symbols-rounded { color: #D4920B; }
+
+.ps-context-tip.tip-patience {
+  background: #FEF7E6;
+  color: #92690B;
+}
+.ps-context-tip.tip-patience .material-symbols-rounded { color: #D4920B; }
+
+.ps-context-tip.tip-stay {
+  background: var(--ready-accent-soft);
+  color: #92690B;
+}
+.ps-context-tip.tip-stay .material-symbols-rounded { color: var(--ready-accent); }
+
+.ps-context-tip.tip-warning {
+  background: var(--ready-accent-soft);
+  color: #92690B;
+  font-weight: 700;
+}
+.ps-context-tip.tip-warning .material-symbols-rounded {
+  color: var(--ready-accent);
+  font-variation-settings: 'FILL' 1;
+}
+
+.ps-context-tip.tip-go {
+  background: var(--go-accent-soft);
+  color: var(--go-accent);
+  font-weight: 700;
+  font-size: 15px;
+}
+.ps-context-tip.tip-go .material-symbols-rounded {
+  color: var(--go-ring);
+  font-variation-settings: 'FILL' 1;
+}
+
+/* ─── Notification Prompt ─── */
+
+.ps-notif-prompt {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #EEF2FF;
+  border: 1px solid #D4DBFA;
+  border-radius: var(--radius-xs);
+  margin-top: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.ps-notif-prompt:active { background: #E0E5FC; }
+
+.ps-notif-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #4F5AE5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.ps-notif-icon .material-symbols-rounded {
+  font-size: 18px;
+  font-variation-settings: 'FILL' 1;
+}
+
+.ps-notif-text {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 600;
+  color: #3B44B5;
+  line-height: 1.35;
+}
+
+.ps-notif-arrow { color: #4F5AE5; }
+.ps-notif-arrow .material-symbols-rounded { font-size: 18px; }
+
+/* Notif confirmed state (Ready phase) */
+.ps-notif-prompt.confirmed {
+  background: #FEF7E6;
+  border-color: rgba(212,146,11,0.2);
+}
+.ps-notif-prompt.confirmed .ps-notif-icon {
+  background: #D4920B;
+}
+.ps-notif-prompt.confirmed .ps-notif-text {
+  color: #92690B;
+}
+.ps-notif-prompt.confirmed .ps-notif-arrow { color: #D4920B; }
+
+/* ─── Absent Button ─── */
+
+.ps-absent-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px;
+  border-radius: var(--radius-xs);
+  border: 1.5px dashed var(--border);
+  background: transparent;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 8px;
+}
+
+.ps-absent-btn:active {
+  background: rgba(0,0,0,0.03);
+  border-color: var(--text-tertiary);
+}
+
+.ps-absent-btn .material-symbols-rounded { font-size: 18px; }
+
+.ps-absent-btn.is-absent {
+  border-style: solid;
+  border-color: var(--ready-accent);
+  background: var(--ready-accent-soft);
+  color: var(--ready-accent);
+}
+
+/* ─── Info Area (wrapper for cards in the scroll area) ─── */
+
+.ps-info-area {
+  padding: 24px;
+  flex: 1;
+}
+
+/* ─── Go Phase ─── */
+
+.ps-go-bg-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 30%, rgba(34,197,94,0.08) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.ps-go-hero {
+  padding: 80px 24px 20px;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+
+.ps-go-eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--go-accent);
+  margin-bottom: 4px;
+}
+
+.ps-go-name {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--go-accent);
+  line-height: 1.2;
+}
+
+.ps-go-headline {
+  font-size: 44px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: var(--go-accent);
+  line-height: 1;
+  margin-top: 4px;
+}
+
+.ps-go-sub {
+  font-size: 15px;
+  color: var(--text-secondary);
+  margin-top: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* Pulse ring for Go phase */
+.ps-go-pulse-ring {
+  width: 160px;
+  height: 160px;
+  margin: 28px auto;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ps-go-pulse-ring::before,
+.ps-go-pulse-ring::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 3px solid var(--go-ring);
+  animation: ps-go-ring-pulse 2s ease-out infinite;
+}
+
+.ps-go-pulse-ring::after { animation-delay: 1s; }
+
+@keyframes ps-go-ring-pulse {
+  0% { transform: scale(0.8); opacity: 0.8; }
+  100% { transform: scale(1.4); opacity: 0; }
+}
+
+.ps-go-icon-circle {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: var(--go-ring);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 2;
+  box-shadow: 0 8px 32px rgba(34,197,94,0.35);
+}
+
+.ps-go-icon-circle .material-symbols-rounded {
+  font-size: 44px;
+  color: #fff;
+  font-variation-settings: 'FILL' 1;
+}
+
+.ps-go-icon-circle.large {
+  width: 110px;
+  height: 110px;
+}
+.ps-go-icon-circle.large .material-symbols-rounded {
+  font-size: 48px;
+}
+
+/* "J'arrive" button */
+.ps-arrive-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: calc(100% - 48px);
+  margin: 0 auto;
+  height: 56px;
+  background: var(--go-accent);
+  border: none;
+  border-radius: var(--radius);
+  color: #fff;
+  font-family: inherit;
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 24px rgba(26,122,58,0.3);
+  transition: all 0.15s;
+}
+
+.ps-arrive-btn:active { transform: scale(0.97); }
+.ps-arrive-btn .material-symbols-rounded { font-size: 22px; }
+
+.ps-arrive-btn:disabled {
+  background: var(--text-tertiary);
+  box-shadow: none;
+  cursor: default;
+}
+
+/* Waiting timer */
+.ps-waiting-timer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--text-tertiary);
+  font-weight: 500;
+}
+
+.ps-waiting-timer .material-symbols-rounded { font-size: 16px; }
+
+/* ─── Footer ─── */
+
+.ps-footer-options {
+  padding: 16px 24px 8px;
+  text-align: center;
+}
+
+.ps-options-link {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  text-decoration: none;
+  font-weight: 500;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: inherit;
+  padding: 8px 16px;
+}
+
+.ps-options-link:active {
+  color: var(--text-secondary);
+}
+
+.ps-brand-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 16px 24px 36px;
+  font-size: 12px;
+  color: var(--text-tertiary);
+  font-weight: 500;
+}
+
+.ps-brand-mark {
+  width: 16px;
+  height: 16px;
+  background: var(--text-tertiary);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.ps-brand-footer a {
+  color: var(--relax-accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* ─── Alert Banner ─── */
+
+.ps-alert {
+  margin: 0 20px 8px;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #FEF7EC;
+  border: 1px solid #F0DDB8;
+  color: #8B5E14;
+  font-size: 13px;
+  line-height: 1.35;
+  overflow: hidden;
+  transition: all 0.4s ease;
+}
+
+.ps-alert.hidden {
+  max-height: 0;
+  opacity: 0;
+  margin-bottom: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-width: 0;
+}
+
+.ps-alert strong { font-weight: 600; }
+
+.ps-alert svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: #8B5E14;
+}
+
+/* ─── RDV Context Bar ─── */
+
+.ps-rdv {
+  margin: 0 20px 4px;
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  background: rgba(0,0,0,0.03);
+  font-size: 12px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+  transition: all 0.4s ease;
+}
+
+.ps-rdv.hidden {
+  max-height: 0;
+  opacity: 0;
+  padding: 0 14px;
+  margin-bottom: 0;
+}
+
+.ps-rdv svg {
+  width: 14px;
+  height: 14px;
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+
+.ps-rdv-time {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* ─── Done Hero ─── */
+
+.ps-done-circle {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.04);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.ps-done-circle svg {
+  width: 28px;
+  height: 28px;
+  color: var(--relax-accent);
+}
+
+/* ─── Visit Summary ─── */
+
+.ps-summary {
+  margin: 0 20px;
+  padding: 18px;
+  background: var(--go-surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+
+.ps-summary-header {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-tertiary);
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+.ps-summary-value {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -1px;
+  line-height: 1.1;
+}
+
+.ps-summary-label {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+.ps-summary-cta {
+  width: 100%;
+  padding: 12px;
+  background: var(--relax-accent-soft);
+  color: var(--relax-accent);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s ease;
+}
+
+.ps-summary-cta:hover { background: #D6ECE2; }
+
+/* ─── Progress Toast ─── */
+
+.ps-toast {
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%) translateY(120px);
+  z-index: 200;
+  background: var(--text-primary);
+  color: white;
+  padding: 14px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: var(--shadow-lg);
+  max-width: calc(100% - 40px);
+  transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.ps-toast.visible {
+  transform: translateX(-50%) translateY(0);
+}
+
+.ps-toast .material-symbols-rounded {
+  font-size: 20px;
+  color: var(--go-ring);
+  font-variation-settings: 'FILL' 1;
+}
+
+/* ─── Quit Modal ─── */
+
+.ps-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 500;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.ps-modal-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.ps-modal-sheet {
+  background: white;
+  border-radius: 20px 20px 0 0;
+  max-width: 430px;
+  width: 100%;
+  padding: 24px 20px 36px;
+  transform: translateY(100%);
+  transition: transform 0.35s var(--ease-spring);
+}
+
+.ps-modal-overlay.open .ps-modal-sheet {
+  transform: translateY(0);
+}
+
+.ps-modal-handle {
+  width: 36px;
+  height: 4px;
+  background: #D9D9D9;
+  border-radius: 2px;
+  margin: 0 auto 20px;
+}
+
+.ps-modal-title {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+}
+
+.ps-modal-desc {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 24px;
+}
+
+.ps-modal-danger-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: var(--radius-sm);
+  background: var(--red);
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: inherit;
+  border: none;
+  cursor: pointer;
+  margin-bottom: 8px;
+  min-height: 44px;
+}
+
+.ps-modal-cancel-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: var(--radius-sm);
+  background: rgba(0,0,0,0.04);
+  color: var(--text-primary);
+  font-size: 15px;
+  font-weight: 600;
+  font-family: inherit;
+  border: none;
+  cursor: pointer;
+  min-height: 44px;
+}
+
+/* ─── Keyframe Animations ─── */
+
+@keyframes ps-fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.ps-fade-up    { animation: ps-fadeUp 0.5s ease both; }
+.ps-fade-up-d1 { animation: ps-fadeUp 0.5s ease 0.05s both; }
+.ps-fade-up-d2 { animation: ps-fadeUp 0.5s ease 0.12s both; }
+.ps-fade-up-d3 { animation: ps-fadeUp 0.5s ease 0.2s both; }
+.ps-fade-up-d4 { animation: ps-fadeUp 0.5s ease 0.28s both; }
+.ps-fade-up-d5 { animation: ps-fadeUp 0.5s ease 0.36s both; }
+
+@keyframes ps-countPulse {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+
+.ps-count-pulse {
+  animation: ps-countPulse 0.5s ease;
+}
+
+/* Toggle switch */
+.ps-toggle {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  flex-shrink: 0;
+  border: none;
+  padding: 0;
+}
+
+.ps-toggle[aria-checked="true"]  { background-color: var(--relax-accent); }
+.ps-toggle[aria-checked="false"] { background-color: var(--border); }
+
+.ps-toggle-knob {
+  position: absolute;
+  top: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  transition: left 0.2s ease;
+}
+
+.ps-toggle[aria-checked="true"]  .ps-toggle-knob { left: 23px; }
+.ps-toggle[aria-checked="false"] .ps-toggle-knob { left: 3px; }
+
+/* ─── Doctor Absent State (Alternative E) ─── */
+
+/* Rich amber banner (replaces simple text banner when doctor absent) */
+.ps-alert-rich {
+  margin: 0 20px 4px;
+  padding: 14px 16px;
+  border-radius: var(--radius-sm);
+  background: #FEF7EC;
+  border: 1px solid #F0DDB8;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  overflow: hidden;
+  transition: all 0.4s ease;
+}
+
+.ps-alert-rich.hidden {
+  max-height: 0;
+  opacity: 0;
+  margin-bottom: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-width: 0;
+}
+
+.ps-alert-rich-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(212,146,11,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.ps-alert-rich-icon svg {
+  width: 18px;
+  height: 18px;
+  color: #D4920B;
+}
+
+.ps-alert-rich-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #6B4A0A;
+  margin-bottom: 2px;
+}
+
+.ps-alert-rich-body {
+  font-size: 12px;
+  color: #8B5E14;
+  line-height: 1.4;
+}
+
+/* Hero dimmed state (when doctor absent) */
+.ps-hero-time.doctor-absent {
+  opacity: 0.35;
+  transition: opacity 0.4s ease;
+}
+
+.ps-hero-paused-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 6px;
+  padding: 4px 12px;
+  background: #FEF7EC;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #8B5E14;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.ps-hero-paused-badge svg {
+  width: 13px;
+  height: 13px;
+  color: #D4920B;
+}
+
+/* Ring dimmed when doctor absent */
+.ps-ring-container.doctor-absent {
+  opacity: 0.3;
+  transition: opacity 0.4s ease;
+}

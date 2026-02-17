@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/authStore';
 import { useUILabels } from '@/hooks/useUILabels';
+import { webBrand } from '@/lib/brand';
 import Logo from '@/components/ui/Logo';
 
 export default function Header() {
@@ -50,12 +51,14 @@ export default function Header() {
               </svg>
             </button>
 
-            <button
-              onClick={toggleLanguage}
-              className="px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              {i18n.language === 'fr' ? 'عربي' : 'Français'}
-            </button>
+            {webBrand.supportedLanguages.length > 1 && (
+              <button
+                onClick={toggleLanguage}
+                className="px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                {i18n.language === 'fr' ? 'عربي' : 'Français'}
+              </button>
+            )}
 
             <button
               onClick={handleLogout}

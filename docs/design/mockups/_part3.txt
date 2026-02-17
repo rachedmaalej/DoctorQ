@@ -1,0 +1,441 @@
+</head>
+<body>
+
+<!-- === TAB SWITCHER === -->
+<div class="demo-tab-bar" id="demoTabBar">
+  <button class="demo-tab active" onclick="switchDemo('fm')" id="tabFM">Premier Matin</button>
+  <button class="demo-tab" onclick="switchDemo('pj')" id="tabPJ">Parcours Patient</button>
+  <button class="demo-tab" onclick="switchDemo('rv')" id="tabRV">Vue Receptionniste</button>
+</div>
+
+<div class="page-frame" id="app">
+
+<!-- ============================================================ -->
+<!-- DEMO 1: PREMIER MATIN (First Morning) - ORIGINAL             -->
+<!-- ============================================================ -->
+<div class="demo-container active" id="demoFM">
+
+  <!-- STEP INDICATOR -->
+  <div class="step-bar" id="stepBar">
+    <div class="step-pip" id="pip0"></div>
+    <div class="step-pip" id="pip1"></div>
+    <div class="step-pip" id="pip2"></div>
+    <div class="step-pip" id="pip3"></div>
+    <div class="step-pip" id="pip4"></div>
+    <span class="step-label" id="stepLabel">Votre cabinet</span>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="dashboard" id="dashboard">
+    <div class="dash-header">
+      <div class="logo">BleSAF</div>
+      <div class="clinic-info">
+        <div class="clinic-label">Cabinet</div>
+        <div class="clinic-name" id="dashClinicName">Dr. --</div>
+      </div>
+      <div class="header-actions">
+        <button class="lang-btn">&#1593;&#1585;&#1576;&#1610;</button>
+        <button class="logout-btn"><span class="material-symbols-outlined">logout</span></button>
+      </div>
+    </div>
+    <div class="dash-stats" id="dashStats">
+      <div class="dash-stat">
+        <div class="stat-value primary" id="statWaiting">0</div>
+        <div class="stat-label">En Attente</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="dash-stat">
+        <div class="stat-value green" id="statConsultation">0</div>
+        <div class="stat-label">En Consultation</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="dash-stat">
+        <div class="stat-value muted" id="statSeen">0</div>
+        <div class="stat-label">Vus aujourd'hui</div>
+      </div>
+    </div>
+    <div class="dash-estimates" id="dashEstimates">
+      <div class="dash-estimate">
+        <span class="material-symbols-outlined">avg_pace</span>
+        Attente moy: <strong id="estAvg">--</strong>
+      </div>
+      <div class="dash-estimate">
+        <span class="material-symbols-outlined">schedule</span>
+        Prochain: <strong id="estNext">--</strong>
+      </div>
+      <div class="dash-estimate">
+        <span class="material-symbols-outlined">flag</span>
+        Fin: <strong id="estEnd">--</strong>
+      </div>
+    </div>
+    <div class="dash-controls">
+      <button class="presence-btn active" id="presenceBtn">
+        <span class="material-symbols-outlined">stethoscope</span>
+        <span id="presenceLabel">Docteur present</span>
+        <div class="toggle-track on" id="presenceTrack"><div class="toggle-thumb"></div></div>
+      </button>
+      <button class="announce-btn">
+        <span class="material-symbols-outlined">campaign</span>
+        Annonce
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </button>
+    </div>
+    <div class="dash-actions">
+      <button class="add-patient-btn">
+        <span class="material-symbols-outlined" style="font-size:20px">person_add</span>
+        Ajouter un Patient
+      </button>
+      <button class="icon-btn"><span class="material-symbols-outlined">qr_code_2</span></button>
+      <button class="icon-btn"><span class="material-symbols-outlined">settings</span></button>
+    </div>
+    <div class="consultation-section" id="consultSection">
+      <div class="consultation-labels">
+        <span>En Consultation</span>
+        <span>Appel Suivant</span>
+      </div>
+      <div class="consultation-row">
+        <div class="consultation-card" id="consultCard">
+          <div class="patient-avatar"><span class="material-symbols-outlined">person</span></div>
+          <div class="patient-info">
+            <div class="patient-name" id="consultName">--</div>
+            <div class="patient-time"><span class="material-symbols-outlined">schedule</span> <span id="consultTime">0 min</span></div>
+          </div>
+        </div>
+        <button class="call-next-compact" id="callNextCompact">
+          <span class="material-symbols-outlined">directions_walk</span>
+          Suivant
+        </button>
+      </div>
+    </div>
+    <div class="call-next-section" id="callNextSection">
+      <button class="call-next-btn" id="callNextBtn">
+        <span class="material-symbols-outlined">directions_walk</span>
+        Appeler Suivant
+      </button>
+    </div>
+    <div class="queue-section">
+      <div class="queue-title">
+        <span class="material-symbols-outlined">groups</span>
+        File d'attente
+      </div>
+      <div id="queueContainer">
+        <div class="empty-queue" id="emptyState">
+          <div class="empty-icon"><span class="material-symbols-outlined">groups</span></div>
+          <p>Aucun patient pour le moment</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WELCOME SCREEN -->
+  <div class="welcome-overlay" id="welcomeOverlay">
+    <div class="welcome-content">
+      <div class="welcome-logo">BleSAF</div>
+      <div class="welcome-subtitle">Votre premier matin</div>
+      <div class="welcome-tagline">
+        En 7 minutes, decouvrez comment votre journee<br>va changer avec la file d'attente virtuelle.
+      </div>
+      <button class="welcome-btn" onclick="FM.startOnboarding()">Commencer</button>
+      <div class="welcome-step-hint">~7 minutes - 5 etapes</div>
+    </div>
+  </div>
+
+  <!-- WIZARD -->
+  <div class="wizard-overlay hidden" id="wizardOverlay">
+    <div class="wizard-card" id="wizardCard"></div>
+  </div>
+
+  <!-- COACH MARK -->
+  <div class="coach-overlay hidden" id="coachOverlay">
+    <div class="coach-backdrop"></div>
+    <div class="coach-tooltip" id="coachTooltip" style="bottom: 60px;"></div>
+  </div>
+
+  <!-- PHONE MOCKUP -->
+  <div class="phone-mockup" id="phoneMockup">
+    <div class="phone-notch"></div>
+    <div class="phone-screen">
+      <div class="phone-live"><div class="dot"></div><span>En direct</span></div>
+      <div class="phone-name" id="phonePatientName">Fatma K.</div>
+      <div class="phone-ahead" id="phoneAhead">--</div>
+      <div class="phone-wait-card">
+        <div class="phone-wait-label">Attente estimee</div>
+        <div class="phone-wait-value" id="phoneWait">--</div>
+      </div>
+      <div class="phone-ticket" id="phoneTicket">#1</div>
+      <div class="phone-turn-msg" id="phoneTurnMsg">C'est votre tour !</div>
+    </div>
+  </div>
+
+  <!-- FINAL SCREEN -->
+  <div class="final-overlay hidden" id="qrOverlay">
+    <div class="final-card">
+      <div class="final-check"><span class="material-symbols-outlined">check</span></div>
+      <h2>Vous etes pret.</h2>
+      <div class="final-sub">Vous venez de tout apprendre en 2 minutes.</div>
+      <div class="final-recap">
+        <div class="final-recap-item">
+          <div class="recap-icon green"><span class="material-symbols-outlined">qr_code_2</span></div>
+          <span>Les patients <strong>s'enregistrent tout seuls</strong> en scannant le QR code. Zero appel telephonique.</span>
+        </div>
+        <div class="final-recap-item">
+          <div class="recap-icon blue"><span class="material-symbols-outlined">touch_app</span></div>
+          <span><strong>Un clic</strong> pour appeler le patient suivant. La file se reorganise automatiquement.</span>
+        </div>
+        <div class="final-recap-item">
+          <div class="recap-icon purple"><span class="material-symbols-outlined">smartphone</span></div>
+          <span>Chaque patient <strong>suit sa position en temps reel</strong> depuis son telephone.</span>
+        </div>
+      </div>
+      <div class="final-reassure">
+        <span class="material-symbols-outlined">shield</span>
+        <p>Vous ne pouvez rien casser. Ajoutez un patient, appelez-le, supprimez-le -- <strong>c'est fait pour ca.</strong> Vos 30 jours d'essai gratuit commencent maintenant.</p>
+      </div>
+      <button class="final-cta" onclick="FM.restart()">
+        <span class="material-symbols-outlined">arrow_forward</span>
+        Commencer pour de vrai
+      </button>
+      <div class="final-secondary">
+        <button class="final-sec-btn" onclick="window.print()">
+          <span class="material-symbols-outlined">print</span>
+          Imprimer le QR poster
+        </button>
+        <button class="final-sec-btn">
+          <span class="material-symbols-outlined">share</span>
+          Partager avec l'equipe
+        </button>
+      </div>
+      <button class="final-restart" onclick="FM.restart()">Revoir la demo</button>
+    </div>
+  </div>
+</div><!-- end demoFM -->
+
+<!-- ============================================================ -->
+<!-- DEMO 2: PARCOURS PATIENT (Patient Journey)                   -->
+<!-- ============================================================ -->
+<div class="demo-container" id="demoPJ">
+  <div class="step-bar" id="pjStepBar">
+    <div class="step-pip" id="pjPip0"></div>
+    <div class="step-pip" id="pjPip1"></div>
+    <div class="step-pip" id="pjPip2"></div>
+    <div class="step-pip" id="pjPip3"></div>
+    <div class="step-pip" id="pjPip4"></div>
+    <div class="step-pip" id="pjPip5"></div>
+    <span class="step-label" id="pjStepLabel">Bienvenue</span>
+  </div>
+
+  <div class="pj-container">
+    <!-- Screen 0: Welcome -->
+    <div class="pj-screen active" id="pjScreen0">
+      <div class="pj-icon-circle blue">
+        <span class="material-symbols-outlined">visibility</span>
+      </div>
+      <div class="pj-title">Decouvrez ce que vos patients voient</div>
+      <div class="pj-subtitle">Vivez l'experience BleSaf du point de vue de votre patient. De l'arrivee jusqu'a la consultation.</div>
+      <button class="pj-btn" onclick="PJ.next()">Commencer</button>
+    </div>
+
+    <!-- Screen 1: QR Scan -->
+    <div class="pj-screen" id="pjScreen1">
+      <div style="font-size:13px;color:#94A3B8;font-weight:600;margin-bottom:12px;">Le patient arrive au cabinet...</div>
+      <div class="pj-camera-frame" id="pjCameraFrame">
+        <div class="pj-scan-line" id="pjScanLine"></div>
+        <div class="pj-qr-placeholder" id="pjQrCode">
+          <div class="pj-qr-cell dark"></div><div class="pj-qr-cell dark"></div><div class="pj-qr-cell dark"></div><div class="pj-qr-cell"></div><div class="pj-qr-cell dark"></div>
+          <div class="pj-qr-cell dark"></div><div class="pj-qr-cell"></div><div class="pj-qr-cell dark"></div><div class="pj-qr-cell dark"></div><div class="pj-qr-cell dark"></div>
+          <div class="pj-qr-cell dark"></div><div class="pj-qr-cell dark"></div><div class="pj-qr-cell"></div><div class="pj-qr-cell dark"></div><div class="pj-qr-cell"></div>
+          <div class="pj-qr-cell"></div><div class="pj-qr-cell dark"></div><div class="pj-qr-cell dark"></div><div class="pj-qr-cell"></div><div class="pj-qr-cell dark"></div>
+          <div class="pj-qr-cell dark"></div><div class="pj-qr-cell"></div><div class="pj-qr-cell dark"></div><div class="pj-qr-cell dark"></div><div class="pj-qr-cell dark"></div>
+        </div>
+        <div class="pj-scan-check" id="pjScanCheck">
+          <span class="material-symbols-outlined">check_circle</span>
+        </div>
+      </div>
+      <div class="pj-subtitle" id="pjScanMsg">Le patient scanne le QR code affiche dans la salle d'attente...</div>
+    </div>
+
+    <!-- Screen 2: Check-in form -->
+    <div class="pj-screen" id="pjScreen2">
+      <div class="pj-checkin-form">
+        <div class="pj-form-header">
+          <div>
+            <div class="pj-form-logo">BleSAF</div>
+            <div class="pj-form-clinic">Cabinet Dr. Kamoun</div>
+          </div>
+        </div>
+        <div class="pj-form-field">
+          <label>Nom complet</label>
+          <input type="text" value="Fatma Khalil" readonly>
+        </div>
+        <div class="pj-form-field">
+          <label>Telephone</label>
+          <input type="tel" value="+216 55 123 456" readonly>
+        </div>
+        <button class="pj-form-btn" id="pjCheckinBtn" onclick="PJ.submitCheckin()">
+          <span class="material-symbols-outlined" style="font-size:18px;vertical-align:middle;margin-right:4px;">group_add</span>
+          Rejoindre la file
+        </button>
+      </div>
+    </div>
+
+    <!-- Screen 3: Waiting / position tracker -->
+    <div class="pj-screen" id="pjScreen3">
+      <div class="pj-waiting-card" id="pjWaitingCard">
+        <div class="pj-live-badge"><div class="dot"></div> En direct</div>
+        <div class="pj-position-number" id="pjPosition">3</div>
+        <div class="pj-position-label" id="pjPosLabel">2 personnes avant vous</div>
+        <div class="pj-wait-row">
+          <span class="wlabel">Attente estimee</span>
+          <span class="wvalue" id="pjWaitTime">~20 min</span>
+        </div>
+        <div class="pj-wait-row">
+          <span class="wlabel">Cabinet</span>
+          <span class="wvalue" style="font-size:13px;">Dr. Kamoun</span>
+        </div>
+        <div class="pj-progress-bar"><div class="pj-progress-fill" id="pjProgressFill"></div></div>
+      </div>
+    </div>
+
+    <!-- Screen 4: SMS notification -->
+    <div class="pj-screen" id="pjScreen4">
+      <div style="margin-bottom:16px;">
+        <span class="material-symbols-outlined" style="font-size:40px;color:#0EA5E9;">notifications_active</span>
+      </div>
+      <div class="pj-sms-bubble">
+        <div class="pj-sms-header">
+          <div class="pj-sms-icon"><span class="material-symbols-outlined">sms</span></div>
+          <div>
+            <div class="pj-sms-sender">BleSaf - Dr. Kamoun</div>
+            <div class="pj-sms-time">A l'instant</div>
+          </div>
+        </div>
+        <div class="pj-sms-body">
+          C'est bientot votre tour ! Dirigez-vous vers le cabinet Dr. Kamoun. Vous etes le prochain.
+        </div>
+      </div>
+      <div style="margin-top:20px;">
+        <button class="pj-btn" onclick="PJ.next()" style="padding:12px 32px;font-size:14px;">Continuer</button>
+      </div>
+    </div>
+
+    <!-- Screen 5: Your turn! -->
+    <div class="pj-screen" id="pjScreen5">
+      <div id="pjConfettiBox" style="position:absolute;inset:0;pointer-events:none;overflow:hidden;"></div>
+      <div class="pj-your-turn-badge">
+        <span class="material-symbols-outlined">celebration</span>
+      </div>
+      <div class="pj-title" style="color:#16A34A;">C'est votre tour !</div>
+      <div class="pj-subtitle">Dirigez-vous vers le cabinet. Le docteur vous attend.</div>
+      <button class="pj-btn green" onclick="PJ.next()" style="margin-top:8px;">Continuer</button>
+    </div>
+
+    <!-- Screen 6: End screen -->
+    <div class="pj-screen" id="pjScreen6" style="background:linear-gradient(165deg,#0F172A 0%,#1E3A5F 100%);">
+      <div class="final-check"><span class="material-symbols-outlined">favorite</span></div>
+      <div class="pj-title" style="color:#FFF;">Voila ce que vos patients vivront.</div>
+      <div class="pj-subtitle" style="color:#94A3B8;">Zero stress, zero confusion. Juste une experience fluide et moderne qui donne confiance.</div>
+      <div class="final-recap" style="width:100%;max-width:340px;">
+        <div class="final-recap-item">
+          <div class="recap-icon blue"><span class="material-symbols-outlined">qr_code_2</span></div>
+          <span><strong>Scan QR</strong> pour rejoindre la file en 5 secondes</span>
+        </div>
+        <div class="final-recap-item">
+          <div class="recap-icon green"><span class="material-symbols-outlined">trending_up</span></div>
+          <span><strong>Position en direct</strong> visible depuis leur telephone</span>
+        </div>
+        <div class="final-recap-item">
+          <div class="recap-icon purple"><span class="material-symbols-outlined">notifications_active</span></div>
+          <span><strong>SMS automatique</strong> quand c'est bientot leur tour</span>
+        </div>
+      </div>
+      <button class="final-cta" onclick="PJ.restart()">
+        <span class="material-symbols-outlined">arrow_forward</span>
+        Creer mon cabinet
+      </button>
+      <button class="final-restart" onclick="PJ.restart()" style="color:#64748B;">Revoir la demo</button>
+    </div>
+  </div>
+</div><!-- end demoPJ -->
+
+<!-- ============================================================ -->
+<!-- DEMO 3: VUE RECEPTIONNISTE (Receptionist View)               -->
+<!-- ============================================================ -->
+<div class="demo-container" id="demoRV">
+  <div class="step-bar" id="rvStepBar">
+    <div class="step-pip" id="rvPip0"></div>
+    <div class="step-pip" id="rvPip1"></div>
+    <div class="step-pip" id="rvPip2"></div>
+    <div class="step-pip" id="rvPip3"></div>
+    <div class="step-pip" id="rvPip4"></div>
+    <div class="step-pip" id="rvPip5"></div>
+    <span class="step-label" id="rvStepLabel">Bienvenue</span>
+  </div>
+
+  <div class="rv-container">
+    <!-- Screen 0: Welcome -->
+    <div class="pj-screen active" id="rvScreen0" style="position:absolute;top:74px;left:0;right:0;bottom:0;">
+      <div class="pj-icon-circle purple">
+        <span class="material-symbols-outlined">support_agent</span>
+      </div>
+      <div class="pj-title">Vous etes la receptionniste</div>
+      <div class="pj-subtitle">du cabinet Dr. Kamoun. Decouvrez comment BleSaf transforme votre matinee.</div>
+      <button class="pj-btn" onclick="RV.next()" style="background:linear-gradient(135deg,#7C3AED,#6D28D9);">Commencer le matin</button>
+    </div>
+
+    <!-- Screen 1: Dashboard view (main interactive screen) -->
+    <div class="rv-screen" id="rvScreen1">
+      <div class="rv-header">
+        <div><div class="rv-logo">BleSAF</div><div class="rv-clinic">Dr. Kamoun</div></div>
+        <div class="rv-credits" id="rvCredits"><span class="material-symbols-outlined">sms</span> <span id="rvCreditCount">50</span> SMS</div>
+      </div>
+      <div class="rv-stats">
+        <div class="rv-stat"><div class="val blue" id="rvStatWait">0</div><div class="lbl">En Attente</div></div>
+        <div class="rv-stat-div"></div>
+        <div class="rv-stat"><div class="val green" id="rvStatConsult">0</div><div class="lbl">Consultation</div></div>
+        <div class="rv-stat-div"></div>
+        <div class="rv-stat"><div class="val muted" id="rvStatDone">0</div><div class="lbl">Termines</div></div>
+      </div>
+      <div class="rv-queue" id="rvQueueContainer">
+        <div class="rv-queue-title"><span class="material-symbols-outlined">groups</span> File d'attente</div>
+        <div id="rvQueueList"></div>
+      </div>
+      <!-- Toast -->
+      <div class="rv-toast" id="rvToast">
+        <div class="rv-toast-icon blue" id="rvToastIcon"><span class="material-symbols-outlined" id="rvToastIconSpan">person_add</span></div>
+        <div class="rv-toast-text"><div class="rv-toast-title" id="rvToastTitle">--</div><div class="rv-toast-body" id="rvToastBody">--</div></div>
+      </div>
+      <!-- Speech bubble -->
+      <div class="rv-speech" id="rvSpeech">
+        <div class="speaker" id="rvSpeechSpeaker"></div>
+        <div id="rvSpeechText"></div>
+      </div>
+    </div>
+
+    <!-- Screen 2: End screen -->
+    <div class="pj-screen" id="rvScreen2" style="position:absolute;top:74px;left:0;right:0;bottom:0;background:linear-gradient(165deg,#0F172A 0%,#1E3A5F 100%);">
+      <div class="final-check"><span class="material-symbols-outlined">check</span></div>
+      <div class="pj-title" style="color:#FFF;" id="rvEndTitle">Ce matin, vous avez gere 12 patients sans lever la voix.</div>
+      <div class="final-recap" style="width:100%;max-width:340px;margin-top:20px;">
+        <div class="final-recap-item">
+          <div class="recap-icon blue"><span class="material-symbols-outlined">groups</span></div>
+          <span><strong id="rvEndPatients">12</strong> patients geres</span>
+        </div>
+        <div class="final-recap-item">
+          <div class="recap-icon green"><span class="material-symbols-outlined">avg_pace</span></div>
+          <span>Attente moyenne: <strong>8 min</strong></span>
+        </div>
+        <div class="final-recap-item">
+          <div class="recap-icon purple"><span class="material-symbols-outlined">sentiment_satisfied</span></div>
+          <span><strong>0 conflits</strong> -- plus de "c'est quand mon tour ?"</span>
+        </div>
+      </div>
+      <button class="final-cta" onclick="RV.restart()">
+        <span class="material-symbols-outlined">arrow_forward</span>
+        Commencer pour de vrai
+      </button>
+      <button class="final-restart" onclick="RV.restart()" style="color:#64748B;">Revoir la demo</button>
+    </div>
+  </div>
+</div><!-- end demoRV -->
+
+</div><!-- end page-frame -->

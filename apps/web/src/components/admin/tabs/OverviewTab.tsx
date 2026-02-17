@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { api } from '../../../lib/api';
 import type { AdminMetricsWithTrends, SubscriptionMetrics, OnboardingFunnel } from '../../../types';
+import { webBrand } from '../../../lib/brand';
 import MetricCardWithTrend from '../MetricCardWithTrend';
 import ClinicRankingCard from '../ClinicRankingCard';
 import ChurnRiskCard from '../ChurnRiskCard';
@@ -20,13 +21,12 @@ export default function OverviewTab() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const [metricsData, subData, funnelData] = await Promise.all([
-          api.getAdminMetricsWithTrends(period),
-          api.getSubscriptionMetrics(),
-          api.getOnboardingFunnel(),
-        ]);
+        // Sequential fetches to prevent pgbouncer pool exhaustion
+        const metricsData = await api.getAdminMetricsWithTrends(period);
         setMetrics(metricsData);
+        const subData = await api.getSubscriptionMetrics();
         setSubMetrics(subData);
+        const funnelData = await api.getOnboardingFunnel();
         setFunnel(funnelData);
       } catch {
         // Error handled in parent
@@ -35,6 +35,10 @@ export default function OverviewTab() {
       }
     };
     fetchData();
+
+    // Auto-refresh every 60 seconds (reduced to prevent pgbouncer pool exhaustion)
+    const interval = setInterval(fetchData, 60000);
+    return () => clearInterval(interval);
   }, [period]);
 
   if (loading && !metrics) {
@@ -71,7 +75,7 @@ export default function OverviewTab() {
       <div className="grid grid-cols-5 gap-0 py-5 border-b border-[#E6F2F0]">
         <MetricCardWithTrend label="Active Trials" value={subMetrics?.activeTrials || 0} subtext="" color="blue" />
         <MetricCardWithTrend label="Paid Subscriptions" value={subMetrics?.paidSubscriptions || 0} subtext="" color="green" />
-        <MetricCardWithTrend label="MRR" value={`${subMetrics?.mrrActual || 0} TND`} subtext="" color="purple" />
+        <MetricCardWithTrend label="MRR" value={`${subMetrics?.mrrActual || 0} ${webBrand.currency.symbol}`} subtext="" color="purple" />
         <MetricCardWithTrend label="Conversion Rate" value={`${subMetrics?.trialConversionRate || 0}%`} subtext="" color="indigo" />
         <MetricCardWithTrend label="Daily Active" value={subMetrics?.dailyActiveClinics || 0} subtext="" color="yellow" />
       </div>
@@ -138,12 +142,12 @@ export default function OverviewTab() {
                       <div
                         className="absolute bottom-0 left-0 right-0 rounded-t"
                         style={{ height: `${collectedPercent}%`, backgroundColor: '#267B75', opacity: 0.4 }}
-                        title={`Collected: ${month.collected} TND`}
+                        title={`Collected: ${month.collected} ${webBrand.currency.symbol}`}
                       />
                       <div
                         className="absolute bottom-0 left-0 right-0 border-2 border-dashed rounded-t"
                         style={{ height: '100%', borderColor: '#D0E8E5' }}
-                        title={`Expected: ${month.expected} TND`}
+                        title={`Expected: ${month.expected} ${webBrand.currency.symbol}`}
                       />
                     </div>
                   </div>

@@ -1,0 +1,66 @@
+/* ── BleSaf Receptionist Dashboard ── */
+
+/* Scrollbar hidden */
+.bs-screen::-webkit-scrollbar { display: none; }
+.bs-screen { scrollbar-width: none; }
+
+/* Decorative circle on current-patient card */
+.bs-cp-card::after {
+  content: '';
+  position: absolute;
+  top: -30px;
+  right: -30px;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+/* Decorative circle on summary hero */
+.bs-summary-hero::before {
+  content: '';
+  position: absolute;
+  top: -40px;
+  right: -20px;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* Floating CTA breathing glow */
+.bs-cta-accent::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: inherit;
+  opacity: 0;
+  animation: bs-pulse-cta 3s ease-in-out infinite;
+}
+
+@keyframes bs-pulse-cta {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 1; }
+}
+
+/* Staggered slide-in delays */
+.bs-anim-d1 { animation-delay: 0.05s; }
+.bs-anim-d2 { animation-delay: 0.1s; }
+.bs-anim-d3 { animation-delay: 0.15s; }
+.bs-anim-d4 { animation-delay: 0.2s; }
+.bs-anim-d5 { animation-delay: 0.25s; }
+.bs-anim-d6 { animation-delay: 0.3s; }
+
+/* Bottom sheet spring transition */
+.bs-sheet {
+  transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* Summary stats grid uses 1px gap as border */
+.bs-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: #E8E6DF;
+}

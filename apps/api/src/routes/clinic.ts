@@ -5,8 +5,12 @@ import QRCode from 'qrcode';
 import { z } from 'zod';
 import { prisma } from '../lib/prisma.js';
 import { authMiddleware } from '../lib/auth.js';
+import { subscriptionGate } from '../lib/subscriptionGate.js';
 import { AuthRequest } from '../types/index.js';
 import { emitToRoom } from '../lib/socket.js';
+import { logger } from '../lib/logger.js';
+import { recalculatePositionsAndStatuses } from '../services/positionService.js';
+import { emitQueueUpdate, emitAllPatientUpdates } from '../services/notificationService.js';
 
 const router = Router();
 
@@ -42,7 +46,7 @@ router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {
 
     res.json({ data: clinic });
   } catch (error: any) {
-    console.error('Error fetching clinic:', error);
+    logger.error({ err: error }, 'Error fetching clinic');
     res.status(500).json({ error: 'Failed to fetch clinic details' });
   }
 });
@@ -51,17 +55,17 @@ router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {
 const updateClinicSchema = z.object({
   name: z.string().optional(),
   doctorName: z.string().optional(),
+  doctorGender: z.enum(['M', 'F']).optional(),
   phone: z.string().optional(),
   address: z.string().optional(),
   language: z.enum(['fr', 'ar']).optional(),
-  avgConsultationMins: z.number().int().min(5).max(120).optional(),
   notifyAtPosition: z.number().int().min(1).max(10).optional(),
   enableWhatsApp: z.boolean().optional(),
   specialty: z.string().max(50).optional(),
   funFactsEnabled: z.boolean().optional(),
 });
 
-router.patch('/', authMiddleware, async (req: AuthRequest, res: Response) => {
+router.patch('/', authMiddleware, subscriptionGate, async (req: AuthRequest, res: Response) => {
   try {
     const clinicId = req.clinic?.id;
     if (!clinicId) {
@@ -90,7 +94,7 @@ router.patch('/', authMiddleware, async (req: AuthRequest, res: Response) => {
 
     res.json(updatedClinic);
   } catch (error: any) {
-    console.error('Error updating clinic:', error);
+    logger.error({ err: error }, 'Error updating clinic');
     if (error.name === 'ZodError') {
       return res.status(400).json({ error: 'Invalid input', details: error.errors });
     }
@@ -99,7 +103,7 @@ router.patch('/', authMiddleware, async (req: AuthRequest, res: Response) => {
 });
 
 // POST /api/clinic/doctor-presence - Toggle doctor presence
-router.post('/doctor-presence', authMiddleware, async (req: AuthRequest, res: Response) => {
+router.post('/doctor-presence', authMiddleware, subscriptionGate, async (req: AuthRequest, res: Response) => {
   try {
     const clinicId = req.clinic?.id;
     if (!clinicId) {
@@ -128,9 +132,16 @@ router.post('/doctor-presence', authMiddleware, async (req: AuthRequest, res: Re
       isDoctorPresent,
     });
 
+    // Recalculate queue statuses based on new presence state
+    // When toggling ON: position #1 transitions to IN_CONSULTATION
+    // When toggling OFF: IN_CONSULTATION drops back to NOTIFIED
+    await recalculatePositionsAndStatuses(clinicId);
+    await emitQueueUpdate(clinicId);
+    await emitAllPatientUpdates(clinicId);
+
     res.json({ data: updatedClinic });
   } catch (error: any) {
-    console.error('Error updating doctor presence:', error);
+    logger.error({ err: error }, 'Error updating doctor presence');
     if (error.name === 'ZodError') {
       return res.status(400).json({ error: 'Invalid input', details: error.errors });
     }
@@ -139,7 +150,7 @@ router.post('/doctor-presence', authMiddleware, async (req: AuthRequest, res: Re
 });
 
 // POST /api/clinic/announcement - Set or clear announcement for all patients
-router.post('/announcement', authMiddleware, async (req: AuthRequest, res: Response) => {
+router.post('/announcement', authMiddleware, subscriptionGate, async (req: AuthRequest, res: Response) => {
   try {
     const clinicId = req.clinic?.id;
     if (!clinicId) {
@@ -175,7 +186,7 @@ router.post('/announcement', authMiddleware, async (req: AuthRequest, res: Respo
 
     res.json({ data: updatedClinic });
   } catch (error: any) {
-    console.error('Error updating announcement:', error);
+    logger.error({ err: error }, 'Error updating announcement');
     if (error.name === 'ZodError') {
       return res.status(400).json({ error: 'Invalid input', details: error.errors });
     }
@@ -221,7 +232,7 @@ router.get('/:clinicId/info', async (req, res: Response) => {
       },
     });
   } catch (error: any) {
-    console.error('Error fetching clinic info:', error);
+    logger.error({ err: error }, 'Error fetching clinic info');
     res.status(500).json({ error: 'Failed to fetch clinic info' });
   }
 });
@@ -325,7 +336,7 @@ router.get('/daily-recap', authMiddleware, async (req: AuthRequest, res: Respons
       },
     });
   } catch (error: any) {
-    console.error('Error fetching daily recap:', error);
+    logger.error({ err: error }, 'Error fetching daily recap');
     res.status(500).json({ error: 'Failed to fetch daily recap' });
   }
 });
@@ -348,11 +359,10 @@ router.get('/qr', authMiddleware, async (req: AuthRequest, res: Response) => {
     }
 
     // Generate check-in URL
-    // Use FRONTEND_URL env var, or detect production from NODE_ENV/RAILWAY
-    const frontendUrl = process.env.FRONTEND_URL ||
-      (process.env.NODE_ENV === 'production' || process.env.RAILWAY_ENVIRONMENT
-        ? 'https://web-zeta-five-39.vercel.app'
-        : 'http://localhost:5173');
+    // In production use FRONTEND_URL or Vercel URL; in dev prefer Origin header (auto-tracks Vite port)
+    const frontendUrl = process.env.NODE_ENV === 'production' || process.env.RAILWAY_ENVIRONMENT
+      ? (process.env.FRONTEND_URL || 'https://web-zeta-five-39.vercel.app')
+      : (req.headers.origin || process.env.FRONTEND_URL || 'http://localhost:5174');
     const checkInUrl = `${frontendUrl}/checkin/${clinicId}`;
 
     // Generate QR code as data URL
@@ -371,7 +381,7 @@ router.get('/qr', authMiddleware, async (req: AuthRequest, res: Response) => {
       },
     });
   } catch (error: any) {
-    console.error('Error generating QR code:', error);
+    logger.error({ err: error }, 'Error generating QR code');
     res.status(500).json({ error: 'Failed to generate QR code' });
   }
 });

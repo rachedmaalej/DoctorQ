@@ -7,6 +7,7 @@
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import { prisma } from '../lib/prisma.js';
+import { brand } from '../lib/brand.js';
 
 // ─── Interfaces ──────────────────────────────────────────────
 
@@ -15,6 +16,7 @@ export interface SignupData {
   email: string;
   password: string;
   doctorName?: string;
+  doctorGender?: 'M' | 'F';
   phone?: string;
   language?: 'fr' | 'ar';
 }
@@ -93,6 +95,7 @@ export async function registerClinic(data: SignupData): Promise<SignupResult> {
       email: data.email,
       passwordHash,
       doctorName: data.doctorName,
+      doctorGender: data.doctorGender,
       phone: data.phone,
       language: data.language ?? 'fr',
       // Subscription defaults
@@ -105,8 +108,8 @@ export async function registerClinic(data: SignupData): Promise<SignupResult> {
       // Onboarding
       onboardingCompleted: false,
       onboardingStep: 0,
-      // Give 50 free SMS credits to start
-      smsCredits: 50,
+      // Market isolation
+      country: brand.country,
     },
     select: {
       id: true,

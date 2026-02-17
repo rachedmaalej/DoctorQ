@@ -58,7 +58,6 @@ export default function EngagementTab() {
                 { label: 'QR Code', data: adoption.checkInMethods.qrCode, color: 'bg-[#267B75]' },
                 { label: 'Manual', data: adoption.checkInMethods.manual, color: 'bg-[#459FB8]' },
                 { label: 'WhatsApp', data: adoption.checkInMethods.whatsApp, color: 'bg-[#337023]' },
-                { label: 'SMS', data: adoption.checkInMethods.sms, color: 'bg-[#8AADAA]' },
               ].map((method) => (
                 <div key={method.label}>
                   <div className="flex justify-between items-center mb-1">
@@ -78,7 +77,7 @@ export default function EngagementTab() {
             </div>
           </div>
 
-          {/* SMS Usage & Stats */}
+          {/* Platform Usage */}
           <div>
             <h3 className="text-[13px] font-bold text-[#132E2C] uppercase tracking-wider mb-4">
               Platform Usage
@@ -86,26 +85,12 @@ export default function EngagementTab() {
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="py-3 border-r border-[#E6F2F0] pr-4">
-                  <div className="text-2xl font-bold text-[#132E2C]">{adoption.smsUsage.totalSent}</div>
-                  <div className="text-xs text-[#8AADAA]">Total SMS Sent</div>
-                </div>
-                <div className="py-3 pl-4">
-                  <div className="text-2xl font-bold text-[#132E2C]">{adoption.smsUsage.clinicsUsingSms}</div>
-                  <div className="text-xs text-[#8AADAA]">Clinics Using SMS</div>
-                </div>
-                <div className="py-3 border-r border-[#E6F2F0] pr-4">
                   <div className="text-2xl font-bold text-[#132E2C]">{adoption.multiDoctorAdoption}</div>
                   <div className="text-xs text-[#8AADAA]">Multi-Doctor Clinics</div>
                 </div>
                 <div className="py-3 pl-4">
                   <div className="text-2xl font-bold text-[#132E2C]">{adoption.avgPatientsPerClinicPerDay}</div>
                   <div className="text-xs text-[#8AADAA]">Avg Patients/Clinic/Day</div>
-                </div>
-              </div>
-              <div className="pt-2 border-t border-[#E6F2F0]">
-                <div className="flex justify-between text-sm">
-                  <span className="text-[#8AADAA]">Avg SMS per clinic</span>
-                  <span className="font-bold text-[#132E2C]">{adoption.smsUsage.avgPerClinic}</span>
                 </div>
               </div>
             </div>

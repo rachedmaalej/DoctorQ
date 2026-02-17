@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { ClinicDetail } from '../../../types';
+import { webBrand } from '../../../lib/brand';
 import ExtendTrialModal from '../ExtendTrialModal';
 
 interface SubscriptionStatusPanelProps {
@@ -105,14 +106,14 @@ export default function SubscriptionStatusPanel({ clinic, onExtended, onUpgrade,
               disabled={upgradeLoading}
               className="flex-1 text-sm px-3 py-1.5 rounded font-medium border border-[#D0E8E5] text-[#132E2C] hover:bg-[#F3FAF9] disabled:opacity-50 transition-colors"
             >
-              Monthly (50 TND)
+              Monthly ({webBrand.pricing.monthlyDisplay})
             </button>
             <button
               onClick={() => { onUpgrade('YEARLY'); setShowUpgradeOptions(false); }}
               disabled={upgradeLoading}
               className="flex-1 text-sm px-3 py-1.5 rounded font-medium border border-[#D0E8E5] text-[#132E2C] hover:bg-[#F3FAF9] disabled:opacity-50 transition-colors"
             >
-              Yearly (500 TND)
+              Yearly ({webBrand.pricing.yearlyDisplay})
             </button>
           </div>
         )}

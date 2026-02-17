@@ -21,6 +21,7 @@ async function main() {
       doctorName: 'Dr. Skander Kamoun',
       email: 'dr.skander@example.tn',
       passwordHash,
+      emailVerified: true,
       phone: '+21671234567',
       address: 'Tunis, Tunisia',
       language: 'fr',
@@ -33,6 +34,72 @@ async function main() {
   });
 
   console.log(`Created test clinic: ${clinic.name}`);
+
+  // Create admin account
+  const adminPasswordHash = await bcrypt.hash('BlesafAdmin2024!', 10);
+
+  const admin = await prisma.clinic.create({
+    data: {
+      name: 'DoctorQ Admin',
+      doctorName: 'Admin',
+      email: 'admin@doctorq.tn',
+      passwordHash: adminPasswordHash,
+      emailVerified: true,
+      phone: '+21600000000',
+      address: 'Tunis, Tunisia',
+      language: 'fr',
+      avgConsultationMins: 15,
+      notifyAtPosition: 2,
+      enableWhatsApp: false,
+      onboardingCompleted: true,
+      onboardingStep: 3,
+    },
+  });
+
+  console.log(`Created admin account: ${admin.email}`);
+
+  // Create France (FiloSoin) admin + clinic for multi-brand dev testing
+  const franceAdminHash = await bcrypt.hash('FiloSoinAdmin2024!', 10);
+  const franceAdmin = await prisma.clinic.create({
+    data: {
+      name: 'FiloSoin Admin',
+      doctorName: 'Admin',
+      email: 'admin@filosoin.fr',
+      passwordHash: franceAdminHash,
+      emailVerified: true,
+      phone: '+33100000000',
+      address: 'Paris, France',
+      country: 'FR',
+      language: 'fr',
+      avgConsultationMins: 15,
+      notifyAtPosition: 2,
+      enableWhatsApp: false,
+      onboardingCompleted: true,
+      onboardingStep: 3,
+    },
+  });
+  console.log(`Created France admin account: ${franceAdmin.email}`);
+
+  const franceClinicHash = await bcrypt.hash('password123', 10);
+  const franceClinic = await prisma.clinic.create({
+    data: {
+      name: 'Cabinet Medical Trocadero',
+      doctorName: 'Dr. Perrin',
+      email: 'dr.perrin@example.fr',
+      passwordHash: franceClinicHash,
+      emailVerified: true,
+      phone: '+33612345678',
+      address: 'Paris, France',
+      country: 'FR',
+      language: 'fr',
+      avgConsultationMins: 15,
+      notifyAtPosition: 2,
+      enableWhatsApp: false,
+      onboardingCompleted: true,
+      onboardingStep: 3,
+    },
+  });
+  console.log(`Created France test clinic: ${franceClinic.email}`);
 
   // Create test queue entries with various statuses
   const now = new Date();
@@ -120,9 +187,12 @@ async function main() {
   console.log('Created historical stats');
 
   console.log('\nSeeding complete!');
-  console.log('\nTest Credentials:');
-  console.log('Email: dr.skander@example.tn');
-  console.log('Password: password123');
+  console.log('\nTest Credentials (BleSaf):');
+  console.log('  Clinic: dr.skander@example.tn / password123');
+  console.log('  Admin:  admin@doctorq.tn / BlesafAdmin2024!');
+  console.log('\nTest Credentials (FiloSoin/France):');
+  console.log('  Clinic: dr.perrin@example.fr / password123');
+  console.log('  Admin:  admin@filosoin.fr / FiloSoinAdmin2024!');
 }
 
 main()

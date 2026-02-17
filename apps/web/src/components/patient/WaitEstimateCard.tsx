@@ -1,38 +1,47 @@
 import { useTranslation } from 'react-i18next';
 
 interface WaitEstimateCardProps {
-  position: number;
-  avgConsultationMins?: number;
+  estimatedWaitMins: number;
+  /** Hero variant: large centered display for top of patient page */
+  hero?: boolean;
 }
 
 /**
- * WaitEstimateCard - Displays estimated wait time based on queue position
- * Shows dynamic wait estimate that updates as patient moves through queue
- * More useful to anxious patients than random fun facts
+ * WaitEstimateCard - Displays server-computed estimated wait time
+ * The estimate accounts for elapsed consultation time, today's actual
+ * consultation durations, and per-doctor averages.
  */
-export default function WaitEstimateCard({ position, avgConsultationMins = 10 }: WaitEstimateCardProps) {
+export default function WaitEstimateCard({ estimatedWaitMins, hero }: WaitEstimateCardProps) {
   const { t } = useTranslation();
 
-  // Calculate estimated wait: position * avg consultation time
-  // Position #1 still waits for the person in consultation to finish
-  // Position #2 waits for person in consultation + person #1, etc.
-  const estimatedMinutes = Math.max(0, position) * avgConsultationMins;
+  const minutes = Math.max(0, Math.round(estimatedWaitMins));
 
-  // Format time display
-  const formatWaitTime = (minutes: number): string => {
-    if (minutes < 5) return t('patient.estimatedWaitVeryShort') || '< 5 min';
-    if (minutes < 60) return `~${minutes} min`;
-    const hours = Math.floor(minutes / 60);
-    const remainingMins = minutes % 60;
+  const formatWaitTime = (mins: number): string => {
+    if (mins < 5) return t('patient.estimatedWaitVeryShort') || '< 5 min';
+    if (mins < 60) return `~${mins} min`;
+    const hours = Math.floor(mins / 60);
+    const remainingMins = mins % 60;
     if (remainingMins === 0) {
       return `~${hours}h`;
     }
     return `~${hours}h ${remainingMins}min`;
   };
 
+  if (hero) {
+    return (
+      <div className="bg-white/80 backdrop-blur border border-primary-100 rounded-2xl p-5 text-center">
+        <p className="text-xs font-semibold text-primary-600 uppercase tracking-wider mb-1">
+          {t('patient.estimatedWait')}
+        </p>
+        <p className="text-4xl font-black text-gray-800">
+          {formatWaitTime(minutes)}
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white/80 backdrop-blur border border-primary-100 rounded-xl p-4 h-full flex flex-col">
-      {/* Top row: icon + label */}
       <div className="flex items-center gap-2 mb-2">
         <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
           <span
@@ -47,10 +56,9 @@ export default function WaitEstimateCard({ position, avgConsultationMins = 10 }:
           {t('patient.estimatedWait')}
         </p>
       </div>
-      {/* Bottom: large time display */}
       <div className="flex-1 flex items-center justify-center">
         <p className="text-2xl font-bold text-gray-800 text-center w-full">
-          {formatWaitTime(estimatedMinutes)}
+          {formatWaitTime(minutes)}
         </p>
       </div>
     </div>

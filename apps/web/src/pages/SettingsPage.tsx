@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import { api } from '../lib/api';
 import type { Doctor } from '../types';
@@ -17,13 +17,13 @@ export default function SettingsPage() {
   const [clinicForm, setClinicForm] = useState({
     name: '',
     doctorName: '',
+    doctorGender: '' as 'M' | 'F' | '',
     phone: '',
     address: '',
   });
 
   // Queue settings form
   const [queueForm, setQueueForm] = useState({
-    avgConsultationMins: 15,
     notifyAtPosition: 2,
   });
 
@@ -54,8 +54,16 @@ export default function SettingsPage() {
   const [newDoctorSpecialty, setNewDoctorSpecialty] = useState('');
   const [addingDoctor, setAddingDoctor] = useState(false);
 
+  // Subscription state
+  const [subInfo, setSubInfo] = useState<{
+    status: string; plan: string | null; daysRemaining: number | null;
+    canUseApp: boolean;
+    trialEndsAt: string | null; subscriptionEndsAt: string | null;
+  } | null>(null);
+
   useEffect(() => {
     api.getDoctors().then(setDoctors).catch(() => {});
+    api.getSubscription().then(setSubInfo).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -63,11 +71,11 @@ export default function SettingsPage() {
       setClinicForm({
         name: clinic.name || '',
         doctorName: clinic.doctorName || '',
+        doctorGender: (clinic.doctorGender as 'M' | 'F') || '',
         phone: (clinic as any).phone || '',
         address: (clinic as any).address || '',
       });
       setQueueForm({
-        avgConsultationMins: clinic.avgConsultationMins || 15,
         notifyAtPosition: clinic.notifyAtPosition || 2,
       });
       setSpecialty((clinic as any).specialty || '');
@@ -83,6 +91,7 @@ export default function SettingsPage() {
       await api.updateClinic({
         name: clinicForm.name,
         doctorName: clinicForm.doctorName || undefined,
+        doctorGender: clinicForm.doctorGender || undefined,
         phone: clinicForm.phone || undefined,
         address: clinicForm.address || undefined,
       });
@@ -101,7 +110,6 @@ export default function SettingsPage() {
     setQueueMessage(null);
     try {
       await api.updateClinic({
-        avgConsultationMins: queueForm.avgConsultationMins,
         notifyAtPosition: queueForm.notifyAtPosition,
       });
       await checkAuth();
@@ -220,13 +228,39 @@ export default function SettingsPage() {
               <label htmlFor="doctorName" className="block text-sm font-medium text-gray-700 mb-1">
                 {t('settings.doctorName')}
               </label>
-              <input
-                id="doctorName"
-                type="text"
-                value={clinicForm.doctorName}
-                onChange={(e) => setClinicForm({ ...clinicForm, doctorName: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-              />
+              <div className="flex gap-2">
+                <div className="flex rounded-lg border border-gray-300 overflow-hidden flex-shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setClinicForm({ ...clinicForm, doctorGender: 'M' })}
+                    className={`px-3 py-3 text-sm font-medium transition-colors ${
+                      clinicForm.doctorGender === 'M'
+                        ? 'bg-primary-500 text-white'
+                        : 'bg-white text-gray-600 hover:bg-gray-50'
+                    }`}
+                  >
+                    {t('onboarding.clinic.genderMr')}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setClinicForm({ ...clinicForm, doctorGender: 'F' })}
+                    className={`px-3 py-3 text-sm font-medium transition-colors border-s border-gray-300 ${
+                      clinicForm.doctorGender === 'F'
+                        ? 'bg-primary-500 text-white'
+                        : 'bg-white text-gray-600 hover:bg-gray-50'
+                    }`}
+                  >
+                    {t('onboarding.clinic.genderMs')}
+                  </button>
+                </div>
+                <input
+                  id="doctorName"
+                  type="text"
+                  value={clinicForm.doctorName}
+                  onChange={(e) => setClinicForm({ ...clinicForm, doctorName: e.target.value })}
+                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                />
+              </div>
             </div>
             <div>
               <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
@@ -276,20 +310,6 @@ export default function SettingsPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="avgConsultation" className="block text-sm font-medium text-gray-700 mb-1">
-                {t('settings.avgConsultation')}
-              </label>
-              <input
-                id="avgConsultation"
-                type="number"
-                min={1}
-                max={120}
-                value={queueForm.avgConsultationMins}
-                onChange={(e) => setQueueForm({ ...queueForm, avgConsultationMins: parseInt(e.target.value) || 15 })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-              />
-            </div>
-            <div>
               <label htmlFor="notifyAt" className="block text-sm font-medium text-gray-700 mb-1">
                 {t('settings.notifyAt')}
               </label>
@@ -320,6 +340,63 @@ export default function SettingsPage() {
             )}
           </div>
         </form>
+
+        {/* Subscription & Billing */}
+        {subInfo && (
+          <div className="bg-white rounded-2xl p-6 shadow-sm space-y-4">
+            <h2 className="text-lg font-semibold text-gray-900">{t('settings.subscription', 'Subscription & Billing')}</h2>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Plan & Status */}
+              <div className="p-4 bg-gray-50 rounded-xl">
+                <p className="text-xs font-medium text-gray-500 mb-1">{t('settings.currentPlan', 'Current Plan')}</p>
+                <p className="text-lg font-bold text-gray-900">
+                  {subInfo.status === 'TRIAL' ? t('settings.freeTrial', 'Free Trial') : (subInfo.plan || '-')}
+                </p>
+                <span className={`inline-block mt-1 text-xs font-medium px-2 py-0.5 rounded-full ${
+                  subInfo.status === 'ACTIVE' ? 'bg-green-100 text-green-700' :
+                  subInfo.status === 'TRIAL' ? 'bg-blue-100 text-blue-700' :
+                  subInfo.status === 'EXPIRED' ? 'bg-red-100 text-red-700' :
+                  'bg-gray-100 text-gray-700'
+                }`}>
+                  {subInfo.status}
+                </span>
+              </div>
+
+              {/* Days Remaining */}
+              <div className="p-4 bg-gray-50 rounded-xl">
+                <p className="text-xs font-medium text-gray-500 mb-1">{t('settings.daysRemaining', 'Days Remaining')}</p>
+                <p className={`text-lg font-bold ${
+                  (subInfo.daysRemaining ?? 0) <= 3 ? 'text-red-600' :
+                  (subInfo.daysRemaining ?? 0) <= 7 ? 'text-amber-600' : 'text-gray-900'
+                }`}>
+                  {subInfo.daysRemaining ?? '-'}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {subInfo.status === 'TRIAL' && subInfo.trialEndsAt
+                    ? new Date(subInfo.trialEndsAt).toLocaleDateString()
+                    : subInfo.subscriptionEndsAt
+                      ? new Date(subInfo.subscriptionEndsAt).toLocaleDateString()
+                      : ''}
+                </p>
+              </div>
+
+            </div>
+
+            {/* Upgrade CTA */}
+            {(subInfo.status === 'TRIAL' || subInfo.status === 'EXPIRED') && (
+              <Link
+                to="/subscription"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-colors"
+              >
+                <span className="material-symbols-outlined text-xl">upgrade</span>
+                {subInfo.status === 'EXPIRED'
+                  ? t('settings.renewNow', 'Renew Now')
+                  : t('settings.upgradePlan', 'Upgrade Plan')}
+              </Link>
+            )}
+          </div>
+        )}
 
         {/* Patient Experience */}
         <form onSubmit={handleSaveExperience} className="bg-white rounded-2xl p-6 shadow-sm space-y-4">

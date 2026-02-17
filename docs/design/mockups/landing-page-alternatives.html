@@ -1,0 +1,2762 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BleSaf Landing Page — 3 Design Alternatives</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" rel="stylesheet">
+  <style>
+    /* ============================================
+       GLOBAL STYLES & RESET
+       ============================================ */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'IBM Plex Sans', system-ui, sans-serif;
+      background: #F1F5F9;
+      color: #1E293B;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .material-symbols-outlined.filled {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+
+    /* ============================================
+       PAGE HEADER
+       ============================================ */
+    .page-header {
+      text-align: center;
+      margin-bottom: 28px;
+      max-width: 640px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .page-header h1 {
+      font-size: 26px;
+      font-weight: 800;
+      color: #0F172A;
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+    .page-header p {
+      font-size: 14px;
+      color: #64748B;
+      line-height: 1.6;
+    }
+
+    /* ============================================
+       TAB NAVIGATION
+       ============================================ */
+    .tab-nav {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 36px;
+      max-width: 820px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .tab-btn {
+      flex: 1;
+      min-width: 220px;
+      max-width: 260px;
+      padding: 16px 18px;
+      border: 2px solid #E2E8F0;
+      border-radius: 16px;
+      background: #FFFFFF;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      color: #0F172A;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      position: relative;
+    }
+    .tab-btn .tab-letter {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: #F1F5F9;
+      color: #64748B;
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 4px;
+      transition: all 0.2s ease;
+    }
+    .tab-btn .tab-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #0F172A;
+      transition: color 0.2s ease;
+    }
+    .tab-btn .tab-desc {
+      font-size: 11px;
+      font-weight: 400;
+      color: #94A3B8;
+      line-height: 1.4;
+      transition: color 0.2s ease;
+    }
+    .tab-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    /* Option A — Bleu empathique */
+    .tab-btn[data-color="blue"]:hover {
+      border-color: #0EA5E9;
+      background: #F0F9FF;
+      box-shadow: 0 4px 12px rgba(14, 165, 233, 0.12);
+    }
+    .tab-btn[data-color="blue"]:hover .tab-letter {
+      background: #E0F2FE;
+      color: #0284C7;
+    }
+    .tab-btn[data-color="blue"].active {
+      background: #0EA5E9;
+      border-color: #0EA5E9;
+      box-shadow: 0 4px 16px rgba(14, 165, 233, 0.3);
+      transform: translateY(-2px);
+    }
+
+    /* Option B — Rose contraste */
+    .tab-btn[data-color="rose"]:hover {
+      border-color: #F43F5E;
+      background: #FFF1F2;
+      box-shadow: 0 4px 12px rgba(244, 63, 94, 0.12);
+    }
+    .tab-btn[data-color="rose"]:hover .tab-letter {
+      background: #FFE4E6;
+      color: #BE123C;
+    }
+    .tab-btn[data-color="rose"].active {
+      background: #F43F5E;
+      border-color: #F43F5E;
+      box-shadow: 0 4px 16px rgba(244, 63, 94, 0.3);
+      transform: translateY(-2px);
+    }
+
+    /* Option C — Violet produit */
+    .tab-btn[data-color="violet"]:hover {
+      border-color: #8B5CF6;
+      background: #F5F3FF;
+      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.12);
+    }
+    .tab-btn[data-color="violet"]:hover .tab-letter {
+      background: #EDE9FE;
+      color: #6D28D9;
+    }
+    .tab-btn[data-color="violet"].active {
+      background: #8B5CF6;
+      border-color: #8B5CF6;
+      box-shadow: 0 4px 16px rgba(139, 92, 246, 0.3);
+      transform: translateY(-2px);
+    }
+
+    /* Active state shared text */
+    .tab-btn.active .tab-letter {
+      background: rgba(255,255,255,0.25);
+      color: #FFFFFF;
+    }
+    .tab-btn.active .tab-title {
+      color: #FFFFFF;
+    }
+    .tab-btn.active .tab-desc {
+      color: rgba(255,255,255,0.8);
+    }
+
+    /* ============================================
+       LAYOUT: PHONE + SIDE DESCRIPTION
+       ============================================ */
+    .design-container {
+      display: none;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 40px;
+    }
+    .design-container.active {
+      display: flex;
+    }
+    .design-meta {
+      max-width: 320px;
+      padding-top: 40px;
+    }
+    .design-meta h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #0F172A;
+      margin-bottom: 8px;
+    }
+    .design-meta .philosophy {
+      font-size: 14px;
+      color: #0EA5E9;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .design-meta p {
+      font-size: 13px;
+      color: #64748B;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+    .design-meta .section-list {
+      font-size: 12px;
+      color: #475569;
+      line-height: 1.8;
+      margin-bottom: 16px;
+    }
+    .design-meta .section-list strong {
+      color: #0F172A;
+    }
+    .design-meta .tag {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-right: 4px;
+      margin-bottom: 4px;
+    }
+    .tag-blue { background: #E0F2FE; color: #0369A1; }
+    .tag-green { background: #D1FAE5; color: #065F46; }
+    .tag-amber { background: #FEF3C7; color: #92400E; }
+    .tag-purple { background: #EDE9FE; color: #5B21B6; }
+    .tag-rose { background: #FFE4E6; color: #9F1239; }
+    .tag-teal { background: #CCFBF1; color: #115E59; }
+
+    /* ============================================
+       PHONE FRAME
+       ============================================ */
+    .phone-frame {
+      width: 375px;
+      height: 812px;
+      border-radius: 44px;
+      border: 8px solid #1E293B;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15), 0 0 0 2px #475569;
+      flex-shrink: 0;
+    }
+    .phone-notch {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 160px;
+      height: 34px;
+      background: #1E293B;
+      border-radius: 0 0 20px 20px;
+      z-index: 100;
+    }
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      overflow-y: auto;
+      position: relative;
+    }
+    .phone-screen::-webkit-scrollbar {
+      display: none;
+    }
+
+    @media (max-width: 800px) {
+      .design-meta { display: none; }
+    }
+
+    /* ============================================
+       SHARED LANDING PAGE ELEMENTS
+       ============================================ */
+    /* Mini nav bar inside phone */
+    .lp-nav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 40px 16px 10px;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    .lp-nav-logo {
+      font-size: 15px;
+      font-weight: 800;
+      color: #0F172A;
+      letter-spacing: -0.5px;
+    }
+    .lp-nav-logo span {
+      color: #0EA5E9;
+    }
+    .lp-nav-cta {
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+    }
+
+    /* Section dividers */
+    .lp-section {
+      padding: 28px 16px;
+    }
+    .lp-section-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: #0F172A;
+      text-align: center;
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+    .lp-section-sub {
+      font-size: 12px;
+      color: #64748B;
+      text-align: center;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    /* Compact pricing block (shared) */
+    .lp-pricing {
+      padding: 24px 16px;
+      background: #F8FAFC;
+    }
+    .lp-pricing-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: #0F172A;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+    .lp-pricing-sub {
+      font-size: 11px;
+      color: #64748B;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .lp-pricing-cards {
+      display: flex;
+      gap: 8px;
+    }
+    .lp-price-card {
+      flex: 1;
+      background: #FFFFFF;
+      border-radius: 12px;
+      padding: 14px 10px;
+      border: 1.5px solid #E2E8F0;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+    }
+    .lp-price-card.popular {
+      border-color: #0EA5E9;
+      position: relative;
+    }
+    .lp-price-badge {
+      position: absolute;
+      top: -9px;
+      right: 10px;
+      background: #0EA5E9;
+      color: #FFF;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+    .lp-price-name {
+      font-size: 12px;
+      font-weight: 700;
+      color: #475569;
+      margin-bottom: 6px;
+    }
+    .lp-price-amount {
+      font-size: 24px;
+      font-weight: 900;
+      color: #0F172A;
+      line-height: 1;
+    }
+    .lp-price-period {
+      font-size: 11px;
+      color: #94A3B8;
+      font-weight: 500;
+    }
+    .lp-price-note {
+      font-size: 10px;
+      color: #10B981;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+    .lp-price-btn {
+      display: block;
+      width: 100%;
+      margin-top: auto;
+      padding-top: 10px;
+      padding: 8px 0;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+    }
+    .lp-trial-note {
+      font-size: 11px;
+      color: #64748B;
+      text-align: center;
+      margin-top: 12px;
+    }
+
+    /* Compact FAQ (shared) */
+    .lp-faq {
+      padding: 24px 16px;
+    }
+    .lp-faq-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: #0F172A;
+      text-align: center;
+      margin-bottom: 14px;
+    }
+    .lp-faq-item {
+      border-bottom: 1px solid #E2E8F0;
+      padding: 10px 0;
+    }
+    .lp-faq-q {
+      font-size: 12px;
+      font-weight: 600;
+      color: #334155;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+    }
+    .lp-faq-q .material-symbols-outlined {
+      font-size: 18px;
+      color: #94A3B8;
+      transition: transform 0.2s;
+    }
+    .lp-faq-a {
+      font-size: 11px;
+      color: #64748B;
+      line-height: 1.5;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease, padding 0.3s ease;
+    }
+    .lp-faq-item.open .lp-faq-a {
+      max-height: 100px;
+      padding-top: 8px;
+    }
+    .lp-faq-item.open .lp-faq-q .material-symbols-outlined {
+      transform: rotate(180deg);
+    }
+
+    /* Footer CTA (shared) */
+    .lp-footer-cta {
+      padding: 28px 16px;
+      text-align: center;
+    }
+    .lp-footer-cta-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: #FFFFFF;
+      margin-bottom: 6px;
+    }
+    .lp-footer-cta-sub {
+      font-size: 11px;
+      color: rgba(255,255,255,0.8);
+      margin-bottom: 14px;
+    }
+    .lp-footer-cta-btn {
+      display: inline-block;
+      padding: 10px 24px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+    }
+
+    /* Mini footer */
+    .lp-footer {
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #0F172A;
+    }
+    .lp-footer-brand {
+      font-size: 12px;
+      font-weight: 700;
+      color: #94A3B8;
+    }
+    .lp-footer-copy {
+      font-size: 10px;
+      color: #475569;
+    }
+
+
+    /* ============================================
+       DESIGN A: EMPATHY NARRATIVE
+       ============================================ */
+    .da-hero {
+      text-align: center;
+    }
+    /* Crossfade visual container */
+    .da-hero-crossfade {
+      position: relative;
+      width: 100%;
+      height: 320px;
+      overflow: hidden;
+    }
+    .da-hero-crossfade img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: opacity 1.2s ease-in-out;
+    }
+    .da-hero-crossfade img.da-cf-hidden { opacity: 0; }
+    .da-hero-crossfade img.da-cf-visible { opacity: 1; }
+    /* Gradient overlay for text readability */
+    .da-hero-cf-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 60px 16px 16px;
+      background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
+      z-index: 5;
+    }
+    .da-hero-cf-texts {
+      position: relative;
+      min-height: 72px;
+    }
+    .da-hero-cf-text {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      transition: opacity 0.8s ease-in-out, transform 0.8s ease-in-out;
+    }
+    .da-hero-cf-text.da-cf-hidden {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    .da-hero-cf-text.da-cf-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .da-hero-cf-text h2 {
+      font-size: 19px;
+      font-weight: 900;
+      color: #FFFFFF;
+      line-height: 1.3;
+      margin-bottom: 4px;
+      text-shadow: 0 1px 6px rgba(0,0,0,0.3);
+    }
+    .da-hero-cf-text h2 em {
+      font-style: normal;
+      color: #7DD3FC;
+    }
+    .da-hero-cf-text p {
+      font-size: 11px;
+      color: rgba(255,255,255,0.8);
+      line-height: 1.5;
+    }
+    /* Badge */
+    .da-hero-cf-badge {
+      position: absolute;
+      top: 46px;
+      left: 12px;
+      z-index: 6;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      transition: all 0.8s ease-in-out;
+    }
+    .da-hero-cf-badge.da-badge-before {
+      background: rgba(239, 68, 68, 0.9);
+      color: #FFF;
+    }
+    .da-hero-cf-badge.da-badge-after {
+      background: rgba(16, 185, 129, 0.9);
+      color: #FFF;
+    }
+    /* Indicator dots */
+    .da-hero-cf-dots {
+      position: absolute;
+      bottom: 8px;
+      right: 14px;
+      z-index: 10;
+      display: flex;
+      gap: 6px;
+    }
+    .da-hero-cf-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.4);
+      transition: all 0.4s ease;
+      cursor: pointer;
+      border: none;
+      padding: 0;
+    }
+    .da-hero-cf-dot.da-dot-active {
+      background: #FFFFFF;
+      width: 24px;
+      border-radius: 4px;
+    }
+    /* Below-photo section */
+    .da-hero-body {
+      padding: 16px 16px 24px;
+      background: #FFFFFF;
+    }
+    .da-hero-sub {
+      font-size: 12px;
+      color: #475569;
+      line-height: 1.6;
+      margin-bottom: 16px;
+      max-width: 300px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .da-hero-ctas {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: center;
+    }
+    .da-hero-btn-primary {
+      padding: 12px 28px;
+      background: #0EA5E9;
+      color: #FFF;
+      border: none;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(14, 165, 233, 0.3);
+    }
+    .da-hero-btn-secondary {
+      padding: 8px 16px;
+      background: transparent;
+      color: #0EA5E9;
+      border: 1.5px solid #BAE6FD;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .da-hero-trust {
+      margin-top: 12px;
+      font-size: 10px;
+      color: #94A3B8;
+    }
+
+    /* Patient Journey Timeline */
+    .da-journey {
+      padding: 24px 12px;
+      background: #FFFFFF;
+    }
+    .da-journey-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: #0F172A;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+    .da-journey-sub {
+      font-size: 11px;
+      color: #64748B;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .da-journey-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      position: relative;
+      padding-left: 32px;
+    }
+    .da-journey-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      position: relative;
+      padding-bottom: 20px;
+    }
+    .da-journey-step:last-child {
+      padding-bottom: 0;
+    }
+    .da-journey-step::before {
+      content: '';
+      position: absolute;
+      left: -20px;
+      top: 32px;
+      width: 2px;
+      height: calc(100% - 24px);
+      background: #E2E8F0;
+    }
+    .da-journey-step:last-child::before {
+      display: none;
+    }
+    .da-journey-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      position: relative;
+      left: -32px;
+      margin-right: -20px;
+    }
+    .da-journey-icon .material-symbols-outlined {
+      font-size: 20px;
+    }
+    .da-journey-text h4 {
+      font-size: 13px;
+      font-weight: 700;
+      color: #0F172A;
+      margin-bottom: 2px;
+    }
+    .da-journey-text p {
+      font-size: 11px;
+      color: #64748B;
+      line-height: 1.4;
+    }
+    .da-journey-step .da-time {
+      font-size: 10px;
+      color: #94A3B8;
+      font-weight: 500;
+    }
+
+    /* Doctor Benefit */
+    .da-doctor {
+      padding: 24px 16px;
+      background: linear-gradient(135deg, #ECFDF5 0%, #F0FDF9 100%);
+    }
+    .da-doctor-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: #065F46;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+    .da-doctor-sub {
+      font-size: 11px;
+      color: #047857;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .da-doctor-cards {
+      display: flex;
+      gap: 8px;
+    }
+    .da-doctor-card {
+      flex: 1;
+      background: rgba(255,255,255,0.8);
+      border-radius: 12px;
+      padding: 14px 10px;
+      text-align: center;
+    }
+    .da-doctor-card-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 8px;
+      background: #D1FAE5;
+      color: #059669;
+    }
+    .da-doctor-card-icon .material-symbols-outlined {
+      font-size: 18px;
+    }
+    .da-doctor-card h4 {
+      font-size: 11px;
+      font-weight: 700;
+      color: #065F46;
+      margin-bottom: 2px;
+    }
+    .da-doctor-card p {
+      font-size: 10px;
+      color: #6B7280;
+      line-height: 1.4;
+    }
+
+    /* Setup Steps */
+    .da-setup {
+      padding: 24px 16px;
+      background: #FFFFFF;
+    }
+    .da-setup-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: #0F172A;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .da-setup-row {
+      display: flex;
+      gap: 6px;
+      text-align: center;
+    }
+    .da-setup-item {
+      flex: 1;
+    }
+    .da-setup-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #0EA5E9;
+      color: #FFF;
+      font-size: 13px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 6px;
+    }
+    .da-setup-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #334155;
+    }
+    .da-setup-desc {
+      font-size: 10px;
+      color: #94A3B8;
+      margin-top: 2px;
+    }
+
+    /* Testimonial */
+    .da-testimonial {
+      padding: 24px 16px;
+      background: #F8FAFC;
+      text-align: center;
+    }
+    .da-testimonial-quote {
+      font-size: 12px;
+      color: #334155;
+      font-style: italic;
+      line-height: 1.6;
+      margin-bottom: 12px;
+      position: relative;
+    }
+    .da-testimonial-quote::before {
+      content: '\201C';
+      font-size: 32px;
+      color: #CBD5E1;
+      position: absolute;
+      top: -10px;
+      left: -4px;
+      font-style: normal;
+    }
+    .da-testimonial-author {
+      font-size: 11px;
+      font-weight: 700;
+      color: #0F172A;
+    }
+    .da-testimonial-role {
+      font-size: 10px;
+      color: #94A3B8;
+    }
+
+
+    /* ============================================
+       DESIGN B: DUAL REALITY — Parallax Scrollytelling
+       ============================================ */
+    .db-hero { position: relative; }
+    .db-hero-scene { position: relative; }
+
+    /* Before photo: sticky behind */
+    .db-hero-photo-before {
+      position: sticky;
+      top: 0;
+      width: 100%;
+      height: 680px;
+      z-index: 1;
+      overflow: hidden;
+    }
+    .db-hero-photo-before img {
+      width: 100%; height: 100%;
+      object-fit: cover; display: block;
+      filter: saturate(0.5) brightness(0.7) contrast(1.1);
+    }
+    .db-hero-photo-before-overlay {
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(to bottom,
+        rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.2) 30%,
+        rgba(0,0,0,0.65) 70%, rgba(0,0,0,0.8) 100%);
+    }
+    .db-hero-photo-text {
+      position: absolute; top: 50px; left: 0; right: 0;
+      text-align: center; padding: 0 20px; z-index: 2;
+    }
+    .db-hero-badge {
+      display: inline-block; padding: 4px 14px; border-radius: 20px;
+      font-size: 10px; font-weight: 800; letter-spacing: 1px;
+      text-transform: uppercase; margin-bottom: 10px;
+    }
+    .db-hero-badge-before { background: rgba(239,68,68,0.9); color: #FFF; }
+    .db-hero-badge-after { background: rgba(16,185,129,0.9); color: #FFF; }
+    .db-hero-photo-text h2 {
+      font-size: 22px; font-weight: 900; color: #FFFFFF; line-height: 1.3;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.5); margin-bottom: 8px;
+    }
+    .db-hero-photo-text h2 em { font-style: normal; color: #FCA5A5; }
+    .db-hero-photo-text p {
+      font-size: 12px; color: rgba(255,255,255,0.8); line-height: 1.5;
+    }
+    .db-hero-scroll-cue {
+      position: absolute; bottom: 24px; left: 50%;
+      transform: translateX(-50%); z-index: 3;
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      animation: db-cue-bob 2s ease-in-out infinite;
+    }
+    .db-hero-scroll-cue span {
+      font-size: 10px; color: rgba(255,255,255,0.6); font-weight: 600;
+    }
+    .db-hero-scroll-cue .material-symbols-outlined {
+      font-size: 20px; color: rgba(255,255,255,0.6);
+    }
+    @keyframes db-cue-bob {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(6px); }
+    }
+
+    /* After photo: scrolls up, covers the before */
+    .db-hero-photo-after {
+      position: relative; z-index: 5;
+      width: 100%; overflow: hidden;
+    }
+    .db-hero-photo-after img {
+      width: 100%; height: 680px;
+      object-fit: cover; display: block;
+      object-position: 60% center;
+      filter: saturate(1.15) brightness(1.05);
+    }
+    .db-hero-photo-after-overlay {
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(to bottom,
+        rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.15) 30%,
+        rgba(0,0,0,0.55) 70%, rgba(0,0,0,0.75) 100%);
+    }
+    .db-hero-photo-after .db-hero-photo-text h2 em {
+      color: #6EE7B7;
+    }
+    .db-hero-photo-after-bottom {
+      position: absolute; bottom: 20px; left: 0; right: 0;
+      text-align: center; padding: 0 20px; z-index: 2;
+    }
+    .db-hero-photo-after-bottom p {
+      font-size: 11px; color: rgba(255,255,255,0.7);
+      line-height: 1.5; font-weight: 500;
+    }
+
+    /* CTA: white section at the end */
+    .db-hero-cta {
+      position: relative; z-index: 6;
+      padding: 24px 20px; text-align: center; background: #FFFFFF;
+    }
+    .db-hero-cta h3 {
+      font-size: 16px; font-weight: 700; color: #0F172A; margin-bottom: 6px;
+    }
+    .db-hero-cta p {
+      font-size: 12px; color: #64748B; line-height: 1.6; margin-bottom: 14px;
+    }
+    .db-hero-btn {
+      display: inline-block; padding: 12px 28px;
+      background: #0EA5E9; color: #FFF; border: none;
+      border-radius: 10px; font-size: 13px; font-weight: 700;
+      cursor: pointer; box-shadow: 0 2px 8px rgba(14,165,233,0.3);
+    }
+    .db-hero-btn-secondary {
+      display: inline-block; padding: 8px 16px; margin-top: 8px;
+      background: transparent; color: #0EA5E9;
+      border: 1.5px solid #BAE6FD; border-radius: 10px;
+      font-size: 11px; font-weight: 600; cursor: pointer;
+    }
+    .db-hero-trust {
+      margin-top: 10px; font-size: 10px; color: #94A3B8;
+    }
+
+    /* Contrast Rows */
+    .db-contrast {
+      padding: 24px 0;
+      background: #FFFFFF;
+    }
+    .db-contrast-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: #0F172A;
+      text-align: center;
+      padding: 0 16px;
+      margin-bottom: 16px;
+    }
+    .db-row {
+      display: flex;
+      border-top: 1px solid #F1F5F9;
+    }
+    .db-row:last-child {
+      border-bottom: 1px solid #F1F5F9;
+    }
+    .db-row-left {
+      flex: 1;
+      padding: 14px 10px;
+      background: #FAFAFA;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 6px;
+    }
+    .db-row-right {
+      flex: 1;
+      padding: 14px 10px;
+      background: #F0FDFA;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 6px;
+    }
+    .db-row-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .db-row-icon .material-symbols-outlined {
+      font-size: 18px;
+    }
+    .db-row-icon-bad {
+      background: #FEE2E2;
+      color: #DC2626;
+    }
+    .db-row-icon-good {
+      background: #CCFBF1;
+      color: #0D9488;
+    }
+    .db-row-text {
+      font-size: 11px;
+      line-height: 1.4;
+    }
+    .db-row-text-bad {
+      color: #6B7280;
+    }
+    .db-row-text-good {
+      color: #115E59;
+      font-weight: 500;
+    }
+    .db-contrast-labels {
+      display: flex;
+      padding: 0;
+    }
+    .db-contrast-label {
+      flex: 1;
+      text-align: center;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      padding: 8px 0;
+    }
+    .db-contrast-label-bad {
+      color: #9CA3AF;
+      background: #FAFAFA;
+    }
+    .db-contrast-label-good {
+      color: #0D9488;
+      background: #F0FDFA;
+    }
+
+    /* One Minute Setup */
+    .db-setup {
+      padding: 20px 16px;
+      background: #F8FAFC;
+    }
+    .db-setup-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: #0F172A;
+      text-align: center;
+      margin-bottom: 14px;
+    }
+    .db-setup-strip {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .db-setup-step {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 10px;
+      padding: 8px 10px;
+    }
+    .db-setup-step-num {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #0EA5E9;
+      color: #FFF;
+      font-size: 11px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .db-setup-step-text {
+      font-size: 10px;
+      font-weight: 600;
+      color: #334155;
+      white-space: nowrap;
+    }
+    .db-setup-arrow {
+      color: #CBD5E1;
+      font-size: 16px;
+    }
+
+    /* Key Numbers */
+    .db-numbers {
+      padding: 20px 16px;
+      background: #FFFFFF;
+      display: flex;
+      gap: 8px;
+    }
+    .db-number-card {
+      flex: 1;
+      text-align: center;
+      padding: 12px 4px;
+      background: #F0F9FF;
+      border-radius: 12px;
+    }
+    .db-number-value {
+      font-size: 22px;
+      font-weight: 900;
+      color: #0EA5E9;
+      line-height: 1;
+    }
+    .db-number-label {
+      font-size: 10px;
+      color: #64748B;
+      margin-top: 4px;
+      line-height: 1.3;
+    }
+
+
+    /* ============================================
+       DESIGN C: PRODUCT DEMO FIRST
+       ============================================ */
+    .dc-hero {
+      padding: 24px 16px;
+      background: linear-gradient(180deg, #F0FDFA 0%, #E0F2FE 100%);
+      text-align: center;
+    }
+    .dc-hero-headline {
+      font-size: 20px;
+      font-weight: 900;
+      color: #0F172A;
+      line-height: 1.25;
+      margin-bottom: 6px;
+    }
+    .dc-hero-headline em {
+      font-style: normal;
+      color: #0D9488;
+    }
+    .dc-hero-sub {
+      font-size: 11px;
+      color: #475569;
+      margin-bottom: 20px;
+    }
+
+    /* Phone-in-phone mockup — animated */
+    .dc-phone-demo {
+      width: 220px;
+      aspect-ratio: 71.6 / 147.6; /* iPhone 15 exact ratio */
+      margin: 0 auto 20px;
+      border-radius: 32px;
+      border: 5px solid #3A3A3C;
+      overflow: hidden;
+      box-shadow:
+        0 12px 40px rgba(0,0,0,0.15),
+        0 4px 16px rgba(0,0,0,0.1),
+        0 0 0 1px rgba(0,0,0,0.08);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    .dc-phone-demo.vibrate {
+      animation: dc-vibrate 0.4s ease-in-out;
+    }
+    .dc-phone-demo.vibrate-strong {
+      animation: dc-vibrate-strong 0.6s ease-in-out;
+    }
+    @keyframes dc-vibrate {
+      0%, 100% { transform: translateX(0); }
+      15% { transform: translateX(-2px) rotate(-0.5deg); }
+      30% { transform: translateX(2px) rotate(0.5deg); }
+      45% { transform: translateX(-1.5px); }
+      60% { transform: translateX(1.5px); }
+      75% { transform: translateX(-1px); }
+    }
+    @keyframes dc-vibrate-strong {
+      0%, 100% { transform: translateX(0); }
+      10% { transform: translateX(-3px) rotate(-1deg); }
+      20% { transform: translateX(3px) rotate(1deg); }
+      30% { transform: translateX(-3px) rotate(-0.5deg); }
+      40% { transform: translateX(3px) rotate(0.5deg); }
+      50% { transform: translateX(-2px); }
+      60% { transform: translateX(2px); }
+      70% { transform: translateX(-1px); }
+      80% { transform: translateX(1px); }
+    }
+    .dc-phone-notch {
+      width: 72px;
+      height: 18px;
+      background: #1C1C1E;
+      border-radius: 14px;
+      margin: 8px auto 0;
+      flex-shrink: 0;
+      z-index: 10;
+      position: relative;
+    }
+    .dc-demo-screen {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.8s ease;
+    }
+    .dc-demo-inner {
+      padding: 10px 14px 14px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      transition: opacity 0.3s ease;
+    }
+    /* Live badge */
+    .dc-demo-live {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-bottom: 10px;
+    }
+    .dc-demo-live-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #22C55E;
+      animation: dc-pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes dc-pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
+      50% { opacity: 0.8; box-shadow: 0 0 0 4px rgba(34,197,94,0); }
+    }
+    .dc-demo-live-text {
+      font-size: 9px;
+      font-weight: 700;
+      color: #22C55E;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    /* Position */
+    .dc-demo-position {
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    .dc-demo-pos-label {
+      font-size: 9px;
+      color: #64748B;
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      margin-bottom: 2px;
+      transition: color 0.5s ease;
+    }
+    .dc-demo-pos-num {
+      font-size: 48px;
+      font-weight: 900;
+      line-height: 1;
+      transition: color 0.5s ease, transform 0.3s ease;
+    }
+    .dc-demo-pos-num.pop {
+      animation: dc-num-pop 0.4s ease-out;
+    }
+    @keyframes dc-num-pop {
+      0% { transform: scale(0.7); opacity: 0.3; }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    /* Time card */
+    .dc-demo-time-card {
+      border-radius: 12px;
+      padding: 8px 10px;
+      text-align: center;
+      margin-bottom: 8px;
+      transition: background 0.5s ease;
+    }
+    .dc-demo-time-label {
+      font-size: 8px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 2px;
+      transition: color 0.5s ease;
+    }
+    .dc-demo-time-val {
+      font-size: 24px;
+      font-weight: 900;
+      transition: color 0.5s ease;
+    }
+    /* Journey dots */
+    .dc-demo-journey {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      padding: 6px 0;
+    }
+    .dc-demo-j-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.5s ease;
+      flex-shrink: 0;
+    }
+    .dc-demo-j-you {
+      background: #E0F2FE;
+      color: #0284C7;
+      border: 1.5px solid #0EA5E9;
+    }
+    .dc-demo-j-ahead {
+      background: #F1F5F9;
+      color: #94A3B8;
+    }
+    .dc-demo-j-done {
+      background: #D1FAE5;
+      color: #059669;
+    }
+    .dc-demo-j-door {
+      background: #F1F5F9;
+      color: #94A3B8;
+    }
+    .dc-demo-j-line {
+      flex: 1;
+      height: 2px;
+      background: #E2E8F0;
+      transition: background 0.5s ease;
+    }
+    .dc-demo-j-line.done {
+      background: #6EE7B7;
+    }
+    /* Status message */
+    .dc-demo-status {
+      text-align: center;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 6px 0;
+      min-height: 28px;
+      transition: color 0.5s ease;
+    }
+    /* Toast notification */
+    .dc-demo-toast {
+      position: absolute;
+      top: 32px;
+      left: 12px;
+      right: 12px;
+      background: #1E293B;
+      color: #FFFFFF;
+      padding: 7px 10px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      z-index: 20;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      opacity: 0;
+      transform: translateY(-12px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      pointer-events: none;
+    }
+    .dc-demo-toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .dc-demo-toast .material-symbols-outlined {
+      font-size: 15px;
+      flex-shrink: 0;
+    }
+    /* Final "your turn" overlay */
+    .dc-demo-final {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      pointer-events: none;
+      z-index: 5;
+    }
+    .dc-demo-final.show {
+      opacity: 1;
+    }
+    .dc-demo-final-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: dc-final-ring 1s ease-in-out infinite;
+    }
+    @keyframes dc-final-ring {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.3); }
+      50% { box-shadow: 0 0 0 12px rgba(255,255,255,0); }
+    }
+    .dc-demo-final-icon .material-symbols-outlined {
+      font-size: 28px;
+      color: #FFFFFF;
+    }
+    .dc-demo-final-title {
+      font-size: 18px;
+      font-weight: 900;
+      color: #FFFFFF;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .dc-demo-final-sub {
+      font-size: 11px;
+      color: rgba(255,255,255,0.85);
+      text-align: center;
+      line-height: 1.4;
+    }
+    /* Tooltip arrow under phone */
+    .dc-tooltip {
+      text-align: center;
+      margin: 0 auto 16px;
+      max-width: 220px;
+      min-height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .dc-tooltip-text {
+      font-size: 11px;
+      color: #94A3B8;
+      font-style: italic;
+      line-height: 1.4;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    .dc-tooltip-text.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .dc-hero-cta-row {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: center;
+    }
+    .dc-hero-btn {
+      padding: 11px 28px;
+      background: #0EA5E9;
+      color: #FFF;
+      border: none;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .dc-hero-trust {
+      font-size: 10px;
+      color: #64748B;
+    }
+
+    /* Value Props */
+    .dc-values {
+      padding: 24px 16px;
+      background: #FFFFFF;
+    }
+    .dc-values-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: #0F172A;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .dc-values-grid {
+      display: flex;
+      gap: 8px;
+    }
+    .dc-value-card {
+      flex: 1;
+      text-align: center;
+      padding: 14px 6px;
+      background: #F8FAFC;
+      border-radius: 12px;
+      border: 1px solid #E2E8F0;
+    }
+    .dc-value-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 8px;
+    }
+    .dc-value-icon .material-symbols-outlined {
+      font-size: 20px;
+    }
+    .dc-value-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #0F172A;
+      margin-bottom: 2px;
+    }
+    .dc-value-desc {
+      font-size: 9px;
+      color: #64748B;
+      line-height: 1.4;
+    }
+
+    /* Clinic Setup */
+    .dc-clinic {
+      padding: 24px 16px;
+      background: #F0F9FF;
+    }
+    .dc-clinic-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: #0F172A;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+    .dc-clinic-sub {
+      font-size: 11px;
+      color: #64748B;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    /* Mini dashboard mockup */
+    .dc-dashboard {
+      background: #FFFFFF;
+      border-radius: 12px;
+      border: 1px solid #E2E8F0;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .dc-dash-header {
+      background: #0F172A;
+      padding: 8px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .dc-dash-title {
+      font-size: 10px;
+      font-weight: 700;
+      color: #E2E8F0;
+    }
+    .dc-dash-badge {
+      font-size: 9px;
+      background: #10B981;
+      color: #FFF;
+      padding: 2px 8px;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+    .dc-dash-body {
+      padding: 10px 12px;
+    }
+    .dc-dash-stats {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .dc-dash-stat {
+      flex: 1;
+      text-align: center;
+      padding: 6px;
+      background: #F8FAFC;
+      border-radius: 8px;
+    }
+    .dc-dash-stat-val {
+      font-size: 16px;
+      font-weight: 900;
+      color: #0EA5E9;
+    }
+    .dc-dash-stat-label {
+      font-size: 8px;
+      color: #94A3B8;
+    }
+    .dc-dash-queue {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .dc-dash-patient {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      background: #F8FAFC;
+      border-radius: 8px;
+    }
+    .dc-dash-patient-pos {
+      font-size: 11px;
+      font-weight: 800;
+      color: #0EA5E9;
+      width: 18px;
+    }
+    .dc-dash-patient-name {
+      font-size: 10px;
+      font-weight: 600;
+      color: #334155;
+      flex: 1;
+    }
+    .dc-dash-patient-status {
+      font-size: 8px;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+    .dc-dash-status-waiting {
+      background: #FEF3C7;
+      color: #92400E;
+    }
+    .dc-dash-status-notified {
+      background: #DBEAFE;
+      color: #1E40AF;
+    }
+    .dc-dash-btn {
+      display: block;
+      width: 100%;
+      margin-top: 8px;
+      padding: 8px;
+      background: #0EA5E9;
+      color: #FFF;
+      border: none;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    /* Social proof */
+    .dc-proof {
+      padding: 24px 16px;
+      background: #FFFFFF;
+      text-align: center;
+    }
+    .dc-proof-quote {
+      font-size: 12px;
+      font-style: italic;
+      color: #334155;
+      line-height: 1.6;
+      margin-bottom: 10px;
+    }
+    .dc-proof-author {
+      font-size: 11px;
+      font-weight: 700;
+      color: #0F172A;
+    }
+    .dc-proof-role {
+      font-size: 10px;
+      color: #94A3B8;
+    }
+    .dc-proof-count {
+      margin-top: 14px;
+      font-size: 11px;
+      color: #64748B;
+    }
+    .dc-proof-count strong {
+      color: #0EA5E9;
+      font-weight: 800;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-header">
+    <h1>Quelle approche explique le mieux BleSaf au médecin ?</h1>
+    <p>Trois façons de raconter la même histoire : comment BleSaf transforme la salle d'attente. Choisissez celle qui vous semble la plus claire et convaincante pour un médecin qui découvre le produit.</p>
+  </div>
+
+  <!-- Tab Navigation -->
+  <div class="tab-nav">
+    <button class="tab-btn active" data-color="blue" onclick="showDesign('a')">
+      <span class="tab-letter">A</span>
+      <span class="tab-title">Récit Empathique</span>
+      <span class="tab-desc">Raconter l'histoire du patient, étape par étape</span>
+    </button>
+    <button class="tab-btn" data-color="rose" onclick="showDesign('b')">
+      <span class="tab-letter">B</span>
+      <span class="tab-title">Double Réalité</span>
+      <span class="tab-desc">Comparer avant / après, côte à côte</span>
+    </button>
+    <button class="tab-btn" data-color="violet" onclick="showDesign('c')">
+      <span class="tab-letter">C</span>
+      <span class="tab-title">Démo Produit</span>
+      <span class="tab-desc">Montrer le produit en action, pas l'expliquer</span>
+    </button>
+  </div>
+
+
+  <!-- ==========================================
+       DESIGN A: EMPATHY NARRATIVE
+       ========================================== -->
+  <div class="design-container active" id="design-a">
+    <div class="design-meta">
+      <h2>A. Récit Empathique</h2>
+      <div class="philosophy">Narration émotionnelle, l'humain d'abord</div>
+      <p>Commence par la frustration du patient sous forme de question, puis déroule une histoire de transformation : à quoi ressemble la matinée d'un patient AVEC BleSaf ? Le "Comment ça marche" devient <strong>le parcours du patient</strong> — pas les étapes d'installation du cabinet.</p>
+      <p><strong>Innovation clé :</strong> L'explication du produit EST l'histoire du patient. "Arrive → Scanne → Part → Vérifie son téléphone → Reçoit l'alerte → Entre détendu." L'installation du cabinet est une note de bas de page, pas le titre.</p>
+      <div class="section-list">
+        <strong>Sections de la page :</strong><br>
+        1. Hero photo + question de curiosité<br>
+        2. Timeline du parcours patient (remplace "Comment ça marche")<br>
+        3. Le bénéfice pour le médecin (patients calmes)<br>
+        4. Installation en 3 minutes (compact)<br>
+        5. Témoignage<br>
+        6. Tarifs<br>
+        7. FAQ<br>
+        8. CTA final
+      </div>
+      <div>
+        <span class="tag tag-blue">Hero Photo</span>
+        <span class="tag tag-green">Parcours Patient</span>
+        <span class="tag tag-teal">Bénéfice Médecin</span>
+        <span class="tag tag-amber">Narration Chaleureuse</span>
+      </div>
+    </div>
+
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+
+        <!-- Nav -->
+        <div class="lp-nav">
+          <div class="lp-nav-logo">Ble<span>SAF</span></div>
+          <button class="lp-nav-cta" style="background:#0EA5E9; color:#FFF;">Essai gratuit</button>
+        </div>
+
+        <!-- Hero: Crossfade before/after -->
+        <div class="da-hero">
+          <div class="da-hero-crossfade" id="da-crossfade">
+            <img class="da-cf-visible" id="da-img-before" src="Without-BleSaf.png" alt="Sans BleSaf">
+            <img class="da-cf-hidden" id="da-img-after" src="With-BleSaf.png" alt="Avec BleSaf">
+
+            <div class="da-hero-cf-badge da-badge-before" id="da-badge">SANS BLESAF</div>
+
+            <div class="da-hero-cf-overlay">
+              <div class="da-hero-cf-texts">
+                <div class="da-hero-cf-text da-cf-visible" id="da-text-before">
+                  <h2>Des patients frustrés, une salle <em>bondée</em></h2>
+                  <p>« C'est quand mon tour ? » — la question qui revient 100 fois par jour</p>
+                </div>
+                <div class="da-hero-cf-text da-cf-hidden" id="da-text-after">
+                  <h2>Des patients sereins, qui attendent <em>où ils veulent</em></h2>
+                  <p>Position en temps réel, estimation précise, notification automatique</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="da-hero-cf-dots">
+              <button class="da-hero-cf-dot da-dot-active" id="da-dot-0" onclick="setDaCrossfade(0)"></button>
+              <button class="da-hero-cf-dot" id="da-dot-1" onclick="setDaCrossfade(1)"></button>
+            </div>
+          </div>
+
+          <div class="da-hero-body">
+            <div class="da-hero-sub">BleSaf transforme l'attente en liberté. Vos patients suivent leur position depuis leur téléphone — pas d'app à télécharger, juste un QR code.</div>
+            <div class="da-hero-ctas">
+              <button class="da-hero-btn-primary">Essayez gratuitement 30 jours</button>
+              <button class="da-hero-btn-secondary">Voir comment ça marche</button>
+            </div>
+            <div class="da-hero-trust">Aucune carte bancaire requise</div>
+          </div>
+        </div>
+
+        <!-- Patient Journey (replaces "How it works") -->
+        <div class="da-journey">
+          <div class="da-journey-title">La matinée d'un patient avec BleSaf</div>
+          <div class="da-journey-sub">Ce que vos patients vivent, étape par étape</div>
+
+          <div class="da-journey-steps">
+            <!-- Step 1: Arrive -->
+            <div class="da-journey-step">
+              <div class="da-journey-icon" style="background:#E0F2FE; color:#0284C7;">
+                <span class="material-symbols-outlined filled">location_on</span>
+              </div>
+              <div class="da-journey-text">
+                <div class="da-time">9h00</div>
+                <h4>Arrive au cabinet</h4>
+                <p>Sami entre dans la salle d'attente</p>
+              </div>
+            </div>
+            <!-- Step 2: Scan -->
+            <div class="da-journey-step">
+              <div class="da-journey-icon" style="background:#E0F2FE; color:#0284C7;">
+                <span class="material-symbols-outlined">qr_code_2</span>
+              </div>
+              <div class="da-journey-text">
+                <div class="da-time">9h01</div>
+                <h4>Scanne le QR code</h4>
+                <p>Il entre son nom et son numéro. C'est tout.</p>
+              </div>
+            </div>
+            <!-- Step 3: Leave -->
+            <div class="da-journey-step">
+              <div class="da-journey-icon" style="background:#FEF3C7; color:#D97706;">
+                <span class="material-symbols-outlined filled">coffee</span>
+              </div>
+              <div class="da-journey-text">
+                <div class="da-time">9h02</div>
+                <h4>Va prendre un café</h4>
+                <p>Pourquoi rester assis ? Il sait qu'il est 5ème.</p>
+              </div>
+            </div>
+            <!-- Step 4: Check phone -->
+            <div class="da-journey-step">
+              <div class="da-journey-icon" style="background:#E0F2FE; color:#0284C7;">
+                <span class="material-symbols-outlined">smartphone</span>
+              </div>
+              <div class="da-journey-text">
+                <div class="da-time">9h15</div>
+                <h4>Vérifie son téléphone</h4>
+                <p>Position #3 · ~15 min d'attente. Mise à jour en temps réel.</p>
+              </div>
+            </div>
+            <!-- Step 5: Notification -->
+            <div class="da-journey-step">
+              <div class="da-journey-icon" style="background:#D1FAE5; color:#059669;">
+                <span class="material-symbols-outlined filled">notifications_active</span>
+              </div>
+              <div class="da-journey-text">
+                <div class="da-time">9h28</div>
+                <h4>Reçoit l'alerte</h4>
+                <p>"C'est bientôt votre tour !" Il se dirige vers le cabinet.</p>
+              </div>
+            </div>
+            <!-- Step 6: Walk in -->
+            <div class="da-journey-step">
+              <div class="da-journey-icon" style="background:#ECFDF5; color:#059669;">
+                <span class="material-symbols-outlined filled">sentiment_satisfied</span>
+              </div>
+              <div class="da-journey-text">
+                <div class="da-time">9h32</div>
+                <h4>Entre détendu</h4>
+                <p>Pas de stress. Pas d'attente interminable. Juste un patient serein.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Doctor's Benefit -->
+        <div class="da-doctor">
+          <div class="da-doctor-title">Le résultat pour vous, docteur</div>
+          <div class="da-doctor-sub">Des patients détendus dès la porte du cabinet</div>
+          <div class="da-doctor-cards">
+            <div class="da-doctor-card">
+              <div class="da-doctor-card-icon">
+                <span class="material-symbols-outlined filled">mood</span>
+              </div>
+              <h4>Patients calmes</h4>
+              <p>Moins de stress, meilleures consultations</p>
+            </div>
+            <div class="da-doctor-card">
+              <div class="da-doctor-card-icon">
+                <span class="material-symbols-outlined filled">phone_disabled</span>
+              </div>
+              <h4>Zéro appels</h4>
+              <p>Plus de "c'est quand mon tour ?"</p>
+            </div>
+            <div class="da-doctor-card">
+              <div class="da-doctor-card-icon">
+                <span class="material-symbols-outlined filled">groups</span>
+              </div>
+              <h4>Salle vide</h4>
+              <p>Les patients attendent dehors, pas chez vous</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Setup Steps (compact) -->
+        <div class="da-setup">
+          <div class="da-setup-title">Installez BleSaf en 3 minutes</div>
+          <div class="da-setup-row">
+            <div class="da-setup-item">
+              <div class="da-setup-num">1</div>
+              <div class="da-setup-label">Inscrivez-vous</div>
+              <div class="da-setup-desc">2 minutes</div>
+            </div>
+            <div class="da-setup-item">
+              <div class="da-setup-num">2</div>
+              <div class="da-setup-label">Affichez le QR</div>
+              <div class="da-setup-desc">Imprimez-le</div>
+            </div>
+            <div class="da-setup-item">
+              <div class="da-setup-num">3</div>
+              <div class="da-setup-label">C'est parti</div>
+              <div class="da-setup-desc">Gérez votre file</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Testimonial -->
+        <div class="da-testimonial">
+          <div class="da-testimonial-quote" style="padding-left: 16px;">
+            Depuis que nous utilisons BleSaf, notre salle d'attente est transformée. Les patients sont plus calmes et mon équipe moins stressée.
+          </div>
+          <div class="da-testimonial-author">Dr. Mohamed Ben Ali</div>
+          <div class="da-testimonial-role">Médecin généraliste · Tunis</div>
+        </div>
+
+        <!-- Pricing -->
+        <div class="lp-pricing">
+          <div class="lp-pricing-title">Tarifs simples</div>
+          <div class="lp-pricing-sub">Pas de frais cachés. Annulez quand vous voulez.</div>
+          <div class="lp-pricing-cards">
+            <div class="lp-price-card">
+              <div class="lp-price-name">Mensuel</div>
+              <div class="lp-price-amount">65<span class="lp-price-period"> TND/mois</span></div>
+              <button class="lp-price-btn" style="background:#F1F5F9; color:#334155;">Choisir</button>
+            </div>
+            <div class="lp-price-card popular">
+              <div class="lp-price-badge">Populaire</div>
+              <div class="lp-price-name">Annuel</div>
+              <div class="lp-price-amount">650<span class="lp-price-period"> TND/an</span></div>
+              <div class="lp-price-note">2 mois offerts</div>
+              <button class="lp-price-btn" style="background:#0EA5E9; color:#FFF;">Choisir</button>
+            </div>
+          </div>
+          <div class="lp-trial-note">Premier mois gratuit pour démarrer</div>
+        </div>
+
+        <!-- FAQ -->
+        <div class="lp-faq">
+          <div class="lp-faq-title">Questions fréquentes</div>
+          <div class="lp-faq-item" onclick="this.classList.toggle('open')">
+            <div class="lp-faq-q">C'est compliqué à installer ?<span class="material-symbols-outlined">expand_more</span></div>
+            <div class="lp-faq-a">Non, 5 minutes suffisent. Vous imprimez le QR code, vous l'affichez, c'est prêt !</div>
+          </div>
+          <div class="lp-faq-item" onclick="this.classList.toggle('open')">
+            <div class="lp-faq-q">Mes patients âgés peuvent l'utiliser ?<span class="material-symbols-outlined">expand_more</span></div>
+            <div class="lp-faq-a">Oui ! Ils scannent le QR code avec leur téléphone, c'est tout. Pas besoin d'appli.</div>
+          </div>
+          <div class="lp-faq-item" onclick="this.classList.toggle('open')">
+            <div class="lp-faq-q">Je peux annuler quand je veux ?<span class="material-symbols-outlined">expand_more</span></div>
+            <div class="lp-faq-a">Oui, sans engagement. Annulez à tout moment depuis votre compte.</div>
+          </div>
+          <div class="lp-faq-item" onclick="this.classList.toggle('open')">
+            <div class="lp-faq-q">Plusieurs médecins dans un cabinet ?<span class="material-symbols-outlined">expand_more</span></div>
+            <div class="lp-faq-a">Oui ! Chaque médecin a sa propre file d'attente dans le même cabinet.</div>
+          </div>
+        </div>
+
+        <!-- CTA Footer -->
+        <div class="lp-footer-cta" style="background: linear-gradient(135deg, #0EA5E9, #0284C7);">
+          <div class="lp-footer-cta-title">Transformez votre salle d'attente</div>
+          <div class="lp-footer-cta-sub">Commencez gratuitement. Voyez la différence dès le premier jour.</div>
+          <button class="lp-footer-cta-btn" style="background:#FFF; color:#0284C7;">Commencer mon essai gratuit</button>
+        </div>
+
+        <div class="lp-footer">
+          <div class="lp-footer-brand">BleSAF</div>
+          <div class="lp-footer-copy">&copy; 2026 BleSaf</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ==========================================
+       DESIGN B: DUAL REALITY
+       ========================================== -->
+  <div class="design-container" id="design-b">
+    <div class="design-meta">
+      <h2>B. Double Réalité</h2>
+      <div class="philosophy">Parallax scrollytelling, photo sur photo</div>
+      <p>La photo « Avant » (salle d'attente bondée) reste fixe en arrière-plan. En scrollant, la photo « Après » (patient serein au café) monte et la recouvre. <strong>Le texte est toujours superposé sur les photos</strong> — aucun blanc ne brise l'immersion avant le CTA final.</p>
+      <p><strong>Innovation clé :</strong> Le scroll EST la transformation. L'utilisateur fait défiler du problème vers la solution — une expérience cinématographique qui raconte l'histoire sans un mot superflu.</p>
+      <div class="section-list">
+        <strong>Sections de la page :</strong><br>
+        1. Hero parallax (photo avant sticky → photo après par-dessus)<br>
+        2. CTA blanc (seul moment sans photo)<br>
+        3. Trois lignes de contraste<br>
+        4. Bande d'installation rapide<br>
+        5. Chiffres clés<br>
+        6. Tarifs<br>
+        7. FAQ + CTA final
+      </div>
+      <div>
+        <span class="tag tag-blue">Parallax</span>
+        <span class="tag tag-purple">Scrollytelling</span>
+        <span class="tag tag-green">Immersif</span>
+        <span class="tag tag-amber">Cinématique</span>
+      </div>
+    </div>
+
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+
+        <!-- Nav -->
+        <div class="lp-nav">
+          <div class="lp-nav-logo">Ble<span>SAF</span></div>
+          <button class="lp-nav-cta" style="background:#0EA5E9; color:#FFF;">Essai gratuit</button>
+        </div>
+
+        <!-- Hero: Parallax Scrollytelling -->
+        <div class="db-hero">
+          <div class="db-hero-scene">
+            <!-- Photo 1: Before — stays sticky behind -->
+            <div class="db-hero-photo-before">
+              <img src="Without-BleSaf.png" alt="Sans BleSaf">
+              <div class="db-hero-photo-before-overlay"></div>
+              <div class="db-hero-photo-text">
+                <span class="db-hero-badge db-hero-badge-before">Aujourd'hui</span>
+                <h2>Salle bondée, patients <em>stressés</em></h2>
+                <p>« C'est quand mon tour ? » — la question qui revient 100 fois par jour</p>
+              </div>
+              <div class="db-hero-scroll-cue">
+                <span>Défilez</span>
+                <span class="material-symbols-outlined">expand_more</span>
+              </div>
+            </div>
+
+            <!-- Photo 2: After — scrolls up, covers the before -->
+            <div class="db-hero-photo-after">
+              <img src="With-BleSaf.png" alt="Avec BleSaf">
+              <div class="db-hero-photo-after-overlay"></div>
+              <div class="db-hero-photo-text">
+                <span class="db-hero-badge db-hero-badge-after">Avec BleSaf</span>
+                <h2>Patients <em>sereins</em>, qui attendent où ils veulent</h2>
+                <p>Position en temps réel sur leur téléphone. Notification automatique quand c'est leur tour.</p>
+              </div>
+              <div class="db-hero-photo-after-bottom">
+                <p>Un simple QR code à l'accueil transforme l'expérience d'attente</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- CTA: white section at the very end -->
+          <div class="db-hero-cta">
+            <h3>QR code, suivi en temps réel, c'est tout.</h3>
+            <p>Pas d'app à télécharger. Vos patients scannent, suivent leur position, et arrivent détendus.</p>
+            <button class="db-hero-btn">Essayez gratuitement 30 jours</button><br>
+            <button class="db-hero-btn-secondary">Voir la démo</button>
+            <div class="db-hero-trust">Aucune carte bancaire requise</div>
+          </div>
+        </div>
+
+        <!-- Contrast Rows -->
+        <div class="db-contrast">
+          <div class="db-contrast-title">Deux réalités. Un seul choix.</div>
+          <div class="db-contrast-labels">
+            <div class="db-contrast-label db-contrast-label-bad">Avant</div>
+            <div class="db-contrast-label db-contrast-label-good">Avec BleSaf</div>
+          </div>
+
+          <!-- Row 1: Waiting -->
+          <div class="db-row">
+            <div class="db-row-left">
+              <div class="db-row-icon db-row-icon-bad">
+                <span class="material-symbols-outlined filled">event_seat</span>
+              </div>
+              <div class="db-row-text db-row-text-bad">Patient coincé dans une salle bondée, sans savoir quand ce sera son tour</div>
+            </div>
+            <div class="db-row-right">
+              <div class="db-row-icon db-row-icon-good">
+                <span class="material-symbols-outlined filled">coffee</span>
+              </div>
+              <div class="db-row-text db-row-text-good">Patient au café, position #3 sur son téléphone, ~15 min d'attente</div>
+            </div>
+          </div>
+
+          <!-- Row 2: Communication -->
+          <div class="db-row">
+            <div class="db-row-left">
+              <div class="db-row-icon db-row-icon-bad">
+                <span class="material-symbols-outlined filled">call</span>
+              </div>
+              <div class="db-row-text db-row-text-bad">Appels incessants : "Docteur, c'est quand mon tour ?"</div>
+            </div>
+            <div class="db-row-right">
+              <div class="db-row-icon db-row-icon-good">
+                <span class="material-symbols-outlined filled">notifications_active</span>
+              </div>
+              <div class="db-row-text db-row-text-good">Notification automatique quand le tour approche. Zéro appel.</div>
+            </div>
+          </div>
+
+          <!-- Row 3: Consultation -->
+          <div class="db-row">
+            <div class="db-row-left">
+              <div class="db-row-icon db-row-icon-bad">
+                <span class="material-symbols-outlined filled">mood_bad</span>
+              </div>
+              <div class="db-row-text db-row-text-bad">Patient stressé qui entre après 2 heures d'attente frustrante</div>
+            </div>
+            <div class="db-row-right">
+              <div class="db-row-icon db-row-icon-good">
+                <span class="material-symbols-outlined filled">mood</span>
+              </div>
+              <div class="db-row-text db-row-text-good">Patient détendu qui entre au bon moment, prêt pour sa consultation</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- One Minute Setup -->
+        <div class="db-setup">
+          <div class="db-setup-title">Prêt en 3 minutes</div>
+          <div class="db-setup-strip">
+            <div class="db-setup-step">
+              <div class="db-setup-step-num">1</div>
+              <div class="db-setup-step-text">Inscription</div>
+            </div>
+            <span class="db-setup-arrow material-symbols-outlined">arrow_forward</span>
+            <div class="db-setup-step">
+              <div class="db-setup-step-num">2</div>
+              <div class="db-setup-step-text">QR code</div>
+            </div>
+            <span class="db-setup-arrow material-symbols-outlined">arrow_forward</span>
+            <div class="db-setup-step">
+              <div class="db-setup-step-num">3</div>
+              <div class="db-setup-step-text">C'est parti</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Key Numbers -->
+        <div class="db-numbers">
+          <div class="db-number-card">
+            <div class="db-number-value">2</div>
+            <div class="db-number-label">min pour s'inscrire</div>
+          </div>
+          <div class="db-number-card">
+            <div class="db-number-value">30</div>
+            <div class="db-number-label">jours gratuits</div>
+          </div>
+          <div class="db-number-card">
+            <div class="db-number-value">0</div>
+            <div class="db-number-label">app à installer</div>
+          </div>
+        </div>
+
+        <!-- Pricing -->
+        <div class="lp-pricing">
+          <div class="lp-pricing-title">Tarifs simples</div>
+          <div class="lp-pricing-sub">Pas de frais cachés. Annulez quand vous voulez.</div>
+          <div class="lp-pricing-cards">
+            <div class="lp-price-card">
+              <div class="lp-price-name">Mensuel</div>
+              <div class="lp-price-amount">65<span class="lp-price-period"> TND/mois</span></div>
+              <button class="lp-price-btn" style="background:#F1F5F9; color:#334155;">Choisir</button>
+            </div>
+            <div class="lp-price-card popular">
+              <div class="lp-price-badge">Populaire</div>
+              <div class="lp-price-name">Annuel</div>
+              <div class="lp-price-amount">650<span class="lp-price-period"> TND/an</span></div>
+              <div class="lp-price-note">2 mois offerts</div>
+              <button class="lp-price-btn" style="background:#0EA5E9; color:#FFF;">Choisir</button>
+            </div>
+          </div>
+          <div class="lp-trial-note">Premier mois gratuit pour démarrer</div>
+        </div>
+
+        <!-- FAQ -->
+        <div class="lp-faq">
+          <div class="lp-faq-title">Questions fréquentes</div>
+          <div class="lp-faq-item" onclick="this.classList.toggle('open')">
+            <div class="lp-faq-q">C'est compliqué à installer ?<span class="material-symbols-outlined">expand_more</span></div>
+            <div class="lp-faq-a">Non, 5 minutes suffisent. Vous imprimez le QR code, vous l'affichez, c'est prêt !</div>
+          </div>
+          <div class="lp-faq-item" onclick="this.classList.toggle('open')">
+            <div class="lp-faq-q">Mes patients âgés peuvent l'utiliser ?<span class="material-symbols-outlined">expand_more</span></div>
+            <div class="lp-faq-a">Oui ! Ils scannent le QR code avec leur téléphone, c'est tout. Pas besoin d'appli.</div>
+          </div>
+          <div class="lp-faq-item" onclick="this.classList.toggle('open')">
+            <div class="lp-faq-q">Je peux annuler quand je veux ?<span class="material-symbols-outlined">expand_more</span></div>
+            <div class="lp-faq-a">Oui, sans engagement. Annulez à tout moment depuis votre compte.</div>
+          </div>
+          <div class="lp-faq-item" onclick="this.classList.toggle('open')">
+            <div class="lp-faq-q">Plusieurs médecins dans un cabinet ?<span class="material-symbols-outlined">expand_more</span></div>
+            <div class="lp-faq-a">Oui ! Chaque médecin a sa propre file d'attente dans le même cabinet.</div>
+          </div>
+        </div>
+
+        <!-- CTA Footer -->
+        <div class="lp-footer-cta" style="background: linear-gradient(135deg, #0EA5E9, #0284C7);">
+          <div class="lp-footer-cta-title">Libérez vos patients de l'attente</div>
+          <div class="lp-footer-cta-sub">30 jours gratuits. Aucune carte requise.</div>
+          <button class="lp-footer-cta-btn" style="background:#FFF; color:#0284C7;">Commencer mon essai gratuit</button>
+        </div>
+
+        <div class="lp-footer">
+          <div class="lp-footer-brand">BleSAF</div>
+          <div class="lp-footer-copy">&copy; 2026 BleSaf</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ==========================================
+       DESIGN C: PRODUCT DEMO FIRST
+       ========================================== -->
+  <div class="design-container" id="design-c">
+    <div class="design-meta">
+      <h2>C. Démo Produit d'abord</h2>
+      <div class="philosophy">Montrer, pas expliquer — texte minimal, produit maximal</div>
+      <p>Au lieu d'expliquer ce que BleSaf fait, ce design <strong>le montre en action</strong>. Le hero présente une maquette live du téléphone du patient — position, temps d'attente, suivi du parcours et notification. Le produit EST l'explication.</p>
+      <p><strong>Innovation clé :</strong> Aucune section "Comment ça marche". La démo produit dans le hero la remplace entièrement. Une mini-maquette du tableau de bord montre ensuite le côté cabinet. Texte minimal, impact visuel maximal.</p>
+      <div class="section-list">
+        <strong>Sections de la page :</strong><br>
+        1. Hero sombre avec démo produit live<br>
+        2. Trois propositions de valeur (côté patient)<br>
+        3. Installation cabinet avec maquette tableau de bord<br>
+        4. Preuve sociale<br>
+        5. Tarifs<br>
+        6. FAQ<br>
+        7. CTA final
+      </div>
+      <div>
+        <span class="tag tag-purple">Hero Produit</span>
+        <span class="tag tag-blue">Démo Live</span>
+        <span class="tag tag-green">Aperçu Dashboard</span>
+        <span class="tag tag-amber">Typographie Bold</span>
+      </div>
+    </div>
+
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+
+        <!-- Nav -->
+        <div class="lp-nav" style="background: rgba(15,23,42,0.95); border-bottom-color: rgba(255,255,255,0.1);">
+          <div class="lp-nav-logo" style="color:#E2E8F0;">Ble<span>SAF</span></div>
+          <button class="lp-nav-cta" style="background:#0EA5E9; color:#FFF;">Essai gratuit</button>
+        </div>
+
+        <!-- Dark Hero with Product Demo -->
+        <div class="dc-hero">
+          <div class="dc-hero-headline">Vos patients savent <em>quand c'est leur tour</em></div>
+          <div class="dc-hero-sub">Position en temps réel. Temps d'attente estimé. Alertes automatiques.</div>
+
+          <!-- Animated phone mockup — patient journey #5 → called in -->
+          <div class="dc-phone-demo" id="dc-anim-phone">
+            <div class="dc-phone-notch"></div>
+            <div class="dc-demo-screen" id="dc-anim-screen">
+              <!-- Toast notification (slides in on transitions) -->
+              <div class="dc-demo-toast" id="dc-anim-toast">
+                <span class="material-symbols-outlined filled" style="color:#34D399">arrow_upward</span>
+                <span id="dc-anim-toast-text"></span>
+              </div>
+
+              <!-- Normal content (hidden on final state) -->
+              <div class="dc-demo-inner" id="dc-anim-inner">
+                <div class="dc-demo-live">
+                  <div class="dc-demo-live-dot"></div>
+                  <span class="dc-demo-live-text">En direct</span>
+                </div>
+                <div class="dc-demo-position">
+                  <div class="dc-demo-pos-label" id="dc-anim-pos-label">Votre position</div>
+                  <div class="dc-demo-pos-num" id="dc-anim-pos">#5</div>
+                </div>
+                <div class="dc-demo-time-card" id="dc-anim-time-card">
+                  <div class="dc-demo-time-label" id="dc-anim-time-label">Temps d'attente estimé</div>
+                  <div class="dc-demo-time-val" id="dc-anim-time">~25 min</div>
+                </div>
+                <div class="dc-demo-journey" id="dc-anim-journey">
+                  <!-- Journey dots injected by JS -->
+                </div>
+                <div class="dc-demo-status" id="dc-anim-status"></div>
+              </div>
+
+              <!-- "Your turn" overlay -->
+              <div class="dc-demo-final" id="dc-anim-final">
+                <div class="dc-demo-final-icon">
+                  <span class="material-symbols-outlined filled">celebration</span>
+                </div>
+                <div class="dc-demo-final-title">C'est votre tour !</div>
+                <div class="dc-demo-final-sub">Le Dr. Ben Ali vous attend.<br>Dirigez-vous vers la salle.</div>
+              </div>
+            </div>
+          </div>
+          <div class="dc-tooltip">
+            <span class="dc-tooltip-text" id="dc-anim-tooltip"></span>
+          </div>
+
+          <div class="dc-hero-cta-row">
+            <button class="dc-hero-btn">Essayez gratuitement 30 jours</button>
+            <div class="dc-hero-trust">Aucune carte bancaire · Aucune appli à télécharger</div>
+          </div>
+        </div>
+
+        <!-- Value Props -->
+        <div class="dc-values">
+          <div class="dc-values-title">Ce que vos patients reçoivent</div>
+          <div class="dc-values-grid">
+            <div class="dc-value-card">
+              <div class="dc-value-icon" style="background:#E0F2FE; color:#0284C7;">
+                <span class="material-symbols-outlined filled">pin_drop</span>
+              </div>
+              <div class="dc-value-label">Position</div>
+              <div class="dc-value-desc">En temps réel dans la file</div>
+            </div>
+            <div class="dc-value-card">
+              <div class="dc-value-icon" style="background:#FEF3C7; color:#D97706;">
+                <span class="material-symbols-outlined filled">schedule</span>
+              </div>
+              <div class="dc-value-label">Estimation</div>
+              <div class="dc-value-desc">Temps d'attente calculé</div>
+            </div>
+            <div class="dc-value-card">
+              <div class="dc-value-icon" style="background:#D1FAE5; color:#059669;">
+                <span class="material-symbols-outlined filled">notifications_active</span>
+              </div>
+              <div class="dc-value-label">Alertes</div>
+              <div class="dc-value-desc">Notifié quand c'est le tour</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Clinic Setup with Dashboard -->
+        <div class="dc-clinic">
+          <div class="dc-clinic-title">Côté cabinet : simple et puissant</div>
+          <div class="dc-clinic-sub">Installez en 2 minutes. Gérez tout depuis votre tableau de bord.</div>
+          <div class="dc-dashboard">
+            <div class="dc-dash-header">
+              <div class="dc-dash-title">Cabinet Dr. Ben Ali</div>
+              <div class="dc-dash-badge">En ligne</div>
+            </div>
+            <div class="dc-dash-body">
+              <div class="dc-dash-stats">
+                <div class="dc-dash-stat">
+                  <div class="dc-dash-stat-val">5</div>
+                  <div class="dc-dash-stat-label">En attente</div>
+                </div>
+                <div class="dc-dash-stat">
+                  <div class="dc-dash-stat-val">1</div>
+                  <div class="dc-dash-stat-label">En consultation</div>
+                </div>
+                <div class="dc-dash-stat">
+                  <div class="dc-dash-stat-val">12</div>
+                  <div class="dc-dash-stat-label">Vus aujourd'hui</div>
+                </div>
+              </div>
+              <div class="dc-dash-queue">
+                <div class="dc-dash-patient">
+                  <div class="dc-dash-patient-pos">#4</div>
+                  <div class="dc-dash-patient-name">Maya T.</div>
+                  <div class="dc-dash-patient-status dc-dash-status-notified">Notifié</div>
+                </div>
+                <div class="dc-dash-patient">
+                  <div class="dc-dash-patient-pos">#5</div>
+                  <div class="dc-dash-patient-name">Sami B.</div>
+                  <div class="dc-dash-patient-status dc-dash-status-waiting">En attente</div>
+                </div>
+              </div>
+              <button class="dc-dash-btn">Appeler suivant</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Social Proof -->
+        <div class="dc-proof">
+          <div class="dc-proof-quote">"Notre salle d'attente est transformée. Les patients sont plus calmes et mon équipe moins stressée."</div>
+          <div class="dc-proof-author">Dr. Mohamed Ben Ali</div>
+          <div class="dc-proof-role">Médecin généraliste · Tunis</div>
+          <div class="dc-proof-count">Rejoint par <strong>10+ cabinets</strong> en Tunisie</div>
+        </div>
+
+        <!-- Pricing -->
+        <div class="lp-pricing">
+          <div class="lp-pricing-title">Tarifs simples</div>
+          <div class="lp-pricing-sub">Pas de frais cachés. Annulez quand vous voulez.</div>
+          <div class="lp-pricing-cards">
+            <div class="lp-price-card">
+              <div class="lp-price-name">Mensuel</div>
+              <div class="lp-price-amount">65<span class="lp-price-period"> TND/mois</span></div>
+              <button class="lp-price-btn" style="background:#F1F5F9; color:#334155;">Choisir</button>
+            </div>
+            <div class="lp-price-card popular">
+              <div class="lp-price-badge">Populaire</div>
+              <div class="lp-price-name">Annuel</div>
+              <div class="lp-price-amount">650<span class="lp-price-period"> TND/an</span></div>
+              <div class="lp-price-note">2 mois offerts</div>
+              <button class="lp-price-btn" style="background:#0EA5E9; color:#FFF;">Choisir</button>
+            </div>
+          </div>
+          <div class="lp-trial-note">Premier mois gratuit pour démarrer</div>
+        </div>
+
+        <!-- FAQ -->
+        <div class="lp-faq">
+          <div class="lp-faq-title">Questions fréquentes</div>
+          <div class="lp-faq-item" onclick="this.classList.toggle('open')">
+            <div class="lp-faq-q">C'est compliqué à installer ?<span class="material-symbols-outlined">expand_more</span></div>
+            <div class="lp-faq-a">Non, 5 minutes suffisent. Vous imprimez le QR code, vous l'affichez, c'est prêt !</div>
+          </div>
+          <div class="lp-faq-item" onclick="this.classList.toggle('open')">
+            <div class="lp-faq-q">Mes patients âgés peuvent l'utiliser ?<span class="material-symbols-outlined">expand_more</span></div>
+            <div class="lp-faq-a">Oui ! Ils scannent le QR code avec leur téléphone, c'est tout. Pas besoin d'appli.</div>
+          </div>
+          <div class="lp-faq-item" onclick="this.classList.toggle('open')">
+            <div class="lp-faq-q">Je peux annuler quand je veux ?<span class="material-symbols-outlined">expand_more</span></div>
+            <div class="lp-faq-a">Oui, sans engagement. Annulez à tout moment depuis votre compte.</div>
+          </div>
+          <div class="lp-faq-item" onclick="this.classList.toggle('open')">
+            <div class="lp-faq-q">Plusieurs médecins dans un cabinet ?<span class="material-symbols-outlined">expand_more</span></div>
+            <div class="lp-faq-a">Oui ! Chaque médecin a sa propre file d'attente dans le même cabinet.</div>
+          </div>
+        </div>
+
+        <!-- CTA Footer -->
+        <div class="lp-footer-cta" style="background: #0F172A;">
+          <div class="lp-footer-cta-title">Prêt à transformer l'attente ?</div>
+          <div class="lp-footer-cta-sub">30 jours gratuits. Résultat visible dès le premier patient.</div>
+          <button class="lp-footer-cta-btn" style="background:#0EA5E9; color:#FFF;">Commencer mon essai gratuit</button>
+        </div>
+
+        <div class="lp-footer">
+          <div class="lp-footer-brand">BleSAF</div>
+          <div class="lp-footer-copy">&copy; 2026 BleSaf</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <script>
+    function showDesign(id) {
+      document.querySelectorAll('.design-container').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById('design-' + id).classList.add('active');
+      const tabs = document.querySelectorAll('.tab-btn');
+      const index = id === 'a' ? 0 : id === 'b' ? 1 : 2;
+      tabs[index].classList.add('active');
+      // Restart crossfade when tab A is shown
+      if (id === 'a') startDaCrossfade();
+    }
+
+    /* =============================================
+       OPTION A — Crossfade before/after hero
+       ============================================= */
+    (function() {
+      let daState = 0; // 0 = before, 1 = after
+      let daInterval = null;
+
+      window.setDaCrossfade = function(state) {
+        daState = state;
+        const imgBefore = document.getElementById('da-img-before');
+        const imgAfter = document.getElementById('da-img-after');
+        const textBefore = document.getElementById('da-text-before');
+        const textAfter = document.getElementById('da-text-after');
+        const badge = document.getElementById('da-badge');
+        const dot0 = document.getElementById('da-dot-0');
+        const dot1 = document.getElementById('da-dot-1');
+
+        if (state === 0) {
+          imgBefore.className = 'da-cf-visible';
+          imgAfter.className = 'da-cf-hidden';
+          textBefore.className = 'da-hero-cf-text da-cf-visible';
+          textAfter.className = 'da-hero-cf-text da-cf-hidden';
+          badge.className = 'da-hero-cf-badge da-badge-before';
+          badge.textContent = 'SANS BLESAF';
+          dot0.className = 'da-hero-cf-dot da-dot-active';
+          dot1.className = 'da-hero-cf-dot';
+        } else {
+          imgBefore.className = 'da-cf-hidden';
+          imgAfter.className = 'da-cf-visible';
+          textBefore.className = 'da-hero-cf-text da-cf-hidden';
+          textAfter.className = 'da-hero-cf-text da-cf-visible';
+          badge.className = 'da-hero-cf-badge da-badge-after';
+          badge.textContent = 'AVEC BLESAF';
+          dot0.className = 'da-hero-cf-dot';
+          dot1.className = 'da-hero-cf-dot da-dot-active';
+        }
+
+        // Reset auto-cycle timer on manual click
+        if (daInterval) {
+          clearInterval(daInterval);
+          daInterval = setInterval(() => {
+            daState = daState === 0 ? 1 : 0;
+            setDaCrossfade(daState);
+          }, 3500);
+        }
+      };
+
+      window.startDaCrossfade = function() {
+        if (daInterval) clearInterval(daInterval);
+        daState = 0;
+        setDaCrossfade(0);
+        daInterval = setInterval(() => {
+          daState = daState === 0 ? 1 : 0;
+          setDaCrossfade(daState);
+        }, 3500);
+      };
+
+      // Auto-start
+      startDaCrossfade();
+    })();
+
+    /* =============================================
+       OPTION C — Animated patient journey
+       ============================================= */
+    (function() {
+      const STATES = [
+        {
+          pos: '#5', time: '~25 min', ahead: 4,
+          bg: 'linear-gradient(180deg, #EFF6FF 0%, #FFFFFF 100%)',
+          posColor: '#3B82F6', timeCardBg: '#EFF6FF', timeLabelColor: '#2563EB', timeColor: '#0F172A',
+          status: 'Vous êtes enregistré dans le saf',
+          statusColor: '#3B82F6',
+          toast: null,
+          tooltip: 'Sami vient de s\'enregistrer. Il est 5ème dans la file.',
+          vibrate: false
+        },
+        {
+          pos: '#4', time: '~20 min', ahead: 3,
+          bg: 'linear-gradient(180deg, #EFF6FF 0%, #FFFFFF 100%)',
+          posColor: '#0EA5E9', timeCardBg: '#F0F9FF', timeLabelColor: '#0284C7', timeColor: '#0F172A',
+          status: '3 personnes devant vous',
+          statusColor: '#0EA5E9',
+          toast: 'Vous avez avancé d\'une place !',
+          toastIcon: 'arrow_upward', toastIconColor: '#34D399',
+          tooltip: 'Un patient est passé. Sami avance automatiquement.',
+          vibrate: true
+        },
+        {
+          pos: '#3', time: '~15 min', ahead: 2,
+          bg: 'linear-gradient(180deg, #F0FDFA 0%, #FFFFFF 100%)',
+          posColor: '#0D9488', timeCardBg: '#F0FDFA', timeLabelColor: '#0F766E', timeColor: '#0F172A',
+          status: 'Vous avez le temps pour un café ☕',
+          statusColor: '#0D9488',
+          toast: 'Encore une place de gagnée !',
+          toastIcon: 'arrow_upward', toastIconColor: '#34D399',
+          tooltip: 'Sami est au café. Il suit sa position sur son téléphone.',
+          vibrate: true
+        },
+        {
+          pos: '#2', time: '~8 min', ahead: 1,
+          bg: 'linear-gradient(180deg, #FFFBEB 0%, #FFFFFF 100%)',
+          posColor: '#D97706', timeCardBg: '#FFFBEB', timeLabelColor: '#B45309', timeColor: '#0F172A',
+          status: 'Préparez-vous à revenir',
+          statusColor: '#D97706',
+          toast: 'Plus qu\'une personne devant vous',
+          toastIcon: 'directions_walk', toastIconColor: '#FBBF24',
+          tooltip: 'Sami commence à se rapprocher du cabinet.',
+          vibrate: true
+        },
+        {
+          pos: '#1', time: '~3 min', ahead: 0,
+          bg: 'linear-gradient(180deg, #ECFDF5 0%, #F0FDF4 100%)',
+          posColor: '#059669', timeCardBg: '#ECFDF5', timeLabelColor: '#047857', timeColor: '#065F46',
+          status: 'C\'est bientôt votre tour !',
+          statusColor: '#059669',
+          toast: '🔔 Préparez-vous, c\'est imminent !',
+          toastIcon: 'notifications_active', toastIconColor: '#10B981',
+          tooltip: 'Alerte envoyée ! Sami se dirige vers le cabinet.',
+          vibrate: 'strong'
+        },
+        {
+          pos: 'final', time: null, ahead: -1,
+          bg: 'linear-gradient(135deg, #059669 0%, #10B981 50%, #34D399 100%)',
+          toast: null,
+          tooltip: 'Sami entre détendu. Pas de stress, pas d\'attente.',
+          vibrate: 'strong'
+        }
+      ];
+
+      let currentState = 0;
+      let animInterval = null;
+      let toastTimeout = null;
+
+      const phone     = document.getElementById('dc-anim-phone');
+      const screen    = document.getElementById('dc-anim-screen');
+      const inner     = document.getElementById('dc-anim-inner');
+      const posEl     = document.getElementById('dc-anim-pos');
+      const posLabel  = document.getElementById('dc-anim-pos-label');
+      const timeCard  = document.getElementById('dc-anim-time-card');
+      const timeLabel = document.getElementById('dc-anim-time-label');
+      const timeEl    = document.getElementById('dc-anim-time');
+      const journey   = document.getElementById('dc-anim-journey');
+      const statusEl  = document.getElementById('dc-anim-status');
+      const toast     = document.getElementById('dc-anim-toast');
+      const toastText = document.getElementById('dc-anim-toast-text');
+      const finalEl   = document.getElementById('dc-anim-final');
+      const tooltip   = document.getElementById('dc-anim-tooltip');
+
+      function buildJourney(ahead) {
+        let html = '';
+        // "You" icon
+        html += '<div class="dc-demo-j-icon dc-demo-j-you"><span class="material-symbols-outlined" style="font-size:13px">person</span></div>';
+        // Lines + seats ahead
+        const totalSlots = 4;
+        const done = totalSlots - 1 - ahead;
+        for (let i = 0; i < totalSlots - 1; i++) {
+          const lineDone = i < done;
+          const isAhead = i >= done && i < done + ahead;
+          html += '<div class="dc-demo-j-line' + (lineDone ? ' done' : '') + '"></div>';
+          if (isAhead) {
+            html += '<div class="dc-demo-j-icon dc-demo-j-ahead"><span class="material-symbols-outlined" style="font-size:12px">person</span></div>';
+          } else if (i < done) {
+            html += '<div class="dc-demo-j-icon dc-demo-j-done"><span class="material-symbols-outlined" style="font-size:12px">check</span></div>';
+          }
+        }
+        // Final line + door
+        html += '<div class="dc-demo-j-line' + (ahead === 0 ? ' done' : '') + '"></div>';
+        html += '<div class="dc-demo-j-icon dc-demo-j-door"><span class="material-symbols-outlined" style="font-size:13px">door_front</span></div>';
+        return html;
+      }
+
+      function showToast(text, icon, iconColor) {
+        if (toastTimeout) clearTimeout(toastTimeout);
+        const toastIcon = toast.querySelector('.material-symbols-outlined');
+        toastIcon.textContent = icon || 'arrow_upward';
+        toastIcon.style.color = iconColor || '#34D399';
+        toastText.textContent = text;
+        toast.classList.add('show');
+        toastTimeout = setTimeout(() => toast.classList.remove('show'), 2200);
+      }
+
+      function hideToast() {
+        toast.classList.remove('show');
+      }
+
+      function applyState(idx) {
+        const s = STATES[idx];
+
+        // Vibrate
+        if (s.vibrate) {
+          phone.classList.remove('vibrate', 'vibrate-strong');
+          void phone.offsetWidth; // reflow
+          phone.classList.add(s.vibrate === 'strong' ? 'vibrate-strong' : 'vibrate');
+        }
+
+        // Background
+        screen.style.background = s.bg;
+
+        // Toast
+        if (s.toast) {
+          setTimeout(() => showToast(s.toast, s.toastIcon, s.toastIconColor), 200);
+        } else {
+          hideToast();
+        }
+
+        // Tooltip below phone
+        tooltip.classList.remove('show');
+        setTimeout(() => {
+          tooltip.textContent = s.tooltip;
+          tooltip.classList.add('show');
+        }, 400);
+
+        // Final state
+        if (s.pos === 'final') {
+          inner.style.opacity = '0';
+          setTimeout(() => finalEl.classList.add('show'), 300);
+          return;
+        }
+
+        // Normal states
+        finalEl.classList.remove('show');
+        inner.style.opacity = '1';
+
+        // Position number with pop animation
+        posEl.textContent = s.pos;
+        posEl.style.color = s.posColor;
+        posEl.classList.remove('pop');
+        void posEl.offsetWidth;
+        posEl.classList.add('pop');
+
+        // Time card
+        timeCard.style.background = s.timeCardBg;
+        timeLabel.style.color = s.timeLabelColor;
+        timeEl.style.color = s.timeColor;
+        timeEl.textContent = s.time;
+
+        // Status message
+        statusEl.textContent = s.status;
+        statusEl.style.color = s.statusColor;
+
+        // Journey dots
+        journey.innerHTML = buildJourney(s.ahead);
+      }
+
+      function nextState() {
+        currentState = (currentState + 1) % STATES.length;
+        applyState(currentState);
+      }
+
+      function startAnim() {
+        currentState = 0;
+        applyState(0);
+        animInterval = setInterval(nextState, 3200);
+      }
+
+      // Init on load
+      startAnim();
+
+      // Restart animation when tab C is shown
+      const origShowDesign = window.showDesign;
+      window.showDesign = function(id) {
+        origShowDesign(id);
+        if (id === 'c') {
+          clearInterval(animInterval);
+          startAnim();
+        }
+      };
+    })();
+  </script>
+
+</body>
+</html>

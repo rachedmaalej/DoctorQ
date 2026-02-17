@@ -30,14 +30,13 @@ import {
   upgradeToActive,
   updateClinicInfo,
 } from '../services/adminService.js';
-import { initPayment, getPaymentDetails } from '../lib/konnect.js';
+import { initPayment, getPaymentDetails } from '../lib/payment/index.js';
+import { brand } from '../lib/brand.js';
+import { logger } from '../lib/logger.js';
 
 const router = Router();
 
-const ADMIN_EMAILS = [
-  'admin@doctorq.tn',
-  'rached@doctorq.tn',
-];
+export const ADMIN_EMAILS = brand.adminEmails;
 
 function isAdmin(req: AuthRequest, res: Response, next: () => void) {
   const clinicEmail = req.clinic?.email;
@@ -56,7 +55,7 @@ router.get('/metrics', authMiddleware, isAdmin, async (_req: AuthRequest, res: R
     const metrics = await getAdminMetrics();
     res.json({ data: metrics });
   } catch (error) {
-    console.error('Error fetching admin metrics:', error);
+    logger.error({ err: error }, "Error fetching admin metrics");
     res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch admin metrics' } });
   }
 });
@@ -69,7 +68,7 @@ router.get('/metrics/trends', authMiddleware, isAdmin, async (req: AuthRequest, 
     const metrics = await getAdminMetricsWithTrends(period);
     res.json({ data: metrics });
   } catch (error) {
-    console.error('Error fetching admin metrics with trends:', error);
+    logger.error({ err: error }, "Error fetching admin metrics with trends");
     res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch admin metrics' } });
   }
 });
@@ -81,7 +80,7 @@ router.get('/clinics', authMiddleware, isAdmin, async (_req: AuthRequest, res: R
     const clinics = await getClinicHealthList();
     res.json({ data: clinics });
   } catch (error) {
-    console.error('Error fetching clinic health:', error);
+    logger.error({ err: error }, "Error fetching clinic health");
     res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch clinic health data' } });
   }
 });
@@ -96,7 +95,7 @@ router.get('/clinics/:id', authMiddleware, isAdmin, async (req: AuthRequest, res
     if (error.code === 'P2025') {
       return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Clinic not found' } });
     }
-    console.error('Error fetching clinic details:', error);
+    logger.error({ err: error }, "Error fetching clinic details");
     res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch clinic details' } });
   }
 });
@@ -128,7 +127,7 @@ router.post('/clinics', authMiddleware, isAdmin, async (req: AuthRequest, res: R
     if (error.name === 'ZodError') {
       return res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    console.error('Error creating clinic:', error);
+    logger.error({ err: error }, "Error creating clinic");
     res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to create clinic' } });
   }
 });
@@ -144,7 +143,7 @@ router.patch('/clinics/:id/status', authMiddleware, isAdmin, async (req: AuthReq
     if (error.name === 'ZodError') {
       return res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: 'Invalid input' } });
     }
-    console.error('Error updating clinic status:', error);
+    logger.error({ err: error }, "Error updating clinic status");
     res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to update clinic status' } });
   }
 });
@@ -175,7 +174,7 @@ router.patch('/clinics/:id', authMiddleware, isAdmin, async (req: AuthRequest, r
     if (error.name === 'ZodError') {
       return res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    console.error('Error updating clinic info:', error);
+    logger.error({ err: error }, "Error updating clinic info");
     res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to update clinic info' } });
   }
 });
@@ -191,7 +190,7 @@ router.post('/clinics/:id/reset-password', authMiddleware, isAdmin, async (req: 
     if (error.name === 'ZodError') {
       return res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: 'Invalid input' } });
     }
-    console.error('Error resetting password:', error);
+    logger.error({ err: error }, "Error resetting password");
     res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to reset password' } });
   }
 });
@@ -206,7 +205,7 @@ router.delete('/clinics/:id', authMiddleware, isAdmin, async (req: AuthRequest, 
     if (error.code === 'P2025') {
       return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Clinic not found' } });
     }
-    console.error('Error deleting clinic:', error);
+    logger.error({ err: error }, "Error deleting clinic");
     res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to delete clinic' } });
   }
 });
@@ -247,7 +246,7 @@ router.post('/clinics/:id/impersonate', authMiddleware, isAdmin, async (req: Aut
     if (error.code === 'P2025') {
       return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Clinic not found' } });
     }
-    console.error('Error impersonating clinic:', error);
+    logger.error({ err: error }, "Error impersonating clinic");
     res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to impersonate clinic' } });
   }
 });
@@ -274,7 +273,7 @@ router.post('/clinics/:id/payments', authMiddleware, isAdmin, async (req: AuthRe
     if (error.name === 'ZodError') {
       return res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    console.error('Error recording payment:', error);
+    logger.error({ err: error }, "Error recording payment");
     res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to record payment' } });
   }
 });
@@ -286,7 +285,7 @@ router.get('/clinics/:id/payments', authMiddleware, isAdmin, async (req: AuthReq
     const payments = await getClinicPayments(req.params.id);
     res.json({ data: payments });
   } catch (error) {
-    console.error('Error fetching payments:', error);
+    logger.error({ err: error }, "Error fetching payments");
     res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch payments' } });
   }
 });
@@ -298,7 +297,7 @@ router.get('/subscription-metrics', authMiddleware, isAdmin, async (_req: AuthRe
     const metrics = await getSubscriptionMetrics();
     res.json({ data: metrics });
   } catch (error) {
-    console.error('Error fetching subscription metrics:', error);
+    logger.error({ err: error }, "Error fetching subscription metrics");
     res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch subscription metrics' } });
   }
 });
@@ -310,7 +309,7 @@ router.get('/onboarding-funnel', authMiddleware, isAdmin, async (_req: AuthReque
     const funnel = await getOnboardingFunnel();
     res.json({ data: funnel });
   } catch (error) {
-    console.error('Error fetching onboarding funnel:', error);
+    logger.error({ err: error }, "Error fetching onboarding funnel");
     res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch onboarding funnel' } });
   }
 });
@@ -323,7 +322,7 @@ router.get('/activity-feed', authMiddleware, isAdmin, async (req: AuthRequest, r
     const activity = await getRecentActivity(limit);
     res.json({ data: activity });
   } catch (error) {
-    console.error('Error fetching activity feed:', error);
+    logger.error({ err: error }, "Error fetching activity feed");
     res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch activity feed' } });
   }
 });
@@ -335,7 +334,7 @@ router.get('/financial', authMiddleware, isAdmin, async (_req: AuthRequest, res:
     const analytics = await getFinancialAnalytics();
     res.json({ data: analytics });
   } catch (error) {
-    console.error('Error fetching financial analytics:', error);
+    logger.error({ err: error }, "Error fetching financial analytics");
     res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch financial analytics' } });
   }
 });
@@ -347,7 +346,7 @@ router.get('/feature-adoption', authMiddleware, isAdmin, async (_req: AuthReques
     const adoption = await getFeatureAdoption();
     res.json({ data: adoption });
   } catch (error) {
-    console.error('Error fetching feature adoption:', error);
+    logger.error({ err: error }, "Error fetching feature adoption");
     res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch feature adoption' } });
   }
 });
@@ -359,7 +358,7 @@ router.get('/platform-health', authMiddleware, isAdmin, async (_req: AuthRequest
     const health = await getPlatformHealth();
     res.json({ data: health });
   } catch (error) {
-    console.error('Error fetching platform health:', error);
+    logger.error({ err: error }, "Error fetching platform health");
     res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch platform health' } });
   }
 });
@@ -378,7 +377,7 @@ router.patch('/clinics/:id/trial', authMiddleware, isAdmin, async (req: AuthRequ
     if (error.code === 'P2025') {
       return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Clinic not found' } });
     }
-    console.error('Error extending trial:', error);
+    logger.error({ err: error }, "Error extending trial");
     res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to extend trial' } });
   }
 });
@@ -397,7 +396,7 @@ router.patch('/clinics/:id/upgrade', authMiddleware, isAdmin, async (req: AuthRe
     if (error.code === 'P2025') {
       return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Clinic not found' } });
     }
-    console.error('Error upgrading subscription:', error);
+    logger.error({ err: error }, "Error upgrading subscription");
     res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to upgrade subscription' } });
   }
 });
@@ -413,9 +412,9 @@ router.post('/clinics/:id/payments/konnect', authMiddleware, isAdmin, async (req
     const frontendUrl = process.env.FRONTEND_URL || 'https://web-zeta-five-39.vercel.app';
 
     const result = await initPayment({
-      amount: 50000, // 50 TND in millimes
+      amount: brand.pricing.monthly,
       orderId: `${clinicId}-${month}`,
-      description: `BléSaf subscription - ${month}`,
+      description: `${brand.name} subscription - ${month}`,
       webhookUrl: `${webhookBase}/api/admin/webhooks/konnect`,
       successUrl: `${frontendUrl}/admin?payment=success`,
       failUrl: `${frontendUrl}/admin?payment=failed`,
@@ -423,7 +422,7 @@ router.post('/clinics/:id/payments/konnect', authMiddleware, isAdmin, async (req
 
     // Create pending payment record
     await recordPayment(clinicId, {
-      amount: 50000,
+      amount: brand.pricing.monthly,
       month,
       method: 'konnect',
       reference: result.paymentRef,
@@ -439,7 +438,7 @@ router.post('/clinics/:id/payments/konnect', authMiddleware, isAdmin, async (req
 
     res.json({ data: { payUrl: result.payUrl, paymentRef: result.paymentRef } });
   } catch (error: any) {
-    console.error('Error initiating Konnect payment:', error);
+    logger.error({ err: error }, "Error initiating Konnect payment");
     res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to initiate payment' } });
   }
 });
@@ -453,7 +452,7 @@ router.post('/webhooks/konnect', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Missing payment_ref' });
     }
 
-    console.log(`[Konnect Webhook] Received for payment_ref: ${paymentRef}`);
+    logger.info({ paymentRef }, 'Konnect webhook received');
 
     const details = await getPaymentDetails(paymentRef);
     const status = details.payment.status === 'completed' ? 'paid' : 'failed';
@@ -468,14 +467,14 @@ router.post('/webhooks/konnect', async (req: Request, res: Response) => {
         where: { id: payment.id },
         data: { status, paidAt: new Date() },
       });
-      console.log(`[Konnect Webhook] Payment ${paymentRef} updated to ${status}`);
+      logger.info({ paymentRef, status }, 'Konnect webhook payment updated');
     } else {
-      console.warn(`[Konnect Webhook] No payment record found for ref: ${paymentRef}`);
+      logger.warn({ paymentRef }, 'Konnect webhook: no payment record found');
     }
 
     res.json({ received: true });
   } catch (error) {
-    console.error('[Konnect Webhook] Error:', error);
+    logger.error({ err: error }, "[Konnect Webhook] Error");
     res.status(500).json({ error: 'Webhook processing failed' });
   }
 });

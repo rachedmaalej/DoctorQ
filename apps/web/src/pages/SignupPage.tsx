@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import LanguageSwitcher from '../components/ui/LanguageSwitcher';
 import { api } from '../lib/api';
+import { webBrand } from '../lib/brand';
 
 const signupSchema = z.object({
   name: z.string().min(2, 'Le nom du cabinet doit contenir au moins 2 caractères'),
@@ -47,6 +48,7 @@ function PasswordStrength({ password }: { password: string }) {
 
 export default function SignupPage() {
   const { t, i18n } = useTranslation();
+  const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -59,6 +61,7 @@ export default function SignupPage() {
   } = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
+      email: searchParams.get('email') || '',
       acceptTerms: false,
     },
   });
@@ -119,9 +122,9 @@ export default function SignupPage() {
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center">
-              <span className="text-white font-bold text-lg">B</span>
+              <span className="text-white font-bold text-lg">{webBrand.name[0]}</span>
             </div>
-            <span className="font-bold text-xl text-gray-900">BleSaf</span>
+            <span className="font-bold text-xl text-gray-900">{webBrand.name}</span>
           </Link>
           <div className="flex items-center gap-4">
             <LanguageSwitcher />
