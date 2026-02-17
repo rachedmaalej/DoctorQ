@@ -1,120 +1,144 @@
-import { useRef, useEffect, useState } from 'react';
-import type { ContextCardContent } from './utils';
+import type { Phase } from './utils';
+import PSNotifPrompt from './PSNotifPrompt';
+import PSAbsentButton from './PSAbsentButton';
 
 interface PSContextCardProps {
-  content: ContextCardContent | null;
-  notifyEnabled: boolean;
-  onNotifyToggle: () => void;
+  phase: Phase;
+  peopleAhead: number;
+  avgConsultMins?: number;
+  estimatedMins: number;
+  notifEnabled: boolean;
+  onNotifClick: () => void;
+  isAbsent: boolean;
+  onAbsentClick: () => void;
+  isCalled: boolean;
 }
 
-// ─── SVG Icons ───
+export default function PSContextCard({
+  phase,
+  peopleAhead,
+  avgConsultMins,
+  estimatedMins,
+  notifEnabled,
+  onNotifClick,
+  isAbsent,
+  onAbsentClick,
+  isCalled,
+}: PSContextCardProps) {
+  // No context cards for called (#0) or done
+  if (isCalled || phase === 'done') return null;
 
-function ExitIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-      <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M13.8 12H3" />
-    </svg>
-  );
-}
+  // ─── Relax Phase ───
+  if (phase === 'relax') {
+    const avgDisplay = avgConsultMins ? `~${avgConsultMins} min` : '~20 min';
 
-function LocationIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-      <circle cx="12" cy="10" r="3" />
-    </svg>
-  );
-}
+    // Contextual tip varies by position
+    const tipIcon = peopleAhead >= 5 ? 'coffee' : 'schedule';
+    const tipText = peopleAhead >= 5
+      ? 'Vous avez le temps pour un café \u2615'
+      : 'Encore un peu de patience...';
+    const tipClass = peopleAhead >= 5 ? 'tip-cafe' : 'tip-patience';
 
-function CheckIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-      <polyline points="20 6 9 17 4 12" />
-    </svg>
-  );
-}
+    return (
+      <div className="ps-info-area ps-fade-up-d3">
+        {/* Info Card */}
+        <div className="ps-info-card phase-relax">
+          <div className="ps-info-row">
+            <span className="ps-info-label">Durée moy. par patient</span>
+            <span className="ps-info-value phase-relax">{avgDisplay}</span>
+          </div>
+          <div className="ps-info-row">
+            <span className="ps-info-label">Basé sur</span>
+            <span className="ps-info-value" style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>
+              les consultations du jour
+            </span>
+          </div>
+        </div>
 
-const iconMap = {
-  exit: ExitIcon,
-  location: LocationIcon,
-  check: CheckIcon,
-} as const;
+        {/* Context Tip */}
+        <div className={`ps-context-tip ${tipClass}`}>
+          <span className="material-symbols-rounded">{tipIcon}</span>
+          {tipText}
+        </div>
 
-// ─── Bold text helper ───
-function renderBodyWithBold(body: string, boldText?: string) {
-  if (!boldText || !body.includes(boldText)) {
-    return <span>{body}</span>;
+        {/* Notification Prompt */}
+        {!notifEnabled && (
+          <PSNotifPrompt phase={phase} isEnabled={notifEnabled} onClick={onNotifClick} />
+        )}
+
+        {/* Absent Button */}
+        <PSAbsentButton isAbsent={isAbsent} onToggle={onAbsentClick} />
+      </div>
+    );
   }
-  const idx = body.indexOf(boldText);
-  return (
-    <span>
-      {body.slice(0, idx)}
-      <strong style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{boldText}</strong>
-      {body.slice(idx + boldText.length)}
-    </span>
-  );
-}
 
-export default function PSContextCard({ content, notifyEnabled, onNotifyToggle }: PSContextCardProps) {
-  const [animate, setAnimate] = useState(false);
-  const prevVariantRef = useRef(content?.variant);
+  // ─── Ready Phase ───
+  if (phase === 'ready') {
+    const avgDisplay = avgConsultMins ? `~${avgConsultMins} min` : '~17 min';
+    const estimateDisplay = estimatedMins >= 60
+      ? `~${Math.floor(estimatedMins / 60)}h${(estimatedMins % 60).toString().padStart(2, '0')}`
+      : `~${estimatedMins} min`;
 
-  // Trigger slide-down animation when variant changes
-  useEffect(() => {
-    if (content?.variant !== prevVariantRef.current) {
-      setAnimate(true);
-      const timer = setTimeout(() => setAnimate(false), 500);
-      prevVariantRef.current = content?.variant;
-      return () => clearTimeout(timer);
-    }
-  }, [content?.variant]);
+    // At position #2 vs #3
+    const isUrgent = peopleAhead === 2;
+    const tipIcon = isUrgent ? 'warning' : 'location_on';
+    const tipText = isUrgent
+      ? "Ne vous éloignez pas — c'est bientôt à vous"
+      : "Restez dans la salle d'attente";
+    const tipClass = isUrgent ? 'tip-warning' : 'tip-stay';
 
-  if (!content) return null;
-
-  const IconComponent = iconMap[content.iconType];
-
-  return (
-    <div className={`ps-ctx-card ctx-${content.variant} ps-fade-up-d3 ${animate ? 'ps-slide-down' : ''}`}>
-      {/* Icon row */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-        <div className="ps-ctx-icon-box">
-          <IconComponent />
+    return (
+      <div className="ps-info-area ps-fade-up-d3">
+        {/* Info Card */}
+        <div className="ps-info-card phase-ready">
+          <div className="ps-info-row">
+            <span className="ps-info-label">
+              {isUrgent ? 'Encore' : 'Personnes devant vous'}
+            </span>
+            <span className="ps-info-value phase-ready">
+              {isUrgent ? `${peopleAhead} patients` : String(peopleAhead)}
+            </span>
+          </div>
+          <div className="ps-info-row">
+            <span className="ps-info-label">
+              {isUrgent ? 'Estimation' : 'Durée moy. par patient'}
+            </span>
+            <span className="ps-info-value phase-ready">
+              {isUrgent ? estimateDisplay : avgDisplay}
+            </span>
+          </div>
         </div>
-        <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--text-primary)' }}>
-          {content.title}
+
+        {/* Context Tip */}
+        <div className={`ps-context-tip ${tipClass}`}>
+          <span className="material-symbols-rounded">{tipIcon}</span>
+          {tipText}
         </div>
-      </div>
 
-      {/* Body */}
-      <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-        {renderBodyWithBold(content.body, content.bodyStrong)}
+        {/* Notification confirmed state */}
+        {notifEnabled && (
+          <PSNotifPrompt phase={phase} isEnabled={notifEnabled} onClick={onNotifClick} />
+        )}
       </div>
+    );
+  }
 
-      {/* Notification toggle */}
-      {content.showNotify && (
-        <div
-          style={{
-            marginTop: 12,
-            paddingTop: 12,
-            borderTop: '1px solid var(--border)',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}
-        >
-          <span style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 500 }}>
-            Me prévenir avant mon tour
-          </span>
-          <button
-            className="ps-toggle"
-            role="switch"
-            aria-checked={notifyEnabled}
-            onClick={onNotifyToggle}
+  // ─── Go Phase (position #1 only — #0 is handled by isCalled check above) ───
+  if (phase === 'go') {
+    return (
+      <div className="ps-info-area ps-fade-up-d3" style={{ position: 'relative', zIndex: 2 }}>
+        <div className="ps-context-tip tip-go">
+          <span
+            className="material-symbols-rounded"
+            style={{ fontVariationSettings: "'FILL' 1" }}
           >
-            <span className="ps-toggle-knob" />
-          </button>
+            location_on
+          </span>
+          Restez devant la porte du cabinet
         </div>
-      )}
-    </div>
-  );
+      </div>
+    );
+  }
+
+  return null;
 }

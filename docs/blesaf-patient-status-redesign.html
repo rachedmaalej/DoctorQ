@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>BleSaf — Patient Status Page Redesign</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    /* Phase: Relax */
+    --relax-bg: #FAFAF8;
+    --relax-surface: #FFFFFF;
+    --relax-accent: #2B8A7A;
+    --relax-accent-soft: #E6F4F1;
+    --relax-ring: #2B8A7A;
+    --relax-ring-track: #E8E6E0;
+
+    /* Phase: Get Ready */
+    --ready-bg: #FBF8F0;
+    --ready-surface: #FFFFFF;
+    --ready-accent: #C47F17;
+    --ready-accent-soft: #FEF3DC;
+    --ready-ring: #D4920B;
+    --ready-ring-track: #EDE8DB;
+
+    /* Phase: Go Now */
+    --go-bg: #EEFBF3;
+    --go-surface: #FFFFFF;
+    --go-accent: #1A7A3A;
+    --go-accent-soft: #D4F5DF;
+    --go-ring: #22C55E;
+    --go-ring-track: #D1EDD8;
+
+    /* Shared */
+    --text-primary: #1A1917;
+    --text-secondary: #6B6960;
+    --text-tertiary: #9E9B90;
+    --border: #E8E6DF;
+    --red: #D94F3B;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.06);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.10);
+    --radius: 16px;
+    --radius-sm: 12px;
+    --radius-xs: 8px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Plus Jakarta Sans', 'IBM Plex Sans Arabic', sans-serif;
+    background: #131311;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px 16px;
+    gap: 16px;
+  }
+
+  .page-title {
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.4;
+  }
+
+  /* ── Position Stepper ── */
+  .position-stepper {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .step-dot {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.04);
+    color: rgba(255,255,255,0.3);
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+  }
+  .step-dot:hover { border-color: rgba(255,255,255,0.3); color: rgba(255,255,255,0.6); }
+  .step-dot.active {
+    border-color: #2B8A7A;
+    background: #2B8A7A;
+    color: #fff;
+    transform: scale(1.1);
+  }
+  .step-dot.active.phase-ready {
+    border-color: #D4920B;
+    background: #D4920B;
+  }
+  .step-dot.active.phase-go {
+    border-color: #22C55E;
+    background: #22C55E;
+  }
+  .step-connector {
+    width: 12px;
+    height: 2px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 1px;
+  }
+
+  .phase-labels {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .phase-label {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 100px;
+    letter-spacing: 0.04em;
+  }
+  .phase-label.relax { background: rgba(43,138,122,0.15); color: #2B8A7A; }
+  .phase-label.ready { background: rgba(212,146,11,0.15); color: #D4920B; }
+  .phase-label.go { background: rgba(34,197,94,0.15); color: #22C55E; }
+  .phase-label.dim { opacity: 0.35; }
+
+  /* ── Phone Frame ── */
+  .phone-frame {
+    width: 375px;
+    max-width: 100%;
+    height: 812px;
+    border-radius: 44px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 0 0 3px #2a2a28, 0 24px 80px rgba(0,0,0,0.5);
+    transition: background 0.6s ease;
+  }
+
+  .phone-inner {
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* ── Status Bar ── */
+  .status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 28px 6px;
+    font-size: 14px;
+    font-weight: 700;
+    position: relative;
+    z-index: 10;
+    transition: color 0.4s;
+  }
+  .status-bar .right { display: flex; gap: 5px; align-items: center; }
+  .status-bar .right .material-symbols-rounded { font-size: 17px; }
+
+  /* ── Clinic Header ── */
+  .clinic-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 4px 24px 0;
+    position: relative;
+    z-index: 10;
+  }
+  .clinic-info {}
+  .clinic-name {
+    font-size: 15px;
+    font-weight: 700;
+    transition: color 0.4s;
+  }
+  .clinic-doc {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-top: 1px;
+  }
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .doctor-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #22C55E;
+  }
+  .lang-btn {
+    font-family: 'IBM Plex Sans Arabic', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    background: rgba(0,0,0,0.04);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 5px 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  /* ═══════════ PATIENT STATE SCREENS ═══════════ */
+  .patient-state {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .patient-state::-webkit-scrollbar { display: none; }
+  .patient-state.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  /* ── Hero Section (shared structure) ── */
+  .hero-section {
+    flex-shrink: 0;
+    padding: 80px 24px 0;
+    text-align: center;
+    position: relative;
+  }
+
+  .hero-eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    transition: color 0.4s;
+  }
+
+  .hero-time {
+    font-size: 64px;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    transition: color 0.4s;
+  }
+  .hero-time .unit {
+    font-size: 36px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  .hero-sub {
+    font-size: 15px;
+    color: var(--text-secondary);
+    margin-top: 8px;
+    font-weight: 500;
+  }
+
+  /* ── Progress Ring ── */
+  .ring-container {
+    width: 200px;
+    height: 200px;
+    margin: 28px auto 0;
+    position: relative;
+  }
+
+  .ring-svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+  }
+
+  .ring-track {
+    fill: none;
+    stroke-width: 8;
+    transition: stroke 0.6s;
+  }
+  .ring-progress {
+    fill: none;
+    stroke-width: 8;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.6s;
+  }
+
+  .ring-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .ring-number {
+    font-size: 48px;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    transition: color 0.4s;
+  }
+  .ring-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-top: 4px;
+  }
+
+  /* ── Info Cards ── */
+  .info-area {
+    padding: 24px;
+    flex: 1;
+  }
+
+  .info-card {
+    border-radius: var(--radius-sm);
+    padding: 18px 20px;
+    margin-bottom: 12px;
+    transition: background 0.4s, border-color 0.4s;
+  }
+
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+  }
+  .info-row + .info-row {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(0,0,0,0.05);
+  }
+  .info-label {
+    font-size: 14px;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+  .info-value {
+    font-size: 15px;
+    font-weight: 700;
+    transition: color 0.4s;
+  }
+
+  .context-tip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px;
+    border-radius: var(--radius-xs);
+    margin-top: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.4s;
+  }
+  .context-tip .material-symbols-rounded { font-size: 20px; flex-shrink: 0; }
+
+  /* ── Absent Button ── */
+  .absent-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 14px;
+    border-radius: var(--radius-xs);
+    border: 1.5px dashed var(--border);
+    background: transparent;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 8px;
+  }
+  .absent-btn:active { background: rgba(0,0,0,0.03); border-color: var(--text-tertiary); }
+  .absent-btn .material-symbols-rounded { font-size: 18px; }
+
+  /* ── Notification Prompt ── */
+  .notif-prompt {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: #EEF2FF;
+    border: 1px solid #D4DBFA;
+    border-radius: var(--radius-xs);
+    margin-top: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .notif-prompt:active { background: #E0E5FC; }
+  .notif-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: #4F5AE5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .notif-icon .material-symbols-rounded { font-size: 18px; }
+  .notif-text {
+    flex: 1;
+    font-size: 13px;
+    font-weight: 600;
+    color: #3B44B5;
+    line-height: 1.35;
+  }
+  .notif-arrow { color: #4F5AE5; }
+  .notif-arrow .material-symbols-rounded { font-size: 18px; }
+
+  /* ── Footer ── */
+  .screen-footer {
+    padding: 16px 24px 36px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .footer-link {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    text-decoration: none;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .footer-brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 16px;
+    font-size: 12px;
+    color: var(--text-tertiary);
+    font-weight: 500;
+  }
+  .footer-brand .mark {
+    width: 16px;
+    height: 16px;
+    background: var(--text-tertiary);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 9px;
+    font-weight: 800;
+  }
+
+  /* ═══ PHASE: GO NOW ═══ */
+  .go-hero {
+    padding: 80px 24px 20px;
+    text-align: center;
+  }
+  .go-name {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: #1A7A3A;
+    line-height: 1.2;
+  }
+  .go-headline {
+    font-size: 44px;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    color: #1A7A3A;
+    line-height: 1;
+    margin-top: 4px;
+  }
+  .go-sub {
+    font-size: 15px;
+    color: var(--text-secondary);
+    margin-top: 12px;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  /* Pulse ring for Go phase */
+  .go-pulse-ring {
+    width: 160px;
+    height: 160px;
+    margin: 28px auto;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .go-pulse-ring::before,
+  .go-pulse-ring::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 3px solid #22C55E;
+    animation: go-ring-pulse 2s ease-out infinite;
+  }
+  .go-pulse-ring::after { animation-delay: 1s; }
+  @keyframes go-ring-pulse {
+    0% { transform: scale(0.8); opacity: 0.8; }
+    100% { transform: scale(1.4); opacity: 0; }
+  }
+  .go-icon-circle {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: #22C55E;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 2;
+    box-shadow: 0 8px 32px rgba(34,197,94,0.35);
+  }
+  .go-icon-circle .material-symbols-rounded {
+    font-size: 44px;
+    color: #fff;
+    font-variation-settings: 'FILL' 1;
+  }
+
+  /* "J'arrive" button */
+  .arrive-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: calc(100% - 48px);
+    margin: 0 auto;
+    height: 56px;
+    background: #1A7A3A;
+    border: none;
+    border-radius: 16px;
+    color: #fff;
+    font-family: inherit;
+    font-size: 17px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 6px 24px rgba(26,122,58,0.3);
+    transition: all 0.15s;
+  }
+  .arrive-btn:active { transform: scale(0.97); }
+  .arrive-btn .material-symbols-rounded { font-size: 22px; }
+
+  /* Waiting timer for Go phase */
+  .waiting-timer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 16px;
+    font-size: 13px;
+    color: var(--text-tertiary);
+    font-weight: 500;
+  }
+  .waiting-timer .material-symbols-rounded { font-size: 16px; }
+
+  /* ═══ TOAST ═══ */
+  .progress-toast {
+    position: absolute;
+    bottom: 40px;
+    left: 20px;
+    right: 20px;
+    background: var(--text-primary);
+    color: #fff;
+    padding: 14px 18px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 200;
+    box-shadow: var(--shadow-lg);
+    transform: translateY(120px);
+    transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+  .progress-toast.show { transform: translateY(0); }
+  .progress-toast .material-symbols-rounded { font-size: 20px; color: #22C55E; font-variation-settings: 'FILL' 1; }
+
+  /* ═══ ANIMATIONS ═══ */
+  @keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .anim { animation: fade-in-up 0.5s ease-out both; }
+  .d1 { animation-delay: 0.05s; }
+  .d2 { animation-delay: 0.12s; }
+  .d3 { animation-delay: 0.2s; }
+  .d4 { animation-delay: 0.28s; }
+  .d5 { animation-delay: 0.36s; }
+
+  @keyframes gentle-bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+  }
+
+  /* ── Descriptive label below phone ── */
+  .design-label {
+    color: rgba(255,255,255,0.2);
+    font-size: 11px;
+    text-align: center;
+    max-width: 360px;
+    line-height: 1.6;
+  }
+
+  .phase-desc {
+    color: rgba(255,255,255,0.55);
+    font-size: 13px;
+    font-weight: 500;
+    text-align: center;
+    max-width: 320px;
+    line-height: 1.5;
+    min-height: 40px;
+    transition: opacity 0.3s;
+  }
+
+  /* Go Now screen bg animation */
+  .go-bg-overlay {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 30%, rgba(34,197,94,0.08) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+</style>
+</head>
+
+<body>
+
+<p class="page-title">BleSaf — Patient Status Page Redesign</p>
+
+<!-- Phase labels -->
+<div class="phase-labels" id="phaseLabels">
+  <span class="phase-label relax" id="labelRelax">☕ Relax</span>
+  <span class="phase-label ready dim" id="labelReady">⚡ Get Ready</span>
+  <span class="phase-label go dim" id="labelGo">🚪 Go Now</span>
+</div>
+
+<!-- Position stepper -->
+<div class="position-stepper" id="stepper">
+  <div class="step-dot active" data-pos="6" onclick="goToPosition(6)">#6</div>
+  <div class="step-connector"></div>
+  <div class="step-dot" data-pos="5" onclick="goToPosition(5)">#5</div>
+  <div class="step-connector"></div>
+  <div class="step-dot" data-pos="4" onclick="goToPosition(4)">#4</div>
+  <div class="step-connector"></div>
+  <div class="step-dot" data-pos="3" onclick="goToPosition(3)">#3</div>
+  <div class="step-connector"></div>
+  <div class="step-dot" data-pos="2" onclick="goToPosition(2)">#2</div>
+  <div class="step-connector"></div>
+  <div class="step-dot" data-pos="1" onclick="goToPosition(1)">#1</div>
+  <div class="step-connector"></div>
+  <div class="step-dot" data-pos="0" onclick="goToPosition(0)">🔔</div>
+</div>
+
+<!-- Phase description -->
+<p class="phase-desc" id="phaseDesc">Position #6 — Phase Relax · ~2h d'attente · Le patient a le temps</p>
+
+<!-- ═══════════════ PHONE ═══════════════ -->
+<div class="phone-frame" id="phoneFrame">
+<div class="phone-inner">
+
+  <!-- ═══ POSITION #6 ═══ -->
+  <div class="patient-state active" id="pos6" data-phase="relax">
+    <div class="status-bar">
+      <span>18:11</span>
+      <div class="right">
+        <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">signal_cellular_alt</span>
+        <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">wifi</span>
+        <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">battery_5_bar</span>
+      </div>
+    </div>
+    <div class="clinic-header">
+      <div class="clinic-info">
+        <div class="clinic-name">Cabinet Dr. Leila Trabelsi</div>
+        <div class="clinic-doc">Ophtalmologie · La Marsa</div>
+      </div>
+      <div class="header-right">
+        <div class="doctor-dot"></div>
+        <button class="lang-btn">عربي</button>
+      </div>
+    </div>
+    <div class="hero-section anim d1">
+      <div class="hero-eyebrow" style="color:var(--relax-accent);">Attente estimée</div>
+      <div class="hero-time" style="color:var(--text-primary);">~2<span class="unit">h</span></div>
+      <div class="hero-sub">6 personnes devant vous</div>
+
+      <div class="ring-container anim d2">
+        <svg class="ring-svg" viewBox="0 0 200 200">
+          <circle class="ring-track" cx="100" cy="100" r="85" stroke="#E8E6E0" />
+          <circle class="ring-progress" cx="100" cy="100" r="85"
+            stroke="#2B8A7A"
+            stroke-dasharray="534"
+            stroke-dashoffset="480" />
+        </svg>
+        <div class="ring-center">
+          <div class="ring-number" style="color:var(--relax-accent);">6</div>
+          <div class="ring-label">devant vous</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-area anim d3">
+      <div class="info-card" style="background:var(--relax-accent-soft);border:1px solid rgba(43,138,122,0.1);">
+        <div class="info-row">
+          <span class="info-label">Durée moy. par patient</span>
+          <span class="info-value" style="color:var(--relax-accent);">~20 min</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Basé sur</span>
+          <span class="info-value" style="color:var(--text-secondary);font-weight:500;">les consultations du jour</span>
+        </div>
+      </div>
+
+      <div class="context-tip" style="background:#FEF7E6;color:#92690B;">
+        <span class="material-symbols-rounded" style="color:#D4920B;">coffee</span>
+        Vous avez le temps pour un café ☕
+      </div>
+
+      <div class="notif-prompt anim d4">
+        <div class="notif-icon">
+          <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">notifications_active</span>
+        </div>
+        <div class="notif-text">Activez les notifications pour ne pas rater votre tour</div>
+        <div class="notif-arrow"><span class="material-symbols-rounded">chevron_right</span></div>
+      </div>
+
+      <button class="absent-btn anim d5">
+        <span class="material-symbols-rounded">directions_walk</span>
+        Je m'absente un moment
+      </button>
+    </div>
+
+    <div class="screen-footer">
+      <span class="footer-link">⋯ Options</span>
+      <div class="footer-brand">
+        <div class="mark">B</div> BleSaf
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ POSITION #5 ═══ -->
+  <div class="patient-state" id="pos5" data-phase="relax">
+    <div class="status-bar">
+      <span>18:32</span>
+      <div class="right">
+        <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">signal_cellular_alt</span>
+        <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">wifi</span>
+        <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">battery_5_bar</span>
+      </div>
+    </div>
+    <div class="clinic-header">
+      <div class="clinic-info">
+        <div class="clinic-name">Cabinet Dr. Leila Trabelsi</div>
+        <div class="clinic-doc">Ophtalmologie · La Marsa</div>
+      </div>
+      <div class="header-right">
+        <div class="doctor-dot"></div>
+        <button class="lang-btn">عربي</button>
+      </div>
+    </div>
+    <div class="hero-section">
+      <div class="hero-eyebrow" style="color:var(--relax-accent);">Attente estimée</div>
+      <div class="hero-time" style="color:var(--text-primary);">~1<span class="unit">h</span>40</div>
+      <div class="hero-sub">5 personnes devant vous</div>
+
+      <div class="ring-container">
+        <svg class="ring-svg" viewBox="0 0 200 200">
+          <circle class="ring-track" cx="100" cy="100" r="85" stroke="#E8E6E0" />
+          <circle class="ring-progress" cx="100" cy="100" r="85"
+            stroke="#2B8A7A"
+            stroke-dasharray="534"
+            stroke-dashoffset="445" />
+        </svg>
+        <div class="ring-center">
+          <div class="ring-number" style="color:var(--relax-accent);">5</div>
+          <div class="ring-label">devant vous</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-area">
+      <div class="info-card" style="background:var(--relax-accent-soft);border:1px solid rgba(43,138,122,0.1);">
+        <div class="info-row">
+          <span class="info-label">Durée moy. par patient</span>
+          <span class="info-value" style="color:var(--relax-accent);">~20 min</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Basé sur</span>
+          <span class="info-value" style="color:var(--text-secondary);font-weight:500;">les consultations du jour</span>
+        </div>
+      </div>
+
+      <div class="context-tip" style="background:#FEF7E6;color:#92690B;">
+        <span class="material-symbols-rounded" style="color:#D4920B;">coffee</span>
+        Vous avez encore le temps — détendez-vous
+      </div>
+
+      <button class="absent-btn">
+        <span class="material-symbols-rounded">directions_walk</span>
+        Je m'absente un moment
+      </button>
+    </div>
+    <div class="screen-footer">
+      <span class="footer-link">⋯ Options</span>
+      <div class="footer-brand"><div class="mark">B</div> BleSaf</div>
+    </div>
+  </div>
+
+  <!-- ═══ POSITION #4 ═══ -->
+  <div class="patient-state" id="pos4" data-phase="relax">
+    <div class="status-bar">
+      <span>18:50</span>
+      <div class="right">
+        <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">signal_cellular_alt</span>
+        <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">wifi</span>
+        <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">battery_4_bar</span>
+      </div>
+    </div>
+    <div class="clinic-header">
+      <div class="clinic-info">
+        <div class="clinic-name">Cabinet Dr. Leila Trabelsi</div>
+        <div class="clinic-doc">Ophtalmologie · La Marsa</div>
+      </div>
+      <div class="header-right">
+        <div class="doctor-dot"></div>
+        <button class="lang-btn">عربي</button>
+      </div>
+    </div>
+    <div class="hero-section">
+      <div class="hero-eyebrow" style="color:var(--relax-accent);">Attente estimée</div>
+      <div class="hero-time" style="color:var(--text-primary);">~1<span class="unit">h</span>10</div>
+      <div class="hero-sub">4 personnes devant vous</div>
+
+      <div class="ring-container">
+        <svg class="ring-svg" viewBox="0 0 200 200">
+          <circle class="ring-track" cx="100" cy="100" r="85" stroke="#E8E6E0" />
+          <circle class="ring-progress" cx="100" cy="100" r="85"
+            stroke="#2B8A7A"
+            stroke-dasharray="534"
+            stroke-dashoffset="356" />
+        </svg>
+        <div class="ring-center">
+          <div class="ring-number" style="color:var(--relax-accent);">4</div>
+          <div class="ring-label">devant vous</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-area">
+      <div class="info-card" style="background:var(--relax-accent-soft);border:1px solid rgba(43,138,122,0.1);">
+        <div class="info-row">
+          <span class="info-label">Durée moy. par patient</span>
+          <span class="info-value" style="color:var(--relax-accent);">~18 min</span>
+        </div>
+      </div>
+
+      <div class="context-tip" style="background:#FEF7E6;color:#92690B;">
+        <span class="material-symbols-rounded" style="color:#D4920B;">schedule</span>
+        Encore un peu de patience...
+      </div>
+
+      <button class="absent-btn">
+        <span class="material-symbols-rounded">directions_walk</span>
+        Je m'absente un moment
+      </button>
+    </div>
+    <div class="screen-footer">
+      <span class="footer-link">⋯ Options</span>
+      <div class="footer-brand"><div class="mark">B</div> BleSaf</div>
+    </div>
+  </div>
+
+  <!-- ═══ POSITION #3 — TRANSITION TO "GET READY" ═══ -->
+  <div class="patient-state" id="pos3" data-phase="ready">
+    <div class="status-bar">
+      <span>19:08</span>
+      <div class="right">
+        <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">signal_cellular_alt</span>
+        <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">wifi</span>
+        <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">battery_4_bar</span>
+      </div>
+    </div>
+    <div class="clinic-header">
+      <div class="clinic-info">
+        <div class="clinic-name">Cabinet Dr. Leila Trabelsi</div>
+        <div class="clinic-doc">Ophtalmologie · La Marsa</div>
+      </div>
+      <div class="header-right">
+        <div class="doctor-dot"></div>
+        <button class="lang-btn">عربي</button>
+      </div>
+    </div>
+    <div class="hero-section">
+      <div class="hero-eyebrow" style="color:var(--ready-accent);">Bientôt votre tour</div>
+      <div class="hero-time" style="color:var(--ready-accent);">~51<span class="unit"> min</span></div>
+      <div class="hero-sub">3 personnes devant vous</div>
+
+      <div class="ring-container">
+        <svg class="ring-svg" viewBox="0 0 200 200">
+          <circle class="ring-track" cx="100" cy="100" r="85" stroke="var(--ready-ring-track)" />
+          <circle class="ring-progress" cx="100" cy="100" r="85"
+            stroke="var(--ready-ring)"
+            stroke-dasharray="534"
+            stroke-dashoffset="267" />
+        </svg>
+        <div class="ring-center">
+          <div class="ring-number" style="color:var(--ready-accent);">3</div>
+          <div class="ring-label">devant vous</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-area">
+      <div class="info-card" style="background:var(--ready-accent-soft);border:1px solid rgba(212,146,11,0.12);">
+        <div class="info-row">
+          <span class="info-label">Personnes devant vous</span>
+          <span class="info-value" style="color:var(--ready-accent);">3</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Durée moy. par patient</span>
+          <span class="info-value" style="color:var(--ready-accent);">~17 min</span>
+        </div>
+      </div>
+
+      <div class="context-tip" style="background:var(--ready-accent-soft);color:#92690B;">
+        <span class="material-symbols-rounded" style="color:var(--ready-accent);">location_on</span>
+        Restez dans la salle d'attente
+      </div>
+    </div>
+    <div class="screen-footer">
+      <span class="footer-link">⋯ Options</span>
+      <div class="footer-brand"><div class="mark">B</div> BleSaf</div>
+    </div>
+  </div>
+
+  <!-- ═══ POSITION #2 ═══ -->
+  <div class="patient-state" id="pos2" data-phase="ready">
+    <div class="status-bar">
+      <span>19:26</span>
+      <div class="right">
+        <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">signal_cellular_alt</span>
+        <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">wifi</span>
+        <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">battery_3_bar</span>
+      </div>
+    </div>
+    <div class="clinic-header">
+      <div class="clinic-info">
+        <div class="clinic-name">Cabinet Dr. Leila Trabelsi</div>
+        <div class="clinic-doc">Ophtalmologie · La Marsa</div>
+      </div>
+      <div class="header-right">
+        <div class="doctor-dot"></div>
+        <button class="lang-btn">عربي</button>
+      </div>
+    </div>
+    <div class="hero-section">
+      <div class="hero-eyebrow" style="color:var(--ready-accent);">Préparez-vous</div>
+      <div class="hero-time" style="color:var(--ready-accent);">~34<span class="unit"> min</span></div>
+      <div class="hero-sub">2 personnes devant vous</div>
+
+      <div class="ring-container">
+        <svg class="ring-svg" viewBox="0 0 200 200">
+          <circle class="ring-track" cx="100" cy="100" r="85" stroke="var(--ready-ring-track)" />
+          <circle class="ring-progress" cx="100" cy="100" r="85"
+            stroke="var(--ready-ring)"
+            stroke-dasharray="534"
+            stroke-dashoffset="178" />
+        </svg>
+        <div class="ring-center">
+          <div class="ring-number" style="color:var(--ready-accent);">2</div>
+          <div class="ring-label">devant vous</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-area">
+      <div class="info-card" style="background:var(--ready-accent-soft);border:1px solid rgba(212,146,11,0.12);">
+        <div class="info-row">
+          <span class="info-label">Encore</span>
+          <span class="info-value" style="color:var(--ready-accent);">2 patients</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Estimation</span>
+          <span class="info-value" style="color:var(--ready-accent);">~34 min</span>
+        </div>
+      </div>
+
+      <div class="context-tip" style="background:var(--ready-accent-soft);color:#92690B;font-weight:700;">
+        <span class="material-symbols-rounded" style="color:var(--ready-accent);font-variation-settings:'FILL' 1;">warning</span>
+        Ne vous éloignez pas — c'est bientôt à vous
+      </div>
+
+      <div class="notif-prompt" style="background:#FEF7E6;border-color:rgba(212,146,11,0.2);">
+        <div class="notif-icon" style="background:#D4920B;">
+          <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">vibration</span>
+        </div>
+        <div class="notif-text" style="color:#92690B;">Notifications activées — on vous préviendra</div>
+        <div class="notif-arrow" style="color:#D4920B;"><span class="material-symbols-rounded">check_circle</span></div>
+      </div>
+    </div>
+    <div class="screen-footer">
+      <span class="footer-link">⋯ Options</span>
+      <div class="footer-brand"><div class="mark">B</div> BleSaf</div>
+    </div>
+  </div>
+
+  <!-- ═══ POSITION #1 — "YOU'RE NEXT" ═══ -->
+  <div class="patient-state" id="pos1" data-phase="go">
+    <div class="go-bg-overlay"></div>
+    <div class="status-bar" style="color:var(--text-primary);">
+      <span>19:42</span>
+      <div class="right">
+        <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">signal_cellular_alt</span>
+        <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">wifi</span>
+        <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">battery_3_bar</span>
+      </div>
+    </div>
+    <div class="clinic-header" style="position:relative;z-index:2;">
+      <div class="clinic-info">
+        <div class="clinic-name">Cabinet Dr. Leila Trabelsi</div>
+        <div class="clinic-doc">Ophtalmologie · La Marsa</div>
+      </div>
+      <div class="header-right">
+        <div class="doctor-dot"></div>
+        <button class="lang-btn">عربي</button>
+      </div>
+    </div>
+
+    <div class="go-hero" style="position:relative;z-index:2;">
+      <div class="hero-eyebrow" style="color:#1A7A3A;font-size:12px;">Vous êtes le prochain</div>
+      <div class="go-name">Rached Maalej</div>
+      <div style="font-size:15px;color:var(--text-secondary);margin-top:6px;font-weight:500;">
+        Le patient actuel est en consultation.<br>Vous passez juste après.
+      </div>
+
+      <div class="go-pulse-ring">
+        <div class="go-icon-circle">
+          <span class="material-symbols-rounded">person</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-area" style="position:relative;z-index:2;">
+      <div class="context-tip" style="background:var(--go-accent-soft);color:#1A7A3A;font-weight:700;font-size:15px;">
+        <span class="material-symbols-rounded" style="color:#22C55E;font-variation-settings:'FILL' 1;">location_on</span>
+        Restez devant la porte du cabinet
+      </div>
+    </div>
+
+    <div class="screen-footer" style="position:relative;z-index:2;">
+      <span class="footer-link">⋯ Options</span>
+      <div class="footer-brand"><div class="mark">B</div> BleSaf</div>
+    </div>
+  </div>
+
+  <!-- ═══ POSITION #0 — "IT'S YOUR TURN!" ═══ -->
+  <div class="patient-state" id="pos0" data-phase="go">
+    <div class="go-bg-overlay" style="background:radial-gradient(ellipse at 50% 40%, rgba(34,197,94,0.12) 0%, transparent 70%);"></div>
+    <div class="status-bar" style="color:var(--text-primary);">
+      <span>19:58</span>
+      <div class="right">
+        <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">signal_cellular_alt</span>
+        <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">wifi</span>
+        <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">battery_3_bar</span>
+      </div>
+    </div>
+    <div class="clinic-header" style="position:relative;z-index:2;">
+      <div class="clinic-info">
+        <div class="clinic-name" style="color:#1A7A3A;">Cabinet Dr. Leila Trabelsi</div>
+        <div class="clinic-doc">Ophtalmologie · La Marsa</div>
+      </div>
+      <div class="header-right">
+        <div class="doctor-dot"></div>
+        <button class="lang-btn">عربي</button>
+      </div>
+    </div>
+
+    <div class="go-hero" style="position:relative;z-index:2;padding-top:60px;">
+      <div class="go-name" style="font-size:22px;">Rached Maalej</div>
+      <div class="go-headline">C'EST VOTRE TOUR</div>
+      <div class="go-sub">La docteure vous attend.<br>Dirigez-vous vers la salle de consultation.</div>
+
+      <div class="go-pulse-ring" style="margin:24px auto;">
+        <div class="go-icon-circle" style="width:110px;height:110px;">
+          <span class="material-symbols-rounded" style="font-size:48px;">door_open</span>
+        </div>
+      </div>
+
+      <button class="arrive-btn">
+        <span class="material-symbols-rounded">check_circle</span>
+        J'arrive !
+      </button>
+
+      <div class="waiting-timer">
+        <span class="material-symbols-rounded">schedule</span>
+        La docteure attend depuis 1 min
+      </div>
+    </div>
+
+    <div class="screen-footer" style="position:relative;z-index:2;margin-top:auto;">
+      <div class="footer-brand"><div class="mark" style="background:#1A7A3A;">B</div> BleSaf</div>
+    </div>
+  </div>
+
+  <!-- Progress toast -->
+  <div class="progress-toast" id="progressToast">
+    <span class="material-symbols-rounded">arrow_upward</span>
+    <span id="toastText">Vous avez avancé d'une place !</span>
+  </div>
+
+</div>
+</div>
+
+<p class="design-label">Three-phase patient experience: Relax (☕ >3 ahead) → Get Ready (⚡ 2-3 ahead) → Go Now (🚪 next/called) · Progress ring · Phase-appropriate density · "Je m'absente" · "J'arrive!" confirmation</p>
+
+<script>
+  let currentPos = 6;
+
+  const positions = {
+    6: { phase: 'relax', bg: '#FAFAF8', desc: 'Position #6 — Phase Relax · ~2h d\'attente · Le patient a le temps' },
+    5: { phase: 'relax', bg: '#FAFAF8', desc: 'Position #5 — Phase Relax · ~1h40 · Toujours détendu, café possible' },
+    4: { phase: 'relax', bg: '#FAFAF8', desc: 'Position #4 — Phase Relax · ~1h10 · La file avance, patience...' },
+    3: { phase: 'ready', bg: '#FBF8F0', desc: 'Position #3 — ⚡ Phase Get Ready · ~51 min · Le ton change, restez proche' },
+    2: { phase: 'ready', bg: '#FBF8F0', desc: 'Position #2 — ⚡ Phase Get Ready · ~34 min · Ne vous éloignez pas' },
+    1: { phase: 'go', bg: '#EEFBF3', desc: 'Position #1 — 🚪 Vous êtes le prochain · Patient actuel en consultation' },
+    0: { phase: 'go', bg: '#E5FAED', desc: 'Position #0 — 🚪 C\'EST VOTRE TOUR · La docteure vous attend !' },
+  };
+
+  function goToPosition(pos) {
+    const prev = currentPos;
+    currentPos = pos;
+
+    // Update screens
+    document.querySelectorAll('.patient-state').forEach(s => s.classList.remove('active'));
+    document.getElementById('pos' + pos).classList.add('active');
+
+    // Update stepper dots
+    document.querySelectorAll('.step-dot').forEach(d => {
+      d.classList.remove('active', 'phase-ready', 'phase-go');
+    });
+    const activeDot = document.querySelector(`.step-dot[data-pos="${pos}"]`);
+    activeDot.classList.add('active');
+    const p = positions[pos].phase;
+    if (p === 'ready') activeDot.classList.add('phase-ready');
+    if (p === 'go') activeDot.classList.add('phase-go');
+
+    // Update phone background
+    document.getElementById('phoneFrame').style.background = positions[pos].bg;
+
+    // Update phase labels
+    document.getElementById('labelRelax').classList.toggle('dim', p !== 'relax');
+    document.getElementById('labelReady').classList.toggle('dim', p !== 'ready');
+    document.getElementById('labelGo').classList.toggle('dim', p !== 'go');
+
+    // Update description
+    document.getElementById('phaseDesc').textContent = positions[pos].desc;
+
+    // Show toast when moving forward
+    if (pos < prev && pos > 0) {
+      const toast = document.getElementById('progressToast');
+      document.getElementById('toastText').textContent =
+        prev - pos === 1 ? 'Vous avez avancé d\'une place !' :
+        `Vous avez avancé de ${prev - pos} places !`;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2200);
+    }
+  }
+
+  // Keyboard nav
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      if (currentPos > 0) goToPosition(currentPos - 1);
+    }
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      if (currentPos < 6) goToPosition(currentPos + 1);
+    }
+  });
+
+  // Init
+  goToPosition(6);
+</script>
+
+</body>
+</html>

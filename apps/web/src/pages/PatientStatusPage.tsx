@@ -9,7 +9,7 @@ import { QueueStatus } from '@/types';
 
 // Patient Status redesign components
 import '@/components/patient-status/patient-status.css';
-import { derivePhase, deriveContextContent, smoothEstimate, deriveToastMessage } from '@/components/patient-status/utils';
+import { derivePhase, deriveToastMessage, smoothEstimate } from '@/components/patient-status/utils';
 import type { Phase } from '@/components/patient-status/utils';
 import PSHeader from '@/components/patient-status/PSHeader';
 import PSAlertBanner from '@/components/patient-status/PSAlertBanner';
@@ -49,12 +49,14 @@ export default function PatientStatusPage() {
   const [isLeaving, setIsLeaving] = useState(false);
   const [isDoctorPresent, setIsDoctorPresent] = useState(true);
   const [announcement, setAnnouncement] = useState<string | null>(null);
-  const [notifyEnabled, setNotifyEnabled] = useState(true);
+  const [notifyEnabled, setNotifyEnabled] = useState(false);
+  const [isAbsent, setIsAbsent] = useState(false);
   const [toast, setToast] = useState<{ visible: boolean; message: string }>({ visible: false, message: '' });
 
   // ─── Refs ───
   const previousPositionRef = useRef<number | null>(null);
   const displayedEstimateRef = useRef<number | null>(null);
+  const initialPeopleAheadRef = useRef<number>(0);
   const audioInitRef = useRef(false);
   const lastAnnouncementRef = useRef<string | null>(null);
 
@@ -166,9 +168,6 @@ export default function PatientStatusPage() {
 
   const handleAnnouncement = useCallback((data: { clinicId: string; announcement: string | null; announcementAt: string | null }) => {
     if (entry?.clinicId === data.clinicId || !entry) {
-      if (data.announcement && data.announcement !== lastAnnouncementRef.current) {
-        // New announcement
-      }
       lastAnnouncementRef.current = data.announcement;
       setAnnouncement(data.announcement);
     }
@@ -210,6 +209,11 @@ export default function PatientStatusPage() {
         setEntry(data);
         previousPositionRef.current = data.position;
         displayedEstimateRef.current = data.estimatedWaitMins ?? null;
+        // Capture initial position for ring progress calculation
+        const initialAhead = Math.max(0, data.position - 1);
+        if (initialPeopleAheadRef.current === 0 && initialAhead > 0) {
+          initialPeopleAheadRef.current = initialAhead;
+        }
         if (data.isDoctorPresent !== undefined) setIsDoctorPresent(data.isDoctorPresent);
         if (data.announcement !== undefined) setAnnouncement(data.announcement);
       } catch (err: any) {
@@ -242,6 +246,12 @@ export default function PatientStatusPage() {
     }
   };
 
+  // ─── "J'arrive!" handler ───
+  const handleArrive = () => {
+    // Future: POST /api/patient/:entryId/arrive
+    logger.log('[PatientStatus] Patient confirmed arrival');
+  };
+
   // ─── Loading State ───
   if (isLoading) {
     return (
@@ -251,8 +261,8 @@ export default function PatientStatusPage() {
             style={{
               width: 40,
               height: 40,
-              border: '3px solid var(--border, #E8E6E1)',
-              borderTopColor: 'var(--accent, #1B6B4A)',
+              border: '3px solid var(--border, #E8E6DF)',
+              borderTopColor: 'var(--relax-accent, #2B8A7A)',
               borderRadius: '50%',
               margin: '0 auto',
               animation: 'spin 0.8s linear infinite',
@@ -270,7 +280,7 @@ export default function PatientStatusPage() {
     return (
       <div className="ps-page" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
         <div style={{ textAlign: 'center' }}>
-          <p style={{ color: 'var(--danger)', fontSize: 15 }}>{error || 'Patient introuvable'}</p>
+          <p style={{ color: 'var(--red)', fontSize: 15 }}>{error || 'Patient introuvable'}</p>
         </div>
       </div>
     );
@@ -279,27 +289,26 @@ export default function PatientStatusPage() {
   // ─── Derived State ───
   const peopleAhead = Math.max(0, entry.position - 1);
   const phase: Phase = derivePhase(entry.status, peopleAhead);
-  const isWaiting = phase !== 'called' && phase !== 'done';
+  const isCalled = entry.status === QueueStatus.IN_CONSULTATION;
+  const isWaiting = phase === 'relax' || phase === 'ready';
+  const isGo = phase === 'go';
 
   // Estimate smoothing
   const rawEstimate = entry.estimatedWaitMins ?? 0;
   const smoothedEstimate = smoothEstimate(rawEstimate, displayedEstimateRef.current);
   displayedEstimateRef.current = smoothedEstimate;
 
-  // Context card content
-  const contextContent = deriveContextContent(phase, peopleAhead, smoothedEstimate);
+  // Initial people ahead (for ring progress)
+  const initialPeopleAhead = initialPeopleAheadRef.current || peopleAhead;
 
-  // RDV context: visible in far/mid phases when patient has appointment
-  const showRdv = !!entry.appointmentTime && (phase === 'far' || phase === 'mid');
+  // RDV context: visible in relax phase when patient has appointment
+  const showRdv = !!entry.appointmentTime && phase === 'relax';
   const appointmentDelayMins = entry.estimatedWaitMins ? Math.round(entry.estimatedWaitMins) : undefined;
 
   // Alert banner: visible when doctor is absent and patient is waiting
-  const showAlert = !isDoctorPresent && isWaiting;
+  const showAlert = !isDoctorPresent && (isWaiting || isGo);
 
-  // Manage footer: visible when patient is in queue (not called/done)
-  const showManage = isWaiting;
-
-  // Cancelled state (NO_SHOW, CANCELLED) — redirect to check-in
+  // Cancelled state (NO_SHOW, CANCELLED)
   const isCancelled = entry.status === 'CANCELLED' || entry.status === 'NO_SHOW';
 
   return (
@@ -313,6 +322,7 @@ export default function PatientStatusPage() {
         <PSHeader
           clinicName={entry.clinicName}
           specialty={entry.specialty || undefined}
+          isDoctorPresent={isDoctorPresent}
         />
 
         {/* Alert Banner (doctor absence) */}
@@ -329,18 +339,30 @@ export default function PatientStatusPage() {
         />
 
         {/* Hero Section — mutually exclusive */}
+
+        {/* Relax/Ready: time estimate + progress ring */}
         {isWaiting && !isCancelled && (
           <PSHeroEstimate
             phase={phase}
             estimatedMins={smoothedEstimate}
             peopleAhead={peopleAhead}
+            initialPeopleAhead={initialPeopleAhead}
+            status={entry.status}
           />
         )}
 
-        {phase === 'called' && (
-          <PSCalledHero doctorName={entry.doctorName} />
+        {/* Go: next (#1) or called (#0) */}
+        {isGo && !isCancelled && (
+          <PSCalledHero
+            patientName={entry.patientName || undefined}
+            doctorGender={entry.doctorGender}
+            isCalled={isCalled}
+            calledAt={entry.calledAt}
+            onArrive={handleArrive}
+          />
         )}
 
+        {/* Done */}
         {phase === 'done' && (
           <PSDoneHero doctorName={entry.doctorName} />
         )}
@@ -364,9 +386,8 @@ export default function PatientStatusPage() {
               </svg>
             </div>
             <div style={{
-              fontFamily: "'Fraunces', Georgia, serif",
               fontSize: 24,
-              fontWeight: 500,
+              fontWeight: 700,
               color: 'var(--text-primary)',
               letterSpacing: '-0.5px',
               marginBottom: 8,
@@ -380,13 +401,14 @@ export default function PatientStatusPage() {
               onClick={() => navigate(`/checkin/${entry.clinicId}`)}
               style={{
                 padding: '12px 24px',
-                background: 'var(--accent)',
+                background: 'var(--relax-accent)',
                 color: 'white',
                 borderRadius: 'var(--radius-sm)',
                 fontSize: 14,
                 fontWeight: 600,
                 border: 'none',
                 cursor: 'pointer',
+                fontFamily: 'inherit',
               }}
             >
               Reprendre une place
@@ -394,12 +416,18 @@ export default function PatientStatusPage() {
           </div>
         )}
 
-        {/* Context Card */}
-        {contextContent && (
+        {/* Context Cards (phase-specific) */}
+        {!isCancelled && phase !== 'done' && (
           <PSContextCard
-            content={contextContent}
-            notifyEnabled={notifyEnabled}
-            onNotifyToggle={() => setNotifyEnabled((prev) => !prev)}
+            phase={phase}
+            peopleAhead={peopleAhead}
+            avgConsultMins={entry.avgConsultationMins}
+            estimatedMins={smoothedEstimate}
+            notifEnabled={notifyEnabled}
+            onNotifClick={() => setNotifyEnabled(true)}
+            isAbsent={isAbsent}
+            onAbsentClick={() => setIsAbsent(!isAbsent)}
+            isCalled={isCalled}
           />
         )}
 
@@ -412,9 +440,9 @@ export default function PatientStatusPage() {
           />
         )}
 
-        {/* Manage Footer */}
+        {/* ⋯ Options footer (hidden on called/done) */}
         <PSManageFooter
-          visible={showManage}
+          visible={!isCancelled && phase !== 'done' && !isCalled}
           onManageClick={() => setIsQuitModalOpen(true)}
         />
 

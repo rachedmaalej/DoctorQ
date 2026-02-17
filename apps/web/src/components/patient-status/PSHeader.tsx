@@ -1,27 +1,38 @@
+import { useTranslation } from 'react-i18next';
+import { webBrand } from '@/lib/brand';
+
 interface PSHeaderProps {
   clinicName?: string;
   specialty?: string;
+  isDoctorPresent?: boolean;
 }
 
-export default function PSHeader({ clinicName, specialty }: PSHeaderProps) {
+export default function PSHeader({ clinicName, specialty, isDoctorPresent = true }: PSHeaderProps) {
+  const { i18n } = useTranslation();
+
+  const toggleLanguage = () => {
+    const nextLang = i18n.language === 'ar' ? 'fr' : 'ar';
+    i18n.changeLanguage(nextLang);
+  };
+
   return (
-    <div
-      className="ps-fade-up"
-      style={{ padding: '16px 20px 12px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}
-    >
+    <div className="ps-clinic-header ps-fade-up">
       <div>
         {clinicName && (
-          <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.2px' }}>
-            {clinicName}
-          </div>
+          <div className="ps-clinic-name">{clinicName}</div>
         )}
         {specialty && (
-          <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 1 }}>
-            {specialty}
-          </div>
+          <div className="ps-clinic-doc">{specialty}</div>
         )}
       </div>
-      <div className="ps-conn-dot" aria-label="Connexion active" />
+      <div className="ps-header-right">
+        <div className={`ps-doctor-dot ${isDoctorPresent ? '' : 'absent'}`} />
+        {webBrand.supportedLanguages.length > 1 && (
+          <button className="ps-lang-btn" onClick={toggleLanguage}>
+            {i18n.language === 'ar' ? 'Français' : 'عربي'}
+          </button>
+        )}
+      </div>
     </div>
   );
 }

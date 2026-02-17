@@ -46,6 +46,27 @@ export default {
           800: '#623F04',
           900: '#312002',
         },
+        // BleSaf receptionist dashboard palette
+        bs: {
+          bg: '#F6F5F0',
+          surface: '#FFFFFF',
+          'surface-alt': '#F0EFEA',
+          border: '#E8E6DF',
+          'text-primary': '#1A1A1A',
+          'text-secondary': '#6B6960',
+          'text-tertiary': '#9E9B90',
+          accent: '#0F7B6C',
+          'accent-light': '#E8F5F1',
+          'accent-dark': '#0A5C50',
+          red: '#D94F3B',
+          'red-light': '#FDF0ED',
+          amber: '#D4920B',
+          'amber-light': '#FEF7E6',
+          green: '#2D8B4E',
+          'green-light': '#EDF7F0',
+          blue: '#3B7DD9',
+          'blue-light': '#EDF3FC',
+        },
         // Teal Clinical — admin dashboard palette
         admin: {
           DEFAULT: '#267B75',
@@ -72,6 +93,19 @@ export default {
         dm: ['DM Sans', 'system-ui', 'sans-serif'],
         fraunces: ['Fraunces', 'Georgia', 'serif'],
       },
+      // BleSaf receptionist dashboard tokens
+      boxShadow: {
+        'bs-sm': '0 1px 2px rgba(0,0,0,0.04)',
+        'bs-md': '0 4px 12px rgba(0,0,0,0.06)',
+        'bs-lg': '0 8px 32px rgba(0,0,0,0.10)',
+        'bs-float': '0 6px 24px rgba(15,123,108,0.25)',
+        'bs-sheet': '0 -4px 32px rgba(0,0,0,0.12)',
+      },
+      borderRadius: {
+        'bs': '12px',
+        'bs-sm': '8px',
+        'bs-xs': '6px',
+      },
       keyframes: {
         fadeInUp: {
           from: { opacity: '0', transform: 'translateY(8px)' },
@@ -81,10 +115,25 @@ export default {
           from: { opacity: '0', transform: 'translateY(-8px)' },
           to: { opacity: '1', transform: 'translateY(0)' },
         },
+        'bs-slide-in': {
+          from: { opacity: '0', transform: 'translateY(8px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
+        'bs-pulse-dot': {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.3' },
+        },
+        'bs-pulse-cta': {
+          '0%, 100%': { opacity: '0' },
+          '50%': { opacity: '1' },
+        },
       },
       animation: {
         'fade-in-up': 'fadeInUp 300ms ease-out both',
         'slide-in-down': 'slideInDown 200ms ease-out both',
+        'bs-slide-in': 'bs-slide-in 0.4s ease-out both',
+        'bs-pulse-dot': 'bs-pulse-dot 1.5s ease infinite',
+        'bs-pulse-cta': 'bs-pulse-cta 3s ease-in-out infinite',
       },
     },
   },

@@ -10,7 +10,7 @@ import QueueList from '@/components/queue/QueueList';
 import QueueStats from '@/components/queue/QueueStats';
 import QRCodeCard from '@/components/queue/QRCodeCard';
 import QRCodeModal from '@/components/queue/QRCodeModal';
-import MobileDashboard from '@/components/queue/MobileDashboard';
+import ReceptionistDashboard from '@/components/receptionist/ReceptionistDashboard';
 import AuSuivantDashboard from '@/components/ausuivant/AuSuivantDashboard';
 import AddPatientModal from '@/components/queue/AddPatientModal';
 import ConfirmModal from '@/components/ui/ConfirmModal';
@@ -153,22 +153,17 @@ export default function DashboardPage() {
             isTogglingPresence={isTogglingPresence}
           />
         ) : (
-          <MobileDashboard
+          <ReceptionistDashboard
             queue={queue}
             stats={stats}
-            onCallNext={handleCallNext}
-            onAddPatient={() => setIsAddModalOpen(true)}
-            onRemovePatient={handleRemovePatient}
-            onReorder={handleReorderPatient}
-            onEmergency={(id) => handleReorderPatient(id, 1)}
-            onShowQR={() => setIsQRModalOpen(true)}
-            onCompleteConsultation={handleCompleteConsultation}
-            isCallingNext={isCallingNext}
+            clinic={clinic}
             isDoctorPresent={isDoctorPresent}
+            onCallNext={handleCallNext}
+            onRemovePatient={handleRemovePatient}
+            onReorderPatient={handleReorderPatient}
+            onCompleteConsultation={handleCompleteConsultation}
             onToggleDoctorPresent={handleToggleDoctorPresent}
-            announcement={announcement}
-            onAnnouncementClick={() => setIsAnnouncementModalOpen(true)}
-            onAnnouncementClear={() => handleSetAnnouncement(null)}
+            isCallingNext={isCallingNext}
           />
         )}
       </div>

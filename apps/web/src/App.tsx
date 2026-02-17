@@ -22,6 +22,7 @@ const LandingPage = lazy(() => import('./pages/LandingPage'));
 const TermsPage = lazy(() => import('./pages/TermsPage'));
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
 const TeaserPage = lazy(() => import('./pages/TeaserPage'));
+const ReceptionistPreview = lazy(() => import('./components/receptionist/ReceptionistPreview'));
 
 // Lightweight loading spinner for Suspense fallback
 function PageLoader() {
@@ -72,6 +73,7 @@ function App() {
         <Route path="/terms" element={<TermsPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/teaser" element={<TeaserPage />} />
+        <Route path="/receptionist" element={<ReceptionistPreview />} />
 
         {/* Protected routes */}
         <Route

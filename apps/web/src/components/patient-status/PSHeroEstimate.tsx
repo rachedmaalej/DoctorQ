@@ -1,14 +1,17 @@
 import { useRef, useEffect, useState } from 'react';
 import type { Phase } from './utils';
-import { deriveEyebrow, deriveTimeSize, parseHeroTime, deriveSubtext, waitTimeAriaLabel } from './utils';
+import { deriveEyebrow, parseHeroTime, deriveSubtext, waitTimeAriaLabel, calculateRingProgress } from './utils';
+import PSProgressRing from './PSProgressRing';
 
 interface PSHeroEstimateProps {
   phase: Phase;
   estimatedMins: number;
   peopleAhead: number;
+  initialPeopleAhead: number;
+  status: string;
 }
 
-export default function PSHeroEstimate({ phase, estimatedMins, peopleAhead }: PSHeroEstimateProps) {
+export default function PSHeroEstimate({ phase, estimatedMins, peopleAhead, initialPeopleAhead, status }: PSHeroEstimateProps) {
   const [pulse, setPulse] = useState(false);
   const prevMinsRef = useRef(estimatedMins);
 
@@ -22,56 +25,49 @@ export default function PSHeroEstimate({ phase, estimatedMins, peopleAhead }: PS
     }
   }, [estimatedMins]);
 
-  const eyebrow = deriveEyebrow(phase);
-  const sizeClass = deriveTimeSize(estimatedMins);
+  const eyebrow = deriveEyebrow(phase, peopleAhead, status);
   const timeParts = parseHeroTime(estimatedMins);
   const subtext = deriveSubtext(peopleAhead);
   const ariaLabel = waitTimeAriaLabel(estimatedMins);
+  const progress = calculateRingProgress(peopleAhead, initialPeopleAhead);
 
   return (
-    <div
-      className="ps-fade-up-d2"
-      style={{
-        flex: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        textAlign: 'center',
-        padding: '32px 20px 24px',
-        minHeight: 260,
-      }}
-    >
+    <div className="ps-hero-section ps-fade-up-d1">
       {/* Eyebrow */}
-      <div className={`ps-eyebrow phase-${phase}`}>
+      <div className={`ps-hero-eyebrow phase-${phase}`}>
         {eyebrow}
       </div>
 
       {/* Hero Time */}
       <div
-        className={`ps-hero-time ${sizeClass} ${pulse ? 'ps-count-pulse' : ''}`}
+        className={`ps-hero-time ${phase === 'ready' ? 'phase-ready' : ''} ${pulse ? 'ps-count-pulse' : ''}`}
         aria-label={ariaLabel}
       >
         {timeParts.hasHours ? (
           <>
             {timeParts.prefix}{timeParts.hours}
-            <span className="ps-hero-time-suffix">h</span>
-            {' '}{String(timeParts.minutes).padStart(2, '0')}
-            <span className="ps-hero-time-suffix">min</span>
+            <span className="unit">h</span>
+            {timeParts.minutes > 0 && String(timeParts.minutes).padStart(2, '0')}
           </>
         ) : (
           <>
             {timeParts.prefix}{timeParts.minutes}
-            <span className="ps-hero-time-suffix"> min</span>
+            <span className="unit"> min</span>
           </>
         )}
       </div>
 
       {/* Subtext */}
-      <div style={{ fontSize: 15, color: 'var(--text-secondary)', marginTop: 10 }}>
-        <strong style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{subtext.count}</strong>{' '}
-        {subtext.text}
+      <div className="ps-hero-sub">
+        {subtext.count} {subtext.text}
       </div>
+
+      {/* Progress Ring */}
+      <PSProgressRing
+        phase={phase}
+        peopleAhead={peopleAhead}
+        progress={progress}
+      />
     </div>
   );
 }
