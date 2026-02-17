@@ -123,8 +123,6 @@ router.post('/login', async (req: Request, res: Response) => {
       error: {
         code: 'SERVER_ERROR',
         message: 'Login failed',
-        // TEMPORARY: expose error for debugging (remove after fix)
-        debug: error instanceof Error ? error.message : String(error),
       },
     });
   }
