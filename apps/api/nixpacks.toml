@@ -8,4 +8,4 @@ cmds = ["npm install --include=dev"]
 cmds = ["npx prisma generate", "npm run build"]
 
 [start]
-cmd = "npx prisma migrate resolve --applied 20260209202706_init 2>/dev/null; npx prisma migrate deploy && npm start"
+cmd = "npm start"
