@@ -329,6 +329,7 @@ export default function PatientStatusPage() {
         <PSAlertBanner
           visible={showAlert}
           announcement={announcement}
+          isDoctorPresent={isDoctorPresent}
         />
 
         {/* RDV Context Bar */}
@@ -348,6 +349,7 @@ export default function PatientStatusPage() {
             peopleAhead={peopleAhead}
             initialPeopleAhead={initialPeopleAhead}
             status={entry.status}
+            isDoctorPresent={isDoctorPresent}
           />
         )}
 

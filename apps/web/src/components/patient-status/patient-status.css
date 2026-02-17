@@ -962,3 +962,92 @@
 
 .ps-toggle[aria-checked="true"]  .ps-toggle-knob { left: 23px; }
 .ps-toggle[aria-checked="false"] .ps-toggle-knob { left: 3px; }
+
+/* ─── Doctor Absent State (Alternative E) ─── */
+
+/* Rich amber banner (replaces simple text banner when doctor absent) */
+.ps-alert-rich {
+  margin: 0 20px 4px;
+  padding: 14px 16px;
+  border-radius: var(--radius-sm);
+  background: #FEF7EC;
+  border: 1px solid #F0DDB8;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  overflow: hidden;
+  transition: all 0.4s ease;
+}
+
+.ps-alert-rich.hidden {
+  max-height: 0;
+  opacity: 0;
+  margin-bottom: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-width: 0;
+}
+
+.ps-alert-rich-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(212,146,11,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.ps-alert-rich-icon svg {
+  width: 18px;
+  height: 18px;
+  color: #D4920B;
+}
+
+.ps-alert-rich-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #6B4A0A;
+  margin-bottom: 2px;
+}
+
+.ps-alert-rich-body {
+  font-size: 12px;
+  color: #8B5E14;
+  line-height: 1.4;
+}
+
+/* Hero dimmed state (when doctor absent) */
+.ps-hero-time.doctor-absent {
+  opacity: 0.35;
+  transition: opacity 0.4s ease;
+}
+
+.ps-hero-paused-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 6px;
+  padding: 4px 12px;
+  background: #FEF7EC;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #8B5E14;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.ps-hero-paused-badge svg {
+  width: 13px;
+  height: 13px;
+  color: #D4920B;
+}
+
+/* Ring dimmed when doctor absent */
+.ps-ring-container.doctor-absent {
+  opacity: 0.3;
+  transition: opacity 0.4s ease;
+}

@@ -286,7 +286,7 @@ export default function ReceptionistDashboard({
           icon="arrow_forward"
           label="Appeler Suivant"
           nextName={nextPreview}
-          disabled={waitingEntries.length === 0}
+          disabled={waitingEntries.length === 0 || !isDoctorPresent}
           onClick={onCallNext}
         />
       )}

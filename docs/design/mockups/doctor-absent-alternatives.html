@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AuSuivant — Doctor Not Yet Arrived — Design Alternatives</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Rounded" rel="stylesheet">
+<style>
+  /* ═══════════════════════════════════════════
+     SHARED DESIGN TOKENS (from patient-status.css)
+     ═══════════════════════════════════════════ */
+
+  :root {
+    --relax-bg: #FAFAF8;
+    --relax-accent: #2B8A7A;
+    --relax-accent-soft: #E6F4F1;
+    --relax-ring: #2B8A7A;
+    --relax-ring-track: #E8E6E0;
+
+    --ready-bg: #FBF8F0;
+    --ready-accent: #C47F17;
+    --ready-accent-soft: #FEF3DC;
+
+    --go-bg: #EEFBF3;
+    --go-accent: #1A7A3A;
+    --go-accent-soft: #D4F5DF;
+    --go-ring: #22C55E;
+
+    --text-primary: #1A1917;
+    --text-secondary: #6B6960;
+    --text-tertiary: #9E9B90;
+    --border: #E8E6DF;
+    --red: #D94F3B;
+
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.06);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.10);
+
+    --radius: 16px;
+    --radius-sm: 12px;
+    --radius-xs: 8px;
+
+    --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+
+    /* Absent-specific tokens */
+    --absent-bg: #F8F6F2;
+    --absent-accent: #8B7355;
+    --absent-accent-soft: #F0EBE3;
+    --absent-ring-track: #E4DFD6;
+    --amber-alert-bg: #FEF7EC;
+    --amber-alert-border: #F0DDB8;
+    --amber-alert-text: #8B5E14;
+    --amber-alert-icon: #D4920B;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+    background: #E8E6DF;
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    padding: 40px 20px;
+  }
+
+  .material-symbols-rounded {
+    font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+  }
+
+  /* ═══ Page Layout ═══ */
+
+  .page-title {
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto 12px;
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--text-primary);
+  }
+
+  .page-subtitle {
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto 48px;
+    font-size: 15px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  .alternatives-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 48px;
+    justify-content: center;
+    padding-bottom: 80px;
+  }
+
+  .alternative {
+    width: 100%;
+    max-width: 430px;
+  }
+
+  .alt-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .alt-number {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--text-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .alt-name {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .alt-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 16px;
+    padding-left: 42px;
+  }
+
+  .alt-pros-cons {
+    display: flex;
+    gap: 16px;
+    padding-left: 42px;
+    margin-bottom: 20px;
+    font-size: 12px;
+  }
+
+  .alt-pros, .alt-cons {
+    flex: 1;
+    padding: 10px 12px;
+    border-radius: 8px;
+    line-height: 1.5;
+  }
+
+  .alt-pros {
+    background: #E6F4F1;
+    color: #1A6B5A;
+  }
+
+  .alt-cons {
+    background: #FEF3DC;
+    color: #8B5E14;
+  }
+
+  .alt-pros strong, .alt-cons strong {
+    display: block;
+    margin-bottom: 3px;
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  /* ═══ Phone Frame ═══ */
+
+  .phone-frame {
+    border-radius: 32px;
+    overflow: hidden;
+    box-shadow: 0 8px 48px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.06);
+    position: relative;
+  }
+
+  /* ═══ Patient Status Page (Shared) ═══ */
+
+  .ps-page {
+    min-height: 740px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ps-clinic-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 16px 24px 12px;
+  }
+
+  .ps-clinic-name { font-size: 15px; font-weight: 700; }
+  .ps-clinic-doc { font-size: 12px; color: var(--text-tertiary); margin-top: 1px; }
+
+  .ps-header-right { display: flex; align-items: center; gap: 8px; }
+
+  .ps-doctor-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .ps-doctor-dot.present { background: #22C55E; }
+  .ps-doctor-dot.absent { background: var(--text-tertiary); }
+
+  /* Hero */
+  .ps-hero-section {
+    flex-shrink: 0;
+    padding: 24px 24px 0;
+    text-align: center;
+  }
+
+  .ps-hero-eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .ps-hero-time {
+    font-size: 64px;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    color: var(--text-primary);
+  }
+
+  .ps-hero-time .unit {
+    font-size: 36px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  .ps-hero-sub {
+    font-size: 15px;
+    color: var(--text-secondary);
+    margin-top: 8px;
+    font-weight: 500;
+  }
+
+  /* Ring */
+  .ps-ring-container {
+    width: 200px; height: 200px;
+    margin: 28px auto 0;
+    position: relative;
+  }
+
+  .ps-ring-svg {
+    width: 100%; height: 100%;
+    transform: rotate(-90deg);
+  }
+
+  .ps-ring-center {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+
+  .ps-ring-number {
+    font-size: 48px; font-weight: 800;
+    letter-spacing: -0.04em; line-height: 1;
+  }
+
+  .ps-ring-label {
+    font-size: 11px; font-weight: 600;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-top: 4px;
+  }
+
+  /* Info area */
+  .ps-info-area { padding: 24px; flex: 1; }
+
+  .ps-info-card {
+    border-radius: var(--radius-sm);
+    padding: 18px 20px;
+    margin-bottom: 12px;
+  }
+
+  .ps-info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+  }
+
+  .ps-info-row + .ps-info-row {
+    margin-top: 10px; padding-top: 10px;
+    border-top: 1px solid rgba(0,0,0,0.05);
+  }
+
+  .ps-info-label { font-size: 14px; color: var(--text-secondary); font-weight: 500; }
+  .ps-info-value { font-size: 15px; font-weight: 700; }
+
+  /* Context tip */
+  .ps-context-tip {
+    display: flex; align-items: center;
+    gap: 10px; padding: 14px 16px;
+    border-radius: var(--radius-xs);
+    margin-top: 12px;
+    font-size: 14px; font-weight: 600;
+  }
+
+  .ps-context-tip .material-symbols-rounded { font-size: 20px; flex-shrink: 0; }
+
+  /* Alert banner (current) */
+  .ps-alert {
+    margin: 0 20px 8px;
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    display: flex; align-items: center;
+    gap: 10px;
+    background: var(--amber-alert-bg);
+    border: 1px solid var(--amber-alert-border);
+    color: var(--amber-alert-text);
+    font-size: 13px; line-height: 1.35;
+  }
+
+  .ps-alert svg {
+    width: 16px; height: 16px;
+    flex-shrink: 0;
+    color: var(--amber-alert-text);
+  }
+
+  /* Footer */
+  .ps-footer-options { padding: 16px 24px 8px; text-align: center; }
+
+  .ps-options-link {
+    font-size: 13px; color: var(--text-tertiary);
+    font-weight: 500; background: none; border: none;
+    font-family: inherit; padding: 8px 16px; cursor: pointer;
+  }
+
+  .ps-brand-footer {
+    display: flex; align-items: center; justify-content: center;
+    gap: 6px; padding: 16px 24px 36px;
+    font-size: 12px; color: var(--text-tertiary); font-weight: 500;
+  }
+
+  .ps-brand-footer a {
+    color: var(--relax-accent);
+    font-weight: 600; text-decoration: none;
+  }
+
+  /* ═══════════════════════════════════════════
+     ALTERNATIVE-SPECIFIC STYLES
+     ═══════════════════════════════════════════ */
+
+  /* ─── Alt A: Muted mood ("waiting room" palette) ─── */
+
+  .alt-a .ps-page { background: var(--absent-bg); }
+
+  .alt-a .ps-hero-eyebrow { color: var(--absent-accent); }
+
+  .alt-a .ps-hero-time { color: var(--absent-accent); opacity: 0.5; }
+
+  .alt-a .ps-hero-sub { color: var(--text-tertiary); }
+
+  .alt-a .absent-hero-overlay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 48px 24px 0;
+    text-align: center;
+  }
+
+  .alt-a .absent-icon-ring {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    border: 2px dashed var(--absent-accent);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0.5;
+    margin-bottom: 20px;
+    animation: alt-a-pulse 3s ease-in-out infinite;
+  }
+
+  @keyframes alt-a-pulse {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.04); }
+  }
+
+  .alt-a .absent-icon-ring .material-symbols-rounded {
+    font-size: 32px;
+    color: var(--absent-accent);
+    opacity: 0.7;
+  }
+
+  .alt-a .absent-headline {
+    font-size: 20px; font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+  }
+
+  .alt-a .absent-sub {
+    font-size: 14px; color: var(--text-secondary);
+    line-height: 1.45;
+    max-width: 300px;
+  }
+
+  .alt-a .absent-eta-pill {
+    display: inline-flex; align-items: center;
+    gap: 6px; margin-top: 16px;
+    padding: 8px 16px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    font-size: 13px; font-weight: 600;
+    color: var(--text-primary);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .alt-a .absent-eta-pill .material-symbols-rounded {
+    font-size: 16px; color: var(--text-tertiary);
+  }
+
+  .alt-a .absent-position-card {
+    margin: 32px 24px 0;
+    padding: 18px 20px;
+    background: white;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .alt-a .absent-position-label {
+    font-size: 13px; color: var(--text-secondary); font-weight: 500;
+  }
+
+  .alt-a .absent-position-value {
+    font-size: 28px; font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--text-primary);
+  }
+
+  .alt-a .absent-position-note {
+    font-size: 12px; color: var(--text-tertiary);
+    margin-top: 2px;
+  }
+
+  /* ─── Alt B: Amber banner takeover ─── */
+
+  .alt-b .ps-page { background: var(--relax-bg); }
+
+  .alt-b .absent-takeover {
+    margin: 0 20px 0;
+    padding: 20px;
+    background: linear-gradient(135deg, #FEF7EC 0%, #FDF0D5 100%);
+    border: 1px solid #F0DDB8;
+    border-radius: var(--radius);
+    text-align: center;
+  }
+
+  .alt-b .absent-takeover-icon {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: rgba(212,146,11,0.12);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 14px;
+  }
+
+  .alt-b .absent-takeover-icon .material-symbols-rounded {
+    font-size: 24px; color: var(--amber-alert-icon);
+  }
+
+  .alt-b .absent-takeover-title {
+    font-size: 16px; font-weight: 700;
+    color: #6B4A0A;
+    margin-bottom: 4px;
+  }
+
+  .alt-b .absent-takeover-body {
+    font-size: 13px; color: var(--amber-alert-text);
+    line-height: 1.45;
+  }
+
+  .alt-b .absent-takeover-eta {
+    display: inline-flex; align-items: center;
+    gap: 6px; margin-top: 14px;
+    padding: 6px 14px;
+    background: white;
+    border-radius: 100px;
+    font-size: 13px; font-weight: 700;
+    color: #6B4A0A;
+    border: 1px solid rgba(212,146,11,0.2);
+  }
+
+  .alt-b .absent-takeover-eta .material-symbols-rounded {
+    font-size: 16px; color: var(--amber-alert-icon);
+  }
+
+  /* ─── Alt C: Full-page calm state ─── */
+
+  .alt-c .ps-page {
+    background: #F5F3EE;
+  }
+
+  .alt-c .absent-full {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 32px;
+    text-align: center;
+    min-height: 480px;
+  }
+
+  .alt-c .absent-clock-ring {
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    border: 3px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    margin-bottom: 28px;
+  }
+
+  .alt-c .absent-clock-ring::after {
+    content: '';
+    position: absolute;
+    inset: 6px;
+    border-radius: 50%;
+    background: white;
+    z-index: 0;
+  }
+
+  .alt-c .absent-clock-ring .material-symbols-rounded {
+    font-size: 40px;
+    color: var(--text-tertiary);
+    position: relative; z-index: 1;
+    animation: alt-c-tick 2s ease-in-out infinite;
+  }
+
+  @keyframes alt-c-tick {
+    0%, 100% { transform: rotate(0); }
+    25% { transform: rotate(6deg); }
+    75% { transform: rotate(-6deg); }
+  }
+
+  .alt-c .absent-full-title {
+    font-size: 22px; font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+  }
+
+  .alt-c .absent-full-sub {
+    font-size: 15px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    max-width: 280px;
+  }
+
+  .alt-c .absent-full-eta-block {
+    margin-top: 32px;
+    padding: 16px 24px;
+    background: white;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    text-align: center;
+  }
+
+  .alt-c .absent-full-eta-label {
+    font-size: 11px; font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-tertiary);
+    margin-bottom: 4px;
+  }
+
+  .alt-c .absent-full-eta-value {
+    font-size: 32px; font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--text-primary);
+  }
+
+  .alt-c .absent-full-position {
+    margin-top: 12px;
+    font-size: 13px; font-weight: 600;
+    color: var(--relax-accent);
+    display: flex; align-items: center;
+    justify-content: center; gap: 6px;
+  }
+
+  .alt-c .absent-full-position .material-symbols-rounded {
+    font-size: 16px;
+    font-variation-settings: 'FILL' 1;
+  }
+
+  .alt-c .absent-notif-cta {
+    margin-top: 24px;
+    display: flex; align-items: center;
+    gap: 10px; padding: 14px 20px;
+    background: #EEF2FF;
+    border: 1px solid #D4DBFA;
+    border-radius: var(--radius-xs);
+    font-size: 13px; font-weight: 600;
+    color: #3B44B5;
+    cursor: pointer;
+  }
+
+  .alt-c .absent-notif-cta .material-symbols-rounded {
+    font-size: 18px; color: #4F5AE5;
+    font-variation-settings: 'FILL' 1;
+  }
+
+  /* ─── Alt D: Inline hero replacement ─── */
+
+  .alt-d .ps-page { background: var(--relax-bg); }
+
+  .alt-d .absent-inline-hero {
+    padding: 24px 24px 0;
+    text-align: center;
+  }
+
+  .alt-d .absent-inline-eyebrow {
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--amber-alert-icon);
+    margin-bottom: 8px;
+  }
+
+  .alt-d .absent-inline-status {
+    font-size: 20px; font-weight: 700;
+    color: var(--amber-alert-text);
+    margin-bottom: 4px;
+  }
+
+  .alt-d .absent-inline-eta {
+    font-size: 44px; font-weight: 800;
+    letter-spacing: -0.04em;
+    color: var(--text-primary);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .alt-d .absent-inline-eta .unit {
+    font-size: 26px; font-weight: 600;
+  }
+
+  .alt-d .absent-inline-note {
+    font-size: 14px; color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  .alt-d .absent-inline-ring {
+    width: 200px; height: 200px;
+    margin: 24px auto 0;
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .alt-d .absent-ring-dashed {
+    position: absolute; inset: 0;
+  }
+
+  .alt-d .absent-ring-center {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+
+  .alt-d .absent-ring-icon {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: var(--amber-alert-bg);
+    border: 1.5px solid var(--amber-alert-border);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 8px;
+  }
+
+  .alt-d .absent-ring-icon .material-symbols-rounded {
+    font-size: 24px; color: var(--amber-alert-icon);
+  }
+
+  .alt-d .absent-ring-position {
+    font-size: 13px; font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  .alt-d .absent-ring-position strong {
+    font-size: 20px; font-weight: 800;
+    color: var(--text-primary);
+    display: block;
+  }
+
+  /* ─── Alt E (recommended): Soft banner + dimmed hero ─── */
+
+  .alt-e .ps-page { background: var(--relax-bg); }
+
+  .alt-e .absent-banner-rich {
+    margin: 0 20px 4px;
+    padding: 14px 16px;
+    border-radius: var(--radius-sm);
+    background: #FEF7EC;
+    border: 1px solid #F0DDB8;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .alt-e .absent-banner-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: rgba(212,146,11,0.12);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .alt-e .absent-banner-icon .material-symbols-rounded {
+    font-size: 18px; color: var(--amber-alert-icon);
+  }
+
+  .alt-e .absent-banner-content {
+    flex: 1;
+  }
+
+  .alt-e .absent-banner-title {
+    font-size: 13px; font-weight: 700;
+    color: #6B4A0A;
+    margin-bottom: 2px;
+  }
+
+  .alt-e .absent-banner-body {
+    font-size: 12px; color: var(--amber-alert-text);
+    line-height: 1.4;
+  }
+
+  .alt-e .absent-banner-eta {
+    font-weight: 700;
+    color: #6B4A0A;
+  }
+
+  .alt-e .ps-hero-eyebrow { color: var(--relax-accent); }
+
+  .alt-e .ps-hero-time-dimmed {
+    font-size: 64px; font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    color: var(--text-primary);
+    opacity: 0.35;
+  }
+
+  .alt-e .ps-hero-time-dimmed .unit {
+    font-size: 36px; font-weight: 600;
+  }
+
+  .alt-e .ps-hero-paused-badge {
+    display: inline-flex; align-items: center;
+    gap: 5px;
+    margin-top: 6px;
+    padding: 4px 12px;
+    background: var(--amber-alert-bg);
+    border-radius: 100px;
+    font-size: 11px; font-weight: 700;
+    color: var(--amber-alert-text);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .alt-e .ps-hero-paused-badge .material-symbols-rounded {
+    font-size: 13px; color: var(--amber-alert-icon);
+  }
+
+  .alt-e .absent-ring-paused {
+    opacity: 0.3;
+  }
+
+  /* ═══ Separator between sections ═══ */
+  .section-sep {
+    max-width: 700px;
+    margin: 0 auto 48px;
+    text-align: center;
+    position: relative;
+  }
+
+  .section-sep::before {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; top: 50%;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .section-sep span {
+    position: relative;
+    background: #E8E6DF;
+    padding: 0 20px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  /* Recommendation badge */
+  .recommended-badge {
+    display: inline-flex; align-items: center;
+    gap: 4px; margin-left: 8px;
+    padding: 3px 10px;
+    background: var(--go-accent-soft);
+    color: var(--go-accent);
+    border-radius: 100px;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+</style>
+</head>
+<body>
+
+<h1 class="page-title">Patient Status Page: Doctor Absent State</h1>
+<p class="page-subtitle">
+  When the doctor hasn't started consultations yet, the patient status page currently shows an empty notification.
+  Below are 5 alternative designs for communicating this state clearly while keeping the patient informed and calm.
+  Each mockup shows position #5 in the queue with the doctor not yet arrived.
+</p>
+
+<div class="alternatives-grid">
+
+<!-- ════════════════════════════════════════════════════
+     ALTERNATIVE A — Muted Mood with Dedicated Absent Hero
+     ════════════════════════════════════════════════════ -->
+<div class="alternative" id="alt-a">
+  <div class="alt-label">
+    <div class="alt-number">A</div>
+    <div class="alt-name">Muted Waiting Room</div>
+  </div>
+  <p class="alt-desc">
+    Replace the entire hero section with a calm "waiting for doctor" state. The page mood shifts to a warm gray palette.
+    The time estimate is hidden (since it can't be accurate without the doctor). Position is preserved in a minimal card.
+  </p>
+  <div class="alt-pros-cons">
+    <div class="alt-pros">
+      <strong>Strengths</strong>
+      Honest: no misleading estimate. Very clear visual distinction from normal state. Feels calm, not alarming.
+    </div>
+    <div class="alt-cons">
+      <strong>Trade-offs</strong>
+      Loses the time estimate entirely. Bigger engineering change (new hero variant). May feel "empty" to patients.
+    </div>
+  </div>
+
+  <div class="phone-frame">
+    <div class="ps-page alt-a">
+      <!-- Header -->
+      <div class="ps-clinic-header">
+        <div>
+          <div class="ps-clinic-name">Cabinet Dr. Martin</div>
+          <div class="ps-clinic-doc">Medecine generale</div>
+        </div>
+        <div class="ps-header-right">
+          <div class="ps-doctor-dot absent"></div>
+        </div>
+      </div>
+
+      <!-- Absent Hero -->
+      <div class="absent-hero-overlay">
+        <div class="absent-icon-ring">
+          <span class="material-symbols-rounded">schedule</span>
+        </div>
+        <div class="absent-headline">En attente du medecin</div>
+        <div class="absent-sub">
+          Les consultations n'ont pas encore commence. Votre place dans la file est reservee.
+        </div>
+        <div class="absent-eta-pill">
+          <span class="material-symbols-rounded">schedule</span>
+          Ouverture prevue vers 9h30
+        </div>
+      </div>
+
+      <!-- Position Card -->
+      <div class="absent-position-card">
+        <div>
+          <div class="absent-position-label">Votre position</div>
+          <div class="absent-position-note">File d'attente active</div>
+        </div>
+        <div style="text-align: right;">
+          <div class="absent-position-value">5</div>
+          <div class="absent-position-note">sur 7 patients</div>
+        </div>
+      </div>
+
+      <div style="flex:1"></div>
+
+      <!-- Footer -->
+      <div class="ps-footer-options">
+        <button class="ps-options-link">&#x22EF; Options</button>
+      </div>
+      <div class="ps-brand-footer">
+        Propulse par <a href="#">AuSuivant</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     ALTERNATIVE B — Amber Card Takeover (between header & hero)
+     ════════════════════════════════════════════════════ -->
+<div class="alternative" id="alt-b">
+  <div class="alt-label">
+    <div class="alt-number">B</div>
+    <div class="alt-name">Prominent Amber Card</div>
+  </div>
+  <p class="alt-desc">
+    A rich amber card appears between the header and hero section, clearly stating the doctor hasn't arrived.
+    The normal queue view remains visible below, preserving the familiar layout. The time estimate stays but
+    the card contextualizes it as "once consultations begin."
+  </p>
+  <div class="alt-pros-cons">
+    <div class="alt-pros">
+      <strong>Strengths</strong>
+      Prominent without replacing existing layout. Patient keeps their time estimate for reference. Easy to implement (enhanced banner).
+    </div>
+    <div class="alt-cons">
+      <strong>Trade-offs</strong>
+      Time estimate may confuse (it starts "when doctor arrives"). Takes vertical space.
+    </div>
+  </div>
+
+  <div class="phone-frame">
+    <div class="ps-page alt-b">
+      <!-- Header -->
+      <div class="ps-clinic-header">
+        <div>
+          <div class="ps-clinic-name">Cabinet Dr. Martin</div>
+          <div class="ps-clinic-doc">Medecine generale</div>
+        </div>
+        <div class="ps-header-right">
+          <div class="ps-doctor-dot absent"></div>
+        </div>
+      </div>
+
+      <!-- Amber Takeover Card -->
+      <div class="absent-takeover">
+        <div class="absent-takeover-icon">
+          <span class="material-symbols-rounded">hourglass_top</span>
+        </div>
+        <div class="absent-takeover-title">Consultations pas encore commencees</div>
+        <div class="absent-takeover-body">
+          Le Dr. Martin n'a pas encore commence les consultations.
+          Votre place est reservee.
+        </div>
+        <div class="absent-takeover-eta">
+          <span class="material-symbols-rounded">schedule</span>
+          Debut prevu vers 9h30
+        </div>
+      </div>
+
+      <!-- Hero (still visible, provides context) -->
+      <div class="ps-hero-section">
+        <div class="ps-hero-eyebrow" style="color: var(--relax-accent);">ATTENTE ESTIMEE</div>
+        <div class="ps-hero-time">~48<span class="unit"> min</span></div>
+        <div class="ps-hero-sub">4 personnes devant vous</div>
+
+        <div class="ps-ring-container">
+          <svg class="ps-ring-svg" viewBox="0 0 200 200">
+            <circle cx="100" cy="100" r="85" fill="none" stroke="#E8E6E0" stroke-width="8"/>
+            <circle cx="100" cy="100" r="85" fill="none" stroke="var(--relax-ring)" stroke-width="8"
+                    stroke-linecap="round" stroke-dasharray="534" stroke-dashoffset="374"/>
+          </svg>
+          <div class="ps-ring-center">
+            <div class="ps-ring-number" style="color: var(--relax-accent);">5</div>
+            <div class="ps-ring-label">POSITION</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="flex:1"></div>
+
+      <div class="ps-footer-options">
+        <button class="ps-options-link">&#x22EF; Options</button>
+      </div>
+      <div class="ps-brand-footer">
+        Propulse par <a href="#">AuSuivant</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     ALTERNATIVE C — Full-page Calm State
+     ════════════════════════════════════════════════════ -->
+<div class="alternative" id="alt-c">
+  <div class="alt-label">
+    <div class="alt-number">C</div>
+    <div class="alt-name">Full-page Calm State</div>
+  </div>
+  <p class="alt-desc">
+    The entire page becomes a dedicated "waiting for doctor" view. A clock icon with gentle animation occupies the center.
+    Position is confirmed, a start time is shown, and a notification CTA lets patients be alerted when consultations begin.
+    When the doctor arrives, the page smoothly transitions to the normal queue view.
+  </p>
+  <div class="alt-pros-cons">
+    <div class="alt-pros">
+      <strong>Strengths</strong>
+      Clearest possible communication. No ambiguity. Natural place for "notify me when it starts" CTA. Elegant transition opportunity.
+    </div>
+    <div class="alt-cons">
+      <strong>Trade-offs</strong>
+      Largest engineering change (new full page state). Hides queue info. May feel like "nothing is happening."
+    </div>
+  </div>
+
+  <div class="phone-frame">
+    <div class="ps-page alt-c">
+      <!-- Header -->
+      <div class="ps-clinic-header">
+        <div>
+          <div class="ps-clinic-name">Cabinet Dr. Martin</div>
+          <div class="ps-clinic-doc">Medecine generale</div>
+        </div>
+        <div class="ps-header-right">
+          <div class="ps-doctor-dot absent"></div>
+        </div>
+      </div>
+
+      <!-- Full-page Calm State -->
+      <div class="absent-full">
+        <div class="absent-clock-ring">
+          <span class="material-symbols-rounded">schedule</span>
+        </div>
+
+        <div class="absent-full-title">Pas encore ouvert</div>
+        <div class="absent-full-sub">
+          Les consultations du Dr. Martin n'ont pas encore commence. Vous serez prevenu des que ca demarre.
+        </div>
+
+        <div class="absent-full-eta-block">
+          <div class="absent-full-eta-label">DEBUT PREVU</div>
+          <div class="absent-full-eta-value">9h30</div>
+          <div class="absent-full-position">
+            <span class="material-symbols-rounded">check_circle</span>
+            Place #5 reservee
+          </div>
+        </div>
+
+        <div class="absent-notif-cta">
+          <span class="material-symbols-rounded">notifications_active</span>
+          <span>Me prevenir quand les consultations commencent</span>
+        </div>
+      </div>
+
+      <div class="ps-brand-footer">
+        Propulse par <a href="#">AuSuivant</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     ALTERNATIVE D — Inline Hero Replacement
+     ════════════════════════════════════════════════════ -->
+<div class="alternative" id="alt-d">
+  <div class="alt-label">
+    <div class="alt-number">D</div>
+    <div class="alt-name">Inline Hero Swap</div>
+  </div>
+  <p class="alt-desc">
+    The hero section swaps its eyebrow, time, and ring to reflect the "paused" state. The eyebrow reads
+    "CONSULTATIONS EN PAUSE", the time shows a projected start rather than wait time, and the ring shows
+    the patient's position with a dashed border instead of a solid progress arc.
+  </p>
+  <div class="alt-pros-cons">
+    <div class="alt-pros">
+      <strong>Strengths</strong>
+      Keeps the familiar layout structure. Position + projected start are both visible. Moderate engineering effort.
+    </div>
+    <div class="alt-cons">
+      <strong>Trade-offs</strong>
+      "~9h30" in the hero could be confused with a wait time. The ring loses its progress meaning. Mixed metaphor (start time vs wait time).
+    </div>
+  </div>
+
+  <div class="phone-frame">
+    <div class="ps-page alt-d">
+      <!-- Header -->
+      <div class="ps-clinic-header">
+        <div>
+          <div class="ps-clinic-name">Cabinet Dr. Martin</div>
+          <div class="ps-clinic-doc">Medecine generale</div>
+        </div>
+        <div class="ps-header-right">
+          <div class="ps-doctor-dot absent"></div>
+        </div>
+      </div>
+
+      <!-- Alert Banner -->
+      <div class="ps-alert">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <span>Le Dr. Martin n'a pas encore commence les consultations</span>
+      </div>
+
+      <!-- Modified Hero -->
+      <div class="absent-inline-hero">
+        <div class="absent-inline-eyebrow">CONSULTATIONS EN PAUSE</div>
+        <div class="absent-inline-status">Debut prevu</div>
+        <div class="absent-inline-eta">~9<span class="unit">h</span>30</div>
+        <div class="absent-inline-note">Votre place est reservee</div>
+
+        <!-- Dashed Ring -->
+        <div class="absent-inline-ring">
+          <svg class="absent-ring-dashed" viewBox="0 0 200 200">
+            <circle cx="100" cy="100" r="85" fill="none"
+                    stroke="#E4DFD6" stroke-width="8"
+                    stroke-dasharray="12 8"/>
+          </svg>
+          <div class="absent-ring-center">
+            <div class="absent-ring-icon">
+              <span class="material-symbols-rounded">hourglass_top</span>
+            </div>
+            <div class="absent-ring-position">
+              <strong>5e</strong>
+              position
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Context area -->
+      <div class="ps-info-area">
+        <div class="ps-context-tip" style="background: #FEF7E6; color: #92690B;">
+          <span class="material-symbols-rounded" style="color: #D4920B;">coffee</span>
+          Vous avez le temps — revenez vers 9h30
+        </div>
+      </div>
+
+      <div class="ps-footer-options">
+        <button class="ps-options-link">&#x22EF; Options</button>
+      </div>
+      <div class="ps-brand-footer">
+        Propulse par <a href="#">AuSuivant</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     ALTERNATIVE E (RECOMMENDED) — Enhanced Banner + Dimmed Hero
+     ════════════════════════════════════════════════════ -->
+<div class="alternative" id="alt-e">
+  <div class="alt-label">
+    <div class="alt-number" style="background: var(--go-accent);">E</div>
+    <div class="alt-name">
+      Enhanced Banner + Dimmed Hero
+      <span class="recommended-badge">Recommended</span>
+    </div>
+  </div>
+  <p class="alt-desc">
+    The smallest, most surgical change. A richer amber banner (with icon box, title, and body) replaces the
+    current empty one-liner. The hero time estimate is dimmed to 35% opacity and gains a "PAUSE" pill badge,
+    signaling that the estimate is suspended. The ring is also dimmed. When the doctor arrives, opacity restores
+    smoothly (0.4s transition) and the banner slides out — zero layout shift.
+  </p>
+  <div class="alt-pros-cons">
+    <div class="alt-pros">
+      <strong>Strengths</strong>
+      Minimal code change. No layout shift. Preserves position + estimate for reference. Clear "pause" signal.
+      Smooth transition when doctor arrives (just un-dim + hide banner).
+    </div>
+    <div class="alt-cons">
+      <strong>Trade-offs</strong>
+      Dimmed estimate might still confuse some patients. Less dramatic than a full-page takeover.
+    </div>
+  </div>
+
+  <div class="phone-frame">
+    <div class="ps-page alt-e">
+      <!-- Header -->
+      <div class="ps-clinic-header">
+        <div>
+          <div class="ps-clinic-name">Cabinet Dr. Martin</div>
+          <div class="ps-clinic-doc">Medecine generale</div>
+        </div>
+        <div class="ps-header-right">
+          <div class="ps-doctor-dot absent"></div>
+        </div>
+      </div>
+
+      <!-- Rich Amber Banner -->
+      <div class="absent-banner-rich">
+        <div class="absent-banner-icon">
+          <span class="material-symbols-rounded">hourglass_top</span>
+        </div>
+        <div class="absent-banner-content">
+          <div class="absent-banner-title">Consultations pas encore commencees</div>
+          <div class="absent-banner-body">
+            Le Dr. Martin n'a pas encore commence.
+            Debut prevu <span class="absent-banner-eta">vers 9h30</span>.
+            Votre place est reservee.
+          </div>
+        </div>
+      </div>
+
+      <!-- Hero (dimmed) -->
+      <div class="ps-hero-section">
+        <div class="ps-hero-eyebrow" style="color: var(--relax-accent);">ATTENTE ESTIMEE</div>
+        <div class="ps-hero-time-dimmed">~48<span class="unit"> min</span></div>
+        <div class="ps-hero-paused-badge">
+          <span class="material-symbols-rounded">pause_circle</span>
+          EN PAUSE
+        </div>
+        <div class="ps-hero-sub" style="margin-top: 8px;">4 personnes devant vous</div>
+
+        <div class="ps-ring-container absent-ring-paused">
+          <svg class="ps-ring-svg" viewBox="0 0 200 200">
+            <circle cx="100" cy="100" r="85" fill="none" stroke="#E8E6E0" stroke-width="8"/>
+            <circle cx="100" cy="100" r="85" fill="none" stroke="var(--relax-ring)" stroke-width="8"
+                    stroke-linecap="round" stroke-dasharray="534" stroke-dashoffset="374"/>
+          </svg>
+          <div class="ps-ring-center">
+            <div class="ps-ring-number" style="color: var(--relax-accent);">5</div>
+            <div class="ps-ring-label">POSITION</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Context area -->
+      <div class="ps-info-area">
+        <div class="ps-info-card" style="background: var(--relax-accent-soft); border: 1px solid rgba(43,138,122,0.1);">
+          <div class="ps-info-row">
+            <span class="ps-info-label">Duree moy. par patient</span>
+            <span class="ps-info-value" style="color: var(--relax-accent);">~20 min</span>
+          </div>
+          <div class="ps-info-row">
+            <span class="ps-info-label">Base sur</span>
+            <span class="ps-info-value" style="color: var(--text-secondary); font-weight: 500;">les consultations du jour</span>
+          </div>
+        </div>
+        <div class="ps-context-tip" style="background: #FEF7E6; color: #92690B;">
+          <span class="material-symbols-rounded" style="color: #D4920B;">coffee</span>
+          Vous avez le temps pour un cafe &#9749;
+        </div>
+      </div>
+
+      <div class="ps-footer-options">
+        <button class="ps-options-link">&#x22EF; Options</button>
+      </div>
+      <div class="ps-brand-footer">
+        Propulse par <a href="#">AuSuivant</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /alternatives-grid -->
+
+</body>
+</html>

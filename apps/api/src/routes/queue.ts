@@ -118,6 +118,18 @@ router.post('/', authMiddleware, subscriptionGate, async (req: AuthRequest, res:
 router.post('/next', authMiddleware, subscriptionGate, async (req: AuthRequest, res: Response) => {
   try {
     const clinicId = req.clinic!.id;
+
+    // Guard: doctor must be present to call next patient
+    const clinic = await prisma.clinic.findUnique({
+      where: { id: clinicId },
+      select: { isDoctorPresent: true },
+    });
+    if (!clinic?.isDoctorPresent) {
+      return res.status(400).json({
+        error: { code: 'DOCTOR_NOT_PRESENT', message: 'Cannot call next patient while consultations are paused' },
+      });
+    }
+
     const newInConsultation = await callNextPatient(clinicId);
 
     if (!newInConsultation) {

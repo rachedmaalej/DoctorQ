@@ -40,11 +40,20 @@ import { brand } from './lib/brand.js';
 const app = express();
 const httpServer = createServer(app);
 
-// Parse CORS origins (supports comma-separated list)
-// Default includes common Vite fallback ports when primary port is in use
-const corsOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173,http://localhost:5174,http://localhost:5175,http://localhost:5176,http://localhost:5177,https://web-zeta-five-39.vercel.app')
+// Parse CORS origins: merge env-configured origins with always-allowed origins
+const alwaysAllowed = [
+  'https://web-zeta-five-39.vercel.app',
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'http://localhost:5175',
+  'http://localhost:5176',
+  'http://localhost:5177',
+];
+const envOrigins = (process.env.CORS_ORIGIN || process.env.FRONTEND_URL || '')
   .split(',')
-  .map((origin) => origin.trim());
+  .map((o) => o.trim())
+  .filter(Boolean);
+const corsOrigins = [...new Set([...alwaysAllowed, ...envOrigins])];
 
 const io = new Server(httpServer, {
   cors: {

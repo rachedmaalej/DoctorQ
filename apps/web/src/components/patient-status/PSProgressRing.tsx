@@ -5,6 +5,7 @@ interface PSProgressRingProps {
   phase: Phase;
   peopleAhead: number;
   progress: number; // 0-1
+  isDoctorPresent?: boolean;
 }
 
 const phaseColors = {
@@ -14,12 +15,13 @@ const phaseColors = {
   done:  { track: 'var(--border)',           ring: 'var(--relax-accent)', number: 'var(--text-tertiary)' },
 };
 
-export default function PSProgressRing({ phase, peopleAhead, progress }: PSProgressRingProps) {
+export default function PSProgressRing({ phase, peopleAhead, progress, isDoctorPresent }: PSProgressRingProps) {
   const colors = phaseColors[phase] || phaseColors.relax;
   const offset = ringDashOffset(progress);
+  const doctorAbsent = isDoctorPresent === false;
 
   return (
-    <div className="ps-ring-container ps-fade-up-d2">
+    <div className={`ps-ring-container ps-fade-up-d2 ${doctorAbsent ? 'doctor-absent' : ''}`}>
       <svg className="ps-ring-svg" viewBox="0 0 200 200">
         <circle
           className="ps-ring-track"

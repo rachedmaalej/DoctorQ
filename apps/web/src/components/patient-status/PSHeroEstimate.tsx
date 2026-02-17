@@ -9,11 +9,23 @@ interface PSHeroEstimateProps {
   peopleAhead: number;
   initialPeopleAhead: number;
   status: string;
+  isDoctorPresent?: boolean;
 }
 
-export default function PSHeroEstimate({ phase, estimatedMins, peopleAhead, initialPeopleAhead, status }: PSHeroEstimateProps) {
+function PauseCircleIcon() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <circle cx="12" cy="12" r="10" />
+      <line x1="10" y1="15" x2="10" y2="9" />
+      <line x1="14" y1="15" x2="14" y2="9" />
+    </svg>
+  );
+}
+
+export default function PSHeroEstimate({ phase, estimatedMins, peopleAhead, initialPeopleAhead, status, isDoctorPresent }: PSHeroEstimateProps) {
   const [pulse, setPulse] = useState(false);
   const prevMinsRef = useRef(estimatedMins);
+  const doctorAbsent = isDoctorPresent === false;
 
   // Trigger countPulse animation on time change
   useEffect(() => {
@@ -40,7 +52,7 @@ export default function PSHeroEstimate({ phase, estimatedMins, peopleAhead, init
 
       {/* Hero Time */}
       <div
-        className={`ps-hero-time ${phase === 'ready' ? 'phase-ready' : ''} ${pulse ? 'ps-count-pulse' : ''}`}
+        className={`ps-hero-time ${phase === 'ready' ? 'phase-ready' : ''} ${pulse ? 'ps-count-pulse' : ''} ${doctorAbsent ? 'doctor-absent' : ''}`}
         aria-label={ariaLabel}
       >
         {timeParts.hasHours ? (
@@ -57,6 +69,14 @@ export default function PSHeroEstimate({ phase, estimatedMins, peopleAhead, init
         )}
       </div>
 
+      {/* EN PAUSE badge (only when doctor absent) */}
+      {doctorAbsent && (
+        <div className="ps-hero-paused-badge">
+          <PauseCircleIcon />
+          EN PAUSE
+        </div>
+      )}
+
       {/* Subtext */}
       <div className="ps-hero-sub">
         {subtext.count} {subtext.text}
@@ -67,6 +87,7 @@ export default function PSHeroEstimate({ phase, estimatedMins, peopleAhead, init
         phase={phase}
         peopleAhead={peopleAhead}
         progress={progress}
+        isDoctorPresent={isDoctorPresent}
       />
     </div>
   );
