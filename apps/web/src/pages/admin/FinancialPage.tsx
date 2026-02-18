@@ -156,8 +156,8 @@ function OpportunityBanner({ data }: { data: FinancialSummary }) {
   return (
     <AlertBanner
       variant="info"
-      icon="\u{1F4A1}"
-      title="First conversion opportunity \u2014 act this week"
+      icon={'💡'}
+      title={'First conversion opportunity \u2014 act this week'}
       body={
         <>
           <strong>{candidate.name}</strong> has strong engagement ({candidate.patientsLast30Days}{' '}
@@ -183,7 +183,7 @@ function StatsRow({ data }: { data: FinancialSummary }) {
       <StatCard
         label="MRR"
         value={data.currentMrr === 0 ? '0' : data.currentMrr}
-        subtext="TND \u2014 pre-revenue"
+        subtext={'TND \u2014 pre-revenue'}
         dotColor="var(--text-muted)"
         valueColor="muted"
       />

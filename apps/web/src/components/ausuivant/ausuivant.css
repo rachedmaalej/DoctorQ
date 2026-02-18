@@ -117,7 +117,7 @@
 .as-dashboard input,
 .as-dashboard textarea {
   font-family: 'DM Sans', -apple-system, sans-serif;
-  font-size: 15px;
+  font-size: 16px;
   color: var(--text-primary);
   border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
