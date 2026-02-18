@@ -219,18 +219,18 @@ export default function DesktopDashboard({
         <div style={{ flex: 1 }} />
 
         {/* Toggle */}
-        <span style={{ fontSize: 13, color: C.textSecondary, fontFamily: body }}>
-          Docteur absent
+        <span style={{ fontSize: 13, color: isDoctorPresent ? C.green700 : C.textSecondary, fontFamily: body }}>
+          {isDoctorPresent ? 'Docteur présent' : 'Docteur absent'}
         </span>
         <button
           onClick={onToggleDoctorPresent}
           disabled={isTogglingPresence}
           role="switch"
-          aria-checked={!isDoctorPresent}
-          aria-label="Docteur absent"
+          aria-checked={isDoctorPresent}
+          aria-label={isDoctorPresent ? 'Docteur présent' : 'Docteur absent'}
           style={{
             width: 40, height: 22, borderRadius: 11, padding: 2,
-            background: !isDoctorPresent ? C.green500 : C.borderLight,
+            background: isDoctorPresent ? C.green500 : C.borderLight,
             border: 'none', cursor: isTogglingPresence ? 'wait' : 'pointer',
             position: 'relative', transition: 'background 200ms',
             display: 'flex', alignItems: 'center',
@@ -239,7 +239,7 @@ export default function DesktopDashboard({
           <div style={{
             width: 18, height: 18, borderRadius: '50%', background: C.white,
             boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
-            transform: !isDoctorPresent ? 'translateX(18px)' : 'translateX(0)',
+            transform: isDoctorPresent ? 'translateX(18px)' : 'translateX(0)',
             transition: 'transform 200ms',
           }} />
         </button>
