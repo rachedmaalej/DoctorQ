@@ -32,7 +32,7 @@ pnpm db:seed          # Seed dev data
 
 ## Roadmap
 
-See `ROADMAP.md` for the official launch timeline (3 phases: Pre-Ramadan Sprint → Ramadan Build → Post-Eid Launch). Current phase tasks guide development priorities.
+See `docs/product/roadmap.md` for the official launch timeline (3 phases: Pre-Ramadan Sprint → Ramadan Build → Post-Eid Launch). Current phase tasks guide development priorities.
 
 ## Branching
 

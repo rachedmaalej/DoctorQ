@@ -201,13 +201,18 @@ Events:
    pnpm add <package-name>
    ```
 
-## Project Documentation
+## Documentation
 
-- [CLAUDE.md](./CLAUDE.md) - Development guide and technical specs
-- [docs/MVP-SPECIFICATION.md](./docs/MVP-SPECIFICATION.md) - Feature specifications
-- [docs/wireframes.html](./docs/wireframes.html) - UI wireframes
-- [docs/01_Project_Charter.md](./docs/01_Project_Charter.md) - Project charter
-- [docs/15_Project_Phases.md](./docs/15_Project_Phases.md) - Implementation phases
+All project documentation is organized in the [`docs/`](./docs) directory:
+
+- **[`docs/product/`](./docs/product/)** — Roadmap, features, UX specs, onboarding flows
+- **[`docs/technical/`](./docs/technical/)** — Architecture, API, database, security, deployment
+- **[`docs/business/`](./docs/business/)** — Market analysis, pricing, financials, budget tracker
+- **[`docs/marketing/`](./docs/marketing/)** — Campaign plans for Tunisia and France markets
+- **[`docs/critiques/`](./docs/critiques/)** — External reviews and audit reports
+- **[`design/`](./design/)** — Mockups, wireframes, brand assets, MD3 component library
+
+See [`docs/README.md`](./docs/README.md) for a full table of contents.
 
 ## Troubleshooting
 

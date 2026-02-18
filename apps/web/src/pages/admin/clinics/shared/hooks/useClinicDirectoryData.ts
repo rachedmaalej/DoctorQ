@@ -18,6 +18,8 @@ export function useClinicDirectoryData() {
     direction: 'asc',
   });
 
+  const [fatal, setFatal] = useState(false);
+
   const fetchClinics = useCallback(async () => {
     try {
       setError(null);
@@ -26,6 +28,10 @@ export function useClinicDirectoryData() {
     } catch (err: any) {
       console.error('[ClinicsDirectory] Failed to fetch clinics:', err);
       setError(err.message || 'Failed to load clinics');
+      // Stop polling on auth/permission errors — retrying won't help
+      if (err.code === 'FORBIDDEN' || err.code === 'SESSION_EXPIRED') {
+        setFatal(true);
+      }
     } finally {
       setLoading(false);
     }
@@ -33,9 +39,10 @@ export function useClinicDirectoryData() {
 
   useEffect(() => {
     fetchClinics();
+    if (fatal) return;
     const interval = setInterval(fetchClinics, 60000);
     return () => clearInterval(interval);
-  }, [fetchClinics]);
+  }, [fetchClinics, fatal]);
 
   const toggleSort = useCallback((field: DirectorySort['field']) => {
     setSort((prev) =>

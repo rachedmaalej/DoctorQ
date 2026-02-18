@@ -128,6 +128,11 @@ class ApiClient {
           throw { code: 'SUBSCRIPTION_EXPIRED', message: data.error.message };
         }
 
+        // Handle admin access denied — clear redirect to avoid retry loops
+        if (response.status === 403 && data.error?.code === 'FORBIDDEN') {
+          throw { code: 'FORBIDDEN', message: data.error.message || 'Admin access required' };
+        }
+
         const error: ApiError & { data?: any } = {
           ...(data.error || {
             code: 'UNKNOWN_ERROR',

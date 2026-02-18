@@ -45,6 +45,12 @@ tmp/
 # Credentials & secrets
 CREDENTIALS.md
 backups/
+*.local.json
+*.local.txt
+
+# Leaked local paths (Windows)
+c:Users*
+AppData/
 
 # Lock files (project uses pnpm only)
 package-lock.json
