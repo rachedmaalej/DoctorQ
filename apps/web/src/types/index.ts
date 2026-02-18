@@ -410,3 +410,203 @@ export interface DailyRecapResponse {
     avgConsultation: { vsPrevDay: number; vsMonthly: number };
   };
 }
+
+// ─── Admin V3 Types (Dashboard Redesign) ─────────────────────
+
+export interface ClinicSummary {
+  id: string;
+  name: string;
+  doctorEmail: string;
+  plan: 'TRIAL' | 'PAID' | 'CHURNED';
+  trialEndsAt: string | null;
+  joinedAt: string;
+  lastActiveAt: string | null;
+  lastActiveDaysAgo: number | null;
+  patientsLast30Days: number;
+  avgPatientsPerDay: number;
+  qrCheckInCount30d: number;
+  totalCheckInCount30d: number;
+  qrAdoptionRate: number;
+  healthScore: 1 | 2 | 3 | 4;
+  healthLabel: 'Strong' | 'Good' | 'Fair' | 'Weak';
+  healthColor: 'green' | 'orange' | 'red';
+  churnRisk: 'high' | 'medium' | 'low' | 'none';
+  isInternal: boolean;
+  sessionHistory: number[];
+  daysUntilTrialExpires: number | null;
+}
+
+export interface FinancialSummary {
+  currentMrr: number;
+  activeTrials: number;
+  trialsExpiringSoon: number;
+  trialsExpiringThisWeek: number;
+  highIntentTrials: number;
+  atRiskTrials: number;
+  projectedMrrBestCase: number;
+  projectedMrrLikely: number;
+  projectedMrrConservative: number;
+  arpu: number;
+  conversionPipeline: ClinicSummary[];
+  revenueHistory: Array<{
+    month: string;
+    totalMrr: number;
+    newMrr: number;
+    churnedMrr: number;
+    net: number;
+  }>;
+}
+
+export interface EngagementSummary {
+  totalCheckIns30d: number;
+  qrCheckIns30d: number;
+  manualCheckIns30d: number;
+  whatsappCheckIns30d: number;
+  qrAdoptionRate: number;
+  avgPatientsPerClinicPerDay: number;
+  multiDoctorClinicsCount: number;
+  onboardingFunnel: {
+    signedUp: number;
+    clinicSetup: number;
+    qrCodeGenerated: number;
+    firstPatientCheckedIn: number;
+    firstQrScan: number;
+  };
+  clinicBreakdown: ClinicSummary[];
+  recommendedActions: Array<{
+    priority: number;
+    color: 'green' | 'orange' | 'gray';
+    title: string;
+    meta: string;
+  }>;
+  peakCheckinHour: string;
+}
+
+// ─── Admin V4 Types (Clinic Detail Redesign) ────────────────
+
+export interface ClinicDetailEnriched {
+  id: string;
+  name: string;
+  doctorName: string;
+  doctorEmail: string;
+  phone: string;
+  address: string;
+  language: string;
+  specialty: string;
+  joinedAt: string;
+
+  plan: 'TRIAL' | 'PAID' | 'CHURNED';
+  trialEndsAt: string | null;
+  daysUntilTrialExpires: number | null;
+  trialProgressPercent: number;
+  adminExtensionsGiven: number;
+
+  healthScore: 1 | 2 | 3 | 4;
+  healthLabel: 'Strong' | 'Good' | 'Fair' | 'Weak';
+  healthColor: 'green' | 'orange' | 'red';
+  churnRisk: 'high' | 'medium' | 'low' | 'none';
+  suggestedAction: {
+    label: string;
+    sublabel: string;
+    cta: string;
+    urgency: 'high' | 'medium' | 'low';
+  };
+
+  patientsAllTime: number;
+  patientsLast30Days: number;
+  avgPatientsPerDay: number;
+  qrAdoptionRate: number;
+  qrCheckInsLast30Days: number;
+  manualCheckInsLast30Days: number;
+  whatsappCheckInsLast30Days: number;
+  avgWaitTimeMinutes: number;
+  avgWaitTimeChangeVsLastWeek: number;
+  avgConsultationMinutes: number;
+  avgConsultationConfigured: number;
+  noShowRate: number;
+  peakHourRange: string;
+  lastLoginAt: string | null;
+  lastActiveDaysAgo: number | null;
+
+  notifyAtPosition: number;
+  qrCodeActive: boolean;
+  qrCodeLastScannedAt: string | null;
+  isActive: boolean;
+
+  onboardingStep: number;
+  onboardingTotalSteps: number;
+  onboardingStepLabel: string;
+  onboardingComplete: boolean;
+
+  todayActivity: {
+    waiting: number;
+    inConsultation: number;
+    completed: number;
+    noShows: number;
+    cancelled: number;
+    avgWaitMinutesToday: number | null;
+    qrCheckInsToday: number;
+    totalCheckInsToday: number;
+    peakHourToday: string | null;
+    dayLabel: string;
+  };
+  typicalActivity: {
+    waiting: number;
+    inConsultation: number;
+    completed: number;
+    noShows: number;
+    cancelled: number;
+    avgWaitMinutes: number | null;
+  };
+
+  weeklyChartData: {
+    days: Array<{
+      label: string;
+      thisWeek: number;
+      lastWeek: number;
+      isToday: boolean;
+    }>;
+    thisWeekTotal: number;
+    lastWeekTotal: number;
+    weekOnWeekChangePct: number;
+    bestDayLabel: string;
+    avgWaitThisWeek: number | null;
+  };
+  monthlyChartData: {
+    days: Array<{ date: string; count: number }>;
+    peakDayLabel: string;
+    activeDays: number;
+    zeroDays: number;
+    avgPerActiveDay: number;
+  };
+  methodChartData: {
+    manual: number;
+    qr: number;
+    whatsapp: number;
+    totalLast30Days: number;
+    qrGrowing: boolean;
+    qrGrowthNote: string | null;
+  };
+
+  timeline: Array<{
+    id: string;
+    icon: 'check' | 'star' | 'warning' | 'admin' | 'info';
+    color: 'green' | 'brand' | 'orange' | 'admin' | 'gray';
+    title: string;
+    meta: string;
+    timestamp: string;
+    isAdminAction: boolean;
+    adminBadgeLabel?: string;
+  }>;
+
+  recentPatients: Array<{
+    sequenceNumber: number;
+    date: string;
+    arrivedAt: string;
+    waitMinutes: number | null;
+    consultMinutes: number | null;
+    checkInMethod: 'QR' | 'MANUAL' | 'WHATSAPP';
+    status: 'COMPLETED' | 'NO_SHOW' | 'CANCELLED' | 'IN_CONSULTATION';
+    notes: string | null;
+  }>;
+}

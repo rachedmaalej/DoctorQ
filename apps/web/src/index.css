@@ -19,6 +19,32 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* ─── Admin Dashboard Design Tokens ─────────────────────── */
+  --bg:            #F5F4F0;
+  --surface:       #FFFFFF;
+  --surface-2:     #F0EFEB;
+  --border:        #E2E0D8;
+  --border-subtle: #ECEAE4;
+  --text-primary:   #1A1A18;
+  --text-secondary: #6B6960;
+  --text-muted:     #9E9C95;
+  --brand:       #1C4A3B;
+  --brand-mid:   #2D6B55;
+  --brand-light: #3D8A6E;
+  --brand-pale:  #E8F2EE;
+  --brand-pale-2:#D4E9E0;
+  --accent:        #E8A838;
+  --accent-pale:   #FDF3E1;
+  --danger:        #C0392B;
+  --danger-pale:   #FDECEA;
+  --success:       #27AE60;
+  --success-pale:  #E9F7EF;
+  --warning:       #E67E22;
+  --warning-pale:  #FEF3E6;
+  --info:          #2980B9;
+  --info-pale:     #EAF4FB;
+  --mono: 'DM Mono', monospace;
 }
 
 [dir="rtl"] {
@@ -345,5 +371,15 @@ section[id] {
 @keyframes timeline-pulse {
   0%, 100% { box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.3); }
   50% { box-shadow: 0 0 0 8px rgba(14, 165, 233, 0); }
+}
+
+/* ─── Admin Dashboard Animations ─────────────────────────── */
+@keyframes admin-slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes admin-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
 }
 

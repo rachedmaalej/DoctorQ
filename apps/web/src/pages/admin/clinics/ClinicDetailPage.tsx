@@ -62,8 +62,7 @@ export default function ClinicDetailPage() {
 
       <main role="main">
         <div
-          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
-          style={{ minHeight: 'calc(100vh - 56px)' }}
+          style={{ maxWidth: 1200, margin: '0 auto', padding: '28px 40px 60px', minHeight: 'calc(100vh - 56px)' }}
         >
           <Suspense
             fallback={

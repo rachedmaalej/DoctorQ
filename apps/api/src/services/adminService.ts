@@ -1517,3 +1517,1315 @@ export async function upgradeToActive(clinicId: string, plan: 'MONTHLY' | 'YEARL
 
   return updated;
 }
+
+// ─── V4: Enriched Clinic Detail ──────────────────────────────
+
+export interface ClinicDetailEnrichedResponse {
+  // Identity
+  id: string;
+  name: string;
+  doctorName: string;
+  doctorEmail: string;
+  phone: string;
+  address: string;
+  language: string;
+  specialty: string;
+  joinedAt: string;
+
+  // Subscription
+  plan: 'TRIAL' | 'PAID' | 'CHURNED';
+  trialEndsAt: string | null;
+  daysUntilTrialExpires: number | null;
+  trialProgressPercent: number;
+  adminExtensionsGiven: number;
+
+  // Health
+  healthScore: 1 | 2 | 3 | 4;
+  healthLabel: 'Strong' | 'Good' | 'Fair' | 'Weak';
+  healthColor: 'green' | 'orange' | 'red';
+  churnRisk: 'high' | 'medium' | 'low' | 'none';
+  suggestedAction: {
+    label: string;
+    sublabel: string;
+    cta: string;
+    urgency: 'high' | 'medium' | 'low';
+  };
+
+  // Performance KPIs
+  patientsAllTime: number;
+  patientsLast30Days: number;
+  avgPatientsPerDay: number;
+  qrAdoptionRate: number;
+  qrCheckInsLast30Days: number;
+  manualCheckInsLast30Days: number;
+  whatsappCheckInsLast30Days: number;
+  avgWaitTimeMinutes: number;
+  avgWaitTimeChangeVsLastWeek: number;
+  avgConsultationMinutes: number;
+  avgConsultationConfigured: number;
+  noShowRate: number;
+  peakHourRange: string;
+  lastLoginAt: string | null;
+  lastActiveDaysAgo: number | null;
+
+  // Configuration
+  notifyAtPosition: number;
+  qrCodeActive: boolean;
+  qrCodeLastScannedAt: string | null;
+  isActive: boolean;
+
+  // Onboarding
+  onboardingStep: number;
+  onboardingTotalSteps: number;
+  onboardingStepLabel: string;
+  onboardingComplete: boolean;
+
+  // Today's Activity
+  todayActivity: {
+    waiting: number;
+    inConsultation: number;
+    completed: number;
+    noShows: number;
+    cancelled: number;
+    avgWaitMinutesToday: number | null;
+    qrCheckInsToday: number;
+    totalCheckInsToday: number;
+    peakHourToday: string | null;
+    dayLabel: string;
+  };
+  typicalActivity: {
+    waiting: number;
+    inConsultation: number;
+    completed: number;
+    noShows: number;
+    cancelled: number;
+    avgWaitMinutes: number | null;
+  };
+
+  // Chart Data
+  weeklyChartData: {
+    days: Array<{
+      label: string;
+      thisWeek: number;
+      lastWeek: number;
+      isToday: boolean;
+    }>;
+    thisWeekTotal: number;
+    lastWeekTotal: number;
+    weekOnWeekChangePct: number;
+    bestDayLabel: string;
+    avgWaitThisWeek: number | null;
+  };
+  monthlyChartData: {
+    days: Array<{ date: string; count: number }>;
+    peakDayLabel: string;
+    activeDays: number;
+    zeroDays: number;
+    avgPerActiveDay: number;
+  };
+  methodChartData: {
+    manual: number;
+    qr: number;
+    whatsapp: number;
+    totalLast30Days: number;
+    qrGrowing: boolean;
+    qrGrowthNote: string | null;
+  };
+
+  // Timeline
+  timeline: Array<{
+    id: string;
+    icon: 'check' | 'star' | 'warning' | 'admin' | 'info';
+    color: 'green' | 'brand' | 'orange' | 'admin' | 'gray';
+    title: string;
+    meta: string;
+    timestamp: string;
+    isAdminAction: boolean;
+    adminBadgeLabel?: string;
+  }>;
+
+  // Patients Tab
+  recentPatients: Array<{
+    sequenceNumber: number;
+    date: string;
+    arrivedAt: string;
+    waitMinutes: number | null;
+    consultMinutes: number | null;
+    checkInMethod: 'QR' | 'MANUAL' | 'WHATSAPP';
+    status: 'COMPLETED' | 'NO_SHOW' | 'CANCELLED' | 'IN_CONSULTATION';
+    notes: string | null;
+  }>;
+}
+
+const ONBOARDING_STEP_LABELS: Record<number, string> = {
+  0: 'Not started',
+  1: 'Profile Setup',
+  2: 'Doctor Setup',
+  3: 'Queue Setup',
+  4: 'QR Code',
+};
+
+const DAY_LABELS_FR = ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'];
+const FULL_DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+function formatDateDDMM(d: Date): string {
+  return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function formatDateDDMMYYYY(d: Date): string {
+  return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+}
+
+function formatTime(d: Date): string {
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+}
+
+export async function getClinicDetailEnriched(clinicId: string): Promise<ClinicDetailEnrichedResponse> {
+  const now = new Date();
+  const startOfToday = getStartOfToday();
+  const thirtyDaysAgo = new Date(startOfToday);
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+  // ── 1. Fetch clinic ────────────────────────────────────
+  const clinic = await prisma.clinic.findUniqueOrThrow({
+    where: { id: clinicId },
+    include: {
+      doctors: {
+        select: { id: true, name: true, specialty: true, isActive: true, avgConsultationMins: true },
+        orderBy: { createdAt: 'asc' },
+      },
+    },
+  });
+
+  // ── 2. Plan classification ──────────────────────────────
+  let plan: 'TRIAL' | 'PAID' | 'CHURNED';
+  if (clinic.subscriptionStatus === 'TRIAL') plan = 'TRIAL';
+  else if (clinic.subscriptionStatus === 'ACTIVE') plan = 'PAID';
+  else plan = 'CHURNED';
+
+  const daysUntilTrialExpires = clinic.trialEndsAt
+    ? Math.ceil((clinic.trialEndsAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+    : null;
+
+  // Trial progress: how far through the 30-day trial
+  let trialProgressPercent = 0;
+  if (clinic.trialEndsAt) {
+    const trialDuration = 30; // days
+    const trialStartApprox = new Date(clinic.trialEndsAt);
+    trialStartApprox.setDate(trialStartApprox.getDate() - trialDuration);
+    const elapsed = (now.getTime() - trialStartApprox.getTime()) / (1000 * 60 * 60 * 24);
+    trialProgressPercent = Math.max(0, Math.min(100, Math.round((elapsed / trialDuration) * 100)));
+  }
+
+  // Admin extensions count
+  const adminExtensionsGiven = await prisma.subscriptionEvent.count({
+    where: { clinicId, eventType: 'trial_extended' },
+  });
+
+  // ── 3. Last 30 days entries ─────────────────────────────
+  const entries30d = await prisma.queueEntry.findMany({
+    where: { clinicId, arrivedAt: { gte: thirtyDaysAgo } },
+    select: {
+      id: true,
+      status: true,
+      checkInMethod: true,
+      arrivedAt: true,
+      calledAt: true,
+      completedAt: true,
+      patientName: true,
+    },
+    orderBy: { arrivedAt: 'desc' },
+  });
+
+  // All-time count
+  const patientsAllTime = await prisma.queueEntry.count({ where: { clinicId } });
+
+  const patientsLast30Days = entries30d.length;
+  const avgPatientsPerDay = Math.round((patientsLast30Days / 30) * 10) / 10;
+
+  // Check-in method counts
+  const qrCheckInsLast30Days = entries30d.filter(e => e.checkInMethod === 'QR_CODE').length;
+  const manualCheckInsLast30Days = entries30d.filter(e => e.checkInMethod === 'MANUAL').length;
+  const whatsappCheckInsLast30Days = entries30d.filter(e => e.checkInMethod === 'WHATSAPP').length;
+  const qrAdoptionRate = patientsLast30Days > 0
+    ? Math.round((qrCheckInsLast30Days / patientsLast30Days) * 100) : 0;
+
+  // Wait time (30d) — entries that were called
+  const seenEntries30d = entries30d.filter(e => e.calledAt && (e.status === 'IN_CONSULTATION' || e.status === 'COMPLETED'));
+  let avgWaitTimeMinutes = 0;
+  if (seenEntries30d.length > 0) {
+    const waits = seenEntries30d.map(e =>
+      Math.round((e.calledAt!.getTime() - e.arrivedAt.getTime()) / 60000)
+    );
+    avgWaitTimeMinutes = Math.round(waits.reduce((a, b) => a + b, 0) / waits.length);
+  }
+
+  // Consultation time (30d) — entries that were completed
+  const completedEntries30d = entries30d.filter(e => e.completedAt && e.calledAt);
+  let avgConsultationMinutes = 0;
+  if (completedEntries30d.length > 0) {
+    const durations = completedEntries30d.map(e =>
+      Math.round((e.completedAt!.getTime() - e.calledAt!.getTime()) / 60000)
+    );
+    avgConsultationMinutes = Math.round(durations.reduce((a, b) => a + b, 0) / durations.length);
+  }
+
+  // No-show rate
+  const noShowCount = entries30d.filter(e => e.status === 'NO_SHOW').length;
+  const noShowRate = patientsAllTime > 0 ? Math.round((noShowCount / patientsAllTime) * 100) : 0;
+
+  // Wait time change vs last week
+  const sevenDaysAgo = new Date(startOfToday);
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  const fourteenDaysAgo = new Date(startOfToday);
+  fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+
+  const thisWeekSeen = seenEntries30d.filter(e => e.arrivedAt >= sevenDaysAgo);
+  const lastWeekSeen = seenEntries30d.filter(e => e.arrivedAt >= fourteenDaysAgo && e.arrivedAt < sevenDaysAgo);
+
+  const avgWaitThisWeek = thisWeekSeen.length > 0
+    ? Math.round(thisWeekSeen.map(e => (e.calledAt!.getTime() - e.arrivedAt.getTime()) / 60000).reduce((a, b) => a + b, 0) / thisWeekSeen.length)
+    : null;
+  const avgWaitLastWeek = lastWeekSeen.length > 0
+    ? Math.round(lastWeekSeen.map(e => (e.calledAt!.getTime() - e.arrivedAt.getTime()) / 60000).reduce((a, b) => a + b, 0) / lastWeekSeen.length)
+    : null;
+
+  const avgWaitTimeChangeVsLastWeek = (avgWaitThisWeek !== null && avgWaitLastWeek !== null)
+    ? avgWaitThisWeek - avgWaitLastWeek
+    : 0;
+
+  // Peak hour range (30d)
+  const hourCounts = new Map<number, number>();
+  for (const e of entries30d) {
+    const h = e.arrivedAt.getHours();
+    hourCounts.set(h, (hourCounts.get(h) || 0) + 1);
+  }
+  let peakHour = 9, peakCount = 0;
+  for (const [h, c] of hourCounts) {
+    if (c > peakCount) { peakHour = h; peakCount = c; }
+  }
+  const peakHourRange = `${String(peakHour).padStart(2, '0')}:00–${String(peakHour + 2).padStart(2, '0')}:00`;
+
+  // Last active
+  const lastActiveDaysAgo = clinic.lastLoginAt
+    ? Math.floor((now.getTime() - clinic.lastLoginAt.getTime()) / (1000 * 60 * 60 * 24))
+    : null;
+
+  // ── 4. Health Score ─────────────────────────────────────
+  let score = 0;
+  if (patientsLast30Days >= 20) score += 2;
+  else if (patientsLast30Days >= 5) score += 1;
+  if (qrAdoptionRate >= 20) score += 1;
+  if (lastActiveDaysAgo !== null && lastActiveDaysAgo <= 2) score += 1;
+  const healthScore = Math.max(1, Math.min(4, score)) as 1 | 2 | 3 | 4;
+
+  const healthMap: Record<number, { label: 'Strong' | 'Good' | 'Fair' | 'Weak'; color: 'green' | 'orange' | 'red' }> = {
+    4: { label: 'Strong', color: 'green' },
+    3: { label: 'Good', color: 'orange' },
+    2: { label: 'Fair', color: 'orange' },
+    1: { label: 'Weak', color: 'red' },
+  };
+  const { label: healthLabel, color: healthColor } = healthMap[healthScore];
+
+  // Churn risk
+  const isInternal = brand.adminEmails.map(e => e.toLowerCase()).includes(clinic.email.toLowerCase());
+  let churnRisk: 'high' | 'medium' | 'low' | 'none';
+  if (isInternal) churnRisk = 'none';
+  else if (lastActiveDaysAgo !== null && lastActiveDaysAgo >= 10 && patientsLast30Days < 5) churnRisk = 'high';
+  else if (qrCheckInsLast30Days === 0 || patientsLast30Days < 10) churnRisk = 'medium';
+  else if (healthScore >= 3) churnRisk = 'low';
+  else churnRisk = 'medium';
+
+  // ── 5. Suggested Action ─────────────────────────────────
+  let suggestedAction: ClinicDetailEnrichedResponse['suggestedAction'];
+  if (plan === 'TRIAL' && daysUntilTrialExpires !== null && daysUntilTrialExpires <= 21 && healthScore >= 3) {
+    suggestedAction = {
+      label: 'Convert to paid',
+      sublabel: `trial ends ${clinic.trialEndsAt ? formatDateDDMM(clinic.trialEndsAt) : '—'}`,
+      cta: 'Send payment link →',
+      urgency: daysUntilTrialExpires <= 7 ? 'high' : 'medium',
+    };
+  } else if (qrAdoptionRate === 0 && !isInternal) {
+    suggestedAction = {
+      label: 'Boost QR adoption',
+      sublabel: '100% manual check-in',
+      cta: 'Send QR setup guide →',
+      urgency: 'medium',
+    };
+  } else if (lastActiveDaysAgo !== null && lastActiveDaysAgo >= 7) {
+    suggestedAction = {
+      label: 'Re-engage clinic',
+      sublabel: `inactive ${lastActiveDaysAgo} days`,
+      cta: 'Send check-in message →',
+      urgency: lastActiveDaysAgo >= 14 ? 'high' : 'medium',
+    };
+  } else if (!clinic.onboardingCompleted) {
+    suggestedAction = {
+      label: 'Complete onboarding',
+      sublabel: `stuck at step ${clinic.onboardingStep}/4`,
+      cta: 'Send setup guide →',
+      urgency: 'low',
+    };
+  } else {
+    suggestedAction = {
+      label: 'Monitor',
+      sublabel: 'no immediate action needed',
+      cta: 'View analytics →',
+      urgency: 'low',
+    };
+  }
+
+  // ── 6. QR code status ───────────────────────────────────
+  const lastQrEntry = await prisma.queueEntry.findFirst({
+    where: { clinicId, checkInMethod: 'QR_CODE' },
+    orderBy: { arrivedAt: 'desc' },
+    select: { arrivedAt: true },
+  });
+  const qrCodeActive = qrCheckInsLast30Days > 0 || clinic.onboardingStep >= 4;
+  const qrCodeLastScannedAt = lastQrEntry?.arrivedAt.toISOString() ?? null;
+
+  // ── 7. Today's Activity ─────────────────────────────────
+  const todayEntries = entries30d.filter(e => e.arrivedAt >= startOfToday);
+  const todayWaiting = todayEntries.filter(e => e.status === 'WAITING' || e.status === 'NOTIFIED').length;
+  const todayInConsultation = todayEntries.filter(e => e.status === 'IN_CONSULTATION').length;
+  const todayCompleted = todayEntries.filter(e => e.status === 'COMPLETED').length;
+  const todayNoShows = todayEntries.filter(e => e.status === 'NO_SHOW').length;
+  const todayCancelled = todayEntries.filter(e => e.status === 'CANCELLED').length;
+  const todayQrCheckIns = todayEntries.filter(e => e.checkInMethod === 'QR_CODE').length;
+
+  // Today's avg wait
+  const todaySeen = todayEntries.filter(e => e.calledAt && (e.status === 'IN_CONSULTATION' || e.status === 'COMPLETED'));
+  let avgWaitMinutesToday: number | null = null;
+  if (todaySeen.length > 0) {
+    const waits = todaySeen.map(e => Math.round((e.calledAt!.getTime() - e.arrivedAt.getTime()) / 60000));
+    avgWaitMinutesToday = Math.round(waits.reduce((a, b) => a + b, 0) / waits.length);
+  }
+
+  // Today's peak hour
+  const todayHourCounts = new Map<number, number>();
+  for (const e of todayEntries) {
+    const h = e.arrivedAt.getHours();
+    todayHourCounts.set(h, (todayHourCounts.get(h) || 0) + 1);
+  }
+  let peakHourToday: string | null = null;
+  if (todayHourCounts.size > 0) {
+    let maxH = 0, maxC = 0;
+    for (const [h, c] of todayHourCounts) {
+      if (c > maxC) { maxH = h; maxC = c; }
+    }
+    // Find the range of consecutive peak hours
+    let endH = maxH + 1;
+    while (todayHourCounts.has(endH) && (todayHourCounts.get(endH) || 0) > 0) endH++;
+    peakHourToday = `${String(maxH).padStart(2, '0')}:00–${String(Math.min(endH, maxH + 2)).padStart(2, '0')}:00`;
+  }
+
+  const dayOfWeek = now.getDay();
+  const dayName = FULL_DAY_NAMES[dayOfWeek];
+  const dayLabel = `${dayName} ${formatDateDDMM(now)}`;
+
+  // ── 8. Typical Activity (last 4 same weekdays) ──────────
+  // Get DailyStat entries for same weekday
+  const dailyStatsForWeekday = await prisma.dailyStat.findMany({
+    where: {
+      clinicId,
+      date: { lt: startOfToday },
+    },
+    orderBy: { date: 'desc' },
+    take: 60, // Get last 60 days of stats, we'll filter by weekday
+  });
+
+  // Filter to same day of week, take last 4
+  const sameWeekdayStats = dailyStatsForWeekday
+    .filter(s => s.date.getDay() === dayOfWeek)
+    .slice(0, 4);
+
+  // Also get queue entries for those days to compute status breakdowns
+  let typicalActivity: ClinicDetailEnrichedResponse['typicalActivity'] = {
+    waiting: 0, inConsultation: 0, completed: 0, noShows: 0, cancelled: 0, avgWaitMinutes: null,
+  };
+
+  if (sameWeekdayStats.length > 0) {
+    const avgPatients = Math.round(sameWeekdayStats.reduce((a, s) => a + s.totalPatients, 0) / sameWeekdayStats.length);
+    const avgWait = sameWeekdayStats.filter(s => s.avgWaitMins !== null).length > 0
+      ? Math.round(sameWeekdayStats.filter(s => s.avgWaitMins !== null).reduce((a, s) => a + (s.avgWaitMins || 0), 0) / sameWeekdayStats.filter(s => s.avgWaitMins !== null).length)
+      : null;
+    const avgNoShows = Math.round(sameWeekdayStats.reduce((a, s) => a + s.noShows, 0) / sameWeekdayStats.length);
+
+    typicalActivity = {
+      waiting: 0, // Not tracked in DailyStat (end-of-day it's 0)
+      inConsultation: 0,
+      completed: avgPatients,
+      noShows: avgNoShows,
+      cancelled: 0,
+      avgWaitMinutes: avgWait,
+    };
+  }
+
+  // ── 9. Weekly Chart Data ────────────────────────────────
+  // This week = Mon to Sun of current week
+  const todayDow = now.getDay(); // 0=Sun
+  const mondayOffset = todayDow === 0 ? -6 : 1 - todayDow;
+  const thisMonday = new Date(startOfToday);
+  thisMonday.setDate(thisMonday.getDate() + mondayOffset);
+
+  const lastMonday = new Date(thisMonday);
+  lastMonday.setDate(lastMonday.getDate() - 7);
+
+  // Get DailyStat for last 2 weeks
+  const twoWeekStats = await prisma.dailyStat.findMany({
+    where: { clinicId, date: { gte: lastMonday, lt: startOfToday } },
+    select: { date: true, totalPatients: true },
+  });
+  const statsMap = new Map<string, number>();
+  for (const s of twoWeekStats) {
+    statsMap.set(s.date.toISOString().split('T')[0], s.totalPatients);
+  }
+
+  // Today's count from live entries
+  const todayDateKey = new Date(startOfToday.getTime() + getTimezoneOffsetMinutes() * 60000)
+    .toISOString().split('T')[0];
+
+  const weekDays: ClinicDetailEnrichedResponse['weeklyChartData']['days'] = [];
+  let thisWeekTotal = 0, lastWeekTotal = 0;
+  let bestDayCount = 0, bestDayLabel = '';
+
+  // Mon-Sun day labels in French
+  const dayLabels = ['lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.', 'dim.'];
+
+  for (let i = 0; i < 7; i++) {
+    const thisWeekDate = new Date(thisMonday);
+    thisWeekDate.setDate(thisWeekDate.getDate() + i);
+    const lastWeekDate = new Date(lastMonday);
+    lastWeekDate.setDate(lastWeekDate.getDate() + i);
+
+    const twKey = thisWeekDate.toISOString().split('T')[0];
+    const lwKey = lastWeekDate.toISOString().split('T')[0];
+
+    const isToday = twKey === todayDateKey;
+    const thisWeekCount = isToday ? todayEntries.length : (statsMap.get(twKey) || 0);
+    const lastWeekCount = statsMap.get(lwKey) || 0;
+
+    // Only count days that have happened or are today
+    if (thisWeekDate <= now) {
+      thisWeekTotal += thisWeekCount;
+    }
+    lastWeekTotal += lastWeekCount;
+
+    if (thisWeekCount > bestDayCount && thisWeekDate <= now) {
+      bestDayCount = thisWeekCount;
+      bestDayLabel = `${FULL_DAY_NAMES[(i + 1) % 7 || 7 === 7 ? (i + 1) % 7 : i]} (${thisWeekCount} patients)`;
+    }
+
+    weekDays.push({
+      label: dayLabels[i],
+      thisWeek: thisWeekDate <= now ? thisWeekCount : 0,
+      lastWeek: lastWeekCount,
+      isToday,
+    });
+  }
+
+  // Fix bestDayLabel using the actual day name
+  if (bestDayCount > 0) {
+    const bestIdx = weekDays.findIndex(d => d.thisWeek === bestDayCount);
+    if (bestIdx >= 0) {
+      const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+      bestDayLabel = `${dayNames[bestIdx]} (${bestDayCount} patients)`;
+    }
+  }
+
+  const weekOnWeekChangePct = lastWeekTotal > 0
+    ? Math.round(((thisWeekTotal - lastWeekTotal) / lastWeekTotal) * 100)
+    : (thisWeekTotal > 0 ? 100 : 0);
+
+  // ── 10. Monthly Chart Data ──────────────────────────────
+  const monthlyDailyStats = await prisma.dailyStat.findMany({
+    where: { clinicId, date: { gte: thirtyDaysAgo, lt: startOfToday } },
+    select: { date: true, totalPatients: true },
+    orderBy: { date: 'asc' },
+  });
+
+  const monthlyStatsMap = new Map<string, number>();
+  for (const s of monthlyDailyStats) {
+    monthlyStatsMap.set(s.date.toISOString().split('T')[0], s.totalPatients);
+  }
+
+  const monthlyDays: Array<{ date: string; count: number }> = [];
+  let peakDayCount = 0, peakDayLabel = '';
+  let activeDays = 0, zeroDays = 0;
+
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(startOfToday);
+    d.setDate(d.getDate() - i);
+    const key = d.toISOString().split('T')[0];
+    const count = i === 0 ? todayEntries.length : (monthlyStatsMap.get(key) || 0);
+
+    monthlyDays.push({ date: formatDateDDMM(d), count });
+
+    if (count > 0) activeDays++;
+    else zeroDays++;
+
+    if (count > peakDayCount) {
+      peakDayCount = count;
+      peakDayLabel = `${count} patients (${DAY_LABELS_FR[d.getDay()].replace('.', '')} ${formatDateDDMM(d)})`;
+    }
+  }
+
+  const avgPerActiveDay = activeDays > 0 ? Math.round((patientsLast30Days / activeDays) * 10) / 10 : 0;
+
+  // ── 11. Method Chart Data ──────────────────────────────
+  // QR growth: compare first 7d vs last 7d of the 30d period
+  const first7d = entries30d.filter(e => {
+    const age = (now.getTime() - e.arrivedAt.getTime()) / (1000 * 60 * 60 * 24);
+    return age >= 23 && age < 30; // first week of 30d period
+  });
+  const last7d = entries30d.filter(e => {
+    const age = (now.getTime() - e.arrivedAt.getTime()) / (1000 * 60 * 60 * 24);
+    return age >= 0 && age < 7;
+  });
+
+  const first7dQrRate = first7d.length > 0
+    ? Math.round((first7d.filter(e => e.checkInMethod === 'QR_CODE').length / first7d.length) * 100) : 0;
+  const last7dQrRate = last7d.length > 0
+    ? Math.round((last7d.filter(e => e.checkInMethod === 'QR_CODE').length / last7d.length) * 100) : 0;
+  const qrGrowing = last7dQrRate > first7dQrRate;
+  const qrGrowthNote = qrGrowing
+    ? `Went from ${first7dQrRate}% in week 1 to ${last7dQrRate}% in week 4`
+    : null;
+
+  // ── 12. Timeline ────────────────────────────────────────
+  const timeline: ClinicDetailEnrichedResponse['timeline'] = [];
+
+  // First QR scan
+  const firstQrEntry = await prisma.queueEntry.findFirst({
+    where: { clinicId, checkInMethod: 'QR_CODE' },
+    orderBy: { arrivedAt: 'asc' },
+    select: { id: true, arrivedAt: true },
+  });
+  if (firstQrEntry) {
+    timeline.push({
+      id: `qr-${firstQrEntry.id}`,
+      icon: 'star',
+      color: 'brand',
+      title: 'First QR scan by patient',
+      meta: `${formatDateDDMMYYYY(firstQrEntry.arrivedAt)} · Patient self-checked in via QR for the first time — product value unlocked`,
+      timestamp: firstQrEntry.arrivedAt.toISOString(),
+      isAdminAction: false,
+      adminBadgeLabel: 'Aha Moment',
+    });
+  }
+
+  // First patient check-in
+  const firstEntry = await prisma.queueEntry.findFirst({
+    where: { clinicId },
+    orderBy: { arrivedAt: 'asc' },
+    select: { id: true, arrivedAt: true, checkInMethod: true },
+  });
+  if (firstEntry) {
+    timeline.push({
+      id: `first-${firstEntry.id}`,
+      icon: 'check',
+      color: 'green',
+      title: 'First patient checked in',
+      meta: `${formatDateDDMMYYYY(firstEntry.arrivedAt)} · ${firstEntry.checkInMethod === 'QR_CODE' ? 'QR' : 'Manual'} check-in`,
+      timestamp: firstEntry.arrivedAt.toISOString(),
+      isAdminAction: false,
+    });
+  }
+
+  // Onboarding incomplete warning
+  if (!clinic.onboardingCompleted) {
+    timeline.push({
+      id: 'onboarding-incomplete',
+      icon: 'warning',
+      color: 'orange',
+      title: 'Queue setup incomplete',
+      meta: `Stuck at Step ${clinic.onboardingStep}/4 — ${ONBOARDING_STEP_LABELS[clinic.onboardingStep] || 'Unknown'}`,
+      timestamp: clinic.createdAt.toISOString(),
+      isAdminAction: false,
+    });
+  }
+
+  // Clinic created
+  timeline.push({
+    id: 'created',
+    icon: 'check',
+    color: 'green',
+    title: 'Clinic profile created',
+    meta: `${formatDateDDMMYYYY(clinic.createdAt)} · Signed up via doctorq.tn · ${clinic.email}`,
+    timestamp: clinic.createdAt.toISOString(),
+    isAdminAction: false,
+  });
+
+  // Trial started
+  timeline.push({
+    id: 'trial-started',
+    icon: 'check',
+    color: 'green',
+    title: 'Trial started',
+    meta: `${formatDateDDMMYYYY(clinic.createdAt)} · 30-day trial${clinic.trialEndsAt ? ` · Expires ${formatDateDDMMYYYY(clinic.trialEndsAt)}` : ''}`,
+    timestamp: clinic.createdAt.toISOString(),
+    isAdminAction: false,
+  });
+
+  // Admin actions from subscription events
+  const adminEvents = await prisma.subscriptionEvent.findMany({
+    where: { clinicId, eventType: { in: ['trial_extended', 'subscription_activated'] } },
+    orderBy: { createdAt: 'desc' },
+    select: { id: true, eventType: true, notes: true, createdAt: true },
+  });
+
+  for (const evt of adminEvents) {
+    timeline.push({
+      id: `event-${evt.id}`,
+      icon: 'admin',
+      color: 'admin',
+      title: evt.eventType === 'trial_extended' ? 'Trial extended' : 'Subscription activated',
+      meta: `${evt.notes || ''} · ${formatDateDDMMYYYY(evt.createdAt)}`,
+      timestamp: evt.createdAt.toISOString(),
+      isAdminAction: true,
+      adminBadgeLabel: 'Admin action',
+    });
+  }
+
+  // Sort timeline by timestamp descending
+  timeline.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
+  // ── 13. Recent Patients ─────────────────────────────────
+  const recentEntries = entries30d.slice(0, 50); // already sorted desc
+  const recentPatients = recentEntries.map((e, idx) => {
+    const waitMinutes = e.calledAt
+      ? Math.round((e.calledAt.getTime() - e.arrivedAt.getTime()) / 60000) : null;
+    const consultMinutes = (e.completedAt && e.calledAt)
+      ? Math.round((e.completedAt.getTime() - e.calledAt.getTime()) / 60000) : null;
+
+    return {
+      sequenceNumber: patientsLast30Days - idx,
+      date: formatDateDDMMYYYY(e.arrivedAt),
+      arrivedAt: formatTime(e.arrivedAt),
+      waitMinutes,
+      consultMinutes,
+      checkInMethod: (e.checkInMethod === 'QR_CODE' ? 'QR' : e.checkInMethod === 'WHATSAPP' ? 'WHATSAPP' : 'MANUAL') as 'QR' | 'MANUAL' | 'WHATSAPP',
+      status: e.status as 'COMPLETED' | 'NO_SHOW' | 'CANCELLED' | 'IN_CONSULTATION',
+      notes: null,
+    };
+  });
+
+  // ── Build response ──────────────────────────────────────
+  return {
+    id: clinic.id,
+    name: clinic.name,
+    doctorName: clinic.doctorName || '',
+    doctorEmail: clinic.email,
+    phone: clinic.phone || '',
+    address: clinic.address || '',
+    language: clinic.language,
+    specialty: clinic.doctors[0]?.specialty || clinic.businessType || 'Medical',
+    joinedAt: clinic.createdAt.toISOString(),
+
+    plan,
+    trialEndsAt: clinic.trialEndsAt?.toISOString() ?? null,
+    daysUntilTrialExpires,
+    trialProgressPercent,
+    adminExtensionsGiven,
+
+    healthScore,
+    healthLabel,
+    healthColor,
+    churnRisk,
+    suggestedAction,
+
+    patientsAllTime,
+    patientsLast30Days,
+    avgPatientsPerDay,
+    qrAdoptionRate,
+    qrCheckInsLast30Days,
+    manualCheckInsLast30Days,
+    whatsappCheckInsLast30Days,
+    avgWaitTimeMinutes,
+    avgWaitTimeChangeVsLastWeek,
+    avgConsultationMinutes,
+    avgConsultationConfigured: clinic.avgConsultationMins,
+    noShowRate,
+    peakHourRange,
+    lastLoginAt: clinic.lastLoginAt?.toISOString() ?? null,
+    lastActiveDaysAgo,
+
+    notifyAtPosition: clinic.notifyAtPosition,
+    qrCodeActive,
+    qrCodeLastScannedAt,
+    isActive: clinic.isActive,
+
+    onboardingStep: clinic.onboardingStep,
+    onboardingTotalSteps: 4,
+    onboardingStepLabel: ONBOARDING_STEP_LABELS[clinic.onboardingStep] || 'Unknown',
+    onboardingComplete: clinic.onboardingCompleted,
+
+    todayActivity: {
+      waiting: todayWaiting,
+      inConsultation: todayInConsultation,
+      completed: todayCompleted,
+      noShows: todayNoShows,
+      cancelled: todayCancelled,
+      avgWaitMinutesToday,
+      qrCheckInsToday: todayQrCheckIns,
+      totalCheckInsToday: todayEntries.length,
+      peakHourToday,
+      dayLabel,
+    },
+    typicalActivity,
+
+    weeklyChartData: {
+      days: weekDays,
+      thisWeekTotal,
+      lastWeekTotal,
+      weekOnWeekChangePct,
+      bestDayLabel,
+      avgWaitThisWeek,
+    },
+    monthlyChartData: {
+      days: monthlyDays,
+      peakDayLabel,
+      activeDays,
+      zeroDays,
+      avgPerActiveDay,
+    },
+    methodChartData: {
+      manual: manualCheckInsLast30Days,
+      qr: qrCheckInsLast30Days,
+      whatsapp: whatsappCheckInsLast30Days,
+      totalLast30Days: patientsLast30Days,
+      qrGrowing,
+      qrGrowthNote,
+    },
+
+    timeline,
+    recentPatients,
+  };
+}
+
+// ─── V3: Redesigned Summary Interfaces ──────────────────────
+
+export interface ClinicSummary {
+  id: string;
+  name: string;
+  doctorEmail: string;
+  plan: 'TRIAL' | 'PAID' | 'CHURNED';
+  trialEndsAt: string | null;
+  joinedAt: string;
+  lastActiveAt: string | null;
+  lastActiveDaysAgo: number | null;
+  patientsLast30Days: number;
+  avgPatientsPerDay: number;
+  qrCheckInCount30d: number;
+  totalCheckInCount30d: number;
+  qrAdoptionRate: number;
+  healthScore: 1 | 2 | 3 | 4;
+  healthLabel: 'Strong' | 'Good' | 'Fair' | 'Weak';
+  healthColor: 'green' | 'orange' | 'red';
+  churnRisk: 'high' | 'medium' | 'low' | 'none';
+  isInternal: boolean;
+  sessionHistory: number[];
+  daysUntilTrialExpires: number | null;
+}
+
+export interface FinancialSummary {
+  currentMrr: number;
+  activeTrials: number;
+  trialsExpiringSoon: number;
+  trialsExpiringThisWeek: number;
+  highIntentTrials: number;
+  atRiskTrials: number;
+  projectedMrrBestCase: number;
+  projectedMrrLikely: number;
+  projectedMrrConservative: number;
+  arpu: number;
+  conversionPipeline: ClinicSummary[];
+  revenueHistory: Array<{ month: string; totalMrr: number; newMrr: number; churnedMrr: number; net: number }>;
+}
+
+export interface EngagementSummary {
+  totalCheckIns30d: number;
+  qrCheckIns30d: number;
+  manualCheckIns30d: number;
+  whatsappCheckIns30d: number;
+  qrAdoptionRate: number;
+  avgPatientsPerClinicPerDay: number;
+  multiDoctorClinicsCount: number;
+  onboardingFunnel: {
+    signedUp: number;
+    clinicSetup: number;
+    qrCodeGenerated: number;
+    firstPatientCheckedIn: number;
+    firstQrScan: number;
+  };
+  clinicBreakdown: ClinicSummary[];
+  recommendedActions: Array<{ priority: number; color: 'green' | 'orange' | 'gray'; title: string; meta: string }>;
+  peakCheckinHour: string;
+}
+
+// ─── V3: getClinicsSummary ──────────────────────────────────
+
+export async function getClinicsSummary(): Promise<ClinicSummary[]> {
+  const now = new Date();
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+  // 1. Query all clinics with countryFilter
+  const clinics = await prisma.clinic.findMany({
+    where: { ...countryFilter },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      subscriptionStatus: true,
+      subscriptionPlan: true,
+      trialEndsAt: true,
+      createdAt: true,
+      lastLoginAt: true,
+      isActive: true,
+    },
+  });
+
+  // 2. Single groupBy query for all clinics' 30d check-in counts by method
+  const checkinGroups = await prisma.queueEntry.groupBy({
+    by: ['clinicId', 'checkInMethod'],
+    where: { arrivedAt: { gte: thirtyDaysAgo }, ...clinicCountryFilter },
+    _count: true,
+  });
+
+  // Build per-clinic check-in maps
+  const clinicCheckinMap = new Map<string, { qr: number; total: number }>();
+  for (const g of checkinGroups) {
+    const existing = clinicCheckinMap.get(g.clinicId) || { qr: 0, total: 0 };
+    existing.total += g._count;
+    if (g.checkInMethod === 'QR_CODE') {
+      existing.qr += g._count;
+    }
+    clinicCheckinMap.set(g.clinicId, existing);
+  }
+
+  // 3. Session history: for each clinic, get last 14 distinct dates with counts
+  // Use a single query to get all entries grouped by clinicId and date
+  const recentEntries = await prisma.queueEntry.findMany({
+    where: { ...clinicCountryFilter },
+    select: { clinicId: true, arrivedAt: true },
+    orderBy: { arrivedAt: 'desc' },
+  });
+
+  // Build per-clinic date->count map
+  const clinicDateMap = new Map<string, Map<string, number>>();
+  for (const entry of recentEntries) {
+    const dateKey = entry.arrivedAt.toISOString().split('T')[0];
+    if (!clinicDateMap.has(entry.clinicId)) {
+      clinicDateMap.set(entry.clinicId, new Map());
+    }
+    const dateMap = clinicDateMap.get(entry.clinicId)!;
+    dateMap.set(dateKey, (dateMap.get(dateKey) || 0) + 1);
+  }
+
+  // Admin emails for isInternal check (lowercase)
+  const adminEmailsLower = brand.adminEmails.map(e => e.toLowerCase());
+
+  // 4. Build ClinicSummary for each clinic
+  return clinics.map((clinic) => {
+    const checkins = clinicCheckinMap.get(clinic.id) || { qr: 0, total: 0 };
+    const patientsLast30Days = checkins.total;
+    const avgPatientsPerDay = Math.round((patientsLast30Days / 30) * 10) / 10;
+    const qrAdoptionRate = checkins.total > 0
+      ? Math.round((checkins.qr / checkins.total) * 100)
+      : 0;
+
+    // Plan classification
+    let plan: 'TRIAL' | 'PAID' | 'CHURNED';
+    if (clinic.subscriptionStatus === 'TRIAL') {
+      plan = 'TRIAL';
+    } else if (clinic.subscriptionStatus === 'ACTIVE') {
+      plan = 'PAID';
+    } else {
+      plan = 'CHURNED';
+    }
+
+    // lastActiveDaysAgo
+    const lastActiveDaysAgo = clinic.lastLoginAt
+      ? Math.floor((now.getTime() - clinic.lastLoginAt.getTime()) / (1000 * 60 * 60 * 24))
+      : null;
+
+    // Health score: +2 if patients>=20 (+1 if >=5), +1 if qrRate>=20%, +1 if lastActive<=2d
+    let score = 0;
+    if (patientsLast30Days >= 20) {
+      score += 2;
+    } else if (patientsLast30Days >= 5) {
+      score += 1;
+    }
+    if (qrAdoptionRate >= 20) {
+      score += 1;
+    }
+    if (lastActiveDaysAgo !== null && lastActiveDaysAgo <= 2) {
+      score += 1;
+    }
+    const healthScore = Math.max(1, Math.min(4, score)) as 1 | 2 | 3 | 4;
+
+    // Health label/color mapping
+    const healthMap: Record<number, { label: 'Strong' | 'Good' | 'Fair' | 'Weak'; color: 'green' | 'orange' | 'red' }> = {
+      4: { label: 'Strong', color: 'green' },
+      3: { label: 'Good', color: 'orange' },
+      2: { label: 'Fair', color: 'orange' },
+      1: { label: 'Weak', color: 'red' },
+    };
+    const { label: healthLabel, color: healthColor } = healthMap[healthScore];
+
+    // isInternal
+    const isInternal = adminEmailsLower.includes(clinic.email.toLowerCase());
+
+    // Churn risk
+    let churnRisk: 'high' | 'medium' | 'low' | 'none';
+    if (isInternal) {
+      churnRisk = 'none';
+    } else if (lastActiveDaysAgo !== null && lastActiveDaysAgo >= 10 && patientsLast30Days < 5) {
+      churnRisk = 'high';
+    } else if (checkins.qr === 0 || patientsLast30Days < 10) {
+      churnRisk = 'medium';
+    } else if (healthScore >= 3) {
+      churnRisk = 'low';
+    } else {
+      churnRisk = 'medium';
+    }
+
+    // Session history: last 14 distinct dates, return counts as array
+    const dateMap = clinicDateMap.get(clinic.id) || new Map();
+    const sortedDates = Array.from(dateMap.entries())
+      .sort((a, b) => b[0].localeCompare(a[0])) // desc
+      .slice(0, 14)
+      .reverse(); // oldest first
+    const sessionHistory = sortedDates.map(([, count]) => count);
+
+    // Days until trial expires
+    let daysUntilTrialExpires: number | null = null;
+    if (clinic.trialEndsAt) {
+      daysUntilTrialExpires = Math.ceil(
+        (clinic.trialEndsAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+      );
+    }
+
+    return {
+      id: clinic.id,
+      name: clinic.name,
+      doctorEmail: clinic.email,
+      plan,
+      trialEndsAt: clinic.trialEndsAt?.toISOString() ?? null,
+      joinedAt: clinic.createdAt.toISOString(),
+      lastActiveAt: clinic.lastLoginAt?.toISOString() ?? null,
+      lastActiveDaysAgo,
+      patientsLast30Days,
+      avgPatientsPerDay,
+      qrCheckInCount30d: checkins.qr,
+      totalCheckInCount30d: checkins.total,
+      qrAdoptionRate,
+      healthScore,
+      healthLabel,
+      healthColor,
+      churnRisk,
+      isInternal,
+      sessionHistory,
+      daysUntilTrialExpires,
+    };
+  });
+}
+
+// ─── V3: getFinancialSummary ────────────────────────────────
+
+export async function getFinancialSummary(): Promise<FinancialSummary> {
+  // 1. Get clinic data
+  const clinicsSummary = await getClinicsSummary();
+
+  // 2. Compute MRR from active subscriptions (reuse pattern from getFinancialAnalytics)
+  const planCounts = await prisma.clinic.groupBy({
+    by: ['subscriptionPlan'],
+    where: { subscriptionStatus: 'ACTIVE', ...countryFilter },
+    _count: true,
+  });
+  const pMap: Record<string, number> = {};
+  for (const g of planCounts) { pMap[g.subscriptionPlan || ''] = g._count; }
+  const monthlyMajor = brand.pricing.monthly / brand.currency.multiplier;
+  const yearlyMajor = brand.pricing.yearly / brand.currency.multiplier;
+  const currentMrr = ((pMap['MONTHLY'] || 0) * monthlyMajor) + Math.round((pMap['YEARLY'] || 0) * (yearlyMajor / 12));
+
+  // 3. ARPU hardcoded
+  const arpu = 60;
+
+  // 4. Filter/count trials
+  const trialClinics = clinicsSummary.filter(c => c.plan === 'TRIAL');
+  const activeTrials = trialClinics.length;
+  const now = new Date();
+  const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+  const trialsExpiringSoon = trialClinics.filter(c =>
+    c.daysUntilTrialExpires !== null && c.daysUntilTrialExpires > 0 && c.daysUntilTrialExpires <= 14
+  ).length;
+
+  const trialsExpiringThisWeek = trialClinics.filter(c =>
+    c.daysUntilTrialExpires !== null && c.daysUntilTrialExpires > 0 && c.daysUntilTrialExpires <= 7
+  ).length;
+
+  // High-intent: healthScore >= 3 AND not internal
+  const highIntentTrials = trialClinics.filter(c => c.healthScore >= 3 && !c.isInternal).length;
+
+  // At-risk: churnRisk === 'high'
+  const atRiskTrials = trialClinics.filter(c => c.churnRisk === 'high').length;
+
+  // 5. Projected MRR
+  const projectedMrrBestCase = currentMrr + activeTrials * arpu;
+  const projectedMrrLikely = currentMrr + highIntentTrials * arpu;
+  const projectedMrrConservative = currentMrr + Math.min(1, highIntentTrials) * arpu;
+
+  // 6. Conversion pipeline: trial clinics sorted by healthScore DESC, then daysUntilTrialExpires ASC
+  const conversionPipeline = [...trialClinics].sort((a, b) => {
+    if (b.healthScore !== a.healthScore) return b.healthScore - a.healthScore;
+    const aDays = a.daysUntilTrialExpires ?? Infinity;
+    const bDays = b.daysUntilTrialExpires ?? Infinity;
+    return aDays - bDays;
+  });
+
+  // 7. Revenue history: reuse PaymentRecord + SubscriptionEvent aggregation
+  const twelveMonthsAgo = new Date();
+  twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
+  twelveMonthsAgo.setDate(1);
+  twelveMonthsAgo.setHours(0, 0, 0, 0);
+
+  const payments = await prisma.paymentRecord.findMany({
+    where: { month: { gte: twelveMonthsAgo }, status: 'paid', ...clinicCountryFilter },
+    select: { amount: true, month: true },
+  });
+
+  const subEvents = await prisma.subscriptionEvent.findMany({
+    where: { createdAt: { gte: twelveMonthsAgo }, ...clinicCountryFilter },
+    select: { eventType: true, amount: true, createdAt: true },
+    orderBy: { createdAt: 'asc' },
+  });
+
+  const mrrHistoryMap = new Map<string, { totalMrr: number; newMrr: number; churnedMrr: number }>();
+  for (let i = 0; i < 12; i++) {
+    const d = new Date();
+    d.setMonth(d.getMonth() - i);
+    const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    mrrHistoryMap.set(monthKey, { totalMrr: 0, newMrr: 0, churnedMrr: 0 });
+  }
+
+  payments.forEach((p) => {
+    const monthKey = p.month.toISOString().slice(0, 7);
+    const entry = mrrHistoryMap.get(monthKey);
+    if (entry) {
+      entry.totalMrr += Math.round(p.amount / brand.currency.multiplier);
+    }
+  });
+
+  const finMonthlyMajor = brand.pricing.monthly / brand.currency.multiplier;
+  subEvents.forEach((event) => {
+    const monthKey = event.createdAt.toISOString().slice(0, 7);
+    const entry = mrrHistoryMap.get(monthKey);
+    if (!entry) return;
+    const amountMajor = event.amount ? Math.round(event.amount / brand.currency.multiplier) : finMonthlyMajor;
+    if (event.eventType === 'payment_success') {
+      entry.newMrr += amountMajor;
+    } else if (event.eventType === 'subscription_expired' || event.eventType === 'subscription_cancelled' || event.eventType === 'trial_expired') {
+      entry.churnedMrr += finMonthlyMajor;
+    }
+  });
+
+  const revenueHistory = Array.from(mrrHistoryMap.entries())
+    .map(([month, data]) => ({
+      month,
+      totalMrr: data.totalMrr,
+      newMrr: data.newMrr,
+      churnedMrr: data.churnedMrr,
+      net: data.totalMrr + data.newMrr - data.churnedMrr,
+    }))
+    .reverse();
+
+  return {
+    currentMrr,
+    activeTrials,
+    trialsExpiringSoon,
+    trialsExpiringThisWeek,
+    highIntentTrials,
+    atRiskTrials,
+    projectedMrrBestCase,
+    projectedMrrLikely,
+    projectedMrrConservative,
+    arpu,
+    conversionPipeline,
+    revenueHistory,
+  };
+}
+
+// ─── V3: getEngagementSummary ───────────────────────────────
+
+export async function getEngagementSummary(): Promise<EngagementSummary> {
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+  // 1. Get clinic data
+  const clinicsSummary = await getClinicsSummary();
+
+  // 2. Aggregate check-in counts from 30d (reuse pattern from getFeatureAdoption)
+  const checkinGroups = await prisma.queueEntry.groupBy({
+    by: ['checkInMethod'],
+    where: { arrivedAt: { gte: thirtyDaysAgo }, ...clinicCountryFilter },
+    _count: true,
+  });
+  const cMap: Record<string, number> = {};
+  for (const g of checkinGroups) { cMap[g.checkInMethod || ''] = g._count; }
+  const qrCheckIns30d = cMap['QR_CODE'] || 0;
+  const manualCheckIns30d = cMap['MANUAL'] || 0;
+  const whatsappCheckIns30d = cMap['WHATSAPP'] || 0;
+  const totalCheckIns30d = Object.values(cMap).reduce((a, b) => a + b, 0);
+  const qrAdoptionRate = totalCheckIns30d > 0
+    ? Math.round((qrCheckIns30d / totalCheckIns30d) * 100)
+    : 0;
+
+  // Avg patients per clinic per day
+  const activeClinics = await prisma.clinic.count({ where: { isActive: true, ...countryFilter } });
+  const avgPatientsPerClinicPerDay = activeClinics > 0 && totalCheckIns30d > 0
+    ? Math.round((totalCheckIns30d / 30 / activeClinics) * 10) / 10
+    : 0;
+
+  // 3. Multi-doctor count
+  const clinicsWithDoctors = await prisma.doctor.findMany({
+    where: { isActive: true, ...clinicCountryFilter },
+    select: { clinicId: true },
+    distinct: ['clinicId'],
+  });
+  const multiDoctorClinicsCount = clinicsWithDoctors.length;
+
+  // 4. Onboarding funnel
+  const totalClinics = clinicsSummary.length;
+  const clinicSetup = await prisma.clinic.count({ where: { onboardingStep: { gte: 1 }, ...countryFilter } });
+  const qrCodeGenerated = await prisma.clinic.count({ where: { onboardingStep: { gte: 2 }, ...countryFilter } });
+
+  // Clinics that have >= 1 QueueEntry ever
+  const clinicsWithPatients = await prisma.queueEntry.findMany({
+    select: { clinicId: true },
+    distinct: ['clinicId'],
+    where: { ...clinicCountryFilter },
+  });
+  const firstPatientCheckedIn = clinicsWithPatients.length;
+
+  // Clinics that have >= 1 QueueEntry with checkInMethod='QR_CODE' ever
+  const clinicsWithQr = await prisma.queueEntry.findMany({
+    select: { clinicId: true },
+    distinct: ['clinicId'],
+    where: { checkInMethod: 'QR_CODE', ...clinicCountryFilter },
+  });
+  const firstQrScan = clinicsWithQr.length;
+
+  const onboardingFunnel = {
+    signedUp: totalClinics,
+    clinicSetup,
+    qrCodeGenerated,
+    firstPatientCheckedIn,
+    firstQrScan,
+  };
+
+  // 5. Recommended actions
+  const recommendedActions: Array<{ priority: number; color: 'green' | 'orange' | 'gray'; title: string; meta: string }> = [];
+
+  // 5a. Highest-health trial expiring soonest
+  const highHealthTrials = clinicsSummary
+    .filter(c => c.plan === 'TRIAL' && c.healthScore >= 3 && !c.isInternal && c.daysUntilTrialExpires !== null && c.daysUntilTrialExpires > 0)
+    .sort((a, b) => (a.daysUntilTrialExpires ?? Infinity) - (b.daysUntilTrialExpires ?? Infinity));
+  if (highHealthTrials.length > 0) {
+    const top = highHealthTrials[0];
+    recommendedActions.push({
+      priority: 1,
+      color: 'green',
+      title: `Contact ${top.name} this week — convert to paid`,
+      meta: `Health: ${top.healthLabel}, Trial expires in ${top.daysUntilTrialExpires}d`,
+    });
+  }
+
+  // 5b. Clinics with qrAdoptionRate < 5
+  const lowQrClinics = clinicsSummary.filter(c => c.qrAdoptionRate < 5 && c.totalCheckInCount30d > 0 && !c.isInternal);
+  if (lowQrClinics.length > 0 && recommendedActions.length < 5) {
+    recommendedActions.push({
+      priority: 2,
+      color: 'orange',
+      title: `Send QR Setup Guide to ${lowQrClinics.length} clinic(s)`,
+      meta: `These clinics have < 5% QR adoption`,
+    });
+  }
+
+  // 5c. Dormant clinics (lastActiveDaysAgo >= 10, not internal)
+  const dormantClinics = clinicsSummary.filter(c => c.lastActiveDaysAgo !== null && c.lastActiveDaysAgo >= 10 && !c.isInternal);
+  for (const dormant of dormantClinics) {
+    if (recommendedActions.length >= 5) break;
+    recommendedActions.push({
+      priority: 3,
+      color: 'orange',
+      title: `Re-engage ${dormant.name}`,
+      meta: `Last active ${dormant.lastActiveDaysAgo} days ago`,
+    });
+  }
+
+  // 5d. Low avg patients per day
+  if (avgPatientsPerClinicPerDay < 10 && recommendedActions.length < 5) {
+    recommendedActions.push({
+      priority: 4,
+      color: 'gray',
+      title: `Investigate why Avg Patients/Day is low`,
+      meta: `Current: ${avgPatientsPerClinicPerDay} patients/clinic/day`,
+    });
+  }
+
+  // 5e. Clinics with 0 patients
+  const zeroPatientsCount = clinicsSummary.filter(c => c.patientsLast30Days === 0 && !c.isInternal).length;
+  if (zeroPatientsCount > 0 && recommendedActions.length < 5) {
+    recommendedActions.push({
+      priority: 5,
+      color: 'gray',
+      title: `${zeroPatientsCount} clinic(s) haven't processed any patients`,
+      meta: `No check-ins in the last 30 days`,
+    });
+  }
+
+  // Cap at 5
+  recommendedActions.splice(5);
+
+  // 6. Peak check-in hour
+  const recentCheckins = await prisma.queueEntry.findMany({
+    where: { arrivedAt: { gte: thirtyDaysAgo }, ...clinicCountryFilter },
+    select: { arrivedAt: true },
+  });
+
+  const hourCounts = new Map<number, number>();
+  for (const entry of recentCheckins) {
+    const hour = entry.arrivedAt.getUTCHours();
+    hourCounts.set(hour, (hourCounts.get(hour) || 0) + 1);
+  }
+
+  let peakHour = 9; // default
+  let peakCount = 0;
+  for (const [hour, count] of hourCounts.entries()) {
+    if (count > peakCount) {
+      peakCount = count;
+      peakHour = hour;
+    }
+  }
+  const peakCheckinHour = `${String(peakHour).padStart(2, '0')}:00`;
+
+  // 7. Clinic breakdown sorted by patientsLast30Days DESC
+  const clinicBreakdown = [...clinicsSummary].sort((a, b) => b.patientsLast30Days - a.patientsLast30Days);
+
+  return {
+    totalCheckIns30d,
+    qrCheckIns30d,
+    manualCheckIns30d,
+    whatsappCheckIns30d,
+    qrAdoptionRate,
+    avgPatientsPerClinicPerDay,
+    multiDoctorClinicsCount,
+    onboardingFunnel,
+    clinicBreakdown,
+    recommendedActions,
+    peakCheckinHour,
+  };
+}
