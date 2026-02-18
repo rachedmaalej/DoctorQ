@@ -2,29 +2,23 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useDashboard } from '@/hooks/useDashboard';
-import { useUILabels } from '@/hooks/useUILabels';
 import { useAuthStore } from '@/stores/authStore';
 import { webBrand } from '@/lib/brand';
 import { api } from '@/lib/api';
-import QueueList from '@/components/queue/QueueList';
-import QueueStats from '@/components/queue/QueueStats';
-import QRCodeCard from '@/components/queue/QRCodeCard';
 import QRCodeModal from '@/components/queue/QRCodeModal';
 import ReceptionistDashboard from '@/components/receptionist/ReceptionistDashboard';
 import AuSuivantDashboard from '@/components/ausuivant/AuSuivantDashboard';
+import DesktopDashboard from '@/components/dashboard/DesktopDashboard';
 import AddPatientModal from '@/components/queue/AddPatientModal';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 import AnnouncementModal from '@/components/queue/AnnouncementModal';
 import { Toast } from '@/components/ui/Toast';
-import Header from '@/components/layout/Header';
 import TrialBanner from '@/components/ui/TrialBanner';
-import { MD3Button } from '@/components/md3/button';
 import DailyRecapOverlay from '@/components/dashboard/DailyRecapOverlay';
 
 export default function DashboardPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { labels, isMedical } = useUILabels();
   const { clinic, isImpersonating, impersonatedClinicName, stopImpersonation } = useAuthStore();
   const [showDailyRecap, setShowDailyRecap] = useState(false);
   const [subscriptionExpired, setSubscriptionExpired] = useState(false);
@@ -47,6 +41,7 @@ export default function DashboardPage() {
       setShowDailyRecap(true);
     }
   }, [clinic?.id]);
+
   const {
     // Store data
     queue,
@@ -90,7 +85,6 @@ export default function DashboardPage() {
     handleToggleDoctorPresent,
     handleReorderPatient,
     handleCompleteConsultation,
-    resetStats,
 
     // Toast state
     toast,
@@ -103,11 +97,11 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-8">
+    <div className="min-h-screen" style={{ background: '#F5F0E8' }}>
       {/* Trial Expiration Banner */}
       <TrialBanner />
 
-      {/* Impersonation Banner — Tunisian red for BleSaf, French blue for FiloSoin */}
+      {/* Impersonation Banner */}
       {isImpersonating && (
         <div
           className="text-white px-4 py-2 flex items-center justify-between"
@@ -131,11 +125,6 @@ export default function DashboardPage() {
           </button>
         </div>
       )}
-
-      {/* Desktop Header - hidden on mobile since MobileDashboard has its own stats bar */}
-      <div className="hidden lg:block">
-        <Header />
-      </div>
 
       {/* Mobile Dashboard - visible only on small screens */}
       <div className="lg:hidden">
@@ -168,111 +157,28 @@ export default function DashboardPage() {
         )}
       </div>
 
-      {/* Desktop Layout - hidden on mobile */}
-      <main className="hidden lg:block max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        {/* Main Grid Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-6">
-          {/* Left Column - QR Code Card */}
-          <aside className="lg:sticky lg:top-6 self-start">
-            <QRCodeCard />
-          </aside>
-
-          {/* Right Column - Stats, Actions, Queue */}
-          <div className="space-y-6">
-            {/* Stats */}
-            {stats && <QueueStats stats={stats} onResetStats={resetStats} isDoctorPresent={isDoctorPresent} queue={queue} />}
-
-            {/* Action Bar */}
-            <div className="flex flex-wrap items-center justify-between gap-3 sm:gap-4">
-              {/* Left side: Add Patient + Doctor Toggle */}
-              <div className="flex items-center gap-4">
-                {/* Add Patient/Client Button */}
-                <MD3Button
-                  variant="tonal"
-                  onClick={() => setIsAddModalOpen(true)}
-                  disabled={subscriptionExpired}
-                  icon={<span className="material-symbols-outlined text-xl">person_add</span>}
-                >
-                  {labels.addCustomer}
-                </MD3Button>
-
-                {/* Presence Toggle (Doctor/Store) */}
-                <button
-                  onClick={handleToggleDoctorPresent}
-                  disabled={isTogglingPresence}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-full font-medium transition-all disabled:opacity-70 ${
-                    isDoctorPresent
-                      ? 'bg-green-100 text-green-800 border-2 border-green-300'
-                      : 'bg-gray-100 text-gray-600 border-2 border-gray-200'
-                  }`}
-                  title={isDoctorPresent ? labels.presenceOn : labels.presenceOff}
-                  aria-label={isDoctorPresent ? labels.presenceOn : labels.presenceOff}
-                  aria-pressed={isDoctorPresent}
-                >
-                  <span
-                    className={`material-symbols-outlined text-xl ${isDoctorPresent ? 'text-green-600' : 'text-gray-400'}`}
-                    style={{ fontVariationSettings: isDoctorPresent ? "'FILL' 1" : "'FILL' 0" }}
-                  >
-                    {isMedical ? 'stethoscope' : 'storefront'}
-                  </span>
-                  <span className="text-sm">
-                    {isDoctorPresent ? labels.presenceOn : labels.presenceOff}
-                  </span>
-                  {/* Toggle indicator - RTL aware */}
-                  <div className={`w-10 h-6 rounded-full p-0.5 transition-colors ${isDoctorPresent ? 'bg-green-500' : 'bg-gray-300'}`}>
-                    <div className={`w-5 h-5 rounded-full bg-white shadow transition-transform ${isDoctorPresent ? 'ltr:translate-x-4 rtl:-translate-x-4' : 'translate-x-0'}`} />
-                  </div>
-                </button>
-
-                {/* Announcement Button */}
-                <button
-                  onClick={() => setIsAnnouncementModalOpen(true)}
-                  className={`relative flex items-center gap-2 px-4 py-2.5 rounded-full font-medium transition-all ${
-                    announcement
-                      ? 'bg-blue-100 text-blue-800 border-2 border-blue-300'
-                      : 'bg-gray-100 text-gray-600 border-2 border-gray-200 hover:bg-gray-200'
-                  }`}
-                  title={t('announcement.buttonLabel')}
-                  aria-label={t('announcement.buttonLabel')}
-                >
-                  <span
-                    className={`material-symbols-outlined text-xl ${announcement ? 'text-blue-600' : 'text-gray-400'}`}
-                    style={{ fontVariationSettings: announcement ? "'FILL' 1" : "'FILL' 0" }}
-                  >
-                    campaign
-                  </span>
-                  <span className="text-sm">{t('announcement.buttonLabel')}</span>
-                  {announcement && (
-                    <span className="absolute -top-1 ltr:-right-1 rtl:-left-1 w-3 h-3 bg-blue-500 rounded-full border-2 border-white" />
-                  )}
-                </button>
-              </div>
-
-              {/* Right side: Call Next Button */}
-              <button
-                onClick={handleCallNext}
-                disabled={waitingCount === 0 || isCallingNext || !isDoctorPresent || subscriptionExpired}
-                title={subscriptionExpired ? t('trial.expired') : isDoctorPresent ? t('queue.callNext') : t('queue.waitingForDoctor')}
-                className="flex items-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium rounded-full transition-colors shadow-md"
-              >
-                <span className="material-symbols-outlined text-xl">directions_walk</span>
-                {t('queue.callNext')}
-              </button>
-            </div>
-
-            {/* Queue List */}
-            <QueueList
-              queue={queue}
-              onRemove={handleRemovePatient}
-              onReorder={handleReorderPatient}
-              onEmergency={(id) => handleReorderPatient(id, 1)}
-              onCompleteConsultation={handleCompleteConsultation}
-              exitingPatientId={exitingPatientId}
-              isDoctorPresent={isDoctorPresent}
-            />
-          </div>
-        </div>
-      </main>
+      {/* Desktop Dashboard - hidden on mobile */}
+      <div className="hidden lg:block">
+        <DesktopDashboard
+          queue={queue}
+          stats={stats}
+          waitingCount={waitingCount}
+          isDoctorPresent={isDoctorPresent}
+          isCallingNext={isCallingNext}
+          isTogglingPresence={isTogglingPresence}
+          exitingPatientId={exitingPatientId}
+          announcement={announcement}
+          subscriptionExpired={subscriptionExpired}
+          onCallNext={handleCallNext}
+          onRemovePatient={handleRemovePatient}
+          onReorderPatient={handleReorderPatient}
+          onEmergency={(id) => handleReorderPatient(id, 1)}
+          onCompleteConsultation={handleCompleteConsultation}
+          onToggleDoctorPresent={handleToggleDoctorPresent}
+          onOpenAddModal={() => setIsAddModalOpen(true)}
+          onOpenAnnouncementModal={() => setIsAnnouncementModalOpen(true)}
+        />
+      </div>
 
       {/* Add patient modal */}
       <AddPatientModal
@@ -317,7 +223,7 @@ export default function DashboardPage() {
         onClose={() => setIsQRModalOpen(false)}
       />
 
-      {/* Reorder confirmation toast */}
+      {/* Toast */}
       <Toast
         message={toast.message}
         type={toast.type}
@@ -325,8 +231,7 @@ export default function DashboardPage() {
         onClose={hideToast}
       />
 
-      {/* First-patient celebration toast */}
-      {/* Daily Recap Overlay - shown once per day on first visit */}
+      {/* Daily Recap Overlay */}
       {showDailyRecap && (
         <DailyRecapOverlay
           doctorName={clinic?.doctorName || clinic?.name || ''}
