@@ -5,8 +5,6 @@ import { cn } from '../../shared/utils';
 const TABS: Array<{ key: AdminTab; label: string }> = [
   { key: 'overview', label: "Vue d'ensemble" },
   { key: 'clinics', label: 'Cabinets' },
-  { key: 'financial', label: 'Finances' },
-  { key: 'engagement', label: 'Engagement' },
 ];
 
 interface AusuivantDarkTopBarProps {

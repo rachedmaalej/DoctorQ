@@ -110,8 +110,8 @@ export default function AdminDashboard() {
           </Suspense>
         )}
 
-        {/* Financial and Engagement use redesigned full-page components */}
-        {(activeTab === 'financial' || activeTab === 'engagement') && (
+        {/* Financial and Engagement use redesigned full-page components (BleSaf only) */}
+        {!isFrance && (activeTab === 'financial' || activeTab === 'engagement') && (
           <Suspense
             fallback={
               <div className="flex justify-center py-16">
