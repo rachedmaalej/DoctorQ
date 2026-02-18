@@ -23,8 +23,10 @@ const AusuivantAdminDashboard = lazy(() => import('./ausuivant/AusuivantAdminDas
 const FinancialPage = lazy(() => import('./FinancialPage'));
 const EngagementPage = lazy(() => import('./EngagementPage'));
 
-// Legacy tab components (still used for clinics tab fallback and platform)
+// Legacy tab components (used for AuSuivant financial/engagement + clinics/platform)
 import ClinicsTab from '../../components/admin/tabs/ClinicsTab';
+import FinancialTab from '../../components/admin/tabs/FinancialTab';
+import EngagementTab from '../../components/admin/tabs/EngagementTab';
 import PlatformHealthTab from '../../components/admin/tabs/PlatformHealthTab';
 
 const VALID_TABS: AdminTab[] = ['overview', 'clinics', 'financial', 'engagement', 'platform'];
@@ -125,6 +127,17 @@ export default function AdminDashboard() {
             {activeTab === 'financial' && <FinancialPage />}
             {activeTab === 'engagement' && <EngagementPage />}
           </Suspense>
+        )}
+
+        {/* AuSuivant: legacy Financial & Engagement tabs */}
+        {isFrance && (activeTab === 'financial' || activeTab === 'engagement') && (
+          <div
+            className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
+            style={{ background: '#f4f1ec', minHeight: 'calc(100vh - 56px)' }}
+          >
+            {activeTab === 'financial' && <FinancialTab />}
+            {activeTab === 'engagement' && <EngagementTab />}
+          </div>
         )}
 
         {/* Legacy tabs for clinics and platform */}
