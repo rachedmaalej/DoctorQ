@@ -6,7 +6,8 @@ import CreateClinicModal from '@/components/admin/CreateClinicModal';
 import BlesafTopNav from '../blesaf/components/BlesafTopNav';
 import AusuivantDarkTopBar from '../ausuivant/components/AusuivantDarkTopBar';
 
-const BlesafClinicsDirectory = lazy(() => import('./blesaf/BlesafClinicsDirectory'));
+// BleSaf uses new redesigned ClinicsPage, AuSuivant keeps existing directory
+const ClinicsPage = lazy(() => import('../ClinicsPage'));
 const AusuivantClinicsDirectory = lazy(() => import('./ausuivant/AusuivantClinicsDirectory'));
 
 const isFrance = webBrand.id === 'france';
@@ -43,7 +44,7 @@ export default function ClinicsDirectoryPage() {
   };
 
   return (
-    <div className="h-screen overflow-y-auto no-scrollbar" style={{ background: isFrance ? '#f4f1ec' : '#f7f5f1' }}>
+    <div className="h-screen overflow-y-auto no-scrollbar" style={{ background: isFrance ? '#f4f1ec' : 'var(--bg)' }}>
       {/* Brand-specific Top Navigation */}
       {isFrance ? (
         <AusuivantDarkTopBar
@@ -62,27 +63,22 @@ export default function ClinicsDirectoryPage() {
       )}
 
       <main role="main">
-        <div
-          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
-          style={{ minHeight: 'calc(100vh - 56px)' }}
+        <Suspense
+          fallback={
+            <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem 0' }}>
+              <div
+                className="animate-spin rounded-full h-8 w-8 border-b-2"
+                style={{ borderBottomColor: isFrance ? '#c0392b' : 'var(--brand)' }}
+              />
+            </div>
+          }
         >
-          <Suspense
-            fallback={
-              <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem 0' }}>
-                <div
-                  className="animate-spin rounded-full h-8 w-8 border-b-2"
-                  style={{ borderBottomColor: isFrance ? '#c0392b' : '#2a9d6e' }}
-                />
-              </div>
-            }
-          >
-            {isFrance ? (
-              <AusuivantClinicsDirectory key={`dir-${refreshKey}`} />
-            ) : (
-              <BlesafClinicsDirectory key={`dir-${refreshKey}`} />
-            )}
-          </Suspense>
-        </div>
+          {isFrance ? (
+            <AusuivantClinicsDirectory key={`dir-${refreshKey}`} />
+          ) : (
+            <ClinicsPage key={`dir-${refreshKey}`} />
+          )}
+        </Suspense>
       </main>
 
       <CreateClinicModal

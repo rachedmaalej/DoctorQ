@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { api } from '@/lib/api';
 import type { ClinicHealth } from '@/types';
 import type { DirectoryFilters, DirectorySort } from '../types';
@@ -18,7 +18,7 @@ export function useClinicDirectoryData() {
     direction: 'asc',
   });
 
-  const [fatal, setFatal] = useState(false);
+  const fatalRef = React.useRef(false);
 
   const fetchClinics = useCallback(async () => {
     try {
@@ -30,7 +30,7 @@ export function useClinicDirectoryData() {
       setError(err.message || 'Failed to load clinics');
       // Stop polling on auth/permission errors — retrying won't help
       if (err.code === 'FORBIDDEN' || err.code === 'SESSION_EXPIRED') {
-        setFatal(true);
+        fatalRef.current = true;
       }
     } finally {
       setLoading(false);
@@ -39,10 +39,11 @@ export function useClinicDirectoryData() {
 
   useEffect(() => {
     fetchClinics();
-    if (fatal) return;
-    const interval = setInterval(fetchClinics, 60000);
+    const interval = setInterval(() => {
+      if (!fatalRef.current) fetchClinics();
+    }, 60000);
     return () => clearInterval(interval);
-  }, [fetchClinics, fatal]);
+  }, [fetchClinics]);
 
   const toggleSort = useCallback((field: DirectorySort['field']) => {
     setSort((prev) =>

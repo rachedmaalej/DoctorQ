@@ -1,13 +1,15 @@
 import { useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useClinicDetailData } from '../shared/hooks/useClinicDetailData';
+import { useClinicDetailEnriched } from '@/hooks/admin/useClinicDetailEnriched';
 import { useAuthStore } from '@/stores/authStore';
 import { api } from '@/lib/api';
-import ClinicDetailHeader from './components/ClinicDetailHeader';
-import SubscriptionCard from './components/SubscriptionCard';
-import ClinicInfoGrid from './components/ClinicInfoGrid';
-import TodayActivityStats from './components/TodayActivityStats';
-import WeeklyChart from './components/WeeklyChart';
+import { AlertBanner } from '@/components/admin/ui';
+import PageHeaderBar from '@/components/admin/clinic-detail/PageHeaderBar';
+import ClinicHealthCard from '@/components/admin/clinic-detail/ClinicHealthCard';
+import OverviewTab from '@/components/admin/clinic-detail/OverviewTab';
+import PatientsTab from '@/components/admin/clinic-detail/PatientsTab';
+import BillingTab from '@/components/admin/clinic-detail/BillingTab';
+import SettingsTab from '@/components/admin/clinic-detail/SettingsTab';
 import ExtendTrialModal from '@/components/admin/ExtendTrialModal';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 import DeleteClinicModal from '@/components/admin/clinic-detail/DeleteClinicModal';
@@ -25,7 +27,7 @@ export default function BlesafClinicDetail() {
   const { clinicId } = useParams<{ clinicId: string }>();
   const navigate = useNavigate();
   const { startImpersonation } = useAuthStore();
-  const { detail, weeklyData, loading, error, refetch } = useClinicDetailData(clinicId);
+  const { data: clinic, loading, error, refetch } = useClinicDetailEnriched(clinicId);
 
   const [activeTab, setActiveTab] = useState<DetailTab>('overview');
   const [actionLoading, setActionLoading] = useState<string | null>(null);
@@ -49,17 +51,17 @@ export default function BlesafClinicDetail() {
   }, [clinicId, navigate, startImpersonation]);
 
   const handlePause = useCallback(async () => {
-    if (!detail || !clinicId) return;
+    if (!clinic || !clinicId) return;
     setActionLoading('status');
     try {
-      await api.updateClinicStatus(clinicId, !detail.clinic.isActive);
+      await api.updateClinicStatus(clinicId, !clinic.isActive);
       await refetch();
     } catch (err: any) {
       alert(err.message || 'Failed to update status');
     } finally {
       setActionLoading(null);
     }
-  }, [clinicId, detail, refetch]);
+  }, [clinicId, clinic, refetch]);
 
   const handleResetPassword = useCallback(async () => {
     if (!clinicId) return;
@@ -98,7 +100,7 @@ export default function BlesafClinicDetail() {
       setShowUpgradeModal(false);
       await refetch();
     } catch {
-      // keep modal
+      // keep modal open
     } finally {
       setIsUpgrading(false);
     }
@@ -107,18 +109,18 @@ export default function BlesafClinicDetail() {
   if (loading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem 0' }}>
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderBottomColor: '#2a9d6e' }} />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderBottomColor: 'var(--brand)' }} />
       </div>
     );
   }
 
-  if (error || !detail) {
+  if (error || !clinic) {
     return (
       <div style={{ textAlign: 'center', padding: '4rem 1rem' }}>
-        <p style={{ color: '#dc2626', fontSize: '0.85rem', marginBottom: '1rem' }}>{error || 'Clinic not found'}</p>
+        <p style={{ color: 'var(--danger)', fontSize: '0.85rem', marginBottom: '1rem' }}>{error || 'Clinic not found'}</p>
         <button
           onClick={() => navigate('/admin/clinics')}
-          style={{ color: '#2a9d6e', fontSize: '0.85rem', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}
+          style={{ color: 'var(--brand)', fontSize: '0.85rem', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}
         >
           Back to Clinics
         </button>
@@ -135,9 +137,10 @@ export default function BlesafClinicDetail() {
         }
       `}</style>
 
-      {/* Header */}
-      <ClinicDetailHeader
-        clinic={detail.clinic}
+      {/* Page Header: back + title + tags + action buttons */}
+      <PageHeaderBar
+        clinic={clinic}
+        onBack={() => navigate('/admin/clinics')}
         onLoginAs={handleImpersonate}
         onPause={handlePause}
         onResetPassword={handleResetPassword}
@@ -145,14 +148,28 @@ export default function BlesafClinicDetail() {
         actionLoading={actionLoading}
       />
 
-      {/* Sub-tabs */}
+      {/* Health Card — always visible above tabs */}
+      <ClinicHealthCard clinic={clinic} />
+
+      {/* Onboarding Banner — between health card and tabs, if incomplete */}
+      {!clinic.onboardingComplete && (
+        <AlertBanner
+          variant="warning"
+          icon="⚠️"
+          title={`Onboarding incomplete — stuck at step ${clinic.onboardingStep}/${clinic.onboardingTotalSteps}: ${clinic.onboardingStepLabel}`}
+          body="This clinic hasn't finished setting up. They may need help completing their profile and configuration."
+          ctaLabel="Send setup guide →"
+          onCtaClick={() => {}}
+        />
+      )}
+
+      {/* Tab Navigation */}
       <div
         role="tablist"
         style={{
-          display: 'flex',
-          gap: 0,
-          borderBottom: '1px solid #e8e5df',
-          margin: '0.6rem 0 1.2rem',
+          display: 'flex', gap: 0,
+          borderBottom: '1px solid var(--border)',
+          marginBottom: 20,
         }}
       >
         {TABS.map((tab) => (
@@ -162,16 +179,13 @@ export default function BlesafClinicDetail() {
             aria-selected={activeTab === tab.key}
             onClick={() => setActiveTab(tab.key)}
             style={{
-              padding: '0.5rem 1rem',
-              fontSize: '0.82rem',
-              fontWeight: 500,
-              borderBottom: activeTab === tab.key ? '2px solid #2a9d6e' : '2px solid transparent',
-              color: activeTab === tab.key ? '#1a3c34' : '#999',
+              padding: '10px 16px',
+              fontSize: 13.5,
+              fontWeight: activeTab === tab.key ? 600 : 500,
+              color: activeTab === tab.key ? 'var(--text-primary)' : 'var(--text-muted)',
               background: 'none',
               border: 'none',
-              borderBottomWidth: 2,
-              borderBottomStyle: 'solid',
-              borderBottomColor: activeTab === tab.key ? '#2a9d6e' : 'transparent',
+              borderBottom: `2px solid ${activeTab === tab.key ? 'var(--brand)' : 'transparent'}`,
               cursor: 'pointer',
               fontFamily: "'DM Sans', sans-serif",
               transition: 'color 150ms, border-color 150ms',
@@ -184,36 +198,36 @@ export default function BlesafClinicDetail() {
         ))}
       </div>
 
-      {/* Tab content */}
+      {/* Tab Content */}
       {activeTab === 'overview' && (
-        <div>
-          <SubscriptionCard
-            clinic={detail.clinic}
-            onExtend={() => setShowExtendModal(true)}
-            onUpgrade={() => setShowUpgradeModal(true)}
-          />
-          <ClinicInfoGrid clinic={detail.clinic} />
-          <TodayActivityStats stats={detail.todayStats} />
-          <WeeklyChart data={weeklyData} />
-        </div>
+        <OverviewTab
+          clinic={clinic}
+          onExtendTrial={() => setShowExtendModal(true)}
+          onUpgrade={() => setShowUpgradeModal(true)}
+        />
       )}
 
       {activeTab === 'patients' && (
-        <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e8e5df', padding: '2rem', textAlign: 'center', color: '#999' }}>
-          Patient management coming soon
-        </div>
+        <PatientsTab clinic={clinic} />
       )}
 
       {activeTab === 'billing' && (
-        <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e8e5df', padding: '2rem', textAlign: 'center', color: '#999' }}>
-          Billing management coming soon
-        </div>
+        <BillingTab
+          clinic={clinic}
+          onUpgrade={() => setShowUpgradeModal(true)}
+        />
       )}
 
       {activeTab === 'settings' && (
-        <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e8e5df', padding: '2rem', textAlign: 'center', color: '#999' }}>
-          Settings management coming soon
-        </div>
+        <SettingsTab
+          clinic={clinic}
+          onLoginAs={handleImpersonate}
+          onResetPassword={handleResetPassword}
+          onExtendTrial={() => setShowExtendModal(true)}
+          onPause={handlePause}
+          onDelete={() => setShowDeleteModal(true)}
+          actionLoading={actionLoading}
+        />
       )}
 
       {/* Modals */}
@@ -221,7 +235,7 @@ export default function BlesafClinicDetail() {
         <ExtendTrialModal
           isOpen={true}
           clinicId={clinicId}
-          clinicName={detail.clinic.name}
+          clinicName={clinic.name}
           onClose={() => setShowExtendModal(false)}
           onExtended={refetch}
         />
@@ -232,7 +246,7 @@ export default function BlesafClinicDetail() {
           isOpen={true}
           onClose={() => setShowUpgradeModal(false)}
           onConfirm={handleUpgradeConfirm}
-          title={`Upgrade ${detail.clinic.name}`}
+          title={`Upgrade ${clinic.name}`}
           message="This will upgrade the clinic to the MONTHLY plan and set the subscription status to ACTIVE."
           confirmText="Upgrade"
           variant="info"
@@ -243,7 +257,7 @@ export default function BlesafClinicDetail() {
       {showDeleteModal && (
         <DeleteClinicModal
           isOpen={true}
-          clinicName={detail.clinic.name}
+          clinicName={clinic.name}
           loading={actionLoading === 'delete'}
           onConfirm={handleDelete}
           onClose={() => setShowDeleteModal(false)}

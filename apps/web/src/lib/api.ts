@@ -23,6 +23,10 @@ import type {
   PlatformHealth,
   ClinicEditableFields,
   DailyRecapResponse,
+  ClinicSummary,
+  FinancialSummary,
+  EngagementSummary,
+  ClinicDetailEnriched,
 } from '@/types';
 import { logger } from './logger';
 import { webBrand } from './brand';
@@ -435,6 +439,10 @@ class ApiClient {
     return this.request(`/api/admin/clinics/${clinicId}`);
   }
 
+  async getAdminClinicDetailEnriched(clinicId: string): Promise<ClinicDetailEnriched> {
+    return this.request(`/api/admin/clinics/${clinicId}/detail`);
+  }
+
   async createClinic(data: CreateClinicData): Promise<{ id: string; name: string; email: string }> {
     return this.request('/api/admin/clinics', {
       method: 'POST',
@@ -535,6 +543,19 @@ class ApiClient {
       method: 'PATCH',
       body: JSON.stringify(data),
     });
+  }
+
+  // Admin V3 — Dashboard Redesign
+  async getClinicsSummary(): Promise<ClinicSummary[]> {
+    return this.request('/api/admin/clinics/summary');
+  }
+
+  async getFinancialSummary(): Promise<FinancialSummary> {
+    return this.request('/api/admin/financial/summary');
+  }
+
+  async getEngagementSummary(): Promise<EngagementSummary> {
+    return this.request('/api/admin/engagement/summary');
   }
 }
 

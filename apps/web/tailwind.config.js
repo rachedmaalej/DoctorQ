@@ -67,7 +67,7 @@ export default {
           blue: '#3B7DD9',
           'blue-light': '#EDF3FC',
         },
-        // Teal Clinical — admin dashboard palette
+        // Teal Clinical — admin dashboard palette (legacy)
         admin: {
           DEFAULT: '#267B75',
           text: '#132E2C',
@@ -84,6 +84,18 @@ export default {
           negative: '#E15720',
           chart: '#459FB8',
         },
+        // Admin redesign — brand tokens
+        brand: {
+          DEFAULT: '#1C4A3B',
+          mid:    '#2D6B55',
+          light:  '#3D8A6E',
+          pale:   '#E8F2EE',
+          pale2:  '#D4E9E0',
+        },
+        surface: {
+          DEFAULT: '#FFFFFF',
+          2: '#F0EFEB',
+        },
       },
       fontFamily: {
         sans: ['IBM Plex Sans', 'system-ui', 'sans-serif'],
@@ -91,6 +103,7 @@ export default {
         outfit: ['Outfit', 'system-ui', 'sans-serif'],
         playfair: ['Playfair Display', 'Georgia', 'serif'],
         dm: ['DM Sans', 'system-ui', 'sans-serif'],
+        'dm-mono': ['DM Mono', 'monospace'],
         fraunces: ['Fraunces', 'Georgia', 'serif'],
       },
       // BleSaf receptionist dashboard tokens

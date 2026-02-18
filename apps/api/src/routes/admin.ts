@@ -12,6 +12,7 @@ import {
   getAdminMetricsWithTrends,
   getClinicHealthList,
   getClinicDetails,
+  getClinicDetailEnriched,
   createClinic,
   updateClinicStatus,
   resetClinicPassword,
@@ -29,6 +30,9 @@ import {
   extendTrial,
   upgradeToActive,
   updateClinicInfo,
+  getClinicsSummary,
+  getFinancialSummary,
+  getEngagementSummary,
 } from '../services/adminService.js';
 import { initPayment, getPaymentDetails } from '../lib/payment/index.js';
 import { brand } from '../lib/brand.js';
@@ -82,6 +86,33 @@ router.get('/clinics', authMiddleware, isAdmin, async (_req: AuthRequest, res: R
   } catch (error) {
     logger.error({ err: error }, "Error fetching clinic health");
     res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch clinic health data' } });
+  }
+});
+
+// ─── V3: Clinics Summary ────────────────────────────────────
+
+router.get('/clinics/summary', authMiddleware, isAdmin, async (_req: AuthRequest, res: Response) => {
+  try {
+    const data = await getClinicsSummary();
+    res.json({ data });
+  } catch (error) {
+    logger.error({ err: error }, "Error fetching clinics summary");
+    res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch clinics summary' } });
+  }
+});
+
+// ─── V4: Enriched Clinic Detail ─────────────────────────────
+
+router.get('/clinics/:id/detail', authMiddleware, isAdmin, async (req: AuthRequest, res: Response) => {
+  try {
+    const detail = await getClinicDetailEnriched(req.params.id);
+    res.json({ data: detail });
+  } catch (error: any) {
+    if (error.code === 'P2025') {
+      return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Clinic not found' } });
+    }
+    logger.error({ err: error }, "Error fetching enriched clinic detail");
+    res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch clinic detail' } });
   }
 });
 
@@ -398,6 +429,30 @@ router.patch('/clinics/:id/upgrade', authMiddleware, isAdmin, async (req: AuthRe
     }
     logger.error({ err: error }, "Error upgrading subscription");
     res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to upgrade subscription' } });
+  }
+});
+
+// ─── V3: Financial Summary ──────────────────────────────────
+
+router.get('/financial/summary', authMiddleware, isAdmin, async (_req: AuthRequest, res: Response) => {
+  try {
+    const data = await getFinancialSummary();
+    res.json({ data });
+  } catch (error) {
+    logger.error({ err: error }, "Error fetching financial summary");
+    res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch financial summary' } });
+  }
+});
+
+// ─── V3: Engagement Summary ────────────────────────────────
+
+router.get('/engagement/summary', authMiddleware, isAdmin, async (_req: AuthRequest, res: Response) => {
+  try {
+    const data = await getEngagementSummary();
+    res.json({ data });
+  } catch (error) {
+    logger.error({ err: error }, "Error fetching engagement summary");
+    res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch engagement summary' } });
   }
 });
 

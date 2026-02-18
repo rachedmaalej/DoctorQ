@@ -19,10 +19,12 @@ import AusuivantDarkTopBar from './ausuivant/components/AusuivantDarkTopBar';
 const BlesafAdminDashboard = lazy(() => import('./blesaf/BlesafAdminDashboard'));
 const AusuivantAdminDashboard = lazy(() => import('./ausuivant/AusuivantAdminDashboard'));
 
-// Existing tab components for non-overview tabs
+// Redesigned page components for Financial and Engagement tabs
+const FinancialPage = lazy(() => import('./FinancialPage'));
+const EngagementPage = lazy(() => import('./EngagementPage'));
+
+// Legacy tab components (still used for clinics tab fallback and platform)
 import ClinicsTab from '../../components/admin/tabs/ClinicsTab';
-import FinancialTab from '../../components/admin/tabs/FinancialTab';
-import EngagementTab from '../../components/admin/tabs/EngagementTab';
 import PlatformHealthTab from '../../components/admin/tabs/PlatformHealthTab';
 
 const VALID_TABS: AdminTab[] = ['overview', 'clinics', 'financial', 'engagement', 'platform'];
@@ -108,15 +110,30 @@ export default function AdminDashboard() {
           </Suspense>
         )}
 
-        {/* Non-overview tabs use existing components with brand-appropriate wrapper */}
-        {activeTab !== 'overview' && (
+        {/* Financial and Engagement use redesigned full-page components */}
+        {(activeTab === 'financial' || activeTab === 'engagement') && (
+          <Suspense
+            fallback={
+              <div className="flex justify-center py-16">
+                <div
+                  className="animate-spin rounded-full h-8 w-8 border-b-2"
+                  style={{ borderBottomColor: isFrance ? '#c0392b' : '#2a9d6e' }}
+                />
+              </div>
+            }
+          >
+            {activeTab === 'financial' && <FinancialPage />}
+            {activeTab === 'engagement' && <EngagementPage />}
+          </Suspense>
+        )}
+
+        {/* Legacy tabs for clinics and platform */}
+        {(activeTab === 'clinics' || activeTab === 'platform') && (
           <div
             className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
             style={{ background: isFrance ? '#f4f1ec' : '#f7f5f1', minHeight: 'calc(100vh - 56px)' }}
           >
             {activeTab === 'clinics' && <ClinicsTab key={`clinics-${refreshKey}`} />}
-            {activeTab === 'financial' && <FinancialTab />}
-            {activeTab === 'engagement' && <EngagementTab />}
             {activeTab === 'platform' && <PlatformHealthTab />}
           </div>
         )}
