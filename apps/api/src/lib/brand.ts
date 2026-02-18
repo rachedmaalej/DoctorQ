@@ -123,13 +123,15 @@ const brands: Record<BrandId, BrandDefaults> = {
 const brandId = (process.env.BRAND || 'blesaf') as BrandId;
 const defaults = brands[brandId] || brands.blesaf;
 
-// In dev, always include both brand admin emails so cross-brand admin access works
+// Legacy admin emails from before the blesaf.tn domain migration
+const legacyAdminEmails = ['admin@doctorq.tn', 'rached@doctorq.tn'];
 const allBrandAdminEmails = Object.values(brands).map(b => `admin@${b.domain}`);
 const envAdminEmails = process.env.ADMIN_EMAILS
   ? process.env.ADMIN_EMAILS.split(',').map(e => e.trim().toLowerCase())
   : [`admin@${defaults.domain}`];
 const mergedAdminEmails = [...new Set([
   ...envAdminEmails,
+  ...legacyAdminEmails,
   ...(process.env.NODE_ENV !== 'production' ? allBrandAdminEmails : []),
 ])];
 
