@@ -632,20 +632,6 @@
       "gynecology": "Gynécologie"
     }
   },
-  "dailyRecap": {
-    "greeting": "Bonjour Dr. {{name}} !",
-    "subtitle": "Voici le récap de votre journée d'hier",
-    "patientsTitle": "Patients vus",
-    "patientsSubtitle": "Total d'hier",
-    "consultationTitle": "Durée consultation",
-    "consultationSubtitle": "Moyenne par patient",
-    "waitTitle": "Temps d'attente",
-    "waitSubtitle": "Moyenne par patient",
-    "minutes": "min",
-    "vsPrevDay": "vs veille",
-    "vsMonthly": "vs mois",
-    "dismiss": "Fermer"
-  },
   "support": {
     "whatsapp": "Support WhatsApp",
     "needHelp": "Besoin d'aide ?"

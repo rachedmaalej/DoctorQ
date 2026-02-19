@@ -54,6 +54,124 @@
       "testPatientName": "Camille L."
     }
   },
+  "landingFr": {
+    "nav": {
+      "howItWorks": "Fonctionnement",
+      "benefits": "Avantages",
+      "pricing": "Tarifs",
+      "faq": "FAQ",
+      "login": "Se connecter",
+      "cta": "Essai gratuit"
+    },
+    "hero": {
+      "titleLine1": "La file d'attente",
+      "titleAccent": "intelligente",
+      "titleLine2": "pour votre cabinet.",
+      "subtitle": "Vos patients suivent leur tour en temps réel sur leur téléphone. Ils attendent où ils veulent. Vous, vous soignez.",
+      "cta": "Essayer gratuitement 30 jours",
+      "ctaSecondary": "Comment ça marche ?",
+      "noCard": "Sans carte bancaire. Sans engagement."
+    },
+    "socialProof": {
+      "clinics": "150+ cabinets en France",
+      "satisfaction": "98% de satisfaction",
+      "rgpd": "Conforme RGPD",
+      "support": "Support en 24h"
+    },
+    "beforeAfter": {
+      "beforeTitle": "Sans FiloSoin",
+      "afterTitle": "Avec FiloSoin",
+      "before1": "Salle d'attente surpeuplée, patients agités",
+      "before2": "Appels téléphoniques incessants : « C'est quand mon tour ? »",
+      "before3": "Patients qui partent sans être vus",
+      "before4": "Secrétaire débordée par la gestion des tours",
+      "after1": "Salle calme, patients informés en temps réel",
+      "after2": "Zéro appel : tout est automatisé",
+      "after3": "Les patients attendent où ils veulent — café, voiture, domicile",
+      "after4": "Votre équipe se concentre sur l'accueil et le soin"
+    },
+    "howItWorks": {
+      "title": "Comment ça marche ?",
+      "step1Title": "Inscrivez-vous",
+      "step1Desc": "Créez votre compte en 2 minutes. Essai gratuit de 30 jours, sans engagement.",
+      "step2Title": "Affichez le QR code",
+      "step2Desc": "Imprimez-le et placez-le dans votre salle d'attente. Les patients scannent pour s'enregistrer.",
+      "step3Title": "Gérez votre file",
+      "step3Desc": "Les patients s'enregistrent seuls et suivent leur position. Vous gérez tout depuis votre tableau de bord."
+    },
+    "benefits": {
+      "title": "Pourquoi choisir FiloSoin ?",
+      "card1Title": "Gain de temps",
+      "card1Desc": "Plus de gestion manuelle. Les patients s'enregistrent seuls via QR code et suivent leur position en temps réel.",
+      "card2Title": "Patients sereins",
+      "card2Desc": "Vos patients évitent la foule et l'attente sur place. Ils suivent leur tour depuis le café, la voiture ou chez eux.",
+      "card3Title": "Zéro papier",
+      "card3Desc": "Tout est numérique. Historique complet, statistiques détaillées et suivi sur votre tableau de bord.",
+      "card4Title": "Multi-praticien",
+      "card4Desc": "Gérez plusieurs médecins dans le même cabinet, chacun avec sa propre file d'attente indépendante.",
+      "card5Title": "Statistiques",
+      "card5Desc": "Suivez vos performances : temps d'attente moyen, patients vus par jour, heures de pointe et tendances.",
+      "card6Title": "Conforme RGPD",
+      "card6Desc": "Données hébergées en Union Européenne. Chiffrement de bout en bout. Affichage anonymisé des noms par défaut."
+    },
+    "trust": {
+      "title": "Vos données sont en sécurité",
+      "subtitle": "FiloSoin est conçu pour respecter les normes européennes les plus strictes en matière de protection des données personnelles.",
+      "pillar1Title": "RGPD Conforme",
+      "pillar1Desc": "Conformité totale au Règlement Européen 2016/679 sur la protection des données.",
+      "pillar2Title": "Hébergement UE",
+      "pillar2Desc": "Toutes les données sont stockées sur des serveurs situés dans l'Union Européenne.",
+      "pillar3Title": "Chiffrement SSL",
+      "pillar3Desc": "Communications chiffrées de bout en bout via HTTPS/TLS. Mots de passe hachés.",
+      "pillar4Title": "Droit à l'oubli",
+      "pillar4Desc": "Données patients supprimées quotidiennement. Exercez vos droits RGPD à tout moment."
+    },
+    "pricing": {
+      "title": "Tarifs simples, sans surprise",
+      "subtitle": "Pas de frais cachés. Annulez quand vous voulez.",
+      "monthly": "Mensuel",
+      "yearly": "Annuel",
+      "yearlySavings": "2 mois offerts !",
+      "popular": "Populaire",
+      "feature1": "Tableau de bord complet",
+      "feature2": "Patients illimités",
+      "feature3": "QR code personnalisé",
+      "feature4": "Statistiques et historique",
+      "selectMonthly": "Choisir mensuel",
+      "selectYearly": "Choisir annuel",
+      "trialNote": "30 jours d'essai gratuit pour démarrer",
+      "startTrial": "Commencer mon essai gratuit"
+    },
+    "faq": {
+      "title": "Questions fréquentes",
+      "q1": "Est-ce compliqué à installer ?",
+      "a1": "Non, 5 minutes suffisent. Vous créez votre compte, imprimez le QR code et l'affichez dans votre salle d'attente. C'est prêt.",
+      "q2": "Mes patients âgés peuvent l'utiliser ?",
+      "a2": "Oui ! Ils scannent simplement le QR code avec l'appareil photo de leur téléphone. Pas besoin de télécharger une application. Sinon, la réceptionniste peut les ajouter manuellement.",
+      "q3": "Est-ce conforme au RGPD ?",
+      "a3": "Absolument. FiloSoin est conforme au Règlement Européen 2016/679. Données hébergées en UE, chiffrement SSL, noms anonymisés par défaut (Prénom N.), et droit à l'effacement garanti.",
+      "q4": "Quels modes de paiement acceptez-vous ?",
+      "a4": "Nous acceptons les cartes bancaires (Visa, Mastercard) via Stripe, la plateforme de paiement la plus sécurisée d'Europe.",
+      "q5": "Puis-je utiliser FiloSoin avec plusieurs médecins ?",
+      "a5": "Oui ! FiloSoin supporte plusieurs praticiens dans le même cabinet, chacun avec sa propre file d'attente et ses propres statistiques.",
+      "q6": "Que se passe-t-il à la fin de l'essai gratuit ?",
+      "a6": "Votre essai se termine simplement. Pas de facturation automatique. Vous choisissez de vous abonner ou non, sans surprise.",
+      "q7": "Proposez-vous un support technique ?",
+      "a7": "Oui, notre équipe est disponible par email à support@filosoin.fr. Temps de réponse moyen : moins de 24 heures."
+    },
+    "cta": {
+      "title": "Prêt à transformer votre salle d'attente ?",
+      "subtitle": "Commencez gratuitement et constatez la différence dès le premier jour.",
+      "emailPlaceholder": "Votre email professionnel",
+      "button": "Commencer l'essai gratuit"
+    },
+    "footer": {
+      "privacy": "Confidentialité",
+      "terms": "Conditions",
+      "contact": "Contact",
+      "rights": "Tous droits réservés."
+    }
+  },
   "legal": {
     "terms": {
       "title": "Conditions Générales d'Utilisation",

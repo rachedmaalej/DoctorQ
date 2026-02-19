@@ -1,23 +1,33 @@
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { webBrand } from '@/lib/brand';
+import { api } from '@/lib/api';
+import { logger } from '@/lib/logger';
 import type { QueueScreenStatus } from './types';
 import StatusPill from './StatusPill';
 import StatsStrip from './StatsStrip';
 
+type PanelKey = 'qr' | 'whatsapp' | 'duration' | 'settings' | null;
+
 interface HeaderProps {
   clinicName: string;
+  avgConsultMins?: number;
   status: QueueScreenStatus;
   isAllDone?: boolean;
   onStatusPillClick?: () => void;
   isDoctorPresent?: boolean;
-  // Stats strip (only on OPEN/CLOSING)
   showStats?: boolean;
   chip1Value?: number;
   chip2Value?: number;
   chip3Value?: string;
   className?: string;
+  onWhatsAppClick?: () => void;
 }
 
 export default function Header({
   clinicName,
+  avgConsultMins = 13,
   status,
   isAllDone,
   onStatusPillClick,
@@ -27,79 +37,457 @@ export default function Header({
   chip2Value = 0,
   chip3Value = '',
   className,
+  onWhatsAppClick,
 }: HeaderProps) {
+  const { i18n } = useTranslation();
+  const navigate = useNavigate();
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [activePanel, setActivePanel] = useState<PanelKey>(null);
+
+  // QR code data
+  const [qrData, setQrData] = useState<{ url: string; qrCode: string; clinicName: string } | null>(null);
+  const [qrLoading, setQrLoading] = useState(false);
+
   const showPresence = status === 'OPEN' || status === 'CLOSING';
+  const showDrawerToggle = status === 'OPEN' || status === 'CLOSING' || status === 'PRE_OPEN';
+
+  const toggleLanguage = () => {
+    i18n.changeLanguage(i18n.language === 'fr' ? 'ar' : 'fr');
+  };
+
+  // Fetch QR code when the QR panel opens
+  useEffect(() => {
+    if (activePanel === 'qr' && !qrData && !qrLoading) {
+      setQrLoading(true);
+      api.getQRCode()
+        .then(data => setQrData(data))
+        .catch(err => logger.error('Failed to fetch QR code:', err))
+        .finally(() => setQrLoading(false));
+    }
+  }, [activePanel, qrData, qrLoading]);
+
+  const openPanel = (key: PanelKey) => {
+    setActivePanel(key);
+    setDrawerOpen(false);
+  };
+
+  const closePanel = () => setActivePanel(null);
+
+  const handleCopyLink = async () => {
+    if (qrData) {
+      try {
+        await navigator.clipboard.writeText(qrData.url);
+      } catch { /* clipboard failed */ }
+    }
+  };
 
   return (
-    <div className={`flex flex-col gap-3 px-5 pt-2 pb-3.5 ${className ?? ''}`}>
-      {/* Top row */}
-      <div className="flex justify-between items-center">
+    <div className={className ?? ''}>
+      {/* ── Main Row ───────────────────────────────────── */}
+      <div className="flex items-center justify-between px-5 py-1.5 bg-bs-surface border-b border-bs-border">
         <span
           className="text-bs-text-primary font-bold truncate mr-2"
-          style={{ fontSize: 17, letterSpacing: '-0.02em' }}
+          style={{ fontSize: 16, letterSpacing: '-0.02em' }}
         >
           {clinicName}
         </span>
-        <div className="flex gap-2 items-center shrink-0">
-          <button
-            className="rounded-full font-semibold"
-            style={{
-              padding: '5px 12px',
-              fontSize: 12,
-              fontFamily: "'IBM Plex Sans Arabic', sans-serif",
-              backgroundColor: '#FFFFFF',
-              color: '#6B6960',
-              border: '1px solid #E8E6DF',
-            }}
-          >
-            عربي
-          </button>
-          <StatusPill
-            status={status}
-            isAllDone={isAllDone}
-            onClick={onStatusPillClick}
-          />
+
+        <div className="flex items-center gap-1.5 shrink-0">
+          {webBrand.supportedLanguages.length > 1 && (
+            <button
+              onClick={toggleLanguage}
+              className="rounded-full font-semibold"
+              style={{
+                padding: '4px 10px',
+                fontSize: 11,
+                fontFamily: "'IBM Plex Sans Arabic', sans-serif",
+                backgroundColor: '#FFFFFF',
+                color: '#6B6960',
+                border: '1px solid #E8E6DF',
+              }}
+            >
+              {i18n.language === 'fr' ? 'عربي' : 'FR'}
+            </button>
+          )}
+
+          {showPresence && isDoctorPresent !== undefined && (
+            <div
+              className="flex items-center gap-1.5 rounded-full"
+              style={{
+                padding: '4px 10px 4px 7px',
+                fontSize: 11,
+                fontWeight: 600,
+                backgroundColor: isDoctorPresent ? '#EDF7F0' : '#FDF0ED',
+                color: isDoctorPresent ? '#2D8B4E' : '#D94F3B',
+                border: isDoctorPresent
+                  ? '1px solid rgba(45,139,78,0.15)'
+                  : '1px solid rgba(217,79,59,0.15)',
+              }}
+            >
+              <div
+                className="w-1.5 h-1.5 rounded-full"
+                style={{ backgroundColor: isDoctorPresent ? '#2D8B4E' : '#D94F3B' }}
+              />
+              <span>{isDoctorPresent ? 'Présent' : 'Absent'}</span>
+            </div>
+          )}
+
+          {!showPresence && (
+            <StatusPill
+              status={status}
+              isAllDone={isAllDone}
+              onClick={onStatusPillClick}
+            />
+          )}
+
+          {showDrawerToggle && (
+            <button
+              onClick={() => setDrawerOpen(!drawerOpen)}
+              className="flex items-center justify-center"
+              aria-label={drawerOpen ? 'Fermer les outils' : 'Ouvrir les outils'}
+              aria-expanded={drawerOpen}
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: 8,
+                border: 'none',
+                background: 'transparent',
+                color: drawerOpen ? '#0F7B6C' : '#6B6960',
+                cursor: 'pointer',
+                transition: 'all 0.25s ease',
+                transform: drawerOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+              }}
+            >
+              <span className="material-symbols-rounded" style={{ fontSize: 22 }}>
+                expand_more
+              </span>
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Doctor presence indicator — only when queue is active */}
-      {showPresence && isDoctorPresent !== undefined && (
-        <div
-          className="flex items-center gap-2 rounded-full self-start cursor-pointer"
-          onClick={onStatusPillClick}
-          style={{
-            padding: '5px 12px 5px 8px',
-            backgroundColor: isDoctorPresent ? '#EDF7F0' : '#FDF0ED',
-            border: isDoctorPresent
-              ? '1px solid rgba(45,139,78,0.15)'
-              : '1px solid rgba(217,79,59,0.15)',
-          }}
-        >
+      {/* ── Expandable Drawer (4 buttons in 2×2 grid) ── */}
+      <div
+        className="overflow-hidden border-b border-bs-border bg-bs-surface"
+        style={{
+          maxHeight: drawerOpen ? 200 : 0,
+          opacity: drawerOpen ? 1 : 0,
+          transition: 'max-height 0.35s cubic-bezier(0.22,1,0.36,1), opacity 0.3s ease',
+          borderBottomWidth: drawerOpen ? 1 : 0,
+        }}
+      >
+        <div className="px-5 pt-1.5 pb-3.5">
           <div
-            className="w-2 h-2 rounded-full"
-            style={{ backgroundColor: isDoctorPresent ? '#2D8B4E' : '#D94F3B' }}
-          />
-          <span
-            className="font-semibold"
-            style={{
-              fontSize: 12,
-              color: isDoctorPresent ? '#2D8B4E' : '#D94F3B',
-            }}
+            className="text-bs-text-tertiary font-semibold mb-2 uppercase"
+            style={{ fontSize: 10, letterSpacing: '1px' }}
           >
-            {isDoctorPresent ? 'Présent' : 'Absent'}
-          </span>
+            Outils rapides
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            {/* QR Code */}
+            <button
+              onClick={() => openPanel('qr')}
+              className="bs-tool-chip flex items-center gap-2"
+              style={{
+                padding: '10px 12px',
+                background: '#F6F5F0',
+                border: '1px solid #E8E6DF',
+                borderRadius: 8,
+                cursor: 'pointer',
+                transition: 'all 0.15s',
+              }}
+            >
+              <span className="material-symbols-rounded" style={{ fontSize: 18, color: '#0F7B6C' }}>
+                qr_code_2
+              </span>
+              <span style={{ fontSize: 12, fontWeight: 600, color: '#1A1A1A' }}>QR Code</span>
+            </button>
+
+            {/* WhatsApp */}
+            <button
+              onClick={() => onWhatsAppClick?.()}
+              className="bs-tool-chip flex items-center gap-2"
+              style={{
+                padding: '10px 12px',
+                background: '#F6F5F0',
+                border: '1px solid #E8E6DF',
+                borderRadius: 8,
+                cursor: 'pointer',
+                transition: 'all 0.15s',
+              }}
+            >
+              <span className="material-symbols-rounded" style={{ fontSize: 18, color: '#0F7B6C' }}>
+                share
+              </span>
+              <span style={{ fontSize: 12, fontWeight: 600, color: '#1A1A1A' }}>WhatsApp</span>
+            </button>
+
+            {/* Durée consultation */}
+            <button
+              onClick={() => openPanel('duration')}
+              className="bs-tool-chip flex items-center gap-2"
+              style={{
+                padding: '10px 12px',
+                background: '#F6F5F0',
+                border: '1px solid #E8E6DF',
+                borderRadius: 8,
+                cursor: 'pointer',
+                transition: 'all 0.15s',
+              }}
+            >
+              <span className="material-symbols-rounded" style={{ fontSize: 18, color: '#D4920B' }}>
+                timer
+              </span>
+              <span style={{ fontSize: 12, fontWeight: 600, color: '#1A1A1A' }}>Durée consultation</span>
+            </button>
+
+            {/* Paramètres */}
+            <button
+              onClick={() => openPanel('settings')}
+              className="bs-tool-chip flex items-center gap-2"
+              style={{
+                padding: '10px 12px',
+                background: '#F6F5F0',
+                border: '1px solid #E8E6DF',
+                borderRadius: 8,
+                cursor: 'pointer',
+                transition: 'all 0.15s',
+              }}
+            >
+              <span className="material-symbols-rounded" style={{ fontSize: 18, color: '#6B6960' }}>
+                settings
+              </span>
+              <span style={{ fontSize: 12, fontWeight: 600, color: '#1A1A1A' }}>Paramètres</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Stats Strip ───────────────────────────────── */}
+      {showStats && (
+        <div className="px-5 pt-1.5 pb-2">
+          <StatsStrip
+            status={status}
+            chip1Value={chip1Value}
+            chip2Value={chip2Value}
+            chip3Value={chip3Value}
+          />
         </div>
       )}
 
-      {/* Stats strip */}
-      {showStats && (
-        <StatsStrip
-          status={status}
-          chip1Value={chip1Value}
-          chip2Value={chip2Value}
-          chip3Value={chip3Value}
+      {/* ═══ Right Slide Panels ═══ */}
+      {/* Backdrop */}
+      {activePanel && (
+        <div
+          className="bs-panel-backdrop"
+          onClick={closePanel}
         />
       )}
+
+      {/* QR Code Panel */}
+      <div className={`bs-right-panel ${activePanel === 'qr' ? 'open' : ''}`}>
+        <div className="bs-panel-header">
+          <button onClick={closePanel} className="bs-panel-back">
+            <span className="material-symbols-rounded" style={{ fontSize: 22 }}>arrow_back</span>
+          </button>
+          <span className="bs-panel-title">QR Code</span>
+        </div>
+        <div className="bs-panel-body" style={{ textAlign: 'center' }}>
+          {qrLoading && (
+            <div style={{ padding: '40px 0' }}>
+              <div
+                className="animate-spin rounded-full mx-auto"
+                style={{ width: 40, height: 40, borderBottom: '2px solid #0F7B6C' }}
+              />
+            </div>
+          )}
+          {qrData && !qrLoading && (
+            <>
+              <img
+                src={qrData.qrCode}
+                alt="QR Code"
+                style={{
+                  width: 220,
+                  height: 220,
+                  margin: '0 auto',
+                  borderRadius: 12,
+                  border: '1px solid #E8E6DF',
+                }}
+              />
+              <p style={{ fontSize: 14, color: '#6B6960', marginTop: 16 }}>
+                Scannez pour rejoindre la file d'attente
+              </p>
+              <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginTop: 20 }}>
+                <button
+                  onClick={handleCopyLink}
+                  className="flex items-center gap-1.5"
+                  style={{
+                    padding: '10px 20px',
+                    background: '#F0EFEA',
+                    border: '1px solid #E8E6DF',
+                    borderRadius: 100,
+                    fontSize: 13,
+                    fontWeight: 600,
+                    color: '#6B6960',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <span className="material-symbols-rounded" style={{ fontSize: 16 }}>content_copy</span>
+                  Copier lien
+                </button>
+                <button
+                  className="flex items-center gap-1.5"
+                  style={{
+                    padding: '10px 20px',
+                    background: '#0F7B6C',
+                    border: 'none',
+                    borderRadius: 100,
+                    fontSize: 13,
+                    fontWeight: 600,
+                    color: 'white',
+                    cursor: 'pointer',
+                  }}
+                  onClick={() => {
+                    if (qrData?.qrCode) {
+                      const link = document.createElement('a');
+                      link.href = qrData.qrCode;
+                      link.download = 'qrcode-blesaf.png';
+                      link.click();
+                    }
+                  }}
+                >
+                  <span className="material-symbols-rounded" style={{ fontSize: 16 }}>download</span>
+                  Télécharger
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Duration Panel */}
+      <div className={`bs-right-panel ${activePanel === 'duration' ? 'open' : ''}`}>
+        <div className="bs-panel-header">
+          <button onClick={closePanel} className="bs-panel-back">
+            <span className="material-symbols-rounded" style={{ fontSize: 22 }}>arrow_back</span>
+          </button>
+          <span className="bs-panel-title">Durée consultation</span>
+        </div>
+        <div className="bs-panel-body" style={{ textAlign: 'center', padding: '40px 20px' }}>
+          <span className="material-symbols-rounded" style={{ fontSize: 64, color: '#D4920B' }}>
+            timer
+          </span>
+          <div style={{ marginTop: 12 }}>
+            <span style={{ fontSize: 56, fontWeight: 800, color: '#1A1A1A', letterSpacing: '-0.03em' }}>
+              {avgConsultMins}
+            </span>
+            <span style={{ fontSize: 20, fontWeight: 600, color: '#6B6960', marginLeft: 4 }}>min</span>
+          </div>
+          <p style={{ fontSize: 14, color: '#6B6960', marginTop: 12 }}>
+            Durée moyenne de consultation
+          </p>
+          <div
+            className="inline-flex items-center gap-1"
+            style={{
+              background: '#FEF7E6',
+              color: '#D4920B',
+              fontSize: 11,
+              fontWeight: 600,
+              padding: '4px 10px',
+              borderRadius: 100,
+              marginTop: 12,
+            }}
+          >
+            <span className="material-symbols-rounded" style={{ fontSize: 12 }}>schedule</span>
+            Bientôt configurable
+          </div>
+        </div>
+      </div>
+
+      {/* Settings Panel */}
+      <div className={`bs-right-panel ${activePanel === 'settings' ? 'open' : ''}`}>
+        <div className="bs-panel-header">
+          <button onClick={closePanel} className="bs-panel-back">
+            <span className="material-symbols-rounded" style={{ fontSize: 22 }}>arrow_back</span>
+          </button>
+          <span className="bs-panel-title">Paramètres</span>
+        </div>
+        <div className="bs-panel-body">
+          {/* Cabinet section */}
+          <div className="bs-settings-label">Cabinet</div>
+          <div className="bs-settings-group">
+            <button className="bs-settings-item" onClick={() => { closePanel(); navigate('/settings'); }}>
+              <div className="bs-settings-ico" style={{ background: '#E8F5F1', color: '#0F7B6C' }}>
+                <span className="material-symbols-rounded" style={{ fontSize: 18 }}>domain</span>
+              </div>
+              <div className="bs-settings-txt">
+                <div className="bs-settings-name">Profil du cabinet</div>
+                <div className="bs-settings-desc">Nom, adresse, horaires</div>
+              </div>
+              <span className="material-symbols-rounded bs-settings-chev">chevron_right</span>
+            </button>
+            <button className="bs-settings-item" onClick={() => { closePanel(); navigate('/settings'); }}>
+              <div className="bs-settings-ico" style={{ background: '#EDF3FC', color: '#3B7DD9' }}>
+                <span className="material-symbols-rounded" style={{ fontSize: 18 }}>group</span>
+              </div>
+              <div className="bs-settings-txt">
+                <div className="bs-settings-name">Équipe & accès</div>
+                <div className="bs-settings-desc">Médecins, secrétaires</div>
+              </div>
+              <span className="material-symbols-rounded bs-settings-chev">chevron_right</span>
+            </button>
+          </div>
+
+          {/* File d'attente section */}
+          <div className="bs-settings-label">File d'attente</div>
+          <div className="bs-settings-group">
+            <button className="bs-settings-item" onClick={() => { closePanel(); navigate('/settings'); }}>
+              <div className="bs-settings-ico" style={{ background: '#FEF7E6', color: '#D4920B' }}>
+                <span className="material-symbols-rounded" style={{ fontSize: 18 }}>timer</span>
+              </div>
+              <div className="bs-settings-txt">
+                <div className="bs-settings-name">Durée consultation</div>
+                <div className="bs-settings-desc">{avgConsultMins} min en moyenne</div>
+              </div>
+              <span className="material-symbols-rounded bs-settings-chev">chevron_right</span>
+            </button>
+            <button className="bs-settings-item" onClick={() => { closePanel(); toggleLanguage(); }}>
+              <div className="bs-settings-ico" style={{ background: '#F0EFEA', color: '#6B6960' }}>
+                <span className="material-symbols-rounded" style={{ fontSize: 18 }}>translate</span>
+              </div>
+              <div className="bs-settings-txt">
+                <div className="bs-settings-name">Langue</div>
+                <div className="bs-settings-desc">{i18n.language === 'fr' ? 'Français' : 'العربية'}</div>
+              </div>
+              <span className="material-symbols-rounded bs-settings-chev">chevron_right</span>
+            </button>
+          </div>
+
+          {/* Compte section */}
+          <div className="bs-settings-label">Compte</div>
+          <div className="bs-settings-group">
+            <button className="bs-settings-item" onClick={() => { closePanel(); navigate('/settings'); }}>
+              <div className="bs-settings-ico" style={{ background: '#E8F5F1', color: '#0F7B6C' }}>
+                <span className="material-symbols-rounded" style={{ fontSize: 18 }}>card_membership</span>
+              </div>
+              <div className="bs-settings-txt">
+                <div className="bs-settings-name">Abonnement</div>
+                <div className="bs-settings-desc">Gérer votre abonnement</div>
+              </div>
+              <span className="material-symbols-rounded bs-settings-chev">chevron_right</span>
+            </button>
+            <button className="bs-settings-item" onClick={() => { closePanel(); navigate('/settings'); }}>
+              <div className="bs-settings-ico" style={{ background: '#FDF0ED', color: '#D94F3B' }}>
+                <span className="material-symbols-rounded" style={{ fontSize: 18 }}>logout</span>
+              </div>
+              <div className="bs-settings-txt">
+                <div className="bs-settings-name" style={{ color: '#D94F3B' }}>Déconnexion</div>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

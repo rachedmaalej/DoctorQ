@@ -1,6 +1,7 @@
 import { useEffect, lazy, Suspense } from 'react';
 import { Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { useAuthStore } from './stores/authStore';
+import { webBrand } from './lib/brand';
 
 // Lazy load pages for code splitting - reduces initial bundle by ~40%
 const LoginPage = lazy(() => import('./pages/LoginPage'));
@@ -19,6 +20,7 @@ const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
 const ClinicsDirectoryPage = lazy(() => import('./pages/admin/clinics/ClinicsDirectoryPage'));
 const ClinicsClinicDetailPage = lazy(() => import('./pages/admin/clinics/ClinicDetailPage'));
 const LandingPage = lazy(() => import('./pages/LandingPage'));
+const LandingPageFr = lazy(() => import('./pages/LandingPageFr'));
 const TermsPage = lazy(() => import('./pages/TermsPage'));
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
 const TeaserPage = lazy(() => import('./pages/TeaserPage'));
@@ -60,7 +62,7 @@ function App() {
     <Suspense fallback={<PageLoader />}>
       <Routes>
         {/* Root redirects to dashboard (if logged in) or login */}
-        <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" /> : <LandingPage />} />
+        <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" /> : (webBrand.id === 'france' ? <LandingPageFr /> : <LandingPage />)} />
         <Route path="/signup" element={!isAuthenticated ? <SignupPage /> : <Navigate to="/dashboard" />} />
 
         {/* Public auth routes */}

@@ -8,7 +8,7 @@ interface QueueState {
   isLoading: boolean;
   error: string | null;
   fetchQueue: () => Promise<void>;
-  addPatient: (data: AddPatientData) => Promise<void>;
+  addPatient: (data: AddPatientData) => Promise<QueueEntry>;
   callNext: () => Promise<void>;
   updatePatientStatus: (id: string, data: UpdateStatusData) => Promise<void>;
   removePatient: (id: string) => Promise<void>;
@@ -44,10 +44,11 @@ export const useQueueStore = create<QueueState>((set, get) => ({
   addPatient: async (data) => {
     set({ isLoading: true, error: null });
     try {
-      await api.addPatient(data);
+      const entry = await api.addPatient(data);
       set({ isLoading: false });
       // Always fetch to ensure sync across devices (Socket.io is backup)
       get().fetchQueue();
+      return entry;
     } catch (error: any) {
       set({
         error: error.message || 'Failed to add patient',

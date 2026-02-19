@@ -46,6 +46,17 @@ export default {
           800: '#623F04',
           900: '#312002',
         },
+        // FiloSoin France landing page palette
+        fr: {
+          navy: '#0F172A',
+          'navy-800': '#1E293B',
+          'navy-700': '#334155',
+          cream: '#FAFAF8',
+          'cream-warm': '#F5F0E8',
+          gold: '#D4A853',
+          'gold-light': '#E8D5A8',
+          'gold-pale': '#FDF8ED',
+        },
         // BleSaf receptionist dashboard palette
         bs: {
           bg: '#F6F5F0',
@@ -102,6 +113,7 @@ export default {
         arabic: ['IBM Plex Sans Arabic', 'system-ui', 'sans-serif'],
         outfit: ['Outfit', 'system-ui', 'sans-serif'],
         playfair: ['Playfair Display', 'Georgia', 'serif'],
+        inter: ['Inter', 'system-ui', 'sans-serif'],
         dm: ['DM Sans', 'system-ui', 'sans-serif'],
         'dm-mono': ['DM Mono', 'monospace'],
         fraunces: ['Fraunces', 'Georgia', 'serif'],

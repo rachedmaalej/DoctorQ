@@ -394,7 +394,7 @@ export default function DesktopDashboard({
                 onClick={async () => {
                   try {
                     await navigator.clipboard.writeText(qrData.url);
-                  } catch {}
+                  } catch { /* clipboard unavailable */ }
                 }}
                 style={{
                   marginLeft: 'auto', background: 'none',

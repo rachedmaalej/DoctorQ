@@ -6,6 +6,7 @@ interface QueueItemProps {
   isFirst: boolean;
   isLast: boolean;
   onContextOpen?: (patient: QueuePatient) => void;
+  whatsappSent?: boolean;
 }
 
 function getWaitDotColor(minutes: number): string {
@@ -21,7 +22,7 @@ function formatWaitTime(minutes: number): string {
   return `${h}h${String(m).padStart(2, '0')}`;
 }
 
-export default function QueueItem({ patient, isFirst, isLast, onContextOpen }: QueueItemProps) {
+export default function QueueItem({ patient, isFirst, isLast, onContextOpen, whatsappSent }: QueueItemProps) {
   const handlePhone = () => {
     if (patient.hasPhone && patient.phone) {
       window.open(`tel:${patient.phone}`, '_self');
@@ -53,6 +54,21 @@ export default function QueueItem({ patient, isFirst, isLast, onContextOpen }: Q
           style={{ fontSize: 15 }}
         >
           {patient.name}
+          {whatsappSent && (
+            <span
+              className="material-symbols-rounded"
+              style={{
+                fontSize: 13,
+                color: '#25D366',
+                marginLeft: 4,
+                verticalAlign: 'middle',
+                fontVariationSettings: "'FILL' 1",
+              }}
+              title="Lien WhatsApp envoyé"
+            >
+              check_circle
+            </span>
+          )}
         </div>
         <div className="flex items-center gap-1.5 mt-px" style={{ fontSize: 12, color: '#9E9B90' }}>
           <span className={clsx('w-[7px] h-[7px] rounded-full shrink-0', getWaitDotColor(patient.waitMinutes))} />

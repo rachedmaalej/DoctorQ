@@ -5,7 +5,6 @@ import { useDashboard } from '@/hooks/useDashboard';
 import { useAuthStore } from '@/stores/authStore';
 import { webBrand } from '@/lib/brand';
 import { api } from '@/lib/api';
-import QRCodeModal from '@/components/queue/QRCodeModal';
 import ReceptionistDashboard from '@/components/receptionist/ReceptionistDashboard';
 import AuSuivantDashboard from '@/components/ausuivant/AuSuivantDashboard';
 import DesktopDashboard from '@/components/dashboard/DesktopDashboard';
@@ -14,13 +13,10 @@ import ConfirmModal from '@/components/ui/ConfirmModal';
 import AnnouncementModal from '@/components/queue/AnnouncementModal';
 import { Toast } from '@/components/ui/Toast';
 import TrialBanner from '@/components/ui/TrialBanner';
-import DailyRecapOverlay from '@/components/dashboard/DailyRecapOverlay';
-
 export default function DashboardPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { clinic, isImpersonating, impersonatedClinicName, stopImpersonation } = useAuthStore();
-  const [showDailyRecap, setShowDailyRecap] = useState(false);
   const [subscriptionExpired, setSubscriptionExpired] = useState(false);
 
   // Check subscription status
@@ -32,16 +28,6 @@ export default function DashboardPage() {
       .catch(() => {});
   }, []);
 
-  // Show daily recap on first visit of the day
-  useEffect(() => {
-    if (!clinic?.id) return;
-    const today = new Date().toISOString().slice(0, 10);
-    const lastShown = localStorage.getItem(`dailyRecap_shown_${clinic.id}`);
-    if (lastShown !== today) {
-      setShowDailyRecap(true);
-    }
-  }, [clinic?.id]);
-
   const {
     // Store data
     queue,
@@ -51,8 +37,6 @@ export default function DashboardPage() {
     // Modal state
     isAddModalOpen,
     setIsAddModalOpen,
-    isQRModalOpen,
-    setIsQRModalOpen,
     isConfirmModalOpen,
     isClearQueueModalOpen,
 
@@ -217,12 +201,6 @@ export default function DashboardPage() {
         isLoading={isSendingAnnouncement}
       />
 
-      {/* QR Code modal for mobile */}
-      <QRCodeModal
-        isOpen={isQRModalOpen}
-        onClose={() => setIsQRModalOpen(false)}
-      />
-
       {/* Toast */}
       <Toast
         message={toast.message}
@@ -231,19 +209,6 @@ export default function DashboardPage() {
         onClose={hideToast}
       />
 
-      {/* Daily Recap Overlay */}
-      {showDailyRecap && (
-        <DailyRecapOverlay
-          doctorName={clinic?.doctorName || clinic?.name || ''}
-          onDismiss={() => {
-            if (clinic?.id) {
-              const today = new Date().toISOString().slice(0, 10);
-              localStorage.setItem(`dailyRecap_shown_${clinic.id}`, today);
-            }
-            setShowDailyRecap(false);
-          }}
-        />
-      )}
     </div>
   );
 }
