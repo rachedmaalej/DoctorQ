@@ -47,6 +47,9 @@ export function useDashboard() {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [isClearQueueModalOpen, setIsClearQueueModalOpen] = useState(false);
 
+  // Initial loading state — true until the first fetchQueue completes
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+
   // Patient removal state
   const [patientToRemove, setPatientToRemove] = useState<string | null>(null);
   const [isRemoving, setIsRemoving] = useState(false);
@@ -134,6 +137,7 @@ export function useDashboard() {
       const currentQueue = useQueueStore.getState().queue;
       previousQueueLengthRef.current = currentQueue.length;
       logger.log('[Sound] Initialized queue length ref:', currentQueue.length);
+      setIsInitialLoading(false);
     });
   }, []);
 
@@ -436,6 +440,7 @@ export function useDashboard() {
     setIsClearQueueModalOpen,
 
     // Loading states
+    isInitialLoading,
     isRemoving,
     isClearing,
     isCallingNext,
