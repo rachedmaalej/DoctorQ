@@ -22,7 +22,6 @@ import type {
   FeatureAdoption,
   PlatformHealth,
   ClinicEditableFields,
-  DailyRecapResponse,
   ClinicSummary,
   FinancialSummary,
   EngagementSummary,
@@ -531,11 +530,6 @@ class ApiClient {
       method: 'PATCH',
       body: JSON.stringify({ plan }),
     });
-  }
-
-  // Daily recap
-  async getDailyRecap(): Promise<DailyRecapResponse> {
-    return this.request('/api/clinic/daily-recap');
   }
 
   async updateAdminClinicInfo(clinicId: string, data: ClinicEditableFields): Promise<{ id: string; name: string }> {

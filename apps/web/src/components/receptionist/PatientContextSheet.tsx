@@ -8,6 +8,8 @@ interface PatientContextSheetProps {
   onMarkPriority?: (id: string) => void;
   onMarkSteppedOut?: (id: string) => void;
   onRemove?: (id: string) => void;
+  onWhatsAppSend?: (id: string) => void;
+  clinicName?: string;
 }
 
 const actions = [
@@ -36,6 +38,14 @@ const actions = [
     iconColor: '#2D8B4E',
   },
   {
+    key: 'whatsapp',
+    icon: 'chat',
+    label: 'Envoyer lien WhatsApp',
+    desc: 'Lien de suivi de la position',
+    iconBg: '#E8F8EE',
+    iconColor: '#25D366',
+  },
+  {
     key: 'remove',
     icon: 'person_remove',
     label: 'Retirer de la file',
@@ -52,6 +62,8 @@ export default function PatientContextSheet({
   onMarkPriority,
   onMarkSteppedOut,
   onRemove,
+  onWhatsAppSend,
+  clinicName,
 }: PatientContextSheetProps) {
   const handleAction = (key: string) => {
     if (!patient) return;
@@ -67,6 +79,15 @@ export default function PatientContextSheet({
           window.open(`tel:${patient.phone}`, '_self');
         }
         return; // don't close sheet after phone tap
+      case 'whatsapp':
+        if (patient.phone) {
+          const statusUrl = `${window.location.origin}/patient/${patient.id}`;
+          const message = `${clinicName ?? ''} - Suivez votre position: ${statusUrl}`;
+          const waUrl = `https://wa.me/${patient.phone.replace('+', '')}?text=${encodeURIComponent(message)}`;
+          window.open(waUrl, '_blank');
+          onWhatsAppSend?.(patient.id);
+        }
+        return; // don't close sheet
       case 'remove':
         onRemove?.(patient.id);
         break;
@@ -118,7 +139,7 @@ export default function PatientContextSheet({
         {/* Action rows */}
         <div className="flex flex-col">
           {actions.map((action) => {
-            const disabled = action.key === 'phone' && isPhoneDisabled;
+            const disabled = (action.key === 'phone' || action.key === 'whatsapp') && isPhoneDisabled;
             return (
               <button
                 key={action.key}

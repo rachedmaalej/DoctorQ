@@ -10,6 +10,8 @@ interface BSAddPatientSheetProps {
   prefilledName: string;
   estimatedPosition: number;
   estimatedWait: string;
+  clinicName: string;
+  onWhatsAppSent?: (id: string) => void;
 }
 
 type SheetStep = 'form' | 'confirm';
@@ -20,6 +22,8 @@ export default function BSAddPatientSheet({
   prefilledName,
   estimatedPosition,
   estimatedWait,
+  clinicName,
+  onWhatsAppSent,
 }: BSAddPatientSheetProps) {
   const { addPatient } = useQueueStore();
 
@@ -35,6 +39,8 @@ export default function BSAddPatientSheet({
   const [addedName, setAddedName] = useState('');
   const [addedPosition, setAddedPosition] = useState(0);
   const [addedHasPhone, setAddedHasPhone] = useState(false);
+  const [addedEntryId, setAddedEntryId] = useState<string | null>(null);
+  const [addedPhone, setAddedPhone] = useState('');
 
   // Reset form when opening with new prefilled name
   useEffect(() => {
@@ -69,7 +75,7 @@ export default function BSAddPatientSheet({
         patientPhone = `${webBrand.phone.countryCode}${phone}`;
       }
 
-      await addPatient({
+      const entry = await addPatient({
         patientName: name.trim(),
         patientPhone,
         appointmentTime: isRdv && rdvTime ? rdvTime : undefined,
@@ -79,6 +85,8 @@ export default function BSAddPatientSheet({
       setAddedName(name.trim());
       setAddedPosition(estimatedPosition);
       setAddedHasPhone(phone.length > 0);
+      setAddedEntryId(entry.id);
+      setAddedPhone(patientPhone);
       setStep('confirm');
     } catch (err: any) {
       logger.error('BSAddPatientSheet submit error:', err);
@@ -102,6 +110,8 @@ export default function BSAddPatientSheet({
       setIsRdv(false);
       setRdvTime('');
       setError(null);
+      setAddedEntryId(null);
+      setAddedPhone('');
     }, 400);
   };
 
@@ -241,6 +251,32 @@ export default function BSAddPatientSheet({
               </div>
             </div>
 
+            {/* WhatsApp send card (when phone was entered) */}
+            {addedHasPhone && addedEntryId && (
+              <div
+                className="bs-link-card"
+                onClick={() => {
+                  const statusUrl = `${window.location.origin}/patient/${addedEntryId}`;
+                  const message = `${clinicName} - Suivez votre position dans la file d'attente: ${statusUrl}`;
+                  const waUrl = `https://wa.me/${addedPhone.replace('+', '')}?text=${encodeURIComponent(message)}`;
+                  window.open(waUrl, '_blank');
+                  onWhatsAppSent?.(addedEntryId);
+                }}
+                style={{ cursor: 'pointer' }}
+              >
+                <div className="bs-link-icon icon-green">
+                  <span className="material-symbols-rounded">chat</span>
+                </div>
+                <div className="bs-link-text">
+                  <div className="bs-link-title">Envoyer le lien par WhatsApp</div>
+                  <div className="bs-link-desc">Envoyer le lien de suivi au patient</div>
+                </div>
+                <div className="bs-link-arrow">
+                  <span className="material-symbols-rounded">chevron_right</span>
+                </div>
+              </div>
+            )}
+
             {/* Phone linking options (when no phone was entered) */}
             {!addedHasPhone && (
               <>
@@ -255,19 +291,6 @@ export default function BSAddPatientSheet({
                   <div className="bs-link-text">
                     <div className="bs-link-title">Montrer le QR code</div>
                     <div className="bs-link-desc">Le patient scanne pour suivre sa position</div>
-                  </div>
-                  <div className="bs-link-arrow">
-                    <span className="material-symbols-rounded">chevron_right</span>
-                  </div>
-                </div>
-
-                <div className="bs-link-card">
-                  <div className="bs-link-icon icon-green">
-                    <span className="material-symbols-rounded">chat</span>
-                  </div>
-                  <div className="bs-link-text">
-                    <div className="bs-link-title">Envoyer le lien par WhatsApp</div>
-                    <div className="bs-link-desc">Saisir le numéro et envoyer le lien de suivi</div>
                   </div>
                   <div className="bs-link-arrow">
                     <span className="material-symbols-rounded">chevron_right</span>

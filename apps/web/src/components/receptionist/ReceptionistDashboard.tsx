@@ -33,6 +33,7 @@ import SummaryCard from './SummaryCard';
 import TimelineBar from './TimelineBar';
 import SummaryActionBar from './SummaryActionBar';
 import BSAddPatientSheet from '@/components/blesaf/BSAddPatientSheet';
+import BSWhatsAppSheet from '@/components/blesaf/BSWhatsAppSheet';
 
 export default function ReceptionistDashboard({
   queue,
@@ -72,6 +73,14 @@ export default function ReceptionistDashboard({
 
   // ── Stepped-out badges (client-side only) ───────────────
   const [steppedOutIds, setSteppedOutIds] = useState<Set<string>>(new Set());
+
+  // ── WhatsApp tracking (client-side only) ───────────────
+  const [whatsappSentIds, setWhatsappSentIds] = useState<Set<string>>(new Set());
+  const [isWhatsAppSheetOpen, setIsWhatsAppSheetOpen] = useState(false);
+
+  const handleWhatsAppSent = useCallback((id: string) => {
+    setWhatsappSentIds(prev => new Set(prev).add(id));
+  }, []);
 
   // ── Derive data from real queue ───────────────────────────
   const inConsultationEntry = queue.find(e => e.status === QueueStatus.IN_CONSULTATION);
@@ -181,6 +190,7 @@ export default function ReceptionistDashboard({
         {/* ═══ Header (all screens) ═══ */}
         <Header
           clinicName={clinic?.name ?? ''}
+          avgConsultMins={avgConsultMins}
           status={queueStatus}
           isAllDone={isAllDone}
           onStatusPillClick={handleStatusPillClick}
@@ -190,6 +200,7 @@ export default function ReceptionistDashboard({
           chip2Value={chip2Value}
           chip3Value={chip3Value}
           className={showPreOpen ? 'animate-bs-slide-in bs-anim-d1' : ''}
+          onWhatsAppClick={() => setIsWhatsAppSheetOpen(true)}
         />
 
         {/* ═══ PRE_OPEN Screen ═══ */}
@@ -227,7 +238,7 @@ export default function ReceptionistDashboard({
             {queuePatients.length > 0 && (
               <>
                 <SectionHeader title="File d'attente" />
-                <QueueList patients={queuePatients} onContextOpen={setContextPatient} />
+                <QueueList patients={queuePatients} onContextOpen={setContextPatient} whatsappSentIds={whatsappSentIds} />
               </>
             )}
           </>
@@ -246,7 +257,7 @@ export default function ReceptionistDashboard({
             {queuePatients.length > 0 && (
               <>
                 <SectionHeader title="Restants" />
-                <QueueList patients={queuePatients} onContextOpen={setContextPatient} />
+                <QueueList patients={queuePatients} onContextOpen={setContextPatient} whatsappSentIds={whatsappSentIds} />
               </>
             )}
           </>
@@ -313,6 +324,8 @@ export default function ReceptionistDashboard({
         onMarkPriority={handleMarkPriority}
         onMarkSteppedOut={handleMarkSteppedOut}
         onRemove={onRemovePatient}
+        onWhatsAppSend={handleWhatsAppSent}
+        clinicName={clinic?.name ?? ''}
       />
 
       {/* ═══ Add Patient Sheet ═══ */}
@@ -322,6 +335,18 @@ export default function ReceptionistDashboard({
         prefilledName={addSheetName}
         estimatedPosition={estimatedPosition}
         estimatedWait={estimatedWait}
+        clinicName={clinic?.name ?? ''}
+        onWhatsAppSent={handleWhatsAppSent}
+      />
+
+      {/* ═══ WhatsApp Sheet ═══ */}
+      <BSWhatsAppSheet
+        isOpen={isWhatsAppSheetOpen}
+        onClose={() => setIsWhatsAppSheetOpen(false)}
+        patients={queuePatients}
+        clinicName={clinic?.name ?? ''}
+        whatsappSentIds={whatsappSentIds}
+        onWhatsAppSent={handleWhatsAppSent}
       />
     </div>
   );

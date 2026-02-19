@@ -1,0 +1,60 @@
+/* FiloSoin France Landing — scoped to .fr-landing */
+
+.fr-landing {
+  font-family: 'Inter', system-ui, sans-serif;
+  color: #1A1A2E;
+  background: #FAFAF8;
+  -webkit-font-smoothing: antialiased;
+}
+
+.fr-landing h1,
+.fr-landing h2 {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+/* ─── Hero Entrance Animations ─── */
+
+@keyframes fr-hero-fade {
+  from { opacity: 0; transform: translateY(32px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fr-hero-enter-1 { animation: fr-hero-fade 0.8s ease-out 0.2s both; }
+.fr-hero-enter-2 { animation: fr-hero-fade 0.8s ease-out 0.5s both; }
+.fr-hero-enter-3 { animation: fr-hero-fade 0.8s ease-out 0.8s both; }
+.fr-hero-enter-4 { animation: fr-hero-fade 0.8s ease-out 1.1s both; }
+
+/* ─── Gold Accent Divider ─── */
+
+.fr-divider {
+  width: 60px;
+  height: 2px;
+  background: #D4A853;
+  margin: 0 auto;
+}
+
+/* ─── Mobile Menu Overlay ─── */
+
+.fr-menu-overlay {
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.fr-menu-overlay[data-open="false"] {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.fr-menu-overlay[data-open="true"] {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ─── FAQ Gold Left Border ─── */
+
+.fr-faq-item[data-open="true"] {
+  border-left: 3px solid #D4A853;
+}
+
+.fr-faq-item[data-open="false"] {
+  border-left: 3px solid transparent;
+}

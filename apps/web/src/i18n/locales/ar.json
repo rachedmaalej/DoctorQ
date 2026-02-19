@@ -626,20 +626,6 @@
       "gynecology": "طب النساء"
     }
   },
-  "dailyRecap": {
-    "greeting": "صباح الخير د. {{name}} !",
-    "subtitle": "إليك ملخص يومك بالأمس",
-    "patientsTitle": "المرضى",
-    "patientsSubtitle": "إجمالي الأمس",
-    "consultationTitle": "مدة الاستشارة",
-    "consultationSubtitle": "المعدل لكل مريض",
-    "waitTitle": "وقت الانتظار",
-    "waitSubtitle": "المعدل لكل مريض",
-    "minutes": "د",
-    "vsPrevDay": "مقارنة بالأمس",
-    "vsMonthly": "مقارنة بالشهر",
-    "dismiss": "إغلاق"
-  },
   "support": {
     "whatsapp": "دعم واتساب",
     "needHelp": "تحتاج مساعدة؟"

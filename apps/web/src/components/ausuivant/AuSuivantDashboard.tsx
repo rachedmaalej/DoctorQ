@@ -9,7 +9,6 @@ import ASSessionControls from './ASSessionControls';
 import ASCallNextButton from './ASCallNextButton';
 import ASConsultationBar from './ASConsultationBar';
 import ASQueueSection from './ASQueueSection';
-import ASSummaryCard from './ASSummaryCard';
 import ASFAB from './ASFAB';
 import ASAddPatientSheet from './ASAddPatientSheet';
 import ASSettingsPanel from './ASSettingsPanel';
@@ -126,9 +125,6 @@ export default function AuSuivantDashboard({
         onRemove={onRemovePatient}
         avgConsultationMins={avgMins}
       />
-
-      {/* Summary Card (Bilan) */}
-      <ASSummaryCard />
 
       {/* FAB */}
       <ASFAB

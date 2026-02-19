@@ -383,34 +383,6 @@ export interface PlatformHealth {
   };
 }
 
-// ─── Daily Recap Types ─────────────────────────────────────────
-
-export interface DailyRecapResponse {
-  hasData: boolean;
-  yesterday?: {
-    totalPatients: number;
-    avgWaitMins: number | null;
-    avgConsultationMins: number | null;
-    date: string;
-  };
-  previousDay?: {
-    totalPatients: number;
-    avgWaitMins: number | null;
-    avgConsultationMins: number | null;
-    date: string;
-  } | null;
-  monthlyAvg?: {
-    avgPatients: number;
-    avgWaitMins: number;
-    avgConsultationMins: number;
-  };
-  trends?: {
-    patients: { vsPrevDay: number; vsMonthly: number };
-    avgWait: { vsPrevDay: number; vsMonthly: number };
-    avgConsultation: { vsPrevDay: number; vsMonthly: number };
-  };
-}
-
 // ─── Admin V3 Types (Dashboard Redesign) ─────────────────────
 
 export interface ClinicSummary {

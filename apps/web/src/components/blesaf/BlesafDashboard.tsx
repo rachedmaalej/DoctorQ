@@ -162,6 +162,7 @@ export default function BlesafDashboard({
         prefilledName={quickAddName}
         estimatedPosition={waitingCount + (inConsultation ? 1 : 0) + 1}
         estimatedWait={estimatedWaitForNew}
+        clinicName=""
       />
     </div>
   );
