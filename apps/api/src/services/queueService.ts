@@ -12,7 +12,7 @@ import { brand } from '../lib/brand.js';
 
 export interface AddPatientInput {
   clinicId: string;
-  patientPhone: string;
+  patientPhone?: string;
   patientName?: string;
   checkInMethod?: CheckInMethod;
   appointmentTime?: Date;
@@ -50,27 +50,29 @@ export async function addPatient(input: AddPatientInput): Promise<AddPatientResu
     arrivedAt,
   } = input;
 
-  const formattedPhone = formatPhoneNumber(patientPhone);
+  const formattedPhone = patientPhone ? formatPhoneNumber(patientPhone) : '';
 
   // Use transaction to prevent race conditions
   const result = await prisma.$transaction(async (tx) => {
-    // Check for duplicate within transaction
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    // Check for duplicate within transaction (skip if no phone)
+    if (formattedPhone) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
 
-    const existingEntry = await tx.queueEntry.findFirst({
-      where: {
-        clinicId,
-        patientPhone: formattedPhone,
-        status: {
-          in: [QueueStatus.WAITING, QueueStatus.NOTIFIED, QueueStatus.IN_CONSULTATION],
+      const existingEntry = await tx.queueEntry.findFirst({
+        where: {
+          clinicId,
+          patientPhone: formattedPhone,
+          status: {
+            in: [QueueStatus.WAITING, QueueStatus.NOTIFIED, QueueStatus.IN_CONSULTATION],
+          },
+          arrivedAt: { gte: today },
         },
-        arrivedAt: { gte: today },
-      },
-    });
+      });
 
-    if (existingEntry) {
-      return { entry: existingEntry, isAlreadyCheckedIn: true, existingEntry };
+      if (existingEntry) {
+        return { entry: existingEntry, isAlreadyCheckedIn: true, existingEntry };
+      }
     }
 
     // Get next position within transaction

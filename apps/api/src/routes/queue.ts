@@ -31,7 +31,7 @@ const router = Router();
 
 // Validation schemas
 const addPatientSchema = z.object({
-  patientPhone: z.string().min(8),
+  patientPhone: z.string().min(8).optional().or(z.literal('')),
   patientName: z.string().optional(),
   checkInMethod: z.enum(['QR_CODE', 'MANUAL', 'WHATSAPP']).default('MANUAL'),
   appointmentTime: z.string().optional(),
