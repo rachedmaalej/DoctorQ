@@ -302,11 +302,12 @@ router.post('/reorder', authMiddleware, subscriptionGate, async (req: AuthReques
     await reorderPatient(clinicId, entryId, entry.position, newPosition);
     await updateStatusesAfterReorder(clinicId);
 
-    // Emit updates
-    await emitQueueUpdate(clinicId);
-    await emitAllPatientUpdates(clinicId);
-
+    // Get updated entry before firing socket events
     const updatedEntry = await prisma.queueEntry.findUnique({ where: { id: entryId } });
+
+    // Fire-and-forget: emit socket updates in background
+    emitQueueUpdate(clinicId).catch(() => {});
+    emitAllPatientUpdates(clinicId).catch(() => {});
 
     res.json({
       data: { message: 'Queue reordered successfully', entry: updatedEntry },
@@ -344,7 +345,7 @@ router.post('/reset-stats', authMiddleware, subscriptionGate, async (req: AuthRe
   try {
     const clinicId = req.clinic!.id;
     const deletedCount = await resetStats(clinicId);
-    await emitQueueUpdate(clinicId);
+    emitQueueUpdate(clinicId).catch(() => {});
 
     res.json({ data: { message: 'Statistics reset', deletedCount } });
   } catch (error) {

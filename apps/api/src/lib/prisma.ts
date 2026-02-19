@@ -22,11 +22,12 @@ function createPrismaClient(): PrismaClient {
   const isProduction = process.env.NODE_ENV === 'production';
 
   // Append connection_limit to DATABASE_URL if not already present
-  // This prevents Prisma from opening more connections than pgbouncer allows
+  // pgbouncer (production) typically allows ~20 connections; dev DB can handle more
   const dbUrl = process.env.DATABASE_URL || '';
   if (dbUrl && !dbUrl.includes('connection_limit')) {
     const separator = dbUrl.includes('?') ? '&' : '?';
-    process.env.DATABASE_URL = `${dbUrl}${separator}connection_limit=1`;
+    const limit = isProduction ? 10 : 20;
+    process.env.DATABASE_URL = `${dbUrl}${separator}connection_limit=${limit}`;
   }
 
   return new PrismaClient({

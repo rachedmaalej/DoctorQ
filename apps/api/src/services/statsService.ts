@@ -34,38 +34,40 @@ export async function getQueueStats(clinicId: string): Promise<QueueStats> {
 
   const startOfToday = getStartOfToday();
 
-  // Sequential queries to prevent pgbouncer pool exhaustion
-  const waitingInQueue = await prisma.queueEntry.count({
-    where: {
-      clinicId,
-      status: { in: [QueueStatus.WAITING, QueueStatus.NOTIFIED] },
-    },
-  });
-  const seenPatientsToday = await prisma.queueEntry.findMany({
-    where: {
-      clinicId,
-      status: QueueStatus.COMPLETED,
-      arrivedAt: { gte: startOfToday },
-    },
-    select: { arrivedAt: true, calledAt: true },
-  });
-  const noShowsToday = await prisma.queueEntry.count({
-    where: {
-      clinicId,
-      status: QueueStatus.NO_SHOW,
-      arrivedAt: { gte: startOfToday },
-    },
-  });
-  const lastCompletedPatient = await prisma.queueEntry.findFirst({
-    where: {
-      clinicId,
-      status: QueueStatus.COMPLETED,
-      calledAt: { not: null },
-      completedAt: { not: null },
-    },
-    orderBy: { completedAt: 'desc' },
-    select: { calledAt: true, completedAt: true },
-  });
+  // Parallel queries for better throughput under concurrent load
+  const [waitingInQueue, seenPatientsToday, noShowsToday, lastCompletedPatient] = await Promise.all([
+    prisma.queueEntry.count({
+      where: {
+        clinicId,
+        status: { in: [QueueStatus.WAITING, QueueStatus.NOTIFIED] },
+      },
+    }),
+    prisma.queueEntry.findMany({
+      where: {
+        clinicId,
+        status: QueueStatus.COMPLETED,
+        arrivedAt: { gte: startOfToday },
+      },
+      select: { arrivedAt: true, calledAt: true },
+    }),
+    prisma.queueEntry.count({
+      where: {
+        clinicId,
+        status: QueueStatus.NO_SHOW,
+        arrivedAt: { gte: startOfToday },
+      },
+    }),
+    prisma.queueEntry.findFirst({
+      where: {
+        clinicId,
+        status: QueueStatus.COMPLETED,
+        calledAt: { not: null },
+        completedAt: { not: null },
+      },
+      orderBy: { completedAt: 'desc' },
+      select: { calledAt: true, completedAt: true },
+    }),
+  ]);
 
   // Filter entries that have both arrivedAt and calledAt timestamps
   const patientsWithWaitTime = seenPatientsToday.filter(
