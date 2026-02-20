@@ -1,5 +1,9 @@
+import { useState, useEffect } from 'react';
 import clsx from 'clsx';
 import type { QueuePatient } from './types';
+import { api } from '@/lib/api';
+import { webBrand } from '@/lib/brand';
+import { logger } from '@/lib/logger';
 
 interface PatientContextSheetProps {
   isOpen: boolean;
@@ -9,6 +13,7 @@ interface PatientContextSheetProps {
   onMarkSteppedOut?: (id: string) => void;
   onRemove?: (id: string) => void;
   onWhatsAppSend?: (id: string) => void;
+  onPhoneUpdated?: () => void;
   clinicName?: string;
 }
 
@@ -63,8 +68,46 @@ export default function PatientContextSheet({
   onMarkSteppedOut,
   onRemove,
   onWhatsAppSend,
+  onPhoneUpdated,
   clinicName,
 }: PatientContextSheetProps) {
+  const [showPhoneInput, setShowPhoneInput] = useState(false);
+  const [phoneValue, setPhoneValue] = useState('');
+  const [isSavingPhone, setIsSavingPhone] = useState(false);
+
+  // Reset phone input when sheet opens/closes or patient changes
+  useEffect(() => {
+    setShowPhoneInput(false);
+    setPhoneValue('');
+    setIsSavingPhone(false);
+  }, [isOpen, patient?.id]);
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value.replace(/\D/g, '');
+    setPhoneValue(raw.slice(0, webBrand.phone.localDigits));
+  };
+
+  const phoneDisplay = phoneValue.length > 0
+    ? phoneValue.replace(/(\d{2})(\d{3})?(\d{3})?/, (_: string, a: string, b?: string, c?: string) =>
+        [a, b, c].filter(Boolean).join(' ')
+      )
+    : '';
+
+  const handleSavePhone = async () => {
+    if (!patient || phoneValue.length < webBrand.phone.localDigits) return;
+    setIsSavingPhone(true);
+    try {
+      const fullPhone = `${webBrand.phone.countryCode}${phoneValue}`;
+      await api.updatePatient(patient.id, { patientPhone: fullPhone });
+      onPhoneUpdated?.();
+      onClose();
+    } catch (err) {
+      logger.error('Failed to update phone:', err);
+    } finally {
+      setIsSavingPhone(false);
+    }
+  };
+
   const handleAction = (key: string) => {
     if (!patient) return;
     switch (key) {
@@ -87,6 +130,9 @@ export default function PatientContextSheet({
           window.open(waUrl, '_blank');
           onWhatsAppSend?.(patient.id);
         }
+        return; // don't close sheet
+      case 'add-phone':
+        setShowPhoneInput(true);
         return; // don't close sheet
       case 'remove':
         onRemove?.(patient.id);
@@ -139,16 +185,13 @@ export default function PatientContextSheet({
         {/* Action rows */}
         <div className="flex flex-col">
           {actions.map((action) => {
-            const disabled = (action.key === 'phone' || action.key === 'whatsapp') && isPhoneDisabled;
+            // Hide phone/whatsapp actions for no-phone patients; show add-phone instead
+            if ((action.key === 'phone' || action.key === 'whatsapp') && isPhoneDisabled) return null;
             return (
               <button
                 key={action.key}
                 onClick={() => handleAction(action.key)}
-                disabled={disabled}
-                className={clsx(
-                  'flex items-center gap-3 text-left transition-colors duration-150 active:bg-bs-surface-alt',
-                  disabled && 'opacity-30 pointer-events-none',
-                )}
+                className="flex items-center gap-3 text-left transition-colors duration-150 active:bg-bs-surface-alt"
                 style={{ padding: '14px 12px' }}
               >
                 {/* Colored icon square */}
@@ -189,6 +232,100 @@ export default function PatientContextSheet({
               </button>
             );
           })}
+
+          {/* Add phone number action — only for patients without phone */}
+          {isPhoneDisabled && !showPhoneInput && (
+            <button
+              onClick={() => handleAction('add-phone')}
+              className="flex items-center gap-3 text-left transition-colors duration-150 active:bg-bs-surface-alt"
+              style={{ padding: '14px 12px' }}
+            >
+              <div
+                className="flex items-center justify-center shrink-0"
+                style={{ width: 40, height: 40, borderRadius: 10, backgroundColor: '#EDF3FC' }}
+              >
+                <span className="material-symbols-rounded" style={{ fontSize: 20, color: '#3B7DD9' }}>
+                  add_call
+                </span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-bs-text-primary font-semibold" style={{ fontSize: 15 }}>
+                  Ajouter numéro
+                </div>
+                <div className="text-bs-text-tertiary" style={{ fontSize: 12 }}>
+                  Associer un téléphone au patient
+                </div>
+              </div>
+              <span className="material-symbols-rounded text-bs-text-tertiary shrink-0" style={{ fontSize: 18 }}>
+                chevron_right
+              </span>
+            </button>
+          )}
+
+          {/* Inline phone input */}
+          {isPhoneDisabled && showPhoneInput && (
+            <div style={{ padding: '10px 12px' }}>
+              <div
+                className="flex items-center"
+                style={{
+                  border: '1.5px solid #3B7DD9',
+                  borderRadius: 10,
+                  overflow: 'hidden',
+                  background: '#FFFFFF',
+                }}
+              >
+                <div
+                  style={{
+                    padding: '10px 10px 10px 14px',
+                    fontSize: 15,
+                    fontWeight: 600,
+                    color: '#9E9B90',
+                    borderRight: '1px solid #E8E6DF',
+                    background: '#F6F5F0',
+                  }}
+                >
+                  {webBrand.phone.countryCode}
+                </div>
+                <input
+                  type="tel"
+                  inputMode="numeric"
+                  autoFocus
+                  placeholder={webBrand.phone.placeholder.replace(webBrand.phone.countryCode + ' ', '')}
+                  value={phoneDisplay}
+                  onChange={handlePhoneChange}
+                  style={{
+                    flex: 1,
+                    padding: '10px 14px',
+                    fontSize: 15,
+                    border: 'none',
+                    outline: 'none',
+                    background: 'transparent',
+                    color: '#1A1A1A',
+                    fontFamily: 'inherit',
+                  }}
+                />
+              </div>
+              <button
+                onClick={handleSavePhone}
+                disabled={phoneValue.length < webBrand.phone.localDigits || isSavingPhone}
+                className="flex items-center justify-center gap-2 w-full"
+                style={{
+                  marginTop: 10,
+                  padding: 12,
+                  background: phoneValue.length >= webBrand.phone.localDigits ? '#3B7DD9' : '#E8E6DF',
+                  border: 'none',
+                  borderRadius: 10,
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: phoneValue.length >= webBrand.phone.localDigits ? 'white' : '#9E9B90',
+                  cursor: phoneValue.length >= webBrand.phone.localDigits ? 'pointer' : 'not-allowed',
+                }}
+              >
+                <span className="material-symbols-rounded" style={{ fontSize: 18 }}>save</span>
+                {isSavingPhone ? 'Enregistrement...' : 'Enregistrer'}
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </>

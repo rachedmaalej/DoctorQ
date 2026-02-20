@@ -136,8 +136,10 @@ router.post('/doctor-presence', authMiddleware, subscriptionGate, async (req: Au
     // When toggling ON: position #1 transitions to IN_CONSULTATION
     // When toggling OFF: IN_CONSULTATION drops back to NOTIFIED
     await recalculatePositionsAndStatuses(clinicId);
-    await emitQueueUpdate(clinicId);
-    await emitAllPatientUpdates(clinicId);
+
+    // Fire-and-forget: emit socket updates in background
+    emitQueueUpdate(clinicId).catch(() => {});
+    emitAllPatientUpdates(clinicId).catch(() => {});
 
     res.json({ data: updatedClinic });
   } catch (error: any) {

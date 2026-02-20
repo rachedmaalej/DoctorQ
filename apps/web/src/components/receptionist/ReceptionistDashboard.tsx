@@ -325,6 +325,7 @@ export default function ReceptionistDashboard({
         onMarkSteppedOut={handleMarkSteppedOut}
         onRemove={onRemovePatient}
         onWhatsAppSend={handleWhatsAppSent}
+        onPhoneUpdated={() => setContextPatient(null)}
         clinicName={clinic?.name ?? ''}
       />
 

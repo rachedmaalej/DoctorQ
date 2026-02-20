@@ -20,6 +20,7 @@ import {
   clearQueue,
   getPatientStatus,
   updatePatientStatus,
+  formatPhoneNumber,
 } from '../services/queueService.js';
 import { reorderPatient, updateStatusesAfterReorder } from '../services/positionService.js';
 import { resetStats, computeSmartWaitEstimate } from '../services/statsService.js';
@@ -31,11 +32,16 @@ const router = Router();
 
 // Validation schemas
 const addPatientSchema = z.object({
-  patientPhone: z.string().min(8),
+  patientPhone: z.string().min(8).optional().or(z.literal('')),
   patientName: z.string().optional(),
   checkInMethod: z.enum(['QR_CODE', 'MANUAL', 'WHATSAPP']).default('MANUAL'),
   appointmentTime: z.string().optional(),
   arrivedAt: z.string().optional(),
+});
+
+const updatePatientSchema = z.object({
+  patientPhone: z.string().min(8).optional(),
+  patientName: z.string().optional(),
 });
 
 const updateStatusSchema = z.object({
@@ -181,6 +187,55 @@ router.patch('/:id/status', authMiddleware, subscriptionGate, async (req: AuthRe
   }
 });
 
+// PATCH /api/queue/:id - Update patient details (phone, name)
+router.patch('/:id', authMiddleware, subscriptionGate, async (req: AuthRequest, res: Response) => {
+  try {
+    const clinicId = req.clinic!.id;
+    const { id } = req.params;
+    const data = updatePatientSchema.parse(req.body);
+
+    // Verify entry belongs to this clinic
+    const entry = await prisma.queueEntry.findFirst({
+      where: { id, clinicId },
+    });
+
+    if (!entry) {
+      return res.status(404).json({
+        error: { code: 'ENTRY_NOT_FOUND', message: 'Queue entry not found' },
+      });
+    }
+
+    // Format phone if provided
+    const updateData: Record<string, string> = {};
+    if (data.patientPhone !== undefined) {
+      updateData.patientPhone = formatPhoneNumber(data.patientPhone);
+    }
+    if (data.patientName !== undefined) {
+      updateData.patientName = data.patientName;
+    }
+
+    const updated = await prisma.queueEntry.update({
+      where: { id },
+      data: updateData,
+    });
+
+    // Emit queue update so other clients see the change
+    emitQueueUpdate(clinicId);
+
+    res.json({ data: updated });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({
+        error: { code: 'VALIDATION_ERROR', message: 'Invalid request data', details: error.errors },
+      });
+    }
+    logger.error({ err: error }, "Update patient error");
+    res.status(500).json({
+      error: { code: 'SERVER_ERROR', message: 'Failed to update patient' },
+    });
+  }
+});
+
 // DELETE /api/queue/:id - Remove patient from queue
 router.delete('/:id', authMiddleware, subscriptionGate, async (req: AuthRequest, res: Response) => {
   try {
@@ -247,11 +302,12 @@ router.post('/reorder', authMiddleware, subscriptionGate, async (req: AuthReques
     await reorderPatient(clinicId, entryId, entry.position, newPosition);
     await updateStatusesAfterReorder(clinicId);
 
-    // Emit updates
-    await emitQueueUpdate(clinicId);
-    await emitAllPatientUpdates(clinicId);
-
+    // Get updated entry before firing socket events
     const updatedEntry = await prisma.queueEntry.findUnique({ where: { id: entryId } });
+
+    // Fire-and-forget: emit socket updates in background
+    emitQueueUpdate(clinicId).catch(() => {});
+    emitAllPatientUpdates(clinicId).catch(() => {});
 
     res.json({
       data: { message: 'Queue reordered successfully', entry: updatedEntry },
@@ -289,7 +345,7 @@ router.post('/reset-stats', authMiddleware, subscriptionGate, async (req: AuthRe
   try {
     const clinicId = req.clinic!.id;
     const deletedCount = await resetStats(clinicId);
-    await emitQueueUpdate(clinicId);
+    emitQueueUpdate(clinicId).catch(() => {});
 
     res.json({ data: { message: 'Statistics reset', deletedCount } });
   } catch (error) {

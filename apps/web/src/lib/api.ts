@@ -321,6 +321,16 @@ class ApiClient {
     });
   }
 
+  async updatePatient(
+    id: string,
+    data: { patientPhone?: string; patientName?: string }
+  ): Promise<QueueEntry> {
+    return this.request<QueueEntry>(`/api/queue/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
   async removePatient(id: string): Promise<void> {
     await this.request(`/api/queue/${id}`, {
       method: 'DELETE',

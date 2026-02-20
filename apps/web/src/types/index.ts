@@ -404,6 +404,7 @@ export interface ClinicSummary {
   healthColor: 'green' | 'orange' | 'red';
   churnRisk: 'high' | 'medium' | 'low' | 'none';
   isInternal: boolean;
+  isActive: boolean;
   sessionHistory: number[];
   daysUntilTrialExpires: number | null;
 }

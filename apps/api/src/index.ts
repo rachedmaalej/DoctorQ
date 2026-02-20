@@ -94,9 +94,10 @@ app.use(helmet({
 app.use(metricsMiddleware);
 
 // Rate limiting for public endpoints (prevents abuse)
+const isDevEnv = process.env.NODE_ENV !== 'production';
 const publicRateLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
-  max: 30, // 30 requests per minute per IP
+  max: isDevEnv ? 300 : 30, // Relaxed in dev for simulator/testing
   message: { error: { code: 'RATE_LIMITED', message: 'Too many requests, please try again later' } },
   standardHeaders: true,
   legacyHeaders: false,
@@ -105,7 +106,7 @@ const publicRateLimiter = rateLimit({
 // Rate limiting for authenticated endpoints (more generous)
 const authRateLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 100, // 100 requests per minute per IP
+  max: isDevEnv ? 600 : 100, // Relaxed in dev for simulator/testing
   message: { error: { code: 'RATE_LIMITED', message: 'Too many requests, please try again later' } },
   standardHeaders: true,
   legacyHeaders: false,

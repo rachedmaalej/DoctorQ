@@ -41,6 +41,7 @@ export default function DashboardPage() {
     isClearQueueModalOpen,
 
     // Loading states
+    isInitialLoading,
     isRemoving,
     isClearing,
     isCallingNext,
@@ -111,6 +112,12 @@ export default function DashboardPage() {
       )}
 
       {/* Mobile Dashboard - visible only on small screens */}
+      {isInitialLoading ? (
+        <div className="flex items-center justify-center" style={{ height: 'calc(100dvh - 48px)' }}>
+          <span className="material-symbols-rounded animate-spin" style={{ fontSize: 32, color: '#9E9B90' }}>progress_activity</span>
+        </div>
+      ) : (
+      <>
       <div className="lg:hidden">
         {webBrand.id === 'france' ? (
           <AuSuivantDashboard
@@ -163,6 +170,8 @@ export default function DashboardPage() {
           onOpenAnnouncementModal={() => setIsAnnouncementModalOpen(true)}
         />
       </div>
+      </>
+      )}
 
       {/* Add patient modal */}
       <AddPatientModal
