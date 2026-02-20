@@ -13,6 +13,8 @@ import ConfirmModal from '@/components/ui/ConfirmModal';
 import AnnouncementModal from '@/components/queue/AnnouncementModal';
 import { Toast } from '@/components/ui/Toast';
 import TrialBanner from '@/components/ui/TrialBanner';
+import DevStatsTooltip from '@/components/dashboard/DevStatsTooltip';
+import { QueueStatus } from '@/types';
 export default function DashboardPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -218,6 +220,14 @@ export default function DashboardPage() {
         isVisible={toast.isVisible}
         onClose={hideToast}
       />
+
+      {/* Dev Stats Tooltip */}
+      {import.meta.env.DEV && (
+        <DevStatsTooltip
+          stats={stats}
+          currentConsultStartedAt={queue.find(p => p.status === QueueStatus.IN_CONSULTATION)?.calledAt}
+        />
+      )}
 
     </div>
   );

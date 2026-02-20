@@ -31,7 +31,13 @@ export default function BSAddPatientSheet({
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [isRdv, setIsRdv] = useState(false);
-  const [rdvTime, setRdvTime] = useState('');
+  const [rdvHour, setRdvHour] = useState('');
+  const [rdvMinute, setRdvMinute] = useState('');
+
+  // 24h format: 07-19, 15-min increments
+  const rdvHours = Array.from({ length: 13 }, (_, i) => (i + 7).toString().padStart(2, '0'));
+  const rdvMinutes = ['00', '15', '30', '45'];
+  const rdvTime = rdvHour && rdvMinute ? `${rdvHour}:${rdvMinute}` : '';
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -49,7 +55,8 @@ export default function BSAddPatientSheet({
       setName(prefilledName);
       setPhone('');
       setIsRdv(false);
-      setRdvTime('');
+      setRdvHour('');
+      setRdvMinute('');
       setError(null);
     }
   }, [isOpen, prefilledName]);
@@ -108,7 +115,8 @@ export default function BSAddPatientSheet({
       setName('');
       setPhone('');
       setIsRdv(false);
-      setRdvTime('');
+      setRdvHour('');
+      setRdvMinute('');
       setError(null);
       setAddedEntryId(null);
       setAddedPhone('');
@@ -184,13 +192,31 @@ export default function BSAddPatientSheet({
                 <span className="material-symbols-rounded">schedule</span>
                 Heure du rendez-vous
               </div>
-              <input
-                type="time"
-                className="bs-form-input"
-                value={rdvTime}
-                onChange={(e) => setRdvTime(e.target.value)}
-                style={{ fontVariantNumeric: 'tabular-nums' }}
-              />
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <select
+                  className="bs-form-input"
+                  value={rdvHour}
+                  onChange={(e) => setRdvHour(e.target.value)}
+                  style={{ flex: 1, fontVariantNumeric: 'tabular-nums' }}
+                >
+                  <option value="">HH</option>
+                  {rdvHours.map((h) => (
+                    <option key={h} value={h}>{h}</option>
+                  ))}
+                </select>
+                <span style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-secondary)' }}>:</span>
+                <select
+                  className="bs-form-input"
+                  value={rdvMinute}
+                  onChange={(e) => setRdvMinute(e.target.value)}
+                  style={{ flex: 1, fontVariantNumeric: 'tabular-nums' }}
+                >
+                  <option value="">MM</option>
+                  {rdvMinutes.map((m) => (
+                    <option key={m} value={m}>{m}</option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             {/* Phone field */}

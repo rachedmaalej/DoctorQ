@@ -7,8 +7,9 @@ import { logger } from '@/lib/logger';
 import type { QueueScreenStatus } from './types';
 import StatusPill from './StatusPill';
 import StatsStrip from './StatsStrip';
+import BSClinicProfilePanel from '@/components/blesaf/BSClinicProfilePanel';
 
-type PanelKey = 'qr' | 'whatsapp' | 'duration' | 'settings' | null;
+type PanelKey = 'qr' | 'whatsapp' | 'duration' | 'settings' | 'clinic-profile' | null;
 
 interface HeaderProps {
   clinicName: string;
@@ -535,7 +536,7 @@ export default function Header({
           {/* Cabinet section */}
           <div className="bs-settings-label">Cabinet</div>
           <div className="bs-settings-group">
-            <button className="bs-settings-item" onClick={() => { closePanel(); navigate('/settings'); }}>
+            <button className="bs-settings-item" onClick={() => setActivePanel('clinic-profile')}>
               <div className="bs-settings-ico" style={{ background: '#E8F5F1', color: '#0F7B6C' }}>
                 <span className="material-symbols-rounded" style={{ fontSize: 18 }}>domain</span>
               </div>
@@ -552,6 +553,16 @@ export default function Header({
               <div className="bs-settings-txt">
                 <div className="bs-settings-name">Équipe & accès</div>
                 <div className="bs-settings-desc">Médecins, secrétaires</div>
+              </div>
+              <span className="material-symbols-rounded bs-settings-chev">chevron_right</span>
+            </button>
+            <button className="bs-settings-item" onClick={() => { closePanel(); navigate('/settings'); }}>
+              <div className="bs-settings-ico" style={{ background: '#E8F5F1', color: '#0F7B6C' }}>
+                <span className="material-symbols-rounded" style={{ fontSize: 18 }}>card_membership</span>
+              </div>
+              <div className="bs-settings-txt">
+                <div className="bs-settings-name">Abonnement</div>
+                <div className="bs-settings-desc">Gérer votre abonnement</div>
               </div>
               <span className="material-symbols-rounded bs-settings-chev">chevron_right</span>
             </button>
@@ -586,16 +597,6 @@ export default function Header({
           <div className="bs-settings-label">Compte</div>
           <div className="bs-settings-group">
             <button className="bs-settings-item" onClick={() => { closePanel(); navigate('/settings'); }}>
-              <div className="bs-settings-ico" style={{ background: '#E8F5F1', color: '#0F7B6C' }}>
-                <span className="material-symbols-rounded" style={{ fontSize: 18 }}>card_membership</span>
-              </div>
-              <div className="bs-settings-txt">
-                <div className="bs-settings-name">Abonnement</div>
-                <div className="bs-settings-desc">Gérer votre abonnement</div>
-              </div>
-              <span className="material-symbols-rounded bs-settings-chev">chevron_right</span>
-            </button>
-            <button className="bs-settings-item" onClick={() => { closePanel(); navigate('/settings'); }}>
               <div className="bs-settings-ico" style={{ background: '#FDF0ED', color: '#D94F3B' }}>
                 <span className="material-symbols-rounded" style={{ fontSize: 18 }}>logout</span>
               </div>
@@ -606,6 +607,12 @@ export default function Header({
           </div>
         </div>
       </div>
+
+      {/* Clinic Profile Panel (slides over settings panel) */}
+      <BSClinicProfilePanel
+        isOpen={activePanel === 'clinic-profile'}
+        onClose={() => setActivePanel('settings')}
+      />
     </div>
   );
 }

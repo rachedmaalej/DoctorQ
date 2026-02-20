@@ -17,7 +17,13 @@ export default function ASAddPatientSheet({ isOpen, onClose }: ASAddPatientSheet
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [phone, setPhone] = useState('');
-  const [appointmentTime, setAppointmentTime] = useState('17:30');
+  const [appointmentHour, setAppointmentHour] = useState('09');
+  const [appointmentMinute, setAppointmentMinute] = useState('00');
+
+  // 24h format: 07-19, 15-min increments
+  const rdvHours = Array.from({ length: 13 }, (_, i) => (i + 7).toString().padStart(2, '0'));
+  const rdvMinutes = ['00', '15', '30', '45'];
+  const appointmentTime = `${appointmentHour}:${appointmentMinute}`;
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -46,7 +52,8 @@ export default function ASAddPatientSheet({ isOpen, onClose }: ASAddPatientSheet
     setFirstName('');
     setLastName('');
     setPhone('');
-    setAppointmentTime('17:30');
+    setAppointmentHour('09');
+    setAppointmentMinute('00');
     setNotes('');
     setError('');
     setShowSuccess(false);
@@ -398,11 +405,27 @@ export default function ASAddPatientSheet({ isOpen, onClose }: ASAddPatientSheet
               >
                 HEURE DU RENDEZ-VOUS
               </label>
-              <input
-                type="time"
-                value={appointmentTime}
-                onChange={(e) => setAppointmentTime(e.target.value)}
-              />
+              <div className="flex gap-2 items-center">
+                <select
+                  value={appointmentHour}
+                  onChange={(e) => setAppointmentHour(e.target.value)}
+                  style={{ flex: 1, fontVariantNumeric: 'tabular-nums' }}
+                >
+                  {rdvHours.map((h) => (
+                    <option key={h} value={h}>{h}</option>
+                  ))}
+                </select>
+                <span style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-tertiary)' }}>:</span>
+                <select
+                  value={appointmentMinute}
+                  onChange={(e) => setAppointmentMinute(e.target.value)}
+                  style={{ flex: 1, fontVariantNumeric: 'tabular-nums' }}
+                >
+                  {rdvMinutes.map((m) => (
+                    <option key={m} value={m}>{m}</option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             {/* Notes */}

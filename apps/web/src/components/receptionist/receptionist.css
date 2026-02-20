@@ -225,3 +225,403 @@
   color: #E8E6DF;
   flex-shrink: 0;
 }
+
+/* Settings item value (right-side text) */
+.bs-settings-value {
+  font-size: 12px;
+  font-weight: 500;
+  color: #9E9B90;
+  flex-shrink: 0;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: right;
+}
+
+/* ── Expand/Collapse sections ── */
+.bs-expand {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 0.25s ease,
+              padding 0.35s ease;
+  background: #F6F5F0;
+  padding: 0 14px;
+  border-bottom: 1px solid rgba(228, 226, 221, 0.5);
+}
+
+.bs-expand.open {
+  max-height: 400px;
+  opacity: 1;
+  padding: 12px 14px 14px;
+}
+
+/* ── Form inputs inside panel ── */
+.bs-profile-input {
+  width: 100%;
+  height: 42px;
+  background: #FFFFFF;
+  border: 1.5px solid #E8E6DF;
+  border-radius: 8px;
+  padding: 0 12px;
+  font-family: inherit;
+  font-size: 14px;
+  color: #1A1A1A;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.bs-profile-input:focus {
+  border-color: #0F7B6C;
+}
+
+.bs-profile-input::placeholder {
+  color: #9E9B90;
+}
+
+.bs-form-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #9E9B90;
+  margin-bottom: 4px;
+  margin-top: 8px;
+}
+
+.bs-form-label:first-child {
+  margin-top: 0;
+}
+
+.bs-expand-form {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Gender toggle ── */
+.bs-gender-toggle {
+  display: flex;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1.5px solid #E8E6DF;
+  flex-shrink: 0;
+}
+
+.bs-gender-btn {
+  padding: 8px 12px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  background: #FFFFFF;
+  color: #6B6960;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.bs-gender-btn + .bs-gender-btn {
+  border-left: 1.5px solid #E8E6DF;
+}
+
+.bs-gender-btn.active {
+  background: #0F7B6C;
+  color: #FFFFFF;
+}
+
+/* ── Number stepper ── */
+.bs-stepper {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid #E8E6DF;
+  border-radius: 8px;
+  overflow: hidden;
+  width: fit-content;
+}
+
+.bs-stepper-btn {
+  width: 40px;
+  height: 40px;
+  background: #F0EFEA;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6B6960;
+  transition: all 0.15s;
+}
+
+.bs-stepper-btn:active {
+  background: #E8F5F1;
+  color: #0F7B6C;
+}
+
+.bs-stepper-value {
+  width: 44px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1A1A1A;
+  background: #FFFFFF;
+  border-left: 1.5px solid #E8E6DF;
+  border-right: 1.5px solid #E8E6DF;
+}
+
+/* ── Toggle switch ── */
+.bs-toggle {
+  width: 44px;
+  height: 24px;
+  border-radius: 12px;
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.bs-toggle[aria-checked="true"] {
+  background-color: #0F7B6C;
+}
+
+.bs-toggle[aria-checked="false"] {
+  background-color: #E8E6DF;
+}
+
+.bs-toggle-knob {
+  position: absolute;
+  top: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  transition: left 0.2s ease;
+}
+
+.bs-toggle[aria-checked="true"] .bs-toggle-knob {
+  left: 23px;
+}
+
+.bs-toggle[aria-checked="false"] .bs-toggle-knob {
+  left: 3px;
+}
+
+/* ── Status chip ── */
+.bs-status-chip {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 3px 8px;
+  border-radius: 100px;
+  flex-shrink: 0;
+}
+
+.bs-status-chip[data-status="trial"] {
+  background: #EDF3FC;
+  color: #3B7DD9;
+}
+
+.bs-status-chip[data-status="active"] {
+  background: #EDF7F0;
+  color: #2D8B4E;
+}
+
+.bs-status-chip[data-status="expired"],
+.bs-status-chip[data-status="past_due"] {
+  background: #FDF0ED;
+  color: #D94F3B;
+}
+
+/* ── Subscription info ── */
+.bs-sub-info {
+  display: flex;
+  gap: 8px;
+}
+
+.bs-sub-card {
+  flex: 1;
+  background: #E8F5F1;
+  border-radius: 8px;
+  padding: 10px;
+  border: 1px solid rgba(15, 123, 108, 0.12);
+}
+
+.bs-sub-label {
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #9E9B90;
+  margin-bottom: 2px;
+}
+
+.bs-sub-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1A1A1A;
+}
+
+.bs-sub-date {
+  font-size: 11px;
+  color: #9E9B90;
+  margin-top: 2px;
+}
+
+/* ── Specialty chips ── */
+.bs-specialty-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.bs-specialty-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1.5px solid #E8E6DF;
+  background: #FFFFFF;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  color: #6B6960;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.bs-specialty-chip .material-symbols-rounded {
+  font-size: 14px;
+}
+
+.bs-specialty-chip.selected {
+  border-color: #0F7B6C;
+  background: #E8F5F1;
+  color: #0F7B6C;
+}
+
+/* ── Doctor list ── */
+.bs-doctor-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(228, 226, 221, 0.5);
+}
+
+.bs-doctor-row:last-of-type {
+  border-bottom: none;
+}
+
+.bs-delete-btn {
+  margin-left: auto;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: #FDF0ED;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #D94F3B;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.bs-delete-btn:active {
+  transform: scale(0.9);
+}
+
+.bs-add-doctor-btn {
+  width: 36px;
+  height: 36px;
+  background: #0F7B6C;
+  border: none;
+  border-radius: 8px;
+  color: #FFFFFF;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+
+.bs-add-doctor-btn:active {
+  transform: scale(0.9);
+  background: #0A5C50;
+}
+
+.bs-add-doctor-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Primary button ── */
+.bs-btn-primary {
+  height: 48px;
+  background: #0F7B6C;
+  border: none;
+  border-radius: 12px;
+  color: #FFFFFF;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.15s;
+}
+
+.bs-btn-primary:active {
+  transform: scale(0.97);
+  background: #0A5C50;
+}
+
+.bs-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.bs-btn-primary.compact {
+  height: 38px;
+  font-size: 13px;
+}
+
+/* ── Floating save area ── */
+.bs-float-save {
+  position: sticky;
+  bottom: 0;
+  padding: 14px 0 24px;
+  background: linear-gradient(to top, #F6F5F0 60%, transparent);
+  margin-top: 8px;
+}
+
+.bs-float-save .bs-btn-primary {
+  box-shadow: 0 6px 24px rgba(15, 123, 108, 0.25);
+}
+
+/* ── Message feedback ── */
+.bs-msg {
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 6px;
+}
+
+.bs-msg.success {
+  color: #2D8B4E;
+}
+
+.bs-msg.error {
+  color: #D94F3B;
+}

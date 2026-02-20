@@ -1,13 +1,18 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   ChevronLeft, ChevronRight,
   House, Users, Monitor,
-  Clock, Bell, Eye, Smartphone,
+  Clock, Bell, Eye, Smartphone, Globe,
   BarChart3, Mail,
   CreditCard, HelpCircle, Shield,
 } from 'lucide-react';
 import type { Clinic } from '@/types';
 import { useAuthStore } from '@/stores/authStore';
+import BSClinicProfilePanel from '@/components/blesaf/BSClinicProfilePanel';
+import BSTeamAccessPanel from '@/components/blesaf/BSTeamAccessPanel';
+import BSSubscriptionPanel from '@/components/blesaf/BSSubscriptionPanel';
+import BSConsultationDurationPanel from '@/components/blesaf/BSConsultationDurationPanel';
+import BSLanguagePanel from '@/components/blesaf/BSLanguagePanel';
 
 interface ASSettingsPanelProps {
   isOpen: boolean;
@@ -132,6 +137,22 @@ function StatusChip({ label }: { label: string }) {
 
 export default function ASSettingsPanel({ isOpen, onClose, clinic }: ASSettingsPanelProps) {
   const { logout } = useAuthStore();
+  const [showClinicProfile, setShowClinicProfile] = useState(false);
+  const [showTeamAccess, setShowTeamAccess] = useState(false);
+  const [showSubscription, setShowSubscription] = useState(false);
+  const [showConsultationDuration, setShowConsultationDuration] = useState(false);
+  const [showLanguage, setShowLanguage] = useState(false);
+
+  // Reset sub-panels when main panel closes
+  useEffect(() => {
+    if (!isOpen) {
+      setShowClinicProfile(false);
+      setShowTeamAccess(false);
+      setShowSubscription(false);
+      setShowConsultationDuration(false);
+      setShowLanguage(false);
+    }
+  }, [isOpen]);
 
   // Close on escape
   useEffect(() => {
@@ -275,13 +296,23 @@ export default function ASSettingsPanel({ isOpen, onClose, clinic }: ASSettingsP
             title="Profil du cabinet"
             description="Nom, adresse, horaires d'ouverture"
             right={<ValueChevron />}
+            onClick={() => setShowClinicProfile(true)}
           />
           <SettingsItem
             icon={<Users size={18} />}
             iconColor="blue"
             title="Équipe & accès"
             description="Gérer les secrétaires et collaborateurs"
-            right={<ValueChevron value="2 membres" />}
+            right={<ValueChevron />}
+            onClick={() => setShowTeamAccess(true)}
+          />
+          <SettingsItem
+            icon={<CreditCard size={18} />}
+            iconColor="green"
+            title="Abonnement"
+            description="Gérer votre abonnement"
+            right={<ValueChevron />}
+            onClick={() => setShowSubscription(true)}
           />
           <SettingsItem
             icon={<Monitor size={18} />}
@@ -301,6 +332,7 @@ export default function ASSettingsPanel({ isOpen, onClose, clinic }: ASSettingsP
             title="Durée moy. consultation"
             description="Utilisée pour estimer l'attente"
             right={<ValueChevron value={`${clinic?.avgConsultationMins || 15} min`} />}
+            onClick={() => setShowConsultationDuration(true)}
           />
           <SettingsItem
             icon={<Bell size={18} />}
@@ -315,6 +347,14 @@ export default function ASSettingsPanel({ isOpen, onClose, clinic }: ASSettingsP
             title="Affichage des noms"
             description="Conformité RGPD"
             right={<ValueChevron value="Prénom N." />}
+          />
+          <SettingsItem
+            icon={<Globe size={18} />}
+            iconColor="gray"
+            title="Langue"
+            description={clinic?.language === 'ar' ? 'العربية' : 'Français'}
+            right={<ValueChevron value={clinic?.language === 'ar' ? 'AR' : 'FR'} />}
+            onClick={() => setShowLanguage(true)}
           />
           <SettingsItem
             icon={<Smartphone size={18} />}
@@ -347,13 +387,6 @@ export default function ASSettingsPanel({ isOpen, onClose, clinic }: ASSettingsP
 
         {/* ─── COMPTE ─── */}
         <SettingsSection label="COMPTE">
-          <SettingsItem
-            icon={<CreditCard size={18} />}
-            iconColor="green"
-            title="Abonnement"
-            description={trialDaysLeft != null ? `Essai gratuit · Expire bientôt` : 'Gérer votre abonnement'}
-            right={<ValueChevron />}
-          />
           <SettingsItem
             icon={<HelpCircle size={18} />}
             iconColor="gray"
@@ -395,6 +428,28 @@ export default function ASSettingsPanel({ isOpen, onClose, clinic }: ASSettingsP
           </div>
         </div>
       </div>
+
+      {/* Sub-panels (slide over settings) */}
+      <BSClinicProfilePanel
+        isOpen={showClinicProfile}
+        onClose={() => setShowClinicProfile(false)}
+      />
+      <BSTeamAccessPanel
+        isOpen={showTeamAccess}
+        onClose={() => setShowTeamAccess(false)}
+      />
+      <BSSubscriptionPanel
+        isOpen={showSubscription}
+        onClose={() => setShowSubscription(false)}
+      />
+      <BSConsultationDurationPanel
+        isOpen={showConsultationDuration}
+        onClose={() => setShowConsultationDuration(false)}
+      />
+      <BSLanguagePanel
+        isOpen={showLanguage}
+        onClose={() => setShowLanguage(false)}
+      />
     </>
   );
 }
