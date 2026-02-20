@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>BleSaf — Hero + Trust Gateway Combos</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+
+<style>
+  /* ═══════════════════════════════════════════
+     DESIGN TOKENS
+     ═══════════════════════════════════════════ */
+  :root {
+    --relax-bg: #FAFAF8;
+    --relax-surface: #FFFFFF;
+    --relax-accent: #2B8A7A;
+    --relax-accent-soft: #E6F4F1;
+    --relax-ring: #2B8A7A;
+    --relax-ring-track: #E8E6E0;
+    --go-accent: #1A7A3A;
+    --go-accent-soft: #D4F5DF;
+    --go-ring: #22C55E;
+    --text-primary: #1A1917;
+    --text-secondary: #6B6960;
+    --text-tertiary: #9E9B90;
+    --border: #E8E6DF;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.06);
+    --radius: 16px;
+    --radius-sm: 12px;
+    --radius-xs: 8px;
+    --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Plus Jakarta Sans', 'IBM Plex Sans Arabic', sans-serif;
+    background: #131311;
+    min-height: 100vh;
+    padding: 20px 16px 40px;
+    color: #fff;
+  }
+
+  /* ═══ SHOWCASE SHELL ═══ */
+  .showcase-container { display: flex; flex-direction: column; align-items: center; }
+
+  .showcase-header { text-align: center; margin-bottom: 24px; }
+  .page-title { font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.4; margin-bottom: 6px; }
+  .page-subtitle { font-size: 13px; color: rgba(255,255,255,0.45); max-width: 520px; margin: 0 auto; line-height: 1.5; }
+
+  .nav-tabs { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-bottom: 14px; }
+  .nav-tab {
+    font-family: inherit; font-size: 11px; font-weight: 600; padding: 6px 14px;
+    border-radius: 100px; border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.4);
+    cursor: pointer; transition: all 0.3s; letter-spacing: 0.02em;
+  }
+  .nav-tab:hover { border-color: rgba(255,255,255,0.2); color: rgba(255,255,255,0.7); }
+  .nav-tab.active { border-color: var(--relax-accent); background: var(--relax-accent); color: #fff; }
+
+  .design-desc {
+    color: rgba(255,255,255,0.55); font-size: 13px; font-weight: 500;
+    text-align: center; max-width: 420px; margin: 0 auto 18px;
+    line-height: 1.5; min-height: 40px; transition: opacity 0.3s;
+  }
+
+  /* Phone frame */
+  .phone-frame {
+    width: 375px; max-width: 100%; height: 812px;
+    border-radius: 44px; overflow: hidden; position: relative;
+    box-shadow: 0 0 0 3px #2a2a28, 0 24px 80px rgba(0,0,0,0.5);
+    margin: 0 auto; background: var(--relax-bg);
+  }
+  .phone-inner { height: 100%; overflow: hidden; position: relative; }
+
+  .design-screen {
+    position: absolute; inset: 0; opacity: 0; pointer-events: none;
+    transition: opacity 0.5s ease; overflow-y: auto;
+    -webkit-overflow-scrolling: touch; background: var(--relax-bg);
+  }
+  .design-screen::-webkit-scrollbar { display: none; }
+  .design-screen.active { opacity: 1; pointer-events: all; }
+
+  .design-label {
+    color: rgba(255,255,255,0.2); font-size: 11px; text-align: center;
+    max-width: 400px; margin: 14px auto 0; line-height: 1.6;
+  }
+
+  /* ═══ SHARED COMPONENTS ═══ */
+  .status-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 28px 6px; font-size: 14px; font-weight: 700; color: var(--text-primary);
+  }
+  .status-bar .right { display: flex; gap: 5px; align-items: center; }
+  .status-bar .right .material-symbols-rounded { font-size: 17px; color: var(--text-primary); }
+
+  .lang-btn {
+    font-family: 'IBM Plex Sans Arabic', sans-serif; font-size: 13px; font-weight: 600;
+    background: rgba(0,0,0,0.04); border: 1px solid var(--border); border-radius: 100px;
+    padding: 5px 14px; cursor: pointer; color: var(--text-primary); transition: all 0.3s;
+  }
+
+  .brand-footer {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 16px 24px 36px; font-size: 12px; color: var(--text-tertiary); font-weight: 500;
+  }
+  .brand-mark {
+    width: 16px; height: 16px; background: var(--text-tertiary); border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 9px; font-weight: 800;
+  }
+
+  .ci-input {
+    width: 100%; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    font-family: inherit; color: var(--text-primary); outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s; background: #fff;
+  }
+  .ci-input:focus { border-color: var(--relax-accent); box-shadow: 0 0 0 3px rgba(43,138,122,0.12); }
+  .ci-input::placeholder { color: var(--text-tertiary); font-weight: 400; }
+
+  .ci-submit {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    width: 100%; height: 56px; background: var(--relax-accent); border: none;
+    border-radius: var(--radius); color: #fff; font-family: inherit;
+    font-size: 15px; font-weight: 700; cursor: pointer;
+    box-shadow: 0 6px 24px rgba(43,138,122,0.25); transition: all 0.15s;
+  }
+  .ci-submit:active { transform: scale(0.97); }
+  .ci-submit .material-symbols-rounded { font-size: 20px; }
+
+  .eyebrow {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--relax-accent);
+  }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .anim { animation: fadeUp 0.5s ease-out both; }
+  .d1 { animation-delay: 0.05s; }
+  .d2 { animation-delay: 0.12s; }
+  .d3 { animation-delay: 0.2s; }
+  .d4 { animation-delay: 0.28s; }
+  .d5 { animation-delay: 0.36s; }
+  .d6 { animation-delay: 0.44s; }
+  .d7 { animation-delay: 0.52s; }
+
+  /* ═══════════════════════════════════════════
+     SHARED: Trust Gateway elements reused in all
+     ═══════════════════════════════════════════ */
+  /* Social proof bar */
+  .social-bar {
+    margin: 0 20px; padding: 14px 18px; background: var(--relax-accent-soft);
+    border: 1px solid rgba(43,138,122,0.1); border-radius: var(--radius-sm);
+    display: flex; gap: 0;
+  }
+  .social-item { flex: 1; text-align: center; }
+  .social-number { font-size: 20px; font-weight: 800; color: var(--relax-accent); }
+  .social-label { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+  .social-divider { width: 1px; background: rgba(43,138,122,0.15); margin: 0 12px; }
+
+  /* Queue strip */
+  .queue-strip {
+    margin: 8px 20px 0; padding: 8px 14px; border-radius: var(--radius-sm);
+    background: rgba(0,0,0,0.03); font-size: 12px; color: var(--text-secondary);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .queue-strip .material-symbols-rounded { font-size: 14px; color: var(--text-tertiary); }
+  .queue-strip strong { font-weight: 600; color: var(--text-primary); }
+
+  .divider { border: none; border-top: 1px dashed var(--border); margin: 16px 24px; }
+
+  /* Phone input */
+  .phone-input { height: 52px; padding: 0 16px; font-size: 17px; font-weight: 600; }
+  .name-input { height: 48px; padding: 0 16px; font-size: 15px; font-weight: 500; border-style: dashed; margin-top: 8px; }
+
+  /* Trust row */
+  .trust-row {
+    display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 14px;
+  }
+  .trust-item { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--text-tertiary); font-weight: 500; }
+  .trust-item .material-symbols-rounded { font-size: 14px; }
+  .trust-sep { width: 3px; height: 3px; border-radius: 50%; background: var(--border); }
+
+  /* Testimonial */
+  .testimonial {
+    margin: 16px 20px 0; padding: 14px 16px; background: rgba(0,0,0,0.02);
+    border-radius: var(--radius-xs);
+  }
+  .testimonial .material-symbols-rounded { font-size: 20px; color: var(--text-tertiary); margin-bottom: 4px; }
+  .testimonial-text { font-size: 13px; font-style: italic; color: var(--text-secondary); line-height: 1.5; }
+  .testimonial-author { font-size: 11px; color: var(--text-tertiary); margin-top: 6px; }
+
+  /* Doctor elements */
+  .doctor-avatar {
+    width: 64px; height: 64px; border-radius: 50%; background: var(--relax-accent-soft);
+    border: 2px solid var(--relax-accent); display: flex; align-items: center;
+    justify-content: center; flex-shrink: 0;
+  }
+  .doctor-avatar .material-symbols-rounded { font-size: 30px; color: var(--relax-accent); }
+
+  .doctor-avatar.lg {
+    width: 88px; height: 88px; border-width: 2.5px;
+  }
+  .doctor-avatar.lg .material-symbols-rounded { font-size: 40px; }
+
+  .specialty-badge {
+    display: inline-flex; padding: 5px 16px; background: var(--relax-accent-soft);
+    color: var(--relax-accent); border-radius: 100px; font-size: 11px;
+    font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+  }
+
+  .presence { display: flex; align-items: center; gap: 6px; }
+  .presence .dot { width: 8px; height: 8px; border-radius: 50%; background: #22C55E; }
+  .presence span { font-size: 13px; font-weight: 600; color: var(--go-accent); }
+
+  /* Hero icon (from Option 1) */
+  .hero-icon {
+    width: 80px; height: 80px; border-radius: 50%; background: var(--relax-accent-soft);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .hero-icon .material-symbols-rounded { font-size: 36px; color: var(--relax-accent); }
+
+  .hero-icon.sm { width: 56px; height: 56px; }
+  .hero-icon.sm .material-symbols-rounded { font-size: 28px; }
+
+  /* ═══════════════════════════════════════════
+     COMBO 1: Icon Welcome + Doctor Card
+     The "Rejoignez le saf" icon hero leads.
+     Doctor appears below as a compact trust card.
+     ═══════════════════════════════════════════ */
+  .c1-scroll { display: flex; flex-direction: column; min-height: 100%; }
+
+  .c1-top-bar { display: flex; justify-content: space-between; align-items: center; padding: 4px 24px 0; }
+  .c1-sys-label { font-size: 12px; color: var(--text-tertiary); font-weight: 500; }
+
+  /* Doctor hero centered */
+  .c1-doctor-hero { text-align: center; padding: 24px 24px 16px; }
+  .c1-doctor-hero .doctor-avatar { margin: 0 auto 12px; }
+  .c1-doctor-name { font-size: 24px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.02em; }
+  .c1-doctor-spec { margin-top: 8px; }
+  .c1-doctor-presence { justify-content: center; margin-top: 10px; }
+
+  /* Rejoignez le saf section */
+  .c1-join { text-align: center; padding: 16px 24px 12px; }
+  .c1-join .hero-icon { margin: 0 auto 10px; }
+  .c1-join-title { font-size: 20px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.02em; }
+
+  .c1-form { padding: 0 24px; flex: 1; }
+  .c1-form-title { font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 12px; }
+
+  /* ═══════════════════════════════════════════
+     COMBO 2: Split Hero — Icon Left, Doctor Right
+     Two-column hero: the "Rejoignez" icon on one
+     side, doctor identity on the other.
+     ═══════════════════════════════════════════ */
+  .c2-scroll { display: flex; flex-direction: column; min-height: 100%; }
+
+  .c2-top-bar { display: flex; justify-content: space-between; align-items: center; padding: 4px 24px 0; }
+  .c2-sys-label { font-size: 12px; color: var(--text-tertiary); font-weight: 500; }
+
+  .c2-split-hero {
+    display: flex; align-items: center; gap: 16px;
+    padding: 24px 24px 16px;
+  }
+  .c2-left { display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .c2-left .hero-icon { margin-bottom: 8px; }
+  .c2-left .eyebrow { font-size: 9px; letter-spacing: 0.1em; }
+
+  .c2-right-divider { width: 1px; height: 80px; background: var(--border); flex-shrink: 0; }
+
+  .c2-right { flex: 1; }
+  .c2-doctor-name { font-size: 20px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.02em; }
+  .c2-doctor-spec { margin-top: 4px; }
+  .c2-doctor-presence { margin-top: 8px; }
+
+  .c2-form { padding: 0 24px; flex: 1; }
+  .c2-form-title { font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 12px; }
+
+  /* ═══════════════════════════════════════════
+     COMBO 3: Beacon Bar + Full Doctor Hero
+     Small icon bar at top as a "beacon," then the
+     classic Trust Gateway doctor hero below it.
+     ═══════════════════════════════════════════ */
+  .c3-scroll { display: flex; flex-direction: column; min-height: 100%; }
+
+  .c3-top-bar { display: flex; justify-content: space-between; align-items: center; padding: 4px 24px 0; }
+  .c3-sys-label { font-size: 12px; color: var(--text-tertiary); font-weight: 500; }
+
+  .c3-beacon {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    margin: 8px 20px 0; padding: 12px 16px;
+    background: var(--relax-accent-soft); border: 1px solid rgba(43,138,122,0.1);
+    border-radius: var(--radius-sm);
+  }
+  .c3-beacon .hero-icon { width: 36px; height: 36px; background: var(--relax-accent); }
+  .c3-beacon .hero-icon .material-symbols-rounded { font-size: 18px; color: #fff; }
+  .c3-beacon-text { font-size: 14px; font-weight: 700; color: var(--relax-accent); }
+
+  .c3-doctor-hero { text-align: center; padding: 20px 24px 14px; }
+  .c3-doctor-hero .doctor-avatar { margin: 0 auto 12px; }
+  .c3-doctor-name { font-size: 24px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.02em; }
+  .c3-doctor-spec { margin-top: 8px; }
+  .c3-doctor-presence { justify-content: center; margin-top: 10px; }
+
+  .c3-form { padding: 0 24px; flex: 1; }
+  .c3-form-title { font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 14px; }
+
+  /* ═══════════════════════════════════════════
+     COMBO 4: Merged Identity
+     Doctor avatar nested inside the hero icon circle.
+     "Rejoignez le saf" wraps the doctor identity.
+     ═══════════════════════════════════════════ */
+  .c4-scroll { display: flex; flex-direction: column; min-height: 100%; }
+
+  .c4-top-bar { display: flex; justify-content: space-between; align-items: center; padding: 4px 24px 0; }
+  .c4-sys-label { font-size: 12px; color: var(--text-tertiary); font-weight: 500; }
+
+  .c4-hero { text-align: center; padding: 24px 24px 16px; }
+
+  .c4-merged-circle {
+    width: 100px; height: 100px; border-radius: 50%;
+    background: var(--relax-accent-soft); border: 2.5px solid var(--relax-accent);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 6px; position: relative;
+  }
+  .c4-merged-circle .material-symbols-rounded { font-size: 44px; color: var(--relax-accent); }
+
+  .c4-badge {
+    position: absolute; bottom: -4px; right: -4px;
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--go-accent-soft); border: 2px solid var(--relax-bg);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .c4-badge .material-symbols-rounded { font-size: 16px; color: var(--go-accent); font-variation-settings: 'FILL' 1; }
+
+  .c4-eyebrow-wrap { margin-bottom: 10px; }
+  .c4-doctor-name { font-size: 22px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.02em; }
+  .c4-doctor-spec { margin-top: 6px; }
+  .c4-join-label {
+    font-size: 15px; font-weight: 600; color: var(--text-secondary); margin-top: 8px;
+  }
+
+  .c4-form { padding: 0 24px; flex: 1; }
+  .c4-form-title { font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 12px; }
+
+  /* ═══════════════════════════════════════════
+     COMBO 5: Form-First with Floating Hero
+     The icon + "Rejoignez le saf" is a floating
+     header card. Doctor trust block below the form.
+     ═══════════════════════════════════════════ */
+  .c5-scroll { display: flex; flex-direction: column; min-height: 100%; }
+
+  .c5-top-bar { display: flex; justify-content: space-between; align-items: center; padding: 4px 24px 0; }
+  .c5-sys-label { font-size: 12px; color: var(--text-tertiary); font-weight: 500; }
+
+  .c5-hero-card {
+    margin: 12px 20px 0; padding: 20px; background: var(--relax-accent);
+    border-radius: var(--radius); text-align: center; position: relative;
+    box-shadow: 0 6px 24px rgba(43,138,122,0.3);
+  }
+  .c5-hero-icon {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 10px;
+  }
+  .c5-hero-icon .material-symbols-rounded { font-size: 28px; color: #fff; }
+  .c5-hero-title { font-size: 19px; font-weight: 800; color: #fff; letter-spacing: -0.01em; }
+  .c5-hero-sub { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.8); margin-top: 4px; }
+
+  .c5-form { padding: 20px 24px 0; }
+  .c5-form .phone-input { margin-bottom: 8px; }
+
+  .c5-doctor-trust {
+    margin: 16px 20px 0; padding: 14px 16px; background: #fff;
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    display: flex; align-items: center; gap: 12px; box-shadow: var(--shadow-sm);
+  }
+  .c5-doctor-trust .doctor-avatar { width: 44px; height: 44px; }
+  .c5-doctor-trust .doctor-avatar .material-symbols-rounded { font-size: 20px; }
+  .c5-dt-info { flex: 1; }
+  .c5-dt-name { font-size: 14px; font-weight: 700; color: var(--text-primary); }
+  .c5-dt-detail { font-size: 12px; color: var(--text-tertiary); margin-top: 1px; }
+  .c5-dt-presence {
+    display: flex; align-items: center; gap: 4px;
+  }
+  .c5-dt-presence .dot { width: 6px; height: 6px; border-radius: 50%; background: #22C55E; }
+  .c5-dt-presence span { font-size: 11px; font-weight: 600; color: var(--go-accent); }
+
+</style>
+</head>
+
+<body>
+<div class="showcase-container">
+  <div class="showcase-header">
+    <p class="page-title">BleSaf — Hero + Trust Gateway Combos</p>
+    <p class="page-subtitle">5 ways to combine the "Rejoignez le Saf" icon hero (Option 1) with the Trust Gateway doctor layout (Option C)</p>
+  </div>
+
+  <div class="nav-tabs" id="navTabs">
+    <button class="nav-tab active" data-design="1" onclick="switchDesign(1)">1. Icon Welcome</button>
+    <button class="nav-tab" data-design="2" onclick="switchDesign(2)">2. Split Hero</button>
+    <button class="nav-tab" data-design="3" onclick="switchDesign(3)">3. Beacon Bar</button>
+    <button class="nav-tab" data-design="4" onclick="switchDesign(4)">4. Merged Identity</button>
+    <button class="nav-tab" data-design="5" onclick="switchDesign(5)">5. Floating Card</button>
+  </div>
+
+  <p class="design-desc" id="designDesc">The icon hero from Option 1 leads the page as a welcoming centered hero. The doctor appears below as a compact horizontal trust card before the form.</p>
+
+  <!-- ═══ PHONE FRAME ═══ -->
+  <div class="phone-frame">
+    <div class="phone-inner">
+
+      <!-- ═══════════════════════════════════════
+           COMBO 1: Icon Welcome + Doctor Card
+           ═══════════════════════════════════════ -->
+      <div class="design-screen active" id="design1">
+        <div class="c1-scroll">
+          <div class="status-bar">
+            <span>18:11</span>
+            <div class="right">
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">signal_cellular_alt</span>
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">wifi</span>
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">battery_5_bar</span>
+            </div>
+          </div>
+
+          <div class="c1-top-bar">
+            <div class="c1-sys-label">Saf virtuel</div>
+            <button class="lang-btn">عربي</button>
+          </div>
+
+          <!-- Doctor hero (centered) -->
+          <div class="c1-doctor-hero">
+            <div class="doctor-avatar lg anim d1" style="margin:0 auto 12px;">
+              <span class="material-symbols-rounded">stethoscope</span>
+            </div>
+            <div class="c1-doctor-name anim d2">Dr. Leila Trabelsi</div>
+            <div class="c1-doctor-spec anim d2">
+              <div class="specialty-badge">Ophtalmologie</div>
+            </div>
+            <div class="c1-doctor-presence anim d3">
+              <div class="presence" style="justify-content:center;">
+                <div class="dot"></div>
+                <span>Disponible</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Social proof -->
+          <div class="social-bar anim d3">
+            <div class="social-item">
+              <div class="social-number">12</div>
+              <div class="social-label">patients servis aujourd'hui</div>
+            </div>
+            <div class="social-divider"></div>
+            <div class="social-item">
+              <div class="social-number">~8 min</div>
+              <div class="social-label">consultation moyenne</div>
+            </div>
+          </div>
+
+          <!-- Rejoignez le saf + icon -->
+          <div class="c1-join anim d4">
+            <div class="eyebrow">REJOIGNEZ LE SAF</div>
+            <div class="hero-icon" style="margin:10px auto;">
+              <span class="material-symbols-rounded">how_to_reg</span>
+            </div>
+            <div class="c1-join-title">Prenez votre place</div>
+          </div>
+
+          <!-- Form -->
+          <div class="c1-form anim d5">
+            <input type="tel" class="ci-input phone-input" value="+216 " placeholder="+216 XX XXX XXX" inputmode="tel">
+            <input type="text" class="ci-input name-input" placeholder="Votre nom (optionnel)">
+
+            <button class="ci-submit" style="margin-top:20px;">
+              Rejoindre le Saf
+              <span class="material-symbols-rounded">arrow_forward</span>
+            </button>
+
+            <div class="trust-row">
+              <div class="trust-item">
+                <span class="material-symbols-rounded">lock</span>
+                Donnees protegees
+              </div>
+              <div class="trust-sep"></div>
+              <div class="trust-item">
+                <span class="material-symbols-rounded">update</span>
+                Suivi en temps reel
+              </div>
+            </div>
+          </div>
+
+          <!-- Testimonial -->
+          <div class="testimonial anim d6">
+            <span class="material-symbols-rounded">format_quote</span>
+            <div class="testimonial-text">
+              « J'ai pu attendre au cafe au lieu de rester assise 45 minutes dans la salle d'attente. »
+            </div>
+            <div class="testimonial-author">— Patiente, Clinique La Marsa</div>
+          </div>
+
+          <div style="flex:1;min-height:16px;"></div>
+          <div class="brand-footer">
+            <div class="brand-mark">B</div> BleSaf
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════
+           COMBO 2: Split Hero — Icon + Doctor
+           ═══════════════════════════════════════ -->
+      <div class="design-screen" id="design2">
+        <div class="c2-scroll">
+          <div class="status-bar">
+            <span>18:11</span>
+            <div class="right">
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">signal_cellular_alt</span>
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">wifi</span>
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">battery_5_bar</span>
+            </div>
+          </div>
+
+          <div class="c2-top-bar">
+            <div class="c2-sys-label">Saf virtuel</div>
+            <button class="lang-btn">عربي</button>
+          </div>
+
+          <!-- Split hero: icon left, doctor right -->
+          <div class="c2-split-hero anim">
+            <div class="c2-left anim d1">
+              <div class="hero-icon">
+                <span class="material-symbols-rounded">how_to_reg</span>
+              </div>
+              <div class="eyebrow" style="margin-top:8px;">REJOIGNEZ<br>LE SAF</div>
+            </div>
+
+            <div class="c2-right-divider anim d2"></div>
+
+            <div class="c2-right anim d2">
+              <div class="c2-doctor-name">Dr. Leila Trabelsi</div>
+              <div class="c2-doctor-spec">
+                <div class="specialty-badge">Ophtalmologie</div>
+              </div>
+              <div class="c2-doctor-presence">
+                <div class="presence">
+                  <div class="dot"></div>
+                  <span>Disponible</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Social proof -->
+          <div class="social-bar anim d3">
+            <div class="social-item">
+              <div class="social-number">12</div>
+              <div class="social-label">patients servis aujourd'hui</div>
+            </div>
+            <div class="social-divider"></div>
+            <div class="social-item">
+              <div class="social-number">~8 min</div>
+              <div class="social-label">consultation moyenne</div>
+            </div>
+          </div>
+
+          <!-- Queue strip -->
+          <div class="queue-strip anim d3">
+            <span class="material-symbols-rounded">groups</span>
+            <span><strong>5 patients</strong> en attente · ~25 min</span>
+          </div>
+
+          <hr class="divider">
+
+          <!-- Form -->
+          <div class="c2-form anim d4">
+            <div class="c2-form-title">Rejoindre le Saf du Dr. Trabelsi</div>
+
+            <input type="tel" class="ci-input phone-input" value="+216 " placeholder="+216 XX XXX XXX" inputmode="tel">
+            <input type="text" class="ci-input name-input" placeholder="Votre nom (optionnel)">
+
+            <button class="ci-submit" style="margin-top:20px;">
+              Rejoindre le Saf du Dr. Trabelsi
+              <span class="material-symbols-rounded">arrow_forward</span>
+            </button>
+
+            <div class="trust-row">
+              <div class="trust-item">
+                <span class="material-symbols-rounded">lock</span>
+                Donnees protegees
+              </div>
+              <div class="trust-sep"></div>
+              <div class="trust-item">
+                <span class="material-symbols-rounded">update</span>
+                Suivi en temps reel
+              </div>
+            </div>
+          </div>
+
+          <!-- Testimonial -->
+          <div class="testimonial anim d5">
+            <span class="material-symbols-rounded">format_quote</span>
+            <div class="testimonial-text">
+              « J'ai pu attendre au cafe au lieu de rester assise 45 minutes dans la salle d'attente. »
+            </div>
+            <div class="testimonial-author">— Patiente, Clinique La Marsa</div>
+          </div>
+
+          <div style="flex:1;min-height:16px;"></div>
+          <div class="brand-footer">
+            <div class="brand-mark">B</div> BleSaf
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════
+           COMBO 3: Beacon Bar + Full Doctor Hero
+           ═══════════════════════════════════════ -->
+      <div class="design-screen" id="design3">
+        <div class="c3-scroll">
+          <div class="status-bar">
+            <span>18:11</span>
+            <div class="right">
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">signal_cellular_alt</span>
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">wifi</span>
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">battery_5_bar</span>
+            </div>
+          </div>
+
+          <div class="c3-top-bar">
+            <div class="c3-sys-label">Systeme de file d'attente</div>
+            <button class="lang-btn">عربي</button>
+          </div>
+
+          <!-- Beacon bar with icon -->
+          <div class="c3-beacon anim">
+            <div class="hero-icon" style="width:36px;height:36px;background:var(--relax-accent);">
+              <span class="material-symbols-rounded" style="font-size:18px;color:#fff;">how_to_reg</span>
+            </div>
+            <div class="c3-beacon-text">Rejoignez le Saf</div>
+          </div>
+
+          <!-- Full doctor hero (from Trust Gateway) -->
+          <div class="c3-doctor-hero">
+            <div class="doctor-avatar lg anim d1" style="margin:0 auto 14px;">
+              <span class="material-symbols-rounded">stethoscope</span>
+            </div>
+            <div class="c3-doctor-name anim d2">Dr. Leila Trabelsi</div>
+            <div class="c3-doctor-spec anim d2">
+              <div class="specialty-badge">Ophtalmologie</div>
+            </div>
+            <div class="c3-doctor-presence anim d3">
+              <div class="presence" style="justify-content:center;">
+                <div class="dot"></div>
+                <span>Disponible</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Social proof -->
+          <div class="social-bar anim d3">
+            <div class="social-item">
+              <div class="social-number">12</div>
+              <div class="social-label">patients servis aujourd'hui</div>
+            </div>
+            <div class="social-divider"></div>
+            <div class="social-item">
+              <div class="social-number">~8 min</div>
+              <div class="social-label">consultation moyenne</div>
+            </div>
+          </div>
+
+          <!-- Queue strip -->
+          <div class="queue-strip anim d4">
+            <span class="material-symbols-rounded">groups</span>
+            <span><strong>5 patients</strong> en attente · ~25 min</span>
+          </div>
+
+          <hr class="divider">
+
+          <!-- Form -->
+          <div class="c3-form anim d5">
+            <div class="c3-form-title">Rejoindre le Saf du Dr. Trabelsi</div>
+
+            <input type="tel" class="ci-input phone-input" value="+216 " placeholder="+216 XX XXX XXX" inputmode="tel">
+            <input type="text" class="ci-input name-input" placeholder="Votre nom (optionnel)">
+
+            <button class="ci-submit" style="margin-top:20px;">
+              Rejoindre le Saf du Dr. Trabelsi
+              <span class="material-symbols-rounded">arrow_forward</span>
+            </button>
+
+            <div class="trust-row">
+              <div class="trust-item">
+                <span class="material-symbols-rounded">lock</span>
+                Donnees protegees
+              </div>
+              <div class="trust-sep"></div>
+              <div class="trust-item">
+                <span class="material-symbols-rounded">update</span>
+                Suivi en temps reel
+              </div>
+            </div>
+          </div>
+
+          <!-- Testimonial -->
+          <div class="testimonial anim d6">
+            <span class="material-symbols-rounded">format_quote</span>
+            <div class="testimonial-text">
+              « J'ai pu attendre au cafe au lieu de rester assise 45 minutes dans la salle d'attente. »
+            </div>
+            <div class="testimonial-author">— Patiente, Clinique La Marsa</div>
+          </div>
+
+          <div style="flex:1;min-height:16px;"></div>
+          <div class="brand-footer" style="flex-direction:column;gap:4px;">
+            <div style="font-size:11px;color:var(--text-tertiary);">Systeme utilise par des cliniques en Tunisie</div>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <div class="brand-mark">B</div> BleSaf
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════
+           COMBO 4: Merged Identity
+           ═══════════════════════════════════════ -->
+      <div class="design-screen" id="design4">
+        <div class="c4-scroll">
+          <div class="status-bar">
+            <span>18:11</span>
+            <div class="right">
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">signal_cellular_alt</span>
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">wifi</span>
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">battery_5_bar</span>
+            </div>
+          </div>
+
+          <div class="c4-top-bar">
+            <div class="c4-sys-label">Saf virtuel</div>
+            <button class="lang-btn">عربي</button>
+          </div>
+
+          <!-- Merged hero: doctor icon inside hero circle -->
+          <div class="c4-hero">
+            <div class="c4-eyebrow-wrap anim">
+              <div class="eyebrow">REJOIGNEZ LE SAF</div>
+            </div>
+            <div class="c4-merged-circle anim d1">
+              <span class="material-symbols-rounded">stethoscope</span>
+              <div class="c4-badge">
+                <span class="material-symbols-rounded">check_circle</span>
+              </div>
+            </div>
+            <div class="c4-doctor-name anim d2">Dr. Leila Trabelsi</div>
+            <div class="c4-doctor-spec anim d2">
+              <div class="specialty-badge">Ophtalmologie</div>
+            </div>
+            <div class="c4-join-label anim d3">Prenez votre place dans son saf virtuel</div>
+          </div>
+
+          <!-- Social proof -->
+          <div class="social-bar anim d3">
+            <div class="social-item">
+              <div class="social-number">12</div>
+              <div class="social-label">patients servis aujourd'hui</div>
+            </div>
+            <div class="social-divider"></div>
+            <div class="social-item">
+              <div class="social-number">~8 min</div>
+              <div class="social-label">consultation moyenne</div>
+            </div>
+          </div>
+
+          <!-- Queue strip -->
+          <div class="queue-strip anim d4">
+            <span class="material-symbols-rounded">groups</span>
+            <span><strong>5 patients</strong> en attente · ~25 min</span>
+          </div>
+
+          <hr class="divider">
+
+          <!-- Form -->
+          <div class="c4-form anim d5">
+            <input type="tel" class="ci-input phone-input" value="+216 " placeholder="+216 XX XXX XXX" inputmode="tel">
+            <input type="text" class="ci-input name-input" placeholder="Votre nom (optionnel)">
+
+            <button class="ci-submit" style="margin-top:20px;">
+              Rejoindre le Saf du Dr. Trabelsi
+              <span class="material-symbols-rounded">arrow_forward</span>
+            </button>
+
+            <div class="trust-row">
+              <div class="trust-item">
+                <span class="material-symbols-rounded">lock</span>
+                Donnees protegees
+              </div>
+              <div class="trust-sep"></div>
+              <div class="trust-item">
+                <span class="material-symbols-rounded">update</span>
+                Suivi en temps reel
+              </div>
+            </div>
+          </div>
+
+          <!-- Testimonial -->
+          <div class="testimonial anim d6">
+            <span class="material-symbols-rounded">format_quote</span>
+            <div class="testimonial-text">
+              « J'ai pu attendre au cafe au lieu de rester assise 45 minutes dans la salle d'attente. »
+            </div>
+            <div class="testimonial-author">— Patiente, Clinique La Marsa</div>
+          </div>
+
+          <div style="flex:1;min-height:16px;"></div>
+          <div class="brand-footer">
+            <div class="brand-mark">B</div> BleSaf
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════
+           COMBO 5: Floating Card + Form-First
+           ═══════════════════════════════════════ -->
+      <div class="design-screen" id="design5">
+        <div class="c5-scroll">
+          <div class="status-bar">
+            <span>18:11</span>
+            <div class="right">
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">signal_cellular_alt</span>
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">wifi</span>
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">battery_5_bar</span>
+            </div>
+          </div>
+
+          <div class="c5-top-bar">
+            <div class="c5-sys-label">Saf virtuel</div>
+            <button class="lang-btn">عربي</button>
+          </div>
+
+          <!-- Floating hero card (teal branded) -->
+          <div class="c5-hero-card anim">
+            <div class="c5-hero-icon anim d1">
+              <span class="material-symbols-rounded">how_to_reg</span>
+            </div>
+            <div class="c5-hero-title anim d1">Rejoignez le Saf</div>
+            <div class="c5-hero-sub anim d2">Prenez votre place sans attendre dans la salle</div>
+          </div>
+
+          <!-- Queue strip -->
+          <div class="queue-strip anim d3" style="margin-top:14px;">
+            <span class="material-symbols-rounded">groups</span>
+            <span><strong>5 patients</strong> en attente · ~25 min</span>
+          </div>
+
+          <!-- Form (right after hero — fast path) -->
+          <div class="c5-form anim d4">
+            <input type="tel" class="ci-input phone-input" value="+216 " placeholder="+216 XX XXX XXX" inputmode="tel">
+            <input type="text" class="ci-input name-input" placeholder="Votre nom (optionnel)">
+
+            <button class="ci-submit" style="margin-top:20px;">
+              Prendre ma place
+              <span class="material-symbols-rounded">arrow_forward</span>
+            </button>
+
+            <div class="trust-row">
+              <div class="trust-item">
+                <span class="material-symbols-rounded">lock</span>
+                Donnees protegees
+              </div>
+              <div class="trust-sep"></div>
+              <div class="trust-item">
+                <span class="material-symbols-rounded">update</span>
+                Suivi en temps reel
+              </div>
+            </div>
+          </div>
+
+          <hr class="divider" style="margin-top:20px;">
+
+          <!-- Doctor trust block (below form) -->
+          <div class="c5-doctor-trust anim d5">
+            <div class="doctor-avatar">
+              <span class="material-symbols-rounded">stethoscope</span>
+            </div>
+            <div class="c5-dt-info">
+              <div class="c5-dt-name">Dr. Leila Trabelsi</div>
+              <div class="c5-dt-detail">Ophtalmologie</div>
+              <div class="c5-dt-presence">
+                <div class="dot"></div>
+                <span>Disponible</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Social proof -->
+          <div class="social-bar anim d6" style="margin-top:12px;">
+            <div class="social-item">
+              <div class="social-number">12</div>
+              <div class="social-label">patients servis aujourd'hui</div>
+            </div>
+            <div class="social-divider"></div>
+            <div class="social-item">
+              <div class="social-number">~8 min</div>
+              <div class="social-label">consultation moyenne</div>
+            </div>
+          </div>
+
+          <!-- Testimonial -->
+          <div class="testimonial anim d7">
+            <span class="material-symbols-rounded">format_quote</span>
+            <div class="testimonial-text">
+              « J'ai pu attendre au cafe au lieu de rester assise 45 minutes dans la salle d'attente. »
+            </div>
+            <div class="testimonial-author">— Patiente, Clinique La Marsa</div>
+          </div>
+
+          <div style="flex:1;min-height:16px;"></div>
+          <div class="brand-footer">
+            <div class="brand-mark">B</div> BleSaf
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <p class="design-label" id="designLabel">
+    Strategy: The icon hero from Option 1 becomes the welcoming first impression. The doctor appears as a compact horizontal card, keeping trust without dominating the layout. Clean hierarchy: icon → doctor → stats → form.
+  </p>
+</div>
+
+<script>
+  const descriptions = {
+    1: "The icon hero from Option 1 leads the page as a welcoming centered hero. The doctor appears below as a compact horizontal trust card before the form.",
+    2: "Side-by-side split: icon circle + \"Rejoignez le Saf\" on the left, doctor name + specialty on the right. A unified dual-identity hero separated by a subtle divider.",
+    3: "A compact teal \"beacon bar\" with the icon + text sits at the top. Below, the full Trust Gateway doctor hero plays out unchanged. Two distinct visual zones.",
+    4: "The doctor's stethoscope icon sits inside the hero circle from Option 1. \"Rejoignez le Saf\" eyebrow wraps the doctor identity. One merged visual, two messages.",
+    5: "Bold teal hero card with icon + \"Rejoignez le Saf\" at top. Form immediately below (fast path). Doctor trust block and social proof appear AFTER the form as reassurance."
+  };
+
+  const labels = {
+    1: "Strategy: The icon hero from Option 1 becomes the welcoming first impression. The doctor appears as a compact horizontal card, keeping trust without dominating the layout. Clean hierarchy: icon → doctor → stats → form.",
+    2: "Strategy: Visual parity between the \"join\" action and the doctor identity. Neither dominates — the patient sees both instantly. The vertical divider creates a balanced, magazine-style hero.",
+    3: "Strategy: The beacon bar acts as a persistent header/brand moment. The full doctor hero below preserves all Trust Gateway elements. Minimal change to Option C, maximum addition of the icon identity.",
+    4: "Strategy: One hero, two messages. The doctor's icon absorbs the \"Rejoignez le Saf\" circle, creating a single focal point. The green check badge adds \"available\" status without extra space.",
+    5: "Strategy: Form-first for speed (like Option E), but the branded hero card replaces a plain headline. Doctor trust elements move below the fold — available but not blocking the fast path."
+  };
+
+  let currentDesign = 1;
+
+  function switchDesign(n) {
+    if (n === currentDesign) return;
+
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+      tab.classList.toggle('active', parseInt(tab.dataset.design) === n);
+    });
+    document.querySelectorAll('.design-screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('design' + n).classList.add('active');
+
+    document.getElementById('designDesc').textContent = descriptions[n];
+    document.getElementById('designLabel').innerHTML = labels[n];
+
+    currentDesign = n;
+  }
+</script>
+
+</body>
+</html>

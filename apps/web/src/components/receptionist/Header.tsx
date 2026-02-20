@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { webBrand } from '@/lib/brand';
@@ -17,6 +17,8 @@ interface HeaderProps {
   isAllDone?: boolean;
   onStatusPillClick?: () => void;
   isDoctorPresent?: boolean;
+  onToggleDoctorPresent?: () => void;
+  isTogglingPresence?: boolean;
   showStats?: boolean;
   chip1Value?: number;
   chip2Value?: number;
@@ -32,6 +34,8 @@ export default function Header({
   isAllDone,
   onStatusPillClick,
   isDoctorPresent,
+  onToggleDoctorPresent,
+  isTogglingPresence = false,
   showStats,
   chip1Value = 0,
   chip2Value = 0,
@@ -43,10 +47,25 @@ export default function Header({
   const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [activePanel, setActivePanel] = useState<PanelKey>(null);
+  const [presenceMenuOpen, setPresenceMenuOpen] = useState(false);
+  const presenceRef = useRef<HTMLDivElement>(null);
 
   // QR code data
   const [qrData, setQrData] = useState<{ url: string; qrCode: string; clinicName: string } | null>(null);
   const [qrLoading, setQrLoading] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
+
+  // Close presence menu on outside tap
+  useEffect(() => {
+    if (!presenceMenuOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (presenceRef.current && !presenceRef.current.contains(e.target as Node)) {
+        setPresenceMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [presenceMenuOpen]);
 
   const showPresence = status === 'OPEN' || status === 'CLOSING';
   const showDrawerToggle = status === 'OPEN' || status === 'CLOSING' || status === 'PRE_OPEN';
@@ -74,10 +93,13 @@ export default function Header({
   const closePanel = () => setActivePanel(null);
 
   const handleCopyLink = async () => {
-    if (qrData) {
-      try {
-        await navigator.clipboard.writeText(qrData.url);
-      } catch { /* clipboard failed */ }
+    if (!qrData) return;
+    try {
+      await navigator.clipboard.writeText(qrData.url);
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 1500);
+    } catch {
+      /* clipboard failed */
     }
   };
 
@@ -111,24 +133,117 @@ export default function Header({
           )}
 
           {showPresence && isDoctorPresent !== undefined && (
-            <div
-              className="flex items-center gap-1.5 rounded-full"
-              style={{
-                padding: '4px 10px 4px 7px',
-                fontSize: 11,
-                fontWeight: 600,
-                backgroundColor: isDoctorPresent ? '#EDF7F0' : '#FDF0ED',
-                color: isDoctorPresent ? '#2D8B4E' : '#D94F3B',
-                border: isDoctorPresent
-                  ? '1px solid rgba(45,139,78,0.15)'
-                  : '1px solid rgba(217,79,59,0.15)',
-              }}
-            >
-              <div
-                className="w-1.5 h-1.5 rounded-full"
-                style={{ backgroundColor: isDoctorPresent ? '#2D8B4E' : '#D94F3B' }}
-              />
-              <span>{isDoctorPresent ? 'Présent' : 'Absent'}</span>
+            <div ref={presenceRef} style={{ position: 'relative' }}>
+              <button
+                onClick={() => setPresenceMenuOpen(!presenceMenuOpen)}
+                className="flex items-center gap-1.5 rounded-full"
+                style={{
+                  padding: '4px 10px 4px 7px',
+                  fontSize: 11,
+                  fontWeight: 600,
+                  backgroundColor: isDoctorPresent ? '#EDF7F0' : '#FDF0ED',
+                  color: isDoctorPresent ? '#2D8B4E' : '#D94F3B',
+                  border: isDoctorPresent
+                    ? '1px solid rgba(45,139,78,0.15)'
+                    : '1px solid rgba(217,79,59,0.15)',
+                  cursor: 'pointer',
+                }}
+              >
+                <div
+                  className="w-1.5 h-1.5 rounded-full"
+                  style={{ backgroundColor: isDoctorPresent ? '#2D8B4E' : '#D94F3B' }}
+                />
+                <span>{isDoctorPresent ? 'Présent' : 'Absent'}</span>
+                <span
+                  className="material-symbols-rounded"
+                  style={{
+                    fontSize: 14,
+                    marginLeft: 1,
+                    transition: 'transform 0.2s',
+                    transform: presenceMenuOpen ? 'rotate(180deg)' : 'rotate(0)',
+                  }}
+                >
+                  expand_more
+                </span>
+              </button>
+
+              {/* Presence dropdown */}
+              {presenceMenuOpen && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: 'calc(100% + 6px)',
+                    right: 0,
+                    background: '#fff',
+                    border: '1px solid #E8E6DF',
+                    borderRadius: 10,
+                    boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                    minWidth: 160,
+                    zIndex: 60,
+                    overflow: 'hidden',
+                    animation: 'fadeIn 0.15s ease',
+                  }}
+                >
+                  {/* Présent option */}
+                  <button
+                    onClick={() => {
+                      if (!isDoctorPresent && !isTogglingPresence) onToggleDoctorPresent?.();
+                      setPresenceMenuOpen(false);
+                    }}
+                    disabled={isTogglingPresence}
+                    className="flex items-center gap-2 w-full"
+                    style={{
+                      padding: '10px 14px',
+                      fontSize: 13,
+                      fontWeight: isDoctorPresent ? 600 : 400,
+                      color: '#2D8B4E',
+                      background: isDoctorPresent ? '#EDF7F0' : 'transparent',
+                      border: 'none',
+                      borderBottom: '1px solid #F0EFEA',
+                      cursor: isTogglingPresence ? 'wait' : 'pointer',
+                      textAlign: 'left',
+                    }}
+                  >
+                    <div
+                      className="rounded-full"
+                      style={{ width: 8, height: 8, backgroundColor: '#2D8B4E', flexShrink: 0 }}
+                    />
+                    Présent
+                    {isDoctorPresent && (
+                      <span className="material-symbols-rounded" style={{ fontSize: 16, marginLeft: 'auto' }}>check</span>
+                    )}
+                  </button>
+
+                  {/* Absent option */}
+                  <button
+                    onClick={() => {
+                      if (isDoctorPresent && !isTogglingPresence) onToggleDoctorPresent?.();
+                      setPresenceMenuOpen(false);
+                    }}
+                    disabled={isTogglingPresence}
+                    className="flex items-center gap-2 w-full"
+                    style={{
+                      padding: '10px 14px',
+                      fontSize: 13,
+                      fontWeight: !isDoctorPresent ? 600 : 400,
+                      color: '#D94F3B',
+                      background: !isDoctorPresent ? '#FDF0ED' : 'transparent',
+                      border: 'none',
+                      cursor: isTogglingPresence ? 'wait' : 'pointer',
+                      textAlign: 'left',
+                    }}
+                  >
+                    <div
+                      className="rounded-full"
+                      style={{ width: 8, height: 8, backgroundColor: '#D94F3B', flexShrink: 0 }}
+                    />
+                    Absent
+                    {!isDoctorPresent && (
+                      <span className="material-symbols-rounded" style={{ fontSize: 16, marginLeft: 'auto' }}>check</span>
+                    )}
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
@@ -324,17 +439,20 @@ export default function Header({
                   className="flex items-center gap-1.5"
                   style={{
                     padding: '10px 20px',
-                    background: '#F0EFEA',
-                    border: '1px solid #E8E6DF',
+                    background: linkCopied ? '#EDF7F0' : '#F0EFEA',
+                    border: linkCopied ? '1px solid rgba(45,139,78,0.2)' : '1px solid #E8E6DF',
                     borderRadius: 100,
                     fontSize: 13,
                     fontWeight: 600,
-                    color: '#6B6960',
+                    color: linkCopied ? '#2D8B4E' : '#6B6960',
                     cursor: 'pointer',
+                    transition: 'all 0.2s',
                   }}
                 >
-                  <span className="material-symbols-rounded" style={{ fontSize: 16 }}>content_copy</span>
-                  Copier lien
+                  <span className="material-symbols-rounded" style={{ fontSize: 16 }}>
+                    {linkCopied ? 'check' : 'content_copy'}
+                  </span>
+                  {linkCopied ? 'Copié !' : 'Copier lien'}
                 </button>
                 <button
                   className="flex items-center gap-1.5"

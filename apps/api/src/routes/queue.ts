@@ -46,6 +46,7 @@ const updatePatientSchema = z.object({
 
 const updateStatusSchema = z.object({
   status: z.enum(['WAITING', 'NOTIFIED', 'IN_CONSULTATION', 'COMPLETED', 'NO_SHOW', 'CANCELLED']),
+  calledAt: z.string().datetime().optional(),
   completedAt: z.string().datetime().optional(),
 });
 
@@ -158,13 +159,14 @@ router.patch('/:id/status', authMiddleware, subscriptionGate, async (req: AuthRe
   try {
     const clinicId = req.clinic!.id;
     const { id } = req.params;
-    const { status, completedAt } = updateStatusSchema.parse(req.body);
+    const { status, calledAt, completedAt } = updateStatusSchema.parse(req.body);
 
     const updated = await updatePatientStatus(
       clinicId,
       id,
       status as QueueStatus,
-      completedAt ? new Date(completedAt) : undefined
+      completedAt ? new Date(completedAt) : undefined,
+      calledAt ? new Date(calledAt) : undefined
     );
 
     if (!updated) {
@@ -362,10 +364,16 @@ router.post('/reset-stats', authMiddleware, subscriptionGate, async (req: AuthRe
 router.post('/checkin/:clinicId', async (req, res: Response) => {
   try {
     const { clinicId } = req.params;
-    const { patientPhone, patientName } = addPatientSchema.parse({
+    const { patientPhone, patientName, arrivedAt } = addPatientSchema.parse({
       ...req.body,
       checkInMethod: 'QR_CODE',
     });
+
+    // Parse arrivedAt if provided (e.g. from simulator with compressed time)
+    let arrivedAtDateTime: Date | undefined;
+    if (arrivedAt) {
+      arrivedAtDateTime = new Date(arrivedAt);
+    }
 
     // Verify clinic exists and is active
     const clinic = await prisma.clinic.findUnique({
@@ -384,6 +392,7 @@ router.post('/checkin/:clinicId', async (req, res: Response) => {
       patientPhone,
       patientName,
       checkInMethod: CheckInMethod.QR_CODE,
+      arrivedAt: arrivedAtDateTime,
     });
 
     if (result.isAlreadyCheckedIn) {

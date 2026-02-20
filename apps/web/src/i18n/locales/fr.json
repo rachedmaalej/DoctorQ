@@ -210,7 +210,19 @@
     "patientsWaiting_other": "{{count}} patients en attente",
     "yourSpotLabel": "Votre place",
     "occupiedSeat": "Place occupée",
-    "yourSpot": "Votre future place"
+    "yourSpot": "Votre future place",
+    "takeYourPlace": "Prenez votre place",
+    "available": "Disponible",
+    "unavailable": "Indisponible",
+    "waitingInQueue": "en attente",
+    "avgConsultationTime": "consultation moyenne",
+    "yourInfo": "Vos informations",
+    "joinSaf": "Rejoindre le Saf",
+    "dataProtected": "Données protégées",
+    "realTimeTracking": "Suivi en temps réel",
+    "testimonialText": "« J'ai pu attendre au café au lieu de rester assise 45 minutes dans la salle d'attente. »",
+    "testimonialAuthor": "— Patiente, Clinique La Marsa",
+    "virtualQueue": "Saf virtuel"
   },
   "dashboard": {
     "title": "Tableau de Bord",

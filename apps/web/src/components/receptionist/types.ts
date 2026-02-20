@@ -24,6 +24,7 @@ export interface ReceptionistDashboardProps {
   onReorderPatient: (id: string, newPosition: number) => void;
   onCompleteConsultation: () => void;
   onToggleDoctorPresent: () => void;
+  isTogglingPresence?: boolean;
   isCallingNext: boolean;
 }
 

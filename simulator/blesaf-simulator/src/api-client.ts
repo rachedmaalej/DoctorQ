@@ -8,6 +8,7 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
 import { io, Socket } from 'socket.io-client';
 import { MetricsCollector } from './metrics/collector';
+import { SimClock } from './clock';
 
 // ─── Response types (match actual API responses) ─────────────────────────────
 
@@ -75,11 +76,13 @@ export class ApiClient {
   private baseUrl: string;
   private socketUrl: string;
   private socketEvents: Array<{ event: string; data: any; timestamp: Date }> = [];
+  private clock: SimClock | null = null;
 
-  constructor(baseUrl: string, socketUrl: string, metrics: MetricsCollector) {
+  constructor(baseUrl: string, socketUrl: string, metrics: MetricsCollector, clock?: SimClock) {
     this.baseUrl = baseUrl;
     this.socketUrl = socketUrl;
     this.metrics = metrics;
+    this.clock = clock || null;
 
     this.http = axios.create({
       baseURL: baseUrl,
@@ -149,14 +152,49 @@ export class ApiClient {
     }
   }
 
-  async callNextPatient(): Promise<QueueEntry | null> {
+  /**
+   * Call next patient. The API auto-completes the current IN_CONSULTATION patient.
+   * When a clock is provided, patches both:
+   *   - previousPatientId's completedAt (simulated time)
+   *   - new patient's calledAt (simulated time)
+   */
+  async callNextPatient(previousPatientId?: string): Promise<QueueEntry | null> {
     const start = Date.now();
     const endpoint = `/api/queue/next`;
     try {
       const { data: resp } = await this.http.post(endpoint);
       this.metrics.recordApiCall('POST', endpoint, Date.now() - start, 200);
-      // API wraps response in { data: entry }
-      return resp.data;
+      const entry = resp.data;
+
+      if (this.clock) {
+        const simTime = this.clock.now().simulated.toISOString();
+
+        // Patch the auto-completed previous patient's completedAt
+        if (previousPatientId) {
+          try {
+            await this.http.patch(`/api/queue/${previousPatientId}/status`, {
+              status: 'COMPLETED',
+              completedAt: simTime,
+            });
+          } catch {
+            // Non-critical
+          }
+        }
+
+        // Patch the new patient's calledAt
+        if (entry) {
+          try {
+            await this.http.patch(`/api/queue/${entry.id}/status`, {
+              status: 'IN_CONSULTATION',
+              calledAt: simTime,
+            });
+          } catch {
+            // Non-critical
+          }
+        }
+      }
+
+      return entry;
     } catch (err: any) {
       const status = err.response?.status || 0;
       // 404 = empty queue, 400 = doctor not present — expected, record as normal calls
@@ -188,7 +226,11 @@ export class ApiClient {
     const start = Date.now();
     const endpoint = `/api/queue/${entryId}/status`;
     try {
-      await this.http.patch(endpoint, { status: 'COMPLETED' });
+      const body: Record<string, string> = { status: 'COMPLETED' };
+      if (this.clock) {
+        body.completedAt = this.clock.now().simulated.toISOString();
+      }
+      await this.http.patch(endpoint, body);
       this.metrics.recordApiCall('PATCH', endpoint, Date.now() - start, 200);
     } catch (err) {
       this.metrics.recordApiCall('PATCH', endpoint, Date.now() - start, 0);
@@ -203,10 +245,14 @@ export class ApiClient {
     const cid = clinicId || this.clinicId;
     const endpoint = `/api/queue/checkin/${cid}`;
     try {
-      const { data: resp } = await this.http.post(endpoint, {
+      const body: Record<string, string> = {
         patientName,
         patientPhone: phone,
-      });
+      };
+      if (this.clock) {
+        body.arrivedAt = this.clock.now().simulated.toISOString();
+      }
+      const { data: resp } = await this.http.post(endpoint, body);
       this.metrics.recordApiCall('POST', '/api/queue/checkin/:clinicId', Date.now() - start, 200);
       // API wraps response in { data: { ...entry, clinicName, estimatedWaitMins } }
       return resp.data;

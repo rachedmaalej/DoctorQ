@@ -509,7 +509,8 @@ export async function updatePatientStatus(
   clinicId: string,
   entryId: string,
   status: QueueStatus,
-  completedAt?: Date
+  completedAt?: Date,
+  calledAt?: Date
 ): Promise<QueueEntry | null> {
   // Use transaction to ensure atomicity
   const updated = await prisma.$transaction(async (tx) => {
@@ -526,6 +527,7 @@ export async function updatePatientStatus(
       where: { id: entryId },
       data: {
         status,
+        ...(calledAt && { calledAt }),
         ...(completedAt && { completedAt }),
       },
     });

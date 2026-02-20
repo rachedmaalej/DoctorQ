@@ -67,3 +67,6 @@ tmpclaude-*
 # Windows artifacts
 nul
 **/generated/prisma/
+
+# Database snapshots (local dev tool)
+snapshots/

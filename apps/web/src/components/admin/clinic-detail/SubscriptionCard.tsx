@@ -53,16 +53,10 @@ export default function SubscriptionCard({ clinic, onExtend, onUpgrade }: Props)
 
         {/* Info rows */}
         {clinic.plan === 'TRIAL' && (
-          <>
-            <div style={rowStyle}>
-              <span style={rowLabelStyle}>Trial ends</span>
-              <span style={{ fontWeight: 500, fontFamily: 'var(--mono)' }}>{trialEndFormatted}</span>
-            </div>
-            <div style={rowStyle}>
-              <span style={rowLabelStyle}>Plan after conversion</span>
-              <span style={{ fontWeight: 500 }}>Standard — 60 TND/mo</span>
-            </div>
-          </>
+          <div style={rowStyle}>
+            <span style={rowLabelStyle}>Trial ends</span>
+            <span style={{ fontWeight: 500, fontFamily: 'var(--mono)' }}>{trialEndFormatted}</span>
+          </div>
         )}
         <div style={{ ...rowStyle, borderBottom: 'none' }}>
           <span style={rowLabelStyle}>Admin extensions given</span>

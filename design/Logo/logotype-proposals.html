@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BleSaf — 10 Logotype Proposals</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal-deep: #0F7B6C;
+      --teal-mid: #0D9488;
+      --teal-light: #3D8A6E;
+      --teal-pale: #5EEAD4;
+      --navy: #1E3A5F;
+      --brand-dark: #1C4A3B;
+      --brand-mid: #2D6B55;
+      --amber: #F59E0B;
+      --cream: #F6F5F0;
+      --white: #FFFFFF;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-500: #6b7280;
+      --gray-600: #4b5563;
+      --gray-700: #374151;
+      --gray-800: #1f2937;
+      --gray-900: #111827;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--gray-50);
+      color: var(--gray-900);
+      line-height: 1.6;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      background: linear-gradient(135deg, var(--brand-dark) 0%, var(--teal-deep) 50%, var(--brand-mid) 100%);
+      color: white;
+      text-align: center;
+      padding: 4rem 1.5rem 3rem;
+    }
+    .hero .tag {
+      display: inline-block;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 999px;
+      padding: 0.35rem 1.2rem;
+      font-size: 0.8rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 1.25rem;
+    }
+    .hero h1 {
+      font-size: 2.8rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 0.75rem;
+    }
+    .hero .subtitle {
+      font-size: 1.15rem;
+      opacity: 0.85;
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    /* ── Intro Card ── */
+    .intro {
+      max-width: 780px;
+      margin: -2rem auto 2.5rem;
+      background: white;
+      border-radius: 16px;
+      padding: 2rem 2.5rem;
+      box-shadow: 0 4px 32px rgba(0,0,0,0.08);
+    }
+    .intro h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--brand-dark);
+      margin-bottom: 0.75rem;
+    }
+    .intro p {
+      font-size: 0.92rem;
+      color: var(--gray-600);
+      margin-bottom: 0.5rem;
+    }
+    .intro .research-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    .intro .research-tags span {
+      background: var(--cream);
+      color: var(--brand-dark);
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.3rem 0.75rem;
+      border-radius: 999px;
+      border: 1px solid var(--gray-200);
+    }
+
+    /* ── Proposals ── */
+    .proposals {
+      max-width: 900px;
+      margin: 0 auto 3rem;
+      padding: 0 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2.5rem;
+    }
+
+    .proposal {
+      background: white;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 2px 20px rgba(0,0,0,0.06);
+      border: 1px solid var(--gray-200);
+    }
+
+    .proposal-header {
+      padding: 1.75rem 2rem 1.25rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      border-bottom: 1px solid var(--gray-100);
+    }
+    .proposal-num {
+      flex-shrink: 0;
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.2rem;
+      color: white;
+    }
+    .proposal-header-text h3 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--gray-900);
+      line-height: 1.3;
+    }
+    .proposal-header-text .trend-badge {
+      display: inline-block;
+      background: var(--gray-100);
+      color: var(--gray-600);
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.25rem 0.65rem;
+      border-radius: 999px;
+      margin-top: 0.4rem;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .proposal-body {
+      padding: 1.5rem 2rem 2rem;
+    }
+
+    .section-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--gray-500);
+      margin-bottom: 0.5rem;
+      margin-top: 1.5rem;
+    }
+    .section-title:first-child { margin-top: 0; }
+
+    .concept {
+      font-size: 1rem;
+      color: var(--gray-700);
+      line-height: 1.7;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+    .detail-item {
+      font-size: 0.88rem;
+      color: var(--gray-600);
+      line-height: 1.6;
+    }
+    .detail-item strong {
+      color: var(--gray-800);
+      font-weight: 600;
+    }
+
+    /* Color swatches */
+    .swatches {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .swatch {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.78rem;
+      color: var(--gray-600);
+    }
+    .swatch-dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      border: 2px solid rgba(0,0,0,0.08);
+      flex-shrink: 0;
+    }
+
+    /* Environment list */
+    .env-list {
+      list-style: none;
+      margin-top: 0.5rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.35rem 1rem;
+    }
+    .env-list li {
+      font-size: 0.85rem;
+      color: var(--gray-600);
+      padding-left: 1.25rem;
+      position: relative;
+    }
+    .env-list li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.55em;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--teal-mid);
+    }
+
+    /* Prompt block */
+    .prompt-block {
+      margin-top: 0.75rem;
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .prompt-block pre {
+      background: var(--gray-900);
+      color: #e2e8f0;
+      padding: 1.25rem 1.5rem;
+      padding-top: 2.75rem;
+      font-size: 0.82rem;
+      line-height: 1.7;
+      font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-x: auto;
+      border-radius: 12px;
+    }
+    .copy-btn {
+      position: absolute;
+      top: 0.6rem;
+      right: 0.6rem;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.7);
+      padding: 0.35rem 0.85rem;
+      border-radius: 8px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      z-index: 2;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .copy-btn:hover {
+      background: rgba(255,255,255,0.2);
+      color: white;
+    }
+    .copy-btn.copied {
+      background: var(--teal-deep);
+      color: white;
+      border-color: var(--teal-deep);
+    }
+
+    /* ── Comparison Table ── */
+    .comparison {
+      max-width: 900px;
+      margin: 0 auto 3rem;
+      padding: 0 1.5rem;
+    }
+    .comparison h2 {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--gray-900);
+      margin-bottom: 1rem;
+    }
+    .table-wrap {
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 2px 20px rgba(0,0,0,0.06);
+      border: 1px solid var(--gray-200);
+    }
+    .table-wrap table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    .table-wrap th {
+      background: var(--gray-50);
+      color: var(--gray-600);
+      font-weight: 700;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 0.85rem 1rem;
+      text-align: left;
+      border-bottom: 2px solid var(--gray-200);
+    }
+    .table-wrap td {
+      padding: 0.75rem 1rem;
+      color: var(--gray-700);
+      border-bottom: 1px solid var(--gray-100);
+      vertical-align: top;
+    }
+    .table-wrap tr:last-child td { border-bottom: none; }
+    .table-wrap tr:hover td { background: var(--gray-50); }
+    .table-wrap td:first-child { font-weight: 700; color: var(--gray-900); white-space: nowrap; }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 2rem 1rem 3rem;
+      font-size: 0.82rem;
+      color: var(--gray-500);
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      .hero h1 { font-size: 2rem; }
+      .hero { padding: 3rem 1rem 2.5rem; }
+      .intro { margin: -1.5rem 1rem 2rem; padding: 1.5rem; }
+      .proposals { padding: 0 1rem; }
+      .proposal-header { flex-direction: column; gap: 0.75rem; }
+      .proposal-body { padding: 1.25rem 1.5rem 1.5rem; }
+      .detail-grid { grid-template-columns: 1fr; }
+      .env-list { grid-template-columns: 1fr; }
+      .table-wrap { overflow-x: auto; }
+      .table-wrap table { min-width: 600px; }
+    }
+
+    @media print {
+      .hero { padding: 2rem 1rem; }
+      .copy-btn { display: none; }
+      .proposal { break-inside: avoid; page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="hero">
+    <div class="tag">Brand Identity</div>
+    <h1>BleSaf Logotype Proposals</h1>
+    <p class="subtitle">10 creative directions grounded in 2026 design trends, each with detailed design guidelines and ready-to-use Nano Banana generation prompts.</p>
+  </div>
+
+  <div class="intro">
+    <h2>About This Document</h2>
+    <p><strong>BleSaf</strong> (from Arabic <em>Saf</em> = queue/row + French <em>Ble</em> = wheat/harvest) is a virtual queue management SaaS for Tunisian medical clinics. These 10 proposals explore radically different visual directions while respecting the brand's core palette (teal, navy, amber) and bilingual (French + Arabic) requirements.</p>
+    <p>Each proposal includes a <strong>copy-ready Nano Banana prompt</strong> — click the Copy button to use it directly.</p>
+    <div class="research-tags">
+      <span>Archival Modernism</span>
+      <span>Variable Expressionism</span>
+      <span>Strategic Whitespace</span>
+      <span>Controlled Imperfection</span>
+      <span>Z-Axis Layering</span>
+      <span>Atmospheric Gradients</span>
+      <span>Square Kufic</span>
+      <span>Generative Identity</span>
+      <span>Tactile Materiality</span>
+      <span>Bilingual Typography</span>
+    </div>
+  </div>
+
+  <div class="proposals">
+
+    <!-- ═══════════ PROPOSAL 1 ═══════════ -->
+    <div class="proposal">
+      <div class="proposal-header">
+        <div class="proposal-num" style="background: var(--teal-deep);">1</div>
+        <div class="proposal-header-text">
+          <h3>The Grain Counter</h3>
+          <span class="trend-badge">Archival Modernism</span>
+        </div>
+      </div>
+      <div class="proposal-body">
+        <div class="section-title">Core Concept</div>
+        <p class="concept">A single wheat grain rendered as a counting bead on an abacus wire. Three notches mark counted positions. The metaphor: each patient is a precious grain being counted and moved forward. Evokes Tunisian souks where merchants count goods with care, married to the precision of digital tracking. Mid-century geometry meets contemporary precision — "New Nostalgia."</p>
+
+        <div class="section-title">Visual Description</div>
+        <div class="detail-grid">
+          <div class="detail-item"><strong>Typography:</strong> "Ble" in a medium-weight geometric sans (Futura/Gilroy style) with rounded terminals. "Saf" in semi-bold at a slightly lower baseline. Accent on "e" replaced by a tiny amber wheat kernel.</div>
+          <div class="detail-item"><strong>Icon/Mark:</strong> A horizontal line (the wire) passes through a rounded teardrop (the grain/bead). Three tiny notches on the left (patients counted), open space on the right (queue ahead). 1:1 square container.</div>
+          <div class="detail-item"><strong>Negative Space:</strong> The gap between grain and notches reads as "movement along a track" — forward progress.</div>
+          <div class="detail-item"><strong>Scaling:</strong> At 16px favicon: circle on a line. At billboard: wheat grain texture and wire notches become visible details.</div>
+        </div>
+
+        <div class="section-title">Color Palette</div>
+        <div class="swatches">
+          <div class="swatch"><div class="swatch-dot" style="background:#0F7B6C;"></div>#0F7B6C Teal (mark)</div>
+          <div class="swatch"><div class="swatch-dot" style="background:#1E3A5F;"></div>#1E3A5F Navy (wire + text)</div>
+          <div class="swatch"><div class="swatch-dot" style="background:#F59E0B;"></div>#F59E0B Amber (accent)</div>
+        </div>
+
+        <div class="section-title">Brand Environment</div>
+        <ul class="env-list">
+          <li><strong>Card:</strong> Mark left, wordmark right, wire extends to card edge</li>
+          <li><strong>App icon:</strong> Grain-on-wire centered on white/cream</li>
+          <li><strong>Signage:</strong> Grain enlarged, wire becomes underline</li>
+          <li><strong>Animation:</strong> Grain slides left-to-right, pausing at notches</li>
+          <li><strong>Dark mode:</strong> Wire + text white, grain stays amber, bg #1C4A3B</li>
+          <li><strong>Arabic:</strong> "بلي صف" below Latin, sharing the wire as connector. Arabic 18% larger</li>
+        </ul>
+
+        <div class="section-title">Nano Banana Prompt</div>
+        <div class="prompt-block">
+          <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+          <pre>Professional logotype design for "BléSaf" brand, a medical queue management SaaS. The logo features a single stylized wheat grain shaped like a rounded teardrop sitting on a thin horizontal line that acts as an abacus wire. Three small notch marks appear on the left side of the wire, suggesting counted positions. The wheat grain has a single subtle interior crease line. The word "Blé" is set in a clean geometric sans-serif typeface similar to Futura Medium with rounded terminals, and "Saf" in the same typeface at semi-bold weight, positioned slightly lower creating a staggered baseline. The accent on the é is replaced by a tiny amber wheat kernel shape. Color palette: deep teal (#0F7B6C) for the grain mark, navy blue (#1E3A5F) for the wire and wordmark text, warm amber (#F59E0B) for the accent kernel. Style reference: mid-century modern counting instruments reimagined with contemporary precision, similar to Pentagram's work for the Science Museum or Massimo Vignelli's systematic approach. Clean vector rendering, mathematically precise geometry, no gradients, no shadows, no textures. White background, centered composition, generous whitespace. Avoid: stethoscopes, crosses, medical symbols, hearts, generic tech icons, stock illustration style. The design should feel like a premium SaaS product identity, not a healthcare clip art.</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ PROPOSAL 2 ═══════════ -->
+    <div class="proposal">
+      <div class="proposal-header">
+        <div class="proposal-num" style="background: var(--brand-dark);">2</div>
+        <div class="proposal-header-text">
+          <h3>The Woven Script</h3>
+          <span class="trend-badge">Variable Expressionism</span>
+        </div>
+      </div>
+      <div class="proposal-body">
+        <div class="section-title">Core Concept</div>
+        <p class="concept">The word "BléSaf" rendered as a single continuous stroke that weaves between Latin and Arabic calligraphic DNA. Letterforms interlock like threads on a loom — "Ble" (wheat = harvest = woven textiles) meets "Saf" (row = warp threads). The stroke thickens and thins as it moves, borrowing from Arabic Naskh pressure modulation while maintaining Latin legibility. Typography IS the identity.</p>
+
+        <div class="section-title">Visual Description</div>
+        <div class="detail-grid">
+          <div class="detail-item"><strong>Letterforms:</strong> A single continuous line from "B" to "f." Stroke varies 2px to 12px, echoing nib pressure. The "e" flows into a flourish mirroring Arabic ص (Sad). The "S" borrows its upper curve from Arabic س (Sin). No letter is disconnected.</div>
+          <div class="detail-item"><strong>Icon:</strong> None. Pure wordmark. The letter connections form the visual identity.</div>
+          <div class="detail-item"><strong>Negative Space:</strong> Counters of "B" and bowl of "a" create two "eyes" — open circles suggesting watchfulness, attentiveness.</div>
+          <div class="detail-item"><strong>Scaling:</strong> Small sizes: stroke variation reduced for uniformity. Large: calligraphic modulation fully expressive.</div>
+        </div>
+
+        <div class="section-title">Color Palette</div>
+        <div class="swatches">
+          <div class="swatch"><div class="swatch-dot" style="background:#1C4A3B;"></div>#1C4A3B Deep Forest Teal (single color)</div>
+          <div class="swatch"><div class="swatch-dot" style="background:#F6F5F0;"></div>#F6F5F0 Cream (reversed)</div>
+        </div>
+
+        <div class="section-title">Brand Environment</div>
+        <ul class="env-list">
+          <li><strong>Card:</strong> Wordmark centered, no icon, ample whitespace</li>
+          <li><strong>App icon:</strong> Monogram "BS" extracted from the continuous stroke</li>
+          <li><strong>Signage:</strong> Large-scale wordmark, dramatic stroke variation</li>
+          <li><strong>Animation:</strong> Stroke draws itself B-to-f like a calligrapher writing in real time</li>
+          <li><strong>Dark mode:</strong> Cream (#F6F5F0) on dark teal (#1C4A3B)</li>
+          <li><strong>Arabic:</strong> "بلي صف" in matching custom Arabic style below — sibling expression of same calligraphic system</li>
+        </ul>
+
+        <div class="section-title">Nano Banana Prompt</div>
+        <div class="prompt-block">
+          <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+          <pre>Custom hand-lettered logotype wordmark for "BléSaf" rendered as a single continuous calligraphic stroke. The line begins at the letter B and flows unbroken through l, é, S, a, f, varying in thickness from very thin (2px equivalent) to thick (12px equivalent), mimicking Arabic Naskh calligraphy nib pressure. The stroke modulation is smooth and organic, not jagged. The letter "é" flows with a flourish that subtly echoes the Arabic letter Sad (ص). The "S" in Saf borrows its upper curve from the Arabic letter Sin (س). Letters are connected but each remains individually legible. No separate icon or symbol -- the wordmark IS the identity. Single color: deep forest teal (#1C4A3B). Typography style reference: the calligraphic precision of Luca Barcellona meets the structural clarity of Jessica Hische's lettering work. The counters of "B" and the bowl of "a" should be prominent open shapes. Clean vector quality, smooth bezier curves, no rough edges, no ink splatter, no grunge texture. White background, horizontally centered, generous whitespace above and below. Avoid: separate Arabic text, icons, medical symbols, generic script fonts, brush script casualness. This should feel intentional, structured, and premium -- controlled expressiveness, not spontaneity.</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ PROPOSAL 3 ═══════════ -->
+    <div class="proposal">
+      <div class="proposal-header">
+        <div class="proposal-num" style="background: var(--navy);">3</div>
+        <div class="proposal-header-text">
+          <h3>The Tessellation</h3>
+          <span class="trend-badge">Authenticity Seal + Negative Space</span>
+        </div>
+      </div>
+      <div class="proposal-body">
+        <div class="section-title">Core Concept</div>
+        <p class="concept">Inspired by Tunisian zellige tilework, the logo is a geometric tile pattern that contains the letters "B" and "S" interlocked in the negative space. The tiles reference the waiting room floor of every Tunisian clinic — transforming a symbol of tedious waiting into beautiful order. The queue (saf) IS the pattern: organized, repeating, harmonious. The tile can tessellate infinitely.</p>
+
+        <div class="section-title">Visual Description</div>
+        <div class="detail-grid">
+          <div class="detail-item"><strong>Icon/Mark:</strong> A square tile rotated 45° (diamond shape) containing interlocking triangles and parallelograms. Negative space between shapes forms "B" on the left, "S" (or Arabic ص) on the right. Two tones + negative space only.</div>
+          <div class="detail-item"><strong>Typography:</strong> "BléSaf" in IBM Plex Sans Medium beneath the tile, generous letter-spacing (+60). "Digital Health" in IBM Plex Sans Light, small caps below.</div>
+          <div class="detail-item"><strong>Negative Space:</strong> The B and S are revealed by empty spaces — an "aha" discovery moment that creates sticky cognitive bonds.</div>
+          <div class="detail-item"><strong>Scaling:</strong> 16px: simple geometric diamond with light/dark split. Large: hidden B/S and zellige complexity emerge.</div>
+        </div>
+
+        <div class="section-title">Color Palette</div>
+        <div class="swatches">
+          <div class="swatch"><div class="swatch-dot" style="background:#0F7B6C;"></div>#0F7B6C Teal (tile shapes)</div>
+          <div class="swatch"><div class="swatch-dot" style="background:#1E3A5F;"></div>#1E3A5F Navy (tile shapes)</div>
+          <div class="swatch"><div class="swatch-dot" style="background:#FFFFFF; border-color: #ddd;"></div>#FFFFFF White (negative space letters)</div>
+        </div>
+
+        <div class="section-title">Brand Environment</div>
+        <ul class="env-list">
+          <li><strong>Card:</strong> Single tile watermark across card, wordmark in lower third</li>
+          <li><strong>App icon:</strong> Diamond tile on teal bg, B/S negative space centered</li>
+          <li><strong>Signage:</strong> Strip of repeating tiles as border, wordmark below</li>
+          <li><strong>Animation:</strong> Tile rotates, internal pattern shifts between B/S reveal and pure geometry</li>
+          <li><strong>Dark mode:</strong> Tile in light teal + cream on #1C4A3B</li>
+          <li><strong>Arabic:</strong> "بلي صف" in IBM Plex Sans Arabic Medium, same tracking. Tile is script-agnostic</li>
+        </ul>
+
+        <div class="section-title">Nano Banana Prompt</div>
+        <div class="prompt-block">
+          <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+          <pre>Geometric logotype for "BléSaf" featuring a diamond-shaped tile mark inspired by Tunisian zellige mosaic tilework. The tile is a square rotated 45 degrees containing an interlocking geometric pattern of triangles, parallelograms, and angular shapes arranged in perfect symmetry. The negative space between the geometric shapes subtly reveals the letters "B" on the left half and "S" on the right half of the diamond. The tile uses exactly two colors: teal (#0F7B6C) and navy (#1E3A5F), with white negative space forming the hidden letters. Below the diamond tile mark, the word "BléSaf" is set in IBM Plex Sans Medium with generous letter-spacing, in navy (#1E3A5F). Below that, "Digital Health" in IBM Plex Sans Light small caps. Style reference: the geometric precision of Islamic geometric art combined with the branding clarity of Wolff Olins or Landor. The tile pattern should be mathematically precise with perfect angles and symmetry, as if it could tessellate infinitely. Clean flat vector, no gradients, no shadows, no 3D effects. White background, centered composition. Avoid: ornate decoration, curves, organic shapes, floral motifs, medical symbols, rounded forms. Everything is angular, precise, architectural.</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ PROPOSAL 4 ═══════════ -->
+    <div class="proposal">
+      <div class="proposal-header">
+        <div class="proposal-num" style="background: var(--navy);">4</div>
+        <div class="proposal-header-text">
+          <h3>The Horizon Line</h3>
+          <span class="trend-badge">Strategic Whitespace</span>
+        </div>
+      </div>
+      <div class="proposal-body">
+        <div class="section-title">Core Concept</div>
+        <p class="concept">Ultra-minimal. A single horizontal line with a gap at the golden ratio point. From the right edge of the gap, a short vertical element rises — a wheat stalk, a person standing up, a moment of being called. The line IS the queue. The interruption IS "your turn." 95% empty space. The meaning lives in what is NOT there. Influenced by Japanese "Ma" (negative space as design element).</p>
+
+        <div class="section-title">Visual Description</div>
+        <div class="detail-grid">
+          <div class="detail-item"><strong>Icon/Mark:</strong> Single horizontal line, 2px weight. Interrupted at 61.8% (golden ratio) by a gap. A short vertical element rises from the gap's right edge, exactly 1.618x the line height. Like a wheat stalk or person standing.</div>
+          <div class="detail-item"><strong>Typography:</strong> "BléSaf" in Helvetica Neue Thin or Inter Thin above the line, with the gap aligned to fall between "Ble" and "Saf."</div>
+          <div class="detail-item"><strong>Negative Space:</strong> The gap IS the logo. Everything is about absence — the moment the queue opens.</div>
+          <div class="detail-item"><strong>Scaling:</strong> 16px: horizontal line with a dot. Billboard: thinness against vast whitespace creates dramatic presence.</div>
+        </div>
+
+        <div class="section-title">Color Palette</div>
+        <div class="swatches">
+          <div class="swatch"><div class="swatch-dot" style="background:#1E3A5F;"></div>#1E3A5F Navy (monochrome)</div>
+          <div class="swatch"><div class="swatch-dot" style="background:#0D9488;"></div>#0D9488 Teal (optional vertical accent)</div>
+        </div>
+
+        <div class="section-title">Brand Environment</div>
+        <ul class="env-list">
+          <li><strong>Card:</strong> Line extends edge-to-edge, gap at golden ratio. Details above the line</li>
+          <li><strong>App icon:</strong> Line + gap centered in white square. Remarkably simple</li>
+          <li><strong>Signage:</strong> Full-width line, gap illuminated (backlit slot). At night: only the gap glows</li>
+          <li><strong>Animation:</strong> Gap moves left-to-right, brief vertical rise at end — "called"</li>
+          <li><strong>Dark mode:</strong> White line on #1C4A3B, gap becomes a void within light</li>
+          <li><strong>Arabic:</strong> "بلي صف" below the line — bilingual reflection with line as mirror axis</li>
+        </ul>
+
+        <div class="section-title">Nano Banana Prompt</div>
+        <div class="prompt-block">
+          <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+          <pre>Ultra-minimalist logotype for "BléSaf" consisting of a single thin horizontal line with a small gap at the golden ratio point (approximately 62% from the left). From the right edge of the gap, a short vertical element rises upward, exactly 1.618 times the height of the line thickness. The line is 2px weight equivalent, perfectly straight. Above the line, the word "BléSaf" is set in a very thin geometric sans-serif typeface similar to Helvetica Neue Ultralight or Inter Thin, with the space between "Blé" and "Saf" aligned directly above the gap in the line. The entire composition is monochrome navy blue (#1E3A5F) on pure white background. Style reference: the radical minimalism of Kenya Hara's MUJI branding, John Pawson's architectural philosophy, or the reductive clarity of Peter Saville's work. The design should feel like a haiku -- every element is essential, nothing can be removed. No icons, no symbols, no decorative elements, no gradients, no shadows. Pure geometry, pure line, pure space. Centered composition with massive whitespace surrounding the mark. Avoid: complexity, decoration, medical imagery, circles, curves, color, thickness, heaviness. This logo is about absence, not presence.</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ PROPOSAL 5 ═══════════ -->
+    <div class="proposal">
+      <div class="proposal-header">
+        <div class="proposal-num" style="background: var(--amber);">5</div>
+        <div class="proposal-header-text">
+          <h3>The Amber Field</h3>
+          <span class="trend-badge">Controlled Imperfection</span>
+        </div>
+      </div>
+      <div class="proposal-body">
+        <div class="section-title">Core Concept</div>
+        <p class="concept">Warm, organic, human. The "e" accent sprouts into a small three-kernel wheat ear — not generic, but recognizable. The wordmark feels hand-written with warmth. This is not cold technology; it's a tool made by humans who understand waiting frustration. The wheat connects to Tunisian identity (wheat = staple crop = sustenance = essential). Like the best bakery signs — controlled imperfection.</p>
+
+        <div class="section-title">Visual Description</div>
+        <div class="detail-grid">
+          <div class="detail-item"><strong>Typography:</strong> Custom hand-lettered wordmark. "Ble" in rounded, bouncy script with uneven baselines. "Saf" transitions to bolder, more structured strokes. The "f" descender curls back as a subtle underline.</div>
+          <div class="detail-item"><strong>Icon:</strong> The accent on "e" transforms into a 3-kernel wheat head: three ovals in a fan with two tiny awns (whiskers). Grows directly from the letter — not a separate icon.</div>
+          <div class="detail-item"><strong>Negative Space:</strong> The curl of the "f" creates an enclosed area — a subtle "safe space" or "waiting area" shape.</div>
+          <div class="detail-item"><strong>Scaling:</strong> 16px: wheat ear simplifies to a single amber dot (accent). Large: hand-drawn character becomes a charming focal point.</div>
+        </div>
+
+        <div class="section-title">Color Palette</div>
+        <div class="swatches">
+          <div class="swatch"><div class="swatch-dot" style="background:#1C4A3B;"></div>#1C4A3B Warm Dark Teal (letterforms)</div>
+          <div class="swatch"><div class="swatch-dot" style="background:#F59E0B;"></div>#F59E0B Amber (wheat ear)</div>
+          <div class="swatch"><div class="swatch-dot" style="background:#F6F5F0;"></div>#F6F5F0 Cream (background)</div>
+        </div>
+
+        <div class="section-title">Brand Environment</div>
+        <ul class="env-list">
+          <li><strong>Card:</strong> Wordmark on warm cream cardstock, amber is the only color. Artisanal feel</li>
+          <li><strong>App icon:</strong> The "e" with wheat ear accent, extracted as standalone glyph on cream circle</li>
+          <li><strong>Signage:</strong> Full wordmark, large, on wood or cream bg. Welcoming, not clinical</li>
+          <li><strong>Animation:</strong> Wheat ear grows — first one kernel, then two, then three. Gentle blooming</li>
+          <li><strong>Dark mode:</strong> Cream letterforms, amber wheat, bg #1C4A3B</li>
+          <li><strong>Arabic:</strong> "بلي صف" in matching warm, imperfect style. Wheat kernel above "ب" echoes the accent</li>
+        </ul>
+
+        <div class="section-title">Nano Banana Prompt</div>
+        <div class="prompt-block">
+          <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+          <pre>Warm hand-lettered logotype for "BléSaf" with organic, slightly imperfect letterforms that feel human and approachable. The word "Blé" is written in a rounded, bouncy custom script with slightly uneven baselines and gentle curves. "Saf" continues in the same hand but transitions to slightly bolder, more structured strokes. The accent mark on "é" transforms into a small three-kernel wheat head: three tiny oval kernels arranged in a fan pattern with two delicate awns (wheat whiskers) extending upward. The wheat ear grows organically from the letter. The descender of the final "f" curls back underneath the word, creating a subtle decorative underline. Color: warm dark teal (#1C4A3B) for all letterforms, warm amber (#F59E0B) for the wheat ear accent only. Background: warm cream (#F6F5F0). Style reference: the warmth of Rifle Paper Co's hand lettering combined with the structural intelligence of Erik Marinovich's custom type work for artisan brands. The imperfection should be controlled and intentional, not sloppy -- like a master baker's handwriting. No digital perfection, no geometric precision, but clear legibility. No icons separate from the type. Avoid: cold colors, sharp angles, generic font usage, medical symbols, tech aesthetic. This should feel like bread and sunshine, not software.</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ PROPOSAL 6 ═══════════ -->
+    <div class="proposal">
+      <div class="proposal-header">
+        <div class="proposal-num" style="background: var(--navy);">6</div>
+        <div class="proposal-header-text">
+          <h3>The Signal Tower</h3>
+          <span class="trend-badge">Z-Axis Layering</span>
+        </div>
+      </div>
+      <div class="proposal-body">
+        <div class="section-title">Core Concept</div>
+        <p class="concept">A bold geometric mark: a vertical rounded rectangle (tower/minaret silhouette — referencing Tunisian urban architecture) emits three concentric quarter-arcs from its top-right corner. The tower is the clinic. The signal arcs are the real-time notifications reaching patients. Unapologetically technical and architectural — a serious infrastructure tool. Borrows from telecommunications iconography but roots it in North African architectural forms.</p>
+
+        <div class="section-title">Visual Description</div>
+        <div class="detail-grid">
+          <div class="detail-item"><strong>Icon/Mark:</strong> Vertical rounded rectangle (1:2.5 ratio, ~15% corner radius) with 3 quarter-arc lines from upper-right corner at 45°. Arcs at 100%, 60%, 30% opacity. A horizontal slot near the top = simplified window/door.</div>
+          <div class="detail-item"><strong>Typography:</strong> "SAF" in Bebas Neue (from brand system), "Ble" in a medium geometric sans. Wide letter-spacing. Horizontal or stacked lockup.</div>
+          <div class="detail-item"><strong>Negative Space:</strong> The slot in the tower creates "opening" — an invitation. Space between arcs suggests expanding reach.</div>
+          <div class="detail-item"><strong>Scaling:</strong> 16px: rectangle with a single arc. Billboard: three arcs, slot, and opacity variation create sophisticated layering.</div>
+        </div>
+
+        <div class="section-title">Color Palette</div>
+        <div class="swatches">
+          <div class="swatch"><div class="swatch-dot" style="background:#1E3A5F;"></div>#1E3A5F Navy (tower)</div>
+          <div class="swatch"><div class="swatch-dot" style="background:#0D9488;"></div>#0D9488 Teal (signal arcs)</div>
+          <div class="swatch"><div class="swatch-dot" style="background:#F59E0B;"></div>#F59E0B Amber (window slot)</div>
+        </div>
+
+        <div class="section-title">Brand Environment</div>
+        <ul class="env-list">
+          <li><strong>Card:</strong> Mark top-left, arcs extend toward center where contact info sits</li>
+          <li><strong>App icon:</strong> Tower + arcs on navy bg, tower in white, arcs in teal</li>
+          <li><strong>Signage:</strong> Tower cut from metal/acrylic, arcs painted or illuminated</li>
+          <li><strong>Animation:</strong> Arcs pulse outward from tower in sequence — broadcast/ping</li>
+          <li><strong>Dark mode:</strong> Tower white, arcs light teal (#3D8A6E), bg #1C4A3B</li>
+          <li><strong>Arabic:</strong> "بلي صف" in IBM Plex Sans Arabic Bold, left of mark (RTL reading direction)</li>
+        </ul>
+
+        <div class="section-title">Nano Banana Prompt</div>
+        <div class="prompt-block">
+          <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+          <pre>Bold geometric logotype for "BléSaf" featuring a symbol-heavy icon mark. The mark consists of a vertical rounded rectangle (tower/minaret shape, aspect ratio 1:2.5, with ~15% corner radius) from whose upper-right corner three concentric quarter-arc lines radiate outward at 45 degrees. The arcs decrease in opacity: innermost at 100%, middle at 60%, outermost at 30%. The tower has a small horizontal slot or gap near its top third, like a simplified window. To the right of the mark, "BléSaf" is set with "Blé" in a geometric sans-serif medium weight and "SAF" in a condensed bold display face like Bebas Neue, both with wide letter-spacing. Colors: tower in navy blue (#1E3A5F), signal arcs in teal (#0D9488), the tower slot accent in amber (#F59E0B), "Blé" text in teal, "SAF" text in navy. Style reference: the architectural iconography of Snohetta's branding work, combined with the signal/broadcast aesthetic of telecoms marks like the old AT&T globe or Cisco's bridge lines. Hard edges, precise geometry, no organic curves, no hand-drawn elements. Clean vector, flat design, no gradients on the tower (arcs may use opacity variation). White background, centered. Avoid: literal buildings, antenna dishes, WiFi symbols, medical crosses, soft shapes. This should feel like infrastructure -- solid, reliable, permanent.</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ PROPOSAL 7 ═══════════ -->
+    <div class="proposal">
+      <div class="proposal-header">
+        <div class="proposal-num" style="background: linear-gradient(180deg, #5EEAD4, #0D9488);">7</div>
+        <div class="proposal-header-text">
+          <h3>The Breath Between</h3>
+          <span class="trend-badge">Atmospheric Gradients</span>
+        </div>
+      </div>
+      <div class="proposal-body">
+        <div class="section-title">Core Concept</div>
+        <p class="concept">A pure typographic identity built on "nafas" (breath/space between). The wordmark uses outlined letterforms where only the enclosed counter-spaces (inside B, e, a) are filled with a teal gradient — the letters glow from within. Open letters (l, S, f) remain pure outlines. The rhythm of full/empty mirrors the queue: some positions occupied (glowing), some open (outlined). What matters is not the container but the space inside — the patient, the person waiting.</p>
+
+        <div class="section-title">Visual Description</div>
+        <div class="detail-grid">
+          <div class="detail-item"><strong>Typography:</strong> "BléSaf" in a humanist sans-serif (Avenir/Nunito style). Strokes are outlines only (no fill), 2.5px weight, in navy. Enclosed counters of B, e, a filled with gradient (teal bottom to light teal top).</div>
+          <div class="detail-item"><strong>Icon:</strong> None. The gradient-filled counters ARE the identity. Three glowing shapes within outlined letters.</div>
+          <div class="detail-item"><strong>Negative Space:</strong> Unfilled letters (l, S, f) create a rhythm of full/empty — occupied/available positions.</div>
+          <div class="detail-item"><strong>Scaling:</strong> 16px: outlined wordmark with 3 colored dots. Large: gradient and outline/fill interplay fully appreciable.</div>
+        </div>
+
+        <div class="section-title">Color Palette</div>
+        <div class="swatches">
+          <div class="swatch"><div class="swatch-dot" style="background:#1E3A5F;"></div>#1E3A5F Navy (outlines)</div>
+          <div class="swatch"><div class="swatch-dot" style="background:#0D9488;"></div>#0D9488 Teal (gradient bottom)</div>
+          <div class="swatch"><div class="swatch-dot" style="background:#5EEAD4;"></div>#5EEAD4 Light Teal (gradient top)</div>
+          <div class="swatch"><div class="swatch-dot" style="background:#F6F5F0;"></div>#F6F5F0 Warm White (background)</div>
+        </div>
+
+        <div class="section-title">Brand Environment</div>
+        <ul class="env-list">
+          <li><strong>Card:</strong> Wordmark centered on warm white. Three glowing counters = only color</li>
+          <li><strong>App icon:</strong> Letter "B" outlined, counter filled with teal gradient. Glowing monogram</li>
+          <li><strong>Signage:</strong> Backlit — counter-spaces are only illuminated areas. Three soft teal glows</li>
+          <li><strong>Animation:</strong> Gradient rises inside each counter sequentially (B, e, a) — breathing rhythm</li>
+          <li><strong>Dark mode:</strong> Cream outlines, deeper gradient fills, bg #1C4A3B. Glow intensifies</li>
+          <li><strong>Arabic:</strong> "بلي صف" outlined, counters of ب and ص filled with same gradient</li>
+        </ul>
+
+        <div class="section-title">Nano Banana Prompt</div>
+        <div class="prompt-block">
+          <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+          <pre>Typographic logotype for "BléSaf" using outlined letter forms with gradient-filled counter spaces. All six letters are rendered in a humanist sans-serif similar to Nunito or Avenir at medium weight, but the strokes are OUTLINES ONLY (no solid fill) in navy blue (#1E3A5F) at 2.5px stroke weight. The enclosed counter spaces INSIDE the letters B, é, and a are filled with a soft vertical gradient transitioning from teal (#0D9488) at the bottom to light teal (#5EEAD4) at the top, creating a gentle internal glow. The open letters l, S, and f remain pure outlines with no fill. The result is a rhythm of glowing and empty letters. The spacing between letters is generous and even. Background: warm off-white (#F6F5F0). Style reference: the luminous quality of James Turrell's light installations translated into typography, combined with the typographic sophistication of Commercial Type's work. The gradient should be soft and seamless, not banded. The outlines should be perfectly uniform in weight. No separate icon, no additional elements. Clean vector rendering. Centered horizontal composition with ample whitespace. Avoid: solid filled letters, drop shadows, 3D effects, glow effects around the letters (the glow is INSIDE the counters only), medical symbols, decorative flourishes. Elegant, restrained, quietly beautiful.</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ PROPOSAL 8 ═══════════ -->
+    <div class="proposal">
+      <div class="proposal-header">
+        <div class="proposal-num" style="background: var(--teal-deep);">8</div>
+        <div class="proposal-header-text">
+          <h3>The Kufic Gate</h3>
+          <span class="trend-badge">Arabic-First + Archival Modernism</span>
+        </div>
+      </div>
+      <div class="proposal-body">
+        <div class="section-title">Core Concept</div>
+        <p class="concept">An homage to Square Kufic calligraphy — the ancient geometric script used in mosques and manuscripts. Arabic letters ب (Ba) and ص (Sad, initials of "Ble Saf" in Arabic) rendered on an 8x8 grid where every curve becomes right angles. The two letters interlock, sharing strokes, forming both a readable monogram AND an abstract geometric mark. <strong>Arabic leads — Latin is secondary.</strong> Honors the fact that "Saf" (صف) is an Arabic word for an Arabic-speaking market.</p>
+
+        <div class="section-title">Visual Description</div>
+        <div class="detail-grid">
+          <div class="detail-item"><strong>Icon/Mark:</strong> Perfect square on 8x8 grid. Arabic ب and ص in Square Kufic — every stroke is a rectangle filling grid cells. Letters share vertical and horizontal strokes. A diamond dot below (dot of ب) is the only non-rectangular element.</div>
+          <div class="detail-item"><strong>Typography:</strong> "BléSaf" in IBM Plex Sans Semi-Bold right of or below mark. "بلي صف" in IBM Plex Sans Arabic Bold as equal-weight companion.</div>
+          <div class="detail-item"><strong>Negative Space:</strong> Unfilled grid cells create small squares = windows in a facade, empty chairs in a waiting room.</div>
+          <div class="detail-item"><strong>Scaling:</strong> 16px: dense square with recognizable pattern. Large: Kufic letterforms legible, grid structure revealed.</div>
+        </div>
+
+        <div class="section-title">Color Palette</div>
+        <div class="swatches">
+          <div class="swatch"><div class="swatch-dot" style="background:#0F7B6C;"></div>#0F7B6C Deep Teal (mark)</div>
+          <div class="swatch"><div class="swatch-dot" style="background:#F59E0B;"></div>#F59E0B Amber (diamond dot)</div>
+          <div class="swatch"><div class="swatch-dot" style="background:#1E3A5F;"></div>#1E3A5F Navy (wordmarks)</div>
+        </div>
+
+        <div class="section-title">Brand Environment</div>
+        <ul class="env-list">
+          <li><strong>Card:</strong> Kufic mark debossed or foil-stamped on cream card. Both scripts on reverse</li>
+          <li><strong>App icon:</strong> Kufic square fills entire icon space, teal on white. Culturally confident</li>
+          <li><strong>Signage:</strong> Metal grille: filled cells solid, empty cells open = mashrabiya lattice effect</li>
+          <li><strong>Animation:</strong> Grid fills cell by cell in a wave, revealing letters progressively</li>
+          <li><strong>Dark mode:</strong> Light teal (#3D8A6E) on dark, amber dot persists</li>
+          <li><strong>Arabic:</strong> Arabic IS primary. "بلي صف" appears first + larger. "BléSaf" second + smaller</li>
+        </ul>
+
+        <div class="section-title">Nano Banana Prompt</div>
+        <div class="prompt-block">
+          <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+          <pre>Square Kufic calligraphy logotype for "BléSaf" brand. The primary mark is a perfect square containing the Arabic letters Ba (ب) and Sad (ص) rendered in Square Kufic geometric calligraphy style where every curve is converted to right angles and every stroke is a rectangle fitting within an 8x8 grid. The two letters interlock and share strokes where possible, creating a dense, abstract geometric pattern within the square. A single small diamond shape below represents the dot of the letter Ba. Below or beside the square mark, "BléSaf" in IBM Plex Sans Semi-Bold and "بلي صف" in IBM Plex Sans Arabic Bold are set as a bilingual lockup, with the Arabic text slightly larger (18% larger) than the Latin. Color: the Kufic mark in deep teal (#0F7B6C), the diamond dot in amber (#F59E0B), wordmarks in navy (#1E3A5F). Style reference: historical Islamic Square Kufic calligraphy from the Great Mosque of Isfahan or Alhambra tile inscriptions, reinterpreted with the precision of a modern branding system similar to Tarek Atrissi's Arabic identity work or Rana Abou Rjeily's experimental Arabic typography. The grid should be mathematically precise. All angles are 90 degrees. No curves whatsoever in the Kufic mark. Clean flat vector, no textures, no aging effects. White background. Avoid: decorative Arabic calligraphy, flowing scripts, floral motifs, generic geometric patterns without letter content, orientalist aesthetics. This should feel simultaneously ancient and digital.</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ PROPOSAL 9 ═══════════ -->
+    <div class="proposal">
+      <div class="proposal-header">
+        <div class="proposal-num" style="background: var(--teal-mid);">9</div>
+        <div class="proposal-header-text">
+          <h3>The Living Counter</h3>
+          <span class="trend-badge">Generative Identity</span>
+        </div>
+      </div>
+      <div class="proposal-body">
+        <div class="section-title">Core Concept</div>
+        <p class="concept">The logo is a number. Specifically, a stylized "#" (hash/number sign) representing queue position — the most important number in a patient's waiting experience. The hash bars are offset (shifted 15%) creating forward-leaning energy. The rounded terminals suggest crossing human figures. In digital contexts, a live number appears: "#3". The identity is never the same twice, reflecting the real-time nature of the queue.</p>
+
+        <div class="section-title">Visual Description</div>
+        <div class="detail-grid">
+          <div class="detail-item"><strong>Icon/Mark:</strong> Hash (#) from four rounded rectangles — verticals shifted right 15%, horizontals shifted up 15%. Dynamic, forward-leaning. Center creates a diamond-shaped opening = "center of order."</div>
+          <div class="detail-item"><strong>Typography:</strong> "BléSaf" in DM Sans Bold or similar, slightly condensed. Below the mark. Hash bars match wordmark stroke weight for unity.</div>
+          <div class="detail-item"><strong>Dynamic element:</strong> In digital, a number appears right of hash: "#3" in amber. Changes in real time. Static version uses "#" alone.</div>
+          <div class="detail-item"><strong>Scaling:</strong> 16px: hash immediately recognizable. Large: offset arrangement and rounded terminals give character beyond generic symbol.</div>
+        </div>
+
+        <div class="section-title">Color Palette</div>
+        <div class="swatches">
+          <div class="swatch"><div class="swatch-dot" style="background:#0D9488;"></div>#0D9488 Teal (hash mark)</div>
+          <div class="swatch"><div class="swatch-dot" style="background:#F59E0B;"></div>#F59E0B Amber (live number)</div>
+          <div class="swatch"><div class="swatch-dot" style="background:#1E3A5F;"></div>#1E3A5F Navy (wordmark)</div>
+        </div>
+
+        <div class="section-title">Brand Environment</div>
+        <ul class="env-list">
+          <li><strong>Card:</strong> Hash printed oversized, extending off edges. System always running</li>
+          <li><strong>App icon:</strong> "#" in teal on white. Badge shows actual queue count</li>
+          <li><strong>Signage:</strong> Hash + live digital number of patients waiting. Sign IS a dashboard</li>
+          <li><strong>Animation:</strong> Four bars assemble from corners, cross center, then number counts up</li>
+          <li><strong>Dark mode:</strong> Light teal (#5EEAD4) hash, amber number, white text</li>
+          <li><strong>Arabic:</strong> "بلي صف" below. Hash is universal. Arabic-Indic numerals in AR context</li>
+        </ul>
+
+        <div class="section-title">Nano Banana Prompt</div>
+        <div class="prompt-block">
+          <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+          <pre>Modern logotype for "BléSaf" featuring a stylized hash/number sign (#) as the primary mark. The hash is constructed from four rounded rectangles: two vertical and two horizontal, with rounded terminal ends. The vertical bars are shifted approximately 15% to the right and the horizontal bars shifted approximately 15% upward from center, creating a dynamic, forward-leaning composition rather than a perfectly centered grid. The rounded ends of the bars subtly suggest human figures. To the right of the hash mark, the number "3" is displayed in a bold weight, representing a queue position. Below the combined mark, "BléSaf" is set in a bold slightly condensed sans-serif like DM Sans Bold. Colors: hash mark in teal (#0D9488), the number "3" in amber (#F59E0B), wordmark text in navy (#1E3A5F). The stroke weight of the hash bars should match the stroke weight of the wordmark letters for visual unity. Style reference: the systematic identity work of Sagmeister & Walsh or the data-driven branding of MIT Media Lab's generative identity. The hash should feel kinetic and alive, not static. Clean vector, no gradients, rounded corners on all bar terminals. White background, centered composition. Avoid: literal hashtag social media associations, pound signs, musical sharp symbols, thin lines, generic number fonts. This should feel like a living dashboard element, not a social media tag.</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ PROPOSAL 10 ═══════════ -->
+    <div class="proposal">
+      <div class="proposal-header">
+        <div class="proposal-num" style="background: linear-gradient(180deg, #0F7B6C, #1C4A3B);">10</div>
+        <div class="proposal-header-text">
+          <h3>The First Light</h3>
+          <span class="trend-badge">Tactile Materiality</span>
+        </div>
+      </div>
+      <div class="proposal-body">
+        <div class="section-title">Core Concept</div>
+        <p class="concept">A crescent — not the religious symbol, but the first sliver of dawn light entering a room. In Tunisia, clinic waiting rooms open early morning. This captures the moment the day begins, the queue opens, the first patient is called. The crescent is abstract: a thick arc that could be a smile, a bowl of wheat, or the letter "C" for "clinique." An amber dot at its threshold = the first patient, the first grain, the first light. It feels like a physical object you could hold — brass, ceramic, warm.</p>
+
+        <div class="section-title">Visual Description</div>
+        <div class="detail-grid">
+          <div class="detail-item"><strong>Icon/Mark:</strong> Thick crescent arc (~270°) with 90° opening facing right. Consistent width, not tapered = solidity. A single circle (dot) sits at the threshold, half inside/half outside. Inner edge offset slightly upward = thicker bottom, thinner top. Bowl-like.</div>
+          <div class="detail-item"><strong>Typography:</strong> "BléSaf" in IBM Plex Sans Semi-Bold to the right. Horizontal lockup.</div>
+          <div class="detail-item"><strong>Negative Space:</strong> Crescent interior = the "waiting space." Threshold dot = moment of release.</div>
+          <div class="detail-item"><strong>Scaling:</strong> 16px: bold crescent + contrasting dot. Large: subtle gradient and bowl asymmetry become tactile.</div>
+        </div>
+
+        <div class="section-title">Color Palette</div>
+        <div class="swatches">
+          <div class="swatch"><div class="swatch-dot" style="background:#0F7B6C;"></div>#0F7B6C Deep Teal (arc)</div>
+          <div class="swatch"><div class="swatch-dot" style="background:#1C4A3B;"></div>#1C4A3B Dark Teal (gradient base)</div>
+          <div class="swatch"><div class="swatch-dot" style="background:#F59E0B;"></div>#F59E0B Amber (threshold dot)</div>
+          <div class="swatch"><div class="swatch-dot" style="background:#1E3A5F;"></div>#1E3A5F Navy (wordmark)</div>
+        </div>
+
+        <div class="section-title">Brand Environment</div>
+        <ul class="env-list">
+          <li><strong>Card:</strong> Mark left, wordmark right, on thick uncoated cream cardstock</li>
+          <li><strong>App icon:</strong> Crescent + dot on white. Simple, identifiable in app grid</li>
+          <li><strong>Signage:</strong> Crescent in brushed brass or matte teal metal, amber dot as LED element</li>
+          <li><strong>Animation:</strong> Amber dot orbits inside crescent (like marble in bowl), exits at opening</li>
+          <li><strong>Dark mode:</strong> Lighter teal arc (#2D6B55), amber persists, bg #1C4A3B</li>
+          <li><strong>Arabic:</strong> "بلي صف" below Latin. Crescent can stay facing right for brand consistency</li>
+        </ul>
+
+        <div class="section-title">Nano Banana Prompt</div>
+        <div class="prompt-block">
+          <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+          <pre>Logotype for "BléSaf" featuring a tactile crescent arc mark with a threshold dot. The mark is a thick crescent arc covering approximately 270 degrees of a circle, with the 90-degree opening facing right (3 o'clock position). The arc has consistent stroke width, not tapered, giving it a sense of physical solidity and weight like brushed brass or matte ceramic. The outer edge is a perfect circle; the inner edge is a circle offset slightly upward, making the bottom of the arc slightly thicker than the top, like a vessel or bowl. At the opening point of the crescent, a single circle (dot) sits precisely at the threshold -- half inside the arc's interior space, half outside, as if emerging from the opening. To the right of the mark, "BléSaf" is set in IBM Plex Sans Semi-Bold. Colors: crescent arc in deep teal (#0F7B6C) with an optional very subtle linear gradient from darker (#1C4A3B) at the bottom to the teal at the top suggesting light on a physical surface. Threshold dot in warm amber (#F59E0B). Wordmark in navy (#1E3A5F). Background: warm cream (#F6F5F0). Style reference: the material quality of Minale Tattersfield's identity work, the warmth of Ragged Edge's branding, the physical presence of Wolff Olins' Tate identity. The mark should feel like an object you could hold -- a pendant, a ceramic piece, a brass fitting. Clean vector but with visual weight and presence. Avoid: thin lines, religious crescent moon associations, star and crescent combinations, Islamic symbols, flat lifeless rendering. This is about dawn light, physical warmth, and the threshold moment.</pre>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════ COMPARISON TABLE ═══════════ -->
+  <div class="comparison">
+    <h2>Comparison Matrix</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Title</th>
+            <th>Aesthetic</th>
+            <th>Primary Metaphor</th>
+            <th>2026 Trend</th>
+            <th>Balance</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>The Grain Counter</td>
+            <td>Mid-century geometric</td>
+            <td>Wheat bead on abacus wire</td>
+            <td>Archival Modernism</td>
+            <td>Icon + Type</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>The Woven Script</td>
+            <td>Calligraphic, expressive</td>
+            <td>Bilingual thread</td>
+            <td>Variable Expressionism</td>
+            <td>Pure Wordmark</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>The Tessellation</td>
+            <td>Angular, cultural</td>
+            <td>Zellige tile with hidden B/S</td>
+            <td>Authenticity Seal</td>
+            <td>Symbol-heavy</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>The Horizon Line</td>
+            <td>Ultra-minimal, zen</td>
+            <td>Queue as line, gap = your turn</td>
+            <td>Strategic Whitespace</td>
+            <td>Ultra-minimal</td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td>The Amber Field</td>
+            <td>Warm, hand-drawn</td>
+            <td>Wheat growing from letter</td>
+            <td>Controlled Imperfection</td>
+            <td>Warm/Organic</td>
+          </tr>
+          <tr>
+            <td>6</td>
+            <td>The Signal Tower</td>
+            <td>Bold, architectural</td>
+            <td>Minaret broadcasting</td>
+            <td>Z-Axis Layering</td>
+            <td>Symbol-heavy</td>
+          </tr>
+          <tr>
+            <td>7</td>
+            <td>The Breath Between</td>
+            <td>Luminous, restrained</td>
+            <td>Glowing counters = people</td>
+            <td>Atmospheric Gradients</td>
+            <td>Typography-only</td>
+          </tr>
+          <tr>
+            <td>8</td>
+            <td>The Kufic Gate</td>
+            <td>Arabic-first, geometric</td>
+            <td>Square Kufic initials ب ص</td>
+            <td>Archival Modernism</td>
+            <td>Arabic Calligraphic</td>
+          </tr>
+          <tr>
+            <td>9</td>
+            <td>The Living Counter</td>
+            <td>Dynamic, data-driven</td>
+            <td>Hash as live position #3</td>
+            <td>Generative Identity</td>
+            <td>Icon + Type</td>
+          </tr>
+          <tr>
+            <td>10</td>
+            <td>The First Light</td>
+            <td>Tactile, warm</td>
+            <td>Dawn crescent with threshold dot</td>
+            <td>Tactile Materiality</td>
+            <td>Icon + Type</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer>
+    BleSaf Logotype Proposals &mdash; Research-backed design directions grounded in 2026 trends &mdash; February 2026
+  </footer>
+
+  <script>
+    function copyPrompt(btn) {
+      const pre = btn.parentElement.querySelector('pre');
+      const text = pre.textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copied');
+        }, 2000);
+      }).catch(() => {
+        // Fallback for older browsers
+        const range = document.createRange();
+        range.selectNodeContents(pre);
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+        document.execCommand('copy');
+        sel.removeAllRanges();
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copied');
+        }, 2000);
+      });
+    }
+  </script>
+
+</body>
+</html>
