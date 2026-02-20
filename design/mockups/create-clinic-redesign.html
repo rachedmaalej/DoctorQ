@@ -1,0 +1,1656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BleSaf — Create Clinic Form: 3 Redesign Alternatives</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=DM+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════
+   DESIGN TOKENS (matches BleSaf admin system)
+   ══════════════════════════════════════════════ */
+:root {
+  --brand: #1C4A3B;
+  --brand-mid: #2D6B55;
+  --brand-light: #3D8A6E;
+  --brand-pale: #E8F2EE;
+  --brand-pale-2: #C8DFD6;
+  --bg: #F5F4F0;
+  --surface: #FFFFFF;
+  --surface-2: #F0EFEB;
+  --text-primary: #1A1A18;
+  --text-secondary: #6B6960;
+  --text-muted: #9E9C95;
+  --danger: #C0392B;
+  --danger-pale: #FDEAEA;
+  --warning: #E67E22;
+  --warning-pale: #FEF3E2;
+  --success: #27AE60;
+  --success-pale: #E8F8EE;
+  --accent: #E8A838;
+  --accent-pale: #FEF7E6;
+  --info: #2980B9;
+  --info-pale: #EBF5FB;
+  --border: #E2E0D8;
+  --border-subtle: #ECEAE4;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+  --shadow-xl: 0 16px 48px rgba(0,0,0,0.18);
+  --font-primary: 'IBM Plex Sans', sans-serif;
+  --font-admin: 'DM Sans', sans-serif;
+  --mono: 'DM Mono', monospace;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body { font-family: var(--font-admin); background: #131311; min-height: 100vh; padding: 24px 16px 60px; color: #fff; }
+
+/* ── Showcase Chrome ── */
+.page-header { text-align: center; margin-bottom: 20px; }
+.page-header h1 { font-size: 18px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 4px; }
+.page-header p { font-size: 13px; color: rgba(255,255,255,0.4); max-width: 560px; margin: 0 auto; line-height: 1.5; }
+
+.tab-nav { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-bottom: 28px; }
+.tab-nav button {
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.5); padding: 8px 14px; border-radius: 100px;
+  font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; white-space: nowrap;
+}
+.tab-nav button:hover { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.8); }
+.tab-nav button.active { background: var(--brand); border-color: var(--brand); color: #fff; }
+
+/* ── Demo Container ── */
+.demo-container { display: none; flex-direction: column; align-items: center; gap: 24px; }
+.demo-container.active { display: flex; }
+
+.demo-frame {
+  width: 100%; max-width: 720px; min-height: 580px;
+  background: var(--bg); border-radius: 16px; overflow: hidden; position: relative;
+  box-shadow: 0 0 0 3px #2a2a28, 0 24px 80px rgba(0,0,0,0.5);
+}
+.demo-frame-wide { max-width: 900px; min-height: 600px; }
+
+.demo-inner {
+  height: 100%; display: flex; align-items: center; justify-content: center;
+  padding: 32px; position: relative;
+}
+
+.design-info { text-align: center; max-width: 480px; margin-top: 8px; }
+.design-info h2 { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+.design-info .subtitle { font-size: 13px; color: rgba(255,255,255,0.5); margin-bottom: 10px; line-height: 1.5; }
+.design-info .pros-cons { text-align: left; font-size: 12px; line-height: 1.7; color: rgba(255,255,255,0.45); display: grid; grid-template-columns: 1fr 1fr; gap: 8px 20px; }
+.design-info .pros-cons strong { color: rgba(255,255,255,0.7); }
+
+/* ── Open Demo Button ── */
+.open-demo-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--brand); color: #fff; border: none;
+  padding: 10px 20px; border-radius: var(--radius-sm);
+  font-family: var(--font-admin); font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: all 0.15s;
+}
+.open-demo-btn:hover { background: var(--brand-mid); transform: translateY(-1px); }
+.open-demo-btn .material-symbols-rounded { font-size: 18px; }
+
+/* ══════════════════════════════════════════════
+   SHARED FORM STYLES
+   ══════════════════════════════════════════════ */
+.field-label {
+  display: block; font-size: 10.5px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.6px;
+  color: var(--text-muted); margin-bottom: 6px;
+  font-family: var(--font-admin);
+}
+.field-label .required { color: var(--danger); margin-left: 2px; }
+
+.field-input {
+  width: 100%; padding: 10px 12px;
+  border: 1px solid var(--border); border-radius: 7px;
+  font-size: 14px; font-family: var(--font-admin); font-weight: 500;
+  color: var(--text-primary); background: var(--surface);
+  outline: none; transition: border-color 0.15s, box-shadow 0.15s;
+}
+.field-input:focus {
+  border-color: var(--brand-mid);
+  box-shadow: 0 0 0 3px rgba(28,74,59,0.1);
+}
+.field-input.error {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 3px rgba(192,57,43,0.08);
+}
+.field-input::placeholder { color: var(--text-muted); font-weight: 400; }
+
+.field-select {
+  width: 100%; padding: 10px 36px 10px 12px;
+  border: 1px solid var(--border); border-radius: 7px;
+  font-size: 14px; font-family: var(--font-admin); font-weight: 500;
+  color: var(--text-primary); background: var(--surface);
+  outline: none; transition: border-color 0.15s, box-shadow 0.15s;
+  appearance: none; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 6L8 10L12 6' stroke='%239E9C95' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+.field-select:focus {
+  border-color: var(--brand-mid);
+  box-shadow: 0 0 0 3px rgba(28,74,59,0.1);
+}
+
+.field-error-text {
+  font-size: 12px; color: var(--danger); margin-top: 4px;
+  font-family: var(--font-admin); display: none;
+}
+
+.field-group { position: relative; }
+.field-group.has-error .field-error-text { display: block; }
+.field-group.has-error .field-input,
+.field-group.has-error .field-select { border-color: var(--danger); }
+
+/* Phone prefix */
+.phone-wrapper { display: flex; }
+.phone-prefix {
+  display: flex; align-items: center; padding: 0 10px;
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-right: none; border-radius: 7px 0 0 7px;
+  font-size: 13px; font-family: var(--mono); color: var(--text-secondary);
+  white-space: nowrap;
+}
+.phone-wrapper .field-input { border-radius: 0 7px 7px 0; }
+
+/* Buttons */
+.btn-primary {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 11px 20px; background: var(--brand); color: #fff;
+  border: none; border-radius: var(--radius-sm);
+  font-family: var(--font-admin); font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: all 0.15s;
+}
+.btn-primary:hover { background: var(--brand-mid); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-primary .material-symbols-rounded { font-size: 18px; }
+
+.btn-secondary {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 11px 20px; background: var(--surface); color: var(--text-primary);
+  border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+  font-family: var(--font-admin); font-size: 14px; font-weight: 550;
+  cursor: pointer; transition: all 0.15s;
+}
+.btn-secondary:hover { background: var(--surface-2); }
+
+/* Success State */
+.success-state { text-align: center; padding: 20px 0; }
+.success-icon {
+  width: 64px; height: 64px; border-radius: 50%; background: var(--success-pale);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 16px; animation: bounceIn 0.5s ease;
+}
+.success-icon .material-symbols-rounded { font-size: 32px; color: var(--success); }
+.success-state h3 {
+  font-size: 18px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px;
+}
+.success-state .success-sub {
+  font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;
+}
+.credentials-box {
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 4px 0; margin-bottom: 16px; text-align: left;
+}
+.cred-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 16px; font-size: 13px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.cred-row:last-child { border-bottom: none; }
+.cred-row .cred-label {
+  font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.6px; color: var(--text-muted);
+}
+.cred-row .cred-value {
+  font-family: var(--mono); font-weight: 500; color: var(--text-primary);
+  user-select: all;
+}
+
+.copy-btn {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 8px 16px; background: transparent; color: var(--brand);
+  border: 1px solid var(--brand-pale-2); border-radius: 7px;
+  font-family: var(--font-admin); font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: all 0.15s; margin-bottom: 12px;
+}
+.copy-btn:hover { background: var(--brand-pale); }
+.copy-btn .material-symbols-rounded { font-size: 16px; }
+
+/* ── Error banner ── */
+.error-banner {
+  background: var(--danger-pale); border: 1px solid #E8AAAA;
+  border-radius: 8px; padding: 10px 14px;
+  font-size: 13px; color: var(--danger); font-weight: 500;
+  display: none; margin-bottom: 12px;
+}
+.error-banner.visible { display: block; }
+
+/* ══════════════════════════════════════════════
+   ANIMATIONS
+   ══════════════════════════════════════════════ */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+@keyframes slideInFromRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
+@keyframes slideOutToRight { from { transform: translateX(0); } to { transform: translateX(100%); } }
+@keyframes shake { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-4px); } 40% { transform: translateX(4px); } 60% { transform: translateX(-3px); } 80% { transform: translateX(3px); } }
+@keyframes bounceIn { 0% { transform: scale(0); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
+@keyframes checkDraw { to { stroke-dashoffset: 0; } }
+@keyframes slideLeft { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(-30px); } }
+@keyframes slideRight { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes stagger1 { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+.animate-shake { animation: shake 0.4s ease; }
+
+/* ══════════════════════════════════════════════
+   ALTERNATIVE A: STEPPER WIZARD
+   ══════════════════════════════════════════════ */
+.wizard-backdrop {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.35);
+  display: none; align-items: center; justify-content: center;
+  z-index: 100; animation: fadeIn 0.2s ease;
+  backdrop-filter: blur(2px);
+}
+.wizard-backdrop.open { display: flex; }
+
+.wizard-card {
+  background: var(--surface); border-radius: var(--radius-lg);
+  width: 520px; max-width: calc(100% - 32px);
+  max-height: 90vh; overflow: hidden;
+  box-shadow: var(--shadow-xl); animation: scaleIn 0.25s ease;
+  display: flex; flex-direction: column;
+}
+
+/* Step indicator */
+.step-indicator {
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px 32px 0; gap: 0;
+}
+.step-dot {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; font-family: var(--font-admin);
+  transition: all 0.3s ease; flex-shrink: 0;
+  background: var(--surface-2); color: var(--text-muted);
+  border: 2px solid var(--border);
+}
+.step-dot.active {
+  background: var(--brand); color: #fff; border-color: var(--brand);
+  transform: scale(1.1);
+}
+.step-dot.completed {
+  background: var(--success); color: #fff; border-color: var(--success);
+}
+.step-dot .material-symbols-rounded { font-size: 18px; }
+.step-line {
+  height: 2px; flex: 1; max-width: 60px;
+  background: var(--border); transition: background 0.3s ease;
+}
+.step-line.completed { background: var(--success); }
+
+.step-labels {
+  display: flex; justify-content: space-between;
+  padding: 8px 24px 0; max-width: 360px; margin: 0 auto;
+}
+.step-label-item {
+  font-size: 10.5px; font-weight: 600; color: var(--text-muted);
+  text-align: center; width: 70px; transition: color 0.3s;
+}
+.step-label-item.active { color: var(--brand); }
+.step-label-item.completed { color: var(--success); }
+
+/* Step content */
+.wizard-body { padding: 20px 28px; flex: 1; overflow-y: auto; min-height: 260px; position: relative; }
+.step-panel { display: none; animation: slideRight 0.3s ease; }
+.step-panel.active { display: block; }
+
+.step-section-label {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.7px; color: var(--text-muted);
+  margin-bottom: 16px; padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.wizard-fields { display: flex; flex-direction: column; gap: 16px; }
+.wizard-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* Password strength bar */
+.strength-bar {
+  display: flex; gap: 3px; margin-top: 8px;
+}
+.strength-segment {
+  height: 3px; flex: 1; border-radius: 2px;
+  background: var(--border); transition: background 0.3s;
+}
+.strength-bar.weak .strength-segment:nth-child(1) { background: var(--danger); }
+.strength-bar.fair .strength-segment:nth-child(1),
+.strength-bar.fair .strength-segment:nth-child(2) { background: var(--warning); }
+.strength-bar.good .strength-segment:nth-child(1),
+.strength-bar.good .strength-segment:nth-child(2),
+.strength-bar.good .strength-segment:nth-child(3) { background: var(--accent); }
+.strength-bar.strong .strength-segment { background: var(--success); }
+
+.strength-text {
+  font-size: 11px; font-weight: 600; margin-top: 4px;
+  color: var(--text-muted); transition: color 0.3s;
+}
+
+/* Review grid */
+.review-grid {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
+}
+.review-cell {
+  padding: 14px 16px;
+  border-right: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.review-cell:nth-child(3n) { border-right: none; }
+.review-cell:nth-child(n+4) { border-bottom: none; }
+.review-cell-label {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 4px;
+}
+.review-cell-value {
+  font-size: 13px; font-weight: 500; color: var(--text-primary);
+  font-family: var(--mono); word-break: break-all;
+}
+.review-cell-value.empty { color: var(--text-muted); font-style: italic; font-family: var(--font-admin); }
+
+.review-edit-btn {
+  display: inline-flex; align-items: center; gap: 3px;
+  padding: 4px 10px; border-radius: 6px;
+  background: var(--brand-pale); color: var(--brand);
+  border: none; font-size: 11px; font-weight: 600;
+  font-family: var(--font-admin); cursor: pointer; transition: all 0.15s;
+  margin-top: 14px;
+}
+.review-edit-btn:hover { background: var(--brand-pale-2); }
+.review-edit-btn .material-symbols-rounded { font-size: 14px; }
+
+/* Wizard footer */
+.wizard-footer {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16px 28px 20px; border-top: 1px solid var(--border-subtle);
+}
+
+/* ══════════════════════════════════════════════
+   ALTERNATIVE B: SECTIONED CARD
+   ══════════════════════════════════════════════ */
+.sectioned-backdrop {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.35);
+  display: none; align-items: center; justify-content: center;
+  z-index: 100; backdrop-filter: blur(2px);
+}
+.sectioned-backdrop.open { display: flex; animation: fadeIn 0.2s ease; }
+
+.sectioned-card {
+  background: var(--surface); border-radius: var(--radius-lg);
+  width: 560px; max-width: calc(100% - 32px);
+  max-height: 90vh; overflow-y: auto;
+  box-shadow: var(--shadow-xl); animation: fadeInUp 0.3s ease;
+  display: flex; flex-direction: column;
+}
+
+.sectioned-header {
+  padding: 24px 28px 20px;
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex; justify-content: space-between; align-items: flex-start;
+}
+.sectioned-header-text h2 {
+  font-size: 16px; font-weight: 700; color: var(--text-primary);
+  letter-spacing: -0.3px; margin-bottom: 2px;
+}
+.sectioned-header-text p {
+  font-size: 13px; color: var(--text-secondary); font-weight: 400;
+}
+.close-btn {
+  width: 32px; height: 32px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  background: none; border: none; color: var(--text-muted);
+  cursor: pointer; transition: all 0.15s;
+}
+.close-btn:hover { background: var(--surface-2); color: var(--text-primary); }
+.close-btn .material-symbols-rounded { font-size: 20px; }
+
+.sectioned-body { padding: 20px 28px; display: flex; flex-direction: column; gap: 16px; }
+
+/* Section containers */
+.form-section {
+  border-radius: 10px; overflow: hidden;
+  border: 1px solid var(--border-subtle);
+  animation: stagger1 0.35s ease both;
+}
+.form-section:nth-child(1) { animation-delay: 0.05s; }
+.form-section:nth-child(2) { animation-delay: 0.15s; }
+.form-section:nth-child(3) { animation-delay: 0.25s; }
+
+.section-header {
+  padding: 10px 16px; display: flex; align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.section-header-left {
+  display: flex; align-items: center; gap: 8px;
+}
+.section-icon {
+  width: 24px; height: 24px; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+}
+.section-icon .material-symbols-rounded { font-size: 16px; }
+.section-header-label {
+  font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.6px; color: var(--text-muted);
+}
+.section-count {
+  display: inline-flex; padding: 2px 7px; border-radius: 99px;
+  font-size: 10px; font-weight: 600; font-family: var(--mono);
+  background: var(--surface-2); color: var(--text-muted);
+}
+
+.section-body { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+.section-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* Section themes */
+.section-clinic { background: var(--brand-pale); }
+.section-clinic .section-icon { background: rgba(28,74,59,0.12); color: var(--brand); }
+.section-clinic .section-header { border-bottom-color: var(--brand-pale-2); }
+
+.section-doctor { background: var(--surface-2); }
+.section-doctor .section-icon { background: rgba(41,128,185,0.1); color: var(--info); }
+.section-doctor .section-header { border-bottom-color: var(--border); }
+
+.section-account {
+  background: var(--surface); border-left: 4px solid var(--brand);
+}
+.section-account .section-icon { background: rgba(28,74,59,0.08); color: var(--brand-mid); }
+
+/* Sectioned footer */
+.sectioned-footer {
+  padding: 16px 28px 20px;
+  background: linear-gradient(to top, var(--brand-pale) 0%, transparent 100%);
+  display: flex; justify-content: flex-end; gap: 10px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+/* Validation icons */
+.validation-icon {
+  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  display: none;
+}
+.field-group.valid .validation-icon.valid-icon { display: flex; }
+.field-group.has-error .validation-icon.error-icon { display: flex; }
+.validation-icon .material-symbols-rounded { font-size: 18px; }
+.valid-icon .material-symbols-rounded { color: var(--success); }
+.error-icon .material-symbols-rounded { color: var(--danger); }
+
+.field-input-wrapper { position: relative; }
+.field-input-wrapper .field-input { padding-right: 34px; }
+
+/* ══════════════════════════════════════════════
+   ALTERNATIVE C: SIDE PANEL DRAWER
+   ══════════════════════════════════════════════ */
+.drawer-backdrop {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.2);
+  display: none; z-index: 100;
+  backdrop-filter: blur(2px);
+}
+.drawer-backdrop.open { display: block; animation: fadeIn 0.25s ease; }
+
+.drawer-panel {
+  position: fixed; top: 0; right: 0; bottom: 0;
+  width: 440px; max-width: 100%;
+  background: var(--surface); border-left: 1px solid var(--border);
+  box-shadow: -8px 0 32px rgba(0,0,0,0.12);
+  display: flex; flex-direction: column;
+  z-index: 101; animation: slideInFromRight 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.drawer-panel.closing { animation: slideOutToRight 0.25s ease forwards; }
+
+.drawer-accent-bar {
+  height: 4px; width: 100%; flex-shrink: 0;
+  background: linear-gradient(90deg, var(--brand), var(--brand-light));
+}
+
+.drawer-header {
+  padding: 18px 24px; border-bottom: 1px solid var(--border-subtle);
+  display: flex; justify-content: space-between; align-items: flex-start;
+  flex-shrink: 0;
+}
+.drawer-header-text h2 {
+  font-size: 14px; font-weight: 600; color: var(--text-primary);
+  letter-spacing: -0.2px; margin-bottom: 2px;
+}
+.drawer-header-text p {
+  font-size: 12px; color: var(--text-secondary);
+}
+
+.drawer-content {
+  flex: 1; overflow-y: auto; padding: 20px 24px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+
+/* Drawer card groups */
+.drawer-group {
+  border: 1px solid var(--border); border-radius: var(--radius);
+  overflow: hidden;
+  animation: stagger1 0.3s ease both;
+}
+.drawer-group:nth-child(1) { animation-delay: 0.1s; }
+.drawer-group:nth-child(2) { animation-delay: 0.18s; }
+.drawer-group:nth-child(3) { animation-delay: 0.26s; }
+
+.drawer-group-header {
+  padding: 11px 16px; background: var(--surface-2);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.drawer-group-label {
+  font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.6px; color: var(--text-muted);
+}
+.drawer-group-body { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+
+/* Collapsible */
+.collapsible-header { cursor: pointer; user-select: none; }
+.collapsible-header:hover { background: var(--surface-2); }
+.collapse-chevron {
+  transition: transform 0.25s ease; display: flex;
+}
+.collapse-chevron .material-symbols-rounded { font-size: 18px; color: var(--text-muted); }
+.collapsible-header.expanded .collapse-chevron { transform: rotate(180deg); }
+
+.collapsible-body {
+  max-height: 0; overflow: hidden;
+  transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.collapsible-body.expanded { max-height: 300px; }
+
+.optional-badge {
+  display: inline-flex; padding: 2px 7px; border-radius: 99px;
+  font-size: 10px; font-weight: 600; font-family: var(--mono);
+  background: var(--accent-pale); color: #92400E;
+  margin-left: 8px;
+}
+
+/* Drawer footer */
+.drawer-footer {
+  padding: 16px 24px; border-top: 1px solid var(--border);
+  box-shadow: 0 -4px 12px rgba(0,0,0,0.04);
+  display: flex; gap: 10px; flex-shrink: 0;
+  background: var(--surface);
+}
+.drawer-footer .btn-primary,
+.drawer-footer .btn-secondary { flex: 1; }
+
+/* ── Loading spinner ── */
+.spinner {
+  width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff; border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ══════════════════════════════════════════════
+   RESPONSIVE
+   ══════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .wizard-card { width: 100%; }
+  .sectioned-card { width: 100%; }
+  .review-grid { grid-template-columns: 1fr 1fr; }
+  .review-cell:nth-child(2n) { border-right: none; }
+  .review-cell:nth-child(n+5) { border-bottom: none; }
+  .wizard-row, .section-row { grid-template-columns: 1fr; }
+  .step-label-item { font-size: 9px; width: 55px; }
+  .drawer-panel { width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     SHOWCASE PAGE
+     ═══════════════════════════════════════════ -->
+<div class="page-header">
+  <h1>Create Clinic Form — Redesign Alternatives</h1>
+  <p>3 approaches to replace the current flat modal, aligned with the BleSaf admin design system</p>
+</div>
+
+<div class="tab-nav">
+  <button class="active" onclick="showTab('a')">A — Stepper Wizard</button>
+  <button onclick="showTab('b')">B — Sectioned Card</button>
+  <button onclick="showTab('c')">C — Side Panel</button>
+</div>
+
+<!-- ── ALTERNATIVE A DEMO ── -->
+<div class="demo-container active" id="demo-a">
+  <button class="open-demo-btn" onclick="openWizard()">
+    <span class="material-symbols-rounded">play_arrow</span>
+    Open Stepper Wizard
+  </button>
+  <div class="demo-frame">
+    <div class="demo-inner" style="background: var(--bg); align-items: flex-start; padding-top: 48px;">
+      <!-- Simulated admin page behind the modal -->
+      <div style="width: 100%; opacity: 0.3;">
+        <div style="background: var(--surface); border-radius: 10px; border: 1px solid var(--border); padding: 16px 20px; margin-bottom: 12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div style="font-size:14px; font-weight:600; color: var(--text-primary);">Clinics Directory</div>
+            <div style="padding:7px 14px; background:var(--brand); color:#fff; border-radius:7px; font-size:12px; font-weight:600;">+ New Clinic</div>
+          </div>
+        </div>
+        <div style="background: var(--surface); border-radius: 10px; border: 1px solid var(--border); height: 200px;"></div>
+      </div>
+    </div>
+  </div>
+  <div class="design-info">
+    <h2>A — Stepper Wizard</h2>
+    <div class="subtitle">Breaks the 7 fields into 4 focused steps with a progress indicator. Reduces cognitive load and guides the admin through each section.</div>
+    <div class="pros-cons">
+      <div><strong>Pros</strong><br>Low cognitive load per step<br>Clear progress tracking<br>Review before submit</div>
+      <div><strong>Cons</strong><br>More clicks to complete<br>Can feel slow for power users<br>Needs back-navigation</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── ALTERNATIVE B DEMO ── -->
+<div class="demo-container" id="demo-b">
+  <button class="open-demo-btn" onclick="openSectioned()">
+    <span class="material-symbols-rounded">play_arrow</span>
+    Open Sectioned Card
+  </button>
+  <div class="demo-frame">
+    <div class="demo-inner" style="background: var(--bg); align-items: flex-start; padding-top: 48px;">
+      <div style="width: 100%; opacity: 0.3;">
+        <div style="background: var(--surface); border-radius: 10px; border: 1px solid var(--border); padding: 16px 20px; margin-bottom: 12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div style="font-size:14px; font-weight:600; color: var(--text-primary);">Clinics Directory</div>
+            <div style="padding:7px 14px; background:var(--brand); color:#fff; border-radius:7px; font-size:12px; font-weight:600;">+ New Clinic</div>
+          </div>
+        </div>
+        <div style="background: var(--surface); border-radius: 10px; border: 1px solid var(--border); height: 200px;"></div>
+      </div>
+    </div>
+  </div>
+  <div class="design-info">
+    <h2>B — Sectioned Card</h2>
+    <div class="subtitle">All fields visible in one view, organized into 3 color-coded sections. Quick for experienced users while maintaining visual hierarchy.</div>
+    <div class="pros-cons">
+      <div><strong>Pros</strong><br>Everything visible at once<br>Fast for repeat use<br>Clear field grouping</div>
+      <div><strong>Cons</strong><br>More visual density<br>Longer scroll on mobile<br>Less guidance for new users</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── ALTERNATIVE C DEMO ── -->
+<div class="demo-container" id="demo-c">
+  <button class="open-demo-btn" onclick="openDrawer()">
+    <span class="material-symbols-rounded">play_arrow</span>
+    Open Side Panel
+  </button>
+  <div class="demo-frame demo-frame-wide">
+    <div class="demo-inner" style="background: var(--bg); align-items: flex-start; padding-top: 48px;">
+      <div style="width: 100%; opacity: 0.5;">
+        <div style="background: var(--surface); border-radius: 10px; border: 1px solid var(--border); padding: 16px 20px; margin-bottom: 12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div style="font-size:14px; font-weight:600; color: var(--text-primary);">Clinics Directory</div>
+            <div style="padding:7px 14px; background:var(--brand); color:#fff; border-radius:7px; font-size:12px; font-weight:600;">+ New Clinic</div>
+          </div>
+        </div>
+        <div style="background: var(--surface); border-radius: 10px; border: 1px solid var(--border); height: 280px;"></div>
+      </div>
+    </div>
+  </div>
+  <div class="design-info">
+    <h2>C — Side Panel Drawer</h2>
+    <div class="subtitle">A right-side drawer that keeps the main page visible. Feels native to admin dashboards and doesn't block the workspace.</div>
+    <div class="pros-cons">
+      <div><strong>Pros</strong><br>Doesn't block the page<br>Native admin feel<br>Compact single column</div>
+      <div><strong>Cons</strong><br>Narrower field space<br>Less prominent on small screens<br>Requires slide animation</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     ALTERNATIVE A: STEPPER WIZARD OVERLAY
+     ═══════════════════════════════════════════ -->
+<div class="wizard-backdrop" id="wizard-backdrop" onclick="closeWizard(event)">
+  <div class="wizard-card" onclick="event.stopPropagation()">
+    <!-- Step indicator -->
+    <div class="step-indicator">
+      <div class="step-dot active" id="dot-1">1</div>
+      <div class="step-line" id="line-1"></div>
+      <div class="step-dot" id="dot-2">2</div>
+      <div class="step-line" id="line-2"></div>
+      <div class="step-dot" id="dot-3">3</div>
+      <div class="step-line" id="line-3"></div>
+      <div class="step-dot" id="dot-4">4</div>
+    </div>
+    <div class="step-labels">
+      <div class="step-label-item active" id="label-1">Identity</div>
+      <div class="step-label-item" id="label-2">Contact</div>
+      <div class="step-label-item" id="label-3">Account</div>
+      <div class="step-label-item" id="label-4">Review</div>
+    </div>
+
+    <div class="wizard-body">
+      <!-- Step 1: Clinic Identity -->
+      <div class="step-panel active" id="step-1">
+        <div class="step-section-label">Clinic Identity</div>
+        <div class="wizard-fields">
+          <div class="field-group">
+            <label class="field-label">Clinic Name <span class="required">*</span></label>
+            <input type="text" class="field-input" id="wiz-name" placeholder="Cabinet Dr. Kammoun">
+            <div class="field-error-text">Clinic name is required</div>
+          </div>
+          <div class="wizard-row">
+            <div class="field-group">
+              <label class="field-label">Specialty</label>
+              <select class="field-select" id="wiz-specialty">
+                <option value="general">Médecine Générale</option>
+                <option value="gynecology">Gynécologie-Obstétrique</option>
+                <option value="pediatrics">Pédiatrie</option>
+                <option value="ophthalmology">Ophtalmologie</option>
+                <option value="dermatology">Dermatologie</option>
+                <option value="ent">ORL</option>
+                <option value="cardiology">Cardiologie</option>
+                <option value="gastroenterology">Gastro-entérologie</option>
+                <option value="orthopedics">Orthopédie</option>
+                <option value="dental">Dentaire</option>
+                <option value="other">Autre</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Language</label>
+              <select class="field-select" id="wiz-language">
+                <option value="fr">Français</option>
+                <option value="ar">العربية</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Doctor & Contact -->
+      <div class="step-panel" id="step-2">
+        <div class="step-section-label">Doctor & Contact</div>
+        <div class="wizard-fields">
+          <div class="field-group">
+            <label class="field-label">Doctor Name</label>
+            <input type="text" class="field-input" id="wiz-doctor" placeholder="Dr. Ahmed Kammoun">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Phone</label>
+            <div class="phone-wrapper">
+              <div class="phone-prefix">+216</div>
+              <input type="tel" class="field-input" id="wiz-phone" placeholder="XX XXX XXX">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Account Setup -->
+      <div class="step-panel" id="step-3">
+        <div class="step-section-label">Account Setup</div>
+        <div class="wizard-fields">
+          <div class="field-group">
+            <label class="field-label">Email <span class="required">*</span></label>
+            <input type="email" class="field-input" id="wiz-email" placeholder="clinic@email.com">
+            <div class="field-error-text">Valid email is required</div>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Password <span class="required">*</span></label>
+            <input type="text" class="field-input" id="wiz-password" placeholder="Min 6 characters">
+            <div class="field-error-text">Password must be at least 6 characters</div>
+          </div>
+          <div class="strength-bar" id="wiz-strength">
+            <div class="strength-segment"></div>
+            <div class="strength-segment"></div>
+            <div class="strength-segment"></div>
+            <div class="strength-segment"></div>
+          </div>
+          <div class="strength-text" id="wiz-strength-text"></div>
+        </div>
+      </div>
+
+      <!-- Step 4: Review -->
+      <div class="step-panel" id="step-4">
+        <div class="step-section-label">Review & Confirm</div>
+        <div class="review-grid" id="review-grid">
+          <div class="review-cell">
+            <div class="review-cell-label">Clinic</div>
+            <div class="review-cell-value" id="rev-name"></div>
+          </div>
+          <div class="review-cell">
+            <div class="review-cell-label">Specialty</div>
+            <div class="review-cell-value" id="rev-specialty"></div>
+          </div>
+          <div class="review-cell">
+            <div class="review-cell-label">Language</div>
+            <div class="review-cell-value" id="rev-language"></div>
+          </div>
+          <div class="review-cell">
+            <div class="review-cell-label">Doctor</div>
+            <div class="review-cell-value" id="rev-doctor"></div>
+          </div>
+          <div class="review-cell">
+            <div class="review-cell-label">Phone</div>
+            <div class="review-cell-value" id="rev-phone"></div>
+          </div>
+          <div class="review-cell">
+            <div class="review-cell-label">Email</div>
+            <div class="review-cell-value" id="rev-email"></div>
+          </div>
+        </div>
+        <button class="review-edit-btn" onclick="wizGoTo(1)">
+          <span class="material-symbols-rounded">edit</span> Edit details
+        </button>
+      </div>
+
+      <!-- Success State -->
+      <div class="step-panel" id="step-success-a">
+        <div class="success-state">
+          <div class="success-icon">
+            <span class="material-symbols-rounded">check_circle</span>
+          </div>
+          <h3>Clinic Created!</h3>
+          <p class="success-sub">Share these credentials with the clinic owner</p>
+          <div class="credentials-box" id="creds-a">
+            <div class="cred-row">
+              <span class="cred-label">Clinic</span>
+              <span class="cred-value" id="cred-a-name"></span>
+            </div>
+            <div class="cred-row">
+              <span class="cred-label">Email</span>
+              <span class="cred-value" id="cred-a-email"></span>
+            </div>
+            <div class="cred-row">
+              <span class="cred-label">Password</span>
+              <span class="cred-value" id="cred-a-pass"></span>
+            </div>
+          </div>
+          <button class="copy-btn" onclick="copyCreds('a')">
+            <span class="material-symbols-rounded">content_copy</span> Copy to Clipboard
+          </button>
+          <br>
+          <button class="btn-primary" style="width:100%; margin-top: 4px;" onclick="closeWizardFull()">Done</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="wizard-footer" id="wizard-footer">
+      <button class="btn-secondary" id="wiz-back" onclick="wizBack()">
+        <span class="material-symbols-rounded">arrow_back</span> Back
+      </button>
+      <button class="btn-primary" id="wiz-next" onclick="wizNext()">
+        Next <span class="material-symbols-rounded">arrow_forward</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     ALTERNATIVE B: SECTIONED CARD OVERLAY
+     ═══════════════════════════════════════════ -->
+<div class="sectioned-backdrop" id="sectioned-backdrop" onclick="closeSectioned(event)">
+  <div class="sectioned-card" id="sectioned-card" onclick="event.stopPropagation()">
+    <div class="sectioned-header">
+      <div class="sectioned-header-text">
+        <h2>Create New Clinic</h2>
+        <p>Set up a new clinic account with credentials</p>
+      </div>
+      <button class="close-btn" onclick="closeSectionedFull()">
+        <span class="material-symbols-rounded">close</span>
+      </button>
+    </div>
+
+    <!-- Form body -->
+    <div class="sectioned-body" id="sectioned-form">
+      <div class="error-banner" id="sec-error"></div>
+
+      <!-- Section 1: Clinic Profile -->
+      <div class="form-section section-clinic">
+        <div class="section-header">
+          <div class="section-header-left">
+            <div class="section-icon">
+              <span class="material-symbols-rounded">domain</span>
+            </div>
+            <span class="section-header-label">Clinic Profile</span>
+          </div>
+          <span class="section-count">3 fields</span>
+        </div>
+        <div class="section-body">
+          <div class="field-group">
+            <label class="field-label">Clinic Name <span class="required">*</span></label>
+            <div class="field-input-wrapper">
+              <input type="text" class="field-input" id="sec-name" placeholder="Cabinet Dr. Kammoun">
+              <span class="validation-icon valid-icon"><span class="material-symbols-rounded">check_circle</span></span>
+              <span class="validation-icon error-icon"><span class="material-symbols-rounded">error</span></span>
+            </div>
+            <div class="field-error-text">Clinic name is required</div>
+          </div>
+          <div class="section-row">
+            <div class="field-group">
+              <label class="field-label">Specialty</label>
+              <select class="field-select" id="sec-specialty">
+                <option value="general">Médecine Générale</option>
+                <option value="gynecology">Gynécologie-Obstétrique</option>
+                <option value="pediatrics">Pédiatrie</option>
+                <option value="ophthalmology">Ophtalmologie</option>
+                <option value="dermatology">Dermatologie</option>
+                <option value="ent">ORL</option>
+                <option value="cardiology">Cardiologie</option>
+                <option value="gastroenterology">Gastro-entérologie</option>
+                <option value="orthopedics">Orthopédie</option>
+                <option value="dental">Dentaire</option>
+                <option value="other">Autre</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Language</label>
+              <select class="field-select" id="sec-language">
+                <option value="fr">Français</option>
+                <option value="ar">العربية</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: Doctor & Contact -->
+      <div class="form-section section-doctor">
+        <div class="section-header">
+          <div class="section-header-left">
+            <div class="section-icon">
+              <span class="material-symbols-rounded">stethoscope</span>
+            </div>
+            <span class="section-header-label">Doctor & Contact</span>
+          </div>
+          <span class="section-count">2 fields</span>
+        </div>
+        <div class="section-body">
+          <div class="section-row">
+            <div class="field-group">
+              <label class="field-label">Doctor Name</label>
+              <input type="text" class="field-input" id="sec-doctor" placeholder="Dr. Ahmed Kammoun">
+            </div>
+            <div class="field-group">
+              <label class="field-label">Phone</label>
+              <div class="phone-wrapper">
+                <div class="phone-prefix">+216</div>
+                <input type="tel" class="field-input" id="sec-phone" placeholder="XX XXX XXX">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: Account Credentials -->
+      <div class="form-section section-account">
+        <div class="section-header">
+          <div class="section-header-left">
+            <div class="section-icon">
+              <span class="material-symbols-rounded">shield_person</span>
+            </div>
+            <span class="section-header-label">Account Credentials</span>
+          </div>
+          <span class="section-count">2 fields</span>
+        </div>
+        <div class="section-body">
+          <div class="section-row">
+            <div class="field-group">
+              <label class="field-label">Email <span class="required">*</span></label>
+              <div class="field-input-wrapper">
+                <input type="email" class="field-input" id="sec-email" placeholder="clinic@email.com">
+                <span class="validation-icon valid-icon"><span class="material-symbols-rounded">check_circle</span></span>
+                <span class="validation-icon error-icon"><span class="material-symbols-rounded">error</span></span>
+              </div>
+              <div class="field-error-text">Valid email is required</div>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Password <span class="required">*</span></label>
+              <div class="field-input-wrapper">
+                <input type="text" class="field-input" id="sec-password" placeholder="Min 6 characters">
+                <span class="validation-icon valid-icon"><span class="material-symbols-rounded">check_circle</span></span>
+                <span class="validation-icon error-icon"><span class="material-symbols-rounded">error</span></span>
+              </div>
+              <div class="field-error-text">Password must be at least 6 characters</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Success state (hidden) -->
+    <div class="sectioned-body" id="sectioned-success" style="display: none;">
+      <div class="success-state">
+        <div class="success-icon">
+          <span class="material-symbols-rounded">check_circle</span>
+        </div>
+        <h3>Clinic Created!</h3>
+        <p class="success-sub">Share these credentials with the clinic owner</p>
+        <div class="credentials-box">
+          <div class="cred-row">
+            <span class="cred-label">Clinic</span>
+            <span class="cred-value" id="cred-b-name"></span>
+          </div>
+          <div class="cred-row">
+            <span class="cred-label">Email</span>
+            <span class="cred-value" id="cred-b-email"></span>
+          </div>
+          <div class="cred-row">
+            <span class="cred-label">Password</span>
+            <span class="cred-value" id="cred-b-pass"></span>
+          </div>
+        </div>
+        <button class="copy-btn" onclick="copyCreds('b')">
+          <span class="material-symbols-rounded">content_copy</span> Copy to Clipboard
+        </button>
+        <br>
+        <button class="btn-primary" style="width: 100%; margin-top: 4px;" onclick="closeSectionedFull()">Done</button>
+      </div>
+    </div>
+
+    <div class="sectioned-footer" id="sectioned-footer">
+      <button class="btn-secondary" onclick="closeSectionedFull()">Cancel</button>
+      <button class="btn-primary" id="sec-submit" onclick="submitSectioned()">
+        Create Clinic <span class="material-symbols-rounded">arrow_forward</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     ALTERNATIVE C: SIDE PANEL DRAWER
+     ═══════════════════════════════════════════ -->
+<div class="drawer-backdrop" id="drawer-backdrop" onclick="closeDrawer()"></div>
+<div class="drawer-panel" id="drawer-panel" style="display: none;">
+  <div class="drawer-accent-bar"></div>
+  <div class="drawer-header">
+    <div class="drawer-header-text">
+      <h2>Create New Clinic</h2>
+      <p>Set up a new clinic account with credentials</p>
+    </div>
+    <button class="close-btn" onclick="closeDrawerFull()">
+      <span class="material-symbols-rounded">close</span>
+    </button>
+  </div>
+
+  <div class="drawer-content" id="drawer-form">
+    <div class="error-banner" id="drawer-error"></div>
+
+    <!-- Group 1: Clinic Details -->
+    <div class="drawer-group">
+      <div class="drawer-group-header">
+        <span class="drawer-group-label">Clinic Details</span>
+      </div>
+      <div class="drawer-group-body">
+        <div class="field-group">
+          <label class="field-label">Clinic Name <span class="required">*</span></label>
+          <input type="text" class="field-input" id="drw-name" placeholder="Cabinet Dr. Kammoun">
+          <div class="field-error-text">Clinic name is required</div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Specialty</label>
+          <select class="field-select" id="drw-specialty">
+            <option value="general">Médecine Générale</option>
+            <option value="gynecology">Gynécologie-Obstétrique</option>
+            <option value="pediatrics">Pédiatrie</option>
+            <option value="ophthalmology">Ophtalmologie</option>
+            <option value="dermatology">Dermatologie</option>
+            <option value="ent">ORL</option>
+            <option value="cardiology">Cardiologie</option>
+            <option value="gastroenterology">Gastro-entérologie</option>
+            <option value="orthopedics">Orthopédie</option>
+            <option value="dental">Dentaire</option>
+            <option value="other">Autre</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Language</label>
+          <select class="field-select" id="drw-language">
+            <option value="fr">Français</option>
+            <option value="ar">العربية</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Group 2: Optional Details (collapsible) -->
+    <div class="drawer-group">
+      <div class="drawer-group-header collapsible-header" id="optional-header" onclick="toggleOptional()">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span class="drawer-group-label">Doctor & Contact</span>
+          <span class="optional-badge">Optional</span>
+        </div>
+        <div class="collapse-chevron" id="optional-chevron">
+          <span class="material-symbols-rounded">expand_more</span>
+        </div>
+      </div>
+      <div class="collapsible-body" id="optional-body">
+        <div class="drawer-group-body">
+          <div class="field-group">
+            <label class="field-label">Doctor Name</label>
+            <input type="text" class="field-input" id="drw-doctor" placeholder="Dr. Ahmed Kammoun">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Phone</label>
+            <div class="phone-wrapper">
+              <div class="phone-prefix">+216</div>
+              <input type="tel" class="field-input" id="drw-phone" placeholder="XX XXX XXX">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Group 3: Account -->
+    <div class="drawer-group">
+      <div class="drawer-group-header">
+        <span class="drawer-group-label">Account Credentials</span>
+      </div>
+      <div class="drawer-group-body">
+        <div class="field-group">
+          <label class="field-label">Email <span class="required">*</span></label>
+          <input type="email" class="field-input" id="drw-email" placeholder="clinic@email.com">
+          <div class="field-error-text">Valid email is required</div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Password <span class="required">*</span></label>
+          <input type="text" class="field-input" id="drw-password" placeholder="Min 6 characters">
+          <div class="field-error-text">Password must be at least 6 characters</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success state (hidden) -->
+  <div class="drawer-content" id="drawer-success" style="display: none;">
+    <div class="success-state" style="padding-top: 40px;">
+      <div class="success-icon">
+        <span class="material-symbols-rounded">check_circle</span>
+      </div>
+      <h3>Clinic Created!</h3>
+      <p class="success-sub">Share these credentials with the clinic owner</p>
+      <div class="credentials-box">
+        <div class="cred-row">
+          <span class="cred-label">Clinic</span>
+          <span class="cred-value" id="cred-c-name"></span>
+        </div>
+        <div class="cred-row">
+          <span class="cred-label">Email</span>
+          <span class="cred-value" id="cred-c-email"></span>
+        </div>
+        <div class="cred-row">
+          <span class="cred-label">Password</span>
+          <span class="cred-value" id="cred-c-pass"></span>
+        </div>
+      </div>
+      <button class="copy-btn" onclick="copyCreds('c')">
+        <span class="material-symbols-rounded">content_copy</span> Copy to Clipboard
+      </button>
+    </div>
+  </div>
+
+  <div class="drawer-footer" id="drawer-footer">
+    <button class="btn-secondary" onclick="closeDrawerFull()">Cancel</button>
+    <button class="btn-primary" id="drw-submit" onclick="submitDrawer()">
+      Create Clinic <span class="material-symbols-rounded">arrow_forward</span>
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     JAVASCRIPT
+     ═══════════════════════════════════════════ -->
+<script>
+// ── Tab Navigation ──
+function showTab(tab) {
+  document.querySelectorAll('.tab-nav button').forEach((btn, i) => {
+    btn.classList.toggle('active', ['a','b','c'][i] === tab);
+  });
+  document.querySelectorAll('.demo-container').forEach(d => d.classList.remove('active'));
+  document.getElementById('demo-' + tab).classList.add('active');
+}
+
+// ═══════════════════════════════════════════
+// ALTERNATIVE A: STEPPER WIZARD
+// ═══════════════════════════════════════════
+let wizStep = 1;
+
+function openWizard() {
+  wizStep = 1;
+  resetWizardForm();
+  updateWizardUI();
+  document.getElementById('wizard-backdrop').classList.add('open');
+}
+
+function closeWizard(e) {
+  if (e.target === e.currentTarget) closeWizardFull();
+}
+
+function closeWizardFull() {
+  document.getElementById('wizard-backdrop').classList.remove('open');
+  resetWizardForm();
+}
+
+function resetWizardForm() {
+  wizStep = 1;
+  ['wiz-name','wiz-doctor','wiz-email','wiz-password','wiz-phone'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  ['wiz-specialty','wiz-language'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.selectedIndex = 0;
+  });
+  document.querySelectorAll('#wizard-backdrop .field-group').forEach(g => g.classList.remove('has-error'));
+  document.getElementById('wiz-strength').className = 'strength-bar';
+  document.getElementById('wiz-strength-text').textContent = '';
+  document.getElementById('step-success-a').classList.remove('active');
+  document.getElementById('wizard-footer').style.display = 'flex';
+  updateWizardUI();
+}
+
+function updateWizardUI() {
+  // Update step dots
+  for (let i = 1; i <= 4; i++) {
+    const dot = document.getElementById('dot-' + i);
+    const label = document.getElementById('label-' + i);
+    dot.classList.remove('active', 'completed');
+    label.classList.remove('active', 'completed');
+
+    if (i < wizStep) {
+      dot.classList.add('completed');
+      dot.innerHTML = '<span class="material-symbols-rounded">check</span>';
+      label.classList.add('completed');
+    } else if (i === wizStep) {
+      dot.classList.add('active');
+      dot.textContent = i;
+      label.classList.add('active');
+    } else {
+      dot.textContent = i;
+    }
+  }
+
+  // Update lines
+  for (let i = 1; i <= 3; i++) {
+    const line = document.getElementById('line-' + i);
+    line.classList.toggle('completed', i < wizStep);
+  }
+
+  // Show/hide panels
+  for (let i = 1; i <= 4; i++) {
+    const panel = document.getElementById('step-' + i);
+    panel.classList.toggle('active', i === wizStep);
+  }
+
+  // Update footer buttons
+  const backBtn = document.getElementById('wiz-back');
+  const nextBtn = document.getElementById('wiz-next');
+  backBtn.style.visibility = wizStep === 1 ? 'hidden' : 'visible';
+
+  if (wizStep === 4) {
+    nextBtn.innerHTML = 'Create Clinic <span class="material-symbols-rounded">check</span>';
+    populateReview();
+  } else {
+    nextBtn.innerHTML = 'Next <span class="material-symbols-rounded">arrow_forward</span>';
+  }
+}
+
+function wizNext() {
+  // Validate current step
+  if (wizStep === 1) {
+    const name = document.getElementById('wiz-name');
+    if (!name.value.trim()) {
+      name.closest('.field-group').classList.add('has-error');
+      name.classList.add('animate-shake');
+      setTimeout(() => name.classList.remove('animate-shake'), 400);
+      return;
+    }
+    name.closest('.field-group').classList.remove('has-error');
+  }
+  if (wizStep === 3) {
+    let valid = true;
+    const email = document.getElementById('wiz-email');
+    const pass = document.getElementById('wiz-password');
+    if (!email.value.includes('@')) {
+      email.closest('.field-group').classList.add('has-error');
+      email.classList.add('animate-shake');
+      setTimeout(() => email.classList.remove('animate-shake'), 400);
+      valid = false;
+    } else {
+      email.closest('.field-group').classList.remove('has-error');
+    }
+    if (pass.value.length < 6) {
+      pass.closest('.field-group').classList.add('has-error');
+      pass.classList.add('animate-shake');
+      setTimeout(() => pass.classList.remove('animate-shake'), 400);
+      valid = false;
+    } else {
+      pass.closest('.field-group').classList.remove('has-error');
+    }
+    if (!valid) return;
+  }
+
+  if (wizStep === 4) {
+    // Submit
+    const nextBtn = document.getElementById('wiz-next');
+    nextBtn.disabled = true;
+    nextBtn.innerHTML = '<span class="spinner"></span> Creating...';
+    setTimeout(() => {
+      showWizardSuccess();
+      nextBtn.disabled = false;
+      nextBtn.innerHTML = 'Create Clinic <span class="material-symbols-rounded">check</span>';
+    }, 1200);
+    return;
+  }
+
+  wizStep++;
+  updateWizardUI();
+}
+
+function wizBack() {
+  if (wizStep > 1) {
+    wizStep--;
+    updateWizardUI();
+  }
+}
+
+function wizGoTo(step) {
+  wizStep = step;
+  updateWizardUI();
+}
+
+function populateReview() {
+  const specialtyEl = document.getElementById('wiz-specialty');
+  const langEl = document.getElementById('wiz-language');
+
+  const setVal = (id, val, fallback) => {
+    const el = document.getElementById(id);
+    if (val && val.trim()) {
+      el.textContent = val;
+      el.classList.remove('empty');
+    } else {
+      el.textContent = fallback || '—';
+      el.classList.add('empty');
+    }
+  };
+
+  setVal('rev-name', document.getElementById('wiz-name').value);
+  setVal('rev-specialty', specialtyEl.options[specialtyEl.selectedIndex].text);
+  setVal('rev-language', langEl.options[langEl.selectedIndex].text);
+  setVal('rev-doctor', document.getElementById('wiz-doctor').value, 'Not specified');
+  const phone = document.getElementById('wiz-phone').value;
+  setVal('rev-phone', phone ? '+216 ' + phone : '', 'Not specified');
+  setVal('rev-email', document.getElementById('wiz-email').value);
+}
+
+function showWizardSuccess() {
+  document.getElementById('cred-a-name').textContent = document.getElementById('wiz-name').value;
+  document.getElementById('cred-a-email').textContent = document.getElementById('wiz-email').value;
+  document.getElementById('cred-a-pass').textContent = document.getElementById('wiz-password').value;
+
+  for (let i = 1; i <= 4; i++) {
+    document.getElementById('step-' + i).classList.remove('active');
+    const dot = document.getElementById('dot-' + i);
+    dot.classList.remove('active');
+    dot.classList.add('completed');
+    dot.innerHTML = '<span class="material-symbols-rounded">check</span>';
+    document.getElementById('label-' + i).classList.add('completed');
+  }
+  for (let i = 1; i <= 3; i++) {
+    document.getElementById('line-' + i).classList.add('completed');
+  }
+
+  document.getElementById('step-success-a').classList.add('active');
+  document.getElementById('wizard-footer').style.display = 'none';
+}
+
+// Password strength
+document.getElementById('wiz-password').addEventListener('input', function() {
+  const bar = document.getElementById('wiz-strength');
+  const text = document.getElementById('wiz-strength-text');
+  const len = this.value.length;
+  bar.className = 'strength-bar';
+  if (len === 0) { text.textContent = ''; return; }
+  if (len < 4) { bar.classList.add('weak'); text.textContent = 'Weak'; text.style.color = 'var(--danger)'; }
+  else if (len < 6) { bar.classList.add('fair'); text.textContent = 'Fair'; text.style.color = 'var(--warning)'; }
+  else if (len < 10) { bar.classList.add('good'); text.textContent = 'Good'; text.style.color = 'var(--accent)'; }
+  else { bar.classList.add('strong'); text.textContent = 'Strong'; text.style.color = 'var(--success)'; }
+});
+
+// ═══════════════════════════════════════════
+// ALTERNATIVE B: SECTIONED CARD
+// ═══════════════════════════════════════════
+function openSectioned() {
+  resetSectionedForm();
+  document.getElementById('sectioned-backdrop').classList.add('open');
+}
+
+function closeSectioned(e) {
+  if (e.target === e.currentTarget) closeSectionedFull();
+}
+
+function closeSectionedFull() {
+  document.getElementById('sectioned-backdrop').classList.remove('open');
+  resetSectionedForm();
+}
+
+function resetSectionedForm() {
+  ['sec-name','sec-doctor','sec-email','sec-password','sec-phone'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  ['sec-specialty','sec-language'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.selectedIndex = 0;
+  });
+  document.querySelectorAll('#sectioned-card .field-group').forEach(g => {
+    g.classList.remove('has-error', 'valid');
+  });
+  document.getElementById('sec-error').classList.remove('visible');
+  document.getElementById('sectioned-form').style.display = '';
+  document.getElementById('sectioned-success').style.display = 'none';
+  document.getElementById('sectioned-footer').style.display = '';
+}
+
+// Inline validation on blur
+['sec-name', 'sec-email', 'sec-password'].forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('blur', function() {
+    const group = this.closest('.field-group');
+    if (id === 'sec-name') {
+      if (this.value.trim()) { group.classList.remove('has-error'); group.classList.add('valid'); }
+      else { group.classList.add('has-error'); group.classList.remove('valid'); }
+    }
+    if (id === 'sec-email') {
+      if (this.value.includes('@') && this.value.includes('.')) { group.classList.remove('has-error'); group.classList.add('valid'); }
+      else if (this.value.length > 0) { group.classList.add('has-error'); group.classList.remove('valid'); }
+    }
+    if (id === 'sec-password') {
+      if (this.value.length >= 6) { group.classList.remove('has-error'); group.classList.add('valid'); }
+      else if (this.value.length > 0) { group.classList.add('has-error'); group.classList.remove('valid'); }
+    }
+  });
+});
+
+function submitSectioned() {
+  let valid = true;
+  const name = document.getElementById('sec-name');
+  const email = document.getElementById('sec-email');
+  const pass = document.getElementById('sec-password');
+
+  if (!name.value.trim()) {
+    name.closest('.field-group').classList.add('has-error');
+    name.closest('.field-group').classList.remove('valid');
+    valid = false;
+  }
+  if (!email.value.includes('@')) {
+    email.closest('.field-group').classList.add('has-error');
+    email.closest('.field-group').classList.remove('valid');
+    valid = false;
+  }
+  if (pass.value.length < 6) {
+    pass.closest('.field-group').classList.add('has-error');
+    pass.closest('.field-group').classList.remove('valid');
+    valid = false;
+  }
+
+  if (!valid) {
+    document.getElementById('sec-error').textContent = 'Please fill in all required fields correctly.';
+    document.getElementById('sec-error').classList.add('visible');
+    return;
+  }
+
+  document.getElementById('sec-error').classList.remove('visible');
+  const btn = document.getElementById('sec-submit');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Creating...';
+
+  setTimeout(() => {
+    document.getElementById('cred-b-name').textContent = name.value;
+    document.getElementById('cred-b-email').textContent = email.value;
+    document.getElementById('cred-b-pass').textContent = pass.value;
+    document.getElementById('sectioned-form').style.display = 'none';
+    document.getElementById('sectioned-success').style.display = '';
+    document.getElementById('sectioned-footer').style.display = 'none';
+    btn.disabled = false;
+    btn.innerHTML = 'Create Clinic <span class="material-symbols-rounded">arrow_forward</span>';
+  }, 1200);
+}
+
+// ═══════════════════════════════════════════
+// ALTERNATIVE C: SIDE PANEL DRAWER
+// ═══════════════════════════════════════════
+function openDrawer() {
+  resetDrawerForm();
+  document.getElementById('drawer-backdrop').classList.add('open');
+  const panel = document.getElementById('drawer-panel');
+  panel.style.display = 'flex';
+  panel.classList.remove('closing');
+}
+
+function closeDrawer() {
+  closeDrawerFull();
+}
+
+function closeDrawerFull() {
+  const panel = document.getElementById('drawer-panel');
+  panel.classList.add('closing');
+  document.getElementById('drawer-backdrop').classList.remove('open');
+  setTimeout(() => {
+    panel.style.display = 'none';
+    panel.classList.remove('closing');
+    resetDrawerForm();
+  }, 250);
+}
+
+function resetDrawerForm() {
+  ['drw-name','drw-doctor','drw-email','drw-password','drw-phone'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  ['drw-specialty','drw-language'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.selectedIndex = 0;
+  });
+  document.querySelectorAll('#drawer-panel .field-group').forEach(g => g.classList.remove('has-error'));
+  document.getElementById('drawer-error').classList.remove('visible');
+  document.getElementById('drawer-form').style.display = '';
+  document.getElementById('drawer-success').style.display = 'none';
+  document.getElementById('drawer-footer').style.display = '';
+  // Collapse optional section
+  document.getElementById('optional-body').classList.remove('expanded');
+  document.getElementById('optional-header').classList.remove('expanded');
+}
+
+function toggleOptional() {
+  const body = document.getElementById('optional-body');
+  const header = document.getElementById('optional-header');
+  body.classList.toggle('expanded');
+  header.classList.toggle('expanded');
+}
+
+function submitDrawer() {
+  let valid = true;
+  const name = document.getElementById('drw-name');
+  const email = document.getElementById('drw-email');
+  const pass = document.getElementById('drw-password');
+
+  if (!name.value.trim()) {
+    name.closest('.field-group').classList.add('has-error');
+    valid = false;
+  } else {
+    name.closest('.field-group').classList.remove('has-error');
+  }
+  if (!email.value.includes('@')) {
+    email.closest('.field-group').classList.add('has-error');
+    valid = false;
+  } else {
+    email.closest('.field-group').classList.remove('has-error');
+  }
+  if (pass.value.length < 6) {
+    pass.closest('.field-group').classList.add('has-error');
+    valid = false;
+  } else {
+    pass.closest('.field-group').classList.remove('has-error');
+  }
+
+  if (!valid) {
+    document.getElementById('drawer-error').textContent = 'Please fill in all required fields correctly.';
+    document.getElementById('drawer-error').classList.add('visible');
+    return;
+  }
+
+  document.getElementById('drawer-error').classList.remove('visible');
+  const btn = document.getElementById('drw-submit');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Creating...';
+
+  setTimeout(() => {
+    document.getElementById('cred-c-name').textContent = name.value;
+    document.getElementById('cred-c-email').textContent = email.value;
+    document.getElementById('cred-c-pass').textContent = pass.value;
+    document.getElementById('drawer-form').style.display = 'none';
+    document.getElementById('drawer-success').style.display = '';
+    document.getElementById('drawer-footer').innerHTML = '<button class="btn-primary" style="flex:1;" onclick="closeDrawerFull()">Done</button>';
+    btn.disabled = false;
+  }, 1200);
+}
+
+// ═══════════════════════════════════════════
+// SHARED: Copy Credentials
+// ═══════════════════════════════════════════
+function copyCreds(alt) {
+  const name = document.getElementById('cred-' + alt + '-name').textContent;
+  const email = document.getElementById('cred-' + alt + '-email').textContent;
+  const pass = document.getElementById('cred-' + alt + '-pass').textContent;
+  const text = `Clinic: ${name}\nEmail: ${email}\nPassword: ${pass}`;
+
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target.closest('.copy-btn');
+    const original = btn.innerHTML;
+    btn.innerHTML = '<span class="material-symbols-rounded">check</span> Copied!';
+    btn.style.color = 'var(--success)';
+    btn.style.borderColor = 'var(--success-pale)';
+    setTimeout(() => {
+      btn.innerHTML = original;
+      btn.style.color = '';
+      btn.style.borderColor = '';
+    }, 1500);
+  });
+}
+</script>
+</body>
+</html>

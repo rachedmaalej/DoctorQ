@@ -244,35 +244,19 @@ export default function ClinicsPage() {
               {total} clinics &middot; {trialsOnTrial.length} on trial &middot; {expiringCount} expiring soon
             </p>
           </div>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button
-              style={{
-                padding: '7px 14px',
-                borderRadius: 7,
-                border: '1px solid var(--border)',
-                background: '#fff',
-                fontSize: 13,
-                fontWeight: 550,
-                cursor: 'pointer',
-              }}
-            >
-              Export CSV
-            </button>
-            <button
-              style={{
-                padding: '7px 14px',
-                borderRadius: 7,
-                border: 'none',
-                background: 'var(--brand)',
-                color: '#fff',
-                fontSize: 13,
-                fontWeight: 550,
-                cursor: 'pointer',
-              }}
-            >
-              + New Clinic
-            </button>
-          </div>
+          <button
+            style={{
+              padding: '7px 14px',
+              borderRadius: 7,
+              border: '1px solid var(--border)',
+              background: '#fff',
+              fontSize: 13,
+              fontWeight: 550,
+              cursor: 'pointer',
+            }}
+          >
+            Export CSV
+          </button>
         </div>
 
         {/* ── Alert Banners ────────────────────────────────── */}
