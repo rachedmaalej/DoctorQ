@@ -140,6 +140,8 @@ model QueueEntry {
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 
+  pushSubscriptions PushSubscription[]
+
   // Performance indexes for common queries
   @@index([clinicId, status])                       // Filter active queue by clinic
   @@index([clinicId, arrivedAt])                    // Order by arrival time
@@ -238,6 +240,19 @@ model SubscriptionEvent {
   @@index([clinicId])
   @@index([eventType])
   @@index([createdAt])
+}
+
+model PushSubscription {
+  id        String   @id @default(uuid())
+  entryId   String
+  endpoint  String
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  entry     QueueEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+
+  @@index([entryId])
 }
 
 model Lead {

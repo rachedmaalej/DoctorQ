@@ -561,6 +561,20 @@ class ApiClient {
   async getEngagementSummary(): Promise<EngagementSummary> {
     return this.request('/api/admin/engagement/summary');
   }
+
+  // Push notification subscription (public — patient-facing)
+  async savePushSubscription(entryId: string, subscription: PushSubscription): Promise<{ success: boolean }> {
+    const sub = subscription.toJSON();
+    return this.request('/api/push/subscribe', {
+      method: 'POST',
+      body: JSON.stringify({
+        entryId,
+        endpoint: sub.endpoint,
+        p256dh: sub.keys?.p256dh,
+        auth: sub.keys?.auth,
+      }),
+    });
+  }
 }
 
 export const api = new ApiClient();

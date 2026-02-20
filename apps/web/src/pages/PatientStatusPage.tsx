@@ -4,6 +4,7 @@ import { api } from '@/lib/api';
 import { logger } from '@/lib/logger';
 import { useSocket } from '@/hooks/useSocket';
 import { initAudioContext, playSoftChime, playMedicalChime, playBrightAlert, playPriorityAlarm } from '@/lib/sounds';
+import { isPushSupported, subscribeToPush, getNotificationPermission, isIOS, isStandaloneMode } from '@/lib/pushNotifications';
 import type { PatientStatusResponse } from '@/types';
 import { QueueStatus } from '@/types';
 
@@ -63,6 +64,42 @@ export default function PatientStatusPage() {
   // ─── Stable Callbacks ───
   const hideToast = useCallback(() => setToast({ visible: false, message: '' }), []);
 
+  // ─── Push Notification Subscription ───
+  const handleEnableNotifications = useCallback(async () => {
+    if (!entryId) return;
+
+    // iOS requires PWA install — show guidance if not in standalone mode
+    if (isIOS() && !isStandaloneMode()) {
+      setToast({
+        visible: true,
+        message: 'Pour recevoir les notifications, ajoutez cette page à votre écran d\'accueil (Partager → Sur l\'écran d\'accueil)',
+      });
+      return;
+    }
+
+    if (!isPushSupported()) {
+      // Fallback: just set notifyEnabled for the in-page sounds
+      setNotifyEnabled(true);
+      return;
+    }
+
+    const subscription = await subscribeToPush(entryId);
+    if (subscription) {
+      setNotifyEnabled(true);
+      setToast({ visible: true, message: 'Notifications activées ! Vous serez alerté même si votre écran est éteint.' });
+    } else {
+      // Permission denied or failed — still enable in-page notifications
+      const perm = getNotificationPermission();
+      if (perm === 'denied') {
+        setToast({
+          visible: true,
+          message: 'Notifications bloquées. Activez-les dans les réglages de votre navigateur.',
+        });
+      }
+      setNotifyEnabled(true);
+    }
+  }, [entryId]);
+
   // ─── Audio Context Init (iOS) ───
   useEffect(() => {
     const handleFirstInteraction = () => {
@@ -78,6 +115,45 @@ export default function PatientStatusPage() {
       document.removeEventListener('touchstart', handleFirstInteraction);
     };
   }, []);
+
+  // ─── Screen Wake Lock (keeps screen on while patient waits) ───
+  useEffect(() => {
+    let wakeLock: WakeLockSentinel | null = null;
+    let active = true;
+
+    const requestWakeLock = async () => {
+      if (!active || !('wakeLock' in navigator)) return;
+      try {
+        wakeLock = await navigator.wakeLock.request('screen');
+        wakeLock.addEventListener('release', () => { wakeLock = null; });
+        logger.log('[WakeLock] Acquired');
+      } catch {
+        // Silently fail — low battery or unsupported
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        requestWakeLock();
+        // Re-fetch queue position in case we missed Socket.io events while backgrounded
+        if (entryId) {
+          api.getPatientStatus(entryId).then((data) => {
+            setEntry(data);
+            previousPositionRef.current = data.position;
+          }).catch(() => {});
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    requestWakeLock();
+
+    return () => {
+      active = false;
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      wakeLock?.release().catch(() => {});
+    };
+  }, [entryId]);
 
   // ─── Socket Handlers ───
 
@@ -426,7 +502,7 @@ export default function PatientStatusPage() {
             avgConsultMins={entry.avgConsultationMins}
             estimatedMins={smoothedEstimate}
             notifEnabled={notifyEnabled}
-            onNotifClick={() => setNotifyEnabled(true)}
+            onNotifClick={handleEnableNotifications}
             isAbsent={isAbsent}
             onAbsentClick={() => setIsAbsent(!isAbsent)}
             isCalled={isCalled}
