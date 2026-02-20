@@ -11,42 +11,47 @@ export default function CheckInPage() {
   const { clinicId } = useParams<{ clinicId: string }>();
   const navigate = useNavigate();
 
-  // Initialize with prefilled "+216 "
   const [patientPhone, setPatientPhone] = useState(DEFAULT_PHONE_VALUE);
   const [patientName, setPatientName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [clinicName, setClinicName] = useState<string>('');
 
-  // Fetch clinic info
+  // Clinic info state
+  const [clinicName, setClinicName] = useState('');
+  const [doctorName, setDoctorName] = useState<string | null>(null);
+  const [specialty, setSpecialty] = useState<string | null>(null);
+  const [isDoctorPresent, setIsDoctorPresent] = useState(false);
+  const [waitingCount, setWaitingCount] = useState(0);
+  const [avgConsultationMins, setAvgConsultationMins] = useState(0);
+
   useEffect(() => {
     if (clinicId) {
       api.getClinicInfo(clinicId)
         .then((info) => {
           if (info.name) setClinicName(info.name);
+          setDoctorName(info.doctorName);
+          setSpecialty(info.specialty);
+          setIsDoctorPresent(info.isDoctorPresent);
+          setWaitingCount(info.waitingCount);
+          setAvgConsultationMins(info.avgConsultationMins);
         })
         .catch(() => {
-          // Silently fail - clinic name is optional display
+          // Silently fail - clinic info is optional display
         });
     }
   }, [clinicId]);
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
-
-    // Don't allow removing the "+216 " prefix
     if (inputValue.length < 5) {
       setPatientPhone(DEFAULT_PHONE_VALUE);
       return;
     }
-
-    // Format the phone number
     const formatted = formatTunisianPhone(inputValue);
     setPatientPhone(formatted);
   };
 
   const handlePhoneKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    // Prevent backspace from deleting the "+216 " prefix
     const input = e.target as HTMLInputElement;
     if (e.key === 'Backspace' && input.selectionStart !== null && input.selectionStart <= 5) {
       e.preventDefault();
@@ -54,9 +59,7 @@ export default function CheckInPage() {
   };
 
   const handlePhoneFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-    // Move cursor to end on focus (only on desktop, skip on mobile to avoid refresh issues)
     const input = e.target;
-    // Check if not a touch device to avoid mobile browser issues
     if (!('ontouchstart' in window)) {
       setTimeout(() => {
         input.selectionStart = input.value.length;
@@ -75,7 +78,6 @@ export default function CheckInPage() {
         throw new Error('Invalid clinic ID');
       }
 
-      // Validate phone number
       if (!isValidTunisianPhone(patientPhone)) {
         throw new Error(t('checkin.invalidPhone'));
       }
@@ -85,17 +87,14 @@ export default function CheckInPage() {
         patientName: patientName || undefined,
       });
 
-      // Redirect to patient status page
       navigate(`/patient/${result.id}`);
     } catch (err: any) {
       logger.error('Check-in error:', err);
 
       if (err.code === 'ALREADY_CHECKED_IN' && err.data?.id) {
-        // Redirect to existing patient's status page
         navigate(`/patient/${err.data.id}`);
         return;
       } else if (err.code === 'ALREADY_CHECKED_IN') {
-        // Fallback if no entry ID returned (shouldn't happen)
         setError(t('checkin.alreadyCheckedIn') || 'You are already checked in');
       } else if (err.code === 'CLINIC_NOT_FOUND') {
         setError(t('checkin.clinicNotFound') || 'Clinic not found');
@@ -107,121 +106,163 @@ export default function CheckInPage() {
     }
   };
 
+  const displayName = doctorName || clinicName;
+
   return (
-    <div className="h-screen bg-gradient-to-br from-primary-50 to-teal-50 flex items-center justify-center p-3 relative overflow-hidden">
-      {/* Language Switcher - Top corner */}
-      <div className="absolute top-3 ltr:right-3 rtl:left-3 z-10">
+    <div className="min-h-screen bg-[#FAFAF8] flex flex-col">
+      {/* Top bar */}
+      <div className="flex justify-between items-center px-6 pt-4 pb-1">
+        <span className="text-xs font-medium text-bs-text-tertiary">
+          {t('checkin.virtualQueue')}
+        </span>
         <LanguageSwitcher />
       </div>
 
-      <div className="max-w-md w-full">
-        {/* Clinic Name Header */}
-        {clinicName && (
-          <div className="flex items-center justify-center gap-2 mb-3 text-gray-600">
-            <span className="material-symbols-outlined text-xl text-primary-500">medical_services</span>
-            <span className="text-sm font-medium">{clinicName}</span>
+      {/* Doctor hero — oversized, centered */}
+      <div className="text-center pt-6 pb-4 px-6">
+        {/* Avatar */}
+        <div
+          className="w-[104px] h-[104px] rounded-full bg-bs-accent-light border-[3px] border-bs-accent flex items-center justify-center mx-auto mb-3"
+          style={{ boxShadow: '0 4px 20px rgba(15,123,108,0.15)' }}
+        >
+          <span className="material-symbols-rounded text-5xl text-bs-accent">stethoscope</span>
+        </div>
+
+        {/* Doctor name */}
+        <h1 className="text-[28px] font-extrabold text-bs-text-primary tracking-tight">
+          {displayName}
+        </h1>
+
+        {/* Specialty badge */}
+        {specialty && (
+          <div className="mt-2.5">
+            <span className="inline-flex px-5 py-1.5 bg-bs-accent-light text-bs-accent rounded-full text-xs font-bold uppercase tracking-wide">
+              {specialty}
+            </span>
           </div>
         )}
-        {/* Welcome Card */}
-        <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-          {/* Welcome Header */}
-          <div className="bg-gradient-to-r from-primary-500 to-teal-500 px-5 py-4 text-white text-center">
-            {/* Clinic Icon Badge */}
-            <div className="w-11 h-11 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center mx-auto mb-2">
-              <span className="material-symbols-outlined text-2xl text-white">local_hospital</span>
-            </div>
 
-            {/* Title */}
-            <h1 className="text-xl font-bold">
-              {t('checkin.title')}
-            </h1>
-          </div>
-
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="px-5 py-4 space-y-3">
-
-            {/* Phone Number Field */}
-            <div>
-              <label
-                htmlFor="patientPhone"
-                className="flex items-center gap-1.5 text-sm font-medium text-gray-700 mb-1"
-              >
-                <span className="material-symbols-outlined text-base text-gray-500">phone</span>
-                {t('checkin.phoneNumber')} *
-              </label>
-              <input
-                type="tel"
-                id="patientPhone"
-                inputMode="tel"
-                value={patientPhone}
-                onChange={handlePhoneChange}
-                onKeyDown={handlePhoneKeyDown}
-                onFocus={handlePhoneFocus}
-                placeholder={t('checkin.phonePlaceholder')}
-                className="w-full px-3 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent text-base tracking-wide"
-                required
-                disabled={isLoading}
-                autoComplete="tel"
-                aria-describedby="phone-format-hint"
-              />
-              <p id="phone-format-hint" className="mt-1 text-xs text-gray-500 flex items-center gap-1">
-                <span className="material-symbols-outlined text-sm">info</span>
-                {t('checkin.phoneHelp')}
-              </p>
-            </div>
-
-            {/* Name Field */}
-            <div>
-              <label
-                htmlFor="patientName"
-                className="flex items-center gap-1.5 text-sm font-medium text-gray-700 mb-1"
-              >
-                <span className="material-symbols-outlined text-base text-gray-500">person</span>
-                {t('checkin.name')} <span className="text-gray-400 font-normal">{t('checkin.nameOptional')}</span>
-              </label>
-              <input
-                type="text"
-                id="patientName"
-                value={patientName}
-                onChange={(e) => setPatientName(e.target.value)}
-                placeholder={t('checkin.namePlaceholder')}
-                className="w-full px-3 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                disabled={isLoading}
-                autoComplete="name"
-              />
-            </div>
-
-            {/* Error Message */}
-            {error && (
-              <div className="flex items-start gap-2 bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-xl">
-                <span className="material-symbols-outlined text-lg flex-shrink-0">error</span>
-                <span className="text-sm">{error}</span>
-              </div>
-            )}
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-xl transition-colors flex items-center justify-center gap-2"
-            >
-              <span className="material-symbols-outlined text-xl">confirmation_number</span>
-              {isLoading ? t('common.loading') : t('checkin.submitButton')}
-            </button>
-
-            {/* Privacy & Notification combined */}
-            <div className="flex items-center justify-center gap-4 text-xs text-gray-500 pt-1">
-              <span className="flex items-center gap-1">
-                <span className="material-symbols-outlined text-sm">lock</span>
-                {t('checkin.privacy')}
-              </span>
-              <span className="flex items-center gap-1">
-                <span className="material-symbols-outlined text-sm text-primary-500">notifications_active</span>
-                {t('checkin.notificationPromise')}
-              </span>
-            </div>
-          </form>
+        {/* Presence indicator */}
+        <div className="flex items-center justify-center gap-1.5 mt-3">
+          <div className={`w-2 h-2 rounded-full ${isDoctorPresent ? 'bg-green-500' : 'bg-red-400'}`} />
+          <span className={`text-[13px] font-semibold ${isDoctorPresent ? 'text-green-700' : 'text-red-500'}`}>
+            {isDoctorPresent ? t('checkin.available') : t('checkin.unavailable')}
+          </span>
         </div>
+      </div>
+
+      {/* Social proof bar — smaller, secondary */}
+      <div className="mx-5 flex bg-bs-accent-light border border-bs-accent/10 rounded-xl overflow-hidden">
+        <div className="flex-1 text-center py-2.5 px-3">
+          <div className="text-base font-extrabold text-bs-accent">{waitingCount}</div>
+          <div className="text-[10px] text-bs-text-secondary mt-0.5">{t('checkin.waitingInQueue')}</div>
+        </div>
+        <div className="w-px bg-bs-accent/15" />
+        <div className="flex-1 text-center py-2.5 px-3">
+          <div className="text-base font-extrabold text-bs-accent">~{avgConsultationMins} min</div>
+          <div className="text-[10px] text-bs-text-secondary mt-0.5">{t('checkin.avgConsultationTime')}</div>
+        </div>
+      </div>
+
+      {/* Join card — elevated, teal background */}
+      <div className="mx-5 mt-4 px-6 py-5 bg-bs-accent-light border-[1.5px] border-bs-accent/15 rounded-2xl text-center">
+        <div className="text-[10px] font-bold tracking-[0.1em] uppercase text-bs-accent">
+          {t('checkin.title')}
+        </div>
+        <div className="w-14 h-14 rounded-full bg-bs-accent flex items-center justify-center mx-auto my-2">
+          <span className="material-symbols-rounded text-[26px] text-white">how_to_reg</span>
+        </div>
+        <div className="text-lg font-extrabold text-bs-accent tracking-tight">
+          {t('checkin.takeYourPlace')}
+        </div>
+      </div>
+
+      {/* Dashed divider */}
+      <div className="mx-6 my-4 border-t border-dashed border-bs-border" />
+
+      {/* Form section */}
+      <form onSubmit={handleSubmit} className="px-6 flex-1">
+        {/* Section header */}
+        <div className="text-xs font-bold tracking-[0.1em] uppercase text-bs-text-tertiary text-center mb-3.5">
+          {t('checkin.yourInfo')}
+        </div>
+
+        {/* Phone input */}
+        <input
+          type="tel"
+          inputMode="tel"
+          value={patientPhone}
+          onChange={handlePhoneChange}
+          onKeyDown={handlePhoneKeyDown}
+          onFocus={handlePhoneFocus}
+          placeholder={t('checkin.phonePlaceholder')}
+          className="w-full h-[52px] px-4 text-[17px] font-semibold text-bs-text-primary bg-white border-[1.5px] border-bs-border rounded-xl outline-none transition-all focus:border-bs-accent focus:ring-[3px] focus:ring-bs-accent/10"
+          required
+          disabled={isLoading}
+          autoComplete="tel"
+        />
+
+        {/* Name input */}
+        <input
+          type="text"
+          value={patientName}
+          onChange={(e) => setPatientName(e.target.value)}
+          placeholder={t('checkin.namePlaceholder')}
+          className="w-full h-12 px-4 mt-2 text-[15px] font-medium text-bs-text-primary bg-white border-[1.5px] border-dashed border-bs-border rounded-xl outline-none transition-all focus:border-bs-accent focus:ring-[3px] focus:ring-bs-accent/10"
+          disabled={isLoading}
+          autoComplete="name"
+        />
+
+        {/* Error */}
+        {error && (
+          <div className="flex items-start gap-2 bg-red-50 border border-red-200 text-red-700 px-3 py-2 mt-3 rounded-xl">
+            <span className="material-symbols-rounded text-lg flex-shrink-0">error</span>
+            <span className="text-sm">{error}</span>
+          </div>
+        )}
+
+        {/* Submit button */}
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="w-full h-14 mt-5 bg-bs-accent hover:bg-bs-accent-dark disabled:bg-bs-text-tertiary disabled:cursor-not-allowed text-white font-bold text-[15px] rounded-2xl flex items-center justify-center gap-2.5 transition-all active:scale-[0.97]"
+          style={{ boxShadow: '0 6px 24px rgba(15,123,108,0.25)' }}
+        >
+          {isLoading ? t('common.loading') : t('checkin.joinSaf')}
+          {!isLoading && <span className="material-symbols-rounded text-xl">arrow_forward</span>}
+        </button>
+
+        {/* Trust row */}
+        <div className="flex items-center justify-center gap-4 mt-3.5">
+          <span className="flex items-center gap-1 text-xs text-bs-text-tertiary font-medium">
+            <span className="material-symbols-rounded text-sm">lock</span>
+            {t('checkin.dataProtected')}
+          </span>
+          <div className="w-[3px] h-[3px] rounded-full bg-bs-border" />
+          <span className="flex items-center gap-1 text-xs text-bs-text-tertiary font-medium">
+            <span className="material-symbols-rounded text-sm">update</span>
+            {t('checkin.realTimeTracking')}
+          </span>
+        </div>
+      </form>
+
+      {/* Testimonial */}
+      <div className="mx-5 mt-4 p-3.5 bg-black/[0.02] rounded-lg">
+        <span className="material-symbols-rounded text-xl text-bs-text-tertiary">format_quote</span>
+        <p className="text-[13px] italic text-bs-text-secondary leading-relaxed">
+          {t('checkin.testimonialText')}
+        </p>
+        <p className="text-[11px] text-bs-text-tertiary mt-1.5">
+          {t('checkin.testimonialAuthor')}
+        </p>
+      </div>
+
+      {/* Brand footer */}
+      <div className="flex items-center justify-center gap-1.5 py-4 pb-9">
+        <div className="w-4 h-4 bg-bs-text-tertiary rounded flex items-center justify-center text-white text-[9px] font-extrabold">
+          B
+        </div>
+        <span className="text-xs text-bs-text-tertiary font-medium">BleSaf</span>
       </div>
     </div>
   );

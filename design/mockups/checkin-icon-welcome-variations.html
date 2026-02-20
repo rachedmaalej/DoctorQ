@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>BleSaf — Icon Welcome Variations</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+
+<style>
+  /* ═══════════════════════════════════════════
+     DESIGN TOKENS — Original teal palette
+     ═══════════════════════════════════════════ */
+  :root {
+    --relax-bg: #FAFAF8;
+    --relax-surface: #FFFFFF;
+    --relax-accent: #2B8A7A;
+    --relax-accent-soft: #E6F4F1;
+    --go-accent: #1A7A3A;
+    --go-accent-soft: #D4F5DF;
+    --text-primary: #1A1917;
+    --text-secondary: #6B6960;
+    --text-tertiary: #9E9B90;
+    --border: #E8E6DF;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.06);
+    --radius: 16px;
+    --radius-sm: 12px;
+    --radius-xs: 8px;
+    --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Plus Jakarta Sans', 'IBM Plex Sans Arabic', sans-serif;
+    background: #131311;
+    min-height: 100vh;
+    padding: 20px 16px 40px;
+    color: #fff;
+  }
+
+  /* ═══ SHOWCASE SHELL ═══ */
+  .showcase-container { display: flex; flex-direction: column; align-items: center; }
+
+  .showcase-header { text-align: center; margin-bottom: 24px; }
+  .page-title { font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.4; margin-bottom: 6px; }
+  .page-subtitle { font-size: 13px; color: rgba(255,255,255,0.45); max-width: 520px; margin: 0 auto; line-height: 1.5; }
+
+  .nav-tabs { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-bottom: 14px; }
+  .nav-tab {
+    font-family: inherit; font-size: 11px; font-weight: 600; padding: 6px 14px;
+    border-radius: 100px; border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.4);
+    cursor: pointer; transition: all 0.3s; letter-spacing: 0.02em;
+  }
+  .nav-tab:hover { border-color: rgba(255,255,255,0.2); color: rgba(255,255,255,0.7); }
+  .nav-tab.active { border-color: var(--relax-accent); background: var(--relax-accent); color: #fff; }
+
+  .design-desc {
+    color: rgba(255,255,255,0.55); font-size: 13px; font-weight: 500;
+    text-align: center; max-width: 440px; margin: 0 auto 18px;
+    line-height: 1.5; min-height: 40px; transition: opacity 0.3s;
+  }
+
+  /* Phone frame */
+  .phone-frame {
+    width: 375px; max-width: 100%; height: 812px;
+    border-radius: 44px; overflow: hidden; position: relative;
+    box-shadow: 0 0 0 3px #2a2a28, 0 24px 80px rgba(0,0,0,0.5);
+    margin: 0 auto; background: var(--relax-bg);
+  }
+  .phone-inner { height: 100%; overflow: hidden; position: relative; }
+
+  .design-screen {
+    position: absolute; inset: 0; opacity: 0; pointer-events: none;
+    transition: opacity 0.5s ease; overflow-y: auto;
+    -webkit-overflow-scrolling: touch; background: var(--relax-bg);
+  }
+  .design-screen::-webkit-scrollbar { display: none; }
+  .design-screen.active { opacity: 1; pointer-events: all; }
+
+  .design-label {
+    color: rgba(255,255,255,0.2); font-size: 11px; text-align: center;
+    max-width: 420px; margin: 14px auto 0; line-height: 1.6;
+  }
+
+  /* ═══ SHARED COMPONENTS ═══ */
+  .status-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 28px 6px; font-size: 14px; font-weight: 700; color: var(--text-primary);
+  }
+  .status-bar .right { display: flex; gap: 5px; align-items: center; }
+  .status-bar .right .material-symbols-rounded { font-size: 17px; color: var(--text-primary); }
+
+  .lang-btn {
+    font-family: 'IBM Plex Sans Arabic', sans-serif; font-size: 13px; font-weight: 600;
+    background: rgba(0,0,0,0.04); border: 1px solid var(--border); border-radius: 100px;
+    padding: 5px 14px; cursor: pointer; color: var(--text-primary); transition: all 0.3s;
+  }
+
+  .brand-footer {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 16px 24px 36px; font-size: 12px; color: var(--text-tertiary); font-weight: 500;
+  }
+  .brand-mark {
+    width: 16px; height: 16px; background: var(--text-tertiary); border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 9px; font-weight: 800;
+  }
+
+  .ci-input {
+    width: 100%; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    font-family: inherit; color: var(--text-primary); outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s; background: #fff;
+  }
+  .ci-input:focus { border-color: var(--relax-accent); box-shadow: 0 0 0 3px rgba(43,138,122,0.12); }
+  .ci-input::placeholder { color: var(--text-tertiary); font-weight: 400; }
+
+  .ci-submit {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    width: 100%; height: 56px; background: var(--relax-accent); border: none;
+    border-radius: var(--radius); color: #fff; font-family: inherit;
+    font-size: 15px; font-weight: 700; cursor: pointer;
+    box-shadow: 0 6px 24px rgba(43,138,122,0.25); transition: all 0.15s;
+  }
+  .ci-submit:active { transform: scale(0.97); }
+  .ci-submit .material-symbols-rounded { font-size: 20px; }
+
+  .eyebrow {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--relax-accent);
+  }
+
+  .phone-input { height: 52px; padding: 0 16px; font-size: 17px; font-weight: 600; }
+  .name-input { height: 48px; padding: 0 16px; font-size: 15px; font-weight: 500; border-style: dashed; margin-top: 8px; }
+
+  .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 4px 24px 0; }
+  .sys-label { font-size: 12px; color: var(--text-tertiary); font-weight: 500; }
+
+  /* Doctor avatar */
+  .doctor-avatar {
+    width: 88px; height: 88px; border-radius: 50%; background: var(--relax-accent-soft);
+    border: 2.5px solid var(--relax-accent); display: flex; align-items: center;
+    justify-content: center; margin: 0 auto 12px;
+  }
+  .doctor-avatar .material-symbols-rounded { font-size: 40px; color: var(--relax-accent); }
+  .doctor-name { font-size: 24px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.02em; text-align: center; }
+  .specialty-badge {
+    display: inline-flex; padding: 5px 16px; background: var(--relax-accent-soft);
+    color: var(--relax-accent); border-radius: 100px; font-size: 11px;
+    font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .presence { display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .presence .dot { width: 8px; height: 8px; border-radius: 50%; background: #22C55E; }
+  .presence span { font-size: 13px; font-weight: 600; color: var(--go-accent); }
+
+  /* Hero icon */
+  .hero-icon {
+    width: 80px; height: 80px; border-radius: 50%; background: var(--relax-accent-soft);
+    display: flex; align-items: center; justify-content: center; margin: 0 auto;
+  }
+  .hero-icon .material-symbols-rounded { font-size: 36px; color: var(--relax-accent); }
+
+  /* Social bar */
+  .social-bar {
+    margin: 0 20px; padding: 14px 18px; background: var(--relax-accent-soft);
+    border: 1px solid rgba(43,138,122,0.1); border-radius: var(--radius-sm);
+    display: flex; gap: 0;
+  }
+  .social-item { flex: 1; text-align: center; }
+  .social-number { font-size: 20px; font-weight: 800; color: var(--relax-accent); }
+  .social-label { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+  .social-divider { width: 1px; background: rgba(43,138,122,0.15); margin: 0 12px; }
+
+  /* Trust row */
+  .trust-row {
+    display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 14px;
+  }
+  .trust-item { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--text-tertiary); font-weight: 500; }
+  .trust-item .material-symbols-rounded { font-size: 14px; }
+  .trust-sep { width: 3px; height: 3px; border-radius: 50%; background: var(--border); }
+
+  /* Testimonial */
+  .testimonial {
+    margin: 16px 20px 0; padding: 14px 16px; background: rgba(0,0,0,0.02);
+    border-radius: var(--radius-xs);
+  }
+  .testimonial .material-symbols-rounded { font-size: 20px; color: var(--text-tertiary); margin-bottom: 4px; }
+  .testimonial-text { font-size: 13px; font-style: italic; color: var(--text-secondary); line-height: 1.5; }
+  .testimonial-author { font-size: 11px; color: var(--text-tertiary); margin-top: 6px; }
+
+  .divider { border: none; border-top: 1px dashed var(--border); margin: 16px 24px; }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .anim { animation: fadeUp 0.5s ease-out both; }
+  .d1 { animation-delay: 0.05s; }
+  .d2 { animation-delay: 0.12s; }
+  .d3 { animation-delay: 0.2s; }
+  .d4 { animation-delay: 0.28s; }
+  .d5 { animation-delay: 0.36s; }
+  .d6 { animation-delay: 0.44s; }
+
+  /* ═══════════════════════════════════════════
+     SHARED SECTIONS
+     ═══════════════════════════════════════════ */
+  .scroll { display: flex; flex-direction: column; min-height: 100%; }
+  .doctor-hero { text-align: center; padding: 24px 24px 16px; }
+  .doctor-spec { margin-top: 8px; text-align: center; }
+  .doctor-presence { margin-top: 10px; }
+  .join-section { text-align: center; padding: 16px 24px 12px; }
+  .join-title { font-size: 20px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.02em; }
+  .form-section { padding: 0 24px; flex: 1; }
+
+  /* ═══════════════════════════════════════════
+     B: LIGHTER — remove social bar, testimonial,
+     smaller avatar, tighter spacing
+     ═══════════════════════════════════════════ */
+  #design2 .doctor-avatar {
+    width: 64px; height: 64px; border-width: 2px;
+  }
+  #design2 .doctor-avatar .material-symbols-rounded { font-size: 30px; }
+  #design2 .doctor-name { font-size: 20px; }
+  #design2 .doctor-hero { padding: 16px 24px 12px; }
+  #design2 .hero-icon { width: 64px; height: 64px; }
+  #design2 .hero-icon .material-symbols-rounded { font-size: 30px; }
+  #design2 .join-section { padding: 12px 24px 8px; }
+  #design2 .join-title { font-size: 17px; }
+  #design2 .ci-submit { height: 52px; font-size: 14px; }
+
+  /* ═══════════════════════════════════════════
+     C: INDIGO PALETTE — deep indigo/violet theme
+     ═══════════════════════════════════════════ */
+  #design3 {
+    --v-accent: #5B4DC7;
+    --v-accent-soft: #EDEAFC;
+    --v-accent-glow: rgba(91,77,199,0.25);
+    --v-go: #2D8A4E;
+    --v-go-soft: #D4F5DF;
+  }
+  #design3 .doctor-avatar {
+    background: var(--v-accent-soft); border-color: var(--v-accent);
+  }
+  #design3 .doctor-avatar .material-symbols-rounded { color: var(--v-accent); }
+  #design3 .specialty-badge {
+    background: var(--v-accent-soft); color: var(--v-accent);
+  }
+  #design3 .eyebrow { color: var(--v-accent); }
+  #design3 .hero-icon {
+    background: var(--v-accent-soft);
+  }
+  #design3 .hero-icon .material-symbols-rounded { color: var(--v-accent); }
+  #design3 .social-bar {
+    background: var(--v-accent-soft); border-color: rgba(91,77,199,0.1);
+  }
+  #design3 .social-number { color: var(--v-accent); }
+  #design3 .social-divider { background: rgba(91,77,199,0.15); }
+  #design3 .ci-submit {
+    background: var(--v-accent); box-shadow: 0 6px 24px var(--v-accent-glow);
+  }
+  #design3 .ci-input:focus {
+    border-color: var(--v-accent); box-shadow: 0 0 0 3px rgba(91,77,199,0.12);
+  }
+  #design3 .brand-mark { background: var(--v-accent); }
+  #design3 .join-title { color: var(--v-accent); }
+
+  /* ═══════════════════════════════════════════
+     D: HIERARCHY — bigger doctor, card treatment
+     for join section, stronger visual separation
+     ═══════════════════════════════════════════ */
+  #design4 .doctor-avatar {
+    width: 104px; height: 104px; border-width: 3px;
+    box-shadow: 0 4px 20px rgba(43,138,122,0.15);
+  }
+  #design4 .doctor-avatar .material-symbols-rounded { font-size: 48px; }
+  #design4 .doctor-name { font-size: 28px; }
+  #design4 .doctor-hero { padding: 28px 24px 18px; }
+  #design4 .doctor-spec { margin-top: 10px; }
+  #design4 .doctor-spec .specialty-badge { font-size: 12px; padding: 6px 20px; }
+  #design4 .doctor-presence { margin-top: 12px; }
+
+  /* Join section as a card */
+  #design4 .join-card {
+    margin: 0 20px; padding: 20px 24px;
+    background: var(--relax-accent-soft);
+    border: 1.5px solid rgba(43,138,122,0.15);
+    border-radius: var(--radius); text-align: center;
+  }
+  #design4 .join-card .eyebrow { font-size: 10px; }
+  #design4 .join-card .hero-icon {
+    width: 56px; height: 56px; margin: 8px auto;
+    background: var(--relax-accent);
+  }
+  #design4 .join-card .hero-icon .material-symbols-rounded {
+    font-size: 26px; color: #fff;
+  }
+  #design4 .join-card .join-title {
+    font-size: 18px; color: var(--relax-accent);
+  }
+
+  /* Smaller social bar to create contrast */
+  #design4 .social-bar {
+    padding: 10px 14px; margin: 10px 20px 0;
+  }
+  #design4 .social-number { font-size: 16px; }
+  #design4 .social-label { font-size: 10px; }
+
+  /* Form with header */
+  #design4 .form-header {
+    font-size: 12px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--text-tertiary);
+    margin-bottom: 14px; text-align: center;
+  }
+</style>
+</head>
+
+<body>
+<div class="showcase-container">
+  <div class="showcase-header">
+    <p class="page-title">BleSaf — Icon Welcome Variations</p>
+    <p class="page-subtitle">The chosen layout with 3 variations: lighter content, different palette, and stronger hierarchy</p>
+  </div>
+
+  <div class="nav-tabs" id="navTabs">
+    <button class="nav-tab active" data-design="1" onclick="switchDesign(1)">A. Original</button>
+    <button class="nav-tab" data-design="2" onclick="switchDesign(2)">B. Lighter</button>
+    <button class="nav-tab" data-design="3" onclick="switchDesign(3)">C. Indigo</button>
+    <button class="nav-tab" data-design="4" onclick="switchDesign(4)">D. Hierarchy</button>
+  </div>
+
+  <p class="design-desc" id="designDesc">The original Icon Welcome layout: doctor hero, social proof bar, "Rejoignez le Saf" icon section, form, testimonial.</p>
+
+  <!-- ═══ PHONE FRAME ═══ -->
+  <div class="phone-frame">
+    <div class="phone-inner">
+
+      <!-- ═══════════════════════════════════════
+           A: ORIGINAL
+           ═══════════════════════════════════════ -->
+      <div class="design-screen active" id="design1">
+        <div class="scroll">
+          <div class="status-bar">
+            <span>18:11</span>
+            <div class="right">
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">signal_cellular_alt</span>
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">wifi</span>
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">battery_5_bar</span>
+            </div>
+          </div>
+
+          <div class="top-bar">
+            <div class="sys-label">Saf virtuel</div>
+            <button class="lang-btn">عربي</button>
+          </div>
+
+          <div class="doctor-hero">
+            <div class="doctor-avatar anim d1">
+              <span class="material-symbols-rounded">stethoscope</span>
+            </div>
+            <div class="doctor-name anim d2">Dr. Leila Trabelsi</div>
+            <div class="doctor-spec anim d2">
+              <div class="specialty-badge">Ophtalmologie</div>
+            </div>
+            <div class="doctor-presence anim d3">
+              <div class="presence">
+                <div class="dot"></div>
+                <span>Disponible</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="social-bar anim d3">
+            <div class="social-item">
+              <div class="social-number">12</div>
+              <div class="social-label">patients servis aujourd'hui</div>
+            </div>
+            <div class="social-divider"></div>
+            <div class="social-item">
+              <div class="social-number">~8 min</div>
+              <div class="social-label">consultation moyenne</div>
+            </div>
+          </div>
+
+          <div class="join-section anim d4">
+            <div class="eyebrow">REJOIGNEZ LE SAF</div>
+            <div class="hero-icon" style="margin:10px auto;">
+              <span class="material-symbols-rounded">how_to_reg</span>
+            </div>
+            <div class="join-title">Prenez votre place</div>
+          </div>
+
+          <div class="form-section anim d5">
+            <input type="tel" class="ci-input phone-input" value="+216 " placeholder="+216 XX XXX XXX" inputmode="tel">
+            <input type="text" class="ci-input name-input" placeholder="Votre nom (optionnel)">
+            <button class="ci-submit" style="margin-top:20px;">
+              Rejoindre le Saf
+              <span class="material-symbols-rounded">arrow_forward</span>
+            </button>
+            <div class="trust-row">
+              <div class="trust-item">
+                <span class="material-symbols-rounded">lock</span>
+                Donnees protegees
+              </div>
+              <div class="trust-sep"></div>
+              <div class="trust-item">
+                <span class="material-symbols-rounded">update</span>
+                Suivi en temps reel
+              </div>
+            </div>
+          </div>
+
+          <div class="testimonial anim d6">
+            <span class="material-symbols-rounded">format_quote</span>
+            <div class="testimonial-text">
+              « J'ai pu attendre au cafe au lieu de rester assise 45 minutes dans la salle d'attente. »
+            </div>
+            <div class="testimonial-author">— Patiente, Clinique La Marsa</div>
+          </div>
+
+          <div style="flex:1;min-height:16px;"></div>
+          <div class="brand-footer">
+            <div class="brand-mark">B</div> BleSaf
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════
+           B: LIGHTER
+           No social bar, no testimonial, smaller
+           elements, tighter spacing
+           ═══════════════════════════════════════ -->
+      <div class="design-screen" id="design2">
+        <div class="scroll">
+          <div class="status-bar">
+            <span>18:11</span>
+            <div class="right">
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">signal_cellular_alt</span>
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">wifi</span>
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">battery_5_bar</span>
+            </div>
+          </div>
+
+          <div class="top-bar">
+            <div class="sys-label">Saf virtuel</div>
+            <button class="lang-btn">عربي</button>
+          </div>
+
+          <div class="doctor-hero">
+            <div class="doctor-avatar anim d1">
+              <span class="material-symbols-rounded">stethoscope</span>
+            </div>
+            <div class="doctor-name anim d2">Dr. Leila Trabelsi</div>
+            <div class="doctor-spec anim d2">
+              <div class="specialty-badge">Ophtalmologie</div>
+            </div>
+            <div class="doctor-presence anim d3">
+              <div class="presence">
+                <div class="dot"></div>
+                <span>Disponible</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- No social bar -->
+
+          <div class="join-section anim d3">
+            <div class="eyebrow">REJOIGNEZ LE SAF</div>
+            <div class="hero-icon" style="margin:8px auto;">
+              <span class="material-symbols-rounded">how_to_reg</span>
+            </div>
+            <div class="join-title">Prenez votre place</div>
+          </div>
+
+          <div class="form-section anim d4">
+            <input type="tel" class="ci-input phone-input" value="+216 " placeholder="+216 XX XXX XXX" inputmode="tel">
+            <input type="text" class="ci-input name-input" placeholder="Votre nom (optionnel)">
+            <button class="ci-submit" style="margin-top:16px;">
+              Rejoindre le Saf
+              <span class="material-symbols-rounded">arrow_forward</span>
+            </button>
+            <div class="trust-row">
+              <div class="trust-item">
+                <span class="material-symbols-rounded">lock</span>
+                Donnees protegees
+              </div>
+              <div class="trust-sep"></div>
+              <div class="trust-item">
+                <span class="material-symbols-rounded">update</span>
+                Suivi en temps reel
+              </div>
+            </div>
+          </div>
+
+          <!-- No testimonial -->
+
+          <div style="flex:1;min-height:16px;"></div>
+          <div class="brand-footer">
+            <div class="brand-mark">B</div> BleSaf
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════
+           C: INDIGO PALETTE
+           Same layout as Original, indigo/violet
+           color scheme throughout
+           ═══════════════════════════════════════ -->
+      <div class="design-screen" id="design3">
+        <div class="scroll">
+          <div class="status-bar">
+            <span>18:11</span>
+            <div class="right">
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">signal_cellular_alt</span>
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">wifi</span>
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">battery_5_bar</span>
+            </div>
+          </div>
+
+          <div class="top-bar">
+            <div class="sys-label">Saf virtuel</div>
+            <button class="lang-btn">عربي</button>
+          </div>
+
+          <div class="doctor-hero">
+            <div class="doctor-avatar anim d1">
+              <span class="material-symbols-rounded">stethoscope</span>
+            </div>
+            <div class="doctor-name anim d2">Dr. Leila Trabelsi</div>
+            <div class="doctor-spec anim d2">
+              <div class="specialty-badge">Ophtalmologie</div>
+            </div>
+            <div class="doctor-presence anim d3">
+              <div class="presence">
+                <div class="dot"></div>
+                <span>Disponible</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="social-bar anim d3">
+            <div class="social-item">
+              <div class="social-number">12</div>
+              <div class="social-label">patients servis aujourd'hui</div>
+            </div>
+            <div class="social-divider"></div>
+            <div class="social-item">
+              <div class="social-number">~8 min</div>
+              <div class="social-label">consultation moyenne</div>
+            </div>
+          </div>
+
+          <div class="join-section anim d4">
+            <div class="eyebrow">REJOIGNEZ LE SAF</div>
+            <div class="hero-icon" style="margin:10px auto;">
+              <span class="material-symbols-rounded">how_to_reg</span>
+            </div>
+            <div class="join-title">Prenez votre place</div>
+          </div>
+
+          <div class="form-section anim d5">
+            <input type="tel" class="ci-input phone-input" value="+216 " placeholder="+216 XX XXX XXX" inputmode="tel">
+            <input type="text" class="ci-input name-input" placeholder="Votre nom (optionnel)">
+            <button class="ci-submit" style="margin-top:20px;">
+              Rejoindre le Saf
+              <span class="material-symbols-rounded">arrow_forward</span>
+            </button>
+            <div class="trust-row">
+              <div class="trust-item">
+                <span class="material-symbols-rounded">lock</span>
+                Donnees protegees
+              </div>
+              <div class="trust-sep"></div>
+              <div class="trust-item">
+                <span class="material-symbols-rounded">update</span>
+                Suivi en temps reel
+              </div>
+            </div>
+          </div>
+
+          <div class="testimonial anim d6">
+            <span class="material-symbols-rounded">format_quote</span>
+            <div class="testimonial-text">
+              « J'ai pu attendre au cafe au lieu de rester assise 45 minutes dans la salle d'attente. »
+            </div>
+            <div class="testimonial-author">— Patiente, Clinique La Marsa</div>
+          </div>
+
+          <div style="flex:1;min-height:16px;"></div>
+          <div class="brand-footer">
+            <div class="brand-mark">B</div> BleSaf
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════
+           D: HIERARCHY
+           Bigger doctor, join section in a card,
+           smaller social bar, form header label
+           ═══════════════════════════════════════ -->
+      <div class="design-screen" id="design4">
+        <div class="scroll">
+          <div class="status-bar">
+            <span>18:11</span>
+            <div class="right">
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">signal_cellular_alt</span>
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">wifi</span>
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">battery_5_bar</span>
+            </div>
+          </div>
+
+          <div class="top-bar">
+            <div class="sys-label">Saf virtuel</div>
+            <button class="lang-btn">عربي</button>
+          </div>
+
+          <!-- Oversized doctor hero -->
+          <div class="doctor-hero">
+            <div class="doctor-avatar anim d1">
+              <span class="material-symbols-rounded">stethoscope</span>
+            </div>
+            <div class="doctor-name anim d2">Dr. Leila Trabelsi</div>
+            <div class="doctor-spec anim d2">
+              <div class="specialty-badge">Ophtalmologie</div>
+            </div>
+            <div class="doctor-presence anim d3">
+              <div class="presence">
+                <div class="dot"></div>
+                <span>Disponible</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Smaller social bar (secondary) -->
+          <div class="social-bar anim d3">
+            <div class="social-item">
+              <div class="social-number">12</div>
+              <div class="social-label">patients servis aujourd'hui</div>
+            </div>
+            <div class="social-divider"></div>
+            <div class="social-item">
+              <div class="social-number">~8 min</div>
+              <div class="social-label">consultation moyenne</div>
+            </div>
+          </div>
+
+          <!-- Join section as elevated card -->
+          <div class="join-card anim d4" style="margin-top:16px;">
+            <div class="eyebrow">REJOIGNEZ LE SAF</div>
+            <div class="hero-icon">
+              <span class="material-symbols-rounded">how_to_reg</span>
+            </div>
+            <div class="join-title">Prenez votre place</div>
+          </div>
+
+          <hr class="divider">
+
+          <div class="form-section anim d5">
+            <div class="form-header">Vos informations</div>
+            <input type="tel" class="ci-input phone-input" value="+216 " placeholder="+216 XX XXX XXX" inputmode="tel">
+            <input type="text" class="ci-input name-input" placeholder="Votre nom (optionnel)">
+            <button class="ci-submit" style="margin-top:20px;">
+              Rejoindre le Saf
+              <span class="material-symbols-rounded">arrow_forward</span>
+            </button>
+            <div class="trust-row">
+              <div class="trust-item">
+                <span class="material-symbols-rounded">lock</span>
+                Donnees protegees
+              </div>
+              <div class="trust-sep"></div>
+              <div class="trust-item">
+                <span class="material-symbols-rounded">update</span>
+                Suivi en temps reel
+              </div>
+            </div>
+          </div>
+
+          <div class="testimonial anim d6">
+            <span class="material-symbols-rounded">format_quote</span>
+            <div class="testimonial-text">
+              « J'ai pu attendre au cafe au lieu de rester assise 45 minutes dans la salle d'attente. »
+            </div>
+            <div class="testimonial-author">— Patiente, Clinique La Marsa</div>
+          </div>
+
+          <div style="flex:1;min-height:16px;"></div>
+          <div class="brand-footer">
+            <div class="brand-mark">B</div> BleSaf
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <p class="design-label" id="designLabel">
+    The original layout: doctor avatar centered → social proof → "Rejoignez le Saf" icon → form → testimonial. Full content, balanced hierarchy.
+  </p>
+</div>
+
+<script>
+  const descriptions = {
+    1: "The original Icon Welcome layout: doctor hero, social proof bar, \"Rejoignez le Saf\" icon section, form, testimonial.",
+    2: "Lighter version: no social proof bar, no testimonial. Smaller avatar and icon. Tighter spacing. Just doctor → icon → form.",
+    3: "Same layout, indigo/violet palette. Deep purple replaces teal across avatar, badges, buttons, and accents.",
+    4: "Stronger hierarchy: oversized doctor avatar (104px), join section elevated as a teal card with inverted icon, smaller social bar, form section with header label."
+  };
+
+  const labels = {
+    1: "The original layout: doctor avatar centered → social proof → \"Rejoignez le Saf\" icon → form → testimonial. Full content, balanced hierarchy.",
+    2: "Stripped to essentials: doctor identity + join icon + form. No social proof or testimonial. Faster to scan, less to read. Best for returning patients or younger users.",
+    3: "Indigo/violet palette: same information architecture, completely different mood. Feels more premium and distinctive. Tests whether the teal is essential to brand recognition.",
+    4: "Amplified hierarchy: the doctor avatar dominates (104px with shadow), the join section is elevated as a teal card with white icon, the social bar shrinks. Clear visual order: WHO → WHAT → HOW."
+  };
+
+  let currentDesign = 1;
+
+  function switchDesign(n) {
+    if (n === currentDesign) return;
+
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+      tab.classList.toggle('active', parseInt(tab.dataset.design) === n);
+    });
+    document.querySelectorAll('.design-screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('design' + n).classList.add('active');
+
+    document.getElementById('designDesc').textContent = descriptions[n];
+    document.getElementById('designLabel').innerHTML = labels[n];
+
+    currentDesign = n;
+  }
+</script>
+
+</body>
+</html>

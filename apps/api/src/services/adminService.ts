@@ -1919,9 +1919,10 @@ export async function getClinicDetailEnriched(clinicId: string): Promise<ClinicD
     peakHourToday = `${String(maxH).padStart(2, '0')}:00–${String(Math.min(endH, maxH + 2)).padStart(2, '0')}:00`;
   }
 
-  const dayOfWeek = now.getDay();
+  const localNowForDay = new Date(now.getTime() + getTimezoneOffsetMinutes() * 60000);
+  const dayOfWeek = localNowForDay.getUTCDay();
   const dayName = FULL_DAY_NAMES[dayOfWeek];
-  const dayLabel = `${dayName} ${formatDateDDMM(now)}`;
+  const dayLabel = `${dayName} ${formatDateDDMM(localNowForDay)}`;
 
   // ── 8. Typical Activity (last 4 same weekdays) ──────────
   // Get DailyStat entries for same weekday
@@ -1963,7 +1964,10 @@ export async function getClinicDetailEnriched(clinicId: string): Promise<ClinicD
 
   // ── 9. Weekly Chart Data ────────────────────────────────
   // This week = Mon to Sun of current week
-  const todayDow = now.getDay(); // 0=Sun
+  // Use timezone-aware day-of-week to avoid UTC boundary issues
+  const tzOffsetMs = getTimezoneOffsetMinutes() * 60000;
+  const localNow = new Date(now.getTime() + tzOffsetMs);
+  const todayDow = localNow.getUTCDay(); // 0=Sun, correct for brand timezone
   const mondayOffset = todayDow === 0 ? -6 : 1 - todayDow;
   const thisMonday = new Date(startOfToday);
   thisMonday.setDate(thisMonday.getDate() + mondayOffset);
@@ -1981,8 +1985,8 @@ export async function getClinicDetailEnriched(clinicId: string): Promise<ClinicD
     statsMap.set(s.date.toISOString().split('T')[0], s.totalPatients);
   }
 
-  // Today's count from live entries
-  const todayDateKey = new Date(startOfToday.getTime() + getTimezoneOffsetMinutes() * 60000)
+  // Today's date key — apply timezone offset so date string matches local calendar day
+  const todayDateKey = new Date(startOfToday.getTime() + tzOffsetMs)
     .toISOString().split('T')[0];
 
   const weekDays: ClinicDetailEnrichedResponse['weeklyChartData']['days'] = [];
@@ -1998,8 +2002,9 @@ export async function getClinicDetailEnriched(clinicId: string): Promise<ClinicD
     const lastWeekDate = new Date(lastMonday);
     lastWeekDate.setDate(lastWeekDate.getDate() + i);
 
-    const twKey = thisWeekDate.toISOString().split('T')[0];
-    const lwKey = lastWeekDate.toISOString().split('T')[0];
+    // Apply timezone offset so date keys match local calendar (and DailyStat noon-UTC keys)
+    const twKey = new Date(thisWeekDate.getTime() + tzOffsetMs).toISOString().split('T')[0];
+    const lwKey = new Date(lastWeekDate.getTime() + tzOffsetMs).toISOString().split('T')[0];
 
     const isToday = twKey === todayDateKey;
     const thisWeekCount = isToday ? todayEntries.length : (statsMap.get(twKey) || 0);
@@ -2056,17 +2061,19 @@ export async function getClinicDetailEnriched(clinicId: string): Promise<ClinicD
   for (let i = 29; i >= 0; i--) {
     const d = new Date(startOfToday);
     d.setDate(d.getDate() - i);
-    const key = d.toISOString().split('T')[0];
+    // Apply timezone offset for correct local date key and day-of-week
+    const dLocal = new Date(d.getTime() + tzOffsetMs);
+    const key = dLocal.toISOString().split('T')[0];
     const count = i === 0 ? todayEntries.length : (monthlyStatsMap.get(key) || 0);
 
-    monthlyDays.push({ date: formatDateDDMM(d), count });
+    monthlyDays.push({ date: formatDateDDMM(dLocal), count });
 
     if (count > 0) activeDays++;
     else zeroDays++;
 
     if (count > peakDayCount) {
       peakDayCount = count;
-      peakDayLabel = `${count} patients (${DAY_LABELS_FR[d.getDay()].replace('.', '')} ${formatDateDDMM(d)})`;
+      peakDayLabel = `${count} patients (${DAY_LABELS_FR[dLocal.getUTCDay()].replace('.', '')} ${formatDateDDMM(dLocal)})`;
     }
   }
 

@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BleSaf — Logo Vote</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: #f0f2f5;
+      color: #1a1a2e;
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    .hero {
+      background: linear-gradient(135deg, #0f4c5c 0%, #1a936f 100%);
+      color: white;
+      text-align: center;
+      padding: 3rem 1.5rem 2.5rem;
+    }
+    .hero h1 {
+      font-size: 2.4rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 0.5rem;
+    }
+    .hero p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      max-width: 520px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+    .hero .subtitle {
+      display: inline-block;
+      background: rgba(255,255,255,0.15);
+      border-radius: 999px;
+      padding: 0.35rem 1rem;
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    /* ── Instructions ── */
+    .instructions {
+      max-width: 640px;
+      margin: -1.5rem auto 2rem;
+      background: white;
+      border-radius: 16px;
+      padding: 1.5rem 2rem;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      text-align: center;
+      font-size: 0.95rem;
+      line-height: 1.7;
+      color: #444;
+    }
+    .instructions strong { color: #0f4c5c; }
+
+    /* ── Grid ── */
+    .grid {
+      max-width: 1100px;
+      margin: 0 auto 3rem;
+      padding: 0 1.5rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 2rem;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: white;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      position: relative;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    }
+
+    .card .badge {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      background: #0f4c5c;
+      color: white;
+      font-weight: 700;
+      font-size: 0.8rem;
+      padding: 0.3rem 0.75rem;
+      border-radius: 999px;
+      z-index: 2;
+    }
+
+    .card .img-wrap {
+      background: #fafafa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      min-height: 300px;
+    }
+    .card .img-wrap img {
+      max-width: 100%;
+      max-height: 280px;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+
+    .card .info {
+      padding: 1.25rem 1.5rem 1.5rem;
+      border-top: 1px solid #f0f0f0;
+    }
+    .card .info h2 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+      color: #0f4c5c;
+    }
+    .card .info .concept {
+      font-size: 0.85rem;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.5rem;
+    }
+    .card .info p {
+      font-size: 0.92rem;
+      line-height: 1.6;
+      color: #555;
+    }
+
+    /* ── Variant sub-group ── */
+    .variant-group {
+      grid-column: 1 / -1;
+    }
+    .variant-group h3 {
+      font-size: 1rem;
+      color: #0f4c5c;
+      margin-bottom: 1rem;
+      padding-left: 0.25rem;
+      font-weight: 600;
+    }
+    .variant-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 2rem;
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 2rem 1rem 3rem;
+      font-size: 0.85rem;
+      color: #999;
+    }
+    footer a { color: #1a936f; text-decoration: none; }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 1.8rem; }
+      .grid { grid-template-columns: 1fr; padding: 0 1rem; }
+      .variant-row { grid-template-columns: 1fr; }
+      .card .img-wrap { min-height: 220px; padding: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="hero">
+    <div class="subtitle">Logo Selection</div>
+    <h1>BleSaf</h1>
+    <p>Aide-nous a choisir le logo qui representera le mieux notre app de gestion de file d'attente pour cliniques.</p>
+  </div>
+
+  <div class="instructions">
+    <strong>Comment voter ?</strong> Regarde chaque proposition ci-dessous, puis envoie-moi le <strong>numero</strong> de ton logo prefere (ex: "Logo 4.2") avec un petit commentaire si tu veux !
+  </div>
+
+  <div class="grid">
+
+    <!-- Logo 1 -->
+    <div class="card">
+      <span class="badge">1</span>
+      <div class="img-wrap">
+        <img src="Logo1 - The Freedom Path.png" alt="Logo 1 — The Freedom Path">
+      </div>
+      <div class="info">
+        <div class="concept">The Freedom Path</div>
+        <h2>Logo 1</h2>
+        <p>Un personnage en mouvement, telephone en main, qui quitte une file d'attente en pointilles. Symbolise la liberation du patient grace au digital.</p>
+      </div>
+    </div>
+
+    <!-- Logo 2 -->
+    <div class="card">
+      <span class="badge">2</span>
+      <div class="img-wrap">
+        <img src="Logo 2 — The Smart Queue.png" alt="Logo 2 — The Smart Queue">
+      </div>
+      <div class="info">
+        <div class="concept">The Smart Queue</div>
+        <h2>Logo 2</h2>
+        <p>Des cercles organiques formant une file intelligente avec ondes de notification. Un style doux et humain, avec le nom "BleSaf" integre.</p>
+      </div>
+    </div>
+
+    <!-- Logo 3 -->
+    <div class="card">
+      <span class="badge">3</span>
+      <div class="img-wrap">
+        <img src="Logo 3 — The Notification Moment.png" alt="Logo 3 — The Notification Moment">
+      </div>
+      <div class="info">
+        <div class="concept">The Notification Moment</div>
+        <h2>Logo 3</h2>
+        <p>Un check stylise au-dessus de lignes de file d'attente, avec un point de notification. Minimaliste et moderne, evoque "c'est votre tour".</p>
+      </div>
+    </div>
+
+    <!-- Logo 4 variants -->
+    <div class="variant-group">
+      <h3>Logo 4 — The Open Door (3 variantes)</h3>
+      <div class="variant-row">
+
+        <div class="card">
+          <span class="badge">4.1</span>
+          <div class="img-wrap">
+            <img src="Logo 4.1 — The Open Door.png" alt="Logo 4.1 — The Open Door">
+          </div>
+          <div class="info">
+            <div class="concept">The Open Door — Variante A</div>
+            <h2>Logo 4.1</h2>
+            <p>Une porte ouverte architecturale avec une fleche "play". Style 3D premium avec effet de profondeur. Versions claire et sombre.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <span class="badge">4.2</span>
+          <div class="img-wrap">
+            <img src="Logo 4.2 — The Open Door.png" alt="Logo 4.2 — The Open Door">
+          </div>
+          <div class="info">
+            <div class="concept">The Open Door — Variante B</div>
+            <h2>Logo 4.2</h2>
+            <p>Version flat design de la porte ouverte avec fleche directionnelle. Presentee en mode sombre (neon) et mode clair. Tres clean et tech.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <span class="badge">4.3</span>
+          <div class="img-wrap">
+            <img src="Logo 4.3 — The Open Door.png" alt="Logo 4.3 — The Open Door">
+          </div>
+          <div class="info">
+            <div class="concept">The Open Door — Variante C</div>
+            <h2>Logo 4.3</h2>
+            <p>La version la plus epuree : porte ouverte avec fleche verte sur fond blanc. Simple, direct, facilement reconnaissable en petit format.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Logo 5 -->
+    <div class="card">
+      <span class="badge">5</span>
+      <div class="img-wrap">
+        <img src="Logo 5 — The Progress Pulse.png" alt="Logo 5 — The Progress Pulse">
+      </div>
+      <div class="info">
+        <div class="concept">The Progress Pulse</div>
+        <h2>Logo 5</h2>
+        <p>Un smartphone avec une onde de progression (type rythme cardiaque) qui traverse l'ecran. Evoque le suivi en temps reel et le domaine medical.</p>
+      </div>
+    </div>
+
+    <!-- Logo 6 -->
+    <div class="card">
+      <span class="badge">6</span>
+      <div class="img-wrap">
+        <img src="Logo 6.png" alt="Logo 6">
+      </div>
+      <div class="info">
+        <h2>Logo 6</h2>
+      </div>
+    </div>
+
+    <!-- Logo 7 -->
+    <div class="card">
+      <span class="badge">7</span>
+      <div class="img-wrap">
+        <img src="Logo 7.png" alt="Logo 7">
+      </div>
+      <div class="info">
+        <h2>Logo 7</h2>
+      </div>
+    </div>
+
+    <!-- Logo 8 -->
+    <div class="card">
+      <span class="badge">8</span>
+      <div class="img-wrap">
+        <img src="Logo 8.png" alt="Logo 8">
+      </div>
+      <div class="info">
+        <h2>Logo 8</h2>
+      </div>
+    </div>
+
+    <!-- Logo 9 -->
+    <div class="card">
+      <span class="badge">9</span>
+      <div class="img-wrap">
+        <img src="Logo 9.png" alt="Logo 9">
+      </div>
+      <div class="info">
+        <h2>Logo 9</h2>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    BleSaf &mdash; Gestion intelligente de file d'attente pour cliniques &middot; <a href="https://blesaf.tn">blesaf.tn</a>
+  </footer>
+
+</body>
+</html>

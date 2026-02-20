@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>BleSaf — Check-In Page Redesign v2: Brand-First Alternatives</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Reem+Kufi:wght@400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+
+<style>
+  /* ═══════════════════════════════════════════
+     DESIGN TOKENS (from patient-status.css)
+     ═══════════════════════════════════════════ */
+  :root {
+    --relax-bg: #FAFAF8;
+    --relax-surface: #FFFFFF;
+    --relax-accent: #2B8A7A;
+    --relax-accent-soft: #E6F4F1;
+    --relax-ring: #2B8A7A;
+    --relax-ring-track: #E8E6E0;
+
+    --ready-accent: #C47F17;
+    --ready-accent-soft: #FEF3DC;
+
+    --go-accent: #1A7A3A;
+    --go-accent-soft: #D4F5DF;
+    --go-ring: #22C55E;
+
+    --text-primary: #1A1917;
+    --text-secondary: #6B6960;
+    --text-tertiary: #9E9B90;
+    --border: #E8E6DF;
+    --red: #D94F3B;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.06);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.10);
+    --radius: 16px;
+    --radius-sm: 12px;
+    --radius-xs: 8px;
+    --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Plus Jakarta Sans', 'IBM Plex Sans Arabic', sans-serif;
+    background: #131311;
+    min-height: 100vh;
+    padding: 20px 16px 40px;
+    color: #fff;
+  }
+
+  /* ═══ SHOWCASE SHELL ═══ */
+  .showcase-container { display: flex; flex-direction: column; align-items: center; }
+
+  .showcase-header { text-align: center; margin-bottom: 24px; }
+  .page-title { font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.4; margin-bottom: 6px; }
+  .page-subtitle { font-size: 13px; color: rgba(255,255,255,0.45); max-width: 520px; margin: 0 auto; line-height: 1.5; }
+
+  .nav-tabs { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-bottom: 14px; }
+  .nav-tab {
+    font-family: inherit; font-size: 11px; font-weight: 600; padding: 6px 14px;
+    border-radius: 100px; border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.4);
+    cursor: pointer; transition: all 0.3s; letter-spacing: 0.02em;
+  }
+  .nav-tab:hover { border-color: rgba(255,255,255,0.2); color: rgba(255,255,255,0.7); }
+  .nav-tab.active { border-color: var(--relax-accent); background: var(--relax-accent); color: #fff; }
+
+  .design-desc {
+    color: rgba(255,255,255,0.55); font-size: 13px; font-weight: 500;
+    text-align: center; max-width: 400px; margin: 0 auto 18px;
+    line-height: 1.5; min-height: 40px; transition: opacity 0.3s;
+  }
+
+  /* Phone frame */
+  .phone-frame {
+    width: 375px; max-width: 100%; height: 812px;
+    border-radius: 44px; overflow: hidden; position: relative;
+    box-shadow: 0 0 0 3px #2a2a28, 0 24px 80px rgba(0,0,0,0.5);
+    margin: 0 auto; background: var(--relax-bg);
+  }
+  .phone-inner { height: 100%; overflow: hidden; position: relative; }
+
+  .design-screen {
+    position: absolute; inset: 0; opacity: 0; pointer-events: none;
+    transition: opacity 0.5s ease; overflow-y: auto;
+    -webkit-overflow-scrolling: touch; background: var(--relax-bg);
+  }
+  .design-screen::-webkit-scrollbar { display: none; }
+  .design-screen.active { opacity: 1; pointer-events: all; }
+
+  .design-label {
+    color: rgba(255,255,255,0.2); font-size: 11px; text-align: center;
+    max-width: 380px; margin: 14px auto 0; line-height: 1.6;
+  }
+
+  /* ═══ SHARED COMPONENTS ═══ */
+  .status-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 28px 6px; font-size: 14px; font-weight: 700; color: var(--text-primary);
+  }
+  .status-bar .right { display: flex; gap: 5px; align-items: center; }
+  .status-bar .right .material-symbols-rounded { font-size: 17px; color: var(--text-primary); }
+
+  .clinic-header {
+    display: flex; justify-content: space-between; align-items: flex-start; padding: 4px 24px 0;
+  }
+  .clinic-name { font-size: 15px; font-weight: 700; color: var(--text-primary); }
+  .clinic-doc { font-size: 12px; color: var(--text-tertiary); margin-top: 1px; }
+  .header-right { display: flex; align-items: center; gap: 8px; }
+  .doctor-dot { width: 8px; height: 8px; border-radius: 50%; background: #22C55E; flex-shrink: 0; }
+  .lang-btn {
+    font-family: 'IBM Plex Sans Arabic', sans-serif; font-size: 13px; font-weight: 600;
+    background: rgba(0,0,0,0.04); border: 1px solid var(--border); border-radius: 100px;
+    padding: 5px 14px; cursor: pointer; color: var(--text-primary); transition: all 0.3s;
+  }
+  .lang-btn:active { background: rgba(0,0,0,0.08); }
+
+  .brand-footer {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 16px 24px 36px; font-size: 12px; color: var(--text-tertiary); font-weight: 500;
+  }
+  .brand-mark {
+    width: 16px; height: 16px; background: var(--text-tertiary); border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 9px; font-weight: 800;
+  }
+
+  .ci-input {
+    width: 100%; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    font-family: inherit; color: var(--text-primary); outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s; background: #fff;
+  }
+  .ci-input:focus { border-color: var(--relax-accent); box-shadow: 0 0 0 3px rgba(43,138,122,0.12); }
+  .ci-input::placeholder { color: var(--text-tertiary); font-weight: 400; }
+
+  .ci-submit {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    width: 100%; height: 56px; background: var(--relax-accent); border: none;
+    border-radius: var(--radius); color: #fff; font-family: inherit;
+    font-size: 17px; font-weight: 700; cursor: pointer;
+    box-shadow: 0 6px 24px rgba(43,138,122,0.25); transition: all 0.15s;
+  }
+  .ci-submit:active { transform: scale(0.97); }
+  .ci-submit .material-symbols-rounded { font-size: 22px; }
+
+  .trust-line {
+    display: flex; align-items: center; justify-content: center; gap: 4px;
+    font-size: 12px; color: var(--text-tertiary); font-weight: 500;
+  }
+  .trust-line .material-symbols-rounded { font-size: 14px; }
+
+  .eyebrow {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--relax-accent);
+  }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .anim { animation: fadeUp 0.5s ease-out both; }
+  .d1 { animation-delay: 0.05s; }
+  .d2 { animation-delay: 0.12s; }
+  .d3 { animation-delay: 0.2s; }
+  .d4 { animation-delay: 0.28s; }
+  .d5 { animation-delay: 0.36s; }
+  .d6 { animation-delay: 0.44s; }
+  .d7 { animation-delay: 0.52s; }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(4px); }
+  }
+
+  /* ═══════════════════════════════════════════
+     DESIGN A: Le Parcours (Story Scroll)
+     ═══════════════════════════════════════════ */
+  .da-scroll { display: flex; flex-direction: column; }
+
+  .da-hero { text-align: center; padding: 24px 24px 20px; }
+  .da-wordmark { margin-bottom: 16px; }
+  .da-wordmark .ble { font-family: 'Reem Kufi', serif; font-size: 22px; font-weight: 700; color: var(--relax-accent); }
+  .da-wordmark .saf { font-family: 'Bebas Neue', sans-serif; font-size: 26px; color: var(--relax-accent); letter-spacing: 0.08em; }
+
+  .da-headline { font-size: 21px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.02em; line-height: 1.2; }
+  .da-doctor-line { font-size: 15px; font-weight: 600; color: var(--relax-accent); margin-top: 4px; }
+
+  .da-sep { width: 40px; height: 2px; background: var(--relax-accent); margin: 16px auto; border-radius: 1px; }
+
+  .da-context { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 14px; font-weight: 600; color: var(--text-secondary); }
+  .da-context .material-symbols-rounded { font-size: 18px; color: var(--text-tertiary); }
+
+  /* How it works */
+  .da-hiw { padding: 20px 24px; }
+  .da-hiw-title { margin-bottom: 16px; }
+
+  .da-step {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 14px 0; border-bottom: 1px solid var(--border);
+  }
+  .da-step:last-child { border-bottom: none; }
+
+  .da-step-icon {
+    width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .da-step-icon.teal { background: var(--relax-accent-soft); }
+  .da-step-icon.teal .material-symbols-rounded { color: var(--relax-accent); font-size: 20px; }
+  .da-step-icon.green { background: var(--go-accent-soft); }
+  .da-step-icon.green .material-symbols-rounded { color: var(--go-accent); font-size: 20px; font-variation-settings: 'FILL' 1; }
+
+  .da-step-title { font-size: 14px; font-weight: 700; color: var(--text-primary); }
+  .da-step-sub { font-size: 12px; color: var(--text-tertiary); margin-top: 2px; }
+  .da-step-done { font-size: 12px; color: var(--go-accent); font-weight: 600; margin-top: 2px; display: flex; align-items: center; gap: 4px; }
+  .da-step-done .material-symbols-rounded { font-size: 14px; font-variation-settings: 'FILL' 1; }
+
+  /* Benefits bar */
+  .da-benefits {
+    display: flex; gap: 0; margin: 0 20px;
+    background: var(--relax-accent-soft); border: 1px solid rgba(43,138,122,0.1);
+    border-radius: var(--radius-sm); overflow: hidden;
+  }
+  .da-benefit-item {
+    flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 14px 12px; font-size: 13px; font-weight: 600; color: var(--relax-accent);
+  }
+  .da-benefit-item .material-symbols-rounded { font-size: 18px; }
+  .da-benefit-divider { width: 1px; background: rgba(43,138,122,0.15); }
+
+  /* Form */
+  .da-form { padding: 24px; }
+  .da-form-eyebrow { margin-bottom: 16px; }
+
+  .da-field-label {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 14px; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px;
+  }
+  .da-field-label .material-symbols-rounded { font-size: 18px; color: var(--text-tertiary); }
+
+  .da-phone { height: 52px; padding: 0 16px; font-size: 17px; font-weight: 600; letter-spacing: 0.02em; }
+
+  .da-name-toggle {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 13px; font-weight: 600; color: var(--relax-accent);
+    cursor: pointer; margin-top: 8px; background: none; border: none; font-family: inherit; padding: 4px 0;
+  }
+  .da-name-toggle .material-symbols-rounded { font-size: 16px; }
+
+  .da-name-field { max-height: 0; opacity: 0; overflow: hidden; transition: max-height 0.3s var(--ease-spring), opacity 0.2s; }
+  .da-name-field.open { max-height: 60px; opacity: 1; margin-top: 8px; }
+  .da-name-input { height: 48px; padding: 0 16px; font-size: 15px; font-weight: 500; border-style: dashed; }
+
+  /* ═══════════════════════════════════════════
+     DESIGN B: Votre Écran (Live Preview)
+     ═══════════════════════════════════════════ */
+  .db-scroll { display: flex; flex-direction: column; min-height: 100%; }
+
+  .db-preview-label { text-align: center; padding: 12px 24px 0; }
+  .db-preview-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--relax-accent); }
+  .db-preview-sub { font-size: 13px; font-weight: 500; color: var(--text-secondary); margin-top: 2px; }
+
+  .db-preview-card {
+    margin: 12px 20px 0; border-radius: var(--radius); border: 1.5px solid var(--border);
+    box-shadow: var(--shadow-md); background: #fff; overflow: hidden; position: relative;
+  }
+  .db-preview-inner { padding: 16px; }
+
+  .db-mini-header { display: flex; align-items: center; gap: 6px; margin-bottom: 14px; }
+  .db-mini-name { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+  .db-mini-dot { width: 6px; height: 6px; border-radius: 50%; background: #22C55E; }
+
+  .db-mini-hero { text-align: center; margin-bottom: 8px; }
+  .db-mini-eyebrow { font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--relax-accent); margin-bottom: 4px; }
+  .db-mini-time { font-size: 40px; font-weight: 800; letter-spacing: -0.04em; color: var(--text-primary); line-height: 1; }
+  .db-mini-time .unit { font-size: 22px; font-weight: 600; }
+  .db-mini-sub { font-size: 12px; color: var(--text-secondary); margin-top: 4px; font-weight: 500; }
+
+  /* Mini ring */
+  .db-mini-ring { width: 120px; height: 120px; margin: 12px auto; position: relative; }
+  .db-mini-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .db-mini-ring .track { fill: none; stroke: var(--relax-ring-track); stroke-width: 6; }
+  .db-mini-ring .progress { fill: none; stroke: var(--relax-ring); stroke-width: 6; stroke-linecap: round; }
+  .db-ring-center {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+  .db-ring-number { font-size: 28px; font-weight: 800; letter-spacing: -0.04em; color: var(--relax-accent); }
+  .db-ring-label { font-size: 9px; font-weight: 600; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+
+  /* Mini context tip */
+  .db-mini-tip {
+    display: flex; align-items: center; gap: 8px; padding: 10px 12px;
+    border-radius: 8px; background: #FEF7E6; font-size: 12px; font-weight: 600; color: #92690B;
+    margin-top: 10px;
+  }
+  .db-mini-tip .material-symbols-rounded { font-size: 16px; color: #D4920B; }
+
+  /* Notification toast in preview */
+  .db-mini-toast {
+    display: flex; align-items: center; gap: 8px; padding: 10px 14px;
+    background: var(--text-primary); border-radius: 10px; margin-top: 10px;
+    font-size: 11px; font-weight: 600; color: #fff;
+  }
+  .db-mini-toast .material-symbols-rounded { font-size: 16px; color: var(--go-ring); font-variation-settings: 'FILL' 1; }
+
+  /* Frosted overlay */
+  .db-preview-frost {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 50px;
+    background: linear-gradient(transparent, rgba(255,255,255,0.9));
+    display: flex; align-items: flex-end; justify-content: center; padding-bottom: 10px;
+  }
+  .db-frost-text { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--relax-accent); }
+
+  /* Transition text */
+  .db-transition { text-align: center; padding: 20px 24px 0; }
+  .db-transition-text { font-size: 16px; font-weight: 700; color: var(--text-primary); }
+  .db-transition-text em { font-style: normal; color: var(--relax-accent); }
+  .db-arrow { font-size: 24px; color: var(--text-tertiary); margin-top: 4px; animation: bounce 1.5s ease-in-out infinite; display: inline-block; }
+  .db-arrow .material-symbols-rounded { font-size: 24px; }
+
+  /* Form */
+  .db-form { padding: 16px 24px 0; }
+  .db-phone { height: 52px; padding: 0 16px; font-size: 17px; font-weight: 600; letter-spacing: 0.02em; }
+  .db-name-toggle {
+    display: inline-flex; align-items: center; gap: 4px; font-size: 13px;
+    font-weight: 600; color: var(--relax-accent); cursor: pointer;
+    margin-top: 8px; background: none; border: none; font-family: inherit;
+  }
+  .db-name-toggle .material-symbols-rounded { font-size: 16px; }
+  .db-name-field { max-height: 0; opacity: 0; overflow: hidden; transition: max-height 0.3s var(--ease-spring), opacity 0.2s; }
+  .db-name-field.open { max-height: 60px; opacity: 1; margin-top: 8px; }
+  .db-name-input { height: 48px; padding: 0 16px; font-size: 15px; font-weight: 500; border-style: dashed; }
+
+  .db-trust-explicit { font-size: 12px; color: var(--text-tertiary); text-align: center; margin-top: 12px; line-height: 1.4; }
+
+  /* How it works accordion */
+  .db-accordion { margin: 16px 20px 0; }
+  .db-accordion-trigger {
+    display: flex; align-items: center; gap: 8px; padding: 12px 16px;
+    background: rgba(0,0,0,0.02); border-radius: var(--radius-xs); cursor: pointer;
+    border: none; font-family: inherit; width: 100%; text-align: left;
+  }
+  .db-accordion-trigger .material-symbols-rounded { font-size: 20px; color: var(--text-secondary); }
+  .db-accordion-trigger span { font-size: 15px; font-weight: 600; color: var(--text-primary); flex: 1; }
+  .db-accordion-trigger .chevron { transition: transform 0.3s; }
+  .db-accordion-trigger .chevron.open { transform: rotate(180deg); }
+  .db-accordion-content {
+    max-height: 0; overflow: hidden; opacity: 0;
+    transition: max-height 0.4s var(--ease-spring), opacity 0.3s;
+  }
+  .db-accordion-content.open { max-height: 200px; opacity: 1; }
+  .db-accordion-inner { padding: 14px 16px; background: var(--relax-accent-soft); border-radius: 0 0 var(--radius-xs) var(--radius-xs); }
+  .db-hiw-line {
+    display: flex; align-items: center; gap: 8px; padding: 6px 0;
+    font-size: 12px; color: var(--text-secondary);
+  }
+  .db-hiw-line .material-symbols-rounded { font-size: 16px; color: var(--relax-accent); font-variation-settings: 'FILL' 1; }
+
+  /* ═══════════════════════════════════════════
+     DESIGN C: Chez le Docteur (Trust Gateway)
+     ═══════════════════════════════════════════ */
+  .dc-scroll { display: flex; flex-direction: column; min-height: 100%; }
+
+  .dc-top-bar { display: flex; justify-content: space-between; align-items: center; padding: 4px 24px 0; }
+  .dc-sys-label { font-size: 12px; color: var(--text-tertiary); font-weight: 500; }
+
+  .dc-doctor-hero { text-align: center; padding: 24px 24px 16px; }
+  .dc-avatar {
+    width: 88px; height: 88px; border-radius: 50%; background: var(--relax-accent-soft);
+    border: 2.5px solid var(--relax-accent); display: flex; align-items: center;
+    justify-content: center; margin: 0 auto 14px;
+  }
+  .dc-avatar .material-symbols-rounded { font-size: 40px; color: var(--relax-accent); }
+  .dc-doctor-name { font-size: 24px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.02em; }
+  .dc-specialty {
+    display: inline-flex; padding: 5px 16px; background: var(--relax-accent-soft);
+    color: var(--relax-accent); border-radius: 100px; font-size: 11px;
+    font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; margin-top: 8px;
+  }
+  .dc-presence { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 10px; }
+  .dc-presence .dot { width: 8px; height: 8px; border-radius: 50%; background: #22C55E; }
+  .dc-presence span { font-size: 13px; font-weight: 600; color: var(--go-accent); }
+
+  /* Social proof */
+  .dc-social-bar {
+    margin: 0 20px; padding: 14px 18px; background: var(--relax-accent-soft);
+    border: 1px solid rgba(43,138,122,0.1); border-radius: var(--radius-sm);
+    display: flex; gap: 0;
+  }
+  .dc-social-item { flex: 1; text-align: center; }
+  .dc-social-number { font-size: 20px; font-weight: 800; color: var(--relax-accent); }
+  .dc-social-label { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+  .dc-social-divider { width: 1px; background: rgba(43,138,122,0.15); margin: 0 12px; }
+
+  /* Queue strip */
+  .dc-queue-strip {
+    margin: 8px 20px 0; padding: 8px 14px; border-radius: var(--radius-sm);
+    background: rgba(0,0,0,0.03); font-size: 12px; color: var(--text-secondary);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .dc-queue-strip .material-symbols-rounded { font-size: 14px; color: var(--text-tertiary); }
+  .dc-queue-strip strong { font-weight: 600; color: var(--text-primary); }
+
+  .dc-divider { border: none; border-top: 1px dashed var(--border); margin: 16px 24px; }
+
+  /* Form */
+  .dc-form { padding: 0 24px; flex: 1; }
+  .dc-form-title { font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 14px; }
+  .dc-phone { height: 52px; padding: 0 16px; font-size: 17px; font-weight: 600; }
+  .dc-name { height: 48px; padding: 0 16px; font-size: 15px; font-weight: 500; border-style: dashed; margin-top: 8px; }
+  .dc-submit { margin-top: 20px; font-size: 15px; }
+
+  .dc-trust-row {
+    display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 14px;
+  }
+  .dc-trust-item { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--text-tertiary); font-weight: 500; }
+  .dc-trust-item .material-symbols-rounded { font-size: 14px; }
+  .dc-trust-sep { width: 3px; height: 3px; border-radius: 50%; background: var(--border); }
+
+  /* Testimonial */
+  .dc-testimonial {
+    margin: 16px 20px 0; padding: 14px 16px; background: rgba(0,0,0,0.02);
+    border-radius: var(--radius-xs);
+  }
+  .dc-testimonial .material-symbols-rounded { font-size: 20px; color: var(--text-tertiary); margin-bottom: 4px; }
+  .dc-testimonial-text { font-size: 13px; font-style: italic; color: var(--text-secondary); line-height: 1.5; }
+  .dc-testimonial-author { font-size: 11px; color: var(--text-tertiary); margin-top: 6px; }
+
+  /* ═══════════════════════════════════════════
+     DESIGN D: Trois Raisons (3-Benefit Reveal)
+     ═══════════════════════════════════════════ */
+  .dd-scroll { display: flex; flex-direction: column; min-height: 100%; }
+
+  .dd-welcome { text-align: center; padding: 16px 24px; }
+  .dd-icon-circle {
+    width: 56px; height: 56px; border-radius: 50%; background: var(--relax-accent-soft);
+    display: flex; align-items: center; justify-content: center; margin: 0 auto 12px;
+  }
+  .dd-icon-circle .material-symbols-rounded { font-size: 28px; color: var(--relax-accent); }
+  .dd-title { font-size: 18px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.01em; }
+  .dd-subtitle { font-size: 14px; font-weight: 500; color: var(--text-secondary); margin-top: 2px; }
+
+  /* Benefit cards */
+  .dd-cards { padding: 0 20px; display: flex; flex-direction: column; gap: 12px; }
+
+  .dd-card {
+    display: flex; align-items: flex-start; gap: 14px; padding: 18px 20px;
+    background: var(--relax-surface); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); box-shadow: var(--shadow-sm);
+    opacity: 0; transform: translateY(12px);
+  }
+  .dd-card.visible { opacity: 1; transform: translateY(0); transition: all 0.5s ease-out; }
+
+  .dd-card-icon {
+    width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .dd-card-icon .material-symbols-rounded { font-size: 22px; }
+  .dd-card-icon.teal { background: var(--relax-accent-soft); }
+  .dd-card-icon.teal .material-symbols-rounded { color: var(--relax-accent); }
+  .dd-card-icon.amber { background: var(--ready-accent-soft); }
+  .dd-card-icon.amber .material-symbols-rounded { color: var(--ready-accent); }
+  .dd-card-icon.green { background: var(--go-accent-soft); }
+  .dd-card-icon.green .material-symbols-rounded { color: var(--go-accent); }
+
+  .dd-card-title { font-size: 14px; font-weight: 700; color: var(--text-primary); }
+  .dd-card-desc { font-size: 13px; font-weight: 500; color: var(--text-secondary); line-height: 1.4; margin-top: 2px; }
+
+  /* Queue context */
+  .dd-queue-bar {
+    margin: 12px 20px 0; padding: 12px 16px; background: var(--relax-accent-soft);
+    border: 1px solid rgba(43,138,122,0.1); border-radius: var(--radius-sm);
+    display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600;
+    opacity: 0; transform: translateY(12px);
+  }
+  .dd-queue-bar.visible { opacity: 1; transform: translateY(0); transition: all 0.5s ease-out; }
+  .dd-queue-bar .material-symbols-rounded { font-size: 18px; color: var(--relax-accent); }
+  .dd-queue-bar strong { color: var(--relax-accent); font-weight: 800; }
+  .dd-queue-bar span { color: var(--text-secondary); }
+
+  /* Form */
+  .dd-form {
+    padding: 20px 24px 0; opacity: 0; transform: translateY(12px);
+  }
+  .dd-form.visible { opacity: 1; transform: translateY(0); transition: all 0.5s ease-out; }
+  .dd-form-eyebrow { margin-bottom: 16px; }
+  .dd-phone { height: 52px; padding: 0 16px; font-size: 17px; font-weight: 600; letter-spacing: 0.02em; }
+  .dd-name-toggle {
+    display: inline-flex; align-items: center; gap: 4px; font-size: 13px;
+    font-weight: 600; color: var(--relax-accent); cursor: pointer;
+    margin-top: 8px; background: none; border: none; font-family: inherit;
+  }
+  .dd-name-toggle .material-symbols-rounded { font-size: 16px; }
+  .dd-name-field { max-height: 0; opacity: 0; overflow: hidden; transition: max-height 0.3s var(--ease-spring), opacity 0.2s; }
+  .dd-name-field.open { max-height: 60px; opacity: 1; margin-top: 8px; }
+  .dd-name-input { height: 48px; padding: 0 16px; font-size: 15px; font-weight: 500; border-style: dashed; }
+
+  /* ═══════════════════════════════════════════
+     DESIGN E: Express (Action + Learn More)
+     ═══════════════════════════════════════════ */
+  .de-scroll { display: flex; flex-direction: column; min-height: 100%; }
+
+  .de-brand-badge {
+    display: flex; align-items: center; gap: 8px; padding: 0 24px; margin-top: 12px;
+  }
+  .de-badge-mark {
+    width: 22px; height: 22px; background: var(--relax-accent); border-radius: 5px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 11px; font-weight: 800;
+  }
+  .de-badge-text { font-size: 13px; font-weight: 600; color: var(--text-secondary); }
+
+  .de-headline { font-size: 24px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.02em; padding: 12px 24px 0; }
+  .de-queue-context {
+    display: flex; align-items: center; gap: 6px; padding: 4px 24px 0;
+    font-size: 14px; font-weight: 600; color: var(--text-secondary);
+  }
+  .de-queue-context .material-symbols-rounded { font-size: 16px; color: var(--text-tertiary); }
+
+  .de-form { padding: 20px 24px 0; }
+
+  /* Integrated prefix phone input */
+  .de-phone-wrapper {
+    display: flex; align-items: center; height: 52px; background: #fff;
+    border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    overflow: hidden; transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .de-phone-wrapper:focus-within {
+    border-color: var(--relax-accent); box-shadow: 0 0 0 3px rgba(43,138,122,0.12);
+  }
+  .de-phone-prefix {
+    padding: 0 12px; background: var(--relax-accent-soft); border-right: 1px solid var(--border);
+    font-size: 14px; font-weight: 700; color: var(--relax-accent);
+    height: 100%; display: flex; align-items: center; flex-shrink: 0;
+  }
+  .de-phone-input {
+    flex: 1; height: 100%; border: none; outline: none; padding: 0 14px;
+    font-family: inherit; font-size: 17px; font-weight: 600; color: var(--text-primary);
+    letter-spacing: 0.02em; background: transparent;
+  }
+  .de-phone-input::placeholder { color: var(--text-tertiary); font-weight: 400; }
+
+  .de-name-inline {
+    display: flex; justify-content: flex-end; margin-top: 6px;
+  }
+  .de-name-link {
+    font-size: 12px; font-weight: 600; color: var(--relax-accent); cursor: pointer;
+    background: none; border: none; font-family: inherit;
+  }
+  .de-name-field { max-height: 0; opacity: 0; overflow: hidden; transition: max-height 0.3s var(--ease-spring), opacity 0.2s; }
+  .de-name-field.open { max-height: 60px; opacity: 1; margin-top: 8px; }
+  .de-name-input { height: 48px; padding: 0 16px; font-size: 15px; font-weight: 500; border-style: dashed; }
+
+  .de-trust-micro {
+    font-size: 11px; color: var(--text-tertiary); text-align: center; margin-top: 10px;
+    display: flex; align-items: center; justify-content: center; gap: 3px;
+  }
+  .de-trust-micro .material-symbols-rounded { font-size: 13px; }
+
+  /* Divider */
+  .de-divider { border: none; border-top: 1px solid var(--border); margin: 20px 24px 0; }
+
+  /* Accordions */
+  .de-accordions { padding: 12px 20px 0; }
+
+  .de-acc {
+    margin-bottom: 6px; border-radius: var(--radius-xs); overflow: hidden;
+  }
+  .de-acc-trigger {
+    display: flex; align-items: center; gap: 10px; padding: 14px 16px;
+    background: rgba(0,0,0,0.02); border: none; cursor: pointer; width: 100%;
+    font-family: inherit; text-align: left; border-radius: var(--radius-xs);
+    transition: background 0.2s;
+  }
+  .de-acc-trigger:active { background: rgba(0,0,0,0.04); }
+  .de-acc-trigger .icon { font-size: 20px; color: var(--text-secondary); flex-shrink: 0; }
+  .de-acc-trigger .label { flex: 1; font-size: 14px; font-weight: 600; color: var(--text-primary); }
+  .de-acc-trigger .chevron { font-size: 20px; color: var(--text-tertiary); transition: transform 0.3s; }
+  .de-acc-trigger .chevron.open { transform: rotate(180deg); }
+
+  .de-acc-content {
+    max-height: 0; overflow: hidden; opacity: 0;
+    transition: max-height 0.4s var(--ease-spring), opacity 0.3s;
+  }
+  .de-acc-content.open { opacity: 1; }
+  .de-acc-inner { padding: 0 16px 16px; }
+
+  /* How it works content */
+  .de-step-row {
+    display: flex; align-items: flex-start; gap: 10px; padding: 8px 0;
+  }
+  .de-step-num {
+    width: 24px; height: 24px; border-radius: 50%; background: var(--relax-accent);
+    color: #fff; font-size: 12px; font-weight: 700; display: flex; align-items: center;
+    justify-content: center; flex-shrink: 0;
+  }
+  .de-step-text { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+  .de-step-desc { font-size: 12px; color: var(--text-secondary); margin-top: 1px; }
+
+  /* Mini queue dots */
+  .de-mini-queue {
+    display: flex; align-items: center; justify-content: center; gap: 4px;
+    margin-top: 10px; padding: 8px 0;
+  }
+  .de-mini-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); }
+  .de-mini-dot.you { width: 10px; height: 10px; background: var(--relax-accent); }
+  .de-mini-label { font-size: 10px; color: var(--relax-accent); font-weight: 700; margin-left: 4px; }
+
+  /* Privacy content */
+  .de-privacy-list { list-style: none; padding: 4px 0; }
+  .de-privacy-item {
+    display: flex; align-items: center; gap: 8px; padding: 6px 0;
+    font-size: 13px; color: var(--text-secondary);
+  }
+  .de-privacy-item .material-symbols-rounded { font-size: 16px; color: var(--relax-accent); font-variation-settings: 'FILL' 1; }
+  .de-privacy-promise { font-size: 13px; font-weight: 600; color: var(--relax-accent); margin-top: 6px; }
+
+  /* Brand explainer */
+  .de-brand-explain { font-size: 13px; color: var(--text-secondary); line-height: 1.5; padding: 4px 0; }
+</style>
+</head>
+
+<body>
+<div class="showcase-container">
+  <div class="showcase-header">
+    <p class="page-title">BleSaf — Check-In Redesign v2: Brand-First</p>
+    <p class="page-subtitle">5 alternatives that introduce BleSaf, explain the concept, build trust, and enable check-in — the patient's first ever contact with the brand</p>
+  </div>
+
+  <div class="nav-tabs" id="navTabs">
+    <button class="nav-tab active" data-design="a" onclick="switchDesign('a')">A. Story Scroll</button>
+    <button class="nav-tab" data-design="b" onclick="switchDesign('b')">B. Live Preview</button>
+    <button class="nav-tab" data-design="c" onclick="switchDesign('c')">C. Trust Gateway</button>
+    <button class="nav-tab" data-design="d" onclick="switchDesign('d')">D. 3-Benefit</button>
+    <button class="nav-tab" data-design="e" onclick="switchDesign('e')">E. Express</button>
+  </div>
+
+  <p class="design-desc" id="designDesc">Narrative mini-landing: BleSaf wordmark, "How It Works" (step 1 already done!), benefits bar, then form at bottom. Full story before asking for input.</p>
+
+  <!-- ═══ PHONE FRAME ═══ -->
+  <div class="phone-frame">
+    <div class="phone-inner">
+
+      <!-- ═══════════════════════════════════════
+           DESIGN A: Le Parcours (Story Scroll)
+           ═══════════════════════════════════════ -->
+      <div class="design-screen active" id="designA">
+        <div class="da-scroll">
+          <div class="status-bar">
+            <span>18:11</span>
+            <div class="right">
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">signal_cellular_alt</span>
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">wifi</span>
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">battery_5_bar</span>
+            </div>
+          </div>
+
+          <div class="clinic-header">
+            <div>
+              <div class="clinic-name">Cabinet Dr. Trabelsi</div>
+              <div class="clinic-doc">Ophtalmologie · La Marsa</div>
+            </div>
+            <div class="header-right">
+              <div class="doctor-dot"></div>
+              <button class="lang-btn">عربي</button>
+            </div>
+          </div>
+
+          <!-- Hero with wordmark -->
+          <div class="da-hero anim">
+            <div class="da-wordmark anim d1">
+              <span class="ble">Blé</span><span class="saf">SAF</span>
+            </div>
+            <div class="da-headline anim d2">Bienvenue dans le<br>saf virtuel</div>
+            <div class="da-doctor-line anim d2">du Dr. Leila Trabelsi</div>
+            <div class="da-sep anim d3"></div>
+            <div class="da-context anim d3">
+              <span class="material-symbols-rounded">groups</span>
+              7 patients en attente
+            </div>
+          </div>
+
+          <!-- How it works -->
+          <div class="da-hiw">
+            <div class="eyebrow da-hiw-title anim d4">COMMENT ÇA MARCHE</div>
+
+            <div class="da-step anim d4">
+              <div class="da-step-icon green">
+                <span class="material-symbols-rounded">qr_code_2</span>
+              </div>
+              <div>
+                <div class="da-step-title">Scannez le QR</div>
+                <div class="da-step-done">
+                  <span class="material-symbols-rounded">check_circle</span>
+                  C'est déjà fait !
+                </div>
+              </div>
+            </div>
+
+            <div class="da-step anim d5">
+              <div class="da-step-icon teal">
+                <span class="material-symbols-rounded">visibility</span>
+              </div>
+              <div>
+                <div class="da-step-title">Suivez votre position</div>
+                <div class="da-step-sub">En temps réel sur votre téléphone</div>
+              </div>
+            </div>
+
+            <div class="da-step anim d6">
+              <div class="da-step-icon teal">
+                <span class="material-symbols-rounded">notifications_active</span>
+              </div>
+              <div>
+                <div class="da-step-title">Soyez notifié</div>
+                <div class="da-step-sub">Quand c'est bientôt votre tour</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Benefits bar -->
+          <div class="da-benefits anim d7">
+            <div class="da-benefit-item">
+              <span class="material-symbols-rounded">coffee</span>
+              Attendez où vous voulez
+            </div>
+            <div class="da-benefit-divider"></div>
+            <div class="da-benefit-item">
+              <span class="material-symbols-rounded">lock</span>
+              Données privées
+            </div>
+          </div>
+
+          <!-- Form -->
+          <div class="da-form">
+            <div class="eyebrow da-form-eyebrow">PRENDRE VOTRE PLACE</div>
+
+            <div class="da-field-label">
+              <span class="material-symbols-rounded">phone</span>
+              Votre téléphone
+            </div>
+            <input type="tel" class="ci-input da-phone" value="+216 " placeholder="+216 XX XXX XXX" inputmode="tel">
+
+            <button class="da-name-toggle" onclick="toggleField('daName')">
+              <span class="material-symbols-rounded">add</span>
+              Ajouter votre nom (optionnel)
+            </button>
+            <div class="da-name-field" id="daName">
+              <input type="text" class="ci-input da-name-input" placeholder="Votre nom">
+            </div>
+
+            <button class="ci-submit" style="margin-top:16px;">
+              <span class="material-symbols-rounded">confirmation_number</span>
+              Prendre ma place
+            </button>
+
+            <div class="trust-line" style="margin-top:12px;">
+              <span class="material-symbols-rounded">lock</span>
+              Vos informations restent privées
+            </div>
+          </div>
+
+          <div class="brand-footer">
+            <div class="brand-mark">B</div> BleSaf
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════
+           DESIGN B: Votre Écran (Live Preview)
+           ═══════════════════════════════════════ -->
+      <div class="design-screen" id="designB">
+        <div class="db-scroll">
+          <div class="status-bar">
+            <span>18:11</span>
+            <div class="right">
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">signal_cellular_alt</span>
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">wifi</span>
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">battery_5_bar</span>
+            </div>
+          </div>
+
+          <div class="clinic-header">
+            <div>
+              <div class="clinic-name">Cabinet Dr. Trabelsi</div>
+              <div class="clinic-doc">Ophtalmologie</div>
+            </div>
+            <div class="header-right">
+              <button class="lang-btn">عربي</button>
+            </div>
+          </div>
+
+          <!-- Preview label -->
+          <div class="db-preview-label anim d1">
+            <div class="db-preview-eyebrow">VOICI CE QUE VOUS VERREZ</div>
+            <div class="db-preview-sub">après votre inscription</div>
+          </div>
+
+          <!-- Simulated status page preview -->
+          <div class="db-preview-card anim d2">
+            <div class="db-preview-inner">
+              <div class="db-mini-header">
+                <div class="db-mini-dot"></div>
+                <div class="db-mini-name">Cabinet Dr. Trabelsi</div>
+              </div>
+
+              <div class="db-mini-hero">
+                <div class="db-mini-eyebrow">ATTENTE ESTIMÉE</div>
+                <div class="db-mini-time">~35 <span class="unit">min</span></div>
+                <div class="db-mini-sub">7 personnes devant vous</div>
+              </div>
+
+              <!-- Mini progress ring -->
+              <div class="db-mini-ring">
+                <svg viewBox="0 0 120 120">
+                  <circle class="track" cx="60" cy="60" r="52" />
+                  <circle class="progress" cx="60" cy="60" r="52"
+                    stroke-dasharray="327" stroke-dashoffset="278" />
+                </svg>
+                <div class="db-ring-center">
+                  <div class="db-ring-number">7</div>
+                  <div class="db-ring-label">devant vous</div>
+                </div>
+              </div>
+
+              <div class="db-mini-tip">
+                <span class="material-symbols-rounded">coffee</span>
+                Vous aurez le temps pour un café
+              </div>
+
+              <div class="db-mini-toast">
+                <span class="material-symbols-rounded">notifications_active</span>
+                Vous serez notifié quand votre tour approche
+              </div>
+            </div>
+
+            <div class="db-preview-frost">
+              <div class="db-frost-text">Votre vrai écran</div>
+            </div>
+          </div>
+
+          <!-- Transition -->
+          <div class="db-transition anim d3">
+            <div class="db-transition-text">Pour voir votre <em>VRAIE</em> position</div>
+            <div class="db-arrow"><span class="material-symbols-rounded">keyboard_arrow_down</span></div>
+          </div>
+
+          <!-- Form -->
+          <div class="db-form anim d4">
+            <input type="tel" class="ci-input db-phone" value="+216 " placeholder="+216 XX XXX XXX" inputmode="tel">
+
+            <button class="db-name-toggle" onclick="toggleField('dbName')">
+              <span class="material-symbols-rounded">add</span>
+              Ajouter votre nom (optionnel)
+            </button>
+            <div class="db-name-field" id="dbName">
+              <input type="text" class="ci-input db-name-input" placeholder="Votre nom">
+            </div>
+
+            <button class="ci-submit" style="margin-top:16px;">
+              <span class="material-symbols-rounded">visibility</span>
+              Voir ma position réelle
+            </button>
+
+            <div class="db-trust-explicit">
+              Votre numéro sert uniquement à vous identifier dans le saf
+            </div>
+          </div>
+
+          <!-- How it works accordion -->
+          <div class="db-accordion anim d5">
+            <button class="db-accordion-trigger" onclick="toggleDbAccordion()">
+              <span class="material-symbols-rounded icon">help_outline</span>
+              <span>Comment ça marche ?</span>
+              <span class="material-symbols-rounded chevron" id="dbChevron">expand_more</span>
+            </button>
+            <div class="db-accordion-content" id="dbAccContent">
+              <div class="db-accordion-inner">
+                <div class="db-hiw-line">
+                  <span class="material-symbols-rounded">check_circle</span>
+                  Vous recevez un numéro de position
+                </div>
+                <div class="db-hiw-line">
+                  <span class="material-symbols-rounded">check_circle</span>
+                  Suivez l'avancement en temps réel
+                </div>
+                <div class="db-hiw-line">
+                  <span class="material-symbols-rounded">check_circle</span>
+                  Alerte quand c'est bientôt votre tour
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="flex:1;min-height:20px;"></div>
+          <div class="brand-footer">
+            <div class="brand-mark">B</div> BleSaf
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════
+           DESIGN C: Chez le Docteur (Trust Gateway)
+           ═══════════════════════════════════════ -->
+      <div class="design-screen" id="designC">
+        <div class="dc-scroll">
+          <div class="status-bar">
+            <span>18:11</span>
+            <div class="right">
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">signal_cellular_alt</span>
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">wifi</span>
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">battery_5_bar</span>
+            </div>
+          </div>
+
+          <div class="dc-top-bar">
+            <div class="dc-sys-label">Système de file d'attente</div>
+            <button class="lang-btn">عربي</button>
+          </div>
+
+          <!-- Doctor hero -->
+          <div class="dc-doctor-hero">
+            <div class="dc-avatar anim d1">
+              <span class="material-symbols-rounded">stethoscope</span>
+            </div>
+            <div class="dc-doctor-name anim d2">Dr. Leila Trabelsi</div>
+            <div class="dc-specialty anim d2">Ophtalmologie</div>
+            <div class="dc-presence anim d3">
+              <div class="dot"></div>
+              <span>Disponible</span>
+            </div>
+          </div>
+
+          <!-- Social proof -->
+          <div class="dc-social-bar anim d3">
+            <div class="dc-social-item">
+              <div class="dc-social-number">12</div>
+              <div class="dc-social-label">patients servis aujourd'hui</div>
+            </div>
+            <div class="dc-social-divider"></div>
+            <div class="dc-social-item">
+              <div class="dc-social-number">~8 min</div>
+              <div class="dc-social-label">consultation moyenne</div>
+            </div>
+          </div>
+
+          <!-- Queue strip -->
+          <div class="dc-queue-strip anim d4">
+            <span class="material-symbols-rounded">groups</span>
+            <span><strong>5 patients</strong> en attente · ~25 min</span>
+          </div>
+
+          <hr class="dc-divider">
+
+          <!-- Form -->
+          <div class="dc-form anim d5">
+            <div class="dc-form-title">Rejoindre le Saf du Dr. Trabelsi</div>
+
+            <input type="tel" class="ci-input dc-phone" value="+216 " placeholder="+216 XX XXX XXX" inputmode="tel">
+            <input type="text" class="ci-input dc-name" placeholder="Votre nom (optionnel)">
+
+            <button class="ci-submit dc-submit">
+              Rejoindre le Saf du Dr. Trabelsi
+              <span class="material-symbols-rounded">arrow_forward</span>
+            </button>
+
+            <div class="dc-trust-row">
+              <div class="dc-trust-item">
+                <span class="material-symbols-rounded">lock</span>
+                Données protégées
+              </div>
+              <div class="dc-trust-sep"></div>
+              <div class="dc-trust-item">
+                <span class="material-symbols-rounded">update</span>
+                Suivi en temps réel
+              </div>
+            </div>
+          </div>
+
+          <!-- Testimonial -->
+          <div class="dc-testimonial anim d6">
+            <span class="material-symbols-rounded">format_quote</span>
+            <div class="dc-testimonial-text">
+              « J'ai pu attendre au café au lieu de rester assise 45 minutes dans la salle d'attente. »
+            </div>
+            <div class="dc-testimonial-author">— Patiente, Clinique La Marsa</div>
+          </div>
+
+          <div style="flex:1;min-height:16px;"></div>
+
+          <div class="brand-footer" style="flex-direction:column;gap:4px;">
+            <div style="font-size:11px;color:var(--text-tertiary);">Système utilisé par des cliniques en Tunisie</div>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <div class="brand-mark">B</div> BleSaf
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════
+           DESIGN D: Trois Raisons (3-Benefit Reveal)
+           ═══════════════════════════════════════ -->
+      <div class="design-screen" id="designD">
+        <div class="dd-scroll">
+          <div class="status-bar">
+            <span>18:11</span>
+            <div class="right">
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">signal_cellular_alt</span>
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">wifi</span>
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">battery_5_bar</span>
+            </div>
+          </div>
+
+          <div class="clinic-header">
+            <div>
+              <div class="clinic-name">Cabinet Dr. Trabelsi</div>
+              <div class="clinic-doc">Ophtalmologie</div>
+            </div>
+            <div class="header-right">
+              <div class="doctor-dot"></div>
+              <button class="lang-btn">عربي</button>
+            </div>
+          </div>
+
+          <!-- Welcome -->
+          <div class="dd-welcome anim">
+            <div class="dd-icon-circle anim d1">
+              <span class="material-symbols-rounded">how_to_reg</span>
+            </div>
+            <div class="dd-title anim d2">Prenez place dans<br>le saf virtuel</div>
+            <div class="dd-subtitle anim d2">Sans attendre dans la salle</div>
+          </div>
+
+          <!-- Benefit cards (animated) -->
+          <div class="dd-cards">
+            <div class="dd-card" id="ddCard1">
+              <div class="dd-card-icon teal">
+                <span class="material-symbols-rounded">my_location</span>
+              </div>
+              <div>
+                <div class="dd-card-title">Suivez votre position</div>
+                <div class="dd-card-desc">Voyez en temps réel combien de patients sont devant vous</div>
+              </div>
+            </div>
+
+            <div class="dd-card" id="ddCard2">
+              <div class="dd-card-icon amber">
+                <span class="material-symbols-rounded">coffee</span>
+              </div>
+              <div>
+                <div class="dd-card-title">Attendez où vous voulez</div>
+                <div class="dd-card-desc">Au café, dans votre voiture, ou même chez vous</div>
+              </div>
+            </div>
+
+            <div class="dd-card" id="ddCard3">
+              <div class="dd-card-icon green">
+                <span class="material-symbols-rounded">notifications_active</span>
+              </div>
+              <div>
+                <div class="dd-card-title">Soyez notifié</div>
+                <div class="dd-card-desc">Une alerte quand c'est bientôt votre tour</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Queue bar -->
+          <div class="dd-queue-bar" id="ddQueueBar">
+            <span class="material-symbols-rounded">groups</span>
+            <span><strong>7 patients</strong> en attente · ~35 min</span>
+          </div>
+
+          <!-- Form -->
+          <div class="dd-form" id="ddForm">
+            <div class="eyebrow dd-form-eyebrow">PRENEZ VOTRE PLACE</div>
+
+            <input type="tel" class="ci-input dd-phone" value="+216 " placeholder="+216 XX XXX XXX" inputmode="tel">
+
+            <button class="dd-name-toggle" onclick="toggleField('ddName')">
+              <span class="material-symbols-rounded">add</span>
+              Ajouter votre nom (optionnel)
+            </button>
+            <div class="dd-name-field" id="ddName">
+              <input type="text" class="ci-input dd-name-input" placeholder="Votre nom">
+            </div>
+
+            <button class="ci-submit" style="margin-top:16px;">
+              <span class="material-symbols-rounded">confirmation_number</span>
+              Prendre ma place
+            </button>
+
+            <div class="trust-line" style="margin-top:12px;">
+              <span class="material-symbols-rounded">lock</span>
+              Vos informations restent privées
+            </div>
+          </div>
+
+          <div style="flex:1;min-height:16px;"></div>
+          <div class="brand-footer">
+            <div class="brand-mark">B</div> BleSaf
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════
+           DESIGN E: Express (Action + Learn More)
+           ═══════════════════════════════════════ -->
+      <div class="design-screen" id="designE">
+        <div class="de-scroll">
+          <div class="status-bar">
+            <span>18:11</span>
+            <div class="right">
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">signal_cellular_alt</span>
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">wifi</span>
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">battery_5_bar</span>
+            </div>
+          </div>
+
+          <div class="clinic-header">
+            <div>
+              <div class="clinic-name">Cabinet Dr. Trabelsi</div>
+              <div class="clinic-doc">Ophtalmologie</div>
+            </div>
+            <div class="header-right">
+              <div class="doctor-dot"></div>
+              <button class="lang-btn">عربي</button>
+            </div>
+          </div>
+
+          <!-- Brand badge -->
+          <div class="de-brand-badge anim">
+            <div class="de-badge-mark">B</div>
+            <div class="de-badge-text">Saf virtuel</div>
+          </div>
+
+          <!-- Headline -->
+          <div class="de-headline anim d1">Prenez votre place</div>
+          <div class="de-queue-context anim d1">
+            <span class="material-symbols-rounded">groups</span>
+            7 patients en attente · ~35 min
+          </div>
+
+          <!-- Form (at top!) -->
+          <div class="de-form anim d2">
+            <div class="de-phone-wrapper">
+              <div class="de-phone-prefix">+216</div>
+              <input type="tel" class="de-phone-input" placeholder="XX XXX XXX" inputmode="tel">
+            </div>
+
+            <div class="de-name-inline">
+              <button class="de-name-link" onclick="toggleField('deName')">+ Nom (optionnel)</button>
+            </div>
+            <div class="de-name-field" id="deName">
+              <input type="text" class="ci-input de-name-input" placeholder="Votre nom">
+            </div>
+
+            <button class="ci-submit" style="margin-top:14px;">
+              <span class="material-symbols-rounded">confirmation_number</span>
+              Prendre ma place
+            </button>
+
+            <div class="de-trust-micro">
+              <span class="material-symbols-rounded">lock</span>
+              Données privées · Suivi en direct
+            </div>
+          </div>
+
+          <hr class="de-divider">
+
+          <!-- Accordions -->
+          <div class="de-accordions anim d4">
+            <!-- How it works -->
+            <div class="de-acc">
+              <button class="de-acc-trigger" onclick="toggleDeAcc('deHiw')">
+                <span class="material-symbols-rounded icon">help_outline</span>
+                <span class="label">Comment ça marche ?</span>
+                <span class="material-symbols-rounded chevron" id="deHiwChevron">expand_more</span>
+              </button>
+              <div class="de-acc-content" id="deHiw">
+                <div class="de-acc-inner">
+                  <div class="de-step-row">
+                    <div class="de-step-num">1</div>
+                    <div>
+                      <div class="de-step-text">Entrez votre numéro</div>
+                      <div class="de-step-desc">C'est votre identifiant dans le saf</div>
+                    </div>
+                  </div>
+                  <div class="de-step-row">
+                    <div class="de-step-num">2</div>
+                    <div>
+                      <div class="de-step-text">Suivez votre position en direct</div>
+                      <div class="de-step-desc">Combien de personnes sont devant vous</div>
+                    </div>
+                  </div>
+                  <div class="de-step-row">
+                    <div class="de-step-num">3</div>
+                    <div>
+                      <div class="de-step-text">Recevez une alerte</div>
+                      <div class="de-step-desc">Quand c'est bientôt votre tour</div>
+                    </div>
+                  </div>
+                  <div class="de-mini-queue">
+                    <div class="de-mini-dot"></div>
+                    <div class="de-mini-dot"></div>
+                    <div class="de-mini-dot"></div>
+                    <div class="de-mini-dot"></div>
+                    <div class="de-mini-dot"></div>
+                    <div class="de-mini-dot you"></div>
+                    <div class="de-mini-label">Vous</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Privacy -->
+            <div class="de-acc">
+              <button class="de-acc-trigger" onclick="toggleDeAcc('dePrivacy')">
+                <span class="material-symbols-rounded icon">shield</span>
+                <span class="label">Pourquoi mon numéro ?</span>
+                <span class="material-symbols-rounded chevron" id="dePrivacyChevron">expand_more</span>
+              </button>
+              <div class="de-acc-content" id="dePrivacy">
+                <div class="de-acc-inner">
+                  <div style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:6px;">Votre numéro sert uniquement à :</div>
+                  <ul class="de-privacy-list">
+                    <li class="de-privacy-item">
+                      <span class="material-symbols-rounded">check_circle</span>
+                      Vous identifier dans la file d'attente
+                    </li>
+                    <li class="de-privacy-item">
+                      <span class="material-symbols-rounded">check_circle</span>
+                      Vous retrouver si vous revenez
+                    </li>
+                  </ul>
+                  <div class="de-privacy-promise">Nous ne vous appellerons jamais et ne partagerons pas votre numéro.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Brand explainer -->
+            <div class="de-acc">
+              <button class="de-acc-trigger" onclick="toggleDeAcc('deBrand')">
+                <span class="material-symbols-rounded icon" style="font-size:18px;">
+                  <span style="width:20px;height:20px;background:var(--relax-accent);border-radius:4px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:800;font-family:'Plus Jakarta Sans';">B</span>
+                </span>
+                <span class="label">Qu'est-ce que BleSaf ?</span>
+                <span class="material-symbols-rounded chevron" id="deBrandChevron">expand_more</span>
+              </button>
+              <div class="de-acc-content" id="deBrand">
+                <div class="de-acc-inner">
+                  <div class="de-brand-explain">
+                    BleSaf est un système de file d'attente virtuelle utilisé par des cliniques en Tunisie. Au lieu d'attendre dans la salle, suivez votre tour depuis votre téléphone et revenez quand c'est à vous.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="flex:1;min-height:16px;"></div>
+          <div class="brand-footer">
+            <div class="brand-mark">B</div> BleSaf
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <p class="design-label" id="designLabel">
+    Strategy: Full story before action. BleSaf wordmark + "How It Works" (step 1 already done!) + benefits bar + form at bottom.<br>Best for first-ever patients who need the complete explanation.
+  </p>
+</div>
+
+<script>
+  const descriptions = {
+    a: "Narrative mini-landing: BleSaf wordmark, \"How It Works\" (step 1 already done!), benefits bar, then form at bottom. Full story before asking for input.",
+    b: "Outcome-first: a simulated preview of the patient status page shows exactly what you'll see. \"Pour voir votre VRAIE position\" motivates check-in.",
+    c: "Trust-first: Dr. Trabelsi's identity, specialty, and presence front-and-center. Social proof + micro-testimonial. \"If you trust the doctor, trust the system.\"",
+    d: "3 benefit cards appear one-by-one (0.5s intervals) teaching the virtual queue concept. Queue info and form fade in after all benefits are visible.",
+    e: "Form at top for instant action. Three FAQ accordions below (\"Comment ça marche?\", \"Pourquoi mon numéro?\", \"Qu'est-ce que BleSaf?\") for the curious."
+  };
+
+  const labels = {
+    a: "Strategy: Full story before action. BleSaf wordmark + \"How It Works\" (step 1 already done!) + benefits bar + form at bottom.<br>Best for first-ever patients who need the complete explanation.",
+    b: "Strategy: Show the outcome to create desire. The simulated status page preview demonstrates what the patient will get.<br>Best for visual learners — the preview speaks louder than words.",
+    c: "Strategy: Doctor identity carries trust. Patients trust Dr. Trabelsi, so they trust her system. Social proof + testimonial seal the deal.<br>Best for older patients and trust-sensitive users.",
+    d: "Strategy: Teach the concept through benefits, not instructions. Three animated cards (track → wait anywhere → get notified) build understanding.<br>Best all-around design — works for both first-timers and returning patients.",
+    e: "Strategy: Progressive disclosure. Fast patients check in instantly (0 scrolling). Curious patients expand FAQs below.<br>Best for tech-savvy users and returning patients who just want speed."
+  };
+
+  let currentDesign = 'a';
+  let ddAnimated = false;
+
+  function switchDesign(id) {
+    if (id === currentDesign) return;
+
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+      tab.classList.toggle('active', tab.dataset.design === id);
+    });
+    document.querySelectorAll('.design-screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('design' + id.toUpperCase()).classList.add('active');
+
+    document.getElementById('designDesc').textContent = descriptions[id];
+    document.getElementById('designLabel').innerHTML = labels[id];
+
+    // Trigger Design D animations when switching to it
+    if (id === 'd' && !ddAnimated) {
+      triggerDdAnimations();
+    }
+
+    currentDesign = id;
+  }
+
+  // Design D: Staggered card animations
+  function triggerDdAnimations() {
+    ddAnimated = true;
+    setTimeout(() => document.getElementById('ddCard1').classList.add('visible'), 500);
+    setTimeout(() => document.getElementById('ddCard2').classList.add('visible'), 1000);
+    setTimeout(() => document.getElementById('ddCard3').classList.add('visible'), 1500);
+    setTimeout(() => document.getElementById('ddQueueBar').classList.add('visible'), 2000);
+    setTimeout(() => document.getElementById('ddForm').classList.add('visible'), 2300);
+  }
+
+  // Shared: Toggle expandable name fields
+  function toggleField(id) {
+    document.getElementById(id).classList.toggle('open');
+  }
+
+  // Design B: Accordion toggle
+  function toggleDbAccordion() {
+    document.getElementById('dbChevron').classList.toggle('open');
+    document.getElementById('dbAccContent').classList.toggle('open');
+    if (document.getElementById('dbAccContent').classList.contains('open')) {
+      document.getElementById('dbAccContent').style.maxHeight = '200px';
+    } else {
+      document.getElementById('dbAccContent').style.maxHeight = '0';
+    }
+  }
+
+  // Design E: Accordion toggles
+  function toggleDeAcc(id) {
+    const content = document.getElementById(id);
+    const chevron = document.getElementById(id + 'Chevron');
+    const isOpen = content.classList.contains('open');
+
+    content.classList.toggle('open');
+    chevron.classList.toggle('open');
+
+    if (!isOpen) {
+      content.style.maxHeight = content.scrollHeight + 'px';
+    } else {
+      content.style.maxHeight = '0';
+    }
+  }
+</script>
+
+</body>
+</html>

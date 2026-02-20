@@ -1,3 +1,5 @@
+import { useCallback } from 'react';
+import QRCode from 'qrcode';
 import type { ClinicDetailEnriched } from '@/types';
 import { Card } from '@/components/admin/ui';
 
@@ -29,6 +31,20 @@ export default function OperationalProfileCard({ clinic }: Props) {
   const qrActive = clinic.qrCodeActive;
   const lastScanRelative = clinic.qrCodeLastScannedAt
     ? getRelativeTime(new Date(clinic.qrCodeLastScannedAt)) : 'Never';
+
+  const handleDownloadQr = useCallback(async () => {
+    const checkInUrl = `${window.location.origin}/checkin/${clinic.id}`;
+    const dataUrl = await QRCode.toDataURL(checkInUrl, {
+      errorCorrectionLevel: 'M',
+      type: 'image/png',
+      width: 600,
+      margin: 2,
+    });
+    const link = document.createElement('a');
+    link.download = `qr-${clinic.name.replace(/\s+/g, '-').toLowerCase()}.png`;
+    link.href = dataUrl;
+    link.click();
+  }, [clinic.id, clinic.name]);
 
   return (
     <Card title="Operational Profile" subtitle="Performance metrics & configuration">
@@ -74,10 +90,7 @@ export default function OperationalProfileCard({ clinic }: Props) {
                 : 'This clinic has not received any QR check-ins yet'}
             </div>
           </div>
-          <div style={{ display: 'flex', gap: 8, marginLeft: 'auto' }}>
-            <button style={qrBtnStyle}>Download QR</button>
-            <button style={qrBtnStyle}>Regenerate</button>
-          </div>
+          <button onClick={handleDownloadQr} style={qrBtnStyle}>Download QR</button>
         </div>
       </div>
     </Card>

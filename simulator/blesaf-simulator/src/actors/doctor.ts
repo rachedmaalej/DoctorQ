@@ -72,6 +72,7 @@ export class DoctorActor {
   async runConsultations(): Promise<void> {
     let consecutiveEmptyChecks = 0;
     let consecutiveErrors = 0;
+    let currentPatientId: string | undefined;
     const MAX_EMPTY_BEFORE_IDLE = 3;
 
     while (this.clock.isWorkday()) {
@@ -89,14 +90,19 @@ export class DoctorActor {
         continue;
       }
 
-      // Try to call next patient
+      // Call next patient (API auto-completes the previous IN_CONSULTATION patient)
       try {
-        const patient = await this.api.callNextPatient();
+        const patient = await this.api.callNextPatient(currentPatientId);
         consecutiveErrors = 0; // Reset on any successful response (including null)
+
+        if (currentPatientId) {
+          this.metrics.recordPatientCompleted(currentPatientId, this.clock.formatSimTime());
+        }
 
         if (patient) {
           consecutiveEmptyChecks = 0;
           this.patientsSeenToday++;
+          currentPatientId = patient.id;
           this.log(`[${this.clock.formatSimTime()}] Called patient: ${patient.patientName} (position was ${patient.position})`);
 
           // Record in metrics
@@ -106,17 +112,10 @@ export class DoctorActor {
           const duration = this.randomConsultationTime();
           this.log(`  Consulting for ~${duration} simulated minutes...`);
           await this.clock.sleep(duration);
-
-          // Mark patient as completed
-          try {
-            await this.api.completePatient(patient.id);
-            this.metrics.recordPatientCompleted(patient.id, this.clock.formatSimTime());
-            this.log(`  Patient ${patient.patientName} completed at ${this.clock.formatSimTime()}`);
-          } catch (err: any) {
-            this.log(`  ERROR completing patient: ${err.message}`);
-          }
+          this.log(`  Patient ${patient.patientName} completed at ${this.clock.formatSimTime()}`);
 
         } else {
+          currentPatientId = undefined;
           // Queue is empty (404) or doctor not present (400)
           consecutiveEmptyChecks++;
           if (consecutiveEmptyChecks >= MAX_EMPTY_BEFORE_IDLE) {
@@ -136,6 +135,16 @@ export class DoctorActor {
           this.log(`WARNING: /next failed (attempt ${consecutiveErrors}): ${err.message}. Retrying in ${backoffMinutes} sim-min...`);
         }
         await this.clock.sleep(backoffMinutes);
+      }
+    }
+
+    // Complete the last patient if one was in consultation when workday ended
+    if (currentPatientId) {
+      try {
+        await this.api.completePatient(currentPatientId);
+        this.metrics.recordPatientCompleted(currentPatientId, this.clock.formatSimTime());
+      } catch {
+        // Ignore end-of-day errors
       }
     }
 

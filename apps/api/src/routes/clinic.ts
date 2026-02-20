@@ -208,6 +208,9 @@ router.get('/:clinicId/info', async (req, res: Response) => {
         name: true,
         avgConsultationMins: true,
         isDoctorPresent: true,
+        doctorName: true,
+        doctorGender: true,
+        specialty: true,
       },
     });
 
@@ -231,6 +234,9 @@ router.get('/:clinicId/info', async (req, res: Response) => {
         waitingCount,
         avgConsultationMins: clinic.avgConsultationMins,
         isDoctorPresent: clinic.isDoctorPresent,
+        doctorName: clinic.doctorName,
+        doctorGender: clinic.doctorGender,
+        specialty: clinic.specialty,
       },
     });
   } catch (error: any) {

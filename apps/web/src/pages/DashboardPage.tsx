@@ -143,6 +143,7 @@ export default function DashboardPage() {
             onReorderPatient={handleReorderPatient}
             onCompleteConsultation={handleCompleteConsultation}
             onToggleDoctorPresent={handleToggleDoctorPresent}
+            isTogglingPresence={isTogglingPresence}
             isCallingNext={isCallingNext}
           />
         )}

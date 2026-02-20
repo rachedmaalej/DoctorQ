@@ -151,13 +151,12 @@ export default function ClinicSettingsTab({ detail, onRefresh, onResetPassword }
                 <option value="gynecology">Gynécologie-Obstétrique</option>
                 <option value="pediatrics">Pédiatrie</option>
                 <option value="ophthalmology">Ophtalmologie</option>
-                <option value="dermatology">Dermatologie</option>
-                <option value="ent">ORL</option>
                 <option value="cardiology">Cardiologie</option>
-                <option value="gastroenterology">Gastro-entérologie</option>
-                <option value="orthopedics">Orthopédie</option>
-                <option value="dental">Dentaire</option>
-                <option value="other">Autre</option>
+                <option value="dermatology">Dermatologie</option>
+                <option value="orthopedics">Orthopédie et Traumatologie</option>
+                <option value="radiology">Radiologie</option>
+                <option value="gastroenterology">Gastro-Entérologie</option>
+                <option value="other">Autres</option>
               </select>
             ) : (
               <p className="text-sm text-[#132E2C] font-medium">{specialtyLabel(clinic.businessType)}</p>
@@ -214,13 +213,15 @@ const SPECIALTY_LABELS: Record<string, string> = {
   gynecology: 'Gynécologie-Obstétrique',
   pediatrics: 'Pédiatrie',
   ophthalmology: 'Ophtalmologie',
-  dermatology: 'Dermatologie',
-  ent: 'ORL',
   cardiology: 'Cardiologie',
-  gastroenterology: 'Gastro-entérologie',
-  orthopedics: 'Orthopédie',
+  dermatology: 'Dermatologie',
+  orthopedics: 'Orthopédie et Traumatologie',
+  radiology: 'Radiologie',
+  gastroenterology: 'Gastro-Entérologie',
+  other: 'Autres',
+  // legacy values for backward compatibility
+  ent: 'ORL',
   dental: 'Dentaire',
-  other: 'Autre',
   medical: 'Medical',
   retail: 'Retail',
 };

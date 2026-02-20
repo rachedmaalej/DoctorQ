@@ -47,7 +47,7 @@ export class ClinicSimulation {
     this.config = config;
     this.clock = new SimClock('08:00', '16:00', compression);
     this.metrics = new MetricsCollector(config.name);
-    this.api = new ApiClient(apiBaseUrl, socketUrl, this.metrics);
+    this.api = new ApiClient(apiBaseUrl, socketUrl, this.metrics, this.clock);
   }
 
   private log(msg: string): void {

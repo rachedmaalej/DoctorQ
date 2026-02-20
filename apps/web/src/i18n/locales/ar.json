@@ -204,7 +204,19 @@
     "patientsWaiting_other": "{{count}} مرضى في الانتظار",
     "yourSpotLabel": "مكانك",
     "occupiedSeat": "مقعد مشغول",
-    "yourSpot": "مكانك المستقبلي"
+    "yourSpot": "مكانك المستقبلي",
+    "takeYourPlace": "خذ مكانك",
+    "available": "متاح",
+    "unavailable": "غير متاح",
+    "waitingInQueue": "في الانتظار",
+    "avgConsultationTime": "متوسط الاستشارة",
+    "yourInfo": "معلوماتك",
+    "joinSaf": "انضم إلى الصف",
+    "dataProtected": "بيانات محمية",
+    "realTimeTracking": "متابعة فورية",
+    "testimonialText": "« تمكنت من الانتظار في المقهى بدلاً من الجلوس 45 دقيقة في غرفة الانتظار. »",
+    "testimonialAuthor": "— مريضة، عيادة المرسى",
+    "virtualQueue": "الصف الافتراضي"
   },
   "dashboard": {
     "title": "لوحة التحكم",

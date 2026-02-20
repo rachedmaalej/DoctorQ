@@ -1,0 +1,1731 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>BleSaf — Check-In Page Redesign Alternatives</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+
+<style>
+  /* ═══════════════════════════════════════════
+     DESIGN TOKENS (from patient-status.css)
+     ═══════════════════════════════════════════ */
+  :root {
+    --relax-bg: #FAFAF8;
+    --relax-surface: #FFFFFF;
+    --relax-accent: #2B8A7A;
+    --relax-accent-soft: #E6F4F1;
+    --relax-ring: #2B8A7A;
+    --relax-ring-track: #E8E6E0;
+
+    --ready-accent: #C47F17;
+    --ready-accent-soft: #FEF3DC;
+
+    --go-accent: #1A7A3A;
+    --go-accent-soft: #D4F5DF;
+    --go-ring: #22C55E;
+
+    --text-primary: #1A1917;
+    --text-secondary: #6B6960;
+    --text-tertiary: #9E9B90;
+    --border: #E8E6DF;
+    --red: #D94F3B;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.06);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.10);
+    --radius: 16px;
+    --radius-sm: 12px;
+    --radius-xs: 8px;
+    --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Plus Jakarta Sans', 'IBM Plex Sans Arabic', sans-serif;
+    background: #131311;
+    min-height: 100vh;
+    padding: 20px 16px 40px;
+    color: #fff;
+  }
+
+  /* ═══ SHOWCASE SHELL ═══ */
+  .showcase-header {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+
+  .page-title {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.4;
+    margin-bottom: 8px;
+  }
+
+  .page-subtitle {
+    font-size: 14px;
+    color: rgba(255,255,255,0.5);
+    max-width: 500px;
+    margin: 0 auto;
+    line-height: 1.5;
+  }
+
+  /* Navigation tabs */
+  .nav-tabs {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  .nav-tab {
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 16px;
+    border-radius: 100px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.04);
+    color: rgba(255,255,255,0.4);
+    cursor: pointer;
+    transition: all 0.3s;
+    letter-spacing: 0.02em;
+  }
+
+  .nav-tab:hover {
+    border-color: rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.7);
+  }
+
+  .nav-tab.active {
+    border-color: var(--relax-accent);
+    background: var(--relax-accent);
+    color: #fff;
+  }
+
+  .design-desc {
+    color: rgba(255,255,255,0.55);
+    font-size: 13px;
+    font-weight: 500;
+    text-align: center;
+    max-width: 380px;
+    margin: 0 auto 20px;
+    line-height: 1.5;
+    min-height: 40px;
+    transition: opacity 0.3s;
+  }
+
+  /* Phone frame */
+  .phone-frame {
+    width: 375px;
+    max-width: 100%;
+    height: 812px;
+    border-radius: 44px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 0 0 3px #2a2a28, 0 24px 80px rgba(0,0,0,0.5);
+    margin: 0 auto;
+    background: var(--relax-bg);
+  }
+
+  .phone-inner {
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Design screens */
+  .design-screen {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    background: var(--relax-bg);
+  }
+  .design-screen::-webkit-scrollbar { display: none; }
+  .design-screen.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  /* Status bar */
+  .status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 28px 6px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    position: relative;
+    z-index: 10;
+  }
+  .status-bar .right { display: flex; gap: 5px; align-items: center; }
+  .status-bar .right .material-symbols-rounded { font-size: 17px; color: var(--text-primary); }
+
+  /* ═══ SHARED COMPONENTS ═══ */
+
+  /* Clinic header (PSHeader style) */
+  .clinic-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 4px 24px 0;
+  }
+  .clinic-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  .clinic-doc {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-top: 1px;
+  }
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .doctor-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #22C55E;
+    flex-shrink: 0;
+  }
+  .lang-btn {
+    font-family: 'IBM Plex Sans Arabic', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    background: rgba(0,0,0,0.04);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 5px 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+    color: var(--text-primary);
+  }
+  .lang-btn:active { background: rgba(0,0,0,0.08); }
+
+  /* Brand footer */
+  .brand-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 16px 24px 36px;
+    font-size: 12px;
+    color: var(--text-tertiary);
+    font-weight: 500;
+  }
+  .brand-mark {
+    width: 16px;
+    height: 16px;
+    background: var(--text-tertiary);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 9px;
+    font-weight: 800;
+  }
+
+  /* Phone input shared style */
+  .ci-input {
+    width: 100%;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    color: var(--text-primary);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background: #fff;
+  }
+  .ci-input:focus {
+    border-color: var(--relax-accent);
+    box-shadow: 0 0 0 3px rgba(43,138,122,0.12);
+  }
+  .ci-input::placeholder {
+    color: var(--text-tertiary);
+    font-weight: 400;
+  }
+
+  /* Submit button shared */
+  .ci-submit {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    height: 56px;
+    background: var(--relax-accent);
+    border: none;
+    border-radius: var(--radius);
+    color: #fff;
+    font-family: inherit;
+    font-size: 17px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 6px 24px rgba(43,138,122,0.25);
+    transition: all 0.15s;
+  }
+  .ci-submit:active { transform: scale(0.97); }
+  .ci-submit .material-symbols-rounded { font-size: 22px; }
+  .ci-submit:disabled {
+    background: var(--text-tertiary);
+    box-shadow: none;
+    cursor: default;
+  }
+
+  /* Trust line */
+  .trust-line {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--text-tertiary);
+    font-weight: 500;
+  }
+  .trust-line .material-symbols-rounded { font-size: 14px; }
+
+  /* Info card (from PS design) */
+  .ci-info-card {
+    background: var(--relax-accent-soft);
+    border: 1px solid rgba(43,138,122,0.1);
+    border-radius: var(--radius-sm);
+    padding: 18px 20px;
+  }
+  .ci-info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+  }
+  .ci-info-row + .ci-info-row {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(0,0,0,0.05);
+  }
+  .ci-info-label {
+    font-size: 14px;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+  .ci-info-value {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--relax-accent);
+  }
+
+  /* Context tip */
+  .ci-context-tip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px;
+    border-radius: var(--radius-xs);
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .ci-context-tip .material-symbols-rounded { font-size: 20px; flex-shrink: 0; }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .anim { animation: fadeUp 0.5s ease-out both; }
+  .d1 { animation-delay: 0.05s; }
+  .d2 { animation-delay: 0.12s; }
+  .d3 { animation-delay: 0.2s; }
+  .d4 { animation-delay: 0.28s; }
+  .d5 { animation-delay: 0.36s; }
+
+  @keyframes gentlePulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.8; }
+  }
+
+  @keyframes seatPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+  }
+
+  /* Label below phone */
+  .design-label {
+    color: rgba(255,255,255,0.2);
+    font-size: 11px;
+    text-align: center;
+    max-width: 360px;
+    margin: 12px auto 0;
+    line-height: 1.6;
+  }
+
+  /* ═══════════════════════════════════════════
+     DESIGN 1: Phone-First Express
+     ═══════════════════════════════════════════ */
+  .d1-content {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+  }
+
+  .d1-hero {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 24px;
+  }
+
+  .d1-eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--relax-accent);
+    margin-bottom: 16px;
+  }
+
+  .d1-icon-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--relax-accent-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+  .d1-icon-circle .material-symbols-rounded {
+    font-size: 36px;
+    color: var(--relax-accent);
+  }
+
+  .d1-subtitle {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-align: center;
+    max-width: 260px;
+    line-height: 1.4;
+    margin-bottom: 32px;
+  }
+
+  .d1-phone-input {
+    height: 56px;
+    padding: 0 20px;
+    font-size: 18px;
+    font-weight: 600;
+    text-align: center;
+    letter-spacing: 0.04em;
+  }
+
+  .d1-format-hint {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    text-align: center;
+    margin-top: 6px;
+    margin-bottom: 16px;
+  }
+
+  .d1-bottom {
+    padding: 0 24px 0;
+    flex-shrink: 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     DESIGN 2: Queue Preview
+     ═══════════════════════════════════════════ */
+  .d2-content {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    padding-bottom: 0;
+  }
+
+  .d2-queue-card {
+    margin: 16px 20px;
+  }
+
+  .d2-doctor-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 0 24px;
+    margin-top: 4px;
+  }
+  .d2-doctor-status .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #22C55E;
+    flex-shrink: 0;
+  }
+  .d2-doctor-status span {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--go-accent);
+  }
+
+  .d2-context-tip {
+    margin: 12px 20px 0;
+    background: #FEF7E6;
+    color: #92690B;
+  }
+  .d2-context-tip .material-symbols-rounded { color: #D4920B; }
+
+  .d2-form-section {
+    padding: 24px 24px 0;
+    flex: 1;
+  }
+
+  .d2-form-eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--relax-accent);
+    margin-bottom: 16px;
+  }
+
+  .d2-field-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+  }
+  .d2-field-label .material-symbols-rounded { font-size: 18px; color: var(--text-tertiary); }
+
+  .d2-phone-input {
+    height: 52px;
+    padding: 0 16px;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  .d2-name-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--relax-accent);
+    cursor: pointer;
+    margin-top: 10px;
+    background: none;
+    border: none;
+    font-family: inherit;
+    padding: 4px 0;
+  }
+  .d2-name-toggle:hover { text-decoration: underline; }
+  .d2-name-toggle .material-symbols-rounded { font-size: 16px; }
+
+  .d2-name-field {
+    margin-top: 10px;
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transition: max-height 0.3s var(--ease-spring), opacity 0.2s ease, margin-top 0.3s;
+  }
+  .d2-name-field.open {
+    max-height: 60px;
+    opacity: 1;
+    margin-top: 10px;
+  }
+  .d2-name-input {
+    height: 48px;
+    padding: 0 16px;
+    font-size: 15px;
+    font-weight: 500;
+    border-style: dashed;
+  }
+
+  /* ═══════════════════════════════════════════
+     DESIGN 3: Doctor Connect
+     ═══════════════════════════════════════════ */
+  .d3-content {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+  }
+
+  .d3-top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 24px 0;
+  }
+  .d3-clinic-label {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    font-weight: 500;
+  }
+
+  .d3-doctor-hero {
+    text-align: center;
+    padding: 32px 24px 20px;
+  }
+
+  .d3-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--relax-accent-soft);
+    border: 2px solid var(--relax-accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+  }
+  .d3-avatar .material-symbols-rounded {
+    font-size: 36px;
+    color: var(--relax-accent);
+  }
+
+  .d3-doctor-name {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+  }
+
+  .d3-specialty-badge {
+    display: inline-flex;
+    padding: 4px 14px;
+    background: var(--relax-accent-soft);
+    color: var(--relax-accent);
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-top: 6px;
+  }
+
+  .d3-presence {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .d3-presence .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .d3-presence .dot.green { background: #22C55E; }
+  .d3-presence span {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--go-accent);
+  }
+
+  .d3-queue-bar {
+    margin: 0 20px;
+    padding: 8px 14px;
+    border-radius: var(--radius-sm);
+    background: rgba(0,0,0,0.03);
+    font-size: 12px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .d3-queue-bar .material-symbols-rounded {
+    font-size: 14px;
+    color: var(--text-tertiary);
+  }
+  .d3-queue-bar strong {
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .d3-divider {
+    border: none;
+    border-top: 1px dashed var(--border);
+    margin: 20px 24px;
+  }
+
+  .d3-form-section {
+    padding: 0 24px;
+    flex: 1;
+  }
+  .d3-form-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+  }
+
+  .d3-phone-input {
+    height: 52px;
+    padding: 0 16px;
+    font-size: 17px;
+    font-weight: 600;
+  }
+
+  .d3-name-input {
+    height: 48px;
+    padding: 0 16px;
+    font-size: 15px;
+    font-weight: 500;
+    border-style: dashed;
+    margin-top: 8px;
+  }
+
+  .d3-submit {
+    margin-top: 20px;
+  }
+  .d3-submit .material-symbols-rounded {
+    font-size: 20px;
+  }
+
+  .d3-trust-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 16px;
+  }
+  .d3-trust-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--text-tertiary);
+    font-weight: 500;
+  }
+  .d3-trust-item .material-symbols-rounded { font-size: 14px; }
+  .d3-trust-sep {
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--border);
+  }
+
+  /* ═══════════════════════════════════════════
+     DESIGN 4: Guided Steps
+     ═══════════════════════════════════════════ */
+  .d4-content {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    position: relative;
+  }
+
+  .d4-step {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease, transform 0.4s var(--ease-spring);
+    transform: translateX(40px);
+    overflow-y: auto;
+  }
+  .d4-step.active {
+    opacity: 1;
+    pointer-events: all;
+    transform: translateX(0);
+    position: relative;
+  }
+  .d4-step.exiting {
+    transform: translateX(-40px);
+  }
+
+  /* Step 1 */
+  .d4-step1-center {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 24px;
+  }
+
+  .d4-welcome-icon {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: var(--relax-accent-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  .d4-welcome-icon .material-symbols-rounded {
+    font-size: 48px;
+    color: var(--relax-accent);
+  }
+
+  .d4-welcome-title {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+  }
+
+  .d4-welcome-clinic {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--relax-accent);
+    margin-bottom: 32px;
+  }
+
+  .d4-queue-card {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .d4-bottom-area {
+    padding: 24px 24px 0;
+    flex-shrink: 0;
+    background: linear-gradient(transparent 0%, var(--relax-bg) 30%);
+  }
+
+  .d4-time-hint {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    text-align: center;
+    margin-top: 10px;
+    margin-bottom: 8px;
+  }
+
+  /* Step 2 */
+  .d4-step2-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 24px 0;
+  }
+
+  .d4-back-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(0,0,0,0.04);
+    cursor: pointer;
+    transition: background 0.2s;
+    color: var(--text-secondary);
+  }
+  .d4-back-btn:active { background: rgba(0,0,0,0.08); }
+  .d4-back-btn .material-symbols-rounded { font-size: 20px; }
+
+  .d4-step-dots {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    padding: 12px 0;
+  }
+  .d4-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: all 0.3s;
+  }
+  .d4-dot.filled {
+    background: var(--relax-accent);
+    width: 24px;
+    border-radius: 4px;
+  }
+
+  .d4-step2-center {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 24px;
+  }
+
+  .d4-step2-prompt {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    text-align: center;
+    margin-bottom: 4px;
+  }
+
+  .d4-step2-sub {
+    font-size: 14px;
+    color: var(--text-secondary);
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .d4-phone-wrapper {
+    width: 100%;
+    max-width: 300px;
+    position: relative;
+  }
+
+  .d4-prefix-badge {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--relax-accent-soft);
+    color: var(--relax-accent);
+    font-size: 14px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: var(--radius-xs);
+    pointer-events: none;
+  }
+
+  .d4-phone-input {
+    height: 60px;
+    padding: 0 16px 0 80px;
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    width: 100%;
+  }
+
+  .d4-format-hint {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    text-align: center;
+    margin-top: 8px;
+  }
+
+  .d4-name-expand {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--relax-accent);
+    cursor: pointer;
+    margin-top: 12px;
+    background: none;
+    border: none;
+    font-family: inherit;
+  }
+  .d4-name-expand .material-symbols-rounded { font-size: 16px; }
+
+  /* Step 3 - Confirmation */
+  .d4-confirm-center {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 24px;
+  }
+
+  .d4-check-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--go-accent-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    animation: fadeUp 0.4s ease-out both;
+  }
+  .d4-check-circle .material-symbols-rounded {
+    font-size: 40px;
+    color: var(--go-accent);
+    font-variation-settings: 'FILL' 1;
+  }
+
+  .d4-confirm-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text-primary);
+    animation: fadeUp 0.4s ease-out 0.1s both;
+  }
+
+  .d4-confirm-position {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--relax-accent);
+    margin-top: 4px;
+    animation: fadeUp 0.4s ease-out 0.2s both;
+  }
+
+  .d4-confirm-redirect {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-top: 16px;
+    animation: fadeUp 0.4s ease-out 0.3s both;
+  }
+
+  /* ═══════════════════════════════════════════
+     DESIGN 5: Living Queue
+     ═══════════════════════════════════════════ */
+  .d5-content {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+  }
+
+  .d5-queue-visual {
+    padding: 20px 24px;
+    text-align: center;
+    position: relative;
+  }
+
+  .d5-queue-bg {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 50%, rgba(43,138,122,0.05) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .d5-seats-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px 0;
+    position: relative;
+    z-index: 1;
+    flex-wrap: wrap;
+  }
+
+  .d5-seat {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.4s var(--ease-spring);
+  }
+
+  .d5-seat.occupied {
+    background: var(--border);
+  }
+  .d5-seat.occupied .material-symbols-rounded {
+    font-size: 18px;
+    color: var(--text-tertiary);
+  }
+
+  .d5-seat.yours {
+    width: 40px;
+    height: 40px;
+    border: 2px dashed var(--relax-accent);
+    background: rgba(43,138,122,0.06);
+    animation: seatPulse 2s ease-in-out infinite;
+  }
+  .d5-seat.yours .material-symbols-rounded {
+    font-size: 20px;
+    color: var(--relax-accent);
+  }
+
+  .d5-seat.yours.filling {
+    border-style: solid;
+    background: var(--relax-accent-soft);
+  }
+
+  .d5-overflow {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-tertiary);
+    margin-left: 2px;
+  }
+
+  .d5-queue-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-top: 4px;
+    position: relative;
+    z-index: 1;
+  }
+  .d5-queue-text strong {
+    color: var(--relax-accent);
+    font-weight: 800;
+  }
+
+  .d5-divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 0 24px;
+  }
+
+  .d5-form-section {
+    padding: 20px 24px 0;
+    flex: 1;
+  }
+
+  .d5-form-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+  }
+
+  .d5-field-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+  }
+  .d5-field-label .material-symbols-rounded { font-size: 16px; color: var(--text-tertiary); }
+
+  .d5-phone-input {
+    height: 52px;
+    padding: 0 16px;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  .d5-name-input {
+    height: 44px;
+    padding: 0 16px;
+    font-size: 14px;
+    font-weight: 500;
+    margin-top: 10px;
+    border-style: dashed;
+  }
+
+  .d5-submit {
+    margin-top: 20px;
+  }
+
+  .d5-follow-text {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    text-align: center;
+    margin-top: 12px;
+    font-weight: 500;
+  }
+
+  /* Seat fill progress indicator */
+  .d5-seat.yours .fill-overlay {
+    position: absolute;
+    inset: 2px;
+    border-radius: 50%;
+    background: var(--relax-accent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  /* Interactive states for showcase */
+  .showcase-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+</style>
+</head>
+
+<body>
+
+<div class="showcase-container">
+  <div class="showcase-header">
+    <p class="page-title">BleSaf — Check-In Page Redesign</p>
+    <p class="page-subtitle">5 alternative designs for the "Rejoignez le Saf" patient check-in page, aligned with the patient status page design system</p>
+  </div>
+
+  <!-- Navigation tabs -->
+  <div class="nav-tabs" id="navTabs">
+    <button class="nav-tab active" data-design="1" onclick="switchDesign(1)">1. Phone-First</button>
+    <button class="nav-tab" data-design="2" onclick="switchDesign(2)">2. Queue Preview</button>
+    <button class="nav-tab" data-design="3" onclick="switchDesign(3)">3. Doctor Connect</button>
+    <button class="nav-tab" data-design="4" onclick="switchDesign(4)">4. Guided Steps</button>
+    <button class="nav-tab" data-design="5" onclick="switchDesign(5)">5. Living Queue</button>
+  </div>
+
+  <!-- Description -->
+  <p class="design-desc" id="designDesc">Ultra-minimal: single phone input, no name field, one-tap check-in. Fastest possible path from QR scan to queue.</p>
+
+  <!-- Phone Frame -->
+  <div class="phone-frame" id="phoneFrame">
+    <div class="phone-inner">
+
+      <!-- ═══════════════════════════════════════
+           DESIGN 1: Phone-First Express
+           ═══════════════════════════════════════ -->
+      <div class="design-screen active" id="design1">
+        <div class="d1-content">
+          <!-- Status bar -->
+          <div class="status-bar">
+            <span>18:11</span>
+            <div class="right">
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">signal_cellular_alt</span>
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">wifi</span>
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">battery_5_bar</span>
+            </div>
+          </div>
+
+          <!-- Header -->
+          <div class="clinic-header">
+            <div>
+              <div class="clinic-name">Cabinet Dr. Trabelsi</div>
+              <div class="clinic-doc">Ophtalmologie</div>
+            </div>
+            <div class="header-right">
+              <div class="doctor-dot"></div>
+              <button class="lang-btn">عربي</button>
+            </div>
+          </div>
+
+          <!-- Hero -->
+          <div class="d1-hero">
+            <div class="d1-eyebrow anim">REJOIGNEZ LE SAF</div>
+            <div class="d1-icon-circle anim d1">
+              <span class="material-symbols-rounded">how_to_reg</span>
+            </div>
+            <div class="d1-subtitle anim d2">Entrez votre numéro pour prendre place dans le saf</div>
+
+            <div style="width:100%;max-width:320px;" class="anim d3">
+              <input type="tel" class="ci-input d1-phone-input" value="+216 " placeholder="+216 XX XXX XXX" inputmode="tel">
+              <div class="d1-format-hint">Format: +216 XX XXX XXX</div>
+
+              <button class="ci-submit">
+                <span class="material-symbols-rounded">confirmation_number</span>
+                Prendre ma place
+              </button>
+
+              <div class="trust-line" style="margin-top:16px;">
+                <span class="material-symbols-rounded">lock</span>
+                Vos informations restent privées
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="brand-footer">
+            <div class="brand-mark">B</div> BleSaf
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════
+           DESIGN 2: Queue Preview
+           ═══════════════════════════════════════ -->
+      <div class="design-screen" id="design2">
+        <div class="d2-content">
+          <div class="status-bar">
+            <span>18:11</span>
+            <div class="right">
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">signal_cellular_alt</span>
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">wifi</span>
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">battery_5_bar</span>
+            </div>
+          </div>
+
+          <div class="clinic-header">
+            <div>
+              <div class="clinic-name">Cabinet Dr. Trabelsi</div>
+              <div class="clinic-doc">Ophtalmologie · La Marsa</div>
+            </div>
+            <div class="header-right">
+              <div class="doctor-dot"></div>
+              <button class="lang-btn">عربي</button>
+            </div>
+          </div>
+
+          <!-- Queue snapshot card -->
+          <div class="d2-queue-card ci-info-card anim d1">
+            <div class="ci-info-row">
+              <span class="ci-info-label">Patients en attente</span>
+              <span class="ci-info-value" style="font-size:22px;font-weight:800;">7</span>
+            </div>
+            <div class="ci-info-row">
+              <span class="ci-info-label">Attente estimée</span>
+              <span class="ci-info-value">~35 min</span>
+            </div>
+          </div>
+
+          <!-- Doctor status -->
+          <div class="d2-doctor-status anim d2">
+            <div class="dot"></div>
+            <span>Dr. Trabelsi est présente</span>
+          </div>
+
+          <!-- Context tip -->
+          <div class="ci-context-tip d2-context-tip anim d3">
+            <span class="material-symbols-rounded">coffee</span>
+            Vous aurez le temps pour un café
+          </div>
+
+          <!-- Form section -->
+          <div class="d2-form-section anim d4">
+            <div class="d2-form-eyebrow">PRENDRE VOTRE PLACE</div>
+
+            <div class="d2-field-label">
+              <span class="material-symbols-rounded">phone</span>
+              Votre téléphone
+            </div>
+            <input type="tel" class="ci-input d2-phone-input" value="+216 " placeholder="+216 XX XXX XXX" inputmode="tel">
+
+            <button class="d2-name-toggle" onclick="toggleD2Name()">
+              <span class="material-symbols-rounded">add</span>
+              Ajouter votre nom (optionnel)
+            </button>
+
+            <div class="d2-name-field" id="d2NameField">
+              <input type="text" class="ci-input d2-name-input" placeholder="Votre nom (optionnel)">
+            </div>
+
+            <button class="ci-submit" style="margin-top:16px;">
+              <span class="material-symbols-rounded">confirmation_number</span>
+              Prendre ma place
+            </button>
+
+            <div class="trust-line" style="margin-top:12px;">
+              <span class="material-symbols-rounded">lock</span>
+              Données sécurisées
+              <span style="margin:0 4px;color:var(--border);">·</span>
+              <span class="material-symbols-rounded">update</span>
+              Suivi en direct
+            </div>
+          </div>
+
+          <div class="brand-footer">
+            <div class="brand-mark">B</div> BleSaf
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════
+           DESIGN 3: Doctor Connect
+           ═══════════════════════════════════════ -->
+      <div class="design-screen" id="design3">
+        <div class="d3-content">
+          <div class="status-bar">
+            <span>18:11</span>
+            <div class="right">
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">signal_cellular_alt</span>
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">wifi</span>
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">battery_5_bar</span>
+            </div>
+          </div>
+
+          <div class="d3-top-bar">
+            <div class="d3-clinic-label">Clinique La Marsa</div>
+            <button class="lang-btn">عربي</button>
+          </div>
+
+          <!-- Doctor hero -->
+          <div class="d3-doctor-hero anim">
+            <div class="d3-avatar anim d1">
+              <span class="material-symbols-rounded">stethoscope</span>
+            </div>
+            <div class="d3-doctor-name anim d2">Dr. Leila Trabelsi</div>
+            <div class="d3-specialty-badge anim d2">Ophtalmologie</div>
+            <div class="d3-presence anim d3">
+              <div class="dot green"></div>
+              <span>Disponible</span>
+            </div>
+          </div>
+
+          <!-- Queue context bar -->
+          <div class="d3-queue-bar anim d3">
+            <span class="material-symbols-rounded">groups</span>
+            <span><strong>5 patients</strong> en attente · ~25 min</span>
+          </div>
+
+          <hr class="d3-divider">
+
+          <!-- Form -->
+          <div class="d3-form-section anim d4">
+            <div class="d3-form-title">Inscrivez-vous</div>
+
+            <input type="tel" class="ci-input d3-phone-input" value="+216 " placeholder="+216 XX XXX XXX" inputmode="tel">
+            <input type="text" class="ci-input d3-name-input" placeholder="Votre nom (optionnel)">
+
+            <button class="ci-submit d3-submit">
+              Rejoindre le Saf du Dr. Trabelsi
+              <span class="material-symbols-rounded">arrow_forward</span>
+            </button>
+
+            <div class="d3-trust-row">
+              <div class="d3-trust-item">
+                <span class="material-symbols-rounded">lock</span>
+                Données protégées
+              </div>
+              <div class="d3-trust-sep"></div>
+              <div class="d3-trust-item">
+                <span class="material-symbols-rounded">update</span>
+                Suivi en temps réel
+              </div>
+            </div>
+          </div>
+
+          <div style="flex:1;"></div>
+          <div class="brand-footer">
+            <div class="brand-mark">B</div> BleSaf
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════
+           DESIGN 4: Guided Steps
+           ═══════════════════════════════════════ -->
+      <div class="design-screen" id="design4">
+        <div class="d4-content">
+
+          <!-- Step 1: Welcome -->
+          <div class="d4-step active" id="d4step1">
+            <div class="status-bar">
+              <span>18:11</span>
+              <div class="right">
+                <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">signal_cellular_alt</span>
+                <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">wifi</span>
+                <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">battery_5_bar</span>
+              </div>
+            </div>
+
+            <div class="clinic-header">
+              <div>
+                <div class="clinic-name">Cabinet Dr. Trabelsi</div>
+              </div>
+              <div class="header-right">
+                <button class="lang-btn">عربي</button>
+              </div>
+            </div>
+
+            <div class="d4-step-dots">
+              <div class="d4-dot filled"></div>
+              <div class="d4-dot"></div>
+            </div>
+
+            <div class="d4-step1-center">
+              <div class="d4-welcome-icon anim">
+                <span class="material-symbols-rounded">waving_hand</span>
+              </div>
+              <div class="d4-welcome-title anim d1">Bienvenue !</div>
+              <div class="d4-welcome-clinic anim d2">Cabinet Dr. Trabelsi</div>
+
+              <div class="d4-queue-card ci-info-card anim d3">
+                <div class="ci-info-row">
+                  <span class="ci-info-label">En attente</span>
+                  <span class="ci-info-value" style="font-size:18px;font-weight:800;">5 patients</span>
+                </div>
+                <div class="ci-info-row">
+                  <span class="ci-info-label">Durée estimée</span>
+                  <span class="ci-info-value">~25 min</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="d4-bottom-area anim d4">
+              <button class="ci-submit" onclick="goToD4Step(2)">
+                Continuer
+                <span class="material-symbols-rounded">arrow_forward</span>
+              </button>
+              <div class="d4-time-hint">Ça prend 10 secondes</div>
+            </div>
+
+            <div class="brand-footer" style="padding-top:8px;">
+              <div class="brand-mark">B</div> BleSaf
+            </div>
+          </div>
+
+          <!-- Step 2: Phone Input -->
+          <div class="d4-step" id="d4step2">
+            <div class="status-bar">
+              <span>18:11</span>
+              <div class="right">
+                <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">signal_cellular_alt</span>
+                <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">wifi</span>
+                <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">battery_5_bar</span>
+              </div>
+            </div>
+
+            <div class="d4-step2-header">
+              <button class="d4-back-btn" onclick="goToD4Step(1)">
+                <span class="material-symbols-rounded">arrow_back</span>
+              </button>
+              <button class="lang-btn">عربي</button>
+            </div>
+
+            <div class="d4-step-dots">
+              <div class="d4-dot" style="background:var(--relax-accent);"></div>
+              <div class="d4-dot filled"></div>
+            </div>
+
+            <div class="d4-step2-center">
+              <div class="d4-step2-prompt">Votre numéro de téléphone</div>
+              <div class="d4-step2-sub">Pour vous identifier dans le saf</div>
+
+              <div class="d4-phone-wrapper">
+                <div class="d4-prefix-badge">+216</div>
+                <input type="tel" class="ci-input d4-phone-input" placeholder="XX XXX XXX" inputmode="tel">
+              </div>
+              <div class="d4-format-hint">8 chiffres</div>
+
+              <button class="d4-name-expand">
+                <span class="material-symbols-rounded">add</span>
+                Ajouter votre nom
+              </button>
+            </div>
+
+            <div class="d4-bottom-area">
+              <button class="ci-submit" onclick="goToD4Step(3)">
+                <span class="material-symbols-rounded">confirmation_number</span>
+                Prendre ma place
+              </button>
+            </div>
+
+            <div class="brand-footer" style="padding-top:8px;">
+              <div class="brand-mark">B</div> BleSaf
+            </div>
+          </div>
+
+          <!-- Step 3: Confirmation -->
+          <div class="d4-step" id="d4step3">
+            <div class="status-bar">
+              <span>18:12</span>
+              <div class="right">
+                <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">signal_cellular_alt</span>
+                <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">wifi</span>
+                <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">battery_5_bar</span>
+              </div>
+            </div>
+
+            <div class="d4-confirm-center">
+              <div class="d4-check-circle">
+                <span class="material-symbols-rounded">check_circle</span>
+              </div>
+              <div class="d4-confirm-title">Vous êtes dans le Saf !</div>
+              <div class="d4-confirm-position">Position #6</div>
+              <div class="d4-confirm-redirect">Redirection...</div>
+            </div>
+
+            <div class="brand-footer">
+              <div class="brand-mark">B</div> BleSaf
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════
+           DESIGN 5: Living Queue
+           ═══════════════════════════════════════ -->
+      <div class="design-screen" id="design5">
+        <div class="d5-content">
+          <div class="status-bar">
+            <span>18:11</span>
+            <div class="right">
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">signal_cellular_alt</span>
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">wifi</span>
+              <span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1">battery_5_bar</span>
+            </div>
+          </div>
+
+          <div class="clinic-header">
+            <div>
+              <div class="clinic-name">Cabinet Dr. Trabelsi</div>
+              <div class="clinic-doc">Ophtalmologie</div>
+            </div>
+            <div class="header-right">
+              <div class="doctor-dot"></div>
+              <button class="lang-btn">عربي</button>
+            </div>
+          </div>
+
+          <!-- Queue visualization -->
+          <div class="d5-queue-visual anim d1">
+            <div class="d5-queue-bg"></div>
+
+            <div class="d5-seats-row">
+              <!-- Occupied seats -->
+              <div class="d5-seat occupied"><span class="material-symbols-rounded">person</span></div>
+              <div class="d5-seat occupied"><span class="material-symbols-rounded">person</span></div>
+              <div class="d5-seat occupied"><span class="material-symbols-rounded">person</span></div>
+              <div class="d5-seat occupied"><span class="material-symbols-rounded">person</span></div>
+              <div class="d5-seat occupied"><span class="material-symbols-rounded">person</span></div>
+              <div class="d5-seat occupied"><span class="material-symbols-rounded">person</span></div>
+              <div class="d5-seat occupied"><span class="material-symbols-rounded">person</span></div>
+              <!-- Your seat -->
+              <div class="d5-seat yours" id="d5YourSeat">
+                <span class="material-symbols-rounded">person_add</span>
+              </div>
+            </div>
+
+            <div class="d5-queue-text">
+              <strong>7</strong> devant vous · ~35 min d'attente
+            </div>
+          </div>
+
+          <hr class="d5-divider">
+
+          <!-- Form -->
+          <div class="d5-form-section anim d3">
+            <div class="d5-form-title">Prenez votre place</div>
+
+            <div class="d5-field-label">
+              <span class="material-symbols-rounded">phone</span>
+              Téléphone
+            </div>
+            <input type="tel" class="ci-input d5-phone-input" id="d5Phone" value="+216 " placeholder="+216 XX XXX XXX" inputmode="tel" oninput="updateSeatFill()">
+
+            <div class="d5-field-label" style="margin-top:12px;">
+              <span class="material-symbols-rounded">person</span>
+              Nom <span style="color:var(--text-tertiary);font-weight:400;">(optionnel)</span>
+            </div>
+            <input type="text" class="ci-input d5-name-input" placeholder="Votre nom">
+
+            <button class="ci-submit d5-submit" id="d5Submit">
+              <span class="material-symbols-rounded">confirmation_number</span>
+              <span id="d5SubmitText">Prendre la place #8</span>
+            </button>
+
+            <div class="d5-follow-text">
+              Suivez votre position en temps réel sur cette page
+            </div>
+          </div>
+
+          <div style="flex:1;"></div>
+          <div class="brand-footer">
+            <div class="brand-mark">B</div> BleSaf
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Design label -->
+  <p class="design-label" id="designLabel">
+    Concept: Single phone input removes all friction. No name field, no card wrappers.<br>
+    The patient types 8 digits and taps one button.
+  </p>
+</div>
+
+<script>
+  const descriptions = {
+    1: "Ultra-minimal: single phone input, no name field, one-tap check-in. Fastest possible path from QR scan to queue.",
+    2: "Context-first: shows queue state (7 waiting, ~35 min) and doctor status BEFORE the form. Patients know what they're joining.",
+    3: "Doctor-centric: leads with Dr. Trabelsi's identity, specialty, and availability. Personal CTA: \"Rejoindre le Saf du Dr. Trabelsi\".",
+    4: "Step-by-step: 2 micro-steps (welcome + phone). One task per screen, zero cognitive overload. Click \"Continuer\" to see step 2.",
+    5: "Visual queue: seat icons show the queue live. Your empty seat pulses. As you type digits, it fills in progressively."
+  };
+
+  const labels = {
+    1: "Concept: Single phone input removes all friction. No name field, no card wrappers.<br>The patient types 8 digits and taps one button.",
+    2: "Concept: Show queue info before asking for data. The patient sees 7 people waiting,<br>~35 min estimated — then decides to join. Name field expands on tap.",
+    3: "Concept: In Tunisian culture, patients trust the doctor more than the system.<br>Centering Dr. Trabelsi's identity builds personal connection and commitment.",
+    4: "Concept: Each screen has one task. Step 1 = welcome + context. Step 2 = phone input.<br>Step 3 = animated confirmation. Ideal for low-digital-literacy users.",
+    5: "Concept: Visual metaphor of seats in a waiting room — universal across languages.<br>The dashed seat fills as digits are typed, creating a gamification hook."
+  };
+
+  let currentDesign = 1;
+  let currentD4Step = 1;
+
+  function switchDesign(n) {
+    if (n === currentDesign) return;
+
+    // Update tabs
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+      tab.classList.toggle('active', parseInt(tab.dataset.design) === n);
+    });
+
+    // Update screens
+    document.querySelectorAll('.design-screen').forEach(screen => {
+      screen.classList.remove('active');
+    });
+    document.getElementById('design' + n).classList.add('active');
+
+    // Update description and label
+    document.getElementById('designDesc').textContent = descriptions[n];
+    document.getElementById('designLabel').innerHTML = labels[n];
+
+    // Reset D4 to step 1 when switching away and back
+    if (n === 4) {
+      goToD4Step(1);
+    }
+
+    currentDesign = n;
+  }
+
+  // Design 2: Name toggle
+  function toggleD2Name() {
+    const field = document.getElementById('d2NameField');
+    field.classList.toggle('open');
+  }
+
+  // Design 4: Step navigation
+  function goToD4Step(step) {
+    const steps = document.querySelectorAll('.d4-step');
+    steps.forEach((s, i) => {
+      s.classList.remove('active', 'exiting');
+      if (i + 1 === step) {
+        s.classList.add('active');
+      }
+    });
+    currentD4Step = step;
+
+    // Auto-return from step 3 after 2.5s
+    if (step === 3) {
+      setTimeout(() => {
+        if (currentD4Step === 3 && currentDesign === 4) {
+          goToD4Step(1);
+        }
+      }, 2500);
+    }
+  }
+
+  // Design 5: Seat fill animation
+  function updateSeatFill() {
+    const input = document.getElementById('d5Phone');
+    const seat = document.getElementById('d5YourSeat');
+    const value = input.value.replace(/\D/g, '').slice(3); // Remove +216
+    const digitCount = value.length;
+    const fillPercent = Math.min(digitCount / 8, 1);
+
+    if (fillPercent > 0.3) {
+      seat.classList.add('filling');
+      seat.style.background = `rgba(43,138,122,${0.06 + fillPercent * 0.15})`;
+      seat.style.borderColor = `rgba(43,138,122,${0.4 + fillPercent * 0.6})`;
+    } else {
+      seat.classList.remove('filling');
+      seat.style.background = '';
+      seat.style.borderColor = '';
+    }
+
+    if (fillPercent >= 1) {
+      seat.style.animation = 'none';
+      seat.style.borderStyle = 'solid';
+      seat.style.background = 'var(--relax-accent-soft)';
+      seat.style.borderColor = 'var(--relax-accent)';
+    } else {
+      seat.style.animation = '';
+      seat.style.borderStyle = 'dashed';
+    }
+  }
+</script>
+
+</body>
+</html>

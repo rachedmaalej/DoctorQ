@@ -45,6 +45,7 @@ export default function ReceptionistDashboard({
   onReorderPatient,
   onCompleteConsultation,
   onToggleDoctorPresent,
+  isTogglingPresence,
 }: ReceptionistDashboardProps) {
   const avgConsultMins = clinic?.avgConsultationMins ?? 10;
 
@@ -195,6 +196,8 @@ export default function ReceptionistDashboard({
           isAllDone={isAllDone}
           onStatusPillClick={handleStatusPillClick}
           isDoctorPresent={isDoctorPresent}
+          onToggleDoctorPresent={onToggleDoctorPresent}
+          isTogglingPresence={isTogglingPresence}
           showStats={showStats}
           chip1Value={chip1Value}
           chip2Value={chip2Value}

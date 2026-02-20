@@ -107,7 +107,7 @@ export default function ClinicHealthCard({ clinic }: Props) {
       <div style={{ padding: '0 0 0 20px', borderRight: 'none' }}>
         <div style={{
           background: urg.bg, border: `1px solid ${urg.border}`, borderRadius: 8,
-          padding: '10px 14px', minWidth: 160, cursor: 'pointer', transition: 'all 0.15s',
+          padding: '10px 14px', minWidth: 160, transition: 'all 0.15s',
         }}>
           <div style={{
             fontSize: 10.5, fontWeight: 700, textTransform: 'uppercase' as const,
