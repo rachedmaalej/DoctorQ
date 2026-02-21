@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { QueueEntry } from '@/types';
 import { abbreviateName } from './utils';
 
@@ -14,6 +15,7 @@ export default function BSFloatingCTA({
   isCallingNext,
   disabled,
 }: BSFloatingCTAProps) {
+  const { t } = useTranslation();
   if (!nextPatient && !disabled) return null;
 
   const shortName = nextPatient ? abbreviateName(nextPatient.patientName) : '';
@@ -26,7 +28,7 @@ export default function BSFloatingCTA({
         disabled={disabled || isCallingNext}
       >
         <span className="material-symbols-rounded">arrow_forward</span>
-        {isCallingNext ? 'Appel en cours...' : 'Appeler Suivant'}
+        {isCallingNext ? t('blesaf.cta.calling') : t('blesaf.cta.callNext')}
         {shortName && !isCallingNext && (
           <span className="bs-next-name">· {shortName}</span>
         )}

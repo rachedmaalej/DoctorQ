@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { SummaryData } from './types';
 
 interface TimelineBarProps {
@@ -5,6 +6,8 @@ interface TimelineBarProps {
 }
 
 export default function TimelineBar({ summary }: TimelineBarProps) {
+  const { t } = useTranslation();
+
   if (summary.sessions.length === 0) return null;
 
   return (
@@ -17,7 +20,7 @@ export default function TimelineBar({ summary }: TimelineBarProps) {
         className="text-bs-text-tertiary font-semibold uppercase mb-3.5"
         style={{ fontSize: 13, letterSpacing: '0.06em' }}
       >
-        Activité de la journée
+        {t('receptionist.timeline')}
       </div>
 
       {/* Bar */}

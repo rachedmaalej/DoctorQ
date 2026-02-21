@@ -1,4 +1,5 @@
 import clsx from 'clsx';
+import { useTranslation } from 'react-i18next';
 import type { QueueScreenStatus } from './types';
 
 interface StatsStripProps {
@@ -9,7 +10,8 @@ interface StatsStripProps {
 }
 
 export default function StatsStrip({ status, chip1Value, chip2Value, chip3Value }: StatsStripProps) {
-  const chip1Label = status === 'CLOSING' ? 'Restants' : 'En attente';
+  const { t } = useTranslation();
+  const chip1Label = status === 'CLOSING' ? t('receptionist.statsStrip.remaining') : t('receptionist.statsStrip.waiting');
 
   return (
     <div className="flex gap-2">
@@ -33,10 +35,10 @@ export default function StatsStrip({ status, chip1Value, chip2Value, chip3Value 
       </div>
 
       {/* Chip 2 */}
-      <StatChip value={String(chip2Value)} label="Vus" />
+      <StatChip value={String(chip2Value)} label={t('receptionist.statsStrip.seen')} />
 
       {/* Chip 3 */}
-      <StatChip value={chip3Value} label="Fin estimée" />
+      <StatChip value={chip3Value} label={t('receptionist.statsStrip.estimatedEnd')} />
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQueueStore } from '@/stores/queueStore';
 import { webBrand } from '@/lib/brand';
 
@@ -25,6 +26,7 @@ export default function BSAddPatientSheet({
   clinicName,
   onWhatsAppSent,
 }: BSAddPatientSheetProps) {
+  const { t } = useTranslation();
   const { addPatient } = useQueueStore();
 
   const [step, setStep] = useState<SheetStep>('form');
@@ -77,7 +79,7 @@ export default function BSAddPatientSheet({
 
   const handleSubmit = async () => {
     if (!name.trim()) {
-      setError('Le nom du patient est requis');
+      setError(t('blesaf.addPatient.nameRequired'));
       return;
     }
     setError(null);
@@ -106,9 +108,9 @@ export default function BSAddPatientSheet({
     } catch (err: any) {
       logger.error('BSAddPatientSheet submit error:', err);
       if (err.code === 'ALREADY_CHECKED_IN') {
-        setError('Ce patient est déjà dans la file d\'attente');
+        setError(t('queue.patientAlreadyInQueue'));
       } else {
-        setError(err.message || 'Erreur lors de l\'ajout');
+        setError(err.message || t('blesaf.addPatient.addError'));
       }
     } finally {
       setIsSubmitting(false);
@@ -153,9 +155,9 @@ export default function BSAddPatientSheet({
         {step === 'form' ? (
           /* ─── FORM STEP ─── */
           <>
-            <div className="bs-sheet-title">Nouveau patient</div>
+            <div className="bs-sheet-title">{t('blesaf.addPatient.title')}</div>
             <div className="bs-sheet-sub">
-              Sera en position #{estimatedPosition} · Attente estimée {estimatedWait}
+              {t('blesaf.addPatient.subtitle', { position: estimatedPosition, wait: estimatedWait })}
             </div>
 
             {error && <div className="bs-error">{error}</div>}
@@ -167,14 +169,14 @@ export default function BSAddPatientSheet({
                 onClick={() => setIsRdv(false)}
               >
                 <span className="material-symbols-rounded">queue</span>
-                Sans rendez-vous
+                {t('blesaf.addPatient.walkIn')}
               </button>
               <button
                 className={`bs-rdv-option ${isRdv ? 'active' : ''}`}
                 onClick={() => setIsRdv(true)}
               >
                 <span className="material-symbols-rounded">calendar_today</span>
-                Avec rendez-vous
+                {t('blesaf.addPatient.withAppointment')}
               </button>
             </div>
 
@@ -182,14 +184,14 @@ export default function BSAddPatientSheet({
             <div className="bs-form-group">
               <div className="bs-form-label">
                 <span className="material-symbols-rounded">person</span>
-                Nom du patient
+                {t('blesaf.addPatient.patientName')}
               </div>
               <input
                 type="text"
                 className={`bs-form-input ${prefilledName && name === prefilledName ? 'filled' : ''}`}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Nom du patient"
+                placeholder={t('blesaf.addPatient.patientName')}
                 autoFocus={!prefilledName}
               />
             </div>
@@ -198,7 +200,7 @@ export default function BSAddPatientSheet({
             <div className={`bs-rdv-time-group ${isRdv ? 'visible' : ''}`}>
               <div className="bs-form-label">
                 <span className="material-symbols-rounded">schedule</span>
-                Heure du rendez-vous
+                {t('blesaf.addPatient.appointmentTime')}
               </div>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 <select
@@ -231,8 +233,8 @@ export default function BSAddPatientSheet({
             <div className="bs-form-group">
               <div className="bs-form-label">
                 <span className="material-symbols-rounded">phone</span>
-                Numéro de téléphone
-                <span className="optional">(optionnel)</span>
+                {t('blesaf.addPatient.phone')}
+                <span className="optional">{t('blesaf.addPatient.phoneOptional')}</span>
               </div>
               <div className="bs-phone-input-row">
                 <div className="bs-phone-prefix">{webBrand.phone.countryCode}</div>
@@ -247,7 +249,7 @@ export default function BSAddPatientSheet({
               </div>
               <div className="bs-form-hint">
                 <span className="material-symbols-rounded">info</span>
-                Permet d'appeler le patient et de suivre sa position
+                {t('blesaf.addPatient.phoneHint')}
               </div>
             </div>
 
@@ -257,7 +259,7 @@ export default function BSAddPatientSheet({
                 <span className="material-symbols-rounded">qr_code_2</span>
               </div>
               <div className="bs-qr-text">
-                <strong>Pas de numéro ?</strong> Le patient peut scanner le QR du comptoir pour s'inscrire lui-même.
+                <strong>{t('blesaf.addPatient.qrFallbackTitle')}</strong> {t('blesaf.addPatient.qrFallbackDesc')}
               </div>
             </div>
 
@@ -268,7 +270,7 @@ export default function BSAddPatientSheet({
               disabled={isSubmitting || !name.trim()}
             >
               <span className="material-symbols-rounded">check</span>
-              {isSubmitting ? 'Ajout en cours...' : 'Ajouter à la file'}
+              {isSubmitting ? t('blesaf.addPatient.submitting') : t('blesaf.addPatient.submit')}
             </button>
           </>
         ) : (
@@ -281,7 +283,7 @@ export default function BSAddPatientSheet({
               </div>
               <div className="bs-confirm-name">{addedName}</div>
               <div className="bs-confirm-pos">
-                Position #{addedPosition} · Attente estimée {estimatedWait}
+                {t('blesaf.addPatient.confirmPosition', { position: addedPosition, wait: estimatedWait })}
               </div>
             </div>
 
@@ -302,8 +304,8 @@ export default function BSAddPatientSheet({
                   <span className="material-symbols-rounded">chat</span>
                 </div>
                 <div className="bs-link-text">
-                  <div className="bs-link-title">Envoyer le lien par WhatsApp</div>
-                  <div className="bs-link-desc">Envoyer le lien de suivi au patient</div>
+                  <div className="bs-link-title">{t('blesaf.addPatient.sendWhatsApp')}</div>
+                  <div className="bs-link-desc">{t('blesaf.addPatient.sendWhatsAppDesc')}</div>
                 </div>
                 <div className="bs-link-arrow">
                   <span className="material-symbols-rounded">chevron_right</span>
@@ -315,7 +317,7 @@ export default function BSAddPatientSheet({
             {!addedHasPhone && (
               <>
                 <div className="bs-section-subtitle">
-                  Aucun numéro renseigné. Pour lier le patient :
+                  {t('blesaf.addPatient.noPhoneInfo')}
                 </div>
 
                 <div className="bs-link-card">
@@ -323,8 +325,8 @@ export default function BSAddPatientSheet({
                     <span className="material-symbols-rounded">qr_code_2</span>
                   </div>
                   <div className="bs-link-text">
-                    <div className="bs-link-title">Montrer le QR code</div>
-                    <div className="bs-link-desc">Le patient scanne pour suivre sa position</div>
+                    <div className="bs-link-title">{t('blesaf.addPatient.showQr')}</div>
+                    <div className="bs-link-desc">{t('blesaf.addPatient.showQrDesc')}</div>
                   </div>
                   <div className="bs-link-arrow">
                     <span className="material-symbols-rounded">chevron_right</span>
@@ -336,8 +338,8 @@ export default function BSAddPatientSheet({
                     <span className="material-symbols-rounded">phone</span>
                   </div>
                   <div className="bs-link-text">
-                    <div className="bs-link-title">Ajouter le numéro plus tard</div>
-                    <div className="bs-link-desc">Via le menu du patient dans la file</div>
+                    <div className="bs-link-title">{t('blesaf.addPatient.addPhoneLater')}</div>
+                    <div className="bs-link-desc">{t('blesaf.addPatient.addPhoneLaterDesc')}</div>
                   </div>
                   <div className="bs-link-arrow">
                     <span className="material-symbols-rounded">chevron_right</span>
@@ -352,7 +354,7 @@ export default function BSAddPatientSheet({
               onClick={handleDone}
               style={{ marginTop: '8px', position: 'relative', overflow: 'hidden' }}
             >
-              Terminé — Retour à la file
+              {t('blesaf.addPatient.done')}
               <span
                 style={{
                   position: 'absolute',

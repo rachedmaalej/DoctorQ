@@ -161,12 +161,12 @@ export default function BSClinicProfilePanel({ isOpen, onClose }: BSClinicProfil
           <button onClick={handleClose} className="bs-panel-back">
             <span className="material-symbols-rounded" style={{ fontSize: 22 }}>arrow_back</span>
           </button>
-          <span className="bs-panel-title">Profil du cabinet</span>
+          <span className="bs-panel-title">{t('settingsBs.clinicProfile.title')}</span>
         </div>
 
         <div className="bs-panel-body">
           {/* ── MON CABINET ── */}
-          <div className="bs-settings-label">Mon cabinet</div>
+          <div className="bs-settings-label">{t('settingsBs.clinicProfile.myClinic')}</div>
           <div className="bs-settings-group">
             {/* Clinic name */}
             <button className="bs-settings-item" onClick={() => toggleRow('name')}>
@@ -174,8 +174,8 @@ export default function BSClinicProfilePanel({ isOpen, onClose }: BSClinicProfil
                 <span className="material-symbols-rounded" style={{ fontSize: 18 }}>home</span>
               </div>
               <div className="bs-settings-txt">
-                <div className="bs-settings-name">Nom du cabinet</div>
-                <div className="bs-settings-desc">Nom affiché aux patients</div>
+                <div className="bs-settings-name">{t('settingsBs.clinicProfile.clinicName')}</div>
+                <div className="bs-settings-desc">{t('settingsBs.clinicProfile.clinicNameDesc')}</div>
               </div>
               <span className="bs-settings-value">{clinicForm.name || '—'}</span>
               <span className="material-symbols-rounded bs-settings-chev">chevron_right</span>
@@ -186,7 +186,7 @@ export default function BSClinicProfilePanel({ isOpen, onClose }: BSClinicProfil
                 type="text"
                 value={clinicForm.name}
                 onChange={e => setClinicForm({ ...clinicForm, name: e.target.value })}
-                placeholder="Nom du cabinet"
+                placeholder={t('settingsBs.clinicProfile.clinicName')}
               />
             </div>
 
@@ -196,11 +196,11 @@ export default function BSClinicProfilePanel({ isOpen, onClose }: BSClinicProfil
                 <span className="material-symbols-rounded" style={{ fontSize: 18 }}>person</span>
               </div>
               <div className="bs-settings-txt">
-                <div className="bs-settings-name">Médecin</div>
-                <div className="bs-settings-desc">Nom et civilité</div>
+                <div className="bs-settings-name">{t('settingsBs.clinicProfile.doctor')}</div>
+                <div className="bs-settings-desc">{t('settingsBs.clinicProfile.doctorDesc')}</div>
               </div>
               <span className="bs-settings-value">
-                {clinicForm.doctorGender ? `${clinicForm.doctorGender === 'M' ? 'M.' : 'Mme'} ` : ''}
+                {clinicForm.doctorGender ? `${clinicForm.doctorGender === 'M' ? t('settingsBs.clinicProfile.mr') : t('settingsBs.clinicProfile.mrs')} ` : ''}
                 {clinicForm.doctorName ? clinicForm.doctorName.split(' ').map(w => w[0]).join('. ') + '.' : '—'}
               </span>
               <span className="material-symbols-rounded bs-settings-chev">chevron_right</span>
@@ -211,18 +211,18 @@ export default function BSClinicProfilePanel({ isOpen, onClose }: BSClinicProfil
                   <button
                     className={`bs-gender-btn ${clinicForm.doctorGender === 'M' ? 'active' : ''}`}
                     onClick={() => setClinicForm({ ...clinicForm, doctorGender: 'M' })}
-                  >M.</button>
+                  >{t('settingsBs.clinicProfile.mr')}</button>
                   <button
                     className={`bs-gender-btn ${clinicForm.doctorGender === 'F' ? 'active' : ''}`}
                     onClick={() => setClinicForm({ ...clinicForm, doctorGender: 'F' })}
-                  >Mme</button>
+                  >{t('settingsBs.clinicProfile.mrs')}</button>
                 </div>
                 <input
                   className="bs-profile-input"
                   type="text"
                   value={clinicForm.doctorName}
                   onChange={e => setClinicForm({ ...clinicForm, doctorName: e.target.value })}
-                  placeholder="Nom du médecin"
+                  placeholder={t('settingsBs.clinicProfile.doctorNamePlaceholder')}
                   style={{ flex: 1 }}
                 />
               </div>
@@ -234,8 +234,8 @@ export default function BSClinicProfilePanel({ isOpen, onClose }: BSClinicProfil
                 <span className="material-symbols-rounded" style={{ fontSize: 18 }}>phone</span>
               </div>
               <div className="bs-settings-txt">
-                <div className="bs-settings-name">Téléphone</div>
-                <div className="bs-settings-desc">Numéro de contact</div>
+                <div className="bs-settings-name">{t('settingsBs.clinicProfile.phone')}</div>
+                <div className="bs-settings-desc">{t('settingsBs.clinicProfile.phoneDesc')}</div>
               </div>
               <span className="bs-settings-value">{clinicForm.phone ? formatPhone(clinicForm.phone) : '—'}</span>
               <span className="material-symbols-rounded bs-settings-chev">chevron_right</span>
@@ -256,8 +256,8 @@ export default function BSClinicProfilePanel({ isOpen, onClose }: BSClinicProfil
                 <span className="material-symbols-rounded" style={{ fontSize: 18 }}>location_on</span>
               </div>
               <div className="bs-settings-txt">
-                <div className="bs-settings-name">Adresse</div>
-                <div className="bs-settings-desc">Adresse du cabinet</div>
+                <div className="bs-settings-name">{t('settingsBs.clinicProfile.address')}</div>
+                <div className="bs-settings-desc">{t('settingsBs.clinicProfile.addressDesc')}</div>
               </div>
               <span className="bs-settings-value">{clinicForm.address || '—'}</span>
               <span className="material-symbols-rounded bs-settings-chev">chevron_right</span>
@@ -268,27 +268,27 @@ export default function BSClinicProfilePanel({ isOpen, onClose }: BSClinicProfil
                 type="text"
                 value={clinicForm.address}
                 onChange={e => setClinicForm({ ...clinicForm, address: e.target.value })}
-                placeholder="Adresse complète"
+                placeholder={t('settingsBs.clinicProfile.addressPlaceholder')}
               />
             </div>
           </div>
 
           {/* ── SÉCURITÉ ── */}
-          <div className="bs-settings-label">Sécurité</div>
+          <div className="bs-settings-label">{t('settingsBs.clinicProfile.security')}</div>
           <div className="bs-settings-group">
             <button className="bs-settings-item" onClick={() => toggleRow('password')}>
               <div className="bs-settings-ico" style={{ background: '#FDF0ED', color: '#D94F3B' }}>
                 <span className="material-symbols-rounded" style={{ fontSize: 18 }}>lock</span>
               </div>
               <div className="bs-settings-txt">
-                <div className="bs-settings-name">Changer le mot de passe</div>
-                <div className="bs-settings-desc">Sécurisez votre compte</div>
+                <div className="bs-settings-name">{t('settingsBs.clinicProfile.changePassword')}</div>
+                <div className="bs-settings-desc">{t('settingsBs.clinicProfile.changePasswordDesc')}</div>
               </div>
               <span className="material-symbols-rounded bs-settings-chev">chevron_right</span>
             </button>
             <div className={`bs-expand ${expandedRow === 'password' ? 'open' : ''}`}>
               <div className="bs-expand-form">
-                <label className="bs-form-label">Mot de passe actuel</label>
+                <label className="bs-form-label">{t('settingsBs.clinicProfile.currentPassword')}</label>
                 <input
                   className="bs-profile-input"
                   type="password"
@@ -296,22 +296,22 @@ export default function BSClinicProfilePanel({ isOpen, onClose }: BSClinicProfil
                   onChange={e => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
                   placeholder="••••••••"
                 />
-                <label className="bs-form-label">Nouveau</label>
+                <label className="bs-form-label">{t('settingsBs.clinicProfile.newPassword')}</label>
                 <input
                   className="bs-profile-input"
                   type="password"
                   value={passwordForm.newPassword}
                   onChange={e => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
-                  placeholder="Min. 8 caractères"
+                  placeholder={t('settingsBs.clinicProfile.minChars')}
                   minLength={8}
                 />
-                <label className="bs-form-label">Confirmer</label>
+                <label className="bs-form-label">{t('settingsBs.clinicProfile.confirmPassword')}</label>
                 <input
                   className="bs-profile-input"
                   type="password"
                   value={passwordForm.confirmPassword}
                   onChange={e => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
-                  placeholder="Retapez le mot de passe"
+                  placeholder={t('settingsBs.clinicProfile.retypePassword')}
                   minLength={8}
                 />
                 <button
@@ -321,7 +321,7 @@ export default function BSClinicProfilePanel({ isOpen, onClose }: BSClinicProfil
                   style={{ marginTop: 10 }}
                 >
                   <span className="material-symbols-rounded" style={{ fontSize: 16 }}>lock</span>
-                  {savingPassword ? 'Enregistrement...' : 'Changer le mot de passe'}
+                  {savingPassword ? t('settingsBs.clinicProfile.changingPassword') : t('settingsBs.clinicProfile.changePasswordBtn')}
                 </button>
                 {passwordMessage && (
                   <div className={`bs-msg ${passwordMessage.type}`}>{passwordMessage.text}</div>
@@ -344,9 +344,9 @@ export default function BSClinicProfilePanel({ isOpen, onClose }: BSClinicProfil
               <span className="material-symbols-rounded" style={{ fontSize: 16 }}>
                 {autoSaveStatus === 'saving' ? 'sync' : autoSaveStatus === 'saved' ? 'check_circle' : 'error'}
               </span>
-              {autoSaveStatus === 'saving' && 'Enregistrement...'}
-              {autoSaveStatus === 'saved' && 'Modifications enregistrées'}
-              {autoSaveStatus === 'error' && 'Erreur lors de l\'enregistrement'}
+              {autoSaveStatus === 'saving' && t('settingsBs.autoSave.saving')}
+              {autoSaveStatus === 'saved' && t('settingsBs.autoSave.saved')}
+              {autoSaveStatus === 'error' && t('settingsBs.autoSave.error')}
             </div>
           )}
         </div>

@@ -1573,6 +1573,7 @@ export interface ClinicDetailEnrichedResponse {
   qrCodeActive: boolean;
   qrCodeLastScannedAt: string | null;
   isActive: boolean;
+  multiDoctorEnabled: boolean;
 
   // Onboarding
   onboardingStep: number;
@@ -2261,6 +2262,7 @@ export async function getClinicDetailEnriched(clinicId: string): Promise<ClinicD
     qrCodeActive,
     qrCodeLastScannedAt,
     isActive: clinic.isActive,
+    multiDoctorEnabled: clinic.multiDoctorEnabled,
 
     onboardingStep: clinic.onboardingStep,
     onboardingTotalSteps: 4,

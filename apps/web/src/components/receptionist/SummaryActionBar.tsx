@@ -1,9 +1,13 @@
+import { useTranslation } from 'react-i18next';
+
 interface SummaryActionBarProps {
   onExport?: () => void;
   onNewDay?: () => void;
 }
 
 export default function SummaryActionBar({ onExport, onNewDay }: SummaryActionBarProps) {
+  const { t } = useTranslation();
+
   return (
     <div className="px-5 pb-9 flex gap-2.5">
       {/* Export */}
@@ -13,7 +17,7 @@ export default function SummaryActionBar({ onExport, onNewDay }: SummaryActionBa
         style={{ fontSize: 14, backgroundColor: '#FFFFFF', border: '1.5px solid #E8E6DF' }}
       >
         <span className="material-symbols-rounded" style={{ fontSize: 18 }}>download</span>
-        Exporter
+        {t('receptionist.summaryActions.export')}
       </button>
 
       {/* New Day */}
@@ -23,7 +27,7 @@ export default function SummaryActionBar({ onExport, onNewDay }: SummaryActionBa
         style={{ fontSize: 14, backgroundColor: '#0F7B6C', border: '1.5px solid #0F7B6C' }}
       >
         <span className="material-symbols-rounded" style={{ fontSize: 18 }}>arrow_forward</span>
-        Nouvelle journée
+        {t('receptionist.summaryActions.newDay')}
       </button>
     </div>
   );

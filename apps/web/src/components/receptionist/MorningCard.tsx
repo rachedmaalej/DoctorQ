@@ -1,9 +1,12 @@
+import { useTranslation } from 'react-i18next';
+
 interface MorningCardProps {
   doctorLastName: string;
   preRegisteredCount: number;
 }
 
 export default function MorningCard({ doctorLastName, preRegisteredCount }: MorningCardProps) {
+  const { t } = useTranslation();
   const hasPatients = preRegisteredCount > 0;
 
   return (
@@ -13,13 +16,13 @@ export default function MorningCard({ doctorLastName, preRegisteredCount }: Morn
         className="text-bs-text-primary font-bold"
         style={{ fontSize: 20, letterSpacing: '-0.02em' }}
       >
-        Bonjour, Dr. {doctorLastName}
+        {t('receptionist.morning.greeting', { name: doctorLastName })}
       </div>
       <div
         className="text-bs-text-secondary mt-1.5"
         style={{ fontSize: 14, lineHeight: 1.5 }}
       >
-        Votre journée va commencer
+        {t('receptionist.morning.subtitle')}
       </div>
       {hasPatients && (
         <div
@@ -27,7 +30,7 @@ export default function MorningCard({ doctorLastName, preRegisteredCount }: Morn
           style={{ padding: '6px 14px', fontSize: 13 }}
         >
           <span className="material-symbols-rounded" style={{ fontSize: 16 }}>group</span>
-          {preRegisteredCount} patients pré-inscrits
+          {t('receptionist.morning.preRegistered', { count: preRegisteredCount })}
         </div>
       )}
     </div>

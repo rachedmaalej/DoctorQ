@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { SummaryData } from './types';
 
 interface SummaryCardProps {
@@ -6,6 +7,8 @@ interface SummaryCardProps {
 }
 
 export default function SummaryCard({ summary, onShare }: SummaryCardProps) {
+  const { t } = useTranslation();
+
   return (
     <div className="mx-5 mt-5 bg-bs-surface overflow-hidden" style={{ borderRadius: 20, boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }}>
       {/* Hero section */}
@@ -33,17 +36,17 @@ export default function SummaryCard({ summary, onShare }: SummaryCardProps) {
             {summary.totalPatientsSeen}
           </span>
           <span className="opacity-70" style={{ fontSize: 18, fontWeight: 500 }}>
-            patients vus
+            {t('receptionist.summary.patientsSeen')}
           </span>
         </div>
       </div>
 
       {/* Stats grid */}
       <div className="bs-stats-grid">
-        <GridCell value={`${summary.avgWaitMinutes} min`} label="Attente moyenne" />
-        <GridCell value={`${summary.avgConsultMinutes} min`} label="Consultation moy." />
-        <GridCell value={summary.firstPatientTime} label="Premier patient" />
-        <GridCell value={summary.lastPatientTime} label="Dernier patient" />
+        <GridCell value={`${summary.avgWaitMinutes} min`} label={t('receptionist.summary.avgWait')} />
+        <GridCell value={`${summary.avgConsultMinutes} min`} label={t('receptionist.summary.avgConsult')} />
+        <GridCell value={summary.firstPatientTime} label={t('receptionist.summary.firstPatient')} />
+        <GridCell value={summary.lastPatientTime} label={t('receptionist.summary.lastPatient')} />
       </div>
 
       {/* Footer */}
@@ -63,7 +66,7 @@ export default function SummaryCard({ summary, onShare }: SummaryCardProps) {
           style={{ padding: '10px 20px', fontSize: 14, border: 'none', backgroundColor: '#0F7B6C' }}
         >
           <span className="material-symbols-rounded" style={{ fontSize: 18 }}>share</span>
-          Partager
+          {t('receptionist.summary.share')}
         </button>
       </div>
     </div>

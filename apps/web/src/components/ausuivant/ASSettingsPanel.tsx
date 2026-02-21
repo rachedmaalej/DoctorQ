@@ -301,7 +301,7 @@ export default function ASSettingsPanel({ isOpen, onClose, clinic }: ASSettingsP
           <SettingsItem
             icon={<Users size={18} />}
             iconColor="blue"
-            title="Équipe & accès"
+            title="Accès"
             description="Gérer les secrétaires et collaborateurs"
             right={<ValueChevron />}
             onClick={() => setShowTeamAccess(true)}

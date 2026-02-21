@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { QueueEntry } from '@/types';
 import { formatTimeShort, getConsultationMinutes } from './utils';
 
@@ -14,19 +15,20 @@ export default function BSCurrentPatient({
   isCallingNext,
   canCallNext,
 }: BSCurrentPatientProps) {
+  const { t } = useTranslation();
   const arrivedTime = formatTimeShort(patient.arrivedAt);
   const consultMins = patient.calledAt ? getConsultationMinutes(patient.calledAt) : 0;
 
   return (
     <>
       <div className="bs-section-header bs-animate-in bs-delay-3">
-        <span className="bs-section-title">En consultation</span>
+        <span className="bs-section-title">{t('queue.inConsultation')}</span>
       </div>
       <div className="bs-current-patient bs-animate-in bs-delay-3">
-        <div className="bs-cp-label">Patient actuel</div>
-        <div className="bs-cp-name">{patient.patientName || 'Patient'}</div>
+        <div className="bs-cp-label">{t('blesaf.currentPatient.label')}</div>
+        <div className="bs-cp-name">{patient.patientName || t('blesaf.currentPatient.defaultName')}</div>
         <div className="bs-cp-meta">
-          Arrivé à {arrivedTime} · Consultation depuis {consultMins} min
+          {t('blesaf.currentPatient.meta', { arrivedTime, consultMins })}
         </div>
         <div className="bs-cp-actions">
           <button
@@ -35,13 +37,13 @@ export default function BSCurrentPatient({
             disabled={isCallingNext || !canCallNext}
           >
             <span className="material-symbols-rounded">arrow_forward</span>
-            Suivant
+            {t('blesaf.currentPatient.next')}
           </button>
           {patient.patientPhone && (
             <a
               href={`tel:${patient.patientPhone}`}
               className="bs-cp-btn"
-              aria-label="Appeler le patient"
+              aria-label={t('blesaf.currentPatient.callAria')}
             >
               <span className="material-symbols-rounded">phone</span>
             </a>

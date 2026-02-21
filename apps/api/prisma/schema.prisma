@@ -37,6 +37,7 @@ model Clinic {
   notifyAtPosition    Int          @default(2)  // Notify when X patients away
   enableWhatsApp      Boolean      @default(false)
   isDoctorPresent     Boolean      @default(false)  // Track if doctor is currently seeing patients
+  multiDoctorEnabled  Boolean      @default(false)  // Admin-controlled: unlock multi-doctor management
 
   // Announcement to all patients (displayed as banner on patient status page)
   announcement        String?      // Active announcement text (null = no announcement)

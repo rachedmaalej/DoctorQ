@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { QueueEntry, QueueStats } from '@/types';
 import { QueueStatus } from '@/types';
 import { useAuthStore } from '@/stores/authStore';
@@ -37,6 +38,7 @@ export default function BlesafDashboard({
   isDoctorPresent,
   onToggleDoctorPresent,
 }: BlesafDashboardProps) {
+  const { t } = useTranslation();
   const { clinic } = useAuthStore();
   const [isAddSheetOpen, setIsAddSheetOpen] = useState(false);
   const [quickAddName, setQuickAddName] = useState('');
@@ -141,7 +143,7 @@ export default function BlesafDashboard({
           <div className="bs-empty-icon">
             <span className="material-symbols-rounded">groups</span>
           </div>
-          <div className="bs-empty-text">Aucun patient dans la file</div>
+          <div className="bs-empty-text">{t('blesaf.empty.text')}</div>
         </div>
       )}
 

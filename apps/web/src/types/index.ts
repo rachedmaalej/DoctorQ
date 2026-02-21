@@ -92,6 +92,7 @@ export interface Clinic {
   welcomeMessage?: string | null;
   showQueuePosition?: boolean;
   showEstimatedWait?: boolean;
+  multiDoctorEnabled?: boolean;
 }
 
 export interface Doctor {
@@ -239,6 +240,7 @@ export interface ClinicEditableFields {
   businessType?: string;
   address?: string;
   notifyAtPosition?: number;
+  multiDoctorEnabled?: boolean;
 }
 
 export interface ClinicDetail {
@@ -529,6 +531,7 @@ export interface ClinicDetailEnriched {
   qrCodeActive: boolean;
   qrCodeLastScannedAt: string | null;
   isActive: boolean;
+  multiDoctorEnabled?: boolean;
 
   onboardingStep: number;
   onboardingTotalSteps: number;
