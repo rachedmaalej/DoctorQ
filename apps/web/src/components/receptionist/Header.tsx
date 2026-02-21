@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { webBrand } from '@/lib/brand';
 import { api } from '@/lib/api';
@@ -7,9 +6,14 @@ import { logger } from '@/lib/logger';
 import type { QueueScreenStatus } from './types';
 import StatusPill from './StatusPill';
 import StatsStrip from './StatsStrip';
+import { useAuthStore } from '@/stores/authStore';
 import BSClinicProfilePanel from '@/components/blesaf/BSClinicProfilePanel';
+import BSTeamAccessPanel from '@/components/blesaf/BSTeamAccessPanel';
+import BSSubscriptionPanel from '@/components/blesaf/BSSubscriptionPanel';
+import BSConsultationDurationPanel from '@/components/blesaf/BSConsultationDurationPanel';
+import BSLanguagePanel from '@/components/blesaf/BSLanguagePanel';
 
-type PanelKey = 'qr' | 'whatsapp' | 'duration' | 'settings' | 'clinic-profile' | null;
+type PanelKey = 'qr' | 'whatsapp' | 'duration' | 'settings' | 'clinic-profile' | 'team-access' | 'subscription' | 'consultation-duration' | 'language' | null;
 
 interface HeaderProps {
   clinicName: string;
@@ -45,7 +49,7 @@ export default function Header({
   onWhatsAppClick,
 }: HeaderProps) {
   const { i18n } = useTranslation();
-  const navigate = useNavigate();
+  const { logout } = useAuthStore();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [activePanel, setActivePanel] = useState<PanelKey>(null);
   const [presenceMenuOpen, setPresenceMenuOpen] = useState(false);
@@ -546,7 +550,7 @@ export default function Header({
               </div>
               <span className="material-symbols-rounded bs-settings-chev">chevron_right</span>
             </button>
-            <button className="bs-settings-item" onClick={() => { closePanel(); navigate('/settings'); }}>
+            <button className="bs-settings-item" onClick={() => setActivePanel('team-access')}>
               <div className="bs-settings-ico" style={{ background: '#EDF3FC', color: '#3B7DD9' }}>
                 <span className="material-symbols-rounded" style={{ fontSize: 18 }}>group</span>
               </div>
@@ -556,7 +560,7 @@ export default function Header({
               </div>
               <span className="material-symbols-rounded bs-settings-chev">chevron_right</span>
             </button>
-            <button className="bs-settings-item" onClick={() => { closePanel(); navigate('/settings'); }}>
+            <button className="bs-settings-item" onClick={() => setActivePanel('subscription')}>
               <div className="bs-settings-ico" style={{ background: '#E8F5F1', color: '#0F7B6C' }}>
                 <span className="material-symbols-rounded" style={{ fontSize: 18 }}>card_membership</span>
               </div>
@@ -571,7 +575,7 @@ export default function Header({
           {/* File d'attente section */}
           <div className="bs-settings-label">File d'attente</div>
           <div className="bs-settings-group">
-            <button className="bs-settings-item" onClick={() => { closePanel(); navigate('/settings'); }}>
+            <button className="bs-settings-item" onClick={() => setActivePanel('consultation-duration')}>
               <div className="bs-settings-ico" style={{ background: '#FEF7E6', color: '#D4920B' }}>
                 <span className="material-symbols-rounded" style={{ fontSize: 18 }}>timer</span>
               </div>
@@ -581,7 +585,7 @@ export default function Header({
               </div>
               <span className="material-symbols-rounded bs-settings-chev">chevron_right</span>
             </button>
-            <button className="bs-settings-item" onClick={() => { closePanel(); toggleLanguage(); }}>
+            <button className="bs-settings-item" onClick={() => setActivePanel('language')}>
               <div className="bs-settings-ico" style={{ background: '#F0EFEA', color: '#6B6960' }}>
                 <span className="material-symbols-rounded" style={{ fontSize: 18 }}>translate</span>
               </div>
@@ -596,7 +600,7 @@ export default function Header({
           {/* Compte section */}
           <div className="bs-settings-label">Compte</div>
           <div className="bs-settings-group">
-            <button className="bs-settings-item" onClick={() => { closePanel(); navigate('/settings'); }}>
+            <button className="bs-settings-item" onClick={() => { closePanel(); logout(); }}>
               <div className="bs-settings-ico" style={{ background: '#FDF0ED', color: '#D94F3B' }}>
                 <span className="material-symbols-rounded" style={{ fontSize: 18 }}>logout</span>
               </div>
@@ -608,9 +612,25 @@ export default function Header({
         </div>
       </div>
 
-      {/* Clinic Profile Panel (slides over settings panel) */}
+      {/* Sub-panels (slide over settings panel) */}
       <BSClinicProfilePanel
         isOpen={activePanel === 'clinic-profile'}
+        onClose={() => setActivePanel('settings')}
+      />
+      <BSTeamAccessPanel
+        isOpen={activePanel === 'team-access'}
+        onClose={() => setActivePanel('settings')}
+      />
+      <BSSubscriptionPanel
+        isOpen={activePanel === 'subscription'}
+        onClose={() => setActivePanel('settings')}
+      />
+      <BSConsultationDurationPanel
+        isOpen={activePanel === 'consultation-duration'}
+        onClose={() => setActivePanel('settings')}
+      />
+      <BSLanguagePanel
+        isOpen={activePanel === 'language'}
         onClose={() => setActivePanel('settings')}
       />
     </div>
