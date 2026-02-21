@@ -10,12 +10,12 @@ interface BSLanguagePanelProps {
 }
 
 const LANGUAGES = [
-  { code: 'fr' as const, flag: '\u{1F1F9}\u{1F1F3}', native: 'Français', english: 'French', dir: 'LTR', dirLabel: 'gauche à droite' },
-  { code: 'ar' as const, flag: '\u{1F1F9}\u{1F1F3}', native: '\u0627\u0644\u0639\u0631\u0628\u064A\u0629', english: 'Arabic', dir: 'RTL', dirLabel: 'droite à gauche' },
+  { code: 'fr' as const, flag: '\u{1F1F9}\u{1F1F3}', native: 'Français', english: 'French', dir: 'LTR' },
+  { code: 'ar' as const, flag: '\u{1F1F9}\u{1F1F3}', native: '\u0627\u0644\u0639\u0631\u0628\u064A\u0629', english: 'Arabic', dir: 'RTL' },
 ];
 
 export default function BSLanguagePanel({ isOpen, onClose }: BSLanguagePanelProps) {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { clinic } = useAuthStore();
   const [selectedLang, setSelectedLang] = useState<'fr' | 'ar'>('fr');
   const [showSwitcher, setShowSwitcher] = useState(true);
@@ -60,6 +60,7 @@ export default function BSLanguagePanel({ isOpen, onClose }: BSLanguagePanelProp
   }, [showSwitcher, save]);
 
   const current = LANGUAGES.find(l => l.code === selectedLang) || LANGUAGES[0];
+  const dirLabel = current.dir === 'RTL' ? t('settingsPanel.language.rtl') : t('settingsPanel.language.ltr');
 
   return (
     <>
@@ -70,12 +71,12 @@ export default function BSLanguagePanel({ isOpen, onClose }: BSLanguagePanelProp
           <button onClick={onClose} className="bs-panel-back">
             <span className="material-symbols-rounded" style={{ fontSize: 22 }}>arrow_back</span>
           </button>
-          <span className="bs-panel-title">Langue</span>
+          <span className="bs-panel-title">{t('settingsPanel.language.title')}</span>
         </div>
 
         <div className="bs-panel-body">
           {/* Language selection */}
-          <div className="bs-settings-label">Langue de l'interface</div>
+          <div className="bs-settings-label">{t('settingsPanel.language.interfaceLanguage')}</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
             {LANGUAGES.map(lang => {
               const selected = selectedLang === lang.code;
@@ -149,14 +150,14 @@ export default function BSLanguagePanel({ isOpen, onClose }: BSLanguagePanelProp
               <span className="material-symbols-rounded" style={{ fontSize: 14 }}>
                 {autoSaveStatus === 'saving' ? 'sync' : autoSaveStatus === 'saved' ? 'check_circle' : 'error'}
               </span>
-              {autoSaveStatus === 'saving' && 'Enregistrement...'}
-              {autoSaveStatus === 'saved' && 'Modifications enregistrées'}
-              {autoSaveStatus === 'error' && "Erreur lors de l'enregistrement"}
+              {autoSaveStatus === 'saving' && t('settingsBs.autoSave.saving')}
+              {autoSaveStatus === 'saved' && t('settingsBs.autoSave.saved')}
+              {autoSaveStatus === 'error' && t('settingsBs.autoSave.error')}
             </div>
           )}
 
           {/* Patient-facing settings */}
-          <div className="bs-settings-label">Affichage patient</div>
+          <div className="bs-settings-label">{t('settingsPanel.language.patientDisplay')}</div>
           <div className="bs-settings-group">
             <div style={{
               display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px',
@@ -169,8 +170,8 @@ export default function BSLanguagePanel({ isOpen, onClose }: BSLanguagePanelProp
                 <span className="material-symbols-rounded" style={{ fontSize: 18 }}>language</span>
               </div>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 13, fontWeight: 500, color: '#1A1A1A' }}>Sélecteur de langue</div>
-                <div style={{ fontSize: 11, color: '#9E9B90', marginTop: 1 }}>Permettre aux patients de changer la langue</div>
+                <div style={{ fontSize: 13, fontWeight: 500, color: '#1A1A1A' }}>{t('settingsPanel.language.languageSwitcher')}</div>
+                <div style={{ fontSize: 11, color: '#9E9B90', marginTop: 1 }}>{t('settingsPanel.language.languageSwitcherDesc')}</div>
               </div>
               <div
                 onClick={handleToggleSwitcher}
@@ -191,7 +192,7 @@ export default function BSLanguagePanel({ isOpen, onClose }: BSLanguagePanelProp
           </div>
 
           {/* Preview section */}
-          <div className="bs-settings-label" style={{ marginTop: 12 }}>Aperçu patient</div>
+          <div className="bs-settings-label" style={{ marginTop: 12 }}>{t('settingsPanel.language.preview')}</div>
           <div style={{
             background: '#FFF', border: '1px solid #E8E6DF', borderRadius: 12, overflow: 'hidden',
           }}>
@@ -201,7 +202,7 @@ export default function BSLanguagePanel({ isOpen, onClose }: BSLanguagePanelProp
             }}>
               <span className="material-symbols-rounded" style={{ fontSize: 16, color: '#9E9B90' }}>visibility</span>
               <span style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.8px', color: '#9E9B90' }}>
-                Ce que voit le patient
+                {t('settingsPanel.language.previewLabel')}
               </span>
               <span style={{
                 fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 100,
@@ -243,9 +244,9 @@ export default function BSLanguagePanel({ isOpen, onClose }: BSLanguagePanelProp
               display: 'flex', alignItems: 'center', gap: 6,
             }}>
               <span className="material-symbols-rounded" style={{ fontSize: 14 }}>text_format</span>
-              Direction du texte: <span style={{ fontSize: 13, fontWeight: 700 }}>
+              {t('settingsPanel.language.textDirection')}: <span style={{ fontSize: 13, fontWeight: 700 }}>
                 {current.dir === 'RTL' ? '\u2190 RTL' : 'LTR \u2192'}
-              </span> ({current.dirLabel})
+              </span> ({dirLabel})
             </div>
           </div>
         </div>

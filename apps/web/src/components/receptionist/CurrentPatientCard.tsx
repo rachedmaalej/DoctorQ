@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 import type { CurrentPatientData } from './types';
 
@@ -7,6 +8,8 @@ interface CurrentPatientCardProps {
 }
 
 export default function CurrentPatientCard({ patient, onNext }: CurrentPatientCardProps) {
+  const { t } = useTranslation();
+
   const handleCall = () => {
     if (patient.phone) {
       window.open(`tel:${patient.phone}`, '_self');
@@ -22,7 +25,7 @@ export default function CurrentPatientCard({ patient, onNext }: CurrentPatientCa
         className="uppercase font-semibold opacity-70 mb-1.5"
         style={{ fontSize: 11, letterSpacing: '0.08em' }}
       >
-        Patient actuel
+        {t('receptionist.currentPatient.label')}
       </div>
       <div
         className="font-bold"
@@ -31,7 +34,7 @@ export default function CurrentPatientCard({ patient, onNext }: CurrentPatientCa
         {patient.name}
       </div>
       <div className="opacity-70 mt-0.5" style={{ fontSize: 13 }}>
-        Arrivé à {patient.arrivedAt} · Consultation depuis {patient.consultingSinceMinutes} min
+        {t('receptionist.currentPatient.meta', { arrivedAt: patient.arrivedAt, minutes: patient.consultingSinceMinutes })}
       </div>
       <div className="flex gap-2 mt-3.5">
         {/* Primary: Terminer */}
@@ -41,7 +44,7 @@ export default function CurrentPatientCard({ patient, onNext }: CurrentPatientCa
           style={{ fontSize: 13, backgroundColor: '#fff', color: '#0F7B6C', border: '1.5px solid #fff' }}
         >
           <span className="material-symbols-rounded" style={{ fontSize: 16, fontVariationSettings: "'FILL' 1" }}>check_circle</span>
-          Terminer
+          {t('receptionist.currentPatient.finish')}
         </button>
         {/* Secondary: Phone */}
         <button

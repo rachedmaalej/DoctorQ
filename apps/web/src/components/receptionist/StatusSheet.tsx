@@ -1,4 +1,5 @@
 import clsx from 'clsx';
+import { useTranslation } from 'react-i18next';
 import type { QueueScreenStatus } from './types';
 
 interface StatusSheetProps {
@@ -30,6 +31,8 @@ export default function StatusSheet({
   onCloseQueue,
   onReopenQueue,
 }: StatusSheetProps) {
+  const { t } = useTranslation();
+
   return (
     <>
       {/* Overlay */}
@@ -68,12 +71,12 @@ export default function StatusSheet({
           />
           <div className="flex-1">
             <div className="text-bs-text-primary font-bold" style={{ fontSize: 15 }}>
-              {status === 'OPEN' ? 'File ouverte' : 'File en cours de fermeture'}
+              {status === 'OPEN' ? t('receptionist.statusSheet.queueOpen') : t('receptionist.statusSheet.queueClosing')}
             </div>
             <div className="text-bs-text-tertiary mt-px" style={{ fontSize: 12 }}>
               {status === 'OPEN'
-                ? `Depuis ${dayOpenedAt} · ${totalAdded} patients ajoutés`
-                : `${remainingCount} patients restants`}
+                ? t('receptionist.statusSheet.openSince', { time: dayOpenedAt, count: totalAdded })
+                : t('receptionist.statusSheet.remaining', { count: remainingCount })}
             </div>
           </div>
         </div>
@@ -87,10 +90,10 @@ export default function StatusSheet({
               style={{ fontSize: 15, backgroundColor: '#FEF7E6', border: '1.5px solid rgba(212,146,11,0.15)' }}
             >
               <span className="material-symbols-rounded" style={{ fontSize: 18 }}>block</span>
-              Fermer la file
+              {t('receptionist.statusSheet.closeQueue')}
             </button>
             <div className="text-bs-text-tertiary text-center mb-2" style={{ fontSize: 12 }}>
-              Les patients en attente seront vus, mais plus de nouveaux.
+              {t('receptionist.statusSheet.closeHint')}
             </div>
           </>
         ) : (
@@ -101,10 +104,10 @@ export default function StatusSheet({
               style={{ fontSize: 15, backgroundColor: '#EDF7F0', border: '1.5px solid rgba(45,139,78,0.15)' }}
             >
               <span className="material-symbols-rounded" style={{ fontSize: 18 }}>refresh</span>
-              Rouvrir la file
+              {t('receptionist.statusSheet.reopenQueue')}
             </button>
             <div className="text-bs-text-tertiary text-center mb-1" style={{ fontSize: 12 }}>
-              Accepter à nouveau des patients (ex : après pause).
+              {t('receptionist.statusSheet.reopenHint')}
             </div>
           </>
         )}
@@ -114,7 +117,7 @@ export default function StatusSheet({
           className="text-bs-text-tertiary font-semibold uppercase border-t border-bs-border pt-3 mt-4 mb-2.5"
           style={{ fontSize: 11, letterSpacing: '0.06em' }}
         >
-          Présence du médecin
+          {t('receptionist.statusSheet.doctorPresence')}
         </div>
         <div className="flex gap-2">
           <button
@@ -135,7 +138,7 @@ export default function StatusSheet({
             >
               check_circle
             </span>
-            Présent
+            {t('receptionist.statusSheet.present')}
           </button>
           <button
             onClick={() => isDoctorPresent && onToggleDoctorPresent?.()}
@@ -150,7 +153,7 @@ export default function StatusSheet({
             }}
           >
             <span className="material-symbols-rounded" style={{ fontSize: 16 }}>cancel</span>
-            Absent
+            {t('receptionist.statusSheet.absent')}
           </button>
         </div>
       </div>

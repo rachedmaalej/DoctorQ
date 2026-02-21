@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import type { ClinicDetailEnriched } from '@/types';
 import { Card } from '@/components/admin/ui';
+import { api } from '@/lib/api';
 
 interface Props {
   clinic: ClinicDetailEnriched;
@@ -31,6 +33,22 @@ const rowStyle: React.CSSProperties = {
 export default function SettingsTab({
   clinic, onLoginAs, onResetPassword, onExtendTrial, onPause, onDelete, actionLoading,
 }: Props) {
+  const [multiDoctorEnabled, setMultiDoctorEnabled] = useState(clinic.multiDoctorEnabled ?? false);
+  const [togglingMultiDoctor, setTogglingMultiDoctor] = useState(false);
+
+  const handleToggleMultiDoctor = async () => {
+    const newValue = !multiDoctorEnabled;
+    setMultiDoctorEnabled(newValue);
+    setTogglingMultiDoctor(true);
+    try {
+      await api.updateAdminClinicInfo(clinic.id, { multiDoctorEnabled: newValue });
+    } catch {
+      setMultiDoctorEnabled(!newValue);
+    } finally {
+      setTogglingMultiDoctor(false);
+    }
+  };
+
   const configRows = [
     { label: 'Clinic Name', value: clinic.name },
     { label: 'Doctor Name', value: clinic.doctorName },
@@ -115,6 +133,42 @@ export default function SettingsTab({
           </div>
         </div>
       </Card>
+
+      {/* Feature Flags */}
+      <div style={{ gridColumn: '1 / -1' }}>
+        <Card title="Feature Flags" subtitle="Toggle advanced features for this clinic">
+          <div style={{ padding: '16px 20px' }}>
+            <div style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            }}>
+              <div>
+                <div style={valueStyle}>Multi-Doctor Support</div>
+                <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>
+                  Allow this clinic to manage multiple independent doctor queues
+                </div>
+              </div>
+              <div
+                onClick={handleToggleMultiDoctor}
+                style={{
+                  width: 44, height: 24, borderRadius: 12, position: 'relative',
+                  cursor: togglingMultiDoctor ? 'wait' : 'pointer', flexShrink: 0,
+                  background: multiDoctorEnabled ? '#0F7B6C' : '#E8E6DF',
+                  transition: 'background 0.2s',
+                  opacity: togglingMultiDoctor ? 0.6 : 1,
+                }}
+              >
+                <div style={{
+                  position: 'absolute', top: 3,
+                  left: multiDoctorEnabled ? 23 : 3,
+                  width: 18, height: 18, borderRadius: '50%',
+                  background: '#FFF', boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
+                  transition: 'left 0.2s',
+                }} />
+              </div>
+            </div>
+          </div>
+        </Card>
+      </div>
     </div>
   );
 }

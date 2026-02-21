@@ -48,7 +48,7 @@ export default function Header({
   className,
   onWhatsAppClick,
 }: HeaderProps) {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { logout } = useAuthStore();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [activePanel, setActivePanel] = useState<PanelKey>(null);
@@ -158,7 +158,7 @@ export default function Header({
                   className="w-1.5 h-1.5 rounded-full"
                   style={{ backgroundColor: isDoctorPresent ? '#2D8B4E' : '#D94F3B' }}
                 />
-                <span>{isDoctorPresent ? 'Présent' : 'Absent'}</span>
+                <span>{isDoctorPresent ? t('receptionist.header.present') : t('receptionist.header.absent')}</span>
                 <span
                   className="material-symbols-rounded"
                   style={{
@@ -213,7 +213,7 @@ export default function Header({
                       className="rounded-full"
                       style={{ width: 8, height: 8, backgroundColor: '#2D8B4E', flexShrink: 0 }}
                     />
-                    Présent
+                    {t('receptionist.header.present')}
                     {isDoctorPresent && (
                       <span className="material-symbols-rounded" style={{ fontSize: 16, marginLeft: 'auto' }}>check</span>
                     )}
@@ -242,7 +242,7 @@ export default function Header({
                       className="rounded-full"
                       style={{ width: 8, height: 8, backgroundColor: '#D94F3B', flexShrink: 0 }}
                     />
-                    Absent
+                    {t('receptionist.header.absent')}
                     {!isDoctorPresent && (
                       <span className="material-symbols-rounded" style={{ fontSize: 16, marginLeft: 'auto' }}>check</span>
                     )}
@@ -264,7 +264,7 @@ export default function Header({
             <button
               onClick={() => setDrawerOpen(!drawerOpen)}
               className="flex items-center justify-center"
-              aria-label={drawerOpen ? 'Fermer les outils' : 'Ouvrir les outils'}
+              aria-label={drawerOpen ? t('receptionist.header.closeTools') : t('receptionist.header.openTools')}
               aria-expanded={drawerOpen}
               style={{
                 width: 32,
@@ -301,7 +301,7 @@ export default function Header({
             className="text-bs-text-tertiary font-semibold mb-2 uppercase"
             style={{ fontSize: 10, letterSpacing: '1px' }}
           >
-            Outils rapides
+            {t('receptionist.header.quickTools')}
           </div>
 
           <div className="grid grid-cols-2 gap-2">
@@ -321,7 +321,7 @@ export default function Header({
               <span className="material-symbols-rounded" style={{ fontSize: 18, color: '#0F7B6C' }}>
                 qr_code_2
               </span>
-              <span style={{ fontSize: 12, fontWeight: 600, color: '#1A1A1A' }}>QR Code</span>
+              <span style={{ fontSize: 12, fontWeight: 600, color: '#1A1A1A' }}>{t('receptionist.header.qrCode')}</span>
             </button>
 
             {/* WhatsApp */}
@@ -340,7 +340,7 @@ export default function Header({
               <span className="material-symbols-rounded" style={{ fontSize: 18, color: '#0F7B6C' }}>
                 share
               </span>
-              <span style={{ fontSize: 12, fontWeight: 600, color: '#1A1A1A' }}>WhatsApp</span>
+              <span style={{ fontSize: 12, fontWeight: 600, color: '#1A1A1A' }}>{t('receptionist.header.whatsapp')}</span>
             </button>
 
             {/* Durée consultation */}
@@ -359,7 +359,7 @@ export default function Header({
               <span className="material-symbols-rounded" style={{ fontSize: 18, color: '#D4920B' }}>
                 timer
               </span>
-              <span style={{ fontSize: 12, fontWeight: 600, color: '#1A1A1A' }}>Durée consultation</span>
+              <span style={{ fontSize: 12, fontWeight: 600, color: '#1A1A1A' }}>{t('receptionist.header.consultDuration')}</span>
             </button>
 
             {/* Paramètres */}
@@ -378,7 +378,7 @@ export default function Header({
               <span className="material-symbols-rounded" style={{ fontSize: 18, color: '#6B6960' }}>
                 settings
               </span>
-              <span style={{ fontSize: 12, fontWeight: 600, color: '#1A1A1A' }}>Paramètres</span>
+              <span style={{ fontSize: 12, fontWeight: 600, color: '#1A1A1A' }}>{t('receptionist.header.settings')}</span>
             </button>
           </div>
         </div>
@@ -411,7 +411,7 @@ export default function Header({
           <button onClick={closePanel} className="bs-panel-back">
             <span className="material-symbols-rounded" style={{ fontSize: 22 }}>arrow_back</span>
           </button>
-          <span className="bs-panel-title">QR Code</span>
+          <span className="bs-panel-title">{t('receptionist.header.qrCode')}</span>
         </div>
         <div className="bs-panel-body" style={{ textAlign: 'center' }}>
           {qrLoading && (
@@ -436,7 +436,7 @@ export default function Header({
                 }}
               />
               <p style={{ fontSize: 14, color: '#6B6960', marginTop: 16 }}>
-                Scannez pour rejoindre la file d'attente
+                {t('receptionist.header.scanToJoin')}
               </p>
               <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginTop: 20 }}>
                 <button
@@ -457,7 +457,7 @@ export default function Header({
                   <span className="material-symbols-rounded" style={{ fontSize: 16 }}>
                     {linkCopied ? 'check' : 'content_copy'}
                   </span>
-                  {linkCopied ? 'Copié !' : 'Copier lien'}
+                  {linkCopied ? t('receptionist.header.copied') : t('receptionist.header.copyLink')}
                 </button>
                 <button
                   className="flex items-center gap-1.5"
@@ -481,7 +481,7 @@ export default function Header({
                   }}
                 >
                   <span className="material-symbols-rounded" style={{ fontSize: 16 }}>download</span>
-                  Télécharger
+                  {t('receptionist.header.download')}
                 </button>
               </div>
             </>
@@ -495,7 +495,7 @@ export default function Header({
           <button onClick={closePanel} className="bs-panel-back">
             <span className="material-symbols-rounded" style={{ fontSize: 22 }}>arrow_back</span>
           </button>
-          <span className="bs-panel-title">Durée consultation</span>
+          <span className="bs-panel-title">{t('receptionist.header.consultDuration')}</span>
         </div>
         <div className="bs-panel-body" style={{ textAlign: 'center', padding: '40px 20px' }}>
           <span className="material-symbols-rounded" style={{ fontSize: 64, color: '#D4920B' }}>
@@ -505,10 +505,10 @@ export default function Header({
             <span style={{ fontSize: 56, fontWeight: 800, color: '#1A1A1A', letterSpacing: '-0.03em' }}>
               {avgConsultMins}
             </span>
-            <span style={{ fontSize: 20, fontWeight: 600, color: '#6B6960', marginLeft: 4 }}>min</span>
+            <span style={{ fontSize: 20, fontWeight: 600, color: '#6B6960', marginLeft: 4 }}>{t('receptionist.header.min')}</span>
           </div>
           <p style={{ fontSize: 14, color: '#6B6960', marginTop: 12 }}>
-            Durée moyenne de consultation
+            {t('receptionist.header.avgConsultDuration')}
           </p>
           <div
             className="inline-flex items-center gap-1"
@@ -523,7 +523,7 @@ export default function Header({
             }}
           >
             <span className="material-symbols-rounded" style={{ fontSize: 12 }}>schedule</span>
-            Bientôt configurable
+            {t('receptionist.header.soonConfigurable')}
           </div>
         </div>
       </div>
@@ -534,19 +534,19 @@ export default function Header({
           <button onClick={closePanel} className="bs-panel-back">
             <span className="material-symbols-rounded" style={{ fontSize: 22 }}>arrow_back</span>
           </button>
-          <span className="bs-panel-title">Paramètres</span>
+          <span className="bs-panel-title">{t('receptionist.header.settings')}</span>
         </div>
         <div className="bs-panel-body">
           {/* Cabinet section */}
-          <div className="bs-settings-label">Cabinet</div>
+          <div className="bs-settings-label">{t('receptionist.header.cabinetSection')}</div>
           <div className="bs-settings-group">
             <button className="bs-settings-item" onClick={() => setActivePanel('clinic-profile')}>
               <div className="bs-settings-ico" style={{ background: '#E8F5F1', color: '#0F7B6C' }}>
                 <span className="material-symbols-rounded" style={{ fontSize: 18 }}>domain</span>
               </div>
               <div className="bs-settings-txt">
-                <div className="bs-settings-name">Profil du cabinet</div>
-                <div className="bs-settings-desc">Nom, adresse, horaires</div>
+                <div className="bs-settings-name">{t('receptionist.header.clinicProfile')}</div>
+                <div className="bs-settings-desc">{t('receptionist.header.clinicProfileDesc')}</div>
               </div>
               <span className="material-symbols-rounded bs-settings-chev">chevron_right</span>
             </button>
@@ -555,8 +555,8 @@ export default function Header({
                 <span className="material-symbols-rounded" style={{ fontSize: 18 }}>group</span>
               </div>
               <div className="bs-settings-txt">
-                <div className="bs-settings-name">Équipe & accès</div>
-                <div className="bs-settings-desc">Médecins, secrétaires</div>
+                <div className="bs-settings-name">{t('receptionist.header.teamAccess')}</div>
+                <div className="bs-settings-desc">{t('receptionist.header.teamAccessDesc')}</div>
               </div>
               <span className="material-symbols-rounded bs-settings-chev">chevron_right</span>
             </button>
@@ -565,23 +565,23 @@ export default function Header({
                 <span className="material-symbols-rounded" style={{ fontSize: 18 }}>card_membership</span>
               </div>
               <div className="bs-settings-txt">
-                <div className="bs-settings-name">Abonnement</div>
-                <div className="bs-settings-desc">Gérer votre abonnement</div>
+                <div className="bs-settings-name">{t('receptionist.header.subscription')}</div>
+                <div className="bs-settings-desc">{t('receptionist.header.subscriptionDesc')}</div>
               </div>
               <span className="material-symbols-rounded bs-settings-chev">chevron_right</span>
             </button>
           </div>
 
           {/* File d'attente section */}
-          <div className="bs-settings-label">File d'attente</div>
+          <div className="bs-settings-label">{t('receptionist.header.queueSection')}</div>
           <div className="bs-settings-group">
             <button className="bs-settings-item" onClick={() => setActivePanel('consultation-duration')}>
               <div className="bs-settings-ico" style={{ background: '#FEF7E6', color: '#D4920B' }}>
                 <span className="material-symbols-rounded" style={{ fontSize: 18 }}>timer</span>
               </div>
               <div className="bs-settings-txt">
-                <div className="bs-settings-name">Durée consultation</div>
-                <div className="bs-settings-desc">{avgConsultMins} min en moyenne</div>
+                <div className="bs-settings-name">{t('receptionist.header.consultDuration')}</div>
+                <div className="bs-settings-desc">{t('receptionist.header.consultDurationDesc', { mins: avgConsultMins })}</div>
               </div>
               <span className="material-symbols-rounded bs-settings-chev">chevron_right</span>
             </button>
@@ -590,7 +590,7 @@ export default function Header({
                 <span className="material-symbols-rounded" style={{ fontSize: 18 }}>translate</span>
               </div>
               <div className="bs-settings-txt">
-                <div className="bs-settings-name">Langue</div>
+                <div className="bs-settings-name">{t('receptionist.header.language')}</div>
                 <div className="bs-settings-desc">{i18n.language === 'fr' ? 'Français' : 'العربية'}</div>
               </div>
               <span className="material-symbols-rounded bs-settings-chev">chevron_right</span>
@@ -598,14 +598,14 @@ export default function Header({
           </div>
 
           {/* Compte section */}
-          <div className="bs-settings-label">Compte</div>
+          <div className="bs-settings-label">{t('receptionist.header.accountSection')}</div>
           <div className="bs-settings-group">
             <button className="bs-settings-item" onClick={() => { closePanel(); logout(); }}>
               <div className="bs-settings-ico" style={{ background: '#FDF0ED', color: '#D94F3B' }}>
                 <span className="material-symbols-rounded" style={{ fontSize: 18 }}>logout</span>
               </div>
               <div className="bs-settings-txt">
-                <div className="bs-settings-name" style={{ color: '#D94F3B' }}>Déconnexion</div>
+                <div className="bs-settings-name" style={{ color: '#D94F3B' }}>{t('receptionist.header.logout')}</div>
               </div>
             </button>
           </div>

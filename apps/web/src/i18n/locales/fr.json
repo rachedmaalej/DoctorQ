@@ -3,6 +3,8 @@
     "loading": "Chargement...",
     "error": "Erreur",
     "success": "Succès",
+    "viewingAs": "Vue en tant que : <strong>{{name}}</strong>",
+    "exitToAdmin": "Retour Admin",
     "cancel": "Annuler",
     "save": "Enregistrer",
     "delete": "Supprimer",
@@ -605,7 +607,7 @@
       "helpText": "Les horaires sont affichés aux patients sur la page d'enregistrement et la page de statut."
     },
     "teamAccess": {
-      "title": "Équipe & accès",
+      "title": "Accès",
       "doctors": "médecin(s)",
       "addDoctor": "Ajouter",
       "addFirstDoctor": "Ajouter votre premier médecin",
@@ -890,6 +892,283 @@
         "title": "7. Contact",
         "content": "Pour toute question relative à la protection de vos données personnelles, vous pouvez nous contacter à : support@blesaf.tn. Responsable du traitement : Blesaf SARL, Tunis, Tunisie."
       }
+    }
+  },
+  "blesaf": {
+    "header": {
+      "defaultClinic": "Cabinet",
+      "switchLangAria": "Changer de langue",
+      "present": "Présent",
+      "absent": "Absent",
+      "seen": "Vus"
+    },
+    "currentPatient": {
+      "label": "Patient actuel",
+      "defaultName": "Patient",
+      "meta": "Arrivé à {{arrivedTime}} · Consultation depuis {{consultMins}} min",
+      "next": "Suivant",
+      "callAria": "Appeler le patient"
+    },
+    "queue": {
+      "defaultName": "Patient",
+      "noPhone": "Sans tél.",
+      "noPhoneAria": "Pas de téléphone",
+      "moreActions": "Plus d'actions"
+    },
+    "cta": {
+      "calling": "Appel en cours...",
+      "callNext": "Appeler Suivant"
+    },
+    "quickAdd": {
+      "placeholder": "Nom du patient..."
+    },
+    "empty": {
+      "text": "Aucun patient dans la file"
+    },
+    "summary": {
+      "defaultDoctor": "Docteur",
+      "patientsSeen": "patients vus",
+      "avgConsult": "Consultation moy.",
+      "firstPatient": "Premier patient",
+      "lastPatient": "Dernier patient",
+      "share": "Partager",
+      "export": "Exporter",
+      "newDay": "Nouvelle journée"
+    },
+    "addPatient": {
+      "nameRequired": "Le nom du patient est requis",
+      "addError": "Erreur lors de l'ajout",
+      "title": "Nouveau patient",
+      "subtitle": "Sera en position #{{position}} · Attente estimée {{wait}}",
+      "walkIn": "Sans rendez-vous",
+      "withAppointment": "Avec rendez-vous",
+      "appointmentTime": "Heure du rendez-vous",
+      "patientName": "Nom du patient",
+      "phone": "Numéro de téléphone",
+      "phoneOptional": "(optionnel)",
+      "phoneHint": "Permet d'appeler le patient et de suivre sa position",
+      "qrFallbackTitle": "Pas de numéro ?",
+      "qrFallbackDesc": "Le patient peut scanner le QR du comptoir pour s'inscrire lui-même.",
+      "submitting": "Ajout en cours...",
+      "submit": "Ajouter à la file",
+      "confirmPosition": "Position #{{position}} · Attente estimée {{wait}}",
+      "sendWhatsApp": "Envoyer le lien par WhatsApp",
+      "sendWhatsAppDesc": "Envoyer le lien de suivi au patient",
+      "noPhoneInfo": "Aucun numéro renseigné. Pour lier le patient :",
+      "showQr": "Montrer le QR code",
+      "showQrDesc": "Le patient scanne pour suivre sa position",
+      "addPhoneLater": "Ajouter le numéro plus tard",
+      "addPhoneLaterDesc": "Via le menu du patient dans la file",
+      "done": "Terminé — Retour à la file"
+    }
+  },
+  "receptionist": {
+    "header": {
+      "openTools": "Ouvrir les outils",
+      "closeTools": "Fermer les outils",
+      "quickTools": "Outils rapides",
+      "qrCode": "QR Code",
+      "whatsapp": "WhatsApp",
+      "consultDuration": "Durée consultation",
+      "settings": "Paramètres",
+      "scanToJoin": "Scannez pour rejoindre la file d'attente",
+      "copied": "Copié !",
+      "copyLink": "Copier lien",
+      "download": "Télécharger",
+      "avgConsultDuration": "Durée moyenne de consultation",
+      "min": "min",
+      "soonConfigurable": "Bientôt configurable",
+      "present": "Présent",
+      "absent": "Absent",
+      "cabinetSection": "Cabinet",
+      "clinicProfile": "Profil du cabinet",
+      "clinicProfileDesc": "Nom, adresse, horaires",
+      "teamAccess": "Accès",
+      "teamAccessDesc": "Médecins, secrétaires",
+      "subscription": "Abonnement",
+      "subscriptionDesc": "Gérer votre abonnement",
+      "queueSection": "File d'attente",
+      "consultDurationDesc": "{{mins}} min en moyenne",
+      "language": "Langue",
+      "accountSection": "Compte",
+      "logout": "Déconnexion"
+    },
+    "statusSheet": {
+      "queueOpen": "File ouverte",
+      "queueClosing": "File en cours de fermeture",
+      "openSince": "Depuis {{time}} · {{count}} patients ajoutés",
+      "remaining": "{{count}} patients restants",
+      "closeQueue": "Fermer la file",
+      "closeHint": "Les patients en attente seront vus, mais plus de nouveaux.",
+      "reopenQueue": "Rouvrir la file",
+      "reopenHint": "Accepter à nouveau des patients (ex : après pause).",
+      "doctorPresence": "Présence du médecin",
+      "present": "Présent",
+      "absent": "Absent"
+    },
+    "patientContext": {
+      "priority": "Marquer prioritaire",
+      "priorityDesc": "Remonter dans la file",
+      "steppedOut": "Marquer sorti",
+      "steppedOutDesc": "Parti temporairement",
+      "callPatient": "Appeler le patient",
+      "callPatientDesc": "Appel téléphonique",
+      "sendWhatsApp": "Envoyer lien WhatsApp",
+      "sendWhatsAppDesc": "Lien de suivi de la position",
+      "removePatient": "Retirer de la file",
+      "removePatientDesc": "Supprimer définitivement",
+      "addPhone": "Ajouter numéro",
+      "addPhoneDesc": "Associer un téléphone au patient",
+      "saving": "Enregistrement...",
+      "save": "Enregistrer",
+      "positionInfo": "Position #{{position}} · {{minutes}} min d'attente"
+    },
+    "currentPatient": {
+      "label": "Patient actuel",
+      "meta": "Arrivé à {{arrivedAt}} · Consultation depuis {{minutes}} min",
+      "finish": "Terminer"
+    },
+    "morning": {
+      "greeting": "Bonjour, Dr. {{name}}",
+      "subtitle": "Votre journée va commencer",
+      "preRegistered": "{{count}} patients pré-inscrits"
+    },
+    "allDone": {
+      "title": "Tous les patients ont été vus",
+      "patients": "Patients",
+      "avgWait": "Attente moy.",
+      "avgConsult": "Consult. moy.",
+      "endDay": "Terminer la journée",
+      "reopenQueue": "Rouvrir la file"
+    },
+    "statusPill": {
+      "preOpen": "Non ouverte",
+      "open": "Ouvert",
+      "closing": "Fermeture…",
+      "closed": "Terminée"
+    },
+    "summary": {
+      "patientsSeen": "patients vus",
+      "avgWait": "Attente moyenne",
+      "avgConsult": "Consultation moy.",
+      "firstPatient": "Premier patient",
+      "lastPatient": "Dernier patient",
+      "share": "Partager"
+    },
+    "closingBanner": "File fermée — plus de nouveaux patients",
+    "timeline": "Activité de la journée",
+    "summaryActions": {
+      "export": "Exporter",
+      "newDay": "Nouvelle journée"
+    },
+    "quickAdd": {
+      "placeholder": "Nom du patient..."
+    },
+    "preRegistered": {
+      "registeredAt": "Inscrit à {{time}}"
+    },
+    "statsStrip": {
+      "remaining": "Restants",
+      "waiting": "En attente",
+      "seen": "Vus",
+      "estimatedEnd": "Fin estimée"
+    }
+  },
+  "settingsBs": {
+    "clinicProfile": {
+      "title": "Profil du cabinet",
+      "myClinic": "Mon cabinet",
+      "clinicName": "Nom du cabinet",
+      "clinicNameDesc": "Nom affiché aux patients",
+      "doctor": "Médecin",
+      "doctorDesc": "Nom et civilité",
+      "mr": "M.",
+      "mrs": "Mme",
+      "doctorNamePlaceholder": "Nom du médecin",
+      "phone": "Téléphone",
+      "phoneDesc": "Numéro de contact",
+      "address": "Adresse",
+      "addressDesc": "Adresse du cabinet",
+      "addressPlaceholder": "Adresse complète",
+      "security": "Sécurité",
+      "changePassword": "Changer le mot de passe",
+      "changePasswordDesc": "Sécurisez votre compte",
+      "currentPassword": "Mot de passe actuel",
+      "newPassword": "Nouveau",
+      "confirmPassword": "Confirmer",
+      "minChars": "Min. 8 caractères",
+      "retypePassword": "Retapez le mot de passe",
+      "changingPassword": "Enregistrement...",
+      "changePasswordBtn": "Changer le mot de passe"
+    },
+    "autoSave": {
+      "saving": "Enregistrement...",
+      "saved": "Modifications enregistrées",
+      "error": "Erreur lors de l'enregistrement"
+    },
+    "teamAccess": {
+      "title": "Accès",
+      "yourDoctor": "Votre médecin",
+      "editInProfile": "Modifiable dans Profil du cabinet",
+      "multiDoctorTitle": "Gestion multi-médecins",
+      "multiDoctorDesc": "Gérez plusieurs médecins, organisez la file d'attente par praticien, et suivez les performances individuelles.",
+      "comingSoon": "Bientôt disponible",
+      "doctors": "Médecins",
+      "doctorCount": "{{count}} médecin(s)",
+      "loading": "Chargement...",
+      "noDoctors": "Aucun médecin ajouté",
+      "noDoctorsDesc": "Ajoutez vos médecins pour organiser la file d'attente par praticien",
+      "active": "Actif",
+      "inactive": "Inactif",
+      "consultDuration": "Durée consultation",
+      "deleteDoctor": "Supprimer ce médecin",
+      "addDoctor": "Ajouter un médecin",
+      "fullName": "Nom complet",
+      "namePlaceholder": "Ex: Dr. Fatma Trabelsi",
+      "specialty": "Spécialité",
+      "selectSpecialty": "Choisir une spécialité",
+      "addButton": "Ajouter",
+      "addFirstDoctor": "Ajouter votre premier médecin",
+      "confirmDelete": "Supprimer ce médecin ?",
+      "confirmDeleteDesc": "{{name}} sera retiré de votre équipe. Cette action est irréversible.",
+      "cancel": "Annuler",
+      "delete": "Supprimer",
+      "deleting": "Suppression..."
+    },
+    "subscription": {
+      "title": "Abonnement",
+      "loading": "Chargement...",
+      "freeTrial": "Essai gratuit",
+      "expired": "Abonnement expiré",
+      "yearly": "Annuel",
+      "monthly": "Mensuel",
+      "trialBadge": "TRIAL",
+      "activeBadge": "ACTIF",
+      "expiredBadge": "EXPIRÉ",
+      "expiredSince": "Expiré depuis {{days}} jours",
+      "daysRemaining": "{{days}} jours restants",
+      "expiredOn": "Expiré le {{date}}",
+      "expiresOn": "Expire le {{date}}",
+      "renewalOn": "Renouvellement le {{date}}",
+      "choosePlan": "Choisir un plan",
+      "renew": "Renouveler",
+      "yourPlan": "Votre plan",
+      "priceMonthly": "TND/mois",
+      "priceYearly": "TND/an",
+      "subscribe": "S'abonner — {{price}}",
+      "renewBtn": "Renouveler — {{price}}",
+      "activePlan": "Plan actif",
+      "accessLimited": "Votre accès est limité",
+      "renewPrompt": "Renouvelez votre abonnement pour retrouver toutes les fonctionnalités.",
+      "billingHistory": "Historique des paiements",
+      "noPayments": "Aucun paiement enregistré",
+      "yearlySubscription": "Abonnement annuel",
+      "monthlySubscription": "Abonnement mensuel",
+      "saveMoney": "Économisez 100 TND",
+      "konnect": "Konnect",
+      "cash": "Espèces",
+      "transfer": "Virement",
+      "loadError": "Impossible de charger les informations"
     }
   }
 }

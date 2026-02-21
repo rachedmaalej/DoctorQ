@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { PreRegisteredPatient } from './types';
 
 interface PreRegisteredListProps {
@@ -5,6 +6,8 @@ interface PreRegisteredListProps {
 }
 
 export default function PreRegisteredList({ patients }: PreRegisteredListProps) {
+  const { t } = useTranslation();
+
   return (
     <div className="px-5">
       {patients.map((patient, i) => (
@@ -29,7 +32,7 @@ export default function PreRegisteredList({ patients }: PreRegisteredListProps) 
               className="text-bs-text-tertiary flex items-center gap-[5px] mt-px"
               style={{ fontSize: 12 }}
             >
-              {patient.hasPhone ? `📱 Inscrit${patient.name.endsWith('a') || patient.name.endsWith('i') ? 'e' : ''} à ${patient.registeredAt}` : `Inscrit${patient.name.endsWith('a') || patient.name.endsWith('i') ? 'e' : ''} à ${patient.registeredAt}`}
+              {patient.hasPhone ? '📱 ' : ''}{t('receptionist.preRegistered.registeredAt', { time: patient.registeredAt })}
             </div>
           </div>
         </div>

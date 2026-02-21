@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { QueueEntry } from '@/types';
 import { getWaitDotColor, formatWaitTime } from './utils';
 
@@ -12,12 +13,13 @@ export default function BSQueueList({
   isDoctorPresent,
   onRemovePatient,
 }: BSQueueListProps) {
+  const { t } = useTranslation();
   if (queue.length === 0) return null;
 
   return (
     <>
       <div className="bs-section-header bs-animate-in bs-delay-4">
-        <span className="bs-section-title">File d'attente</span>
+        <span className="bs-section-title">{t('queue.title')}</span>
       </div>
       <div className="bs-queue-list">
         {queue.map((entry, index) => {
@@ -38,7 +40,7 @@ export default function BSQueueList({
               {/* Patient info */}
               <div className="bs-qi-info">
                 <div className="bs-qi-name">
-                  {entry.patientName || 'Patient'}
+                  {entry.patientName || t('blesaf.queue.defaultName')}
                 </div>
                 <div className="bs-qi-detail">
                   <span className={`bs-wait-dot ${dotColor}`} />
@@ -49,7 +51,7 @@ export default function BSQueueList({
 
               {/* Badge */}
               {!hasPhone && (
-                <span className="bs-qi-badge no-phone">Sans tél.</span>
+                <span className="bs-qi-badge no-phone">{t('blesaf.queue.noPhone')}</span>
               )}
 
               {/* Action buttons */}
@@ -58,7 +60,7 @@ export default function BSQueueList({
                   <a
                     href={`tel:${entry.patientPhone}`}
                     className="bs-qi-icon-btn phone-btn"
-                    aria-label="Appeler"
+                    aria-label={t('queue.call')}
                   >
                     <span className="material-symbols-rounded">phone</span>
                   </a>
@@ -66,7 +68,7 @@ export default function BSQueueList({
                   <button
                     className="bs-qi-icon-btn disabled"
                     disabled
-                    aria-label="Pas de téléphone"
+                    aria-label={t('blesaf.queue.noPhoneAria')}
                   >
                     <span className="material-symbols-rounded">phone</span>
                   </button>
@@ -74,7 +76,7 @@ export default function BSQueueList({
                 <button
                   className="bs-qi-icon-btn"
                   onClick={() => onRemovePatient(entry.id)}
-                  aria-label="Plus d'actions"
+                  aria-label={t('blesaf.queue.moreActions')}
                 >
                   <span className="material-symbols-rounded">more_vert</span>
                 </button>

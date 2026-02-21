@@ -1,10 +1,12 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface BSQuickAddProps {
   onSubmit: (name: string) => void;
 }
 
 export default function BSQuickAdd({ onSubmit }: BSQuickAddProps) {
+  const { t } = useTranslation();
   const [name, setName] = useState('');
 
   const handleSubmit = () => {
@@ -23,7 +25,7 @@ export default function BSQuickAdd({ onSubmit }: BSQuickAddProps) {
       <input
         type="text"
         className="bs-quick-add-input"
-        placeholder="Nom du patient..."
+        placeholder={t('blesaf.quickAdd.placeholder')}
         value={name}
         onChange={(e) => setName(e.target.value)}
         onKeyDown={handleKeyDown}
@@ -31,7 +33,7 @@ export default function BSQuickAdd({ onSubmit }: BSQuickAddProps) {
       <button
         className="bs-quick-add-btn"
         onClick={handleSubmit}
-        aria-label="Ajouter un patient"
+        aria-label={t('queue.addPatient')}
       >
         <span className="material-symbols-rounded">person_add</span>
       </button>

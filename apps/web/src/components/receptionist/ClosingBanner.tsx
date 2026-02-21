@@ -1,4 +1,8 @@
+import { useTranslation } from 'react-i18next';
+
 export default function ClosingBanner() {
+  const { t } = useTranslation();
+
   return (
     <div
       className="mx-5 mb-2 flex items-center gap-2.5 bg-bs-amber-light text-bs-amber font-semibold rounded-bs-sm"
@@ -9,7 +13,7 @@ export default function ClosingBanner() {
       }}
     >
       <span className="material-symbols-rounded" style={{ fontSize: 18 }}>info</span>
-      File fermée — plus de nouveaux patients
+      {t('receptionist.closingBanner')}
     </div>
   );
 }

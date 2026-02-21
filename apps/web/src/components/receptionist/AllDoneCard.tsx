@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { DaySummaryBrief } from './types';
 
 interface AllDoneCardProps {
@@ -7,6 +8,8 @@ interface AllDoneCardProps {
 }
 
 export default function AllDoneCard({ summary, onEndDay, onReopen }: AllDoneCardProps) {
+  const { t } = useTranslation();
+
   return (
     <div
       className="mx-5 bg-bs-surface border border-bs-border rounded-bs text-center"
@@ -23,14 +26,14 @@ export default function AllDoneCard({ summary, onEndDay, onReopen }: AllDoneCard
       </div>
 
       <div className="text-bs-text-primary font-bold" style={{ fontSize: 18 }}>
-        Tous les patients ont été vus
+        {t('receptionist.allDone.title')}
       </div>
 
       {/* Stats row */}
       <div className="flex justify-center gap-6 my-4">
-        <StatBlock value={String(summary.totalPatients)} label="Patients" />
-        <StatBlock value={`${summary.avgWaitMinutes} min`} label="Attente moy." />
-        <StatBlock value={`${summary.avgConsultMinutes} min`} label="Consult. moy." />
+        <StatBlock value={String(summary.totalPatients)} label={t('receptionist.allDone.patients')} />
+        <StatBlock value={`${summary.avgWaitMinutes} min`} label={t('receptionist.allDone.avgWait')} />
+        <StatBlock value={`${summary.avgConsultMinutes} min`} label={t('receptionist.allDone.avgConsult')} />
       </div>
 
       {/* Action buttons */}
@@ -41,7 +44,7 @@ export default function AllDoneCard({ summary, onEndDay, onReopen }: AllDoneCard
           style={{ fontSize: 15, backgroundColor: '#0F7B6C', boxShadow: '0 6px 24px rgba(15,123,108,0.25)', border: 'none' }}
         >
           <span className="material-symbols-rounded" style={{ fontSize: 20 }}>summarize</span>
-          Terminer la journée
+          {t('receptionist.allDone.endDay')}
         </button>
         <button
           onClick={onReopen}
@@ -49,7 +52,7 @@ export default function AllDoneCard({ summary, onEndDay, onReopen }: AllDoneCard
           style={{ fontSize: 15, border: '1.5px solid #E8E6DF' }}
         >
           <span className="material-symbols-rounded" style={{ fontSize: 20 }}>refresh</span>
-          Rouvrir la file
+          {t('receptionist.allDone.reopenQueue')}
         </button>
       </div>
     </div>

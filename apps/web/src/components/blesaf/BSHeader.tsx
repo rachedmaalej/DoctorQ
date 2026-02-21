@@ -17,7 +17,7 @@ export default function BSHeader({
   isDoctorPresent,
   onToggleDoctorPresent,
 }: BSHeaderProps) {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { clinic } = useAuthStore();
 
   const toggleLanguage = () => {
@@ -30,7 +30,7 @@ export default function BSHeader({
       {/* Top row: clinic name + actions */}
       <div className="bs-header-top">
         <span className="bs-clinic-name">
-          {clinic?.name || 'Cabinet'}
+          {clinic?.name || t('blesaf.header.defaultClinic')}
         </span>
         <div className="bs-header-actions">
           {/* Language toggle */}
@@ -38,7 +38,7 @@ export default function BSHeader({
             <button
               className="bs-lang-toggle"
               onClick={toggleLanguage}
-              aria-label={i18n.language === 'fr' ? 'Switch to Arabic' : 'Basculer vers le français'}
+              aria-label={t('blesaf.header.switchLangAria')}
             >
               {i18n.language === 'fr' ? 'عربي' : 'FR'}
             </button>
@@ -51,7 +51,7 @@ export default function BSHeader({
           >
             <div className="bs-toggle-dot" />
             <span className="bs-toggle-text">
-              {isDoctorPresent ? 'Présent' : 'Absent'}
+              {isDoctorPresent ? t('blesaf.header.present') : t('blesaf.header.absent')}
             </span>
           </button>
         </div>
@@ -61,15 +61,15 @@ export default function BSHeader({
       <div className="bs-stats-strip">
         <div className="bs-stat-chip highlight">
           <div className="bs-stat-value">{waitingCount}</div>
-          <div className="bs-stat-label">En attente</div>
+          <div className="bs-stat-label">{t('queue.waiting')}</div>
         </div>
         <div className="bs-stat-chip">
           <div className="bs-stat-value">{seenCount}</div>
-          <div className="bs-stat-label">Vus</div>
+          <div className="bs-stat-label">{t('blesaf.header.seen')}</div>
         </div>
         <div className="bs-stat-chip">
           <div className="bs-stat-value">{endEstimate}</div>
-          <div className="bs-stat-label">Fin estimée</div>
+          <div className="bs-stat-label">{t('queue.endEstimate')}</div>
         </div>
       </div>
     </div>

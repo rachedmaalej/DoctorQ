@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 import type { QueuePatient } from './types';
 import { api } from '@/lib/api';
@@ -18,46 +19,11 @@ interface PatientContextSheetProps {
 }
 
 const actions = [
-  {
-    key: 'priority',
-    icon: 'priority_high',
-    label: 'Marquer prioritaire',
-    desc: 'Remonter dans la file',
-    iconBg: '#FEF7E6',
-    iconColor: '#D4920B',
-  },
-  {
-    key: 'stepped-out',
-    icon: 'directions_walk',
-    label: 'Marquer sorti',
-    desc: 'Parti temporairement',
-    iconBg: '#EDF3FC',
-    iconColor: '#3B7DD9',
-  },
-  {
-    key: 'phone',
-    icon: 'phone',
-    label: 'Appeler le patient',
-    desc: 'Appel téléphonique',
-    iconBg: '#EDF7F0',
-    iconColor: '#2D8B4E',
-  },
-  {
-    key: 'whatsapp',
-    icon: 'chat',
-    label: 'Envoyer lien WhatsApp',
-    desc: 'Lien de suivi de la position',
-    iconBg: '#E8F8EE',
-    iconColor: '#25D366',
-  },
-  {
-    key: 'remove',
-    icon: 'person_remove',
-    label: 'Retirer de la file',
-    desc: 'Supprimer définitivement',
-    iconBg: '#FDF0ED',
-    iconColor: '#D94F3B',
-  },
+  { key: 'priority', icon: 'priority_high', iconBg: '#FEF7E6', iconColor: '#D4920B' },
+  { key: 'stepped-out', icon: 'directions_walk', iconBg: '#EDF3FC', iconColor: '#3B7DD9' },
+  { key: 'phone', icon: 'phone', iconBg: '#EDF7F0', iconColor: '#2D8B4E' },
+  { key: 'whatsapp', icon: 'chat', iconBg: '#E8F8EE', iconColor: '#25D366' },
+  { key: 'remove', icon: 'person_remove', iconBg: '#FDF0ED', iconColor: '#D94F3B' },
 ] as const;
 
 export default function PatientContextSheet({
@@ -71,6 +37,16 @@ export default function PatientContextSheet({
   onPhoneUpdated,
   clinicName,
 }: PatientContextSheetProps) {
+  const { t } = useTranslation();
+
+  const actionLabels: Record<string, { label: string; desc: string }> = {
+    priority: { label: t('receptionist.patientContext.priority'), desc: t('receptionist.patientContext.priorityDesc') },
+    'stepped-out': { label: t('receptionist.patientContext.steppedOut'), desc: t('receptionist.patientContext.steppedOutDesc') },
+    phone: { label: t('receptionist.patientContext.callPatient'), desc: t('receptionist.patientContext.callPatientDesc') },
+    whatsapp: { label: t('receptionist.patientContext.sendWhatsApp'), desc: t('receptionist.patientContext.sendWhatsAppDesc') },
+    remove: { label: t('receptionist.patientContext.removePatient'), desc: t('receptionist.patientContext.removePatientDesc') },
+  };
+
   const [showPhoneInput, setShowPhoneInput] = useState(false);
   const [phoneValue, setPhoneValue] = useState('');
   const [isSavingPhone, setIsSavingPhone] = useState(false);
@@ -177,7 +153,7 @@ export default function PatientContextSheet({
               {patient.name}
             </div>
             <div className="text-bs-text-tertiary mt-0.5" style={{ fontSize: 12 }}>
-              Position #{patient.position} · {patient.waitMinutes} min d'attente
+              {t('receptionist.patientContext.positionInfo', { position: patient.position, minutes: patient.waitMinutes })}
             </div>
           </div>
         )}
@@ -215,10 +191,10 @@ export default function PatientContextSheet({
                 {/* Label + description */}
                 <div className="flex-1 min-w-0">
                   <div className="text-bs-text-primary font-semibold" style={{ fontSize: 15 }}>
-                    {action.label}
+                    {actionLabels[action.key]?.label}
                   </div>
                   <div className="text-bs-text-tertiary" style={{ fontSize: 12 }}>
-                    {action.desc}
+                    {actionLabels[action.key]?.desc}
                   </div>
                 </div>
 
@@ -250,10 +226,10 @@ export default function PatientContextSheet({
               </div>
               <div className="flex-1 min-w-0">
                 <div className="text-bs-text-primary font-semibold" style={{ fontSize: 15 }}>
-                  Ajouter numéro
+                  {t('receptionist.patientContext.addPhone')}
                 </div>
                 <div className="text-bs-text-tertiary" style={{ fontSize: 12 }}>
-                  Associer un téléphone au patient
+                  {t('receptionist.patientContext.addPhoneDesc')}
                 </div>
               </div>
               <span className="material-symbols-rounded text-bs-text-tertiary shrink-0" style={{ fontSize: 18 }}>
@@ -322,7 +298,7 @@ export default function PatientContextSheet({
                 }}
               >
                 <span className="material-symbols-rounded" style={{ fontSize: 18 }}>save</span>
-                {isSavingPhone ? 'Enregistrement...' : 'Enregistrer'}
+                {isSavingPhone ? t('receptionist.patientContext.saving') : t('receptionist.patientContext.save')}
               </button>
             </div>
           )}

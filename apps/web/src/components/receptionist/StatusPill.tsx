@@ -1,4 +1,5 @@
 import clsx from 'clsx';
+import { useTranslation } from 'react-i18next';
 import type { QueueScreenStatus } from './types';
 
 interface StatusPillProps {
@@ -13,7 +14,6 @@ const config: Record<QueueScreenStatus, {
   border: string;
   dotColor: string;
   dotClass?: string;
-  label: string;
   showDot: boolean;
 }> = {
   PRE_OPEN: {
@@ -21,7 +21,6 @@ const config: Record<QueueScreenStatus, {
     text: 'text-bs-text-tertiary',
     border: '',
     dotColor: '',
-    label: 'Non ouverte',
     showDot: true,
   },
   OPEN: {
@@ -29,7 +28,6 @@ const config: Record<QueueScreenStatus, {
     text: 'text-bs-green',
     border: '',
     dotColor: 'bg-bs-green',
-    label: 'Ouvert',
     showDot: true,
   },
   CLOSING: {
@@ -37,7 +35,6 @@ const config: Record<QueueScreenStatus, {
     text: 'text-bs-amber',
     border: '',
     dotColor: 'bg-bs-amber animate-bs-pulse-dot',
-    label: 'Fermeture\u2026',
     showDot: true,
   },
   CLOSED: {
@@ -45,14 +42,21 @@ const config: Record<QueueScreenStatus, {
     text: 'text-bs-text-tertiary',
     border: 'border-bs-border',
     dotColor: '',
-    label: 'Terminée',
     showDot: false,
   },
 };
 
 export default function StatusPill({ status, isAllDone, onClick }: StatusPillProps) {
+  const { t } = useTranslation();
   const effectiveStatus = isAllDone ? 'CLOSING' : status;
   const c = config[effectiveStatus];
+
+  const labels: Record<QueueScreenStatus, string> = {
+    PRE_OPEN: t('receptionist.statusPill.preOpen'),
+    OPEN: t('receptionist.statusPill.open'),
+    CLOSING: t('receptionist.statusPill.closing'),
+    CLOSED: t('receptionist.statusPill.closed'),
+  };
 
   const isClickable = status === 'OPEN' || status === 'CLOSING';
 
@@ -78,7 +82,7 @@ export default function StatusPill({ status, isAllDone, onClick }: StatusPillPro
           style={effectiveStatus === 'PRE_OPEN' ? { backgroundColor: '#E8E6DF' } : undefined}
         />
       )}
-      <span>{c.label}</span>
+      <span>{labels[effectiveStatus]}</span>
     </div>
   );
 }

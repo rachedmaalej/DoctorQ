@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { api } from '@/lib/api';
 import type { PaymentRecord } from '@/types';
 import '@/components/receptionist/receptionist.css';
@@ -20,6 +21,7 @@ interface SubInfo {
 
 export default function BSSubscriptionPanel({ isOpen, onClose }: BSSubscriptionPanelProps) {
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
   const [subInfo, setSubInfo] = useState<SubInfo | null>(null);
   const [payments, setPayments] = useState<PaymentRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -58,17 +60,17 @@ export default function BSSubscriptionPanel({ isOpen, onClose }: BSSubscriptionP
 
   // Plan name for banner
   const bannerPlanName = isTrial
-    ? 'Essai gratuit'
+    ? t('settingsBs.subscription.freeTrial')
     : isExpired
-      ? 'Abonnement expiré'
+      ? t('settingsBs.subscription.expired')
       : subInfo?.plan === 'YEARLY'
-        ? 'Annuel'
+        ? t('settingsBs.subscription.yearly')
         : subInfo?.plan === 'MONTHLY'
-          ? 'Mensuel'
+          ? t('settingsBs.subscription.monthly')
           : '—';
 
   // Status badge
-  const badgeLabel = isTrial ? 'TRIAL' : isActive ? 'ACTIF' : 'EXPIRÉ';
+  const badgeLabel = isTrial ? t('settingsBs.subscription.trialBadge') : isActive ? t('settingsBs.subscription.activeBadge') : t('settingsBs.subscription.expiredBadge');
   const badgeClass = isTrial ? 'trial' : isActive ? 'active' : 'expired';
 
   // Days remaining
@@ -85,21 +87,22 @@ export default function BSSubscriptionPanel({ isOpen, onClose }: BSSubscriptionP
       : 0;
 
   // Expiry date
+  const dateLocale = i18n.language === 'ar' ? 'ar-TN' : 'fr-TN';
   const expiryRaw = isTrial ? subInfo?.trialEndsAt : subInfo?.subscriptionEndsAt;
   const expiryDate = expiryRaw
-    ? new Date(expiryRaw).toLocaleDateString('fr-TN', { day: '2-digit', month: '2-digit', year: 'numeric' })
+    ? new Date(expiryRaw).toLocaleDateString(dateLocale, { day: '2-digit', month: '2-digit', year: 'numeric' })
     : '';
 
   // Days text
   const daysText = isExpired
-    ? `Expiré depuis ${Math.abs(daysRemaining)} jours`
-    : `${daysRemaining} jours restants`;
+    ? t('settingsBs.subscription.expiredSince', { days: Math.abs(daysRemaining) })
+    : t('settingsBs.subscription.daysRemaining', { days: daysRemaining });
 
   const dateText = isExpired
-    ? `Expiré le ${expiryDate}`
+    ? t('settingsBs.subscription.expiredOn', { date: expiryDate })
     : isTrial
-      ? `Expire le ${expiryDate}`
-      : `Renouvellement le ${expiryDate}`;
+      ? t('settingsBs.subscription.expiresOn', { date: expiryDate })
+      : t('settingsBs.subscription.renewalOn', { date: expiryDate });
 
   // Banner gradient
   const bannerGradient = isExpired
@@ -108,28 +111,28 @@ export default function BSSubscriptionPanel({ isOpen, onClose }: BSSubscriptionP
 
   // Plan section label
   const planSectionLabel = isTrial
-    ? 'Choisir un plan'
+    ? t('settingsBs.subscription.choosePlan')
     : isExpired
-      ? 'Renouveler'
-      : 'Votre plan';
+      ? t('settingsBs.subscription.renew')
+      : t('settingsBs.subscription.yourPlan');
 
   // Selected plan price display
-  const selectedPrice = selectedPlan === 'MONTHLY' ? '50 TND/mois' : '500 TND/an';
+  const selectedPrice = selectedPlan === 'MONTHLY' ? `50 ${t('settingsBs.subscription.priceMonthly')}` : `500 ${t('settingsBs.subscription.priceYearly')}`;
 
   // CTA config
   const needsCta = isTrial || isExpired;
   const ctaLabel = isTrial
-    ? `S'abonner — ${selectedPrice}`
-    : `Renouveler — ${selectedPrice}`;
+    ? t('settingsBs.subscription.subscribe', { price: selectedPrice })
+    : t('settingsBs.subscription.renewBtn', { price: selectedPrice });
   const ctaIcon = isTrial ? 'upgrade' : 'autorenew';
   const ctaBg = isExpired ? '#D94F3B' : '#0F7B6C';
 
   // Payment method helpers
   const methodLabel = (method: string) => {
     const m = method.toUpperCase();
-    if (m === 'KONNECT') return 'Konnect';
-    if (m === 'CASH') return 'Espèces';
-    if (m === 'TRANSFER' || m === 'BANK_TRANSFER') return 'Virement';
+    if (m === 'KONNECT') return t('settingsBs.subscription.konnect');
+    if (m === 'CASH') return t('settingsBs.subscription.cash');
+    if (m === 'TRANSFER' || m === 'BANK_TRANSFER') return t('settingsBs.subscription.transfer');
     return method;
   };
 
@@ -142,8 +145,8 @@ export default function BSSubscriptionPanel({ isOpen, onClose }: BSSubscriptionP
 
   const paymentDesc = (p: PaymentRecord) => {
     const amt = p.amount / 1000;
-    if (amt >= 500) return 'Abonnement annuel';
-    return 'Abonnement mensuel';
+    if (amt >= 500) return t('settingsBs.subscription.yearlySubscription');
+    return t('settingsBs.subscription.monthlySubscription');
   };
 
   return (
@@ -156,13 +159,13 @@ export default function BSSubscriptionPanel({ isOpen, onClose }: BSSubscriptionP
           <button onClick={onClose} className="bs-panel-back">
             <span className="material-symbols-rounded" style={{ fontSize: 22 }}>arrow_back</span>
           </button>
-          <span className="bs-panel-title">Abonnement</span>
+          <span className="bs-panel-title">{t('settingsBs.subscription.title')}</span>
         </div>
 
         <div className="bs-panel-body">
           {loading ? (
             <div style={{ fontSize: 13, color: '#9E9B90', padding: '20px 0', textAlign: 'center' }}>
-              Chargement...
+              {t('settingsBs.subscription.loading')}
             </div>
           ) : subInfo ? (
             <>
@@ -241,10 +244,10 @@ export default function BSSubscriptionPanel({ isOpen, onClose }: BSSubscriptionP
                   </span>
                   <div>
                     <div style={{ fontSize: 13, fontWeight: 600, color: '#D94F3B' }}>
-                      Votre accès est limité
+                      {t('settingsBs.subscription.accessLimited')}
                     </div>
                     <div style={{ fontSize: 12, color: '#6B6960', marginTop: 2, lineHeight: 1.4 }}>
-                      Renouvelez votre abonnement pour retrouver toutes les fonctionnalités.
+                      {t('settingsBs.subscription.renewPrompt')}
                     </div>
                   </div>
                 </div>
@@ -277,9 +280,9 @@ export default function BSSubscriptionPanel({ isOpen, onClose }: BSSubscriptionP
                       <span className="material-symbols-rounded" style={{ fontSize: 12, color: '#FFF' }}>check</span>
                     </div>
                   )}
-                  <div style={{ fontSize: 14, fontWeight: 700, color: '#1A1A1A', marginBottom: 2 }}>Mensuel</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#1A1A1A', marginBottom: 2 }}>{t('settingsBs.subscription.monthly')}</div>
                   <div style={{ fontSize: 20, fontWeight: 700, color: '#0F7B6C' }}>
-                    50 <span style={{ fontSize: 12, fontWeight: 500, color: '#9E9B90' }}>TND/mois</span>
+                    50 <span style={{ fontSize: 12, fontWeight: 500, color: '#9E9B90' }}>{t('settingsBs.subscription.priceMonthly')}</span>
                   </div>
                 </div>
 
@@ -307,9 +310,9 @@ export default function BSSubscriptionPanel({ isOpen, onClose }: BSSubscriptionP
                       <span className="material-symbols-rounded" style={{ fontSize: 12, color: '#FFF' }}>check</span>
                     </div>
                   )}
-                  <div style={{ fontSize: 14, fontWeight: 700, color: '#1A1A1A', marginBottom: 2 }}>Annuel</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#1A1A1A', marginBottom: 2 }}>{t('settingsBs.subscription.yearly')}</div>
                   <div style={{ fontSize: 20, fontWeight: 700, color: '#0F7B6C' }}>
-                    500 <span style={{ fontSize: 12, fontWeight: 500, color: '#9E9B90' }}>TND/an</span>
+                    500 <span style={{ fontSize: 12, fontWeight: 500, color: '#9E9B90' }}>{t('settingsBs.subscription.priceYearly')}</span>
                   </div>
                   <div
                     style={{
@@ -317,7 +320,7 @@ export default function BSSubscriptionPanel({ isOpen, onClose }: BSSubscriptionP
                       padding: '3px 8px', borderRadius: 100, background: '#FDF5E6', color: '#D4920B',
                     }}
                   >
-                    Économisez 100 TND
+                    {t('settingsBs.subscription.saveMoney')}
                   </div>
                 </div>
               </div>
@@ -347,7 +350,7 @@ export default function BSSubscriptionPanel({ isOpen, onClose }: BSSubscriptionP
                   }}
                 >
                   <span className="material-symbols-rounded" style={{ fontSize: 20 }}>check_circle</span>
-                  Plan actif
+                  {t('settingsBs.subscription.activePlan')}
                 </button>
               )}
 
@@ -360,7 +363,7 @@ export default function BSSubscriptionPanel({ isOpen, onClose }: BSSubscriptionP
                 }}
               >
                 <span style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '1.2px', fontWeight: 600, color: '#9E9B90' }}>
-                  Historique des paiements
+                  {t('settingsBs.subscription.billingHistory')}
                 </span>
                 <span
                   className="material-symbols-rounded"
@@ -389,7 +392,7 @@ export default function BSSubscriptionPanel({ isOpen, onClose }: BSSubscriptionP
                       >
                         receipt_long
                       </span>
-                      Aucun paiement enregistré
+                      {t('settingsBs.subscription.noPayments')}
                     </div>
                   ) : (
                     payments.map((p) => (
@@ -420,7 +423,7 @@ export default function BSSubscriptionPanel({ isOpen, onClose }: BSSubscriptionP
                             {paymentDesc(p)}
                           </div>
                           <div style={{ fontSize: 11, color: '#9E9B90', marginTop: 1 }}>
-                            {new Date(p.paidAt).toLocaleDateString('fr-TN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                            {new Date(p.paidAt).toLocaleDateString(dateLocale, { day: '2-digit', month: '2-digit', year: 'numeric' })}
                           </div>
                         </div>
 
@@ -459,7 +462,7 @@ export default function BSSubscriptionPanel({ isOpen, onClose }: BSSubscriptionP
             </>
           ) : (
             <div style={{ fontSize: 13, color: '#9E9B90', padding: '20px 0', textAlign: 'center' }}>
-              Impossible de charger les informations
+              {t('settingsBs.subscription.loadError')}
             </div>
           )}
         </div>

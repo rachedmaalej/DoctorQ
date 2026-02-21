@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/authStore';
 import type { QueueStats } from '@/types';
 
@@ -7,10 +8,12 @@ interface BSSummaryViewProps {
 }
 
 export default function BSSummaryView({ stats, onNewDay }: BSSummaryViewProps) {
+  const { t, i18n } = useTranslation();
   const { clinic } = useAuthStore();
 
   const today = new Date();
-  const dateStr = today.toLocaleDateString('fr-FR', {
+  const locale = i18n.language === 'ar' ? 'ar-TN' : 'fr-FR';
+  const dateStr = today.toLocaleDateString(locale, {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
@@ -30,12 +33,12 @@ export default function BSSummaryView({ stats, onNewDay }: BSSummaryViewProps) {
         <div className="bs-summary-hero">
           <div className="bs-summary-date">{formattedDate}</div>
           <div className="bs-summary-doc">
-            {clinic?.doctorName || clinic?.name || 'Docteur'}
+            {clinic?.doctorName || clinic?.name || t('blesaf.summary.defaultDoctor')}
           </div>
           <div className="bs-summary-sub">{clinic?.name}</div>
           <div className="bs-summary-big-number">
             <span className="number">{totalSeen}</span>
-            <span className="unit">patients vus</span>
+            <span className="unit">{t('blesaf.summary.patientsSeen')}</span>
           </div>
         </div>
 
@@ -43,19 +46,19 @@ export default function BSSummaryView({ stats, onNewDay }: BSSummaryViewProps) {
         <div className="bs-summary-stats">
           <div className="bs-summary-stat">
             <div className="ss-value">{avgWait}</div>
-            <div className="ss-label">Attente moyenne</div>
+            <div className="ss-label">{t('queue.avgWaitLabel')}</div>
           </div>
           <div className="bs-summary-stat">
             <div className="ss-value">{avgConsult}</div>
-            <div className="ss-label">Consultation moy.</div>
+            <div className="ss-label">{t('blesaf.summary.avgConsult')}</div>
           </div>
           <div className="bs-summary-stat">
             <div className="ss-value">—</div>
-            <div className="ss-label">Premier patient</div>
+            <div className="ss-label">{t('blesaf.summary.firstPatient')}</div>
           </div>
           <div className="bs-summary-stat">
             <div className="ss-value">—</div>
-            <div className="ss-label">Dernier patient</div>
+            <div className="ss-label">{t('blesaf.summary.lastPatient')}</div>
           </div>
         </div>
 
@@ -67,7 +70,7 @@ export default function BSSummaryView({ stats, onNewDay }: BSSummaryViewProps) {
           </div>
           <button className="bs-share-btn">
             <span className="material-symbols-rounded">share</span>
-            Partager
+            {t('blesaf.summary.share')}
           </button>
         </div>
       </div>
@@ -76,11 +79,11 @@ export default function BSSummaryView({ stats, onNewDay }: BSSummaryViewProps) {
       <div className="bs-summary-actions">
         <button className="bs-summary-action-btn">
           <span className="material-symbols-rounded">download</span>
-          Exporter
+          {t('blesaf.summary.export')}
         </button>
         <button className="bs-summary-action-btn primary" onClick={onNewDay}>
           <span className="material-symbols-rounded">arrow_forward</span>
-          Nouvelle journée
+          {t('blesaf.summary.newDay')}
         </button>
       </div>
     </div>

@@ -3,6 +3,8 @@
     "loading": "جاري التحميل...",
     "error": "خطأ",
     "success": "نجاح",
+    "viewingAs": "العرض باسم : <strong>{{name}}</strong>",
+    "exitToAdmin": "العودة للإدارة",
     "cancel": "إلغاء",
     "save": "حفظ",
     "delete": "حذف",
@@ -67,6 +69,11 @@
     "scheduled": "موعد",
     "moveUp": "تحريك لأعلى",
     "moveDown": "تحريك لأسفل",
+    "patientMoved": "تم نقل المريض بنجاح",
+    "patientMovedUp": "{{name}} أصبح #{{position}}",
+    "patientMovedDown": "{{name}} أصبح #{{position}}",
+    "patientCalled": "حان دور {{name}}",
+    "patientEmergency": "{{name}} أصبح أولوية",
     "emergency": "طوارئ - معاينة فورية",
     "lastPatient": "آخر مريض",
     "completeConsultation": "إنهاء الاستشارة",
@@ -599,7 +606,7 @@
       "helpText": "تظهر ساعات العمل للمرضى في صفحة التسجيل وصفحة الحالة."
     },
     "teamAccess": {
-      "title": "الفريق والوصول",
+      "title": "الوصول",
       "doctors": "طبيب/أطباء",
       "addDoctor": "إضافة",
       "addFirstDoctor": "أضف أول طبيب",
@@ -884,6 +891,283 @@
         "title": "7. الاتصال",
         "content": "لأي استفسار يتعلق بحماية بياناتكم الشخصية، يمكنكم الاتصال بنا على: support@blesaf.tn. المسؤول عن المعالجة: Blesaf SARL، تونس العاصمة، تونس."
       }
+    }
+  },
+  "blesaf": {
+    "header": {
+      "defaultClinic": "عيادة",
+      "switchLangAria": "تغيير اللغة",
+      "present": "موجود",
+      "absent": "غائب",
+      "seen": "تم فحصهم"
+    },
+    "currentPatient": {
+      "label": "المريض الحالي",
+      "defaultName": "مريض",
+      "meta": "وصل في {{arrivedTime}} · في الفحص منذ {{consultMins}} دقيقة",
+      "next": "التالي",
+      "callAria": "اتصل بالمريض"
+    },
+    "queue": {
+      "defaultName": "مريض",
+      "noPhone": "بدون هاتف",
+      "noPhoneAria": "لا يوجد هاتف",
+      "moreActions": "المزيد"
+    },
+    "cta": {
+      "calling": "جاري الاستدعاء...",
+      "callNext": "استدعاء التالي"
+    },
+    "quickAdd": {
+      "placeholder": "اسم المريض..."
+    },
+    "empty": {
+      "text": "لا يوجد مرضى في الصف"
+    },
+    "summary": {
+      "defaultDoctor": "طبيب",
+      "patientsSeen": "مرضى تم فحصهم",
+      "avgConsult": "متوسط الفحص",
+      "firstPatient": "أول مريض",
+      "lastPatient": "آخر مريض",
+      "share": "مشاركة",
+      "export": "تصدير",
+      "newDay": "يوم جديد"
+    },
+    "addPatient": {
+      "nameRequired": "اسم المريض مطلوب",
+      "addError": "خطأ أثناء الإضافة",
+      "title": "مريض جديد",
+      "subtitle": "سيكون في الموقع #{{position}} · انتظار مقدر {{wait}}",
+      "walkIn": "بدون موعد",
+      "withAppointment": "بموعد",
+      "appointmentTime": "وقت الموعد",
+      "patientName": "اسم المريض",
+      "phone": "رقم الهاتف",
+      "phoneOptional": "(اختياري)",
+      "phoneHint": "يسمح بالاتصال بالمريض ومتابعة موقعه",
+      "qrFallbackTitle": "بدون رقم؟",
+      "qrFallbackDesc": "يمكن للمريض مسح رمز QR في الاستقبال للتسجيل بنفسه.",
+      "submitting": "جاري الإضافة...",
+      "submit": "إضافة إلى الصف",
+      "confirmPosition": "الموقع #{{position}} · انتظار مقدر {{wait}}",
+      "sendWhatsApp": "إرسال الرابط عبر واتساب",
+      "sendWhatsAppDesc": "إرسال رابط المتابعة للمريض",
+      "noPhoneInfo": "لا يوجد رقم هاتف. لربط المريض:",
+      "showQr": "عرض رمز QR",
+      "showQrDesc": "المريض يمسح لمتابعة موقعه",
+      "addPhoneLater": "إضافة الرقم لاحقاً",
+      "addPhoneLaterDesc": "من قائمة المريض في الصف",
+      "done": "تم — العودة إلى الصف"
+    }
+  },
+  "receptionist": {
+    "header": {
+      "openTools": "فتح الأدوات",
+      "closeTools": "إغلاق الأدوات",
+      "quickTools": "أدوات سريعة",
+      "qrCode": "رمز QR",
+      "whatsapp": "واتساب",
+      "consultDuration": "مدة الفحص",
+      "settings": "الإعدادات",
+      "scanToJoin": "امسح للانضمام إلى الصف",
+      "copied": "تم النسخ!",
+      "copyLink": "نسخ الرابط",
+      "download": "تحميل",
+      "avgConsultDuration": "متوسط مدة الفحص",
+      "min": "د",
+      "soonConfigurable": "قريباً قابل للتعديل",
+      "present": "حاضر",
+      "absent": "غائب",
+      "cabinetSection": "العيادة",
+      "clinicProfile": "ملف العيادة",
+      "clinicProfileDesc": "الاسم، العنوان، المواعيد",
+      "teamAccess": "الوصول",
+      "teamAccessDesc": "الأطباء، السكرتيرات",
+      "subscription": "الاشتراك",
+      "subscriptionDesc": "إدارة اشتراكك",
+      "queueSection": "صف الانتظار",
+      "consultDurationDesc": "{{mins}} د في المتوسط",
+      "language": "اللغة",
+      "accountSection": "الحساب",
+      "logout": "تسجيل الخروج"
+    },
+    "statusSheet": {
+      "queueOpen": "الصف مفتوح",
+      "queueClosing": "الصف قيد الإغلاق",
+      "openSince": "منذ {{time}} · {{count}} مرضى مسجلين",
+      "remaining": "{{count}} مرضى متبقين",
+      "closeQueue": "إغلاق الصف",
+      "closeHint": "سيتم فحص المرضى المنتظرين، لكن لا مرضى جدد.",
+      "reopenQueue": "إعادة فتح الصف",
+      "reopenHint": "قبول مرضى جدد (مثلاً: بعد استراحة).",
+      "doctorPresence": "حضور الطبيب",
+      "present": "حاضر",
+      "absent": "غائب"
+    },
+    "patientContext": {
+      "priority": "تحديد كأولوية",
+      "priorityDesc": "تقديم في الصف",
+      "steppedOut": "تحديد كخارج",
+      "steppedOutDesc": "غادر مؤقتاً",
+      "callPatient": "الاتصال بالمريض",
+      "callPatientDesc": "مكالمة هاتفية",
+      "sendWhatsApp": "إرسال رابط واتساب",
+      "sendWhatsAppDesc": "رابط متابعة الموقع",
+      "removePatient": "إزالة من الصف",
+      "removePatientDesc": "حذف نهائي",
+      "addPhone": "إضافة رقم",
+      "addPhoneDesc": "ربط هاتف بالمريض",
+      "saving": "جاري الحفظ...",
+      "save": "حفظ",
+      "positionInfo": "الموقع #{{position}} · {{minutes}} د انتظار"
+    },
+    "currentPatient": {
+      "label": "المريض الحالي",
+      "meta": "وصل في {{arrivedAt}} · في الفحص منذ {{minutes}} د",
+      "finish": "إنهاء"
+    },
+    "morning": {
+      "greeting": "صباح الخير، د. {{name}}",
+      "subtitle": "يومك على وشك البدء",
+      "preRegistered": "{{count}} مرضى مسجلين مسبقاً"
+    },
+    "allDone": {
+      "title": "تم فحص جميع المرضى",
+      "patients": "المرضى",
+      "avgWait": "متوسط الانتظار",
+      "avgConsult": "متوسط الفحص",
+      "endDay": "إنهاء اليوم",
+      "reopenQueue": "إعادة فتح الصف"
+    },
+    "statusPill": {
+      "preOpen": "غير مفتوح",
+      "open": "مفتوح",
+      "closing": "جاري الإغلاق…",
+      "closed": "منتهي"
+    },
+    "summary": {
+      "patientsSeen": "مرضى تم فحصهم",
+      "avgWait": "متوسط الانتظار",
+      "avgConsult": "متوسط الفحص",
+      "firstPatient": "أول مريض",
+      "lastPatient": "آخر مريض",
+      "share": "مشاركة"
+    },
+    "closingBanner": "الصف مغلق — لا مرضى جدد",
+    "timeline": "نشاط اليوم",
+    "summaryActions": {
+      "export": "تصدير",
+      "newDay": "يوم جديد"
+    },
+    "quickAdd": {
+      "placeholder": "اسم المريض..."
+    },
+    "preRegistered": {
+      "registeredAt": "مسجل في {{time}}"
+    },
+    "statsStrip": {
+      "remaining": "متبقين",
+      "waiting": "في الانتظار",
+      "seen": "تم فحصهم",
+      "estimatedEnd": "نهاية مقدرة"
+    }
+  },
+  "settingsBs": {
+    "clinicProfile": {
+      "title": "ملف العيادة",
+      "myClinic": "عيادتي",
+      "clinicName": "اسم العيادة",
+      "clinicNameDesc": "الاسم المعروض للمرضى",
+      "doctor": "الطبيب",
+      "doctorDesc": "الاسم واللقب",
+      "mr": "د.",
+      "mrs": "د.ة",
+      "doctorNamePlaceholder": "اسم الطبيب",
+      "phone": "الهاتف",
+      "phoneDesc": "رقم الاتصال",
+      "address": "العنوان",
+      "addressDesc": "عنوان العيادة",
+      "addressPlaceholder": "العنوان الكامل",
+      "security": "الأمان",
+      "changePassword": "تغيير كلمة المرور",
+      "changePasswordDesc": "تأمين حسابك",
+      "currentPassword": "كلمة المرور الحالية",
+      "newPassword": "الجديدة",
+      "confirmPassword": "تأكيد",
+      "minChars": "8 أحرف على الأقل",
+      "retypePassword": "أعد كتابة كلمة المرور",
+      "changingPassword": "جاري الحفظ...",
+      "changePasswordBtn": "تغيير كلمة المرور"
+    },
+    "autoSave": {
+      "saving": "جاري الحفظ...",
+      "saved": "تم حفظ التعديلات",
+      "error": "خطأ أثناء الحفظ"
+    },
+    "teamAccess": {
+      "title": "الوصول",
+      "yourDoctor": "طبيبك",
+      "editInProfile": "قابل للتعديل في ملف العيادة",
+      "multiDoctorTitle": "إدارة عدة أطباء",
+      "multiDoctorDesc": "قم بإدارة عدة أطباء، نظّم قائمة الانتظار حسب الممارس، وتابع الأداء الفردي.",
+      "comingSoon": "قريباً",
+      "doctors": "الأطباء",
+      "doctorCount": "{{count}} طبيب",
+      "loading": "جاري التحميل...",
+      "noDoctors": "لم يُضف أي طبيب",
+      "noDoctorsDesc": "أضف أطباءك لتنظيم قائمة الانتظار حسب الممارس",
+      "active": "نشط",
+      "inactive": "غير نشط",
+      "consultDuration": "مدة الاستشارة",
+      "deleteDoctor": "حذف هذا الطبيب",
+      "addDoctor": "إضافة طبيب",
+      "fullName": "الاسم الكامل",
+      "namePlaceholder": "مثال: د. فاطمة الطرابلسي",
+      "specialty": "التخصص",
+      "selectSpecialty": "اختر تخصصاً",
+      "addButton": "إضافة",
+      "addFirstDoctor": "أضف طبيبك الأول",
+      "confirmDelete": "حذف هذا الطبيب؟",
+      "confirmDeleteDesc": "سيتم إزالة {{name}} من فريقك. هذا الإجراء لا رجعة فيه.",
+      "cancel": "إلغاء",
+      "delete": "حذف",
+      "deleting": "جاري الحذف..."
+    },
+    "subscription": {
+      "title": "الاشتراك",
+      "loading": "جاري التحميل...",
+      "freeTrial": "تجربة مجانية",
+      "expired": "اشتراك منتهي",
+      "yearly": "سنوي",
+      "monthly": "شهري",
+      "trialBadge": "تجربة",
+      "activeBadge": "نشط",
+      "expiredBadge": "منتهي",
+      "expiredSince": "منتهي منذ {{days}} يوم",
+      "daysRemaining": "{{days}} يوم متبقي",
+      "expiredOn": "انتهى في {{date}}",
+      "expiresOn": "ينتهي في {{date}}",
+      "renewalOn": "التجديد في {{date}}",
+      "choosePlan": "اختر خطة",
+      "renew": "تجديد",
+      "yourPlan": "خطتك",
+      "priceMonthly": "د.ت/شهر",
+      "priceYearly": "د.ت/سنة",
+      "subscribe": "اشترك — {{price}}",
+      "renewBtn": "جدد — {{price}}",
+      "activePlan": "خطة نشطة",
+      "accessLimited": "وصولك محدود",
+      "renewPrompt": "جدد اشتراكك لاستعادة جميع الميزات.",
+      "billingHistory": "سجل المدفوعات",
+      "noPayments": "لا توجد مدفوعات مسجلة",
+      "yearlySubscription": "اشتراك سنوي",
+      "monthlySubscription": "اشتراك شهري",
+      "saveMoney": "وفر 100 د.ت",
+      "konnect": "Konnect",
+      "cash": "نقداً",
+      "transfer": "تحويل بنكي",
+      "loadError": "تعذر تحميل المعلومات"
     }
   }
 }
