@@ -1071,6 +1071,20 @@
       "waiting": "في الانتظار",
       "seen": "تم فحصهم",
       "estimatedEnd": "نهاية مقدرة"
+    },
+    "sections": {
+      "inConsultation": "في الفحص",
+      "waitingList": "صف الانتظار",
+      "preRegistered": "مسجلون مسبقاً",
+      "remaining": "متبقون"
+    },
+    "cta": {
+      "openQueue": "فتح الصف",
+      "callNext": "نادِ التالي"
+    },
+    "share": {
+      "text": "{{count}} مرضى تم فحصهم اليوم",
+      "title": "ملخص — {{name}}"
     }
   },
   "settingsBs": {

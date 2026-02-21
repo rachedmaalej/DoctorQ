@@ -243,6 +243,7 @@ export default function PatientContextSheet({
             <div style={{ padding: '10px 12px' }}>
               <div
                 className="flex items-center"
+                dir="ltr"
                 style={{
                   border: '1.5px solid #3B7DD9',
                   borderRadius: 10,

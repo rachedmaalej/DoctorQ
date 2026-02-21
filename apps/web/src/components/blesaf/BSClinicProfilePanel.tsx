@@ -244,6 +244,7 @@ export default function BSClinicProfilePanel({ isOpen, onClose }: BSClinicProfil
               <input
                 className="bs-profile-input"
                 type="tel"
+                dir="ltr"
                 value={formatPhone(clinicForm.phone)}
                 onChange={e => handlePhoneChange(e.target.value)}
                 placeholder="+216 XX XXX XXX"
