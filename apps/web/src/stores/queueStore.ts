@@ -18,6 +18,10 @@ interface QueueState {
   setQueue: (queue: QueueEntry[], stats: QueueStats) => void;
 }
 
+// Generation counter prevents stale fetchQueue responses from overwriting fresh data.
+// Each fetchQueue call increments this; only the latest request's response is applied.
+let fetchGeneration = 0;
+
 export const useQueueStore = create<QueueState>((set, get) => ({
   queue: [],
   stats: null,
@@ -25,19 +29,25 @@ export const useQueueStore = create<QueueState>((set, get) => ({
   error: null,
 
   fetchQueue: async () => {
+    const gen = ++fetchGeneration;
     set({ isLoading: true, error: null });
     try {
       const response = await api.getQueue();
-      set({
-        queue: response.queue,
-        stats: response.stats,
-        isLoading: false,
-      });
+      // Only apply if this is still the latest request (prevents stale overwrites)
+      if (gen === fetchGeneration) {
+        set({
+          queue: response.queue,
+          stats: response.stats,
+          isLoading: false,
+        });
+      }
     } catch (error: any) {
-      set({
-        error: error.message || 'Failed to fetch queue',
-        isLoading: false,
-      });
+      if (gen === fetchGeneration) {
+        set({
+          error: error.message || 'Failed to fetch queue',
+          isLoading: false,
+        });
+      }
     }
   },
 
@@ -155,7 +165,9 @@ export const useQueueStore = create<QueueState>((set, get) => ({
   },
 
   // For real-time updates via Socket.io
+  // Bumps fetchGeneration to invalidate any in-flight stale poll responses
   setQueue: (queue, stats) => {
+    fetchGeneration++;
     set({ queue, stats });
   },
 }));

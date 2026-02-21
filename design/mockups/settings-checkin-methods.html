@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>BleSaf — Methodes d'enregistrement</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body {
+  font-family: 'DM Sans','IBM Plex Sans Arabic',sans-serif;
+  background: #131311;
+  display: flex; flex-direction: column; align-items: center;
+  min-height: 100vh; padding: 20px 16px; gap: 16px;
+}
+
+.page-title { color:#fff; font-size:12px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; opacity:0.4; }
+.phone-frame {
+  width:375px; max-width:100%; height:812px; background:#F6F5F0;
+  border-radius:40px; overflow:hidden; position:relative;
+  box-shadow: 0 0 0 3px #2a2a28, 0 24px 80px rgba(0,0,0,0.5);
+}
+.phone-screen { height:100%; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; }
+.phone-screen::-webkit-scrollbar { display:none; }
+
+.design-info { max-width:375px; text-align:center; }
+.design-info h2 { color:#fff; font-size:16px; font-weight:700; margin-bottom:4px; }
+.design-info p { color:rgba(255,255,255,0.45); font-size:12px; line-height:1.5; }
+
+.status-bar { display:flex; justify-content:space-between; align-items:center; padding:12px 24px 4px; font-size:13px; font-weight:600; color:#1A1A1A; }
+.status-bar .right { display:flex; gap:6px; align-items:center; }
+.status-bar .right .material-symbols-rounded { font-size:16px; }
+
+.bs-panel-header { display:flex; align-items:center; gap:12px; padding:14px 20px; background:#FFFFFF; border-bottom:1px solid #E8E6DF; position:sticky; top:0; z-index:5; }
+.bs-panel-back { width:36px; height:36px; border-radius:8px; background:transparent; border:none; cursor:pointer; color:#1A1A1A; display:flex; align-items:center; justify-content:center; }
+.bs-panel-title { font-size:17px; font-weight:700; letter-spacing:-0.3px; color:#1A1A1A; }
+.bs-panel-body { padding:20px; }
+.bs-settings-label { padding:12px 0 6px; font-size:10px; text-transform:uppercase; letter-spacing:1.2px; font-weight:600; color:#9E9B90; }
+
+/* ── Method cards ── */
+.method-card {
+  background:#FFF; border:1px solid #E8E6DF; border-radius:14px;
+  margin-bottom:12px; overflow:hidden; transition:border-color 0.2s;
+}
+.method-card.enabled { border-color:#0F7B6C; }
+
+.method-main { display:flex; align-items:center; gap:12px; padding:16px; }
+.method-icon {
+  width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center;
+  flex-shrink:0;
+}
+.method-info { flex:1; min-width:0; }
+.method-name { font-size:14px; font-weight:600; color:#1A1A1A; }
+.method-desc { font-size:12px; color:#9E9B90; margin-top:2px; line-height:1.4; }
+
+/* Toggle */
+.bs-toggle { width:44px; height:24px; border-radius:12px; position:relative; cursor:pointer; flex-shrink:0; }
+.bs-toggle.on { background:#0F7B6C; }
+.bs-toggle.off { background:#E8E6DF; }
+.bs-toggle-knob { position:absolute; top:3px; width:18px; height:18px; border-radius:50%; background:#FFF; box-shadow:0 1px 3px rgba(0,0,0,0.15); }
+.bs-toggle.on .bs-toggle-knob { left:23px; }
+.bs-toggle.off .bs-toggle-knob { left:3px; }
+
+/* Expanded content */
+.method-expand {
+  max-height:0; overflow:hidden; opacity:0;
+  transition:max-height 0.35s cubic-bezier(0.22,1,0.36,1), opacity 0.25s ease;
+  border-top:1px solid #E8E6DF;
+}
+.method-expand.open { max-height:400px; opacity:1; }
+.method-expand-inner { padding:16px; }
+
+/* QR preview */
+.qr-preview {
+  width:120px; height:120px; background:#F6F5F0; border:1px solid #E8E6DF;
+  border-radius:12px; margin:0 auto 12px; display:flex; align-items:center; justify-content:center;
+}
+.qr-preview .material-symbols-rounded { font-size:60px; color:#D4D2CC; }
+
+.qr-actions { display:flex; gap:8px; }
+.qr-btn {
+  flex:1; height:36px; border-radius:8px; border:1.5px solid #E8E6DF; background:#FFF;
+  font-family:inherit; font-size:12px; font-weight:600; color:#1A1A1A;
+  cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px;
+  transition:all 0.15s;
+}
+.qr-btn:hover { border-color:#0F7B6C; color:#0F7B6C; }
+.qr-btn .material-symbols-rounded { font-size:16px; }
+
+/* Always-on note */
+.method-note {
+  padding:10px 16px; background:#F6F5F0; border-top:1px solid #E8E6DF;
+  font-size:11px; color:#9E9B90; display:flex; align-items:center; gap:6px;
+}
+.method-note .material-symbols-rounded { font-size:14px; flex-shrink:0; }
+
+/* WhatsApp expanded */
+.wa-config { margin-top:8px; }
+.wa-label { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.8px; color:#9E9B90; margin-bottom:4px; }
+.wa-input-row { display:flex; align-items:center; gap:8px; }
+.wa-prefix {
+  height:40px; padding:0 10px; background:#F6F5F0; border:1.5px solid #E8E6DF;
+  border-radius:8px; display:flex; align-items:center; font-size:13px; font-weight:600; color:#6B6960;
+}
+.wa-input {
+  flex:1; height:40px; background:#F6F5F0; border:1.5px solid #E8E6DF;
+  border-radius:8px; padding:0 12px; font-family:inherit; font-size:13px;
+  color:#1A1A1A; outline:none; transition:border-color 0.2s;
+}
+.wa-input:focus { border-color:#0F7B6C; background:#FFF; }
+
+/* ── Default method selector ── */
+.default-section { margin-top:4px; }
+.segmented {
+  display:flex; background:#F0EFEA; border-radius:10px; padding:3px; gap:2px;
+}
+.seg-btn {
+  flex:1; height:36px; border:none; border-radius:8px; background:transparent;
+  font-family:inherit; font-size:12px; font-weight:600; color:#9E9B90;
+  cursor:pointer; transition:all 0.15s; display:flex; align-items:center; justify-content:center; gap:4px;
+}
+.seg-btn.active { background:#FFF; color:#1A1A1A; box-shadow:0 1px 3px rgba(0,0,0,0.08); }
+.seg-btn .material-symbols-rounded { font-size:14px; }
+
+.help-text { font-size:11px; color:#9E9B90; margin-top:8px; display:flex; align-items:flex-start; gap:6px; }
+.help-text .material-symbols-rounded { font-size:14px; flex-shrink:0; margin-top:1px; }
+
+/* Auto-save */
+.auto-save { text-align:center; font-size:11px; font-weight:500; color:#2D8B4E; padding:12px; display:flex; align-items:center; justify-content:center; gap:4px; }
+.auto-save .material-symbols-rounded { font-size:14px; }
+</style>
+</head>
+<body>
+
+<div class="page-title">BleSaf — Methodes d'enregistrement</div>
+
+<div class="phone-frame">
+  <div class="phone-screen">
+    <div class="status-bar">
+      <span>14:32</span>
+      <div class="right">
+        <span class="material-symbols-rounded">signal_cellular_alt</span>
+        <span class="material-symbols-rounded">wifi</span>
+        <span class="material-symbols-rounded">battery_4_bar</span>
+      </div>
+    </div>
+
+    <div class="bs-panel-header">
+      <button class="bs-panel-back">
+        <span class="material-symbols-rounded" style="font-size:22px;">arrow_back</span>
+      </button>
+      <span class="bs-panel-title">Methodes d'enregistrement</span>
+    </div>
+
+    <div class="bs-panel-body">
+
+      <div class="bs-settings-label">Methodes disponibles</div>
+
+      <!-- QR Code (enabled, expanded) -->
+      <div class="method-card enabled">
+        <div class="method-main">
+          <div class="method-icon" style="background:#E8F5F1; color:#0F7B6C;">
+            <span class="material-symbols-rounded" style="font-size:24px;">qr_code_2</span>
+          </div>
+          <div class="method-info">
+            <div class="method-name">QR Code</div>
+            <div class="method-desc">Les patients scannent un code QR a l'entree du cabinet</div>
+          </div>
+          <div class="bs-toggle on"><div class="bs-toggle-knob"></div></div>
+        </div>
+        <div class="method-expand open">
+          <div class="method-expand-inner">
+            <div class="qr-preview">
+              <span class="material-symbols-rounded">qr_code_2</span>
+            </div>
+            <div class="qr-actions">
+              <button class="qr-btn">
+                <span class="material-symbols-rounded">download</span>
+                Telecharger
+              </button>
+              <button class="qr-btn">
+                <span class="material-symbols-rounded">print</span>
+                Imprimer
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Manual entry (always on) -->
+      <div class="method-card enabled">
+        <div class="method-main">
+          <div class="method-icon" style="background:#EDF3FC; color:#3B7DD9;">
+            <span class="material-symbols-rounded" style="font-size:24px;">person_add</span>
+          </div>
+          <div class="method-info">
+            <div class="method-name">Saisie manuelle</div>
+            <div class="method-desc">La secretaire inscrit le patient manuellement</div>
+          </div>
+          <div class="bs-toggle on" style="opacity:0.5; pointer-events:none;"><div class="bs-toggle-knob"></div></div>
+        </div>
+        <div class="method-note">
+          <span class="material-symbols-rounded">info</span>
+          Cette methode est toujours active comme methode de secours
+        </div>
+      </div>
+
+      <!-- WhatsApp (enabled, with config) -->
+      <div class="method-card enabled">
+        <div class="method-main">
+          <div class="method-icon" style="background:#E8F8EB; color:#25D366;">
+            <span class="material-symbols-rounded" style="font-size:24px;">chat</span>
+          </div>
+          <div class="method-info">
+            <div class="method-name">WhatsApp</div>
+            <div class="method-desc">Inscription via message WhatsApp</div>
+          </div>
+          <div class="bs-toggle on"><div class="bs-toggle-knob"></div></div>
+        </div>
+        <div class="method-expand open">
+          <div class="method-expand-inner">
+            <div class="wa-config">
+              <div class="wa-label">Numero WhatsApp</div>
+              <div class="wa-input-row">
+                <span class="wa-prefix">+216</span>
+                <input class="wa-input" value="98 765 432" placeholder="XX XXX XXX">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Auto-save -->
+      <div class="auto-save">
+        <span class="material-symbols-rounded">check_circle</span>
+        Modifications enregistrees
+      </div>
+
+      <!-- Default method selector -->
+      <div class="default-section">
+        <div class="bs-settings-label">Methode par defaut</div>
+        <div class="segmented">
+          <button class="seg-btn">
+            <span class="material-symbols-rounded">qr_code_2</span>
+            QR
+          </button>
+          <button class="seg-btn active">
+            <span class="material-symbols-rounded">person_add</span>
+            Manuel
+          </button>
+          <button class="seg-btn">
+            <span class="material-symbols-rounded">chat</span>
+            WhatsApp
+          </button>
+        </div>
+        <div class="help-text">
+          <span class="material-symbols-rounded">info</span>
+          Methode pre-selectionnee sur la page d'enregistrement des patients
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="design-info">
+  <h2>Methodes d'enregistrement</h2>
+  <p>Cartes toggle pour QR/Manuel/WhatsApp avec sections expandables, apercu QR, configuration WhatsApp, et selecteur de methode par defaut.</p>
+</div>
+
+</body>
+</html>

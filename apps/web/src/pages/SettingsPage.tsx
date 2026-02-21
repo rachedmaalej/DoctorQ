@@ -5,11 +5,9 @@ import { useAuthStore } from '../stores/authStore';
 import { api } from '../lib/api';
 import type { Doctor } from '../types';
 import Header from '../components/layout/Header';
-import { SUPPORTED_SPECIALTIES } from '@/data/funFacts';
-import FunFactCard from '@/components/patient/FunFactCard';
 
 export default function SettingsPage() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { clinic, checkAuth } = useAuthStore();
 
@@ -22,11 +20,6 @@ export default function SettingsPage() {
     address: '',
   });
 
-  // Queue settings form
-  const [queueForm, setQueueForm] = useState({
-    notifyAtPosition: 2,
-  });
-
   // Password form
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: '',
@@ -36,17 +29,9 @@ export default function SettingsPage() {
 
   // UI state
   const [savingClinic, setSavingClinic] = useState(false);
-  const [savingQueue, setSavingQueue] = useState(false);
   const [savingPassword, setSavingPassword] = useState(false);
   const [clinicMessage, setClinicMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  const [queueMessage, setQueueMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [passwordMessage, setPasswordMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-
-  // Patient experience state
-  const [specialty, setSpecialty] = useState('');
-  const [funFactsEnabled, setFunFactsEnabled] = useState(true);
-  const [savingExperience, setSavingExperience] = useState(false);
-  const [experienceMessage, setExperienceMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   // Doctors state
   const [doctors, setDoctors] = useState<Doctor[]>([]);
@@ -75,11 +60,6 @@ export default function SettingsPage() {
         phone: (clinic as any).phone || '',
         address: (clinic as any).address || '',
       });
-      setQueueForm({
-        notifyAtPosition: clinic.notifyAtPosition || 2,
-      });
-      setSpecialty((clinic as any).specialty || '');
-      setFunFactsEnabled((clinic as any).funFactsEnabled !== false);
     }
   }, [clinic]);
 
@@ -101,41 +81,6 @@ export default function SettingsPage() {
       setClinicMessage({ type: 'error', text: t('settings.saveError') });
     } finally {
       setSavingClinic(false);
-    }
-  };
-
-  const handleSaveQueue = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSavingQueue(true);
-    setQueueMessage(null);
-    try {
-      await api.updateClinic({
-        notifyAtPosition: queueForm.notifyAtPosition,
-      });
-      await checkAuth();
-      setQueueMessage({ type: 'success', text: t('settings.saved') });
-    } catch {
-      setQueueMessage({ type: 'error', text: t('settings.saveError') });
-    } finally {
-      setSavingQueue(false);
-    }
-  };
-
-  const handleSaveExperience = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSavingExperience(true);
-    setExperienceMessage(null);
-    try {
-      await api.updateClinic({
-        specialty: specialty || undefined,
-        funFactsEnabled,
-      });
-      await checkAuth();
-      setExperienceMessage({ type: 'success', text: t('settings.saved') });
-    } catch {
-      setExperienceMessage({ type: 'error', text: t('settings.saveError') });
-    } finally {
-      setSavingExperience(false);
     }
   };
 
@@ -304,43 +249,6 @@ export default function SettingsPage() {
           </div>
         </form>
 
-        {/* Queue Settings */}
-        <form onSubmit={handleSaveQueue} className="bg-white rounded-2xl p-6 shadow-sm space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">{t('settings.queueSettings')}</h2>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="notifyAt" className="block text-sm font-medium text-gray-700 mb-1">
-                {t('settings.notifyAt')}
-              </label>
-              <input
-                id="notifyAt"
-                type="number"
-                min={1}
-                max={10}
-                value={queueForm.notifyAtPosition}
-                onChange={(e) => setQueueForm({ ...queueForm, notifyAtPosition: parseInt(e.target.value) || 2 })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-              />
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <button
-              type="submit"
-              disabled={savingQueue}
-              className="bg-primary-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-primary-700 transition-colors disabled:opacity-50"
-            >
-              {savingQueue ? t('settings.saving') : t('settings.saveSettings')}
-            </button>
-            {queueMessage && (
-              <p className={`text-sm ${queueMessage.type === 'success' ? 'text-green-600' : 'text-red-600'}`}>
-                {queueMessage.text}
-              </p>
-            )}
-          </div>
-        </form>
-
         {/* Subscription & Billing */}
         {subInfo && (
           <div className="bg-white rounded-2xl p-6 shadow-sm space-y-4">
@@ -397,86 +305,6 @@ export default function SettingsPage() {
             )}
           </div>
         )}
-
-        {/* Patient Experience */}
-        <form onSubmit={handleSaveExperience} className="bg-white rounded-2xl p-6 shadow-sm space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">{t('funFacts.sectionTitle')}</h2>
-
-          {/* Fun Facts Toggle */}
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-900">{t('funFacts.enableToggle')}</p>
-              <p className="text-xs text-gray-500">{t('funFacts.enableDescription')}</p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setFunFactsEnabled(!funFactsEnabled)}
-              className={`relative w-11 h-6 rounded-full transition-colors ${funFactsEnabled ? 'bg-primary-600' : 'bg-gray-300'}`}
-              role="switch"
-              aria-checked={funFactsEnabled}
-            >
-              <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${funFactsEnabled ? 'ltr:translate-x-[22px] rtl:-translate-x-[22px]' : 'ltr:translate-x-0.5 rtl:-translate-x-0.5'}`} />
-            </button>
-          </div>
-
-          {/* Specialty Selector */}
-          {funFactsEnabled && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t('funFacts.specialtyLabel')}
-              </label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {SUPPORTED_SPECIALTIES.map((spec) => {
-                  const isSelected = specialty === spec.key;
-                  const label = i18n.language === 'ar' ? spec.labelAr : spec.labelFr;
-                  return (
-                    <button
-                      key={spec.key}
-                      type="button"
-                      onClick={() => setSpecialty(spec.key)}
-                      className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border-2 text-sm font-medium transition-all text-start ${
-                        isSelected
-                          ? 'border-primary-500 bg-primary-50 text-primary-700'
-                          : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
-                      }`}
-                    >
-                      <span
-                        className={`material-symbols-outlined text-lg ${isSelected ? 'text-primary-600' : 'text-gray-400'}`}
-                        style={{ fontVariationSettings: isSelected ? "'FILL' 1" : "'FILL' 0" }}
-                      >
-                        {spec.icon}
-                      </span>
-                      <span className="truncate">{label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Preview */}
-              {specialty && (
-                <div className="mt-3">
-                  <p className="text-xs font-medium text-gray-500 mb-2">{t('funFacts.preview')}</p>
-                  <FunFactCard specialty={specialty} refreshInterval={99999999} />
-                </div>
-              )}
-            </div>
-          )}
-
-          <div className="flex items-center gap-3">
-            <button
-              type="submit"
-              disabled={savingExperience}
-              className="bg-primary-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-primary-700 transition-colors disabled:opacity-50"
-            >
-              {savingExperience ? t('settings.saving') : t('settings.saveSettings')}
-            </button>
-            {experienceMessage && (
-              <p className={`text-sm ${experienceMessage.type === 'success' ? 'text-green-600' : 'text-red-600'}`}>
-                {experienceMessage.text}
-              </p>
-            )}
-          </div>
-        </form>
 
         {/* Change Password */}
         <form onSubmit={handleChangePassword} className="bg-white rounded-2xl p-6 shadow-sm space-y-4">

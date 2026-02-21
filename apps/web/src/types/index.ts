@@ -53,6 +53,16 @@ export interface UILabels {
   noCustomers: string;    // "Aucun patient..." or "Aucun client..."
 }
 
+export interface ClinicHoursDay {
+  enabled: boolean;
+  open?: string;
+  close?: string;
+  lunchStart?: string | null;
+  lunchEnd?: string | null;
+}
+
+export type ClinicHours = Record<string, ClinicHoursDay>;
+
 export interface Clinic {
   id: string;
   name: string;
@@ -68,6 +78,20 @@ export interface Clinic {
   onboardingCompleted?: boolean;
   isAdmin?: boolean;
   uiLabels?: UILabels;          // Dynamic labels based on businessType
+  specialty?: string | null;
+  funFactsEnabled?: boolean;
+  enableLanguageSwitcher?: boolean;
+  clinicHours?: ClinicHours | null;
+  enableQrCode?: boolean;
+  enableManualEntry?: boolean;
+  enableWhatsApp?: boolean;
+  defaultCheckInMethod?: CheckInMethod;
+  notificationSoundEnabled?: boolean;
+  quietHoursStart?: string | null;
+  quietHoursEnd?: string | null;
+  welcomeMessage?: string | null;
+  showQueuePosition?: boolean;
+  showEstimatedWait?: boolean;
 }
 
 export interface Doctor {

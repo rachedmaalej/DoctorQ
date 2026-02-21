@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>BleSaf — Notifications patients</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body {
+  font-family: 'DM Sans','IBM Plex Sans Arabic',sans-serif;
+  background: #131311;
+  display: flex; flex-direction: column; align-items: center;
+  min-height: 100vh; padding: 20px 16px; gap: 16px;
+}
+
+.page-title { color:#fff; font-size:12px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; opacity:0.4; }
+.phone-frame {
+  width:375px; max-width:100%; height:812px; background:#F6F5F0;
+  border-radius:40px; overflow:hidden; position:relative;
+  box-shadow: 0 0 0 3px #2a2a28, 0 24px 80px rgba(0,0,0,0.5);
+}
+.phone-screen { height:100%; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; }
+.phone-screen::-webkit-scrollbar { display:none; }
+
+.design-info { max-width:375px; text-align:center; }
+.design-info h2 { color:#fff; font-size:16px; font-weight:700; margin-bottom:4px; }
+.design-info p { color:rgba(255,255,255,0.45); font-size:12px; line-height:1.5; }
+
+.status-bar { display:flex; justify-content:space-between; align-items:center; padding:12px 24px 4px; font-size:13px; font-weight:600; color:#1A1A1A; }
+.status-bar .right { display:flex; gap:6px; align-items:center; }
+.status-bar .right .material-symbols-rounded { font-size:16px; }
+
+.bs-panel-header { display:flex; align-items:center; gap:12px; padding:14px 20px; background:#FFFFFF; border-bottom:1px solid #E8E6DF; position:sticky; top:0; z-index:5; }
+.bs-panel-back { width:36px; height:36px; border-radius:8px; background:transparent; border:none; cursor:pointer; color:#1A1A1A; display:flex; align-items:center; justify-content:center; }
+.bs-panel-title { font-size:17px; font-weight:700; letter-spacing:-0.3px; color:#1A1A1A; }
+.bs-panel-body { padding:20px; }
+.bs-settings-label { padding:12px 0 6px; font-size:10px; text-transform:uppercase; letter-spacing:1.2px; font-weight:600; color:#9E9B90; }
+
+/* ── Settings group ── */
+.settings-group { background:#FFF; border:1px solid #E8E6DF; border-radius:12px; overflow:hidden; margin-bottom:12px; }
+.settings-item {
+  display:flex; align-items:center; gap:12px; padding:14px 16px;
+  border-bottom:1px solid rgba(228,226,221,0.5);
+}
+.settings-item:last-child { border-bottom:none; }
+.item-icon { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.item-info { flex:1; min-width:0; }
+.item-name { font-size:13px; font-weight:500; color:#1A1A1A; }
+.item-desc { font-size:11px; color:#9E9B90; margin-top:1px; line-height:1.4; }
+
+/* Toggle */
+.bs-toggle { width:44px; height:24px; border-radius:12px; position:relative; cursor:pointer; flex-shrink:0; }
+.bs-toggle.on { background:#0F7B6C; }
+.bs-toggle.off { background:#E8E6DF; }
+.bs-toggle-knob { position:absolute; top:3px; width:18px; height:18px; border-radius:50%; background:#FFF; box-shadow:0 1px 3px rgba(0,0,0,0.15); }
+.bs-toggle.on .bs-toggle-knob { left:23px; }
+.bs-toggle.off .bs-toggle-knob { left:3px; }
+
+/* ── Notify position ── */
+.position-card {
+  background:#FFF; border:1px solid #E8E6DF; border-radius:12px;
+  padding:16px; margin-bottom:12px;
+}
+.position-header { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+.position-icon { width:36px; height:36px; border-radius:10px; background:#EDF3FC; display:flex; align-items:center; justify-content:center; }
+.position-icon .material-symbols-rounded { font-size:20px; color:#3B7DD9; }
+.position-title { font-size:14px; font-weight:600; color:#1A1A1A; }
+
+/* Stepper */
+.stepper-row { display:flex; align-items:center; justify-content:center; gap:16px; margin-bottom:12px; }
+.step-btn {
+  width:40px; height:40px; border-radius:50%; border:2px solid #E8E6DF; background:#FFF;
+  display:flex; align-items:center; justify-content:center; cursor:pointer; color:#6B6960;
+  transition:all 0.15s;
+}
+.step-btn:hover { border-color:#0F7B6C; color:#0F7B6C; }
+.step-btn:active { background:#E8F5F1; }
+.step-btn .material-symbols-rounded { font-size:20px; }
+.step-value { font-size:32px; font-weight:700; color:#0F7B6C; min-width:40px; text-align:center; }
+
+.position-visual {
+  background:#F6F5F0; border-radius:10px; padding:12px; text-align:center;
+}
+.position-visual-text { font-size:12px; color:#6B6960; line-height:1.5; }
+.position-visual-highlight { font-weight:700; color:#0F7B6C; }
+
+/* Queue mini visual */
+.queue-mini { display:flex; align-items:center; justify-content:center; gap:3px; margin-top:10px; }
+.q-dot {
+  width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  font-size:11px; font-weight:700; color:#FFF;
+}
+.q-dot.current { background:#0F7B6C; }
+.q-dot.notify { background:#3B7DD9; animation:notifyPulse 1.5s infinite; }
+.q-dot.waiting { background:#D4D2CC; }
+@keyframes notifyPulse { 0%,100% { transform:scale(1); } 50% { transform:scale(1.15); } }
+.q-arrow { font-size:10px; color:#D4D2CC; }
+.q-label { font-size:9px; color:#9E9B90; margin-top:4px; text-align:center; }
+
+/* ── Quiet hours ── */
+.quiet-expand {
+  max-height:0; overflow:hidden; opacity:0;
+  transition:max-height 0.35s cubic-bezier(0.22,1,0.36,1), opacity 0.25s ease;
+}
+.quiet-expand.open { max-height:150px; opacity:1; }
+.quiet-times {
+  display:flex; align-items:center; gap:8px; padding:0 16px 14px;
+}
+.quiet-label { font-size:11px; color:#9E9B90; font-weight:500; width:50px; flex-shrink:0; }
+.time-input {
+  flex:1; height:36px; background:#F6F5F0; border:1.5px solid #E8E6DF;
+  border-radius:8px; padding:0 10px; font-family:inherit; font-size:13px;
+  font-weight:600; color:#1A1A1A; text-align:center; outline:none;
+}
+.time-input:focus { border-color:#0F7B6C; background:#FFF; }
+.time-sep { font-size:13px; color:#9E9B90; font-weight:600; }
+
+/* ── Push status ── */
+.push-card {
+  background:#FFF; border:1px solid #E8E6DF; border-radius:12px;
+  padding:14px 16px; display:flex; align-items:center; gap:12px; margin-bottom:12px;
+}
+.push-icon-wrap { position:relative; }
+.push-icon {
+  width:36px; height:36px; border-radius:10px; background:#E8F5F1;
+  display:flex; align-items:center; justify-content:center;
+}
+.push-icon .material-symbols-rounded { font-size:20px; color:#0F7B6C; }
+.push-status-dot {
+  position:absolute; bottom:-1px; right:-1px; width:10px; height:10px;
+  border-radius:50%; border:2px solid #FFF;
+}
+.push-status-dot.active { background:#2D8B4E; }
+.push-status-dot.inactive { background:#D94F3B; }
+.push-info { flex:1; }
+.push-label { font-size:13px; font-weight:500; color:#1A1A1A; }
+.push-value { font-size:11px; font-weight:600; margin-top:1px; }
+.push-value.active { color:#2D8B4E; }
+.push-value.inactive { color:#D94F3B; }
+
+.test-btn {
+  height:32px; padding:0 12px; border-radius:8px; border:1.5px solid #E8E6DF;
+  background:#FFF; font-family:inherit; font-size:11px; font-weight:600;
+  color:#6B6960; cursor:pointer; display:flex; align-items:center; gap:4px;
+  transition:all 0.15s;
+}
+.test-btn:hover { border-color:#0F7B6C; color:#0F7B6C; }
+.test-btn .material-symbols-rounded { font-size:14px; }
+
+/* ── Preview card ── */
+.preview-card {
+  background:#FFF; border:1px solid #E8E6DF; border-radius:12px;
+  overflow:hidden;
+}
+.preview-header {
+  padding:10px 16px; background:#F6F5F0; border-bottom:1px solid #E8E6DF;
+  font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:#9E9B90;
+  display:flex; align-items:center; gap:6px;
+}
+.preview-header .material-symbols-rounded { font-size:14px; }
+
+.notif-preview {
+  padding:16px; display:flex; gap:12px;
+}
+.notif-icon-wrap {
+  width:40px; height:40px; border-radius:50%; background:#EDF3FC;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.notif-icon-wrap .material-symbols-rounded { font-size:22px; color:#3B7DD9; }
+.notif-content { flex:1; }
+.notif-app { font-size:10px; font-weight:600; color:#9E9B90; text-transform:uppercase; letter-spacing:0.5px; }
+.notif-title { font-size:14px; font-weight:600; color:#1A1A1A; margin-top:2px; }
+.notif-body { font-size:12px; color:#6B6960; margin-top:2px; line-height:1.4; }
+.notif-time { font-size:10px; color:#B8B5AD; margin-top:4px; }
+
+/* Auto-save */
+.auto-save { text-align:center; font-size:11px; font-weight:500; color:#2D8B4E; padding:8px; display:flex; align-items:center; justify-content:center; gap:4px; }
+.auto-save .material-symbols-rounded { font-size:14px; }
+</style>
+</head>
+<body>
+
+<div class="page-title">BleSaf — Notifications patients</div>
+
+<div class="phone-frame">
+  <div class="phone-screen">
+    <div class="status-bar">
+      <span>14:32</span>
+      <div class="right">
+        <span class="material-symbols-rounded">signal_cellular_alt</span>
+        <span class="material-symbols-rounded">wifi</span>
+        <span class="material-symbols-rounded">battery_4_bar</span>
+      </div>
+    </div>
+
+    <div class="bs-panel-header">
+      <button class="bs-panel-back">
+        <span class="material-symbols-rounded" style="font-size:22px;">arrow_back</span>
+      </button>
+      <span class="bs-panel-title">Notifications patients</span>
+    </div>
+
+    <div class="bs-panel-body">
+
+      <!-- Notify at position -->
+      <div class="bs-settings-label">Alerte de position</div>
+      <div class="position-card">
+        <div class="position-header">
+          <div class="position-icon">
+            <span class="material-symbols-rounded">notification_important</span>
+          </div>
+          <div class="position-title">Notifier a la position</div>
+        </div>
+
+        <div class="stepper-row">
+          <button class="step-btn"><span class="material-symbols-rounded">remove</span></button>
+          <div class="step-value">3</div>
+          <button class="step-btn"><span class="material-symbols-rounded">add</span></button>
+        </div>
+
+        <div class="position-visual">
+          <div class="position-visual-text">
+            Le patient est alerte quand il est a <span class="position-visual-highlight">3 position(s)</span> de son tour
+          </div>
+          <div class="queue-mini">
+            <div style="display:flex; flex-direction:column; align-items:center;">
+              <div class="q-dot current">
+                <span class="material-symbols-rounded" style="font-size:14px;">person</span>
+              </div>
+              <span class="q-label">En cours</span>
+            </div>
+            <span class="q-arrow">→</span>
+            <div style="display:flex; flex-direction:column; align-items:center;">
+              <div class="q-dot waiting">2</div>
+              <span class="q-label"></span>
+            </div>
+            <span class="q-arrow">→</span>
+            <div style="display:flex; flex-direction:column; align-items:center;">
+              <div class="q-dot notify">3</div>
+              <span class="q-label" style="color:#3B7DD9; font-weight:600;">Alerte!</span>
+            </div>
+            <span class="q-arrow">→</span>
+            <div style="display:flex; flex-direction:column; align-items:center;">
+              <div class="q-dot waiting">4</div>
+              <span class="q-label"></span>
+            </div>
+            <span class="q-arrow">→</span>
+            <div style="display:flex; flex-direction:column; align-items:center;">
+              <div class="q-dot waiting">5</div>
+              <span class="q-label"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sound & behavior -->
+      <div class="bs-settings-label">Comportement</div>
+      <div class="settings-group">
+        <div class="settings-item">
+          <div class="item-icon" style="background:#FDF5E6; color:#D4920B;">
+            <span class="material-symbols-rounded" style="font-size:18px;">volume_up</span>
+          </div>
+          <div class="item-info">
+            <div class="item-name">Son de notification</div>
+            <div class="item-desc">Jouer un son quand le patient est notifie</div>
+          </div>
+          <div class="bs-toggle on"><div class="bs-toggle-knob"></div></div>
+        </div>
+        <div class="settings-item">
+          <div class="item-icon" style="background:#F0EDF7; color:#7C5CFC;">
+            <span class="material-symbols-rounded" style="font-size:18px;">bedtime</span>
+          </div>
+          <div class="item-info">
+            <div class="item-name">Heures silencieuses</div>
+            <div class="item-desc">Desactiver les notifications pendant la nuit</div>
+          </div>
+          <div class="bs-toggle on"><div class="bs-toggle-knob"></div></div>
+        </div>
+      </div>
+
+      <!-- Quiet hours config (expanded) -->
+      <div class="quiet-expand open">
+        <div class="quiet-times">
+          <span class="quiet-label">Debut</span>
+          <input class="time-input" type="text" value="20:00">
+          <span class="time-sep">—</span>
+          <span class="quiet-label">Fin</span>
+          <input class="time-input" type="text" value="07:00">
+        </div>
+      </div>
+
+      <!-- Web Push status -->
+      <div class="bs-settings-label">Push web</div>
+      <div class="push-card">
+        <div class="push-icon-wrap">
+          <div class="push-icon">
+            <span class="material-symbols-rounded">notifications_active</span>
+          </div>
+          <div class="push-status-dot active"></div>
+        </div>
+        <div class="push-info">
+          <div class="push-label">Notifications push</div>
+          <div class="push-value active">Actif</div>
+        </div>
+        <button class="test-btn">
+          <span class="material-symbols-rounded">send</span>
+          Tester
+        </button>
+      </div>
+
+      <!-- Auto-save -->
+      <div class="auto-save">
+        <span class="material-symbols-rounded">check_circle</span>
+        Modifications enregistrees
+      </div>
+
+      <!-- Notification preview -->
+      <div class="bs-settings-label">Apercu</div>
+      <div class="preview-card">
+        <div class="preview-header">
+          <span class="material-symbols-rounded">visibility</span>
+          Ce que recoit le patient
+        </div>
+        <div class="notif-preview">
+          <div class="notif-icon-wrap">
+            <span class="material-symbols-rounded">notifications</span>
+          </div>
+          <div class="notif-content">
+            <div class="notif-app">BleSaf</div>
+            <div class="notif-title">C'est bientot votre tour !</div>
+            <div class="notif-body">Vous etes en position 3. Veuillez vous rapprocher de la salle d'attente.</div>
+            <div class="notif-time">A l'instant</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="design-info">
+  <h2>Notifications patients</h2>
+  <p>Stepper de position avec visualisation de file, toggles son et heures silencieuses, statut push web, et apercu de la notification.</p>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>BleSaf — Duree consultation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body {
+  font-family: 'DM Sans','IBM Plex Sans Arabic',sans-serif;
+  background: #131311;
+  display: flex; flex-direction: column; align-items: center;
+  min-height: 100vh; padding: 20px 16px; gap: 16px;
+}
+
+.page-title { color:#fff; font-size:12px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; opacity:0.4; }
+.phone-frame {
+  width:375px; max-width:100%; height:812px; background:#F6F5F0;
+  border-radius:40px; overflow:hidden; position:relative;
+  box-shadow: 0 0 0 3px #2a2a28, 0 24px 80px rgba(0,0,0,0.5);
+}
+.phone-screen { height:100%; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; }
+.phone-screen::-webkit-scrollbar { display:none; }
+
+.design-info { max-width:375px; text-align:center; }
+.design-info h2 { color:#fff; font-size:16px; font-weight:700; margin-bottom:4px; }
+.design-info p { color:rgba(255,255,255,0.45); font-size:12px; line-height:1.5; }
+
+.status-bar { display:flex; justify-content:space-between; align-items:center; padding:12px 24px 4px; font-size:13px; font-weight:600; color:#1A1A1A; }
+.status-bar .right { display:flex; gap:6px; align-items:center; }
+.status-bar .right .material-symbols-rounded { font-size:16px; }
+
+.bs-panel-header { display:flex; align-items:center; gap:12px; padding:14px 20px; background:#FFFFFF; border-bottom:1px solid #E8E6DF; position:sticky; top:0; z-index:5; }
+.bs-panel-back { width:36px; height:36px; border-radius:8px; background:transparent; border:none; cursor:pointer; color:#1A1A1A; display:flex; align-items:center; justify-content:center; }
+.bs-panel-title { font-size:17px; font-weight:700; letter-spacing:-0.3px; color:#1A1A1A; }
+.bs-panel-body { padding:20px; }
+.bs-settings-label { padding:12px 0 6px; font-size:10px; text-transform:uppercase; letter-spacing:1.2px; font-weight:600; color:#9E9B90; }
+
+/* ── Duration display ── */
+.duration-hero {
+  background:#FFF; border:1px solid #E8E6DF; border-radius:16px;
+  padding:28px 20px; text-align:center; margin-bottom:20px;
+}
+.duration-ring {
+  width:140px; height:140px; margin:0 auto 16px; position:relative;
+}
+.duration-ring svg { width:100%; height:100%; transform:rotate(-90deg); }
+.ring-bg { fill:none; stroke:#E8E6DF; stroke-width:6; }
+.ring-fill { fill:none; stroke:#0F7B6C; stroke-width:6; stroke-linecap:round; transition:stroke-dashoffset 0.6s ease; }
+.ring-center {
+  position:absolute; inset:0; display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+}
+.ring-value { font-size:36px; font-weight:700; color:#1A1A1A; line-height:1; }
+.ring-unit { font-size:13px; font-weight:500; color:#9E9B90; margin-top:2px; }
+
+/* Stepper */
+.duration-stepper { display:flex; align-items:center; justify-content:center; gap:12px; margin-top:12px; }
+.step-btn {
+  width:44px; height:44px; border-radius:50%; border:2px solid #E8E6DF; background:#FFF;
+  display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.15s;
+  color:#6B6960;
+}
+.step-btn:hover { border-color:#0F7B6C; color:#0F7B6C; }
+.step-btn:active { background:#E8F5F1; border-color:#0F7B6C; color:#0F7B6C; transform:scale(0.95); }
+.step-btn .material-symbols-rounded { font-size:22px; }
+
+.duration-range { font-size:11px; color:#9E9B90; margin-top:8px; }
+
+/* ── Impact calculator ── */
+.impact-card {
+  background:#FFF; border:1px solid #E8E6DF; border-radius:12px;
+  padding:16px; margin-bottom:16px;
+}
+.impact-header { display:flex; align-items:center; gap:8px; margin-bottom:12px; }
+.impact-icon { width:32px; height:32px; border-radius:8px; background:#FDF5E6; display:flex; align-items:center; justify-content:center; }
+.impact-icon .material-symbols-rounded { font-size:18px; color:#D4920B; }
+.impact-title { font-size:13px; font-weight:600; color:#1A1A1A; }
+
+.impact-text { font-size:13px; color:#6B6960; line-height:1.6; margin-bottom:12px; }
+.impact-highlight { font-weight:700; color:#0F7B6C; }
+
+.queue-visual { display:flex; align-items:center; gap:4px; padding:10px 0; }
+.queue-person {
+  display:flex; flex-direction:column; align-items:center; gap:4px; flex:1;
+}
+.queue-avatar { width:28px; height:28px; border-radius:50%; background:#E8F5F1; display:flex; align-items:center; justify-content:center; }
+.queue-avatar .material-symbols-rounded { font-size:16px; color:#0F7B6C; }
+.queue-avatar.waiting { background:#FDF5E6; }
+.queue-avatar.waiting .material-symbols-rounded { color:#D4920B; }
+.queue-time { font-size:9px; font-weight:600; color:#9E9B90; }
+.queue-arrow { font-size:14px; color:#D4D2CC; flex-shrink:0; }
+
+/* ── Per-doctor section ── */
+.doctor-duration-card {
+  background:#FFF; border:1px solid #E8E6DF; border-radius:12px;
+  overflow:hidden; margin-bottom:12px;
+}
+.doctor-duration-item {
+  display:flex; align-items:center; gap:10px; padding:12px 14px;
+  border-bottom:1px solid rgba(228,226,221,0.5);
+}
+.doctor-duration-item:last-child { border-bottom:none; }
+
+.dd-avatar { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:#FFF; flex-shrink:0; }
+.dd-info { flex:1; min-width:0; }
+.dd-name { font-size:13px; font-weight:600; color:#1A1A1A; }
+.dd-label { font-size:11px; color:#9E9B90; }
+.dd-global { font-size:10px; font-weight:500; color:#0F7B6C; background:#E8F5F1; padding:2px 6px; border-radius:100px; }
+
+.mini-stepper { display:flex; align-items:center; border:1.5px solid #E8E6DF; border-radius:8px; overflow:hidden; flex-shrink:0; }
+.mini-btn { width:30px; height:30px; background:#F0EFEA; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#6B6960; font-weight:700; }
+.mini-btn:active { background:#E8F5F1; color:#0F7B6C; }
+.mini-val { width:32px; height:30px; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; color:#1A1A1A; background:#FFF; border-left:1.5px solid #E8E6DF; border-right:1.5px solid #E8E6DF; }
+
+/* ── Today's insight ── */
+.insight-card {
+  background:#FFF; border:1px solid #E8E6DF; border-radius:12px;
+  padding:14px 16px; display:flex; align-items:center; gap:12px;
+}
+.insight-icon { width:36px; height:36px; border-radius:50%; background:#EDF3FC; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.insight-icon .material-symbols-rounded { font-size:18px; color:#3B7DD9; }
+.insight-text { flex:1; }
+.insight-label { font-size:11px; color:#9E9B90; font-weight:500; }
+.insight-value { font-size:15px; font-weight:700; color:#1A1A1A; }
+.insight-diff { font-size:11px; font-weight:600; color:#2D8B4E; margin-top:1px; }
+.insight-diff.slower { color:#D94F3B; }
+
+/* Auto-save indicator */
+.auto-save { text-align:center; font-size:11px; font-weight:500; color:#9E9B90; padding:8px; display:flex; align-items:center; justify-content:center; gap:4px; }
+.auto-save .material-symbols-rounded { font-size:14px; }
+.auto-save.saved { color:#2D8B4E; }
+</style>
+</head>
+<body>
+
+<div class="page-title">BleSaf — Duree consultation</div>
+
+<div class="phone-frame">
+  <div class="phone-screen">
+    <div class="status-bar">
+      <span>14:32</span>
+      <div class="right">
+        <span class="material-symbols-rounded">signal_cellular_alt</span>
+        <span class="material-symbols-rounded">wifi</span>
+        <span class="material-symbols-rounded">battery_4_bar</span>
+      </div>
+    </div>
+
+    <div class="bs-panel-header">
+      <button class="bs-panel-back">
+        <span class="material-symbols-rounded" style="font-size:22px;">arrow_back</span>
+      </button>
+      <span class="bs-panel-title">Duree consultation</span>
+    </div>
+
+    <div class="bs-panel-body">
+      <!-- Duration hero -->
+      <div class="duration-hero">
+        <div class="duration-ring">
+          <svg viewBox="0 0 120 120">
+            <circle class="ring-bg" cx="60" cy="60" r="52" />
+            <!-- 15 min out of 60 = 25% → dasharray=326.7, dashoffset=326.7*(1-0.25)=245 -->
+            <circle class="ring-fill" cx="60" cy="60" r="52" stroke-dasharray="326.7" stroke-dashoffset="245" />
+          </svg>
+          <div class="ring-center">
+            <div class="ring-value">15</div>
+            <div class="ring-unit">minutes</div>
+          </div>
+        </div>
+
+        <div class="duration-stepper">
+          <button class="step-btn"><span class="material-symbols-rounded">remove</span></button>
+          <button class="step-btn"><span class="material-symbols-rounded">add</span></button>
+        </div>
+        <div class="duration-range">Min 5 min — Max 60 min</div>
+      </div>
+
+      <!-- Auto-save indicator -->
+      <div class="auto-save saved">
+        <span class="material-symbols-rounded">check_circle</span>
+        Modifications enregistrees
+      </div>
+
+      <!-- Impact calculator -->
+      <div class="bs-settings-label">Impact sur l'attente</div>
+      <div class="impact-card">
+        <div class="impact-header">
+          <div class="impact-icon">
+            <span class="material-symbols-rounded">calculate</span>
+          </div>
+          <div class="impact-title">Estimation temps d'attente</div>
+        </div>
+        <div class="impact-text">
+          Avec <span class="impact-highlight">15 min</span> par patient, une file de <span class="impact-highlight">5 patients</span> represente environ <span class="impact-highlight">~75 min</span> d'attente pour le dernier patient.
+        </div>
+        <div class="queue-visual">
+          <div class="queue-person">
+            <div class="queue-avatar"><span class="material-symbols-rounded">person</span></div>
+            <span class="queue-time">0 min</span>
+          </div>
+          <span class="queue-arrow">→</span>
+          <div class="queue-person">
+            <div class="queue-avatar"><span class="material-symbols-rounded">person</span></div>
+            <span class="queue-time">15 min</span>
+          </div>
+          <span class="queue-arrow">→</span>
+          <div class="queue-person">
+            <div class="queue-avatar"><span class="material-symbols-rounded">person</span></div>
+            <span class="queue-time">30 min</span>
+          </div>
+          <span class="queue-arrow">→</span>
+          <div class="queue-person">
+            <div class="queue-avatar waiting"><span class="material-symbols-rounded">person</span></div>
+            <span class="queue-time">45 min</span>
+          </div>
+          <span class="queue-arrow">→</span>
+          <div class="queue-person">
+            <div class="queue-avatar waiting"><span class="material-symbols-rounded">person</span></div>
+            <span class="queue-time">60 min</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Per-doctor durations -->
+      <div class="bs-settings-label">Par medecin</div>
+      <div class="doctor-duration-card">
+        <div class="doctor-duration-item">
+          <div class="dd-avatar" style="background:#0F7B6C;">SA</div>
+          <div class="dd-info">
+            <div class="dd-name">Dr. Samir Amrani</div>
+            <span class="dd-global">Valeur globale</span>
+          </div>
+          <div class="mini-stepper">
+            <button class="mini-btn">-</button>
+            <div class="mini-val">15</div>
+            <button class="mini-btn">+</button>
+          </div>
+        </div>
+        <div class="doctor-duration-item">
+          <div class="dd-avatar" style="background:#3B7DD9;">LB</div>
+          <div class="dd-info">
+            <div class="dd-name">Dr. Leila Ben Amor</div>
+            <div class="dd-label">Personnalisee</div>
+          </div>
+          <div class="mini-stepper">
+            <button class="mini-btn">-</button>
+            <div class="mini-val">20</div>
+            <button class="mini-btn">+</button>
+          </div>
+        </div>
+        <div class="doctor-duration-item">
+          <div class="dd-avatar" style="background:#D4920B;">MK</div>
+          <div class="dd-info">
+            <div class="dd-name">Dr. Mohamed Khelifi</div>
+            <span class="dd-global">Valeur globale</span>
+          </div>
+          <div class="mini-stepper">
+            <button class="mini-btn">-</button>
+            <div class="mini-val">15</div>
+            <button class="mini-btn">+</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Today's insight -->
+      <div class="bs-settings-label">Aujourd'hui</div>
+      <div class="insight-card">
+        <div class="insight-icon">
+          <span class="material-symbols-rounded">insights</span>
+        </div>
+        <div class="insight-text">
+          <div class="insight-label">Duree moyenne reelle</div>
+          <div class="insight-value">12 min</div>
+          <div class="insight-diff">↓ 3 min de moins que votre parametre</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="design-info">
+  <h2>Duree consultation</h2>
+  <p>Affichage visuel circulaire, calculateur d'impact, durees par medecin, et statistique en temps reel.</p>
+</div>
+
+</body>
+</html>

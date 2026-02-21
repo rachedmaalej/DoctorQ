@@ -61,6 +61,14 @@ export default function BSAddPatientSheet({
     }
   }, [isOpen, prefilledName]);
 
+  // Auto-close confirmation step after 4 seconds
+  useEffect(() => {
+    if (step === 'confirm' && isOpen) {
+      const timer = setTimeout(handleDone, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [step, isOpen]);
+
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     // Only allow digits, format on the fly
     const raw = e.target.value.replace(/\D/g, '');
@@ -338,13 +346,24 @@ export default function BSAddPatientSheet({
               </>
             )}
 
-            {/* Done button */}
+            {/* Done button with progress bar */}
             <button
               className="bs-submit-btn secondary"
               onClick={handleDone}
-              style={{ marginTop: '8px' }}
+              style={{ marginTop: '8px', position: 'relative', overflow: 'hidden' }}
             >
               Terminé — Retour à la file
+              <span
+                style={{
+                  position: 'absolute',
+                  bottom: 0,
+                  left: 0,
+                  height: 3,
+                  background: 'var(--accent, #0F7B6C)',
+                  borderRadius: '0 0 12px 12px',
+                  animation: 'bs-confirm-progress 4s linear forwards',
+                }}
+              />
             </button>
           </>
         )}

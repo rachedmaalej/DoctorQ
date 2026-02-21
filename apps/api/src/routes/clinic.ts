@@ -37,6 +37,9 @@ router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {
         isDoctorPresent: true,
         email: true,
         isActive: true,
+        enableLanguageSwitcher: true,
+        specialty: true,
+        funFactsEnabled: true,
       },
     });
 
@@ -63,6 +66,11 @@ const updateClinicSchema = z.object({
   enableWhatsApp: z.boolean().optional(),
   specialty: z.string().max(50).optional(),
   funFactsEnabled: z.boolean().optional(),
+  enableLanguageSwitcher: z.boolean().optional(),
+  // NOTE: New settings fields commented out until DB migration is applied:
+  // clinicHours, enableQrCode, enableManualEntry, defaultCheckInMethod,
+  // notificationSoundEnabled, quietHoursStart, quietHoursEnd,
+  // welcomeMessage, showQueuePosition, showEstimatedWait
 });
 
 router.patch('/', authMiddleware, subscriptionGate, async (req: AuthRequest, res: Response) => {
@@ -89,6 +97,7 @@ router.patch('/', authMiddleware, subscriptionGate, async (req: AuthRequest, res
         enableWhatsApp: true,
         specialty: true,
         funFactsEnabled: true,
+        enableLanguageSwitcher: true,
       },
     });
 

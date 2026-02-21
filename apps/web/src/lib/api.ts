@@ -14,6 +14,7 @@ import type {
   ClinicDetail,
   CreateClinicData,
   RecordPaymentData,
+  PaymentRecord,
   Doctor,
   SubscriptionMetrics,
   OnboardingFunnel,
@@ -401,11 +402,27 @@ class ApiClient {
     notifyAtPosition?: number;
     specialty?: string;
     funFactsEnabled?: boolean;
+    enableLanguageSwitcher?: boolean;
+    clinicHours?: Record<string, unknown> | null;
+    enableQrCode?: boolean;
+    enableManualEntry?: boolean;
+    enableWhatsApp?: boolean;
+    defaultCheckInMethod?: 'QR_CODE' | 'MANUAL' | 'WHATSAPP';
+    notificationSoundEnabled?: boolean;
+    quietHoursStart?: string | null;
+    quietHoursEnd?: string | null;
+    welcomeMessage?: string | null;
+    showQueuePosition?: boolean;
+    showEstimatedWait?: boolean;
   }): Promise<Clinic> {
     return this.request('/api/clinic', {
       method: 'PATCH',
       body: JSON.stringify(data),
     });
+  }
+
+  async getPaymentHistory(): Promise<PaymentRecord[]> {
+    return this.request('/api/subscription/history');
   }
 
   async changePassword(currentPassword: string, newPassword: string): Promise<{ message: string }> {

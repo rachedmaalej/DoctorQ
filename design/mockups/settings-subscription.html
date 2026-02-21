@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>BleSaf — Abonnement</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body {
+  font-family: 'DM Sans','IBM Plex Sans Arabic',sans-serif;
+  background: #131311;
+  display: flex; flex-direction: column; align-items: center;
+  min-height: 100vh; padding: 20px 16px; gap: 16px;
+}
+
+.page-title { color:#fff; font-size:12px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; opacity:0.4; }
+.screen-nav { display:flex; gap:5px; flex-wrap:wrap; justify-content:center; }
+.screen-nav button {
+  background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.08);
+  color:rgba(255,255,255,0.5); padding:7px 12px; border-radius:100px;
+  font-family:inherit; font-size:11px; font-weight:600; cursor:pointer; transition:all 0.2s;
+}
+.screen-nav button:hover { background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.8); }
+.screen-nav button.active { background:#0F7B6C; border-color:#0F7B6C; color:#fff; }
+
+.phone-frame {
+  width:375px; max-width:100%; height:812px; background:#F6F5F0;
+  border-radius:40px; overflow:hidden; position:relative;
+  box-shadow: 0 0 0 3px #2a2a28, 0 24px 80px rgba(0,0,0,0.5);
+}
+.phone-screen { height:100%; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; }
+.phone-screen::-webkit-scrollbar { display:none; }
+.screen-view { display:none; min-height:100%; }
+.screen-view.active { display:block; }
+
+.design-info { max-width:375px; text-align:center; }
+.design-info h2 { color:#fff; font-size:16px; font-weight:700; margin-bottom:4px; }
+.design-info p { color:rgba(255,255,255,0.45); font-size:12px; line-height:1.5; }
+
+/* Status Bar */
+.status-bar { display:flex; justify-content:space-between; align-items:center; padding:12px 24px 4px; font-size:13px; font-weight:600; color:#1A1A1A; }
+.status-bar .right { display:flex; gap:6px; align-items:center; }
+.status-bar .right .material-symbols-rounded { font-size:16px; }
+
+/* Panel */
+.bs-panel-header { display:flex; align-items:center; gap:12px; padding:14px 20px; background:#FFFFFF; border-bottom:1px solid #E8E6DF; position:sticky; top:0; z-index:5; }
+.bs-panel-back { width:36px; height:36px; border-radius:8px; background:transparent; border:none; cursor:pointer; color:#1A1A1A; display:flex; align-items:center; justify-content:center; }
+.bs-panel-title { font-size:17px; font-weight:700; letter-spacing:-0.3px; color:#1A1A1A; }
+.bs-panel-body { padding:20px; }
+.bs-settings-label { padding:12px 0 6px; font-size:10px; text-transform:uppercase; letter-spacing:1.2px; font-weight:600; color:#9E9B90; }
+
+/* ── Status banner ── */
+.status-banner {
+  background: linear-gradient(135deg, #0F7B6C 0%, #0A5C50 100%);
+  border-radius:14px; padding:20px; margin-bottom:16px; position:relative; overflow:hidden;
+}
+.status-banner::before {
+  content:''; position:absolute; top:-20px; right:-20px; width:100px; height:100px;
+  border-radius:50%; background:rgba(255,255,255,0.06);
+}
+.status-banner::after {
+  content:''; position:absolute; bottom:-30px; left:40px; width:80px; height:80px;
+  border-radius:50%; background:rgba(255,255,255,0.04);
+}
+.banner-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; position:relative; z-index:1; }
+.banner-plan { font-size:18px; font-weight:700; color:#FFF; }
+.banner-badge { font-size:10px; font-weight:700; text-transform:uppercase; padding:4px 10px; border-radius:100px; background:rgba(255,255,255,0.2); color:#FFF; }
+.banner-badge.trial { background:rgba(59,125,217,0.3); }
+.banner-badge.active { background:rgba(45,139,78,0.3); }
+.banner-badge.expired { background:rgba(217,79,59,0.3); }
+
+.banner-progress { position:relative; z-index:1; }
+.progress-bar-bg { height:6px; background:rgba(255,255,255,0.15); border-radius:3px; overflow:hidden; margin-bottom:8px; }
+.progress-bar-fill { height:100%; border-radius:3px; background:#FFF; transition:width 0.6s ease; }
+.progress-meta { display:flex; justify-content:space-between; align-items:center; }
+.progress-days { font-size:13px; font-weight:600; color:rgba(255,255,255,0.9); }
+.progress-date { font-size:11px; color:rgba(255,255,255,0.5); }
+
+/* ── Plan comparison ── */
+.plan-grid { display:flex; gap:10px; margin-bottom:16px; }
+.plan-card {
+  flex:1; background:#FFF; border:2px solid #E8E6DF; border-radius:12px; padding:14px;
+  cursor:pointer; transition:all 0.2s; position:relative;
+}
+.plan-card:hover { border-color:#B8B5AD; }
+.plan-card.selected { border-color:#0F7B6C; background:#F0FAF8; }
+.plan-card.selected::after {
+  content:''; position:absolute; top:10px; right:10px; width:20px; height:20px;
+  border-radius:50%; background:#0F7B6C;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:center;
+}
+.plan-name { font-size:14px; font-weight:700; color:#1A1A1A; margin-bottom:2px; }
+.plan-price { font-size:20px; font-weight:700; color:#0F7B6C; }
+.plan-price-unit { font-size:12px; font-weight:500; color:#9E9B90; }
+.plan-savings {
+  display:inline-block; margin-top:6px; font-size:10px; font-weight:700;
+  padding:3px 8px; border-radius:100px; background:#FDF5E6; color:#D4920B;
+}
+
+/* ── CTA button ── */
+.btn-primary {
+  height:48px; background:#0F7B6C; border:none; border-radius:12px;
+  color:#FFF; font-family:inherit; font-size:14px; font-weight:700;
+  cursor:pointer; width:100%; display:flex; align-items:center; justify-content:center; gap:8px;
+  transition:all 0.15s; margin-bottom:20px;
+}
+.btn-primary:active { transform:scale(0.97); background:#0A5C50; }
+.btn-primary:disabled { opacity:0.5; cursor:not-allowed; }
+
+/* ── Billing history ── */
+.history-header {
+  display:flex; align-items:center; justify-content:space-between; cursor:pointer;
+  padding:12px 0 6px;
+}
+.history-title { font-size:10px; text-transform:uppercase; letter-spacing:1.2px; font-weight:600; color:#9E9B90; }
+.history-chevron { font-size:18px; color:#9E9B90; transition:transform 0.25s; }
+.history-chevron.open { transform:rotate(180deg); }
+
+.history-group { background:#FFF; border:1px solid #E8E6DF; border-radius:12px; overflow:hidden; }
+.history-item { display:flex; align-items:center; gap:10px; padding:12px 14px; border-bottom:1px solid rgba(228,226,221,0.5); }
+.history-item:last-child { border-bottom:none; }
+
+.history-icon { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:#E8F5F1; color:#0F7B6C; }
+.history-details { flex:1; min-width:0; }
+.history-desc { font-size:13px; font-weight:500; color:#1A1A1A; }
+.history-date { font-size:11px; color:#9E9B90; margin-top:1px; }
+.history-amount { font-size:14px; font-weight:700; color:#1A1A1A; flex-shrink:0; }
+.history-method { font-size:9px; font-weight:600; text-transform:uppercase; padding:2px 6px; border-radius:100px; flex-shrink:0; }
+.method-konnect { background:#EDF3FC; color:#3B7DD9; }
+.method-cash { background:#E8F5F1; color:#0F7B6C; }
+.method-transfer { background:#F0EDF7; color:#7C5CFC; }
+
+.history-status { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+.payment-paid { background:#2D8B4E; }
+.payment-pending { background:#D4920B; }
+
+/* Empty history */
+.empty-history { padding:24px; text-align:center; font-size:13px; color:#9E9B90; }
+</style>
+</head>
+<body>
+
+<div class="page-title">BleSaf — Abonnement</div>
+
+<div class="screen-nav">
+  <button class="active" onclick="showScreen('trial', this)">Essai gratuit</button>
+  <button onclick="showScreen('active', this)">Actif</button>
+  <button onclick="showScreen('expired', this)">Expire</button>
+</div>
+
+<!-- ═══ PHONE ═══ -->
+<div class="phone-frame">
+  <div class="phone-screen">
+
+    <!-- ═══ Screen: Trial ═══ -->
+    <div class="screen-view active" id="screen-trial">
+      <div class="status-bar">
+        <span>14:32</span>
+        <div class="right">
+          <span class="material-symbols-rounded">signal_cellular_alt</span>
+          <span class="material-symbols-rounded">wifi</span>
+          <span class="material-symbols-rounded">battery_4_bar</span>
+        </div>
+      </div>
+
+      <div class="bs-panel-header">
+        <button class="bs-panel-back">
+          <span class="material-symbols-rounded" style="font-size:22px;">arrow_back</span>
+        </button>
+        <span class="bs-panel-title">Abonnement</span>
+      </div>
+
+      <div class="bs-panel-body">
+        <!-- Status banner -->
+        <div class="status-banner">
+          <div class="banner-top">
+            <div class="banner-plan">Essai gratuit</div>
+            <span class="banner-badge trial">TRIAL</span>
+          </div>
+          <div class="banner-progress">
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" style="width:30%;"></div>
+            </div>
+            <div class="progress-meta">
+              <span class="progress-days">21 jours restants</span>
+              <span class="progress-date">Expire le 14/03/2026</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Plan comparison -->
+        <div class="bs-settings-label">Choisir un plan</div>
+        <div class="plan-grid">
+          <div class="plan-card">
+            <div class="plan-name">Mensuel</div>
+            <div class="plan-price">50 <span class="plan-price-unit">TND/mois</span></div>
+          </div>
+          <div class="plan-card selected">
+            <div class="plan-name">Annuel</div>
+            <div class="plan-price">500 <span class="plan-price-unit">TND/an</span></div>
+            <div class="plan-savings">Economisez 100 TND</div>
+          </div>
+        </div>
+
+        <button class="btn-primary">
+          <span class="material-symbols-rounded" style="font-size:20px;">upgrade</span>
+          S'abonner — 500 TND/an
+        </button>
+
+        <!-- Billing history (empty for trial) -->
+        <div class="history-header" onclick="toggleHistory(this)">
+          <span class="history-title">Historique des paiements</span>
+          <span class="material-symbols-rounded history-chevron">expand_more</span>
+        </div>
+        <div class="history-group">
+          <div class="empty-history">
+            <span class="material-symbols-rounded" style="font-size:24px; color:#D4D2CC; display:block; margin-bottom:6px;">receipt_long</span>
+            Aucun paiement enregistre
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ Screen: Active subscription ═══ -->
+    <div class="screen-view" id="screen-active">
+      <div class="status-bar">
+        <span>14:32</span>
+        <div class="right">
+          <span class="material-symbols-rounded">signal_cellular_alt</span>
+          <span class="material-symbols-rounded">wifi</span>
+          <span class="material-symbols-rounded">battery_4_bar</span>
+        </div>
+      </div>
+
+      <div class="bs-panel-header">
+        <button class="bs-panel-back">
+          <span class="material-symbols-rounded" style="font-size:22px;">arrow_back</span>
+        </button>
+        <span class="bs-panel-title">Abonnement</span>
+      </div>
+
+      <div class="bs-panel-body">
+        <!-- Status banner -->
+        <div class="status-banner">
+          <div class="banner-top">
+            <div class="banner-plan">Annuel</div>
+            <span class="banner-badge active">ACTIF</span>
+          </div>
+          <div class="banner-progress">
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" style="width:45%;"></div>
+            </div>
+            <div class="progress-meta">
+              <span class="progress-days">198 jours restants</span>
+              <span class="progress-date">Renouvellement le 05/09/2026</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Plan comparison (current highlighted) -->
+        <div class="bs-settings-label">Votre plan</div>
+        <div class="plan-grid">
+          <div class="plan-card">
+            <div class="plan-name">Mensuel</div>
+            <div class="plan-price">50 <span class="plan-price-unit">TND/mois</span></div>
+          </div>
+          <div class="plan-card selected">
+            <div class="plan-name">Annuel</div>
+            <div class="plan-price">500 <span class="plan-price-unit">TND/an</span></div>
+            <div class="plan-savings">Economisez 100 TND</div>
+          </div>
+        </div>
+
+        <button class="btn-primary" disabled>
+          <span class="material-symbols-rounded" style="font-size:20px;">check_circle</span>
+          Plan actif
+        </button>
+
+        <!-- Billing history with records -->
+        <div class="history-header" onclick="toggleHistory(this)">
+          <span class="history-title">Historique des paiements</span>
+          <span class="material-symbols-rounded history-chevron open">expand_more</span>
+        </div>
+        <div class="history-group">
+          <div class="history-item">
+            <div class="history-icon">
+              <span class="material-symbols-rounded" style="font-size:16px;">receipt</span>
+            </div>
+            <div class="history-details">
+              <div class="history-desc">Abonnement annuel</div>
+              <div class="history-date">05/03/2026</div>
+            </div>
+            <span class="history-method method-konnect">Konnect</span>
+            <span class="history-amount">500 TND</span>
+            <div class="history-status payment-paid"></div>
+          </div>
+          <div class="history-item">
+            <div class="history-icon">
+              <span class="material-symbols-rounded" style="font-size:16px;">receipt</span>
+            </div>
+            <div class="history-details">
+              <div class="history-desc">Abonnement mensuel</div>
+              <div class="history-date">05/02/2026</div>
+            </div>
+            <span class="history-method method-cash">Especes</span>
+            <span class="history-amount">50 TND</span>
+            <div class="history-status payment-paid"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ Screen: Expired ═══ -->
+    <div class="screen-view" id="screen-expired">
+      <div class="status-bar">
+        <span>14:32</span>
+        <div class="right">
+          <span class="material-symbols-rounded">signal_cellular_alt</span>
+          <span class="material-symbols-rounded">wifi</span>
+          <span class="material-symbols-rounded">battery_4_bar</span>
+        </div>
+      </div>
+
+      <div class="bs-panel-header">
+        <button class="bs-panel-back">
+          <span class="material-symbols-rounded" style="font-size:22px;">arrow_back</span>
+        </button>
+        <span class="bs-panel-title">Abonnement</span>
+      </div>
+
+      <div class="bs-panel-body">
+        <!-- Status banner (red-tinted) -->
+        <div class="status-banner" style="background:linear-gradient(135deg, #B53A2A 0%, #8B2D20 100%);">
+          <div class="banner-top">
+            <div class="banner-plan">Abonnement expire</div>
+            <span class="banner-badge expired">EXPIRE</span>
+          </div>
+          <div class="banner-progress">
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" style="width:100%;"></div>
+            </div>
+            <div class="progress-meta">
+              <span class="progress-days">Expire depuis 5 jours</span>
+              <span class="progress-date">Expire le 16/02/2026</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Urgent renewal message -->
+        <div style="background:#FDF0ED; border:1px solid rgba(217,79,59,0.15); border-radius:10px; padding:12px 14px; margin-bottom:16px; display:flex; gap:10px; align-items:flex-start;">
+          <span class="material-symbols-rounded" style="font-size:20px; color:#D94F3B; flex-shrink:0; margin-top:1px;">warning</span>
+          <div>
+            <div style="font-size:13px; font-weight:600; color:#D94F3B;">Votre acces est limite</div>
+            <div style="font-size:12px; color:#6B6960; margin-top:2px; line-height:1.4;">Renouvelez votre abonnement pour retrouver toutes les fonctionnalites.</div>
+          </div>
+        </div>
+
+        <!-- Plan comparison -->
+        <div class="bs-settings-label">Renouveler</div>
+        <div class="plan-grid">
+          <div class="plan-card">
+            <div class="plan-name">Mensuel</div>
+            <div class="plan-price">50 <span class="plan-price-unit">TND/mois</span></div>
+          </div>
+          <div class="plan-card selected">
+            <div class="plan-name">Annuel</div>
+            <div class="plan-price">500 <span class="plan-price-unit">TND/an</span></div>
+            <div class="plan-savings">Economisez 100 TND</div>
+          </div>
+        </div>
+
+        <button class="btn-primary" style="background:#D94F3B;">
+          <span class="material-symbols-rounded" style="font-size:20px;">autorenew</span>
+          Renouveler — 500 TND/an
+        </button>
+
+        <!-- Billing history -->
+        <div class="history-header" onclick="toggleHistory(this)">
+          <span class="history-title">Historique des paiements</span>
+          <span class="material-symbols-rounded history-chevron">expand_more</span>
+        </div>
+        <div class="history-group">
+          <div class="history-item">
+            <div class="history-icon" style="background:#FDF0ED; color:#D94F3B;">
+              <span class="material-symbols-rounded" style="font-size:16px;">receipt</span>
+            </div>
+            <div class="history-details">
+              <div class="history-desc">Abonnement mensuel</div>
+              <div class="history-date">16/01/2026</div>
+            </div>
+            <span class="history-method method-konnect">Konnect</span>
+            <span class="history-amount">50 TND</span>
+            <div class="history-status payment-paid"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="design-info">
+  <h2>Abonnement</h2>
+  <p>Banniere visuelle avec barre de progression, comparaison de plans, historique des paiements, et CTA contextuel selon le statut.</p>
+</div>
+
+<script>
+function showScreen(id, btn) {
+  document.querySelectorAll('.screen-view').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  document.querySelectorAll('.screen-nav button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+function toggleHistory(el) {
+  const chevron = el.querySelector('.history-chevron');
+  const group = el.nextElementSibling;
+  if (chevron.classList.contains('open')) {
+    chevron.classList.remove('open');
+    group.style.display = 'none';
+  } else {
+    chevron.classList.add('open');
+    group.style.display = 'block';
+  }
+}
+</script>
+</body>
+</html>

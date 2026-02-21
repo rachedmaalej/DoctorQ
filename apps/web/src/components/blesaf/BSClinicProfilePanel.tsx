@@ -18,9 +18,6 @@ export default function BSClinicProfilePanel({ isOpen, onClose }: BSClinicProfil
     name: '', doctorName: '', doctorGender: '' as 'M' | 'F' | '', phone: '', address: '',
   });
 
-  // ── Queue settings ──
-  const [notifyAt, setNotifyAt] = useState(2);
-
   // ── Password ──
   const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
 
@@ -31,19 +28,19 @@ export default function BSClinicProfilePanel({ isOpen, onClose }: BSClinicProfil
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
 
   // Track last-saved snapshot for dirty detection
-  const savedRef = useRef({ name: '', doctorName: '', doctorGender: '' as string, phone: '', address: '', notifyAt: 2 });
+  const savedRef = useRef({ name: '', doctorName: '', doctorGender: '' as string, phone: '', address: '' });
 
   const getSnapshot = useCallback(() => ({
     name: clinicForm.name, doctorName: clinicForm.doctorName,
     doctorGender: clinicForm.doctorGender, phone: clinicForm.phone,
-    address: clinicForm.address, notifyAt,
-  }), [clinicForm, notifyAt]);
+    address: clinicForm.address,
+  }), [clinicForm]);
 
   const hasChanges = useCallback(() => {
     const s = savedRef.current;
     const c = getSnapshot();
     return s.name !== c.name || s.doctorName !== c.doctorName || s.doctorGender !== c.doctorGender
-      || s.phone !== c.phone || s.address !== c.address || s.notifyAt !== c.notifyAt;
+      || s.phone !== c.phone || s.address !== c.address;
   }, [getSnapshot]);
 
   // Auto-save: fire-and-forget when there are dirty changes
@@ -58,7 +55,6 @@ export default function BSClinicProfilePanel({ isOpen, onClose }: BSClinicProfil
         doctorGender: clinicForm.doctorGender || undefined,
         phone: clinicForm.phone || undefined,
         address: clinicForm.address || undefined,
-        notifyAtPosition: notifyAt,
       });
       savedRef.current = getSnapshot();
       setAutoSaveStatus('saved');
@@ -67,7 +63,7 @@ export default function BSClinicProfilePanel({ isOpen, onClose }: BSClinicProfil
       setAutoSaveStatus('error');
       setTimeout(() => setAutoSaveStatus('idle'), 3000);
     }
-  }, [clinicForm, notifyAt, hasChanges, getSnapshot]);
+  }, [clinicForm, hasChanges, getSnapshot]);
 
   // Sync clinic data
   useEffect(() => {
@@ -80,8 +76,7 @@ export default function BSClinicProfilePanel({ isOpen, onClose }: BSClinicProfil
         address: (clinic as any).address || '',
       };
       setClinicForm(form);
-      setNotifyAt(clinic.notifyAtPosition || 2);
-      savedRef.current = { ...form, notifyAt: clinic.notifyAtPosition || 2 };
+      savedRef.current = { ...form };
     }
   }, [clinic]);
 
@@ -277,34 +272,6 @@ export default function BSClinicProfilePanel({ isOpen, onClose }: BSClinicProfil
               />
             </div>
           </div>
-
-          {/* ── FILE D'ATTENTE ── */}
-          <div className="bs-settings-label">File d'attente</div>
-          <div className="bs-settings-group">
-            <button className="bs-settings-item" onClick={() => toggleRow('notify')}>
-              <div className="bs-settings-ico" style={{ background: '#FEF7E6', color: '#D4920B' }}>
-                <span className="material-symbols-rounded" style={{ fontSize: 18 }}>notifications_active</span>
-              </div>
-              <div className="bs-settings-txt">
-                <div className="bs-settings-name">Notifier à la position</div>
-                <div className="bs-settings-desc">Quand alerter le patient</div>
-              </div>
-              <span className="bs-settings-value">{notifyAt}</span>
-              <span className="material-symbols-rounded bs-settings-chev">chevron_right</span>
-            </button>
-            <div className={`bs-expand ${expandedRow === 'notify' ? 'open' : ''}`}>
-              <div className="bs-stepper">
-                <button className="bs-stepper-btn" onClick={() => setNotifyAt(Math.max(1, notifyAt - 1))}>
-                  <span className="material-symbols-rounded" style={{ fontSize: 18 }}>remove</span>
-                </button>
-                <div className="bs-stepper-value">{notifyAt}</div>
-                <button className="bs-stepper-btn" onClick={() => setNotifyAt(Math.min(10, notifyAt + 1))}>
-                  <span className="material-symbols-rounded" style={{ fontSize: 18 }}>add</span>
-                </button>
-              </div>
-            </div>
-          </div>
-
 
           {/* ── SÉCURITÉ ── */}
           <div className="bs-settings-label">Sécurité</div>

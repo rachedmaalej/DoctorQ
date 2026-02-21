@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '@/lib/api';
+import type { PaymentRecord } from '@/types';
 import '@/components/receptionist/receptionist.css';
 
 interface BSSubscriptionPanelProps {
@@ -20,16 +21,25 @@ interface SubInfo {
 export default function BSSubscriptionPanel({ isOpen, onClose }: BSSubscriptionPanelProps) {
   const navigate = useNavigate();
   const [subInfo, setSubInfo] = useState<SubInfo | null>(null);
+  const [payments, setPayments] = useState<PaymentRecord[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedPlan, setSelectedPlan] = useState<'MONTHLY' | 'YEARLY'>('YEARLY');
+  const [historyOpen, setHistoryOpen] = useState(false);
 
-  // Fetch subscription when panel opens
+  // Fetch subscription + payment history when panel opens
   useEffect(() => {
     if (isOpen) {
       setLoading(true);
-      api.getSubscription()
-        .then(setSubInfo)
-        .catch(() => {})
-        .finally(() => setLoading(false));
+      Promise.all([
+        api.getSubscription().catch(() => null),
+        api.getPaymentHistory().catch(() => []),
+      ]).then(([sub, hist]) => {
+        setSubInfo(sub);
+        setPayments(hist);
+        // Pre-select current plan if active
+        if (sub?.plan === 'MONTHLY') setSelectedPlan('MONTHLY');
+        else setSelectedPlan('YEARLY');
+      }).finally(() => setLoading(false));
     }
   }, [isOpen]);
 
@@ -40,27 +50,101 @@ export default function BSSubscriptionPanel({ isOpen, onClose }: BSSubscriptionP
     return () => document.removeEventListener('keydown', h);
   }, [isOpen, onClose]);
 
-  // Derive display values
-  const statusLower = (subInfo?.status || '').toLowerCase();
-  const planName = subInfo?.status === 'TRIAL'
+  // ── Derived values ──
+  const status = subInfo?.status || '';
+  const isExpired = status === 'EXPIRED' || status === 'PAST_DUE';
+  const isTrial = status === 'TRIAL';
+  const isActive = status === 'ACTIVE';
+
+  // Plan name for banner
+  const bannerPlanName = isTrial
     ? 'Essai gratuit'
-    : subInfo?.plan === 'MONTHLY'
-      ? 'Mensuel · 50 TND'
+    : isExpired
+      ? 'Abonnement expiré'
       : subInfo?.plan === 'YEARLY'
-        ? 'Annuel · 500 TND'
-        : '—';
+        ? 'Annuel'
+        : subInfo?.plan === 'MONTHLY'
+          ? 'Mensuel'
+          : '—';
 
+  // Status badge
+  const badgeLabel = isTrial ? 'TRIAL' : isActive ? 'ACTIF' : 'EXPIRÉ';
+  const badgeClass = isTrial ? 'trial' : isActive ? 'active' : 'expired';
+
+  // Days remaining
   const daysRemaining = subInfo?.daysRemaining ?? 0;
-  const daysColor = daysRemaining <= 3 ? '#D94F3B' : daysRemaining <= 7 ? '#D4920B' : '#0F7B6C';
+  const totalDays = isTrial
+    ? 30
+    : subInfo?.plan === 'YEARLY'
+      ? 365
+      : 30;
+  const progressPct = isExpired
+    ? 100
+    : totalDays > 0
+      ? Math.max(0, Math.min(100, ((totalDays - daysRemaining) / totalDays) * 100))
+      : 0;
 
-  const expiryDate = subInfo?.status === 'TRIAL' && subInfo.trialEndsAt
-    ? new Date(subInfo.trialEndsAt).toLocaleDateString('fr-TN')
-    : subInfo?.subscriptionEndsAt
-      ? new Date(subInfo.subscriptionEndsAt).toLocaleDateString('fr-TN')
-      : '';
+  // Expiry date
+  const expiryRaw = isTrial ? subInfo?.trialEndsAt : subInfo?.subscriptionEndsAt;
+  const expiryDate = expiryRaw
+    ? new Date(expiryRaw).toLocaleDateString('fr-TN', { day: '2-digit', month: '2-digit', year: 'numeric' })
+    : '';
 
-  const needsUpgrade = subInfo?.status === 'TRIAL' || subInfo?.status === 'EXPIRED' || subInfo?.status === 'PAST_DUE';
-  const ctaLabel = subInfo?.status === 'TRIAL' ? "S'abonner" : 'Renouveler';
+  // Days text
+  const daysText = isExpired
+    ? `Expiré depuis ${Math.abs(daysRemaining)} jours`
+    : `${daysRemaining} jours restants`;
+
+  const dateText = isExpired
+    ? `Expiré le ${expiryDate}`
+    : isTrial
+      ? `Expire le ${expiryDate}`
+      : `Renouvellement le ${expiryDate}`;
+
+  // Banner gradient
+  const bannerGradient = isExpired
+    ? 'linear-gradient(135deg, #B53A2A 0%, #8B2D20 100%)'
+    : 'linear-gradient(135deg, #0F7B6C 0%, #0A5C50 100%)';
+
+  // Plan section label
+  const planSectionLabel = isTrial
+    ? 'Choisir un plan'
+    : isExpired
+      ? 'Renouveler'
+      : 'Votre plan';
+
+  // Selected plan price display
+  const selectedPrice = selectedPlan === 'MONTHLY' ? '50 TND/mois' : '500 TND/an';
+
+  // CTA config
+  const needsCta = isTrial || isExpired;
+  const ctaLabel = isTrial
+    ? `S'abonner — ${selectedPrice}`
+    : `Renouveler — ${selectedPrice}`;
+  const ctaIcon = isTrial ? 'upgrade' : 'autorenew';
+  const ctaBg = isExpired ? '#D94F3B' : '#0F7B6C';
+
+  // Payment method helpers
+  const methodLabel = (method: string) => {
+    const m = method.toUpperCase();
+    if (m === 'KONNECT') return 'Konnect';
+    if (m === 'CASH') return 'Espèces';
+    if (m === 'TRANSFER' || m === 'BANK_TRANSFER') return 'Virement';
+    return method;
+  };
+
+  const methodClass = (method: string) => {
+    const m = method.toUpperCase();
+    if (m === 'KONNECT') return 'method-konnect';
+    if (m === 'CASH') return 'method-cash';
+    return 'method-transfer';
+  };
+
+  const paymentDesc = (p: PaymentRecord) => {
+    const amt = p.amount / 1000;
+    if (amt >= 500) return 'Abonnement annuel';
+    return 'Abonnement mensuel';
+  };
 
   return (
     <>
@@ -82,50 +166,295 @@ export default function BSSubscriptionPanel({ isOpen, onClose }: BSSubscriptionP
             </div>
           ) : subInfo ? (
             <>
-              <div className="bs-settings-label">Votre abonnement</div>
-              <div className="bs-settings-group" style={{ padding: 14 }}>
-                {/* Status row */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-                  <div
-                    className="bs-settings-ico"
-                    style={{ background: '#E8F5F1', color: '#0F7B6C' }}
+              {/* ── Status Banner ── */}
+              <div
+                style={{
+                  background: bannerGradient,
+                  borderRadius: 14,
+                  padding: 20,
+                  marginBottom: 16,
+                  position: 'relative',
+                  overflow: 'hidden',
+                }}
+              >
+                {/* Decorative circles */}
+                <div
+                  style={{
+                    position: 'absolute', top: -20, right: -20, width: 100, height: 100,
+                    borderRadius: '50%', background: 'rgba(255,255,255,0.06)',
+                  }}
+                />
+                <div
+                  style={{
+                    position: 'absolute', bottom: -30, left: 40, width: 80, height: 80,
+                    borderRadius: '50%', background: 'rgba(255,255,255,0.04)',
+                  }}
+                />
+
+                {/* Top row: plan name + badge */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, position: 'relative', zIndex: 1 }}>
+                  <div style={{ fontSize: 18, fontWeight: 700, color: '#FFF' }}>{bannerPlanName}</div>
+                  <span
+                    style={{
+                      fontSize: 10, fontWeight: 700, textTransform: 'uppercase',
+                      padding: '4px 10px', borderRadius: 100,
+                      color: '#FFF',
+                      background: badgeClass === 'trial'
+                        ? 'rgba(59,125,217,0.3)'
+                        : badgeClass === 'active'
+                          ? 'rgba(45,139,78,0.3)'
+                          : 'rgba(217,79,59,0.3)',
+                    }}
                   >
-                    <span className="material-symbols-rounded" style={{ fontSize: 18 }}>credit_card</span>
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 14, fontWeight: 500, color: '#1A1A1A' }}>Plan actuel</div>
-                  </div>
-                  <span className="bs-status-chip" data-status={statusLower}>
-                    {subInfo.status}
+                    {badgeLabel}
                   </span>
                 </div>
 
-                {/* Info cards */}
-                <div className="bs-sub-info">
-                  <div className="bs-sub-card">
-                    <div className="bs-sub-label">Plan</div>
-                    <div className="bs-sub-value">{planName}</div>
+                {/* Progress bar */}
+                <div style={{ position: 'relative', zIndex: 1 }}>
+                  <div style={{ height: 6, background: 'rgba(255,255,255,0.15)', borderRadius: 3, overflow: 'hidden', marginBottom: 8 }}>
+                    <div
+                      style={{
+                        height: '100%', borderRadius: 3, background: '#FFF',
+                        width: `${progressPct}%`, transition: 'width 0.6s ease',
+                      }}
+                    />
                   </div>
-                  <div className="bs-sub-card">
-                    <div className="bs-sub-label">Jours restants</div>
-                    <div className="bs-sub-value" style={{ color: daysColor }}>
-                      {subInfo.daysRemaining ?? '—'}
-                    </div>
-                    {expiryDate && <div className="bs-sub-date">{expiryDate}</div>}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.9)' }}>{daysText}</span>
+                    <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>{dateText}</span>
                   </div>
                 </div>
               </div>
 
-              {/* CTA */}
-              {needsUpgrade && (
-                <button
-                  className="bs-btn-primary"
-                  onClick={() => navigate('/subscription')}
-                  style={{ marginTop: 16 }}
+              {/* ── Warning card (expired only) ── */}
+              {isExpired && (
+                <div
+                  style={{
+                    background: '#FDF0ED', border: '1px solid rgba(217,79,59,0.15)',
+                    borderRadius: 10, padding: '12px 14px', marginBottom: 16,
+                    display: 'flex', gap: 10, alignItems: 'flex-start',
+                  }}
                 >
-                  <span className="material-symbols-rounded" style={{ fontSize: 18 }}>upgrade</span>
+                  <span className="material-symbols-rounded" style={{ fontSize: 20, color: '#D94F3B', flexShrink: 0, marginTop: 1 }}>
+                    warning
+                  </span>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: '#D94F3B' }}>
+                      Votre accès est limité
+                    </div>
+                    <div style={{ fontSize: 12, color: '#6B6960', marginTop: 2, lineHeight: 1.4 }}>
+                      Renouvelez votre abonnement pour retrouver toutes les fonctionnalités.
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ── Plan comparison ── */}
+              <div className="bs-settings-label">{planSectionLabel}</div>
+              <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
+                {/* Monthly */}
+                <div
+                  onClick={() => { if (!isActive) setSelectedPlan('MONTHLY'); }}
+                  style={{
+                    flex: 1,
+                    background: selectedPlan === 'MONTHLY' ? '#F0FAF8' : '#FFF',
+                    border: `2px solid ${selectedPlan === 'MONTHLY' ? '#0F7B6C' : '#E8E6DF'}`,
+                    borderRadius: 12, padding: 14,
+                    cursor: isActive ? 'default' : 'pointer',
+                    transition: 'all 0.2s',
+                    position: 'relative',
+                  }}
+                >
+                  {selectedPlan === 'MONTHLY' && (
+                    <div
+                      style={{
+                        position: 'absolute', top: 10, right: 10, width: 20, height: 20,
+                        borderRadius: '50%', background: '#0F7B6C',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      }}
+                    >
+                      <span className="material-symbols-rounded" style={{ fontSize: 12, color: '#FFF' }}>check</span>
+                    </div>
+                  )}
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#1A1A1A', marginBottom: 2 }}>Mensuel</div>
+                  <div style={{ fontSize: 20, fontWeight: 700, color: '#0F7B6C' }}>
+                    50 <span style={{ fontSize: 12, fontWeight: 500, color: '#9E9B90' }}>TND/mois</span>
+                  </div>
+                </div>
+
+                {/* Yearly */}
+                <div
+                  onClick={() => { if (!isActive) setSelectedPlan('YEARLY'); }}
+                  style={{
+                    flex: 1,
+                    background: selectedPlan === 'YEARLY' ? '#F0FAF8' : '#FFF',
+                    border: `2px solid ${selectedPlan === 'YEARLY' ? '#0F7B6C' : '#E8E6DF'}`,
+                    borderRadius: 12, padding: 14,
+                    cursor: isActive ? 'default' : 'pointer',
+                    transition: 'all 0.2s',
+                    position: 'relative',
+                  }}
+                >
+                  {selectedPlan === 'YEARLY' && (
+                    <div
+                      style={{
+                        position: 'absolute', top: 10, right: 10, width: 20, height: 20,
+                        borderRadius: '50%', background: '#0F7B6C',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      }}
+                    >
+                      <span className="material-symbols-rounded" style={{ fontSize: 12, color: '#FFF' }}>check</span>
+                    </div>
+                  )}
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#1A1A1A', marginBottom: 2 }}>Annuel</div>
+                  <div style={{ fontSize: 20, fontWeight: 700, color: '#0F7B6C' }}>
+                    500 <span style={{ fontSize: 12, fontWeight: 500, color: '#9E9B90' }}>TND/an</span>
+                  </div>
+                  <div
+                    style={{
+                      display: 'inline-block', marginTop: 6, fontSize: 10, fontWeight: 700,
+                      padding: '3px 8px', borderRadius: 100, background: '#FDF5E6', color: '#D4920B',
+                    }}
+                  >
+                    Économisez 100 TND
+                  </div>
+                </div>
+              </div>
+
+              {/* ── CTA Button ── */}
+              {needsCta ? (
+                <button
+                  onClick={() => navigate('/subscription')}
+                  style={{
+                    height: 48, background: ctaBg, border: 'none', borderRadius: 12,
+                    color: '#FFF', fontFamily: 'inherit', fontSize: 14, fontWeight: 700,
+                    cursor: 'pointer', width: '100%', display: 'flex', alignItems: 'center',
+                    justifyContent: 'center', gap: 8, transition: 'all 0.15s', marginBottom: 20,
+                  }}
+                >
+                  <span className="material-symbols-rounded" style={{ fontSize: 20 }}>{ctaIcon}</span>
                   {ctaLabel}
                 </button>
+              ) : (
+                <button
+                  disabled
+                  style={{
+                    height: 48, background: '#0F7B6C', border: 'none', borderRadius: 12,
+                    color: '#FFF', fontFamily: 'inherit', fontSize: 14, fontWeight: 700,
+                    cursor: 'not-allowed', width: '100%', display: 'flex', alignItems: 'center',
+                    justifyContent: 'center', gap: 8, marginBottom: 20, opacity: 0.5,
+                  }}
+                >
+                  <span className="material-symbols-rounded" style={{ fontSize: 20 }}>check_circle</span>
+                  Plan actif
+                </button>
+              )}
+
+              {/* ── Billing History ── */}
+              <div
+                onClick={() => setHistoryOpen(!historyOpen)}
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  cursor: 'pointer', padding: '12px 0 6px',
+                }}
+              >
+                <span style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '1.2px', fontWeight: 600, color: '#9E9B90' }}>
+                  Historique des paiements
+                </span>
+                <span
+                  className="material-symbols-rounded"
+                  style={{
+                    fontSize: 18, color: '#9E9B90',
+                    transition: 'transform 0.25s',
+                    transform: historyOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                  }}
+                >
+                  expand_more
+                </span>
+              </div>
+
+              {historyOpen && (
+                <div
+                  style={{
+                    background: '#FFF', border: '1px solid #E8E6DF',
+                    borderRadius: 12, overflow: 'hidden',
+                  }}
+                >
+                  {payments.length === 0 ? (
+                    <div style={{ padding: 24, textAlign: 'center', fontSize: 13, color: '#9E9B90' }}>
+                      <span
+                        className="material-symbols-rounded"
+                        style={{ fontSize: 24, color: '#D4D2CC', display: 'block', marginBottom: 6 }}
+                      >
+                        receipt_long
+                      </span>
+                      Aucun paiement enregistré
+                    </div>
+                  ) : (
+                    payments.map((p) => (
+                      <div
+                        key={p.id}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: 10,
+                          padding: '12px 14px',
+                          borderBottom: '1px solid rgba(228,226,221,0.5)',
+                        }}
+                      >
+                        {/* Icon */}
+                        <div
+                          style={{
+                            width: 32, height: 32, borderRadius: 8,
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            flexShrink: 0,
+                            background: isExpired ? '#FDF0ED' : '#E8F5F1',
+                            color: isExpired ? '#D94F3B' : '#0F7B6C',
+                          }}
+                        >
+                          <span className="material-symbols-rounded" style={{ fontSize: 16 }}>receipt</span>
+                        </div>
+
+                        {/* Details */}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: 13, fontWeight: 500, color: '#1A1A1A' }}>
+                            {paymentDesc(p)}
+                          </div>
+                          <div style={{ fontSize: 11, color: '#9E9B90', marginTop: 1 }}>
+                            {new Date(p.paidAt).toLocaleDateString('fr-TN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                          </div>
+                        </div>
+
+                        {/* Method badge */}
+                        <span
+                          style={{
+                            fontSize: 9, fontWeight: 600, textTransform: 'uppercase',
+                            padding: '2px 6px', borderRadius: 100, flexShrink: 0,
+                            ...(methodClass(p.method) === 'method-konnect'
+                              ? { background: '#EDF3FC', color: '#3B7DD9' }
+                              : methodClass(p.method) === 'method-cash'
+                                ? { background: '#E8F5F1', color: '#0F7B6C' }
+                                : { background: '#F0EDF7', color: '#7C5CFC' }),
+                          }}
+                        >
+                          {methodLabel(p.method)}
+                        </span>
+
+                        {/* Amount */}
+                        <span style={{ fontSize: 14, fontWeight: 700, color: '#1A1A1A', flexShrink: 0 }}>
+                          {p.amount / 1000} TND
+                        </span>
+
+                        {/* Status dot */}
+                        <div
+                          style={{
+                            width: 6, height: 6, borderRadius: '50%', flexShrink: 0,
+                            background: p.status === 'PAID' ? '#2D8B4E' : '#D4920B',
+                          }}
+                        />
+                      </div>
+                    ))
+                  )}
+                </div>
               )}
             </>
           ) : (
