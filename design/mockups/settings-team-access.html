@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>BleSaf — Equipe & acces</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body {
+  font-family: 'DM Sans','IBM Plex Sans Arabic',sans-serif;
+  background: #131311;
+  display: flex; flex-direction: column; align-items: center;
+  min-height: 100vh; padding: 20px 16px; gap: 16px;
+}
+
+.page-title { color:#fff; font-size:12px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; opacity:0.4; }
+.screen-nav { display:flex; gap:5px; flex-wrap:wrap; justify-content:center; }
+.screen-nav button {
+  background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.08);
+  color:rgba(255,255,255,0.5); padding:7px 12px; border-radius:100px;
+  font-family:inherit; font-size:11px; font-weight:600; cursor:pointer; transition:all 0.2s;
+}
+.screen-nav button:hover { background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.8); }
+.screen-nav button.active { background:#0F7B6C; border-color:#0F7B6C; color:#fff; }
+
+.phone-frame {
+  width:375px; max-width:100%; height:812px; background:#F6F5F0;
+  border-radius:40px; overflow:hidden; position:relative;
+  box-shadow: 0 0 0 3px #2a2a28, 0 24px 80px rgba(0,0,0,0.5);
+}
+.phone-screen { height:100%; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; }
+.phone-screen::-webkit-scrollbar { display:none; }
+.screen-view { display:none; min-height:100%; }
+.screen-view.active { display:block; }
+
+.design-info { max-width:375px; text-align:center; }
+.design-info h2 { color:#fff; font-size:16px; font-weight:700; margin-bottom:4px; }
+.design-info p { color:rgba(255,255,255,0.45); font-size:12px; line-height:1.5; }
+
+/* Status Bar */
+.status-bar { display:flex; justify-content:space-between; align-items:center; padding:12px 24px 4px; font-size:13px; font-weight:600; color:#1A1A1A; }
+.status-bar .right { display:flex; gap:6px; align-items:center; }
+.status-bar .right .material-symbols-rounded { font-size:16px; }
+
+/* Panel */
+.bs-panel-header { display:flex; align-items:center; gap:12px; padding:14px 20px; background:#FFFFFF; border-bottom:1px solid #E8E6DF; position:sticky; top:0; z-index:5; }
+.bs-panel-back { width:36px; height:36px; border-radius:8px; background:transparent; border:none; cursor:pointer; color:#1A1A1A; display:flex; align-items:center; justify-content:center; }
+.bs-panel-title { font-size:17px; font-weight:700; letter-spacing:-0.3px; color:#1A1A1A; }
+.bs-panel-body { padding:20px; }
+
+/* Settings */
+.bs-settings-label { padding:12px 0 6px; font-size:10px; text-transform:uppercase; letter-spacing:1.2px; font-weight:600; color:#9E9B90; display:flex; align-items:center; gap:8px; }
+.bs-settings-group { background:#FFFFFF; border:1px solid #E8E6DF; border-radius:12px; overflow:hidden; margin-bottom:12px; }
+
+/* Count badge */
+.count-badge { font-size:10px; font-weight:700; background:#E8F5F1; color:#0F7B6C; padding:2px 8px; border-radius:100px; }
+
+/* Doctor card */
+.doctor-card {
+  padding:14px 16px; border-bottom:1px solid rgba(228,226,221,0.5);
+  cursor:pointer; transition:background 0.15s;
+}
+.doctor-card:last-child { border-bottom:none; }
+.doctor-card:hover { background:#FAFAF7; }
+.doctor-card-main { display:flex; align-items:center; gap:12px; }
+
+.doctor-avatar {
+  width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  font-size:15px; font-weight:700; color:#FFF; flex-shrink:0; letter-spacing:-0.3px;
+}
+.avatar-teal { background:#0F7B6C; }
+.avatar-blue { background:#3B7DD9; }
+.avatar-amber { background:#D4920B; }
+.avatar-purple { background:#7C5CFC; }
+
+.doctor-info { flex:1; min-width:0; }
+.doctor-name { font-size:14px; font-weight:600; color:#1A1A1A; }
+.doctor-meta { display:flex; align-items:center; gap:6px; margin-top:3px; }
+.specialty-badge { font-size:10px; font-weight:600; padding:2px 8px; border-radius:100px; background:#EDF3FC; color:#3B7DD9; }
+.duration-badge { font-size:10px; font-weight:500; color:#9E9B90; display:flex; align-items:center; gap:2px; }
+.duration-badge .material-symbols-rounded { font-size:12px; }
+
+.doctor-status { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.status-active { background:#2D8B4E; }
+.status-inactive { background:#D4D2CC; }
+
+.doctor-chevron { color:#D4D2CC; flex-shrink:0; }
+
+/* Expanded card */
+.doctor-expand {
+  max-height:0; overflow:hidden; opacity:0;
+  transition:max-height 0.35s cubic-bezier(0.22,1,0.36,1), opacity 0.25s ease, padding 0.35s ease;
+  padding:0 0;
+}
+.doctor-expand.open { max-height:320px; opacity:1; padding:12px 0 4px; }
+
+.expand-section { padding:8px 0; }
+.expand-label { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.8px; color:#9E9B90; margin-bottom:6px; }
+
+.expand-row { display:flex; align-items:center; justify-content:space-between; padding:6px 0; }
+.expand-row-label { font-size:13px; color:#1A1A1A; font-weight:500; }
+
+/* Stepper mini */
+.stepper-mini { display:flex; align-items:center; border:1.5px solid #E8E6DF; border-radius:8px; overflow:hidden; }
+.stepper-btn { width:32px; height:32px; background:#F0EFEA; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#6B6960; font-size:16px; font-weight:700; }
+.stepper-btn:active { background:#E8F5F1; color:#0F7B6C; }
+.stepper-val { width:36px; height:32px; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; color:#1A1A1A; background:#FFF; border-left:1.5px solid #E8E6DF; border-right:1.5px solid #E8E6DF; }
+
+/* Toggle */
+.bs-toggle { width:44px; height:24px; border-radius:12px; position:relative; cursor:pointer; flex-shrink:0; }
+.bs-toggle.on { background:#0F7B6C; }
+.bs-toggle.off { background:#E8E6DF; }
+.bs-toggle-knob { position:absolute; top:3px; width:18px; height:18px; border-radius:50%; background:#FFF; box-shadow:0 1px 3px rgba(0,0,0,0.15); }
+.bs-toggle.on .bs-toggle-knob { left:23px; }
+.bs-toggle.off .bs-toggle-knob { left:3px; }
+
+/* Delete button */
+.delete-btn {
+  display:flex; align-items:center; gap:6px; padding:8px 14px; border-radius:8px;
+  background:#FDF0ED; border:1px solid rgba(217,79,59,0.15); color:#D94F3B;
+  font-family:inherit; font-size:12px; font-weight:600; cursor:pointer;
+  transition:all 0.15s; width:100%; justify-content:center; margin-top:8px;
+}
+.delete-btn:hover { background:#FBDDD6; }
+.delete-btn .material-symbols-rounded { font-size:16px; }
+
+/* Divider */
+.expand-divider { height:1px; background:#E8E6DF; margin:8px 0; }
+
+/* Empty state */
+.empty-state { padding:40px 20px; text-align:center; }
+.empty-icon { width:64px; height:64px; border-radius:50%; background:#E8F5F1; display:flex; align-items:center; justify-content:center; margin:0 auto 16px; }
+.empty-icon .material-symbols-rounded { font-size:28px; color:#0F7B6C; }
+.empty-title { font-size:15px; font-weight:600; color:#1A1A1A; margin-bottom:4px; }
+.empty-desc { font-size:13px; color:#9E9B90; line-height:1.5; max-width:260px; margin:0 auto; }
+
+/* Add doctor form */
+.add-section { padding:16px; background:#FFFFFF; border:1px solid #E8E6DF; border-radius:12px; margin-top:16px; }
+.add-section-title { font-size:13px; font-weight:600; color:#1A1A1A; margin-bottom:12px; display:flex; align-items:center; gap:6px; }
+.add-section-title .material-symbols-rounded { font-size:18px; color:#0F7B6C; }
+
+.form-row { margin-bottom:10px; }
+.form-label { display:block; font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.8px; color:#9E9B90; margin-bottom:4px; }
+.form-input {
+  width:100%; height:40px; background:#F6F5F0; border:1.5px solid #E8E6DF;
+  border-radius:8px; padding:0 12px; font-family:inherit; font-size:13px;
+  color:#1A1A1A; outline:none; transition:border-color 0.2s;
+}
+.form-input:focus { border-color:#0F7B6C; background:#FFF; }
+.form-input::placeholder { color:#B8B5AD; }
+
+.form-select {
+  width:100%; height:40px; background:#F6F5F0; border:1.5px solid #E8E6DF;
+  border-radius:8px; padding:0 10px; font-family:inherit; font-size:13px;
+  color:#1A1A1A; outline:none; cursor:pointer; appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='%239E9B90'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 10px center;
+}
+
+.btn-add {
+  height:40px; background:#0F7B6C; border:none; border-radius:8px;
+  color:#FFF; font-family:inherit; font-size:13px; font-weight:600;
+  cursor:pointer; width:100%; display:flex; align-items:center; justify-content:center; gap:6px;
+  transition:all 0.15s; margin-top:12px;
+}
+.btn-add:active { transform:scale(0.97); background:#0A5C50; }
+
+/* Confirm dialog */
+.confirm-overlay { position:absolute; inset:0; background:rgba(0,0,0,0.4); z-index:100; display:flex; align-items:center; justify-content:center; padding:20px; }
+.confirm-dialog { background:#FFF; border-radius:16px; padding:24px; max-width:300px; width:100%; text-align:center; }
+.confirm-icon { width:48px; height:48px; border-radius:50%; background:#FDF0ED; display:flex; align-items:center; justify-content:center; margin:0 auto 12px; }
+.confirm-icon .material-symbols-rounded { font-size:24px; color:#D94F3B; }
+.confirm-title { font-size:16px; font-weight:700; color:#1A1A1A; margin-bottom:4px; }
+.confirm-desc { font-size:13px; color:#6B6960; line-height:1.5; margin-bottom:16px; }
+.confirm-actions { display:flex; gap:8px; }
+.confirm-cancel { flex:1; height:40px; background:#F6F5F0; border:1px solid #E8E6DF; border-radius:8px; font-family:inherit; font-size:13px; font-weight:600; color:#6B6960; cursor:pointer; }
+.confirm-delete { flex:1; height:40px; background:#D94F3B; border:none; border-radius:8px; font-family:inherit; font-size:13px; font-weight:700; color:#FFF; cursor:pointer; }
+</style>
+</head>
+<body>
+
+<div class="page-title">BleSaf — Equipe & acces</div>
+
+<div class="screen-nav">
+  <button class="active" onclick="showScreen('populated', this)">Avec medecins</button>
+  <button onclick="showScreen('empty', this)">Etat vide</button>
+  <button onclick="showScreen('confirm', this)">Confirmation</button>
+</div>
+
+<!-- ═══ PHONE: Populated state ═══ -->
+<div class="phone-frame">
+  <div class="phone-screen">
+
+    <div class="screen-view active" id="screen-populated">
+      <div class="status-bar">
+        <span>14:32</span>
+        <div class="right">
+          <span class="material-symbols-rounded">signal_cellular_alt</span>
+          <span class="material-symbols-rounded">wifi</span>
+          <span class="material-symbols-rounded">battery_4_bar</span>
+        </div>
+      </div>
+
+      <div class="bs-panel-header">
+        <button class="bs-panel-back">
+          <span class="material-symbols-rounded" style="font-size:22px;">arrow_back</span>
+        </button>
+        <span class="bs-panel-title">Equipe & acces</span>
+      </div>
+
+      <div class="bs-panel-body">
+        <!-- Section: Medecins -->
+        <div class="bs-settings-label">
+          Medecins <span class="count-badge">3 medecins</span>
+        </div>
+
+        <div class="bs-settings-group">
+          <!-- Doctor 1: collapsed -->
+          <div class="doctor-card" onclick="toggleDoctor(this)">
+            <div class="doctor-card-main">
+              <div class="doctor-avatar avatar-teal">SA</div>
+              <div class="doctor-info">
+                <div class="doctor-name">Dr. Samir Amrani</div>
+                <div class="doctor-meta">
+                  <span class="specialty-badge">Cardiologie</span>
+                  <span class="duration-badge">
+                    <span class="material-symbols-rounded">schedule</span>
+                    15 min
+                  </span>
+                </div>
+              </div>
+              <div class="doctor-status status-active" title="Actif"></div>
+              <span class="material-symbols-rounded doctor-chevron" style="font-size:18px;">expand_more</span>
+            </div>
+            <div class="doctor-expand">
+              <div class="expand-section">
+                <div class="expand-row">
+                  <span class="expand-row-label">Actif</span>
+                  <div class="bs-toggle on"><div class="bs-toggle-knob"></div></div>
+                </div>
+                <div class="expand-row">
+                  <span class="expand-row-label">Duree consultation</span>
+                  <div class="stepper-mini">
+                    <button class="stepper-btn">-</button>
+                    <div class="stepper-val">15</div>
+                    <button class="stepper-btn">+</button>
+                  </div>
+                </div>
+              </div>
+              <div class="expand-divider"></div>
+              <button class="delete-btn">
+                <span class="material-symbols-rounded">delete</span>
+                Supprimer ce medecin
+              </button>
+            </div>
+          </div>
+
+          <!-- Doctor 2: expanded -->
+          <div class="doctor-card">
+            <div class="doctor-card-main" onclick="toggleDoctor(this.parentElement)">
+              <div class="doctor-avatar avatar-blue">LB</div>
+              <div class="doctor-info">
+                <div class="doctor-name">Dr. Leila Ben Amor</div>
+                <div class="doctor-meta">
+                  <span class="specialty-badge" style="background:#FDF5E6; color:#D4920B;">Dermatologie</span>
+                  <span class="duration-badge">
+                    <span class="material-symbols-rounded">schedule</span>
+                    20 min
+                  </span>
+                </div>
+              </div>
+              <div class="doctor-status status-active" title="Actif"></div>
+              <span class="material-symbols-rounded doctor-chevron" style="font-size:18px; transform:rotate(180deg);">expand_more</span>
+            </div>
+            <div class="doctor-expand open">
+              <div class="expand-section">
+                <div class="expand-row">
+                  <span class="expand-row-label">Actif</span>
+                  <div class="bs-toggle on"><div class="bs-toggle-knob"></div></div>
+                </div>
+                <div class="expand-row">
+                  <span class="expand-row-label">Duree consultation</span>
+                  <div class="stepper-mini">
+                    <button class="stepper-btn">-</button>
+                    <div class="stepper-val">20</div>
+                    <button class="stepper-btn">+</button>
+                  </div>
+                </div>
+              </div>
+              <div class="expand-divider"></div>
+              <button class="delete-btn">
+                <span class="material-symbols-rounded">delete</span>
+                Supprimer ce medecin
+              </button>
+            </div>
+          </div>
+
+          <!-- Doctor 3: collapsed, inactive -->
+          <div class="doctor-card" onclick="toggleDoctor(this)">
+            <div class="doctor-card-main">
+              <div class="doctor-avatar avatar-amber">MK</div>
+              <div class="doctor-info">
+                <div class="doctor-name">Dr. Mohamed Khelifi</div>
+                <div class="doctor-meta">
+                  <span class="specialty-badge" style="background:#F0EDF7; color:#7C5CFC;">Pediatrie</span>
+                  <span class="duration-badge">
+                    <span class="material-symbols-rounded">schedule</span>
+                    10 min
+                  </span>
+                </div>
+              </div>
+              <div class="doctor-status status-inactive" title="Inactif"></div>
+              <span class="material-symbols-rounded doctor-chevron" style="font-size:18px;">expand_more</span>
+            </div>
+            <div class="doctor-expand">
+              <div class="expand-section">
+                <div class="expand-row">
+                  <span class="expand-row-label">Actif</span>
+                  <div class="bs-toggle off"><div class="bs-toggle-knob"></div></div>
+                </div>
+                <div class="expand-row">
+                  <span class="expand-row-label">Duree consultation</span>
+                  <div class="stepper-mini">
+                    <button class="stepper-btn">-</button>
+                    <div class="stepper-val">10</div>
+                    <button class="stepper-btn">+</button>
+                  </div>
+                </div>
+              </div>
+              <div class="expand-divider"></div>
+              <button class="delete-btn">
+                <span class="material-symbols-rounded">delete</span>
+                Supprimer ce medecin
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Add doctor form -->
+        <div class="add-section">
+          <div class="add-section-title">
+            <span class="material-symbols-rounded">person_add</span>
+            Ajouter un medecin
+          </div>
+          <div class="form-row">
+            <label class="form-label">Nom complet</label>
+            <input class="form-input" placeholder="Ex: Dr. Fatma Trabelsi">
+          </div>
+          <div class="form-row">
+            <label class="form-label">Specialite</label>
+            <select class="form-select">
+              <option value="" disabled selected>Choisir une specialite</option>
+              <option>Medecine generale</option>
+              <option>Cardiologie</option>
+              <option>Dermatologie</option>
+              <option>Ophtalmologie</option>
+              <option>Pediatrie</option>
+              <option>Dentisterie</option>
+              <option>Gynecologie</option>
+            </select>
+          </div>
+          <button class="btn-add">
+            <span class="material-symbols-rounded" style="font-size:18px;">add</span>
+            Ajouter
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══ Screen: Empty state ═══ -->
+    <div class="screen-view" id="screen-empty">
+      <div class="status-bar">
+        <span>14:32</span>
+        <div class="right">
+          <span class="material-symbols-rounded">signal_cellular_alt</span>
+          <span class="material-symbols-rounded">wifi</span>
+          <span class="material-symbols-rounded">battery_4_bar</span>
+        </div>
+      </div>
+
+      <div class="bs-panel-header">
+        <button class="bs-panel-back">
+          <span class="material-symbols-rounded" style="font-size:22px;">arrow_back</span>
+        </button>
+        <span class="bs-panel-title">Equipe & acces</span>
+      </div>
+
+      <div class="bs-panel-body">
+        <div class="bs-settings-label">Medecins</div>
+
+        <div class="bs-settings-group">
+          <div class="empty-state">
+            <div class="empty-icon">
+              <span class="material-symbols-rounded">group</span>
+            </div>
+            <div class="empty-title">Aucun medecin ajoute</div>
+            <div class="empty-desc">Ajoutez vos medecins pour organiser la file d'attente par praticien</div>
+          </div>
+        </div>
+
+        <!-- Add doctor form -->
+        <div class="add-section">
+          <div class="add-section-title">
+            <span class="material-symbols-rounded">person_add</span>
+            Ajouter un medecin
+          </div>
+          <div class="form-row">
+            <label class="form-label">Nom complet</label>
+            <input class="form-input" placeholder="Ex: Dr. Fatma Trabelsi">
+          </div>
+          <div class="form-row">
+            <label class="form-label">Specialite</label>
+            <select class="form-select">
+              <option value="" disabled selected>Choisir une specialite</option>
+              <option>Medecine generale</option>
+              <option>Cardiologie</option>
+              <option>Dermatologie</option>
+            </select>
+          </div>
+          <button class="btn-add">
+            <span class="material-symbols-rounded" style="font-size:18px;">add</span>
+            Ajouter votre premier medecin
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ Screen: Confirmation dialog ═══ -->
+    <div class="screen-view" id="screen-confirm">
+      <div class="status-bar">
+        <span>14:32</span>
+        <div class="right">
+          <span class="material-symbols-rounded">signal_cellular_alt</span>
+          <span class="material-symbols-rounded">wifi</span>
+          <span class="material-symbols-rounded">battery_4_bar</span>
+        </div>
+      </div>
+
+      <div class="bs-panel-header" style="opacity:0.5;">
+        <button class="bs-panel-back">
+          <span class="material-symbols-rounded" style="font-size:22px;">arrow_back</span>
+        </button>
+        <span class="bs-panel-title">Equipe & acces</span>
+      </div>
+
+      <div class="bs-panel-body" style="opacity:0.3; pointer-events:none;">
+        <div class="bs-settings-label">Medecins <span class="count-badge">3</span></div>
+        <div class="bs-settings-group">
+          <div class="doctor-card">
+            <div class="doctor-card-main">
+              <div class="doctor-avatar avatar-teal">SA</div>
+              <div class="doctor-info">
+                <div class="doctor-name">Dr. Samir Amrani</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Confirmation overlay -->
+      <div class="confirm-overlay">
+        <div class="confirm-dialog">
+          <div class="confirm-icon">
+            <span class="material-symbols-rounded">delete</span>
+          </div>
+          <div class="confirm-title">Supprimer ce medecin ?</div>
+          <div class="confirm-desc">Dr. Leila Ben Amor sera retire de votre equipe. Cette action est irreversible.</div>
+          <div class="confirm-actions">
+            <button class="confirm-cancel">Annuler</button>
+            <button class="confirm-delete">Supprimer</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="design-info">
+  <h2>Equipe & acces</h2>
+  <p>Gestion des medecins avec cartes expandables, avatars colores, badges specialite, et dialogue de confirmation pour suppression.</p>
+</div>
+
+<script>
+function showScreen(id, btn) {
+  document.querySelectorAll('.screen-view').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  document.querySelectorAll('.screen-nav button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+function toggleDoctor(card) {
+  const expand = card.querySelector('.doctor-expand');
+  const chevron = card.querySelector('.doctor-chevron');
+  if (expand.classList.contains('open')) {
+    expand.classList.remove('open');
+    chevron.style.transform = '';
+  } else {
+    expand.classList.add('open');
+    chevron.style.transform = 'rotate(180deg)';
+  }
+}
+</script>
+</body>
+</html>

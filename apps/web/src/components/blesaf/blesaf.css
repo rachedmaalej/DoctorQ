@@ -1238,3 +1238,10 @@
   font-size: 13px;
   margin-bottom: 12px;
 }
+
+/* ─── Confirm auto-close progress ─── */
+
+@keyframes bs-confirm-progress {
+  from { width: 100%; }
+  to   { width: 0%; }
+}

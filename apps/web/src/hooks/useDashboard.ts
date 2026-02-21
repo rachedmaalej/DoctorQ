@@ -191,12 +191,14 @@ export function useDashboard() {
         setExitingPatientId(currentPatient.id);
 
         // Optimistic update: remove current patient and shift positions immediately
+        const nowISO = new Date().toISOString();
         const optimisticQueue = queue
           .filter(p => p.id !== currentPatient.id)
           .map((p, index) => ({
             ...p,
             position: index + 1,
-            status: index === 0 ? QueueStatus.IN_CONSULTATION : index === 1 ? QueueStatus.NOTIFIED : p.status
+            status: index === 0 ? QueueStatus.IN_CONSULTATION : index === 1 ? QueueStatus.NOTIFIED : p.status,
+            ...(index === 0 ? { calledAt: nowISO } : {}),
           }));
 
         // Update stats optimistically

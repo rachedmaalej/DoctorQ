@@ -1,13 +1,22 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   ChevronLeft, ChevronRight,
   House, Users, Monitor,
-  Clock, Bell, Eye, Smartphone,
+  Clock, Bell, Smartphone, Globe,
   BarChart3, Mail,
   CreditCard, HelpCircle, Shield,
 } from 'lucide-react';
 import type { Clinic } from '@/types';
 import { useAuthStore } from '@/stores/authStore';
+import BSClinicProfilePanel from '@/components/blesaf/BSClinicProfilePanel';
+import BSTeamAccessPanel from '@/components/blesaf/BSTeamAccessPanel';
+import BSSubscriptionPanel from '@/components/blesaf/BSSubscriptionPanel';
+import BSConsultationDurationPanel from '@/components/blesaf/BSConsultationDurationPanel';
+import BSLanguagePanel from '@/components/blesaf/BSLanguagePanel';
+import BSClinicHoursPanel from '@/components/blesaf/BSClinicHoursPanel';
+import BSCheckInMethodsPanel from '@/components/blesaf/BSCheckInMethodsPanel';
+import BSNotificationsPanel from '@/components/blesaf/BSNotificationsPanel';
+import BSWaitingRoomDisplayPanel from '@/components/blesaf/BSWaitingRoomDisplayPanel';
 
 interface ASSettingsPanelProps {
   isOpen: boolean;
@@ -110,28 +119,32 @@ function ValueChevron({ value }: { value?: string }) {
   );
 }
 
-function StatusChip({ label }: { label: string }) {
-  return (
-    <>
-      <span
-        style={{
-          fontSize: 12,
-          fontWeight: 600,
-          padding: '4px 10px',
-          borderRadius: 20,
-          background: 'var(--accent-light)',
-          color: 'var(--accent)',
-        }}
-      >
-        {label}
-      </span>
-      <ChevronRight size={16} style={{ color: 'var(--border)' }} />
-    </>
-  );
-}
-
 export default function ASSettingsPanel({ isOpen, onClose, clinic }: ASSettingsPanelProps) {
   const { logout } = useAuthStore();
+  const [showClinicProfile, setShowClinicProfile] = useState(false);
+  const [showTeamAccess, setShowTeamAccess] = useState(false);
+  const [showSubscription, setShowSubscription] = useState(false);
+  const [showConsultationDuration, setShowConsultationDuration] = useState(false);
+  const [showLanguage, setShowLanguage] = useState(false);
+  const [showClinicHours, setShowClinicHours] = useState(false);
+  const [showCheckInMethods, setShowCheckInMethods] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showWaitingRoomDisplay, setShowWaitingRoomDisplay] = useState(false);
+
+  // Reset sub-panels when main panel closes
+  useEffect(() => {
+    if (!isOpen) {
+      setShowClinicProfile(false);
+      setShowTeamAccess(false);
+      setShowSubscription(false);
+      setShowConsultationDuration(false);
+      setShowLanguage(false);
+      setShowClinicHours(false);
+      setShowCheckInMethods(false);
+      setShowNotifications(false);
+      setShowWaitingRoomDisplay(false);
+    }
+  }, [isOpen]);
 
   // Close on escape
   useEffect(() => {
@@ -273,22 +286,41 @@ export default function ASSettingsPanel({ isOpen, onClose, clinic }: ASSettingsP
             icon={<House size={18} />}
             iconColor="green"
             title="Profil du cabinet"
-            description="Nom, adresse, horaires d'ouverture"
+            description="Nom, adresse, spécialité"
             right={<ValueChevron />}
+            onClick={() => setShowClinicProfile(true)}
+          />
+          <SettingsItem
+            icon={<Clock size={18} />}
+            iconColor="warm"
+            title="Horaires du cabinet"
+            description="Planning hebdomadaire, pauses"
+            right={<ValueChevron />}
+            onClick={() => setShowClinicHours(true)}
           />
           <SettingsItem
             icon={<Users size={18} />}
             iconColor="blue"
             title="Équipe & accès"
             description="Gérer les secrétaires et collaborateurs"
-            right={<ValueChevron value="2 membres" />}
+            right={<ValueChevron />}
+            onClick={() => setShowTeamAccess(true)}
+          />
+          <SettingsItem
+            icon={<CreditCard size={18} />}
+            iconColor="green"
+            title="Abonnement"
+            description="Gérer votre abonnement"
+            right={<ValueChevron />}
+            onClick={() => setShowSubscription(true)}
           />
           <SettingsItem
             icon={<Monitor size={18} />}
             iconColor="green"
             title="Affichage salle d'attente"
-            description="Écran TV pour vos patients"
-            right={<StatusChip label="Activé" />}
+            description="Personnaliser la page patient"
+            right={<ValueChevron />}
+            onClick={() => setShowWaitingRoomDisplay(true)}
             isLast
           />
         </SettingsSection>
@@ -301,27 +333,31 @@ export default function ASSettingsPanel({ isOpen, onClose, clinic }: ASSettingsP
             title="Durée moy. consultation"
             description="Utilisée pour estimer l'attente"
             right={<ValueChevron value={`${clinic?.avgConsultationMins || 15} min`} />}
+            onClick={() => setShowConsultationDuration(true)}
           />
           <SettingsItem
             icon={<Bell size={18} />}
             iconColor="blue"
             title="Notifications patients"
-            description="Prévenir quand leur tour approche"
-            right={<ToggleSwitch checked={true} onChange={() => {}} />}
-          />
-          <SettingsItem
-            icon={<Eye size={18} />}
-            iconColor="warm"
-            title="Affichage des noms"
-            description="Conformité RGPD"
-            right={<ValueChevron value="Prénom N." />}
+            description="Alertes, sons, heures silencieuses"
+            right={<ValueChevron />}
+            onClick={() => setShowNotifications(true)}
           />
           <SettingsItem
             icon={<Smartphone size={18} />}
             iconColor="gray"
-            title="QR code d'enregistrement"
-            description="Patients s'enregistrent eux-mêmes"
-            right={<ToggleSwitch checked={true} onChange={() => {}} />}
+            title="Méthodes d'enregistrement"
+            description="QR code, saisie manuelle, WhatsApp"
+            right={<ValueChevron />}
+            onClick={() => setShowCheckInMethods(true)}
+          />
+          <SettingsItem
+            icon={<Globe size={18} />}
+            iconColor="gray"
+            title="Langue"
+            description={clinic?.language === 'ar' ? 'العربية' : 'Français'}
+            right={<ValueChevron value={clinic?.language === 'ar' ? 'AR' : 'FR'} />}
+            onClick={() => setShowLanguage(true)}
             isLast
           />
         </SettingsSection>
@@ -347,13 +383,6 @@ export default function ASSettingsPanel({ isOpen, onClose, clinic }: ASSettingsP
 
         {/* ─── COMPTE ─── */}
         <SettingsSection label="COMPTE">
-          <SettingsItem
-            icon={<CreditCard size={18} />}
-            iconColor="green"
-            title="Abonnement"
-            description={trialDaysLeft != null ? `Essai gratuit · Expire bientôt` : 'Gérer votre abonnement'}
-            right={<ValueChevron />}
-          />
           <SettingsItem
             icon={<HelpCircle size={18} />}
             iconColor="gray"
@@ -395,6 +424,44 @@ export default function ASSettingsPanel({ isOpen, onClose, clinic }: ASSettingsP
           </div>
         </div>
       </div>
+
+      {/* Sub-panels (slide over settings) */}
+      <BSClinicProfilePanel
+        isOpen={showClinicProfile}
+        onClose={() => setShowClinicProfile(false)}
+      />
+      <BSTeamAccessPanel
+        isOpen={showTeamAccess}
+        onClose={() => setShowTeamAccess(false)}
+      />
+      <BSSubscriptionPanel
+        isOpen={showSubscription}
+        onClose={() => setShowSubscription(false)}
+      />
+      <BSConsultationDurationPanel
+        isOpen={showConsultationDuration}
+        onClose={() => setShowConsultationDuration(false)}
+      />
+      <BSLanguagePanel
+        isOpen={showLanguage}
+        onClose={() => setShowLanguage(false)}
+      />
+      <BSClinicHoursPanel
+        isOpen={showClinicHours}
+        onClose={() => setShowClinicHours(false)}
+      />
+      <BSCheckInMethodsPanel
+        isOpen={showCheckInMethods}
+        onClose={() => setShowCheckInMethods(false)}
+      />
+      <BSNotificationsPanel
+        isOpen={showNotifications}
+        onClose={() => setShowNotifications(false)}
+      />
+      <BSWaitingRoomDisplayPanel
+        isOpen={showWaitingRoomDisplay}
+        onClose={() => setShowWaitingRoomDisplay(false)}
+      />
     </>
   );
 }

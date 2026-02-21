@@ -7,7 +7,7 @@ import { prisma } from '../lib/prisma.js';
 import { QueueStatus, CheckInMethod, QueueEntry } from '@prisma/client';
 import { recalculatePositionsAndStatuses, getNextPosition } from './positionService.js';
 import { emitQueueUpdate, emitPatientUpdate, emitAllPatientUpdates } from './notificationService.js';
-import { getQueueStats, getStartOfToday, computeSmartWaitEstimate } from './statsService.js';
+import { getQueueStats, getStartOfToday, computeSmartWaitEstimate, invalidateStatsCache } from './statsService.js';
 import { brand } from '../lib/brand.js';
 
 export interface AddPatientInput {
@@ -113,6 +113,9 @@ export async function addPatient(input: AddPatientInput): Promise<AddPatientResu
   // Recalculate positions and statuses (uses its own transaction)
   await recalculatePositionsAndStatuses(clinicId);
 
+  // Invalidate stats cache so next fetch gets fresh data
+  invalidateStatsCache(clinicId);
+
   // Fetch the updated entry
   const updatedEntry = await prisma.queueEntry.findUnique({
     where: { id: result.entry.id },
@@ -160,6 +163,9 @@ export async function removePatient(clinicId: string, entryId: string): Promise<
 
   // Recalculate positions and statuses (outside transaction for notifications)
   await recalculatePositionsAndStatuses(clinicId);
+
+  // Invalidate stats cache so next fetch gets fresh data
+  invalidateStatsCache(clinicId);
 
   // Fire-and-forget: emit socket updates in background
   emitQueueUpdate(clinicId).catch(() => {});
@@ -253,6 +259,9 @@ export async function callNextPatient(clinicId: string): Promise<QueueEntry | nu
     return remainingCount > 0;
   });
 
+  // Invalidate stats cache so next fetch gets fresh seen count
+  invalidateStatsCache(clinicId);
+
   if (!hasRemainingPatients) {
     // Fire-and-forget: don't block the response on socket emissions
     emitQueueUpdate(clinicId).catch(() => {});
@@ -316,6 +325,9 @@ export async function patientLeaveQueue(entryId: string): Promise<{ success: boo
   // Recalculate and notify (outside transaction for notifications)
   await recalculatePositionsAndStatuses(clinicId);
 
+  // Invalidate stats cache so next fetch gets fresh data
+  invalidateStatsCache(clinicId);
+
   // Fire-and-forget: emit socket updates in background
   emitQueueUpdate(clinicId).catch(() => {});
   emitAllPatientUpdates(clinicId).catch(() => {});
@@ -358,6 +370,7 @@ export async function clearQueue(clinicId: string): Promise<number> {
     },
   });
 
+  invalidateStatsCache(clinicId);
   emitQueueUpdate(clinicId).catch(() => {});
 
   return result.count;
@@ -437,6 +450,7 @@ export async function archiveAndClearQueue(clinicId: string): Promise<{ archived
     },
   });
 
+  invalidateStatsCache(clinicId);
   emitQueueUpdate(clinicId).catch(() => {});
 
   return { archived: totalPatients, deleted: deleted.count };
@@ -541,6 +555,9 @@ export async function updatePatientStatus(
   if (status !== QueueStatus.WAITING) {
     await recalculatePositionsAndStatuses(clinicId);
   }
+
+  // Invalidate stats cache so next fetch gets fresh data
+  invalidateStatsCache(clinicId);
 
   // Fire-and-forget: emit socket updates in background
   emitQueueUpdate(clinicId).catch(() => {});

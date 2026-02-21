@@ -54,6 +54,20 @@ model Clinic {
   country                String    @default("TN")    // TN = Tunisia, FR = France
   enableLanguageSwitcher Boolean   @default(true)    // Show/hide language toggle on public pages
 
+  // NOTE: The following fields are defined in the plan but NOT yet migrated to DB.
+  // They are commented out until `prisma db push` or `prisma migrate` can run
+  // against the database. The new settings panels use local defaults until then.
+  // clinicHours            Json?
+  // enableQrCode           Boolean   @default(true)
+  // enableManualEntry      Boolean   @default(true)
+  // defaultCheckInMethod   CheckInMethod @default(MANUAL)
+  // notificationSoundEnabled Boolean @default(true)
+  // quietHoursStart        String?
+  // quietHoursEnd          String?
+  // welcomeMessage         String?
+  // showQueuePosition      Boolean   @default(true)
+  // showEstimatedWait      Boolean   @default(true)
+
   // Activity tracking
   lastLoginAt         DateTime?    // Last login timestamp for churn detection
 
@@ -139,6 +153,8 @@ model QueueEntry {
 
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
+
+  pushSubscriptions PushSubscription[]
 
   // Performance indexes for common queries
   @@index([clinicId, status])                       // Filter active queue by clinic
@@ -238,6 +254,19 @@ model SubscriptionEvent {
   @@index([clinicId])
   @@index([eventType])
   @@index([createdAt])
+}
+
+model PushSubscription {
+  id        String   @id @default(uuid())
+  entryId   String
+  endpoint  String
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  entry     QueueEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+
+  @@index([entryId])
 }
 
 model Lead {

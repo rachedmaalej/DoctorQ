@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 
 /**
  * Toast action types for different queue operations
@@ -21,126 +21,166 @@ interface ToastProps {
   onClose: () => void;
 }
 
+const TYPE_CONFIG: Record<ToastType, { color: string; icon: string; label: string }> = {
+  success: { color: '#0F7B6C', icon: 'check_circle', label: 'Succès' },
+  error:   { color: '#D94F3B', icon: 'error', label: 'Erreur' },
+  call:    { color: '#0F7B6C', icon: 'directions_walk', label: 'Au suivant' },
+  moveUp:  { color: '#3B7DD9', icon: 'arrow_upward', label: 'Déplacé' },
+  moveDown:{ color: '#7C3AED', icon: 'arrow_downward', label: 'Déplacé' },
+  emergency:{ color: '#D4920B', icon: 'e911_emergency', label: 'Urgence' },
+  remove:  { color: '#D94F3B', icon: 'person_remove', label: 'Retiré' },
+};
+
+// SVG circle geometry
+const CIRCLE_R = 18;
+const CIRCLE_CIRCUMFERENCE = 2 * Math.PI * CIRCLE_R;
+
 /**
- * Floating Badge Toast Component
- * Colorful gradient badge with bounce animation
- * Color changes based on action type
+ * Floating Pill Toast (Option B)
+ * Dark pill with colored icon, circular progress countdown, spring-up animation
  */
-export function Toast({ message, type = 'success', duration = 3000, isVisible, onClose }: ToastProps) {
+export function Toast({ message, type = 'success', duration = 1000, isVisible, onClose }: ToastProps) {
   const [isAnimating, setIsAnimating] = useState(false);
+  const [progress, setProgress] = useState(1); // 1 = full, 0 = empty
+  const rafRef = useRef<number>(0);
+  const startRef = useRef<number>(0);
 
   useEffect(() => {
     if (isVisible) {
       setIsAnimating(true);
+      setProgress(1);
+      startRef.current = performance.now();
+
+      // Animate progress with requestAnimationFrame for smooth circle
+      const animate = (now: number) => {
+        const elapsed = now - startRef.current;
+        const remaining = Math.max(0, 1 - elapsed / duration);
+        setProgress(remaining);
+        if (remaining > 0) {
+          rafRef.current = requestAnimationFrame(animate);
+        }
+      };
+      rafRef.current = requestAnimationFrame(animate);
+
       const timer = setTimeout(() => {
         setIsAnimating(false);
         setTimeout(onClose, 300);
       }, duration);
-      return () => clearTimeout(timer);
+
+      return () => {
+        clearTimeout(timer);
+        cancelAnimationFrame(rafRef.current);
+      };
     }
   }, [isVisible, duration, onClose]);
 
   if (!isVisible && !isAnimating) return null;
 
-  // Color schemes for each action type
-  // Appeler (green), Monter (blue), Descendre (purple), Urgence (orange), Retirer (red)
-  const typeStyles: Record<ToastType, { gradient: string; shadow: string; icon: string }> = {
-    success: {
-      gradient: 'from-emerald-500 to-green-500',
-      shadow: 'shadow-emerald-500/40',
-      icon: 'check_circle',
-    },
-    error: {
-      gradient: 'from-red-500 to-rose-500',
-      shadow: 'shadow-red-500/40',
-      icon: 'error',
-    },
-    call: {
-      // Green for calling patient
-      gradient: 'from-emerald-500 to-green-600',
-      shadow: 'shadow-emerald-500/40',
-      icon: 'directions_walk',
-    },
-    moveUp: {
-      // Blue for moving up
-      gradient: 'from-blue-500 to-indigo-500',
-      shadow: 'shadow-blue-500/40',
-      icon: 'arrow_upward',
-    },
-    moveDown: {
-      // Purple for moving down
-      gradient: 'from-purple-500 to-violet-500',
-      shadow: 'shadow-purple-500/40',
-      icon: 'arrow_downward',
-    },
-    emergency: {
-      // Orange for emergency
-      gradient: 'from-orange-500 to-amber-500',
-      shadow: 'shadow-orange-500/40',
-      icon: 'e911_emergency',
-    },
-    remove: {
-      // Red for removing patient
-      gradient: 'from-red-500 to-rose-600',
-      shadow: 'shadow-red-500/40',
-      icon: 'person_remove',
-    },
-  };
-
-  const { gradient, shadow, icon } = typeStyles[type];
+  const { color, icon, label } = TYPE_CONFIG[type];
   const showToast = isAnimating && isVisible;
+  const dashOffset = CIRCLE_CIRCUMFERENCE * (1 - progress);
 
   return (
     <>
-      {/* Global styles for animation - Zoom In from Large (300%) */}
       <style>{`
-        @keyframes toastZoomIn {
-          0% {
-            opacity: 0.5;
-            transform: scale(3);
-          }
-          100% {
-            opacity: 1;
-            transform: scale(1);
-          }
+        @keyframes toastPillIn {
+          from { opacity: 0; transform: translateX(-50%) translateY(24px) scale(0.92); }
+          to   { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
         }
-        @keyframes toastZoomOut {
-          0% {
-            opacity: 1;
-            transform: scale(1);
-          }
-          100% {
-            opacity: 0;
-            transform: scale(2);
-          }
+        @keyframes toastPillOut {
+          from { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+          to   { opacity: 0; transform: translateX(-50%) translateY(16px) scale(0.92); }
         }
       `}</style>
 
-      {/* Fixed container for centering */}
       <div
-        className="fixed bottom-6 left-0 right-0 z-[100] flex justify-center pointer-events-none"
+        className="fixed z-[100] pointer-events-none"
+        style={{
+          bottom: 88,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          animation: showToast
+            ? 'toastPillIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both'
+            : 'toastPillOut 0.3s ease-in forwards',
+        }}
       >
         <div
-          className={`
-            bg-gradient-to-r ${gradient}
-            text-white px-5 py-3 rounded-xl
-            flex items-center gap-3
-            shadow-lg ${shadow}
-            pointer-events-auto
-          `}
+          className="pointer-events-auto flex items-center gap-3 whitespace-nowrap"
           style={{
-            animation: showToast
-              ? 'toastZoomIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards'
-              : 'toastZoomOut 0.3s ease-in forwards',
+            background: '#1A1A1A',
+            color: '#fff',
+            padding: '10px 20px 10px 12px',
+            borderRadius: 28,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.22)',
           }}
         >
-          <span
-            className="material-symbols-outlined text-[22px]"
-            style={{ fontVariationSettings: "'FILL' 1, 'wght' 500" }}
-          >
-            {icon}
-          </span>
-          <span className="font-medium text-sm sm:text-[15px] whitespace-nowrap">{message}</span>
+          {/* Icon with circular progress ring */}
+          <div className="relative flex-shrink-0" style={{ width: 40, height: 40 }}>
+            {/* Colored circle background */}
+            <div
+              className="absolute flex items-center justify-center"
+              style={{
+                width: 32,
+                height: 32,
+                top: 4,
+                left: 4,
+                borderRadius: '50%',
+                background: color,
+              }}
+            >
+              <span
+                className="material-symbols-rounded text-white"
+                style={{ fontSize: 18, fontVariationSettings: "'FILL' 1" }}
+              >
+                {icon}
+              </span>
+            </div>
+            {/* SVG progress ring */}
+            <svg
+              width={40}
+              height={40}
+              className="absolute inset-0"
+              style={{ transform: 'rotate(-90deg)' }}
+            >
+              {/* Track (dim) */}
+              <circle
+                cx={20}
+                cy={20}
+                r={CIRCLE_R}
+                fill="none"
+                stroke="rgba(255,255,255,0.1)"
+                strokeWidth={2.5}
+              />
+              {/* Progress (colored) */}
+              <circle
+                cx={20}
+                cy={20}
+                r={CIRCLE_R}
+                fill="none"
+                stroke={color}
+                strokeWidth={2.5}
+                strokeLinecap="round"
+                strokeDasharray={CIRCLE_CIRCUMFERENCE}
+                strokeDashoffset={dashOffset}
+              />
+            </svg>
+          </div>
+
+          {/* Text */}
+          <div className="flex flex-col min-w-0">
+            <span
+              className="font-medium leading-none"
+              style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}
+            >
+              {label}
+            </span>
+            <span
+              className="font-semibold leading-snug truncate"
+              style={{ fontSize: 14, letterSpacing: -0.2 }}
+            >
+              {message}
+            </span>
+          </div>
         </div>
       </div>
     </>

@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>BleSaf — Toast Notification Redesign</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300..700,0..1,-50..200&display=swap" rel="stylesheet">
+  <style>
+    /* ─── Showcase Shell ─── */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'DM Sans', -apple-system, sans-serif;
+      background: #131311;
+      color: #fff;
+      display: flex; flex-direction: column; align-items: center;
+      min-height: 100vh; padding: 32px 16px 48px;
+    }
+
+    .showcase-header { text-align: center; margin-bottom: 28px; }
+    .page-title {
+      font-size: 13px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 2.5px; color: #0F7B6C; margin-bottom: 8px;
+    }
+    .page-subtitle {
+      font-size: 22px; font-weight: 700; letter-spacing: -0.5px;
+      color: #fff;
+    }
+    .page-desc {
+      font-size: 13px; color: #9E9B90; margin-top: 6px;
+      max-width: 500px; line-height: 1.5;
+    }
+
+    /* ─── Current Design Box ─── */
+    .current-box {
+      margin: 0 auto 32px;
+      max-width: 460px; width: 100%;
+      background: #1E1E1C; border: 1px solid #2A2A28;
+      border-radius: 16px; padding: 20px 24px;
+    }
+    .current-label {
+      font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px;
+      color: #D94F3B; font-weight: 600; margin-bottom: 12px;
+    }
+    .current-toast-demo {
+      display: flex; align-items: center; gap: 12px;
+      background: linear-gradient(135deg, #10b981, #16a34a);
+      color: white; padding: 14px 20px; border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(16,185,129,0.35);
+    }
+    .current-toast-demo .material-symbols-rounded {
+      font-size: 22px; font-variation-settings: 'FILL' 1;
+    }
+    .current-toast-demo span:last-child {
+      font-size: 15px; font-weight: 500;
+    }
+    .current-issues {
+      margin-top: 14px; display: flex; flex-wrap: wrap; gap: 6px;
+    }
+    .issue-chip {
+      font-size: 11px; font-weight: 500; padding: 4px 10px;
+      border-radius: 20px; background: rgba(217,79,59,0.12); color: #D94F3B;
+    }
+
+    /* ─── Tab Navigation ─── */
+    .nav-tabs {
+      display: flex; gap: 8px; margin-bottom: 24px;
+      justify-content: center; flex-wrap: wrap;
+    }
+    .nav-tab {
+      padding: 8px 18px; border-radius: 20px;
+      font-size: 13px; font-weight: 600;
+      border: 1.5px solid #333; background: transparent;
+      color: #9E9B90; cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .nav-tab:hover { border-color: #555; color: #fff; }
+    .nav-tab.active {
+      background: #0F7B6C; border-color: #0F7B6C; color: #fff;
+    }
+
+    /* ─── Phone Frame ─── */
+    .phone-frame {
+      width: 375px; height: 720px;
+      border-radius: 44px;
+      background: #000;
+      padding: 12px;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.06);
+      position: relative;
+    }
+    .phone-screen {
+      width: 100%; height: 100%;
+      border-radius: 34px;
+      overflow: hidden;
+      position: relative;
+      background: #F6F5F0;
+    }
+
+    /* ─── Screen Views ─── */
+    .screen-view {
+      position: absolute; inset: 0;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.35s ease;
+      overflow-y: auto;
+    }
+    .screen-view.active { opacity: 1; pointer-events: auto; }
+    .screen-view::-webkit-scrollbar { display: none; }
+
+    /* ─── Info Box ─── */
+    .info-box {
+      max-width: 460px; width: 100%;
+      margin-top: 24px; padding: 20px 24px;
+      background: #1E1E1C; border: 1px solid #2A2A28;
+      border-radius: 16px;
+    }
+    .info-title {
+      font-size: 15px; font-weight: 700; margin-bottom: 4px;
+      color: #fff; display: flex; align-items: center; gap: 8px;
+    }
+    .info-title .tag {
+      font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
+      padding: 3px 8px; border-radius: 12px;
+      background: rgba(15,123,108,0.15); color: #0F7B6C; font-weight: 600;
+    }
+    .info-desc {
+      font-size: 12px; color: #9E9B90; line-height: 1.6; margin-top: 6px;
+    }
+    .info-pros { margin-top: 12px; }
+    .info-pros li {
+      font-size: 12px; color: #c4c0b8; line-height: 1.8;
+      list-style: none; padding-left: 18px; position: relative;
+    }
+    .info-pros li::before {
+      content: '✓'; position: absolute; left: 0;
+      color: #0F7B6C; font-weight: 700;
+    }
+    .info-cons li::before { content: '–'; color: #D4920B; }
+
+    /* ═══════════════════════════════════════════ */
+    /*  SHARED MOCK DASHBOARD ELEMENTS            */
+    /* ═══════════════════════════════════════════ */
+
+    /* Status bar */
+    .mock-statusbar {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 24px 6px; font-size: 12px; font-weight: 600;
+      color: #1A1A1A;
+    }
+
+    /* Header */
+    .mock-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 8px 20px 12px;
+    }
+    .mock-header-left { display: flex; align-items: center; gap: 10px; }
+    .mock-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: #0F7B6C; color: white;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700;
+    }
+    .mock-clinic-name { font-size: 16px; font-weight: 700; color: #1A1A1A; letter-spacing: -0.3px; }
+    .mock-header-right { display: flex; gap: 8px; }
+    .mock-hdr-btn {
+      width: 36px; height: 36px; border-radius: 8px;
+      background: white; border: 1px solid #E8E6DF;
+      display: flex; align-items: center; justify-content: center;
+      color: #6B6960;
+    }
+    .mock-hdr-btn .material-symbols-rounded { font-size: 18px; }
+
+    /* Stats strip */
+    .mock-stats {
+      display: flex; gap: 8px; padding: 0 20px 12px;
+    }
+    .mock-stat-chip {
+      display: flex; align-items: center; gap: 6px;
+      padding: 6px 12px; border-radius: 20px;
+      background: white; border: 1px solid #E8E6DF;
+      font-size: 12px; font-weight: 500; color: #6B6960;
+    }
+    .mock-stat-chip .material-symbols-rounded { font-size: 14px; color: #0F7B6C; }
+    .mock-stat-val { font-weight: 700; color: #1A1A1A; }
+
+    /* Queue cards */
+    .mock-queue { padding: 0 16px; }
+    .mock-queue-label {
+      font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px;
+      font-weight: 600; color: #9E9B90; padding: 8px 4px 6px;
+    }
+    .mock-card {
+      display: flex; align-items: center; gap: 12px;
+      background: white; border: 1px solid #E8E6DF;
+      border-radius: 12px; padding: 12px 14px;
+      margin-bottom: 8px; position: relative;
+    }
+    .mock-card.active {
+      border-color: #0F7B6C;
+      box-shadow: 0 0 0 1px #0F7B6C;
+    }
+    .mock-card-num {
+      width: 32px; height: 32px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700;
+    }
+    .mock-card-num.waiting { background: #E8F5F1; color: #0F7B6C; }
+    .mock-card-num.consulting { background: #0F7B6C; color: white; }
+    .mock-card-info { flex: 1; min-width: 0; }
+    .mock-card-name { font-size: 14px; font-weight: 600; color: #1A1A1A; }
+    .mock-card-meta { font-size: 11px; color: #9E9B90; margin-top: 1px; }
+    .mock-card-time {
+      font-size: 11px; color: #9E9B90; font-weight: 500;
+    }
+    .mock-card-badge {
+      font-size: 10px; font-weight: 600; padding: 3px 8px;
+      border-radius: 12px;
+    }
+    .mock-card-badge.consulting {
+      background: #E8F5F1; color: #0F7B6C;
+    }
+
+    /* Bottom nav */
+    .mock-bottomnav {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      display: flex; justify-content: space-around; align-items: center;
+      padding: 10px 0 22px;
+      background: white; border-top: 1px solid #E8E6DF;
+    }
+    .mock-nav-item {
+      display: flex; flex-direction: column; align-items: center; gap: 3px;
+    }
+    .mock-nav-item .material-symbols-rounded {
+      font-size: 22px; color: #9E9B90;
+    }
+    .mock-nav-item.active .material-symbols-rounded {
+      color: #0F7B6C; font-variation-settings: 'FILL' 1;
+    }
+    .mock-nav-label { font-size: 10px; color: #9E9B90; font-weight: 500; }
+    .mock-nav-item.active .mock-nav-label { color: #0F7B6C; font-weight: 600; }
+
+    /* ═══════════════════════════════════════════ */
+    /*  TOAST ALTERNATIVES                        */
+    /* ═══════════════════════════════════════════ */
+
+    /* ─── OPTION A: Inline Top Banner ─── */
+    .toast-a {
+      position: absolute; top: 92px; left: 12px; right: 12px;
+      display: flex; align-items: center; gap: 12px;
+      background: white;
+      border: 1px solid #E8E6DF;
+      border-left: 3px solid #0F7B6C;
+      border-radius: 12px;
+      padding: 12px 16px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+      z-index: 50;
+      animation: toastA-enter 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    @keyframes toastA-enter {
+      from { opacity: 0; transform: translateY(-16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .toast-a-ico {
+      width: 36px; height: 36px; border-radius: 8px;
+      background: #E8F5F1; color: #0F7B6C;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .toast-a-ico .material-symbols-rounded {
+      font-size: 20px; font-variation-settings: 'FILL' 1;
+    }
+    .toast-a-txt { flex: 1; min-width: 0; }
+    .toast-a-label {
+      font-size: 11px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.8px; color: #0F7B6C;
+    }
+    .toast-a-name {
+      font-size: 15px; font-weight: 600; color: #1A1A1A;
+      margin-top: 1px; letter-spacing: -0.2px;
+    }
+    .toast-a-dismiss {
+      width: 28px; height: 28px; border-radius: 6px;
+      background: #F6F5F0; border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: #9E9B90; flex-shrink: 0;
+    }
+    .toast-a-dismiss .material-symbols-rounded { font-size: 16px; }
+
+    /* Progress bar */
+    .toast-a-progress {
+      position: absolute; bottom: 0; left: 3px; right: 0;
+      height: 2px; border-radius: 0 0 12px 0;
+      overflow: hidden;
+    }
+    .toast-a-progress-bar {
+      height: 100%; background: #0F7B6C;
+      animation: toast-progress 3s linear forwards;
+      border-radius: 0 0 12px 0;
+    }
+    @keyframes toast-progress {
+      from { width: 100%; }
+      to   { width: 0%; }
+    }
+
+    /* ─── OPTION B: Floating Pill ─── */
+    .toast-b {
+      position: absolute; bottom: 80px; left: 50%;
+      transform: translateX(-50%);
+      display: flex; align-items: center; gap: 10px;
+      background: #1A1A1A;
+      color: white;
+      padding: 10px 20px 10px 14px;
+      border-radius: 28px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+      z-index: 50;
+      white-space: nowrap;
+      animation: toastB-enter 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    @keyframes toastB-enter {
+      from { opacity: 0; transform: translateX(-50%) translateY(24px) scale(0.9); }
+      to   { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+    }
+    .toast-b-dot {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: #0F7B6C;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .toast-b-dot .material-symbols-rounded {
+      font-size: 18px; color: white;
+      font-variation-settings: 'FILL' 1;
+    }
+    .toast-b-txt { display: flex; flex-direction: column; }
+    .toast-b-label {
+      font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.55);
+    }
+    .toast-b-name {
+      font-size: 14px; font-weight: 600; letter-spacing: -0.2px;
+    }
+
+    /* Pulse ring */
+    .toast-b-dot::after {
+      content: '';
+      position: absolute;
+      width: 32px; height: 32px; border-radius: 50%;
+      border: 2px solid #0F7B6C;
+      animation: pulse-ring 1.5s ease-out infinite;
+    }
+    @keyframes pulse-ring {
+      0%   { transform: scale(1); opacity: 0.6; }
+      100% { transform: scale(1.8); opacity: 0; }
+    }
+
+    /* ─── OPTION C: Card Peek ─── */
+    .toast-c {
+      position: absolute; bottom: 68px; left: 12px; right: 12px;
+      display: flex; align-items: center; gap: 14px;
+      background: white;
+      border: 1px solid #E8E6DF;
+      border-radius: 14px;
+      padding: 14px 16px;
+      box-shadow: 0 -4px 24px rgba(0,0,0,0.06), 0 8px 32px rgba(0,0,0,0.08);
+      z-index: 50;
+      animation: toastC-enter 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    @keyframes toastC-enter {
+      from { opacity: 0; transform: translateY(100%); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .toast-c-avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: #0F7B6C; color: white;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; font-weight: 700;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .toast-c-avatar::after {
+      content: '';
+      position: absolute; inset: -3px;
+      border-radius: 50%;
+      border: 2px solid #0F7B6C;
+      opacity: 0.3;
+      animation: avatar-pulse 2s ease-in-out infinite;
+    }
+    @keyframes avatar-pulse {
+      0%, 100% { opacity: 0.3; transform: scale(1); }
+      50%      { opacity: 0;   transform: scale(1.15); }
+    }
+    .toast-c-content { flex: 1; min-width: 0; }
+    .toast-c-label {
+      font-size: 11px; font-weight: 600;
+      color: #0F7B6C; text-transform: uppercase; letter-spacing: 0.6px;
+    }
+    .toast-c-name {
+      font-size: 15px; font-weight: 700; color: #1A1A1A;
+      margin-top: 1px; letter-spacing: -0.3px;
+    }
+    .toast-c-action {
+      display: flex; align-items: center; justify-content: center;
+      width: 36px; height: 36px; border-radius: 10px;
+      background: #E8F5F1; color: #0F7B6C;
+      flex-shrink: 0;
+    }
+    .toast-c-action .material-symbols-rounded {
+      font-size: 20px; font-variation-settings: 'FILL' 1;
+    }
+
+    /* Progress line at bottom of card */
+    .toast-c-progress {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 3px; border-radius: 0 0 14px 14px;
+      overflow: hidden;
+    }
+    .toast-c-progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #0F7B6C, #2D8B4E);
+      animation: toast-progress 3s linear forwards;
+    }
+
+    /* ─── Replay button ─── */
+    .replay-btn {
+      position: absolute; top: 12px; right: 16px;
+      background: rgba(15,123,108,0.1); border: none;
+      padding: 5px 12px; border-radius: 16px;
+      font-size: 11px; font-weight: 600; color: #0F7B6C;
+      cursor: pointer; display: flex; align-items: center; gap: 4px;
+      font-family: inherit; z-index: 60;
+    }
+    .replay-btn:hover { background: rgba(15,123,108,0.18); }
+    .replay-btn .material-symbols-rounded { font-size: 14px; }
+
+    /* ─── Type variant pills in each screen ─── */
+    .type-variants {
+      position: absolute; top: 94px; left: 12px; right: 12px;
+      display: flex; gap: 5px; flex-wrap: wrap; z-index: 40;
+    }
+    .type-pill {
+      font-size: 10px; font-weight: 600; padding: 4px 10px;
+      border-radius: 12px; border: none; cursor: pointer;
+      font-family: inherit; transition: all 0.15s ease;
+    }
+    .type-pill.call { background: #E8F5F1; color: #0F7B6C; }
+    .type-pill.call.active { background: #0F7B6C; color: white; }
+    .type-pill.moveUp { background: #EDF3FC; color: #3B7DD9; }
+    .type-pill.moveUp.active { background: #3B7DD9; color: white; }
+    .type-pill.emergency { background: #FEF7E6; color: #D4920B; }
+    .type-pill.emergency.active { background: #D4920B; color: white; }
+    .type-pill.remove { background: #FDF0ED; color: #D94F3B; }
+    .type-pill.remove.active { background: #D94F3B; color: white; }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="showcase-header">
+    <div class="page-title">Toast Notification</div>
+    <div class="page-subtitle">Redesign « C'est au tour de... »</div>
+    <div class="page-desc">
+      3 alternatives consistent with the BleSaf design system — teal accents, DM Sans, 12px radius, spring animations.
+    </div>
+  </div>
+
+  <!-- Current Design Critique -->
+  <div class="current-box">
+    <div class="current-label">Current Design</div>
+    <div class="current-toast-demo">
+      <span class="material-symbols-rounded">directions_walk</span>
+      <span>C'est au tour de Saif</span>
+    </div>
+    <div class="current-issues">
+      <span class="issue-chip">Tailwind gradients ≠ CSS vars</span>
+      <span class="issue-chip">Zoom animation too flashy</span>
+      <span class="issue-chip">material-symbols-outlined</span>
+      <span class="issue-chip">emerald-500 ≠ --accent teal</span>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="nav-tabs">
+    <button class="nav-tab active" data-screen="a">A · Inline Banner</button>
+    <button class="nav-tab" data-screen="b">B · Floating Pill</button>
+    <button class="nav-tab" data-screen="c">C · Card Peek</button>
+  </div>
+
+  <!-- Phone Frame -->
+  <div class="phone-frame">
+    <div class="phone-screen">
+
+      <!-- ═══════════ SCREEN A: Inline Top Banner ═══════════ -->
+      <div class="screen-view active" id="screen-a">
+        <!-- Replay -->
+        <button class="replay-btn" onclick="replayToast('a')">
+          <span class="material-symbols-rounded">replay</span> Rejouer
+        </button>
+
+        <!-- Status bar -->
+        <div class="mock-statusbar">
+          <span>09:41</span>
+          <span style="display:flex;gap:4px;align-items:center;">
+            <span class="material-symbols-rounded" style="font-size:14px;">signal_cellular_alt</span>
+            <span class="material-symbols-rounded" style="font-size:14px;">wifi</span>
+            <span class="material-symbols-rounded" style="font-size:14px;">battery_full</span>
+          </span>
+        </div>
+
+        <!-- Header -->
+        <div class="mock-header">
+          <div class="mock-header-left">
+            <div class="mock-avatar">KJ</div>
+            <div class="mock-clinic-name">Dr. Jebali</div>
+          </div>
+          <div class="mock-header-right">
+            <div class="mock-hdr-btn"><span class="material-symbols-rounded">qr_code_scanner</span></div>
+            <div class="mock-hdr-btn"><span class="material-symbols-rounded">settings</span></div>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="mock-stats">
+          <div class="mock-stat-chip">
+            <span class="material-symbols-rounded">groups</span>
+            <span class="mock-stat-val">6</span> en attente
+          </div>
+          <div class="mock-stat-chip">
+            <span class="material-symbols-rounded">timer</span>
+            <span class="mock-stat-val">~13</span> min
+          </div>
+        </div>
+
+        <!-- Toast A -->
+        <div class="toast-a" id="toast-a">
+          <div class="toast-a-ico">
+            <span class="material-symbols-rounded">directions_walk</span>
+          </div>
+          <div class="toast-a-txt">
+            <div class="toast-a-label">Au suivant</div>
+            <div class="toast-a-name">C'est au tour de Saif</div>
+          </div>
+          <button class="toast-a-dismiss">
+            <span class="material-symbols-rounded">close</span>
+          </button>
+          <div class="toast-a-progress">
+            <div class="toast-a-progress-bar" id="progress-a"></div>
+          </div>
+        </div>
+
+        <!-- Queue -->
+        <div class="mock-queue" style="margin-top:4px;">
+          <div class="mock-queue-label">En consultation</div>
+          <div class="mock-card active">
+            <div class="mock-card-num consulting">4</div>
+            <div class="mock-card-info">
+              <div class="mock-card-name">Saif Bouaziz</div>
+              <div class="mock-card-meta">Arrivé 09:12 · Manuel</div>
+            </div>
+            <span class="mock-card-badge consulting">En cours</span>
+          </div>
+
+          <div class="mock-queue-label">En attente</div>
+          <div class="mock-card">
+            <div class="mock-card-num waiting">5</div>
+            <div class="mock-card-info">
+              <div class="mock-card-name">Amira Salah</div>
+              <div class="mock-card-meta">Arrivé 09:18 · QR Code</div>
+            </div>
+            <div class="mock-card-time">~13 min</div>
+          </div>
+          <div class="mock-card">
+            <div class="mock-card-num waiting">6</div>
+            <div class="mock-card-info">
+              <div class="mock-card-name">Youssef Trabelsi</div>
+              <div class="mock-card-meta">Arrivé 09:25 · Manuel</div>
+            </div>
+            <div class="mock-card-time">~26 min</div>
+          </div>
+          <div class="mock-card">
+            <div class="mock-card-num waiting">7</div>
+            <div class="mock-card-info">
+              <div class="mock-card-name">Fatma Ben Ali</div>
+              <div class="mock-card-meta">Arrivé 09:31 · QR Code</div>
+            </div>
+            <div class="mock-card-time">~39 min</div>
+          </div>
+          <div class="mock-card">
+            <div class="mock-card-num waiting">8</div>
+            <div class="mock-card-info">
+              <div class="mock-card-name">Mohamed Chaabane</div>
+              <div class="mock-card-meta">Arrivé 09:38 · Manuel</div>
+            </div>
+            <div class="mock-card-time">~52 min</div>
+          </div>
+        </div>
+
+        <!-- Bottom nav -->
+        <div class="mock-bottomnav">
+          <div class="mock-nav-item active">
+            <span class="material-symbols-rounded">queue</span>
+            <span class="mock-nav-label">File</span>
+          </div>
+          <div class="mock-nav-item">
+            <span class="material-symbols-rounded">bar_chart</span>
+            <span class="mock-nav-label">Stats</span>
+          </div>
+          <div class="mock-nav-item">
+            <span class="material-symbols-rounded">tv</span>
+            <span class="mock-nav-label">Écran</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════ SCREEN B: Floating Pill ═══════════ -->
+      <div class="screen-view" id="screen-b">
+        <button class="replay-btn" onclick="replayToast('b')">
+          <span class="material-symbols-rounded">replay</span> Rejouer
+        </button>
+
+        <div class="mock-statusbar">
+          <span>09:41</span>
+          <span style="display:flex;gap:4px;align-items:center;">
+            <span class="material-symbols-rounded" style="font-size:14px;">signal_cellular_alt</span>
+            <span class="material-symbols-rounded" style="font-size:14px;">wifi</span>
+            <span class="material-symbols-rounded" style="font-size:14px;">battery_full</span>
+          </span>
+        </div>
+        <div class="mock-header">
+          <div class="mock-header-left">
+            <div class="mock-avatar">KJ</div>
+            <div class="mock-clinic-name">Dr. Jebali</div>
+          </div>
+          <div class="mock-header-right">
+            <div class="mock-hdr-btn"><span class="material-symbols-rounded">qr_code_scanner</span></div>
+            <div class="mock-hdr-btn"><span class="material-symbols-rounded">settings</span></div>
+          </div>
+        </div>
+        <div class="mock-stats">
+          <div class="mock-stat-chip">
+            <span class="material-symbols-rounded">groups</span>
+            <span class="mock-stat-val">6</span> en attente
+          </div>
+          <div class="mock-stat-chip">
+            <span class="material-symbols-rounded">timer</span>
+            <span class="mock-stat-val">~13</span> min
+          </div>
+        </div>
+
+        <!-- Toast B -->
+        <div class="toast-b" id="toast-b">
+          <div class="toast-b-dot" style="position:relative;">
+            <span class="material-symbols-rounded">directions_walk</span>
+          </div>
+          <div class="toast-b-txt">
+            <div class="toast-b-label">Au suivant</div>
+            <div class="toast-b-name">C'est au tour de Saif</div>
+          </div>
+        </div>
+
+        <!-- Queue -->
+        <div class="mock-queue" style="margin-top:4px;">
+          <div class="mock-queue-label">En consultation</div>
+          <div class="mock-card active">
+            <div class="mock-card-num consulting">4</div>
+            <div class="mock-card-info">
+              <div class="mock-card-name">Saif Bouaziz</div>
+              <div class="mock-card-meta">Arrivé 09:12 · Manuel</div>
+            </div>
+            <span class="mock-card-badge consulting">En cours</span>
+          </div>
+          <div class="mock-queue-label">En attente</div>
+          <div class="mock-card">
+            <div class="mock-card-num waiting">5</div>
+            <div class="mock-card-info">
+              <div class="mock-card-name">Amira Salah</div>
+              <div class="mock-card-meta">Arrivé 09:18 · QR Code</div>
+            </div>
+            <div class="mock-card-time">~13 min</div>
+          </div>
+          <div class="mock-card">
+            <div class="mock-card-num waiting">6</div>
+            <div class="mock-card-info">
+              <div class="mock-card-name">Youssef Trabelsi</div>
+              <div class="mock-card-meta">Arrivé 09:25 · Manuel</div>
+            </div>
+            <div class="mock-card-time">~26 min</div>
+          </div>
+          <div class="mock-card">
+            <div class="mock-card-num waiting">7</div>
+            <div class="mock-card-info">
+              <div class="mock-card-name">Fatma Ben Ali</div>
+              <div class="mock-card-meta">Arrivé 09:31 · QR Code</div>
+            </div>
+            <div class="mock-card-time">~39 min</div>
+          </div>
+          <div class="mock-card">
+            <div class="mock-card-num waiting">8</div>
+            <div class="mock-card-info">
+              <div class="mock-card-name">Mohamed Chaabane</div>
+              <div class="mock-card-meta">Arrivé 09:38 · Manuel</div>
+            </div>
+            <div class="mock-card-time">~52 min</div>
+          </div>
+        </div>
+
+        <div class="mock-bottomnav">
+          <div class="mock-nav-item active">
+            <span class="material-symbols-rounded">queue</span>
+            <span class="mock-nav-label">File</span>
+          </div>
+          <div class="mock-nav-item">
+            <span class="material-symbols-rounded">bar_chart</span>
+            <span class="mock-nav-label">Stats</span>
+          </div>
+          <div class="mock-nav-item">
+            <span class="material-symbols-rounded">tv</span>
+            <span class="mock-nav-label">Écran</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════ SCREEN C: Card Peek ═══════════ -->
+      <div class="screen-view" id="screen-c">
+        <button class="replay-btn" onclick="replayToast('c')">
+          <span class="material-symbols-rounded">replay</span> Rejouer
+        </button>
+
+        <div class="mock-statusbar">
+          <span>09:41</span>
+          <span style="display:flex;gap:4px;align-items:center;">
+            <span class="material-symbols-rounded" style="font-size:14px;">signal_cellular_alt</span>
+            <span class="material-symbols-rounded" style="font-size:14px;">wifi</span>
+            <span class="material-symbols-rounded" style="font-size:14px;">battery_full</span>
+          </span>
+        </div>
+        <div class="mock-header">
+          <div class="mock-header-left">
+            <div class="mock-avatar">KJ</div>
+            <div class="mock-clinic-name">Dr. Jebali</div>
+          </div>
+          <div class="mock-header-right">
+            <div class="mock-hdr-btn"><span class="material-symbols-rounded">qr_code_scanner</span></div>
+            <div class="mock-hdr-btn"><span class="material-symbols-rounded">settings</span></div>
+          </div>
+        </div>
+        <div class="mock-stats">
+          <div class="mock-stat-chip">
+            <span class="material-symbols-rounded">groups</span>
+            <span class="mock-stat-val">6</span> en attente
+          </div>
+          <div class="mock-stat-chip">
+            <span class="material-symbols-rounded">timer</span>
+            <span class="mock-stat-val">~13</span> min
+          </div>
+        </div>
+
+        <!-- Toast C -->
+        <div class="toast-c" id="toast-c">
+          <div class="toast-c-avatar">SB</div>
+          <div class="toast-c-content">
+            <div class="toast-c-label">Au suivant</div>
+            <div class="toast-c-name">Saif Bouaziz</div>
+          </div>
+          <div class="toast-c-action">
+            <span class="material-symbols-rounded">directions_walk</span>
+          </div>
+          <div class="toast-c-progress">
+            <div class="toast-c-progress-bar" id="progress-c"></div>
+          </div>
+        </div>
+
+        <!-- Queue -->
+        <div class="mock-queue" style="margin-top:4px;">
+          <div class="mock-queue-label">En consultation</div>
+          <div class="mock-card active">
+            <div class="mock-card-num consulting">4</div>
+            <div class="mock-card-info">
+              <div class="mock-card-name">Saif Bouaziz</div>
+              <div class="mock-card-meta">Arrivé 09:12 · Manuel</div>
+            </div>
+            <span class="mock-card-badge consulting">En cours</span>
+          </div>
+          <div class="mock-queue-label">En attente</div>
+          <div class="mock-card">
+            <div class="mock-card-num waiting">5</div>
+            <div class="mock-card-info">
+              <div class="mock-card-name">Amira Salah</div>
+              <div class="mock-card-meta">Arrivé 09:18 · QR Code</div>
+            </div>
+            <div class="mock-card-time">~13 min</div>
+          </div>
+          <div class="mock-card">
+            <div class="mock-card-num waiting">6</div>
+            <div class="mock-card-info">
+              <div class="mock-card-name">Youssef Trabelsi</div>
+              <div class="mock-card-meta">Arrivé 09:25 · Manuel</div>
+            </div>
+            <div class="mock-card-time">~26 min</div>
+          </div>
+          <div class="mock-card">
+            <div class="mock-card-num waiting">7</div>
+            <div class="mock-card-info">
+              <div class="mock-card-name">Fatma Ben Ali</div>
+              <div class="mock-card-meta">Arrivé 09:31 · QR Code</div>
+            </div>
+            <div class="mock-card-time">~39 min</div>
+          </div>
+          <div class="mock-card">
+            <div class="mock-card-num waiting">8</div>
+            <div class="mock-card-info">
+              <div class="mock-card-name">Mohamed Chaabane</div>
+              <div class="mock-card-meta">Arrivé 09:38 · Manuel</div>
+            </div>
+            <div class="mock-card-time">~52 min</div>
+          </div>
+        </div>
+
+        <div class="mock-bottomnav">
+          <div class="mock-nav-item active">
+            <span class="material-symbols-rounded">queue</span>
+            <span class="mock-nav-label">File</span>
+          </div>
+          <div class="mock-nav-item">
+            <span class="material-symbols-rounded">bar_chart</span>
+            <span class="mock-nav-label">Stats</span>
+          </div>
+          <div class="mock-nav-item">
+            <span class="material-symbols-rounded">tv</span>
+            <span class="mock-nav-label">Écran</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Info boxes -->
+  <div id="info-a" class="info-box">
+    <div class="info-title">
+      A · Inline Banner
+      <span class="tag">Recommended</span>
+    </div>
+    <div class="info-desc">
+      Slides down from below the header. White card with teal left accent border, icon box, and a countdown progress bar. Mirrors the app's settings-item pattern (icon box + text).
+    </div>
+    <ul class="info-pros">
+      <li>Most consistent with the existing card/row design language</li>
+      <li>Doesn't overlap queue cards or bottom navigation</li>
+      <li>Progress bar gives clear auto-dismiss feedback</li>
+      <li>Dismiss button for immediate close</li>
+    </ul>
+    <ul class="info-pros info-cons" style="margin-top:6px;">
+      <li>Takes up vertical space (pushes queue down visually)</li>
+      <li>May feel less "urgent" than a floating element</li>
+    </ul>
+  </div>
+  <div id="info-b" class="info-box" style="display:none;">
+    <div class="info-title">B · Floating Pill</div>
+    <div class="info-desc">
+      Dark pill with teal circle icon, floating above the bottom nav. Pulse ring animation draws attention. Compact, minimal footprint. Similar to the patient-status progress toast but redesigned with app tokens.
+    </div>
+    <ul class="info-pros">
+      <li>Minimal — doesn't obscure any content</li>
+      <li>The dark bg + teal accent is high contrast and attention-grabbing</li>
+      <li>Pulse ring adds urgency without being jarring</li>
+      <li>Works well across all toast types (call, moveUp, emergency)</li>
+    </ul>
+    <ul class="info-pros info-cons" style="margin-top:6px;">
+      <li>Dark element on a light page can feel disconnected</li>
+      <li>No explicit dismiss — relies on auto-hide only</li>
+    </ul>
+  </div>
+  <div id="info-c" class="info-box" style="display:none;">
+    <div class="info-title">C · Card Peek</div>
+    <div class="info-desc">
+      Slides up from above the bottom nav as a full-width card. Shows patient initials avatar (matching the header avatar pattern), name, and a teal action icon. Progress bar at the bottom.
+    </div>
+    <ul class="info-pros">
+      <li>Feels like part of the queue — same card radius and border style</li>
+      <li>Avatar initials reinforce which patient was called</li>
+      <li>Most informational — clear hierarchy of label → name</li>
+      <li>Progress bar for countdown visibility</li>
+    </ul>
+    <ul class="info-pros info-cons" style="margin-top:6px;">
+      <li>Overlaps the last queue card briefly</li>
+      <li>Larger footprint than pill — more distracting during rapid calls</li>
+    </ul>
+  </div>
+
+  <script>
+    // ─── Tab switching ───
+    const tabs = document.querySelectorAll('.nav-tab');
+    const screens = document.querySelectorAll('.screen-view');
+    const infos = document.querySelectorAll('.info-box');
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const target = tab.dataset.screen;
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        screens.forEach(s => {
+          s.classList.toggle('active', s.id === 'screen-' + target);
+        });
+        infos.forEach(i => {
+          i.style.display = i.id === 'info-' + target ? 'block' : 'none';
+        });
+        // Replay animation when switching
+        replayToast(target);
+      });
+    });
+
+    // ─── Replay animation ───
+    function replayToast(id) {
+      const toast = document.getElementById('toast-' + id);
+      if (!toast) return;
+
+      // Reset animation
+      toast.style.animation = 'none';
+      toast.offsetHeight; // force reflow
+
+      // Reset progress bars
+      const progressA = document.getElementById('progress-a');
+      const progressC = document.getElementById('progress-c');
+      if (progressA) { progressA.style.animation = 'none'; progressA.offsetHeight; progressA.style.animation = ''; }
+      if (progressC) { progressC.style.animation = 'none'; progressC.offsetHeight; progressC.style.animation = ''; }
+
+      // Restart animation
+      if (id === 'a') toast.style.animation = 'toastA-enter 0.45s cubic-bezier(0.22, 1, 0.36, 1) both';
+      if (id === 'b') toast.style.animation = 'toastB-enter 0.4s cubic-bezier(0.22, 1, 0.36, 1) both';
+      if (id === 'c') toast.style.animation = 'toastC-enter 0.45s cubic-bezier(0.22, 1, 0.36, 1) both';
+    }
+  </script>
+</body>
+</html>

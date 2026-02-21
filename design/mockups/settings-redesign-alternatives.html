@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>BleSaf — Profil du cabinet: Grouped Inline Design</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body {
+  font-family: 'DM Sans','IBM Plex Sans Arabic',sans-serif;
+  background: #131311;
+  display: flex; flex-direction: column; align-items: center;
+  min-height: 100vh; padding: 20px 16px; gap: 16px;
+}
+
+/* ── Showcase ── */
+.page-title { color:#fff; font-size:12px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; opacity:0.4; }
+.screen-nav { display:flex; gap:5px; flex-wrap:wrap; justify-content:center; }
+.screen-nav button {
+  background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.08);
+  color:rgba(255,255,255,0.5); padding:7px 12px; border-radius:100px;
+  font-family:inherit; font-size:11px; font-weight:600; cursor:pointer; transition:all 0.2s;
+  display:flex; align-items:center; gap:5px;
+}
+.screen-nav button:hover { background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.8); }
+.screen-nav button.active { background:#0F7B6C; border-color:#0F7B6C; color:#fff; }
+.nav-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+
+/* ── Phone Frame ── */
+.phone-frame {
+  width:375px; max-width:100%; height:812px; background:#F6F5F0;
+  border-radius:40px; overflow:hidden; position:relative;
+  box-shadow: 0 0 0 3px #2a2a28, 0 24px 80px rgba(0,0,0,0.5);
+}
+.phone-screen { height:100%; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; }
+.phone-screen::-webkit-scrollbar { display:none; }
+.screen-view { display:none; height:100%; }
+.screen-view.active { display:block; }
+
+/* ── Design Info ── */
+.design-info { max-width:375px; text-align:center; }
+.design-info h2 { color:#fff; font-size:16px; font-weight:700; margin-bottom:4px; }
+.design-info p { color:rgba(255,255,255,0.45); font-size:12px; line-height:1.5; }
+
+/* ── Status Bar ── */
+.status-bar { display:flex; justify-content:space-between; align-items:center; padding:12px 24px 4px; font-size:13px; font-weight:600; color:#1A1A1A; }
+.status-bar .right { display:flex; gap:6px; align-items:center; }
+.status-bar .right .material-symbols-rounded { font-size:16px; }
+
+/* ══════════════════════════════════════════════
+   Screen 1: Parametres (settings hub)
+   ══════════════════════════════════════════════ */
+.bs-panel-header {
+  display:flex; align-items:center; gap:12px;
+  padding:14px 20px; background:#FFFFFF;
+  border-bottom:1px solid #E8E6DF;
+  position:sticky; top:0; z-index:5;
+}
+.bs-panel-back {
+  width:36px; height:36px; border-radius:8px;
+  background:transparent; border:none; cursor:pointer;
+  color:#1A1A1A; display:flex; align-items:center; justify-content:center;
+}
+.bs-panel-title { font-size:17px; font-weight:700; letter-spacing:-0.3px; color:#1A1A1A; }
+.bs-panel-body { padding:20px; }
+
+/* Settings items (the red rectangle style) */
+.bs-settings-label { padding:12px 0 6px; font-size:10px; text-transform:uppercase; letter-spacing:1.2px; font-weight:600; color:#9E9B90; }
+.bs-settings-group { background:#FFFFFF; border:1px solid #E8E6DF; border-radius:12px; overflow:hidden; margin-bottom:12px; }
+.bs-settings-item {
+  display:flex; align-items:center; gap:12px; padding:12px 14px;
+  cursor:pointer; border:none; background:transparent; width:100%;
+  text-align:left; font-family:inherit;
+  border-bottom:1px solid rgba(228,226,221,0.5); transition:background 0.15s;
+}
+.bs-settings-item:last-child { border-bottom:none; }
+.bs-settings-item:hover { background:#F6F5F0; }
+.bs-settings-ico { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.bs-settings-txt { flex:1; min-width:0; }
+.bs-settings-name { font-size:14px; font-weight:500; color:#1A1A1A; }
+.bs-settings-desc { font-size:11px; color:#9E9B90; margin-top:1px; }
+.bs-settings-chev { font-size:16px; color:#E8E6DF; flex-shrink:0; }
+.bs-settings-value { font-size:12px; font-weight:500; color:#9E9B90; flex-shrink:0; max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+/* ══════════════════════════════════════════════
+   Screen 2: Profil du cabinet (slide-from-right)
+   ══════════════════════════════════════════════ */
+
+/* Expand/collapse sections */
+.bs-expand {
+  max-height:0; overflow:hidden; opacity:0;
+  transition:max-height 0.35s cubic-bezier(0.22,1,0.36,1), opacity 0.25s ease, padding 0.35s ease;
+  background:#F6F5F0; padding:0 14px;
+  border-bottom:1px solid rgba(228,226,221,0.5);
+}
+.bs-expand.open { max-height:400px; opacity:1; padding:12px 14px 14px; }
+
+/* Form inputs */
+.bs-profile-input {
+  width:100%; height:42px; background:#FFFFFF; border:1.5px solid #E8E6DF;
+  border-radius:8px; padding:0 12px; font-family:inherit; font-size:14px;
+  color:#1A1A1A; outline:none; transition:border-color 0.2s;
+}
+.bs-profile-input:focus { border-color:#0F7B6C; }
+.bs-profile-input::placeholder { color:#9E9B90; }
+
+.bs-form-label {
+  display:block; font-size:10px; font-weight:600; text-transform:uppercase;
+  letter-spacing:0.8px; color:#9E9B90; margin-bottom:4px; margin-top:8px;
+}
+.bs-form-label:first-child { margin-top:0; }
+
+/* Gender toggle */
+.bs-gender-toggle { display:flex; border-radius:8px; overflow:hidden; border:1.5px solid #E8E6DF; flex-shrink:0; }
+.bs-gender-btn { padding:8px 12px; font-family:inherit; font-size:13px; font-weight:600; background:#FFF; color:#6B6960; border:none; cursor:pointer; transition:all 0.15s; }
+.bs-gender-btn + .bs-gender-btn { border-left:1.5px solid #E8E6DF; }
+.bs-gender-btn.active { background:#0F7B6C; color:#FFF; }
+
+/* Number stepper */
+.bs-stepper { display:flex; align-items:center; border:1.5px solid #E8E6DF; border-radius:8px; overflow:hidden; width:fit-content; }
+.bs-stepper-btn { width:40px; height:40px; background:#F0EFEA; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#6B6960; }
+.bs-stepper-btn:active { background:#E8F5F1; color:#0F7B6C; }
+.bs-stepper-value { width:44px; height:40px; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:700; color:#1A1A1A; background:#FFF; border-left:1.5px solid #E8E6DF; border-right:1.5px solid #E8E6DF; }
+
+/* Toggle */
+.bs-toggle { width:44px; height:24px; border-radius:12px; position:relative; cursor:pointer; flex-shrink:0; }
+.bs-toggle.on { background:#0F7B6C; }
+.bs-toggle.off { background:#E8E6DF; }
+.bs-toggle-knob { position:absolute; top:3px; width:18px; height:18px; border-radius:50%; background:#FFF; box-shadow:0 1px 3px rgba(0,0,0,0.15); }
+.bs-toggle.on .bs-toggle-knob { left:23px; }
+.bs-toggle.off .bs-toggle-knob { left:3px; }
+
+/* Status chip */
+.bs-status-chip { font-size:10px; font-weight:700; text-transform:uppercase; padding:3px 8px; border-radius:100px; flex-shrink:0; background:#EDF3FC; color:#3B7DD9; }
+
+/* Subscription info */
+.bs-sub-info { display:flex; gap:8px; }
+.bs-sub-card { flex:1; background:#E8F5F1; border-radius:8px; padding:10px; border:1px solid rgba(15,123,108,0.12); }
+.bs-sub-label { font-size:9px; font-weight:600; text-transform:uppercase; letter-spacing:0.6px; color:#9E9B90; margin-bottom:2px; }
+.bs-sub-value { font-size:16px; font-weight:700; color:#1A1A1A; }
+.bs-sub-date { font-size:11px; color:#9E9B90; margin-top:2px; }
+
+/* Specialty chips */
+.bs-specialty-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+.bs-specialty-chip {
+  display:flex; align-items:center; gap:6px; padding:8px 10px; border-radius:8px;
+  border:1.5px solid #E8E6DF; background:#FFF; font-family:inherit;
+  font-size:11px; font-weight:500; color:#6B6960; cursor:pointer; transition:all 0.15s;
+}
+.bs-specialty-chip .material-symbols-rounded { font-size:14px; }
+.bs-specialty-chip.selected { border-color:#0F7B6C; background:#E8F5F1; color:#0F7B6C; }
+
+/* Doctor list */
+.bs-doctor-row { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid rgba(228,226,221,0.5); }
+.bs-doctor-row:last-of-type { border-bottom:none; }
+.bs-delete-btn { margin-left:auto; width:28px; height:28px; border-radius:6px; background:#FDF0ED; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#D94F3B; }
+.bs-add-doctor-btn { width:36px; height:36px; background:#0F7B6C; border:none; border-radius:8px; color:#FFF; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+
+/* Primary button */
+.bs-btn-primary {
+  height:48px; background:#0F7B6C; border:none; border-radius:12px;
+  color:#FFF; font-family:inherit; font-size:14px; font-weight:700;
+  cursor:pointer; width:100%; display:flex; align-items:center; justify-content:center; gap:8px;
+  transition:all 0.15s;
+}
+.bs-btn-primary:active { transform:scale(0.97); background:#0A5C50; }
+.bs-btn-primary.compact { height:38px; font-size:13px; }
+
+/* Floating save */
+.bs-float-save {
+  position:sticky; bottom:0; padding:14px 0 24px;
+  background:linear-gradient(to top, #F6F5F0 60%, transparent);
+}
+.bs-float-save .bs-btn-primary { box-shadow:0 6px 24px rgba(15,123,108,0.25); }
+
+/* Message */
+.bs-msg { font-size:12px; font-weight:600; margin-top:6px; }
+.bs-msg.success { color:#2D8B4E; }
+.bs-msg.error { color:#D94F3B; }
+
+/* ── Slide transition between screens ── */
+.slide-container { position:relative; width:100%; height:100%; overflow:hidden; }
+.slide-screen {
+  position:absolute; top:0; left:0; width:100%; height:100%;
+  overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch;
+  transition:transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.slide-screen::-webkit-scrollbar { display:none; }
+.slide-screen.left { transform:translateX(-30%); pointer-events:none; }
+.slide-screen.center { transform:translateX(0); }
+.slide-screen.right { transform:translateX(100%); }
+
+/* Animations */
+@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+</style>
+</head>
+<body>
+
+<div class="page-title">BleSaf — Profil du cabinet: Grouped Inline</div>
+
+<div class="screen-nav">
+  <button class="active" onclick="showScreen('settings', this)">
+    <span class="nav-dot" style="background:#0F7B6C"></span>
+    Parametres
+  </button>
+  <button onclick="showScreen('profile', this)">
+    <span class="nav-dot" style="background:#3B7DD9"></span>
+    Profil du cabinet
+  </button>
+</div>
+
+<div class="phone-frame">
+  <div class="slide-container">
+
+    <!-- ═══════════════════════════════════════════
+         Screen 1: Parametres (settings hub)
+         ═══════════════════════════════════════════ -->
+    <div class="slide-screen center" id="screen-settings">
+      <div class="status-bar">
+        <span>14:32</span>
+        <div class="right">
+          <span class="material-symbols-rounded">signal_cellular_alt</span>
+          <span class="material-symbols-rounded">wifi</span>
+          <span class="material-symbols-rounded">battery_4_bar</span>
+        </div>
+      </div>
+
+      <div class="bs-panel-header">
+        <button class="bs-panel-back">
+          <span class="material-symbols-rounded" style="font-size:22px;">arrow_back</span>
+        </button>
+        <span class="bs-panel-title">Parametres</span>
+      </div>
+
+      <div class="bs-panel-body">
+        <!-- Cabinet -->
+        <div class="bs-settings-label">Cabinet</div>
+        <div class="bs-settings-group">
+          <button class="bs-settings-item" onclick="navigateTo('profile')">
+            <div class="bs-settings-ico" style="background:#E8F5F1; color:#0F7B6C;">
+              <span class="material-symbols-rounded" style="font-size:18px;">domain</span>
+            </div>
+            <div class="bs-settings-txt">
+              <div class="bs-settings-name">Profil du cabinet</div>
+              <div class="bs-settings-desc">Nom, adresse, horaires</div>
+            </div>
+            <span class="material-symbols-rounded bs-settings-chev">chevron_right</span>
+          </button>
+          <button class="bs-settings-item">
+            <div class="bs-settings-ico" style="background:#EDF3FC; color:#3B7DD9;">
+              <span class="material-symbols-rounded" style="font-size:18px;">group</span>
+            </div>
+            <div class="bs-settings-txt">
+              <div class="bs-settings-name">Equipe & acces</div>
+              <div class="bs-settings-desc">Medecins, secretaires</div>
+            </div>
+            <span class="material-symbols-rounded bs-settings-chev">chevron_right</span>
+          </button>
+        </div>
+
+        <!-- File d'attente -->
+        <div class="bs-settings-label">File d'attente</div>
+        <div class="bs-settings-group">
+          <button class="bs-settings-item">
+            <div class="bs-settings-ico" style="background:#FEF7E6; color:#D4920B;">
+              <span class="material-symbols-rounded" style="font-size:18px;">timer</span>
+            </div>
+            <div class="bs-settings-txt">
+              <div class="bs-settings-name">Duree consultation</div>
+              <div class="bs-settings-desc">14 min en moyenne</div>
+            </div>
+            <span class="material-symbols-rounded bs-settings-chev">chevron_right</span>
+          </button>
+          <button class="bs-settings-item">
+            <div class="bs-settings-ico" style="background:#F0EFEA; color:#6B6960;">
+              <span class="material-symbols-rounded" style="font-size:18px;">translate</span>
+            </div>
+            <div class="bs-settings-txt">
+              <div class="bs-settings-name">Langue</div>
+              <div class="bs-settings-desc">Francais</div>
+            </div>
+            <span class="material-symbols-rounded bs-settings-chev">chevron_right</span>
+          </button>
+        </div>
+
+        <!-- Compte -->
+        <div class="bs-settings-label">Compte</div>
+        <div class="bs-settings-group">
+          <button class="bs-settings-item">
+            <div class="bs-settings-ico" style="background:#E8F5F1; color:#0F7B6C;">
+              <span class="material-symbols-rounded" style="font-size:18px;">card_membership</span>
+            </div>
+            <div class="bs-settings-txt">
+              <div class="bs-settings-name">Abonnement</div>
+              <div class="bs-settings-desc">Gerer votre abonnement</div>
+            </div>
+            <span class="material-symbols-rounded bs-settings-chev">chevron_right</span>
+          </button>
+          <button class="bs-settings-item">
+            <div class="bs-settings-ico" style="background:#FDF0ED; color:#D94F3B;">
+              <span class="material-symbols-rounded" style="font-size:18px;">logout</span>
+            </div>
+            <div class="bs-settings-txt">
+              <div class="bs-settings-name" style="color:#D94F3B;">Deconnexion</div>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         Screen 2: Profil du cabinet (slides from right)
+         ═══════════════════════════════════════════ -->
+    <div class="slide-screen right" id="screen-profile">
+      <div class="status-bar">
+        <span>14:32</span>
+        <div class="right">
+          <span class="material-symbols-rounded">signal_cellular_alt</span>
+          <span class="material-symbols-rounded">wifi</span>
+          <span class="material-symbols-rounded">battery_4_bar</span>
+        </div>
+      </div>
+
+      <div class="bs-panel-header">
+        <button class="bs-panel-back" onclick="navigateTo('settings')">
+          <span class="material-symbols-rounded" style="font-size:22px;">arrow_back</span>
+        </button>
+        <span class="bs-panel-title">Profil du cabinet</span>
+      </div>
+
+      <div class="bs-panel-body">
+        <!-- MON CABINET -->
+        <div class="bs-settings-label">Mon cabinet</div>
+        <div class="bs-settings-group">
+          <button class="bs-settings-item" onclick="toggleExpand(this)">
+            <div class="bs-settings-ico" style="background:#E8F5F1; color:#0F7B6C;">
+              <span class="material-symbols-rounded" style="font-size:18px;">home</span>
+            </div>
+            <div class="bs-settings-txt">
+              <div class="bs-settings-name">Nom du cabinet</div>
+              <div class="bs-settings-desc">Nom affiche aux patients</div>
+            </div>
+            <span class="bs-settings-value">Cabinet Dr. Jebali</span>
+            <span class="material-symbols-rounded bs-settings-chev">chevron_right</span>
+          </button>
+          <div class="bs-expand">
+            <input class="bs-profile-input" type="text" value="Cabinet Dr. Jebali">
+          </div>
+
+          <button class="bs-settings-item" onclick="toggleExpand(this)">
+            <div class="bs-settings-ico" style="background:#E8F5F1; color:#0F7B6C;">
+              <span class="material-symbols-rounded" style="font-size:18px;">person</span>
+            </div>
+            <div class="bs-settings-txt">
+              <div class="bs-settings-name">Medecin</div>
+              <div class="bs-settings-desc">Nom et civilite</div>
+            </div>
+            <span class="bs-settings-value">M. K. Jebali</span>
+            <span class="material-symbols-rounded bs-settings-chev">chevron_right</span>
+          </button>
+          <div class="bs-expand">
+            <div style="display:flex; gap:8px;">
+              <div class="bs-gender-toggle">
+                <button class="bs-gender-btn active">M.</button>
+                <button class="bs-gender-btn">Mme</button>
+              </div>
+              <input class="bs-profile-input" type="text" value="Dr. Karim Jebali" style="flex:1;">
+            </div>
+          </div>
+
+          <button class="bs-settings-item" onclick="toggleExpand(this)">
+            <div class="bs-settings-ico" style="background:#EDF3FC; color:#3B7DD9;">
+              <span class="material-symbols-rounded" style="font-size:18px;">phone</span>
+            </div>
+            <div class="bs-settings-txt">
+              <div class="bs-settings-name">Telephone</div>
+              <div class="bs-settings-desc">Numero de contact</div>
+            </div>
+            <span class="bs-settings-value">+216 71 234 567</span>
+            <span class="material-symbols-rounded bs-settings-chev">chevron_right</span>
+          </button>
+          <div class="bs-expand">
+            <input class="bs-profile-input" type="tel" value="+216 71 234 567">
+          </div>
+
+          <button class="bs-settings-item" onclick="toggleExpand(this)">
+            <div class="bs-settings-ico" style="background:#EDF3FC; color:#3B7DD9;">
+              <span class="material-symbols-rounded" style="font-size:18px;">location_on</span>
+            </div>
+            <div class="bs-settings-txt">
+              <div class="bs-settings-name">Adresse</div>
+              <div class="bs-settings-desc">Adresse du cabinet</div>
+            </div>
+            <span class="bs-settings-value">El Menzah, Tunis</span>
+            <span class="material-symbols-rounded bs-settings-chev">chevron_right</span>
+          </button>
+          <div class="bs-expand">
+            <input class="bs-profile-input" type="text" value="El Menzah, Tunis">
+          </div>
+        </div>
+
+        <!-- FILE D'ATTENTE -->
+        <div class="bs-settings-label">File d'attente</div>
+        <div class="bs-settings-group">
+          <button class="bs-settings-item" onclick="toggleExpand(this)">
+            <div class="bs-settings-ico" style="background:#FEF7E6; color:#D4920B;">
+              <span class="material-symbols-rounded" style="font-size:18px;">notifications_active</span>
+            </div>
+            <div class="bs-settings-txt">
+              <div class="bs-settings-name">Notifier a la position</div>
+              <div class="bs-settings-desc">Quand alerter le patient</div>
+            </div>
+            <span class="bs-settings-value">2</span>
+            <span class="material-symbols-rounded bs-settings-chev">chevron_right</span>
+          </button>
+          <div class="bs-expand">
+            <div class="bs-stepper">
+              <button class="bs-stepper-btn"><span class="material-symbols-rounded" style="font-size:18px;">remove</span></button>
+              <div class="bs-stepper-value">2</div>
+              <button class="bs-stepper-btn"><span class="material-symbols-rounded" style="font-size:18px;">add</span></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ABONNEMENT -->
+        <div class="bs-settings-label">Abonnement</div>
+        <div class="bs-settings-group">
+          <button class="bs-settings-item" onclick="toggleExpand(this)">
+            <div class="bs-settings-ico" style="background:#E8F5F1; color:#0F7B6C;">
+              <span class="material-symbols-rounded" style="font-size:18px;">credit_card</span>
+            </div>
+            <div class="bs-settings-txt">
+              <div class="bs-settings-name">Plan actuel</div>
+              <div class="bs-settings-desc">Gerez votre abonnement</div>
+            </div>
+            <span class="bs-status-chip">TRIAL</span>
+            <span class="material-symbols-rounded bs-settings-chev">chevron_right</span>
+          </button>
+          <div class="bs-expand">
+            <div class="bs-sub-info">
+              <div class="bs-sub-card">
+                <div class="bs-sub-label">Plan</div>
+                <div class="bs-sub-value">Essai gratuit</div>
+              </div>
+              <div class="bs-sub-card">
+                <div class="bs-sub-label">Jours restants</div>
+                <div class="bs-sub-value" style="color:#0F7B6C;">22</div>
+                <div class="bs-sub-date">21/03/2026</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- EXPERIENCE PATIENT -->
+        <div class="bs-settings-label">Experience patient</div>
+        <div class="bs-settings-group">
+          <div class="bs-settings-item" style="cursor:default;">
+            <div class="bs-settings-ico" style="background:#FEF7E6; color:#D4920B;">
+              <span class="material-symbols-rounded" style="font-size:18px;">auto_awesome</span>
+            </div>
+            <div class="bs-settings-txt">
+              <div class="bs-settings-name">Anecdotes medicales</div>
+              <div class="bs-settings-desc">Faits educatifs pendant l'attente</div>
+            </div>
+            <div class="bs-toggle on"><div class="bs-toggle-knob"></div></div>
+          </div>
+
+          <button class="bs-settings-item" onclick="toggleExpand(this)">
+            <div class="bs-settings-ico" style="background:#E8F5F1; color:#0F7B6C;">
+              <span class="material-symbols-rounded" style="font-size:18px;">medical_information</span>
+            </div>
+            <div class="bs-settings-txt">
+              <div class="bs-settings-name">Specialite</div>
+              <div class="bs-settings-desc">Pour les anecdotes personnalisees</div>
+            </div>
+            <span class="bs-settings-value">Ophtalmologie</span>
+            <span class="material-symbols-rounded bs-settings-chev">chevron_right</span>
+          </button>
+          <div class="bs-expand">
+            <div class="bs-specialty-grid">
+              <div class="bs-specialty-chip"><span class="material-symbols-rounded">local_hospital</span>Med. Generale</div>
+              <div class="bs-specialty-chip selected"><span class="material-symbols-rounded" style="font-variation-settings:'FILL' 1;">visibility</span>Ophtalmologie</div>
+              <div class="bs-specialty-chip"><span class="material-symbols-rounded">dentistry</span>Dentisterie</div>
+              <div class="bs-specialty-chip"><span class="material-symbols-rounded">cardiology</span>Cardiologie</div>
+              <div class="bs-specialty-chip"><span class="material-symbols-rounded">dermatology</span>Dermatologie</div>
+              <div class="bs-specialty-chip"><span class="material-symbols-rounded">pediatrics</span>Pediatrie</div>
+              <div class="bs-specialty-chip"><span class="material-symbols-rounded">gynecology</span>Gynecologie</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECURITE -->
+        <div class="bs-settings-label">Securite</div>
+        <div class="bs-settings-group">
+          <button class="bs-settings-item" onclick="toggleExpand(this)">
+            <div class="bs-settings-ico" style="background:#FDF0ED; color:#D94F3B;">
+              <span class="material-symbols-rounded" style="font-size:18px;">lock</span>
+            </div>
+            <div class="bs-settings-txt">
+              <div class="bs-settings-name">Changer le mot de passe</div>
+              <div class="bs-settings-desc">Securisez votre compte</div>
+            </div>
+            <span class="material-symbols-rounded bs-settings-chev">chevron_right</span>
+          </button>
+          <div class="bs-expand">
+            <div style="display:flex; flex-direction:column;">
+              <label class="bs-form-label">Mot de passe actuel</label>
+              <input class="bs-profile-input" type="password" placeholder="••••••••">
+              <label class="bs-form-label">Nouveau</label>
+              <input class="bs-profile-input" type="password" placeholder="Min. 8 caracteres">
+              <label class="bs-form-label">Confirmer</label>
+              <input class="bs-profile-input" type="password" placeholder="Retapez le mot de passe">
+              <button class="bs-btn-primary compact" style="margin-top:10px;">
+                <span class="material-symbols-rounded" style="font-size:16px;">lock</span>
+                Changer le mot de passe
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- EQUIPE MEDICALE -->
+        <div class="bs-settings-label">Equipe medicale</div>
+        <div class="bs-settings-group">
+          <button class="bs-settings-item" onclick="toggleExpand(this)">
+            <div class="bs-settings-ico" style="background:#EDF3FC; color:#3B7DD9;">
+              <span class="material-symbols-rounded" style="font-size:18px;">groups</span>
+            </div>
+            <div class="bs-settings-txt">
+              <div class="bs-settings-name">Medecins</div>
+              <div class="bs-settings-desc">Gerer l'equipe medicale</div>
+            </div>
+            <span class="bs-settings-value">2 medecins</span>
+            <span class="material-symbols-rounded bs-settings-chev">chevron_right</span>
+          </button>
+          <div class="bs-expand">
+            <div class="bs-doctor-row" style="padding-top:0;">
+              <div class="bs-settings-ico" style="background:#EDF3FC; color:#3B7DD9; width:28px; height:28px;">
+                <span class="material-symbols-rounded" style="font-size:14px;">person</span>
+              </div>
+              <div style="flex:1; min-width:0;">
+                <div style="font-size:13px; font-weight:500; color:#1A1A1A;">Dr. K. Jebali</div>
+                <div style="font-size:11px; color:#9E9B90;">Ophtalmologie</div>
+              </div>
+              <button class="bs-delete-btn"><span class="material-symbols-rounded" style="font-size:14px;">delete</span></button>
+            </div>
+            <div class="bs-doctor-row">
+              <div class="bs-settings-ico" style="background:#EDF3FC; color:#3B7DD9; width:28px; height:28px;">
+                <span class="material-symbols-rounded" style="font-size:14px;">person</span>
+              </div>
+              <div style="flex:1; min-width:0;">
+                <div style="font-size:13px; font-weight:500; color:#1A1A1A;">Dr. S. Meddeb</div>
+                <div style="font-size:11px; color:#9E9B90;">Retine</div>
+              </div>
+              <button class="bs-delete-btn"><span class="material-symbols-rounded" style="font-size:14px;">delete</span></button>
+            </div>
+            <div style="display:flex; gap:6px; margin-top:10px;">
+              <input class="bs-profile-input" type="text" placeholder="Nom" style="flex:1; height:36px; font-size:12px;">
+              <input class="bs-profile-input" type="text" placeholder="Spec." style="flex:1; height:36px; font-size:12px;">
+              <button class="bs-add-doctor-btn"><span class="material-symbols-rounded" style="font-size:16px;">person_add</span></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Floating Save -->
+        <div class="bs-float-save">
+          <button class="bs-btn-primary">
+            <span class="material-symbols-rounded" style="font-size:18px;">check</span>
+            Enregistrer les modifications
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="design-info">
+  <h2>Grouped Inline — Profil du cabinet</h2>
+  <p>Click "Profil du cabinet" on the Parametres screen to see the slide-from-right transition. Tap any row to expand and edit inline. Uses the exact .bs-settings-group pattern (rounded white cards, within padded body).</p>
+</div>
+
+<script>
+// ── Screen navigation with slide ──
+let currentScreen = 'settings';
+
+function navigateTo(screen) {
+  if (currentScreen === screen) return;
+
+  const from = document.getElementById('screen-' + currentScreen);
+  const to = document.getElementById('screen-' + screen);
+
+  if (screen === 'profile') {
+    // Forward: settings slides left, profile slides in from right
+    from.className = 'slide-screen left';
+    to.className = 'slide-screen center';
+  } else {
+    // Back: profile slides right, settings slides back to center
+    from.className = 'slide-screen right';
+    to.className = 'slide-screen center';
+  }
+
+  // Reset scroll on the target screen
+  to.scrollTop = 0;
+  currentScreen = screen;
+
+  // Update showcase nav
+  document.querySelectorAll('.screen-nav button').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.screen-nav button')[screen === 'settings' ? 0 : 1].classList.add('active');
+}
+
+function showScreen(screen, btn) {
+  navigateTo(screen);
+}
+
+// ── Expand/Collapse ──
+function toggleExpand(row) {
+  const expandSection = row.nextElementSibling;
+  if (!expandSection || !expandSection.classList.contains('bs-expand')) return;
+  const isOpen = expandSection.classList.contains('open');
+
+  // Close all in same screen
+  row.closest('.slide-screen').querySelectorAll('.bs-expand.open').forEach(s => {
+    if (s !== expandSection) s.classList.remove('open');
+  });
+
+  if (isOpen) {
+    expandSection.classList.remove('open');
+  } else {
+    expandSection.classList.add('open');
+  }
+}
+</script>
+</body>
+</html>
