@@ -254,6 +254,7 @@ export default function BSWhatsAppSheet({
               </div>
               <div
                 className="flex items-center"
+                dir="ltr"
                 style={{
                   border: '1.5px solid #E8E6DF',
                   borderRadius: 10,

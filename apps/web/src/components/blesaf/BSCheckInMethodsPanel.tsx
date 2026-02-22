@@ -320,7 +320,7 @@ export default function BSCheckInMethodsPanel({ isOpen, onClose }: BSCheckInMeth
                 <div style={{ fontSize: 12, fontWeight: 600, color: '#1A1A1A', marginBottom: 8 }}>
                   Numero WhatsApp
                 </div>
-                <div style={{
+                <div dir="ltr" style={{
                   display: 'flex', alignItems: 'center',
                   border: '1.5px solid #E8E6DF', borderRadius: 10,
                   overflow: 'hidden',

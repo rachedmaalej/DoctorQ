@@ -1072,6 +1072,20 @@
       "waiting": "En attente",
       "seen": "Vus",
       "estimatedEnd": "Fin estimée"
+    },
+    "sections": {
+      "inConsultation": "En consultation",
+      "waitingList": "File d'attente",
+      "preRegistered": "Pré-inscrits",
+      "remaining": "Restants"
+    },
+    "cta": {
+      "openQueue": "Ouvrir la file",
+      "callNext": "Appeler Suivant"
+    },
+    "share": {
+      "text": "{{count}} patients vus aujourd'hui",
+      "title": "Résumé — {{name}}"
     }
   },
   "settingsBs": {

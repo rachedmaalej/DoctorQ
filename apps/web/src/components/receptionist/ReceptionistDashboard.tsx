@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { QueueStatus } from '@/types';
 import type { ReceptionistDashboardProps, QueuePatient } from './types';
 import { useQueueLifecycle } from './useQueueLifecycle';
@@ -47,6 +48,7 @@ export default function ReceptionistDashboard({
   onToggleDoctorPresent,
   isTogglingPresence,
 }: ReceptionistDashboardProps) {
+  const { t } = useTranslation();
   const avgConsultMins = clinic?.avgConsultationMins ?? 10;
 
   // ── Lifecycle state machine ───────────────────────────────
@@ -163,10 +165,10 @@ export default function ReceptionistDashboard({
   }, []);
 
   const handleShare = useCallback(async () => {
-    const text = `${summaryData.totalPatientsSeen} patients vus aujourd'hui`;
+    const text = t('receptionist.share.text', { count: summaryData.totalPatientsSeen });
     if (navigator.share) {
       try {
-        await navigator.share({ title: `Résumé - ${clinic?.name ?? ''}`, text });
+        await navigator.share({ title: t('receptionist.share.title', { name: clinic?.name ?? '' }), text });
       } catch { /* user cancelled */ }
     }
   }, [summaryData.totalPatientsSeen, clinic?.name]);
@@ -218,7 +220,7 @@ export default function ReceptionistDashboard({
             {preRegistered.length > 0 && (
               <>
                 <div className="animate-bs-slide-in bs-anim-d3">
-                  <SectionHeader title="Pré-inscrits" />
+                  <SectionHeader title={t('receptionist.sections.preRegistered')} />
                 </div>
                 <div className="animate-bs-slide-in bs-anim-d4">
                   <PreRegisteredList patients={preRegistered} />
@@ -234,13 +236,13 @@ export default function ReceptionistDashboard({
             <QuickAddBar onSubmit={handleQuickAdd} />
             {currentPatient && (
               <>
-                <SectionHeader title="En consultation" />
+                <SectionHeader title={t('receptionist.sections.inConsultation')} />
                 <CurrentPatientCard patient={currentPatient} onNext={handleCallNextFromCard} />
               </>
             )}
             {queuePatients.length > 0 && (
               <>
-                <SectionHeader title="File d'attente" />
+                <SectionHeader title={t('receptionist.sections.waitingList')} />
                 <QueueList patients={queuePatients} onContextOpen={setContextPatient} whatsappSentIds={whatsappSentIds} />
               </>
             )}
@@ -253,13 +255,13 @@ export default function ReceptionistDashboard({
             <ClosingBanner />
             {currentPatient && (
               <>
-                <SectionHeader title="En consultation" />
+                <SectionHeader title={t('receptionist.sections.inConsultation')} />
                 <CurrentPatientCard patient={currentPatient} onNext={handleCallNextFromCard} />
               </>
             )}
             {queuePatients.length > 0 && (
               <>
-                <SectionHeader title="Restants" />
+                <SectionHeader title={t('receptionist.sections.remaining')} />
                 <QueueList patients={queuePatients} onContextOpen={setContextPatient} whatsappSentIds={whatsappSentIds} />
               </>
             )}
@@ -290,7 +292,7 @@ export default function ReceptionistDashboard({
         <FloatingCTA
           variant="green"
           icon="play_arrow"
-          label="Ouvrir la file"
+          label={t('receptionist.cta.openQueue')}
           onClick={openQueue}
         />
       )}
@@ -298,7 +300,7 @@ export default function ReceptionistDashboard({
         <FloatingCTA
           variant="accent"
           icon="arrow_forward"
-          label="Appeler Suivant"
+          label={t('receptionist.cta.callNext')}
           nextName={nextPreview}
           disabled={waitingEntries.length === 0 || !isDoctorPresent}
           onClick={onCallNext}

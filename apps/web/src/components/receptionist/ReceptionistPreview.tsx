@@ -3,6 +3,7 @@
  * Passes mock data so the dashboard can be viewed without authentication.
  */
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { mockData } from './mockData';
 import type { QueueScreenStatus } from './types';
 import './receptionist.css';
@@ -24,6 +25,7 @@ import SummaryActionBar from './SummaryActionBar';
 import { closingCurrentPatient, closingQueue, closingNextPreview } from './mockData';
 
 export default function ReceptionistPreview() {
+  const { t } = useTranslation();
   const [queueStatus, setQueueStatus] = useState<QueueScreenStatus>('PRE_OPEN');
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [isDoctorPresent, setIsDoctorPresent] = useState(mockData.isDoctorPresent);
@@ -88,7 +90,7 @@ export default function ReceptionistPreview() {
             {mockData.preRegisteredPatients.length > 0 && (
               <>
                 <div className="animate-bs-slide-in bs-anim-d3">
-                  <SectionHeader title="Pré-inscrits" />
+                  <SectionHeader title={t('receptionist.sections.preRegistered')} />
                 </div>
                 <div className="animate-bs-slide-in bs-anim-d4">
                   <PreRegisteredList patients={mockData.preRegisteredPatients} />
@@ -101,11 +103,11 @@ export default function ReceptionistPreview() {
         {showOpen && (
           <>
             <QuickAddBar />
-            <SectionHeader title="En consultation" />
+            <SectionHeader title={t('receptionist.sections.inConsultation')} />
             {currentPatient && (
               <CurrentPatientCard patient={currentPatient} onNext={handleCloseQueue} />
             )}
-            <SectionHeader title="File d'attente" />
+            <SectionHeader title={t('receptionist.sections.waitingList')} />
             <QueueList patients={activeQueue} />
           </>
         )}
@@ -113,9 +115,9 @@ export default function ReceptionistPreview() {
         {showClosing && (
           <>
             <ClosingBanner />
-            <SectionHeader title="En consultation" />
+            <SectionHeader title={t('receptionist.sections.inConsultation')} />
             {currentPatient && <CurrentPatientCard patient={currentPatient} />}
-            <SectionHeader title="Restants" />
+            <SectionHeader title={t('receptionist.sections.remaining')} />
             <QueueList patients={activeQueue} />
           </>
         )}
@@ -138,13 +140,13 @@ export default function ReceptionistPreview() {
       </div>
 
       {showPreOpen && (
-        <FloatingCTA variant="green" icon="play_arrow" label="Ouvrir la file" onClick={handleOpenQueue} />
+        <FloatingCTA variant="green" icon="play_arrow" label={t('receptionist.cta.openQueue')} onClick={handleOpenQueue} />
       )}
       {(showOpen || showClosing) && (
         <FloatingCTA
           variant="accent"
           icon="arrow_forward"
-          label="Appeler Suivant"
+          label={t('receptionist.cta.callNext')}
           nextName={nextPreview}
           onClick={showClosing ? handleShowAllDone : undefined}
         />
