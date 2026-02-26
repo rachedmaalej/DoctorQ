@@ -20,6 +20,7 @@ export function useQueueLifecycle(
   clinicId: string | undefined,
   queue: QueueEntry[],
   stats: QueueStats | null,
+  isDoctorPresent?: boolean,
 ) {
   // ── Read persisted state ──────────────────────────────────
   const [queueStatus, setQueueStatusRaw] = useState<QueueScreenStatus>(() => {
@@ -65,8 +66,8 @@ export function useQueueLifecycle(
   }, [clinicId]);
 
   // ── Auto-promote PRE_OPEN → OPEN ─────────────────────────
-  // Only promote when we can VERIFY the queue data belongs to this clinic
-  // (prevents stale cross-clinic promotions during admin impersonation switches)
+  // Promote when: (a) doctor already present (e.g. opened during onboarding),
+  // (b) verified queue activity for this clinic, or (c) seen count > 0.
   useEffect(() => {
     if (queueStatus !== 'PRE_OPEN' || !clinicId) return;
 
@@ -76,7 +77,8 @@ export function useQueueLifecycle(
     // Only trust stats.seen when we have at least one verified queue entry
     const hasSeen = myQueue.length > 0 && stats && stats.seen > 0;
 
-    if (hasSeen || hasInConsult) {
+    if (isDoctorPresent || hasSeen || hasInConsult) {
+      manuallyOpenedRef.current = true; // prevent stale-state reset
       setQueueStatus('OPEN');
       if (!dayOpenedAt) {
         const t = formatNow();
@@ -84,7 +86,7 @@ export function useQueueLifecycle(
         localStorage.setItem(lsKey('bs_day_opened', clinicId), t);
       }
     }
-  }, [queueStatus, stats, queue, clinicId, dayOpenedAt, setQueueStatus]);
+  }, [queueStatus, stats, queue, clinicId, dayOpenedAt, setQueueStatus, isDoctorPresent]);
 
   // ── Stale-state validator ─────────────────────────────────
   // Continuously checks: if OPEN with zero activity for this clinic,

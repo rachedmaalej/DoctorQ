@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BleSaf — C1 Sonar · Ajouter un patient</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,400,0,0&display=swap" rel="stylesheet">
+<style>
+
+/* ── MATERIAL SYMBOLS ── */
+.ms {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal; font-style: normal; font-size: 18px; line-height: 1;
+  letter-spacing: normal; text-transform: none;
+  display: inline-flex; align-items: center; justify-content: center;
+  white-space: nowrap; -webkit-font-smoothing: antialiased;
+  user-select: none; flex-shrink: 0;
+}
+.ms-f  { font-variation-settings: 'FILL' 1; }
+.ms-12 { font-size: 12px; }
+.ms-14 { font-size: 14px; }
+.ms-16 { font-size: 16px; }
+.ms-18 { font-size: 18px; }
+.ms-20 { font-size: 20px; }
+
+/* ── TOKENS ── */
+:root {
+  --green:     #2A7A52;
+  --green-dk:  #1F5E3E;
+  --green-lt:  #E8F5EE;
+  --green-mid: #3D9467;
+  --cream:     #F2F0EB;
+  --cream-dk:  #E8E5DF;
+  --cream-dkr: #DDD9D1;
+  --white:     #FFFFFF;
+  --t1:        #111111;
+  --t2:        #555555;
+  --t3:        #9A9690;
+  --red:       #D94040;
+  --border:    #E0DDD7;
+  --r-card:    16px;
+  --r-sm:      10px;
+  --r-xs:      6px;
+  --sh:        0 1px 4px rgba(0,0,0,0.05), 0 2px 8px rgba(0,0,0,0.04);
+  --font:      'DM Sans', system-ui, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font);
+  background: #C0BDB5;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 52px 20px 64px;
+  gap: 28px;
+}
+
+/* ── PHONE FRAME ── */
+.phone {
+  width: 390px;
+  background: var(--cream);
+  border-radius: 50px;
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
+  box-shadow:
+    0 0 0 10px #1E1E1E,
+    0 0 0 11px #3A3A3A,
+    0 40px 80px rgba(0,0,0,0.45),
+    0 14px 28px rgba(0,0,0,0.22);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Dynamic island */
+.island {
+  width: 120px; height: 34px;
+  background: #111; border-radius: 20px;
+  position: absolute; top: 13px; left: 50%;
+  transform: translateX(-50%); z-index: 200;
+}
+
+.phone-inner {
+  padding-top: 60px;
+  display: flex; flex-direction: column;
+  height: 780px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ── STATUS BAR ── */
+.sbar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0 24px 8px; flex-shrink: 0; background: var(--green);
+}
+.sbar-t { font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.9); }
+.sbar-r { display: flex; gap: 5px; align-items: center; }
+
+/* ── ZONE A ── */
+.za {
+  background: var(--green);
+  padding: 0 22px 18px;
+  flex-shrink: 0; position: relative; overflow: hidden;
+}
+.za::before {
+  content: ''; position: absolute;
+  top: -50px; right: -30px;
+  width: 150px; height: 150px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 50%; pointer-events: none;
+}
+.za::after {
+  content: ''; position: absolute;
+  bottom: 10px; left: -40px;
+  width: 100px; height: 100px;
+  background: rgba(255,255,255,0.025);
+  border-radius: 50%; pointer-events: none;
+}
+
+/* Topbar */
+.za-top {
+  display: flex; align-items: center;
+  justify-content: space-between; padding-bottom: 14px;
+}
+.za-clinic { font-size: 17px; font-weight: 700; color: white; letter-spacing: -0.2px; }
+.za-right { display: flex; align-items: center; gap: 7px; }
+.za-ar {
+  background: rgba(255,255,255,0.11); border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 99px; padding: 4px 10px;
+  font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.85); cursor: pointer;
+}
+.za-pres {
+  display: flex; align-items: center; gap: 5px;
+  background: rgba(255,255,255,0.11); border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 99px; padding: 4px 10px 4px 8px; cursor: pointer;
+}
+.za-pdot { width: 7px; height: 7px; border-radius: 50%; background: #5BE88A; }
+.za-ptext { font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.9); }
+.za-pres .ms { font-size: 13px !important; color: rgba(255,255,255,0.5); }
+.za-cb {
+  width: 28px; height: 28px;
+  background: rgba(255,255,255,0.11); border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;
+}
+.za-cb .ms { font-size: 14px !important; color: rgba(255,255,255,0.55); }
+
+/* Count + timer */
+.za-cr {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;
+}
+.za-cnt { display: flex; align-items: baseline; gap: 4px; }
+.za-num { font-size: 34px; font-weight: 800; color: white; line-height: 1; letter-spacing: -0.8px; }
+.za-unit { font-size: 13px; color: rgba(255,255,255,0.5); font-weight: 500; }
+.za-timer {
+  display: flex; align-items: center; gap: 5px;
+  background: rgba(255,255,255,0.11); border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 99px; padding: 5px 12px;
+}
+.za-timer .ms { font-size: 13px !important; color: rgba(255,255,255,0.65); }
+.za-ttime { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.9); font-variant-numeric: tabular-nums; }
+
+/* Current patient */
+.za-pat { margin-bottom: 13px; }
+.za-plbl {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  color: rgba(255,255,255,0.42); margin-bottom: 4px;
+}
+.za-pr { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.za-pname { font-size: 24px; font-weight: 800; color: white; letter-spacing: -0.4px; line-height: 1; }
+.za-pmeta { font-size: 10px; color: rgba(255,255,255,0.48); margin-top: 3px; }
+.za-pbtns { display: flex; gap: 6px; flex-shrink: 0; }
+.za-fin {
+  display: flex; align-items: center; gap: 5px;
+  background: white; color: var(--green-dk);
+  border: none; border-radius: 99px; padding: 8px 14px;
+  font-family: var(--font); font-size: 11px; font-weight: 700; cursor: pointer;
+}
+.za-fin .ms { font-size: 14px !important; color: var(--green); }
+.za-callbtn {
+  width: 34px; height: 34px; background: rgba(255,255,255,0.16);
+  border: none; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: white;
+}
+.za-callbtn .ms { font-size: 17px !important; }
+
+/* CTA */
+.za-cta {
+  width: 100%; background: white; color: var(--green-dk);
+  border: none; border-radius: var(--r-card); padding: 13px 16px;
+  font-family: var(--font); font-weight: 800; cursor: pointer;
+  display: flex; align-items: center; justify-content: space-between;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.11); transition: opacity 0.15s;
+}
+.za-cta:hover { opacity: 0.94; }
+.za-ctal { display: flex; align-items: center; gap: 9px; }
+.za-ctacirc {
+  width: 28px; height: 28px; background: var(--green); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.za-ctacirc .ms { font-size: 15px !important; color: white; }
+.za-ctamain { font-size: 13px; font-weight: 800; color: var(--green-dk); }
+.za-ctasub { font-size: 10px; color: var(--t2); font-weight: 500; margin-top: 1px; }
+.za-cta .ms-ch { color: rgba(42,122,82,0.25); font-size: 18px !important; }
+
+/* ── ZONE B ── */
+.zb { flex: 1; overflow-y: auto; scrollbar-width: none; background: var(--cream); }
+.zb::-webkit-scrollbar { display: none; }
+.zb-hd {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 13px 22px 8px;
+}
+.zb-lbl {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--t3);
+}
+.zb-cnt {
+  font-size: 10px; font-weight: 600; color: var(--t3);
+  background: var(--cream-dk); padding: 3px 8px; border-radius: 99px;
+}
+.ql { padding: 0 14px 10px; display: flex; flex-direction: column; gap: 7px; }
+.qr {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--r-sm); padding: 11px 13px;
+  display: flex; align-items: center; gap: 10px; box-shadow: var(--sh);
+}
+.qpos {
+  width: 28px; height: 28px; border-radius: 50%; background: var(--cream-dk);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: var(--t2); flex-shrink: 0;
+}
+.qi { flex: 1; min-width: 0; }
+.qn { font-size: 14px; font-weight: 600; color: var(--t1); }
+.qm { display: flex; align-items: center; gap: 5px; margin-top: 2px; }
+.qdot { width: 5px; height: 5px; border-radius: 50%; background: var(--red); flex-shrink: 0; }
+.qw { font-size: 11px; color: var(--t2); font-weight: 500; }
+.qsp { font-size: 11px; color: var(--cream-dkr); }
+.qmeth { font-size: 11px; color: var(--t3); display: flex; align-items: center; gap: 2px; }
+.qmeth .ms { font-size: 12px !important; }
+.qt { text-align: right; flex-shrink: 0; }
+.qt-t { font-size: 13px; font-weight: 700; color: var(--t1); font-variant-numeric: tabular-nums; }
+.qt-l { font-size: 9px; color: var(--t3); }
+.qbtns { display: flex; gap: 2px; flex-shrink: 0; }
+.qbtn {
+  width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+  background: none; border: none; border-radius: var(--r-xs); cursor: pointer; color: var(--t3);
+  transition: background 0.12s;
+}
+.qbtn:hover { background: var(--cream-dk); }
+.qbtn .ms { font-size: 16px !important; }
+
+/* ── ZONE C — SONAR HANDLE ── */
+.zc {
+  flex-shrink: 0;
+  background: var(--cream);
+  border-top: 1px solid var(--border);
+  padding: 10px 22px 18px;
+  display: flex; flex-direction: column; align-items: center;
+  cursor: pointer;
+  position: relative; z-index: 20;
+  /* Subtle upward fade to signal continuation */
+}
+/* Drag pill */
+.zc-pill {
+  width: 34px; height: 3.5px;
+  background: var(--cream-dkr); border-radius: 99px;
+  margin-bottom: 12px;
+}
+
+/* Sonar wrapper — positions the rings relative to chip */
+.sonar-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── RINGS ── */
+.ring {
+  position: absolute;
+  inset: -3px; /* start flush at chip border */
+  border-radius: 99px;
+  border: 1.5px solid var(--green);
+  opacity: 0;
+  pointer-events: none;
+  animation: sonar-expand 3s cubic-bezier(0.2, 0.6, 0.4, 1) infinite;
+}
+.ring:nth-child(1) { animation-delay: 0s; }
+.ring:nth-child(2) { animation-delay: 0.65s; }
+
+@keyframes sonar-expand {
+  0%   {
+    transform: scale(1);
+    opacity: 0.6;
+    border-width: 1.5px;
+  }
+  55%  {
+    transform: scale(1.62);
+    opacity: 0;
+    border-width: 0.5px;
+  }
+  100% {
+    transform: scale(1.62);
+    opacity: 0;
+    border-width: 0.5px;
+  }
+}
+
+/* ── THE CHIP ── */
+.chip {
+  position: relative; /* sits above rings in stacking context */
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 99px;
+  padding: 10px 20px 10px 15px;
+  font-family: var(--font); font-size: 14px; font-weight: 600;
+  color: var(--t1); cursor: pointer; white-space: nowrap;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
+  user-select: none;
+}
+.chip:hover {
+  border-color: rgba(42,122,82,0.35);
+  background: var(--green-lt);
+  color: var(--green-dk);
+  box-shadow: 0 3px 10px rgba(42,122,82,0.12);
+}
+.chip:hover .ms { color: var(--green-dk); }
+.chip .ms {
+  font-size: 20px !important;
+  color: var(--green);
+  transition: color 0.18s;
+}
+
+/* ── DRAWER OVERLAY ── */
+.d-ov {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.2);
+  z-index: 30;
+  border-radius: 42px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s;
+}
+.d-ov.open { opacity: 1; pointer-events: all; }
+
+/* ── DRAWER ── */
+.drawer {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: var(--white);
+  border-radius: 20px 20px 0 0;
+  z-index: 40;
+  transform: translateY(100%);
+  transition: transform 0.34s cubic-bezier(0.32, 0.72, 0, 1);
+  box-shadow: 0 -3px 20px rgba(0,0,0,0.09);
+  overflow: hidden;
+}
+.drawer.open { transform: translateY(0); }
+
+.d-pill {
+  width: 34px; height: 3.5px;
+  background: var(--cream-dkr); border-radius: 99px;
+  margin: 11px auto 16px;
+}
+.d-sec {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--t3); padding: 0 22px; margin-bottom: 12px;
+}
+.d-form { padding: 0 22px; }
+.d-fgrp { margin-bottom: 11px; }
+.d-lbl { font-size: 11px; font-weight: 600; color: var(--t2); display: block; margin-bottom: 5px; }
+.d-inp {
+  width: 100%; border: 1.5px solid var(--border); border-radius: var(--r-sm);
+  padding: 11px 14px; font-family: var(--font); font-size: 14px;
+  color: var(--t1); background: var(--cream); outline: none; transition: border-color 0.15s;
+}
+.d-inp:focus { border-color: var(--green); background: white; }
+.d-phwrap {
+  display: flex; border: 1.5px solid var(--border); border-radius: var(--r-sm);
+  overflow: hidden; background: var(--cream); transition: border-color 0.15s;
+}
+.d-phwrap:focus-within { border-color: var(--green); background: white; }
+.d-pfx {
+  padding: 11px 12px; background: var(--cream-dk);
+  border-right: 1px solid var(--border);
+  font-size: 13px; font-weight: 600; color: var(--t2);
+  display: flex; align-items: center; flex-shrink: 0;
+}
+.d-phwrap input {
+  flex: 1; border: none; background: transparent;
+  padding: 11px 13px; font-family: var(--font); font-size: 14px;
+  color: var(--t1); outline: none;
+}
+.d-sub {
+  width: 100%; background: var(--green); color: white;
+  border: none; border-radius: var(--r-sm); padding: 14px;
+  font-family: var(--font); font-size: 14px; font-weight: 700;
+  cursor: pointer; margin-top: 8px;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  transition: background 0.15s;
+}
+.d-sub:hover { background: var(--green-dk); }
+.d-sub .ms { font-size: 18px !important; }
+
+/* ── TOGGLE ── */
+.tog {
+  display: flex;
+  background: rgba(255,255,255,0.13);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 99px; padding: 3px;
+  gap: 3px;
+}
+.tog-btn {
+  display: flex; align-items: center; gap: 5px;
+  padding: 8px 20px; border-radius: 99px;
+  border: none; background: transparent;
+  font-family: var(--font); font-size: 12px; font-weight: 700;
+  color: rgba(255,255,255,0.45); cursor: pointer; transition: all 0.18s;
+}
+.tog-btn.on {
+  background: white; color: var(--t1);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+.tog-btn.on .ms { color: var(--green); }
+.tog-btn .ms { font-size: 15px !important; color: rgba(255,255,255,0.4); }
+
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="island"></div>
+  <div class="phone-inner">
+
+    <!-- Status bar -->
+    <div class="sbar">
+      <span class="sbar-t">9:41</span>
+      <div class="sbar-r">
+        <!-- Signal bars -->
+        <svg width="15" height="10" viewBox="0 0 15 10">
+          <rect x="0"   y="4"   width="2.5" height="6"   rx=".7" fill="rgba(255,255,255,.85)"/>
+          <rect x="4"   y="2.5" width="2.5" height="7.5" rx=".7" fill="rgba(255,255,255,.85)"/>
+          <rect x="8"   y=".5"  width="2.5" height="9.5" rx=".7" fill="rgba(255,255,255,.85)"/>
+          <rect x="12"  y=".5"  width="2.5" height="9.5" rx=".7" fill="rgba(255,255,255,.22)"/>
+        </svg>
+        <!-- WiFi -->
+        <svg width="15" height="11" viewBox="0 0 18 12" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="1.7" stroke-linecap="round">
+          <path d="M1 3.5a8 8 0 0116 0"/>
+          <path d="M4.5 7a5 5 0 019 0"/>
+          <circle cx="9" cy="10.5" r="1" fill="rgba(255,255,255,.85)" stroke="none"/>
+        </svg>
+        <!-- Battery -->
+        <svg width="24" height="11" viewBox="0 0 24 11" fill="none">
+          <rect x=".5" y=".5" width="19" height="10" rx="2.2" stroke="rgba(255,255,255,.55)" stroke-width="1.1"/>
+          <rect x="2" y="2" width="14" height="7" rx="1.4" fill="rgba(255,255,255,.88)"/>
+          <rect x="20.5" y="3.2" width="3" height="4.6" rx="1.1" fill="rgba(255,255,255,.4)"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Zone A -->
+    <div class="za">
+      <div class="za-top">
+        <span class="za-clinic">Cabinet Ben Ali</span>
+        <div class="za-right">
+          <button class="za-ar">عربي</button>
+          <div class="za-pres">
+            <div class="za-pdot"></div>
+            <span class="za-ptext">Présent</span>
+            <span class="ms ms-12">expand_more</span>
+          </div>
+          <div class="za-cb"><span class="ms ms-14">expand_more</span></div>
+        </div>
+      </div>
+
+      <div class="za-cr">
+        <div class="za-cnt">
+          <span class="za-num">3</span>
+          <span class="za-unit">patients</span>
+        </div>
+        <div class="za-timer">
+          <span class="ms">schedule</span>
+          <span class="za-ttime">~00:30</span>
+        </div>
+      </div>
+
+      <div class="za-pat">
+        <div class="za-plbl">En consultation</div>
+        <div class="za-pr">
+          <div>
+            <div class="za-pname">Salem</div>
+            <div class="za-pmeta">Arrivé 9:02 · 18 min en cours</div>
+          </div>
+          <div class="za-pbtns">
+            <button class="za-fin"><span class="ms ms-f">check_circle</span> Terminer</button>
+            <button class="za-callbtn"><span class="ms">call</span></button>
+          </div>
+        </div>
+      </div>
+
+      <button class="za-cta">
+        <div class="za-ctal">
+          <div class="za-ctacirc"><span class="ms ms-16">arrow_forward</span></div>
+          <div>
+            <div class="za-ctamain">Appeler Suivant</div>
+            <div class="za-ctasub">Sami · ~10 min d'attente</div>
+          </div>
+        </div>
+        <span class="ms ms-ch">chevron_right</span>
+      </button>
+    </div>
+
+    <!-- Zone B -->
+    <div class="zb">
+      <div class="zb-hd">
+        <span class="zb-lbl">File d'attente</span>
+        <span class="zb-cnt">2 en attente</span>
+      </div>
+      <div class="ql">
+        <div class="qr">
+          <div class="qpos">2</div>
+          <div class="qi">
+            <div class="qn">Sami</div>
+            <div class="qm">
+              <span class="qdot"></span>
+              <span class="qw">~10 min</span>
+              <span class="qsp">·</span>
+              <span class="qmeth"><span class="ms">qr_code_2</span>&thinsp;QR</span>
+            </div>
+          </div>
+          <div class="qt"><div class="qt-t">10:24</div><div class="qt-l">arrivée</div></div>
+          <div class="qbtns">
+            <button class="qbtn"><span class="ms">call</span></button>
+            <button class="qbtn"><span class="ms">more_vert</span></button>
+          </div>
+        </div>
+        <div class="qr">
+          <div class="qpos">3</div>
+          <div class="qi">
+            <div class="qn">Latifa</div>
+            <div class="qm">
+              <span class="qdot"></span>
+              <span class="qw">~20 min</span>
+              <span class="qsp">·</span>
+              <span class="qmeth"><span class="ms">edit</span>&thinsp;Manuel</span>
+            </div>
+          </div>
+          <div class="qt"><div class="qt-t">10:31</div><div class="qt-l">arrivée</div></div>
+          <div class="qbtns">
+            <button class="qbtn"><span class="ms">call</span></button>
+            <button class="qbtn"><span class="ms">more_vert</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Zone C — Sonar handle -->
+    <div class="zc" onclick="openDrawer()">
+      <div class="zc-pill"></div>
+      <div class="sonar-wrap">
+        <div class="ring"></div>
+        <div class="ring"></div>
+        <div class="chip">
+          <span class="ms ms-20">person_add</span>
+          Ajouter un patient
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /phone-inner -->
+
+  <!-- Overlay -->
+  <div class="d-ov" id="ov" onclick="closeDrawer()"></div>
+
+  <!-- Drawer -->
+  <div class="drawer" id="drawer">
+    <div class="d-pill"></div>
+    <div class="d-sec">Ajouter un patient</div>
+    <div class="d-form">
+      <div class="d-fgrp">
+        <label class="d-lbl">Nom complet</label>
+        <input class="d-inp" type="text" placeholder="Ex : Ben Ali Mohamed" autocomplete="off">
+      </div>
+      <div class="d-fgrp">
+        <label class="d-lbl">Téléphone</label>
+        <div class="d-phwrap">
+          <span class="d-pfx">+216</span>
+          <input type="tel" placeholder="XX XXX XXX" inputmode="numeric" autocomplete="off">
+        </div>
+      </div>
+      <button class="d-sub">
+        <span class="ms">person_add</span>
+        Ajouter à la file
+      </button>
+    </div>
+    <div style="height:16px"></div>
+  </div>
+</div>
+
+<!-- Toggle -->
+<div class="tog">
+  <button class="tog-btn on" id="btn-c" onclick="closeDrawer()">
+    <span class="ms">keyboard_arrow_down</span> Fermé
+  </button>
+  <button class="tog-btn" id="btn-o" onclick="openDrawer()">
+    <span class="ms">keyboard_arrow_up</span> Ouvert
+  </button>
+</div>
+
+<script>
+function openDrawer() {
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('ov').classList.add('open');
+  document.getElementById('btn-c').classList.remove('on');
+  document.getElementById('btn-o').classList.add('on');
+}
+function closeDrawer() {
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('ov').classList.remove('open');
+  document.getElementById('btn-c').classList.add('on');
+  document.getElementById('btn-o').classList.remove('on');
+}
+</script>
+
+</body>
+</html>

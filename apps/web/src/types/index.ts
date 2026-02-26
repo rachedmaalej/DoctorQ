@@ -75,7 +75,9 @@ export interface Clinic {
   isDoctorPresent?: boolean;
   businessType?: string;        // "medical" (default) or "retail"
   showAppointments?: boolean;   // true (default) or false
+  emailVerified?: boolean;
   onboardingCompleted?: boolean;
+  onboardingStep?: number;
   isAdmin?: boolean;
   uiLabels?: UILabels;          // Dynamic labels based on businessType
   specialty?: string | null;

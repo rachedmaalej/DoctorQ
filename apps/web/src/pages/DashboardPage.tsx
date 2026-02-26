@@ -13,6 +13,7 @@ import ConfirmModal from '@/components/ui/ConfirmModal';
 import AnnouncementModal from '@/components/queue/AnnouncementModal';
 import { Toast } from '@/components/ui/Toast';
 import TrialBanner from '@/components/ui/TrialBanner';
+// ActivationChecklist now lives inside BlesafDashboard empty state
 import DevStatsTooltip from '@/components/dashboard/DevStatsTooltip';
 import { QueueStatus } from '@/types';
 export default function DashboardPage() {
@@ -87,6 +88,24 @@ export default function DashboardPage() {
     <div className="min-h-screen" style={{ background: '#F5F0E8' }}>
       {/* Trial Expiration Banner */}
       <TrialBanner />
+
+      {/* Email verification banner */}
+      {clinic && !clinic.emailVerified && !clinic.isAdmin && !isImpersonating && (
+        <div className="mx-4 mt-3 px-4 py-3 rounded-lg flex items-center justify-between" style={{ backgroundColor: '#E8F5EE', border: '1px solid #C3E6D0' }}>
+          <p className="text-sm" style={{ color: '#1A1A2E' }}>
+            Confirmez votre email pour sécuriser votre compte.
+          </p>
+          <button
+            onClick={() => api.resendVerification(clinic.email).catch(() => {})}
+            className="text-sm font-medium ml-4 whitespace-nowrap"
+            style={{ color: '#1B7A4A' }}
+          >
+            Renvoyer
+          </button>
+        </div>
+      )}
+
+      {/* Activation checklist now integrated directly into BlesafDashboard empty state */}
 
       {/* Impersonation Banner */}
       {isImpersonating && (

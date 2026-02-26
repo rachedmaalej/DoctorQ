@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Setup Animation — 3 Options</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #E8E6E0;
+    min-height: 100vh;
+    padding: 40px 20px;
+  }
+
+  h1 {
+    text-align: center;
+    color: #1A1A2E;
+    font-size: 22px;
+    margin-bottom: 8px;
+  }
+  .subtitle {
+    text-align: center;
+    color: #888899;
+    font-size: 14px;
+    margin-bottom: 40px;
+  }
+
+  .options-grid {
+    display: flex;
+    gap: 32px;
+    justify-content: center;
+    flex-wrap: wrap;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .option-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+  .option-label {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1A1A2E;
+    text-align: center;
+  }
+  .option-desc {
+    font-size: 12px;
+    color: #888899;
+    text-align: center;
+    max-width: 300px;
+    line-height: 1.5;
+  }
+
+  /* ─── Phone Frame ─── */
+  .phone {
+    width: 340px;
+    height: 640px;
+    background: #F4F7F5;
+    border-radius: 32px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.06);
+    position: relative;
+  }
+
+  /* ─── Progress bar at top ─── */
+  .progress-bar {
+    display: flex;
+    align-items: center;
+    padding: 16px 24px;
+    gap: 0;
+  }
+  .progress-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #1B7A4A;
+    flex-shrink: 0;
+  }
+  .progress-dot.inactive {
+    background: #C8D6CD;
+  }
+  .progress-line {
+    flex: 1;
+    height: 3px;
+    background: #1B7A4A;
+  }
+  .progress-line.inactive {
+    background: #C8D6CD;
+  }
+
+  /* ─── Screen content ─── */
+  .screen-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: calc(100% - 42px);
+    padding: 0 32px;
+    text-align: center;
+  }
+  .brand {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1B7A4A;
+    margin-bottom: 32px;
+  }
+  .clinic-name {
+    font-size: 17px;
+    font-weight: 600;
+    color: #1B7A4A;
+    margin-top: 4px;
+  }
+
+  /* Replay button */
+  .replay-btn {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1B7A4A;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 20px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    opacity: 0.85;
+    transition: opacity 150ms;
+    z-index: 10;
+  }
+  .replay-btn:hover { opacity: 1; }
+
+  /* ════════════════════════════════════════════
+     OPTION A — Staggered Checklist
+     ════════════════════════════════════════════ */
+  .checklist {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    max-width: 260px;
+    margin-top: 28px;
+  }
+  .check-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  .check-item.show {
+    animation: checkItemIn 500ms ease-out forwards;
+  }
+  .check-circle {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid #C8D6CD;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 400ms ease;
+  }
+  .check-circle.done {
+    border-color: #1B7A4A;
+    background: #1B7A4A;
+    animation: checkPop 400ms ease;
+  }
+  .check-svg {
+    width: 14px;
+    height: 14px;
+    opacity: 0;
+  }
+  .check-circle.done .check-svg {
+    opacity: 1;
+  }
+  .check-svg path {
+    stroke: white;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+    stroke-dasharray: 20;
+    stroke-dashoffset: 20;
+  }
+  .check-circle.done .check-svg path {
+    animation: checkDraw 350ms 100ms ease forwards;
+  }
+  .check-text {
+    font-size: 14px;
+    color: #888899;
+    text-align: left;
+    transition: color 300ms;
+  }
+  .check-item.done .check-text {
+    color: #1A1A2E;
+    font-weight: 500;
+  }
+  /* spinner on active item */
+  .check-spinner {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid #E8F5EE;
+    border-top-color: #1B7A4A;
+    animation: spin 800ms linear infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes checkItemIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes checkPop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+  }
+  @keyframes checkDraw {
+    to { stroke-dashoffset: 0; }
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* ════════════════════════════════════════════
+     OPTION B — Progress Ring
+     ════════════════════════════════════════════ */
+  .ring-container {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin-top: 20px;
+  }
+  .ring-svg {
+    width: 120px;
+    height: 120px;
+    transform: rotate(-90deg);
+  }
+  .ring-bg {
+    fill: none;
+    stroke: #E0E8E3;
+    stroke-width: 5;
+  }
+  .ring-fg {
+    fill: none;
+    stroke: #1B7A4A;
+    stroke-width: 5;
+    stroke-linecap: round;
+    stroke-dasharray: 314;
+    stroke-dashoffset: 314;
+    transition: stroke-dashoffset 600ms ease;
+  }
+  .ring-percent {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 28px;
+    font-weight: 700;
+    color: #1A1A2E;
+  }
+  .ring-step-text {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #888899;
+    min-height: 20px;
+    transition: opacity 300ms;
+  }
+  /* Final checkmark in ring */
+  .ring-check {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: opacity 300ms;
+  }
+  .ring-check.show {
+    opacity: 1;
+  }
+  .ring-check svg {
+    width: 40px;
+    height: 40px;
+  }
+  .ring-check svg path {
+    stroke: #1B7A4A;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+    stroke-dasharray: 40;
+    stroke-dashoffset: 40;
+  }
+  .ring-check.show svg path {
+    animation: checkDraw 500ms 200ms ease forwards;
+  }
+
+  /* ════════════════════════════════════════════
+     OPTION C — Pulsing Blocks Build
+     ════════════════════════════════════════════ */
+  .blocks-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin-top: 28px;
+    width: 100%;
+    max-width: 260px;
+  }
+  .block-row {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+  }
+  .block {
+    flex: 1;
+    height: 48px;
+    border-radius: 10px;
+    background: #E0E8E3;
+    position: relative;
+    overflow: hidden;
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  .block.show {
+    animation: blockIn 500ms ease-out forwards;
+  }
+  .block.filled {
+    background: #E8F5EE;
+    border: 1.5px solid #C3E6D0;
+  }
+  .block.accent {
+    background: #1B7A4A;
+  }
+  .block-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 20px;
+    color: #1B7A4A;
+    opacity: 0;
+  }
+  .block.show .block-icon {
+    animation: iconFadeIn 400ms 300ms ease forwards;
+  }
+  .block.accent .block-icon {
+    color: white;
+  }
+  .block-shimmer {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  }
+  .block.show .block-shimmer {
+    animation: shimmer 800ms 200ms ease forwards;
+  }
+  .block-wide { flex: 2; }
+  .block-tall { height: 64px; }
+
+  .blocks-step-text {
+    margin-top: 8px;
+    font-size: 14px;
+    color: #888899;
+    min-height: 20px;
+  }
+  /* Final assembled state */
+  .blocks-final-text {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1A1A2E;
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  .blocks-final-text.show {
+    animation: checkItemIn 400ms ease-out forwards;
+  }
+
+  @keyframes blockIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @keyframes iconFadeIn {
+    from { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+    to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  }
+  @keyframes shimmer {
+    to { left: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<h1>Animation de configuration — 3 options</h1>
+<p class="subtitle">Ecran "Votre cabinet est prêt" — animation pendant la préparation du cabinet</p>
+
+<div class="options-grid">
+
+  <!-- ═══════════════════════════════════════════
+       OPTION A — Staggered Checklist
+       ═══════════════════════════════════════════ -->
+  <div class="option-wrapper">
+    <div class="option-label">A — Checklist animée</div>
+    <div class="option-desc">
+      Chaque étape apparaît, tourne, puis se coche. Pattern classique (Notion, Slack, Linear).
+      Rassurant, lisible, professionnel.
+    </div>
+    <div class="phone" id="phoneA">
+      <div class="progress-bar">
+        <div class="progress-dot"></div>
+        <div class="progress-line"></div>
+        <div class="progress-dot"></div>
+        <div class="progress-line inactive"></div>
+        <div class="progress-dot inactive"></div>
+      </div>
+      <div class="screen-content">
+        <div class="brand">BléSaf</div>
+        <div style="font-size:22px; font-weight:700; color:#1A1A2E;">Votre cabinet est prêt</div>
+        <div class="clinic-name">Clinique Ennasr</div>
+
+        <div class="checklist" id="checklistA">
+          <div class="check-item" data-text="Création du cabinet">
+            <div class="check-circle"><svg class="check-svg" viewBox="0 0 14 14"><path d="M2 7l3.5 3.5L12 4"/></svg></div>
+            <span class="check-text">Création du cabinet</span>
+          </div>
+          <div class="check-item" data-text="Configuration de la file">
+            <div class="check-circle"><svg class="check-svg" viewBox="0 0 14 14"><path d="M2 7l3.5 3.5L12 4"/></svg></div>
+            <span class="check-text">Configuration de la file</span>
+          </div>
+          <div class="check-item" data-text="Génération du QR code">
+            <div class="check-circle"><svg class="check-svg" viewBox="0 0 14 14"><path d="M2 7l3.5 3.5L12 4"/></svg></div>
+            <span class="check-text">Génération du QR code</span>
+          </div>
+        </div>
+      </div>
+      <button class="replay-btn" onclick="replayA()">Rejouer</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       OPTION B — Progress Ring
+       ═══════════════════════════════════════════ -->
+  <div class="option-wrapper">
+    <div class="option-label">B — Anneau de progression</div>
+    <div class="option-desc">
+      Anneau circulaire qui se remplit par étapes avec le pourcentage au centre.
+      Se transforme en checkmark à la fin. Minimaliste, médical.
+    </div>
+    <div class="phone" id="phoneB">
+      <div class="progress-bar">
+        <div class="progress-dot"></div>
+        <div class="progress-line"></div>
+        <div class="progress-dot"></div>
+        <div class="progress-line inactive"></div>
+        <div class="progress-dot inactive"></div>
+      </div>
+      <div class="screen-content">
+        <div class="brand">BléSaf</div>
+        <div style="font-size:22px; font-weight:700; color:#1A1A2E;">Votre cabinet est prêt</div>
+        <div class="clinic-name">Clinique Ennasr</div>
+
+        <div class="ring-container" id="ringB">
+          <svg class="ring-svg" viewBox="0 0 120 120">
+            <circle class="ring-bg" cx="60" cy="60" r="50"/>
+            <circle class="ring-fg" id="ringFg" cx="60" cy="60" r="50"/>
+          </svg>
+          <div class="ring-percent" id="ringPercent">0%</div>
+          <div class="ring-check" id="ringCheck">
+            <svg viewBox="0 0 40 40"><path d="M10 20l7 7L30 14"/></svg>
+          </div>
+        </div>
+        <div class="ring-step-text" id="ringStepText"></div>
+      </div>
+      <button class="replay-btn" onclick="replayB()">Rejouer</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       OPTION C — Pulsing Blocks Build
+       ═══════════════════════════════════════════ -->
+  <div class="option-wrapper">
+    <div class="option-label">C — Blocs qui s'assemblent</div>
+    <div class="option-desc">
+      Des blocs apparaissent un par un pour construire visuellement le tableau de bord.
+      Métaphore de construction, moderne, dynamique.
+    </div>
+    <div class="phone" id="phoneC">
+      <div class="progress-bar">
+        <div class="progress-dot"></div>
+        <div class="progress-line"></div>
+        <div class="progress-dot"></div>
+        <div class="progress-line inactive"></div>
+        <div class="progress-dot inactive"></div>
+      </div>
+      <div class="screen-content">
+        <div class="brand">BléSaf</div>
+        <div style="font-size:22px; font-weight:700; color:#1A1A2E;">Votre cabinet est prêt</div>
+        <div class="clinic-name">Clinique Ennasr</div>
+
+        <div class="blocks-container" id="blocksC">
+          <!-- Row 1: Header-like block -->
+          <div class="block-row">
+            <div class="block block-wide filled" data-step="0">
+              <span class="block-icon">🏥</span>
+              <div class="block-shimmer"></div>
+            </div>
+            <div class="block filled" data-step="0">
+              <span class="block-icon" style="font-size:16px;">●</span>
+              <div class="block-shimmer"></div>
+            </div>
+          </div>
+          <!-- Row 2: Stats chips -->
+          <div class="block-row">
+            <div class="block filled" data-step="1">
+              <span class="block-icon">0</span>
+              <div class="block-shimmer"></div>
+            </div>
+            <div class="block filled" data-step="1">
+              <span class="block-icon">0</span>
+              <div class="block-shimmer"></div>
+            </div>
+            <div class="block filled" data-step="1">
+              <span class="block-icon">—</span>
+              <div class="block-shimmer"></div>
+            </div>
+          </div>
+          <!-- Row 3: Queue area -->
+          <div class="block-row">
+            <div class="block block-wide block-tall filled" data-step="2">
+              <span class="block-icon">👥</span>
+              <div class="block-shimmer"></div>
+            </div>
+          </div>
+          <!-- Row 4: CTA -->
+          <div class="block-row">
+            <div class="block block-wide accent" data-step="3">
+              <span class="block-icon" style="font-size:14px; letter-spacing:0.5px;">Appeler →</span>
+              <div class="block-shimmer"></div>
+            </div>
+          </div>
+        </div>
+        <div class="blocks-step-text" id="blocksStepText"></div>
+        <div class="blocks-final-text" id="blocksFinalText">Tout est prêt ✓</div>
+      </div>
+      <button class="replay-btn" onclick="replayC()">Rejouer</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// OPTION A — Staggered Checklist
+// ═══════════════════════════════════════════
+let timerA = [];
+function runA() {
+  const items = document.querySelectorAll('#checklistA .check-item');
+  // Reset
+  items.forEach(item => {
+    item.classList.remove('show', 'done');
+    item.querySelector('.check-circle').classList.remove('done');
+    const spinner = item.querySelector('.check-spinner');
+    if (spinner) spinner.remove();
+  });
+
+  const steps = [
+    { delay: 400, showIdx: 0 },     // show item 0, start spinning
+    { delay: 1600, doneIdx: 0 },     // check item 0
+    { delay: 1800, showIdx: 1 },     // show item 1
+    { delay: 3000, doneIdx: 1 },     // check item 1
+    { delay: 3200, showIdx: 2 },     // show item 2
+    { delay: 4200, doneIdx: 2 },     // check item 2
+  ];
+
+  steps.forEach(step => {
+    const t = setTimeout(() => {
+      if (step.showIdx !== undefined) {
+        const item = items[step.showIdx];
+        item.classList.add('show');
+        // Replace circle with spinner
+        const circle = item.querySelector('.check-circle');
+        circle.style.display = 'none';
+        const spinner = document.createElement('div');
+        spinner.className = 'check-spinner';
+        circle.parentNode.insertBefore(spinner, circle);
+      }
+      if (step.doneIdx !== undefined) {
+        const item = items[step.doneIdx];
+        item.classList.add('done');
+        // Replace spinner with checked circle
+        const spinner = item.querySelector('.check-spinner');
+        if (spinner) spinner.remove();
+        const circle = item.querySelector('.check-circle');
+        circle.style.display = 'flex';
+        circle.classList.add('done');
+      }
+    }, step.delay);
+    timerA.push(t);
+  });
+}
+function replayA() { timerA.forEach(clearTimeout); timerA = []; runA(); }
+runA();
+
+// ═══════════════════════════════════════════
+// OPTION B — Progress Ring
+// ═══════════════════════════════════════════
+let timerB = [];
+const ringSteps = [
+  { pct: 0,   text: '' },
+  { pct: 15,  text: 'Création du cabinet...' },
+  { pct: 45,  text: 'Configuration de la file...' },
+  { pct: 75,  text: 'Génération du QR code...' },
+  { pct: 100, text: '' },
+];
+function runB() {
+  const fg = document.getElementById('ringFg');
+  const pctEl = document.getElementById('ringPercent');
+  const stepText = document.getElementById('ringStepText');
+  const check = document.getElementById('ringCheck');
+  const circumference = 314;
+
+  // Reset
+  fg.style.strokeDashoffset = circumference;
+  pctEl.textContent = '0%';
+  pctEl.style.display = 'block';
+  stepText.textContent = '';
+  check.classList.remove('show');
+
+  const delays = [300, 1200, 2200, 3200, 4200];
+  delays.forEach((delay, i) => {
+    const t = setTimeout(() => {
+      const step = ringSteps[i];
+      const offset = circumference - (circumference * step.pct / 100);
+      fg.style.strokeDashoffset = offset;
+      stepText.textContent = step.text;
+
+      if (step.pct < 100) {
+        // Animate count
+        const prevPct = i > 0 ? ringSteps[i-1].pct : 0;
+        animateCount(pctEl, prevPct, step.pct, 500);
+      } else {
+        animateCount(pctEl, ringSteps[i-1].pct, 100, 400);
+        setTimeout(() => {
+          pctEl.style.display = 'none';
+          check.classList.add('show');
+          fg.style.stroke = '#1B7A4A';
+        }, 500);
+      }
+    }, delay);
+    timerB.push(t);
+  });
+}
+function animateCount(el, from, to, duration) {
+  const start = performance.now();
+  function update(now) {
+    const progress = Math.min((now - start) / duration, 1);
+    const value = Math.round(from + (to - from) * progress);
+    el.textContent = value + '%';
+    if (progress < 1) requestAnimationFrame(update);
+  }
+  requestAnimationFrame(update);
+}
+function replayB() { timerB.forEach(clearTimeout); timerB = []; runB(); }
+runB();
+
+// ═══════════════════════════════════════════
+// OPTION C — Pulsing Blocks Build
+// ═══════════════════════════════════════════
+let timerC = [];
+const blockSteps = [
+  'En-tête du tableau de bord...',
+  'Statistiques en temps réel...',
+  'File d\'attente...',
+  'Actions rapides...',
+];
+function runC() {
+  const blocks = document.querySelectorAll('#blocksC .block');
+  const stepText = document.getElementById('blocksStepText');
+  const finalText = document.getElementById('blocksFinalText');
+
+  // Reset
+  blocks.forEach(b => b.classList.remove('show'));
+  stepText.textContent = '';
+  finalText.classList.remove('show');
+
+  // Group blocks by data-step
+  const groups = {};
+  blocks.forEach(b => {
+    const s = b.dataset.step;
+    if (!groups[s]) groups[s] = [];
+    groups[s].push(b);
+  });
+
+  const delays = [500, 1400, 2300, 3200];
+  delays.forEach((delay, i) => {
+    const t = setTimeout(() => {
+      stepText.textContent = blockSteps[i];
+      if (groups[i]) {
+        groups[i].forEach((b, j) => {
+          setTimeout(() => b.classList.add('show'), j * 100);
+        });
+      }
+    }, delay);
+    timerC.push(t);
+  });
+
+  // Final
+  const tf = setTimeout(() => {
+    stepText.textContent = '';
+    finalText.classList.add('show');
+  }, 4200);
+  timerC.push(tf);
+}
+function replayC() { timerC.forEach(clearTimeout); timerC = []; runC(); }
+runC();
+</script>
+</body>
+</html>

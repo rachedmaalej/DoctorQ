@@ -6,17 +6,17 @@ import { webBrand } from './lib/brand';
 // Lazy load pages for code splitting - reduces initial bundle by ~40%
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const SignupPage = lazy(() => import('./pages/SignupPage'));
+const SetupPage = lazy(() => import('./pages/SetupPage'));
+const WelcomePage = lazy(() => import('./pages/WelcomePage'));
 const DashboardPage = lazy(() => import('./pages/DashboardPage'));
 const PatientStatusPage = lazy(() => import('./pages/PatientStatusPage'));
 const CheckInPage = lazy(() => import('./pages/CheckInPage'));
-const OnboardingPage = lazy(() => import('./pages/OnboardingPage'));
 const SubscriptionPage = lazy(() => import('./pages/SubscriptionPage'));
 const VerifyEmailPage = lazy(() => import('./pages/VerifyEmailPage'));
 const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage'));
 const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage'));
 const SettingsPage = lazy(() => import('./pages/SettingsPage'));
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
-// Legacy ClinicDetailPage no longer used — /admin/clinic/:id redirects to /admin/clinics/:id
 const ClinicsDirectoryPage = lazy(() => import('./pages/admin/clinics/ClinicsDirectoryPage'));
 const ClinicsClinicDetailPage = lazy(() => import('./pages/admin/clinics/ClinicDetailPage'));
 const LandingPage = lazy(() => import('./pages/LandingPage'));
@@ -25,6 +25,7 @@ const TermsPage = lazy(() => import('./pages/TermsPage'));
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
 const TeaserPage = lazy(() => import('./pages/TeaserPage'));
 const ReceptionistPreview = lazy(() => import('./components/receptionist/ReceptionistPreview'));
+const DemoSimulation = lazy(() => import('./components/demo/DemoSimulation'));
 
 // Lightweight loading spinner for Suspense fallback
 function PageLoader() {
@@ -41,7 +42,8 @@ function LegacyClinicRedirect() {
 }
 
 function App() {
-  const { isAuthenticated, isLoading, checkAuth } = useAuthStore();
+  const { isAuthenticated, isLoading, checkAuth, clinic, isImpersonating } = useAuthStore();
+  const needsOnboarding = isAuthenticated && !clinic?.isAdmin && !isImpersonating && !clinic?.onboardingCompleted;
 
   useEffect(() => {
     checkAuth();
@@ -61,9 +63,32 @@ function App() {
   return (
     <Suspense fallback={<PageLoader />}>
       <Routes>
-        {/* Root redirects to dashboard (if logged in) or login */}
-        <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" /> : (webBrand.id === 'france' ? <LandingPageFr /> : <LandingPage />)} />
-        <Route path="/signup" element={!isAuthenticated ? <SignupPage /> : <Navigate to="/dashboard" />} />
+        {/* Root redirects to dashboard (if logged in) or landing */}
+        <Route path="/" element={isAuthenticated ? <Navigate to={needsOnboarding ? '/signup/setup' : '/dashboard'} /> : (webBrand.id === 'france' ? <LandingPageFr /> : <LandingPage />)} />
+
+        {/* Signup flow (3 steps) */}
+        <Route path="/signup" element={
+          isAuthenticated
+            ? <Navigate to={needsOnboarding ? '/signup/setup' : '/dashboard'} />
+            : <SignupPage />
+        } />
+        <Route path="/signup/setup" element={
+          isAuthenticated
+            ? (clinic?.onboardingCompleted ? <Navigate to="/dashboard" /> : <SetupPage />)
+            : <Navigate to="/signup" />
+        } />
+        <Route path="/welcome" element={
+          isAuthenticated
+            ? (clinic?.onboardingCompleted ? <Navigate to="/dashboard" /> : <WelcomePage />)
+            : <Navigate to="/signup" />
+        } />
+
+        {/* Legacy /onboarding → redirect to new flow */}
+        <Route path="/onboarding" element={
+          isAuthenticated
+            ? <Navigate to={needsOnboarding ? '/signup/setup' : '/dashboard'} replace />
+            : <Navigate to="/login" />
+        } />
 
         {/* Public auth routes */}
         <Route path="/login" element={!isAuthenticated ? <LoginPage /> : <Navigate to="/dashboard" />} />
@@ -76,19 +101,16 @@ function App() {
         <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/teaser" element={<TeaserPage />} />
         <Route path="/receptionist" element={<ReceptionistPreview />} />
+        <Route path="/demo" element={<div className="min-h-screen flex items-center justify-center bg-gray-100"><DemoSimulation /></div>} />
 
         {/* Protected routes */}
         <Route
           path="/dashboard"
           element={
             isAuthenticated
-              ? <DashboardPage />
+              ? (needsOnboarding ? <Navigate to="/signup/setup" /> : <DashboardPage />)
               : <Navigate to="/login" />
           }
-        />
-        <Route
-          path="/onboarding"
-          element={isAuthenticated ? <OnboardingPage /> : <Navigate to="/login" />}
         />
         <Route
           path="/subscription"

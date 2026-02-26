@@ -1,5 +1,4 @@
 import { useState, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
 import type { QueueEntry, QueueStats } from '@/types';
 import { QueueStatus } from '@/types';
 import { useAuthStore } from '@/stores/authStore';
@@ -12,6 +11,7 @@ import BSCurrentPatient from './BSCurrentPatient';
 import BSQueueList from './BSQueueList';
 import BSFloatingCTA from './BSFloatingCTA';
 import BSAddPatientSheet from './BSAddPatientSheet';
+import ActivationChecklist from '../onboarding/ActivationChecklist';
 
 interface BlesafDashboardProps {
   queue: QueueEntry[];
@@ -38,7 +38,6 @@ export default function BlesafDashboard({
   isDoctorPresent,
   onToggleDoctorPresent,
 }: BlesafDashboardProps) {
-  const { t } = useTranslation();
   const { clinic } = useAuthStore();
   const [isAddSheetOpen, setIsAddSheetOpen] = useState(false);
   const [quickAddName, setQuickAddName] = useState('');
@@ -137,15 +136,8 @@ export default function BlesafDashboard({
         onRemovePatient={onRemovePatient}
       />
 
-      {/* Empty State */}
-      {queue.length === 0 && (
-        <div className="bs-empty-state">
-          <div className="bs-empty-icon">
-            <span className="material-symbols-rounded">groups</span>
-          </div>
-          <div className="bs-empty-text">{t('blesaf.empty.text')}</div>
-        </div>
-      )}
+      {/* Empty State — contextual activation guidance for new clinics */}
+      {queue.length === 0 && <ActivationChecklist />}
 
       {/* Floating CTA */}
       {waitingCount > 0 && (

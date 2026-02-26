@@ -17,6 +17,7 @@ import {
   sendPasswordResetEmail,
   sendWelcomeEmail,
 } from '../lib/email.js';
+import { signToken } from '../lib/auth.js';
 import { prisma } from '../lib/prisma.js';
 import { logger } from '../lib/logger.js';
 
@@ -63,23 +64,26 @@ router.post('/', async (req: Request, res: Response) => {
 
     const result = await registerClinic(data);
 
-    // Send verification email
-    await sendVerificationEmail(
+    // Send verification email in background (non-blocking)
+    sendVerificationEmail(
       result.email,
       data.name,
       result.verificationToken,
       data.language || 'fr'
-    );
+    ).catch((err) => logger.error({ err }, 'Failed to send verification email'));
+
+    // Issue JWT immediately — no email verification gate
+    const token = signToken({
+      clinicId: result.clinicId,
+      email: result.email,
+      name: data.name,
+    });
 
     res.status(201).json({
       data: {
-        message: 'Account created successfully. Please check your email to verify your account.',
+        token,
         clinicId: result.clinicId,
-        email: result.email,
-        // Remove this in production - only for development
-        ...(process.env.NODE_ENV === 'development' && {
-          _devOnly: { verificationToken: result.verificationToken },
-        }),
+        clinicName: data.name,
       },
     });
   } catch (error) {
