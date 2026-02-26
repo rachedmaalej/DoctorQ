@@ -585,97 +585,171 @@
     }
 
     /* ============================================
-       4. CLINIC DASHBOARD (doctor side)
+       4. CLINIC DASHBOARD — Annotated Screenshot
        ============================================ */
     .clinic-section {
-      background: #FFFFFF;
-    }
-    .dashboard-wrapper {
-      max-width: 400px;
-      margin: 0 auto;
-    }
-    .dashboard {
-      background: #FFFFFF;
-      border-radius: 16px;
-      border: 1px solid #E2E8F0;
+      background: #F8FAFC;
       overflow: hidden;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
     }
-    .dash-header {
-      background: #0F172A;
-      padding: 12px 16px;
+
+    .dashboard-showcase {
+      position: relative;
+      max-width: 780px;
+      margin: 0 auto;
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      justify-content: center;
+      min-height: 560px;
     }
-    .dash-title {
+
+    /* Phone frame for real screenshot */
+    .showcase-phone {
+      width: 270px;
+      flex-shrink: 0;
+      border-radius: 32px;
+      border: 6px solid #1E293B;
+      overflow: hidden;
+      box-shadow:
+        0 20px 60px rgba(0,0,0,0.12),
+        0 0 0 1px rgba(0,0,0,0.04);
+      position: relative;
+      z-index: 2;
+      background: #FFF;
+    }
+    .showcase-phone img {
+      width: 100%;
+      display: block;
+      /* Crop the admin "Vue en tant que" bar from top */
+      margin-top: -32px;
+    }
+
+    /* Pulsing hotspot dots */
+    .hotspot {
+      position: absolute;
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: #0EA5E9;
+      z-index: 3;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+    .hotspot.visible { opacity: 1; }
+    .hotspot::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      border: 2px solid rgba(14, 165, 233, 0.4);
+      animation: hs-ping 2s ease-in-out infinite;
+    }
+    @keyframes hs-ping {
+      0%, 100% { transform: scale(1); opacity: 0.6; }
+      50% { transform: scale(1.8); opacity: 0; }
+    }
+
+    /* Connector lines from hotspot to callout */
+    .connector {
+      position: absolute;
+      z-index: 1;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+    .connector.visible { opacity: 1; }
+    .connector-line {
+      stroke: #CBD5E1;
+      stroke-width: 1.5;
+      stroke-dasharray: 4 3;
+      fill: none;
+    }
+
+    /* Callout bubbles */
+    .callout {
+      position: absolute;
+      width: 210px;
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 14px;
+      padding: 14px 16px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+      z-index: 4;
+      opacity: 0;
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .callout.callout-left {
+      transform: translateX(-12px);
+    }
+    .callout.callout-right {
+      transform: translateX(12px);
+    }
+    .callout.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    .callout-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: #0EA5E9;
+      color: #FFF;
+      font-size: 11px;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+    .callout-title {
       font-size: 13px;
       font-weight: 700;
-      color: #E2E8F0;
+      color: #0F172A;
+      margin-bottom: 3px;
+      line-height: 1.3;
     }
-    .dash-badge {
-      font-size: 10px;
-      background: #10B981;
-      color: #FFF;
-      padding: 3px 10px;
-      border-radius: 8px;
-      font-weight: 600;
+    .callout-desc {
+      font-size: 11px;
+      color: #64748B;
+      line-height: 1.5;
     }
-    .dash-body { padding: 14px 16px; }
-    .dash-stats {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 14px;
+
+    /* Callout positions — desktop */
+    .callout-1 { top: 30px; right: calc(50% + 175px); }
+    .callout-2 { top: 180px; left: calc(50% + 175px); }
+    .callout-3 { top: 340px; right: calc(50% + 175px); }
+    .callout-4 { top: 470px; left: calc(50% + 175px); }
+
+    /* Responsive: stack below on mobile */
+    @media (max-width: 780px) {
+      .dashboard-showcase {
+        flex-direction: column;
+        min-height: auto;
+        gap: 32px;
+      }
+      .showcase-phone { width: 250px; }
+      .hotspot, .connector { display: none; }
+      .callout {
+        position: static !important;
+        width: 100%;
+        max-width: 360px;
+        transform: none !important;
+        opacity: 0;
+      }
+      .callout.visible {
+        transform: none !important;
+      }
+      .callouts-mobile {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        align-items: center;
+        padding: 0 20px;
+      }
     }
-    .dash-stat {
-      flex: 1;
-      text-align: center;
-      padding: 10px 8px;
-      background: #F8FAFC;
-      border-radius: 10px;
+    @media (min-width: 781px) {
+      .callouts-mobile { display: contents; }
     }
-    .dash-stat-val {
-      font-size: 20px;
-      font-weight: 900;
-      color: #0EA5E9;
-    }
-    .dash-stat-label {
-      font-size: 10px;
-      color: #94A3B8;
-    }
-    .dash-queue {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .dash-patient {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 10px;
-      background: #F8FAFC;
-      border-radius: 10px;
-    }
-    .dash-patient-pos {
-      font-size: 12px;
-      font-weight: 800;
-      color: #0EA5E9;
-      width: 22px;
-    }
-    .dash-patient-name {
-      font-size: 12px;
-      font-weight: 600;
-      color: #334155;
-      flex: 1;
-    }
-    .dash-patient-status {
-      font-size: 9px;
-      font-weight: 600;
-      padding: 3px 8px;
-      border-radius: 6px;
-    }
-    .status-waiting { background: #FEF3C7; color: #92400E; }
-    .status-notified { background: #DBEAFE; color: #1E40AF; }
+
     .dash-btn {
       display: block;
       width: 100%;
@@ -1093,43 +1167,50 @@
   <!-- ==========================================
        4. CLINIC DASHBOARD
        ========================================== -->
-  <section class="clinic-section section-pad">
+  <section class="clinic-section section-pad" id="dashboard-section">
     <div class="section-title">Votre tableau de bord</div>
-    <div class="section-sub">Gérez votre file en un coup d'œil. Appelez le patient suivant en un clic.</div>
-    <div class="dashboard-wrapper">
-      <div class="dashboard">
-        <div class="dash-header">
-          <div class="dash-title">Cabinet Dr. Ben Ali</div>
-          <div class="dash-badge">En ligne</div>
+    <div class="section-sub">Tout ce dont vous avez besoin, sur un seul écran. Zéro formation requise.</div>
+
+    <div class="dashboard-showcase">
+      <!-- Phone frame with real screenshot -->
+      <div class="showcase-phone">
+        <img src="Dr_dashboard_05.png" alt="Tableau de bord BleSaf — vue réelle du cabinet" />
+        <!-- Pulsing hotspot dots -->
+        <div class="hotspot" id="hs-1" style="top: 20%; left: 35%"></div>
+        <div class="hotspot" id="hs-2" style="top: 44%; left: 55%"></div>
+        <div class="hotspot" id="hs-3" style="top: 70%; left: 40%"></div>
+        <div class="hotspot" id="hs-4" style="top: 90%; left: 50%"></div>
+      </div>
+
+      <!-- SVG connector lines (desktop only) -->
+      <svg class="connector" id="conn-svg" width="100%" height="100%" style="position:absolute;inset:0;pointer-events:none;" preserveAspectRatio="none">
+        <line class="connector-line" id="cl-1" x1="0" y1="0" x2="0" y2="0" />
+        <line class="connector-line" id="cl-2" x1="0" y1="0" x2="0" y2="0" />
+        <line class="connector-line" id="cl-3" x1="0" y1="0" x2="0" y2="0" />
+        <line class="connector-line" id="cl-4" x1="0" y1="0" x2="0" y2="0" />
+      </svg>
+
+      <!-- Callout bubbles -->
+      <div class="callouts-mobile">
+        <div class="callout callout-left callout-1" data-index="0">
+          <div class="callout-num">1</div>
+          <div class="callout-title">Tout d'un coup d'oeil</div>
+          <div class="callout-desc">Combien attendent, combien consultés, et quand vous finissez votre journée.</div>
         </div>
-        <div class="dash-body">
-          <div class="dash-stats">
-            <div class="dash-stat">
-              <div class="dash-stat-val">5</div>
-              <div class="dash-stat-label">En attente</div>
-            </div>
-            <div class="dash-stat">
-              <div class="dash-stat-val">1</div>
-              <div class="dash-stat-label">En consultation</div>
-            </div>
-            <div class="dash-stat">
-              <div class="dash-stat-val">12</div>
-              <div class="dash-stat-label">Vus aujourd'hui</div>
-            </div>
-          </div>
-          <div class="dash-queue">
-            <div class="dash-patient">
-              <div class="dash-patient-pos">#4</div>
-              <div class="dash-patient-name">Maya T.</div>
-              <div class="dash-patient-status status-notified">Notifié</div>
-            </div>
-            <div class="dash-patient">
-              <div class="dash-patient-pos">#5</div>
-              <div class="dash-patient-name">Sami B.</div>
-              <div class="dash-patient-status status-waiting">En attente</div>
-            </div>
-          </div>
-          <button class="dash-btn">Appeler suivant</button>
+        <div class="callout callout-right callout-2" data-index="1">
+          <div class="callout-num">2</div>
+          <div class="callout-title">Patient en consultation</div>
+          <div class="callout-desc">Nom, heure d'arrivée et durée. Terminez en un clic quand c'est fini.</div>
+        </div>
+        <div class="callout callout-left callout-3" data-index="2">
+          <div class="callout-num">3</div>
+          <div class="callout-title">File d'attente en direct</div>
+          <div class="callout-desc">Se met à jour automatiquement. Les patients suivent leur position sur leur téléphone.</div>
+        </div>
+        <div class="callout callout-right callout-4" data-index="3">
+          <div class="callout-num">4</div>
+          <div class="callout-title">Appeler le suivant</div>
+          <div class="callout-desc">Un seul bouton. Le patient est notifié instantanément sur son téléphone.</div>
         </div>
       </div>
     </div>
@@ -1462,6 +1543,55 @@
       }
 
       startAnim();
+    })();
+
+    /* =============================================
+       DASHBOARD SECTION — Scroll-triggered callouts
+       ============================================= */
+    (function() {
+      var section = document.getElementById('dashboard-section');
+      if (!section) return;
+
+      var callouts = section.querySelectorAll('.callout');
+      var hotspots = section.querySelectorAll('.hotspot');
+      var connSvg = document.getElementById('conn-svg');
+      var triggered = false;
+
+      function revealCallouts() {
+        if (triggered) return;
+        triggered = true;
+
+        // Show hotspots first
+        hotspots.forEach(function(hs, i) {
+          setTimeout(function() { hs.classList.add('visible'); }, i * 150);
+        });
+
+        // Show connector SVG
+        if (connSvg) {
+          setTimeout(function() { connSvg.classList.add('visible'); }, 200);
+        }
+
+        // Show callouts with stagger
+        callouts.forEach(function(el, i) {
+          setTimeout(function() { el.classList.add('visible'); }, 300 + i * 250);
+        });
+      }
+
+      // IntersectionObserver for scroll trigger
+      if ('IntersectionObserver' in window) {
+        var observer = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+              revealCallouts();
+              observer.disconnect();
+            }
+          });
+        }, { threshold: 0.2 });
+        observer.observe(section);
+      } else {
+        // Fallback: just show everything
+        revealCallouts();
+      }
     })();
   </script>
 
