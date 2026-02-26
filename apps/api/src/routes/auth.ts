@@ -46,17 +46,6 @@ router.post('/login', async (req: Request, res: Response) => {
       });
     }
 
-    // Check email verification
-    if (!clinic.emailVerified) {
-      return res.status(403).json({
-        error: {
-          code: 'EMAIL_NOT_VERIFIED',
-          message: 'Please verify your email before logging in.',
-          email: clinic.email,
-        },
-      });
-    }
-
     // Update last login timestamp (for churn tracking)
     await prisma.clinic.update({
       where: { id: clinic.id },
@@ -98,6 +87,7 @@ router.post('/login', async (req: Request, res: Response) => {
           isDoctorPresent: clinic.isDoctorPresent,
           businessType: clinic.businessType || 'medical',
           showAppointments: clinic.showAppointments !== false,
+          emailVerified: clinic.emailVerified,
           onboardingCompleted: clinic.onboardingCompleted,
           subscriptionStatus: clinic.subscriptionStatus,
           subscriptionPlan: clinic.subscriptionPlan,
@@ -156,6 +146,7 @@ router.get('/me', authMiddleware, async (req: AuthRequest, res: Response) => {
         isDoctorPresent: true,
         businessType: true,
         showAppointments: true,
+        emailVerified: true,
         onboardingCompleted: true,
         onboardingStep: true,
         multiDoctorEnabled: true,

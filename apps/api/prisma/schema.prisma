@@ -91,6 +91,15 @@ model Clinic {
   onboardingCompleted   Boolean   @default(false)
   onboardingStep        Int       @default(0)
 
+  // Activation checklist (backend-persisted)
+  activationQrDownloaded       Boolean   @default(false)
+  activationFirstPatient       Boolean   @default(false)
+  activationChecklistDismissed Boolean   @default(false)
+
+  // Behavior-triggered email tracking (for future cron jobs)
+  qrReminderSentAt             DateTime?
+  noPatientReminderSentAt      DateTime?
+
   createdAt           DateTime     @default(now())
   updatedAt           DateTime     @updatedAt
 

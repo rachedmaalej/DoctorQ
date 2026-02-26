@@ -191,14 +191,15 @@ class ApiClient {
     name: string;
     email: string;
     password: string;
-    doctorName?: string;
-    phone?: string;
     language?: 'fr' | 'ar';
-  }): Promise<{ message: string; clinicId: string; email: string }> {
-    return this.request('/api/signup', {
+  }): Promise<{ token: string; clinicId: string; clinicName: string }> {
+    const response = await this.request<{ token: string; clinicId: string; clinicName: string }>('/api/signup', {
       method: 'POST',
       body: JSON.stringify(data),
     });
+    // Auto-login: store the token immediately
+    this.setToken(response.token);
+    return response;
   }
 
   async verifyEmail(token: string): Promise<{ message: string; email: string }> {
@@ -389,6 +390,28 @@ class ApiClient {
 
   async getQRCode(): Promise<{ url: string; qrCode: string; clinicName: string }> {
     return this.request('/api/clinic/qr');
+  }
+
+  // Activation checklist
+  async getActivationProgress(): Promise<{
+    accountCreated: boolean;
+    dashboardConfigured: boolean;
+    qrDownloaded: boolean;
+    firstPatientAdded: boolean;
+    dismissed: boolean;
+  }> {
+    return this.request('/api/clinic/activation-progress');
+  }
+
+  async updateActivationProgress(data: {
+    qrDownloaded?: boolean;
+    firstPatientAdded?: boolean;
+    dismissed?: boolean;
+  }): Promise<{ message: string }> {
+    return this.request('/api/clinic/activation-progress', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
   }
 
   async updateClinic(data: {

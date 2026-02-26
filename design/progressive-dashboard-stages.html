@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BleSaf — Progressive Dashboard · 4 Stages</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,400,0,0&display=swap" rel="stylesheet">
+<style>
+
+/* ── MATERIAL SYMBOLS ── */
+.ms {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal; font-style: normal; font-size: 18px; line-height: 1;
+  letter-spacing: normal; text-transform: none;
+  display: inline-flex; align-items: center; justify-content: center;
+  white-space: nowrap; -webkit-font-smoothing: antialiased;
+  user-select: none; flex-shrink: 0;
+}
+.ms-f  { font-variation-settings: 'FILL' 1; }
+.ms-10 { font-size: 10px; }
+.ms-12 { font-size: 12px; }
+.ms-14 { font-size: 14px; }
+.ms-16 { font-size: 16px; }
+.ms-18 { font-size: 18px; }
+.ms-20 { font-size: 20px; }
+
+/* ── TOKENS ── */
+:root {
+  --green:     #2A7A52;
+  --green-dk:  #1F5E3E;
+  --green-lt:  #E8F5EE;
+  --green-mid: #3D9467;
+  --cream:     #F2F0EB;
+  --cream-dk:  #E8E5DF;
+  --cream-dkr: #DDD9D1;
+  --white:     #FFFFFF;
+  --t1:        #111111;
+  --t2:        #555555;
+  --t3:        #9A9690;
+  --red:       #D94040;
+  --amber:     #E8A820;
+  --amber-lt:  #FEF8E8;
+  --amber-dk:  #92650D;
+  --blue:      #2563EB;
+  --blue-lt:   #EFF6FF;
+  --border:    #E0DDD7;
+  --r-card:    16px;
+  --r-sm:      10px;
+  --r-xs:      6px;
+  --sh:        0 1px 4px rgba(0,0,0,0.05), 0 2px 8px rgba(0,0,0,0.04);
+  --font:      'DM Sans', system-ui, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font);
+  background: #1a1a1a;
+  min-height: 100vh;
+  padding: 40px 24px 60px;
+}
+
+/* ── PAGE HEADER ── */
+.page-hd {
+  text-align: center;
+  margin-bottom: 48px;
+}
+.page-title {
+  font-size: 28px;
+  font-weight: 800;
+  color: white;
+  letter-spacing: -0.5px;
+  margin-bottom: 8px;
+}
+.page-sub {
+  font-size: 14px;
+  color: rgba(255,255,255,0.45);
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+/* ── GRID ── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 48px 36px;
+  max-width: 880px;
+  margin: 0 auto;
+}
+@media (max-width: 900px) {
+  .grid { grid-template-columns: 1fr; max-width: 440px; }
+}
+
+/* ── STAGE CARD ── */
+.stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.stage-hd {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.stage-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.stage-badge.s1 { background: #374151; color: #D1D5DB; }
+.stage-badge.s2 { background: rgba(42,122,82,0.15); color: #5BE88A; }
+.stage-badge.s3 { background: rgba(37,99,235,0.15); color: #93C5FD; }
+.stage-badge.s4 { background: rgba(168,85,247,0.15); color: #C4B5FD; }
+.stage-desc {
+  font-size: 11px;
+  color: rgba(255,255,255,0.35);
+  text-align: center;
+  margin-bottom: 14px;
+  line-height: 1.4;
+}
+
+/* ── PHONE FRAME ── */
+.phone {
+  width: 390px;
+  transform: scale(0.68);
+  transform-origin: top center;
+  margin-bottom: -250px; /* compensate scale */
+  background: var(--cream);
+  border-radius: 50px;
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
+  box-shadow:
+    0 0 0 10px #1E1E1E,
+    0 0 0 11px #3A3A3A,
+    0 30px 60px rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+}
+.island {
+  width: 120px; height: 34px;
+  background: #111; border-radius: 20px;
+  position: absolute; top: 13px; left: 50%;
+  transform: translateX(-50%); z-index: 200;
+}
+.phone-inner {
+  padding-top: 60px;
+  display: flex; flex-direction: column;
+  height: 780px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ── STATUS BAR ── */
+.sbar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0 24px 8px; flex-shrink: 0; background: var(--green);
+}
+.sbar-t { font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.9); }
+.sbar-r { display: flex; gap: 5px; align-items: center; }
+
+/* ── ZONE A ── */
+.za {
+  background: var(--green);
+  padding: 0 22px 18px;
+  flex-shrink: 0; position: relative; overflow: hidden;
+}
+.za::before {
+  content: ''; position: absolute;
+  top: -50px; right: -30px;
+  width: 150px; height: 150px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 50%; pointer-events: none;
+}
+.za::after {
+  content: ''; position: absolute;
+  bottom: 10px; left: -40px;
+  width: 100px; height: 100px;
+  background: rgba(255,255,255,0.025);
+  border-radius: 50%; pointer-events: none;
+}
+
+/* Topbar */
+.za-top {
+  display: flex; align-items: center;
+  justify-content: space-between; padding-bottom: 14px;
+}
+.za-clinic { font-size: 17px; font-weight: 700; color: white; letter-spacing: -0.2px; }
+.za-right { display: flex; align-items: center; gap: 7px; }
+.za-ar {
+  background: rgba(255,255,255,0.11); border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 99px; padding: 4px 10px;
+  font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.85); cursor: pointer;
+}
+.za-pres {
+  display: flex; align-items: center; gap: 5px;
+  background: rgba(255,255,255,0.11); border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 99px; padding: 4px 10px 4px 8px; cursor: pointer;
+}
+.za-pdot { width: 7px; height: 7px; border-radius: 50%; background: #5BE88A; }
+.za-ptext { font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.9); }
+.za-pres .ms { font-size: 13px !important; color: rgba(255,255,255,0.5); }
+.za-cb {
+  width: 28px; height: 28px;
+  background: rgba(255,255,255,0.11); border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;
+}
+.za-cb .ms { font-size: 14px !important; color: rgba(255,255,255,0.55); }
+
+/* Count + timer */
+.za-cr {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;
+}
+.za-cnt { display: flex; align-items: baseline; gap: 4px; }
+.za-num { font-size: 34px; font-weight: 800; color: white; line-height: 1; letter-spacing: -0.8px; }
+.za-unit { font-size: 13px; color: rgba(255,255,255,0.5); font-weight: 500; }
+.za-timer {
+  display: flex; align-items: center; gap: 5px;
+  background: rgba(255,255,255,0.11); border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 99px; padding: 5px 12px;
+}
+.za-timer .ms { font-size: 13px !important; color: rgba(255,255,255,0.65); }
+.za-ttime { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.9); font-variant-numeric: tabular-nums; }
+
+/* Current patient */
+.za-pat { margin-bottom: 13px; }
+.za-plbl {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  color: rgba(255,255,255,0.42); margin-bottom: 4px;
+}
+.za-pr { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.za-pname { font-size: 24px; font-weight: 800; color: white; letter-spacing: -0.4px; line-height: 1; }
+.za-pmeta { font-size: 10px; color: rgba(255,255,255,0.48); margin-top: 3px; }
+.za-pbtns { display: flex; gap: 6px; flex-shrink: 0; }
+.za-fin {
+  display: flex; align-items: center; gap: 5px;
+  background: white; color: var(--green-dk);
+  border: none; border-radius: 99px; padding: 8px 14px;
+  font-family: var(--font); font-size: 11px; font-weight: 700; cursor: pointer;
+}
+.za-fin .ms { font-size: 14px !important; color: var(--green); }
+.za-callbtn {
+  width: 34px; height: 34px; background: rgba(255,255,255,0.16);
+  border: none; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: white;
+}
+.za-callbtn .ms { font-size: 17px !important; }
+
+/* CTA */
+.za-cta {
+  width: 100%; background: white; color: var(--green-dk);
+  border: none; border-radius: var(--r-card); padding: 13px 16px;
+  font-family: var(--font); font-weight: 800; cursor: pointer;
+  display: flex; align-items: center; justify-content: space-between;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.11); transition: opacity 0.15s;
+}
+.za-ctal { display: flex; align-items: center; gap: 9px; }
+.za-ctacirc {
+  width: 28px; height: 28px; background: var(--green); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.za-ctacirc .ms { font-size: 15px !important; color: white; }
+.za-ctamain { font-size: 13px; font-weight: 800; color: var(--green-dk); }
+.za-ctasub { font-size: 10px; color: var(--t2); font-weight: 500; margin-top: 1px; }
+.za-cta .ms-ch { color: rgba(42,122,82,0.25); font-size: 18px !important; }
+
+/* Status pill */
+.za-spill {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.22);
+  border-radius: 99px; padding: 3px 10px 3px 7px;
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.05em; color: rgba(255,255,255,0.8); cursor: pointer;
+}
+.za-spill .sdot {
+  width: 6px; height: 6px; border-radius: 50%;
+}
+.za-spill .sdot.green { background: #5BE88A; }
+.za-spill .sdot.amber { background: var(--amber); }
+.za-spill .sdot.blue  { background: #60A5FA; }
+
+/* WhatsApp header btn */
+.za-wa {
+  width: 28px; height: 28px;
+  background: rgba(255,255,255,0.11); border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;
+}
+.za-wa .ms { font-size: 14px !important; color: #5BE88A; }
+
+/* ── ZONE B ── */
+.zb { flex: 1; overflow-y: auto; scrollbar-width: none; background: var(--cream); }
+.zb::-webkit-scrollbar { display: none; }
+.zb-hd {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 13px 22px 8px;
+}
+.zb-lbl {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--t3);
+}
+.zb-cnt {
+  font-size: 10px; font-weight: 600; color: var(--t3);
+  background: var(--cream-dk); padding: 3px 8px; border-radius: 99px;
+}
+.ql { padding: 0 14px 10px; display: flex; flex-direction: column; gap: 7px; }
+.qr {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--r-sm); padding: 11px 13px;
+  display: flex; align-items: center; gap: 10px; box-shadow: var(--sh);
+}
+.qpos {
+  width: 28px; height: 28px; border-radius: 50%; background: var(--cream-dk);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: var(--t2); flex-shrink: 0;
+}
+.qi { flex: 1; min-width: 0; }
+.qn { font-size: 14px; font-weight: 600; color: var(--t1); }
+.qm { display: flex; align-items: center; gap: 5px; margin-top: 2px; }
+.qdot { width: 5px; height: 5px; border-radius: 50%; background: var(--red); flex-shrink: 0; }
+.qw { font-size: 11px; color: var(--t2); font-weight: 500; }
+.qsp { font-size: 11px; color: var(--cream-dkr); }
+.qmeth { font-size: 11px; color: var(--t3); display: flex; align-items: center; gap: 2px; }
+.qmeth .ms { font-size: 12px !important; }
+.qt { text-align: right; flex-shrink: 0; }
+.qt-t { font-size: 13px; font-weight: 700; color: var(--t1); font-variant-numeric: tabular-nums; }
+.qt-l { font-size: 9px; color: var(--t3); }
+.qbtns { display: flex; gap: 2px; flex-shrink: 0; }
+.qbtn {
+  width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+  background: none; border: none; border-radius: var(--r-xs); cursor: pointer; color: var(--t3);
+}
+.qbtn .ms { font-size: 16px !important; }
+
+/* ── ZONE C — SONAR HANDLE ── */
+.zc {
+  flex-shrink: 0;
+  background: var(--cream);
+  border-top: 1px solid var(--border);
+  padding: 10px 22px 18px;
+  display: flex; flex-direction: column; align-items: center;
+  cursor: pointer;
+  position: relative; z-index: 20;
+}
+.zc-pill {
+  width: 34px; height: 3.5px;
+  background: var(--cream-dkr); border-radius: 99px;
+  margin-bottom: 12px;
+}
+.sonar-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.ring {
+  position: absolute;
+  inset: -3px;
+  border-radius: 99px;
+  border: 1.5px solid var(--green);
+  opacity: 0;
+  pointer-events: none;
+  animation: sonar-expand 3s cubic-bezier(0.2, 0.6, 0.4, 1) infinite;
+}
+.ring:nth-child(1) { animation-delay: 0s; }
+.ring:nth-child(2) { animation-delay: 0.65s; }
+
+@keyframes sonar-expand {
+  0%   { transform: scale(1); opacity: 0.6; border-width: 1.5px; }
+  55%  { transform: scale(1.62); opacity: 0; border-width: 0.5px; }
+  100% { transform: scale(1.62); opacity: 0; border-width: 0.5px; }
+}
+
+.chip {
+  position: relative;
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 99px;
+  padding: 10px 20px 10px 15px;
+  font-family: var(--font); font-size: 14px; font-weight: 600;
+  color: var(--t1); cursor: pointer; white-space: nowrap;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  user-select: none;
+}
+.chip .ms {
+  font-size: 20px !important;
+  color: var(--green);
+}
+
+/* ── ACTIVATION CHECKLIST (NEWCOMER) ── */
+.act-card {
+  margin: 10px 14px;
+  background: var(--amber-lt);
+  border: 1px solid #F5DFA0;
+  border-radius: var(--r-sm);
+  padding: 12px 14px;
+}
+.act-hd {
+  display: flex; align-items: center; gap: 6px;
+  margin-bottom: 8px;
+}
+.act-hd .ms { font-size: 16px !important; color: var(--amber); }
+.act-title { font-size: 12px; font-weight: 700; color: var(--amber-dk); }
+.act-items { display: flex; flex-direction: column; gap: 5px; }
+.act-item {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 11px; color: var(--t2);
+}
+.act-item .ms { font-size: 14px !important; }
+.act-item .ms.done { color: var(--green); }
+.act-item .ms.pending { color: var(--cream-dkr); }
+.act-item.is-done { color: var(--t3); text-decoration: line-through; }
+
+/* ── DAILY SUMMARY CARD (ENGAGED+) ── */
+.sum-card {
+  margin: 6px 14px 10px;
+  background: linear-gradient(135deg, #EFF6FF, #F0EBFF);
+  border: 1px solid #DBEAFE;
+  border-radius: var(--r-sm);
+  padding: 12px 14px;
+}
+.sum-hd {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--blue); margin-bottom: 8px;
+}
+.sum-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+}
+.sum-cell { text-align: center; }
+.sum-icon { font-size: 14px; margin-bottom: 2px; }
+.sum-val { font-size: 15px; font-weight: 800; color: var(--t1); }
+.sum-lbl { font-size: 9px; color: var(--t3); }
+
+/* ── CLOSING BANNER (ENGAGED+) ── */
+.close-banner {
+  margin: 0 14px 6px;
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  border-radius: var(--r-sm);
+  padding: 8px 12px;
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; font-weight: 600; color: #991B1B;
+}
+.close-banner .ms { font-size: 14px !important; color: var(--red); }
+
+/* ── MORNING CARD (POWER_USER PRE_OPEN) ── */
+.morning-card {
+  margin: 10px 14px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--r-card);
+  padding: 20px;
+  text-align: center;
+  box-shadow: var(--sh);
+}
+.morning-emoji { font-size: 28px; margin-bottom: 6px; }
+.morning-title { font-size: 16px; font-weight: 800; color: var(--t1); margin-bottom: 2px; }
+.morning-sub { font-size: 12px; color: var(--t3); }
+
+/* Pre-registration */
+.prereg-hd {
+  padding: 10px 22px 6px;
+  font-size: 9px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--t3);
+}
+.prereg-row {
+  margin: 0 14px 6px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 10px 13px;
+  display: flex; align-items: center; gap: 10px;
+  box-shadow: var(--sh);
+}
+.prereg-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--blue); flex-shrink: 0;
+}
+.prereg-info { flex: 1; }
+.prereg-name { font-size: 13px; font-weight: 600; color: var(--t1); }
+.prereg-time { font-size: 11px; color: var(--t3); margin-top: 1px; }
+
+/* ── NEW BADGE ── */
+.new-badge {
+  position: absolute;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: white;
+  background: var(--green);
+  padding: 2px 6px;
+  border-radius: 99px;
+  z-index: 100;
+  animation: badge-pulse 2s ease-in-out infinite;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.new-badge.blue { background: var(--blue); }
+.new-badge.purple { background: #7C3AED; }
+
+@keyframes badge-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* ── ANNOTATIONS LEGEND ── */
+.legend {
+  max-width: 880px;
+  margin: 60px auto 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+@media (max-width: 900px) {
+  .legend { grid-template-columns: repeat(2, 1fr); }
+}
+.leg-item {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 16px;
+}
+.leg-stage {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; margin-bottom: 8px;
+}
+.leg-stage.s1 { color: #9CA3AF; }
+.leg-stage.s2 { color: #5BE88A; }
+.leg-stage.s3 { color: #93C5FD; }
+.leg-stage.s4 { color: #C4B5FD; }
+.leg-trigger {
+  font-size: 11px; color: rgba(255,255,255,0.35);
+  margin-bottom: 10px; line-height: 1.4;
+}
+.leg-features {
+  display: flex; flex-direction: column; gap: 4px;
+}
+.leg-feat {
+  font-size: 11px; color: rgba(255,255,255,0.6);
+  display: flex; align-items: center; gap: 6px;
+}
+.leg-feat .ms { font-size: 12px !important; color: rgba(255,255,255,0.3); }
+
+</style>
+</head>
+<body>
+
+<!-- Page Header -->
+<div class="page-hd">
+  <div class="page-title">Progressive Dashboard — 4 Stages</div>
+  <div class="page-sub">
+    The Sonar layout is the foundation for all stages. Features unlock progressively
+    as the clinic's usage grows. Same 3-zone structure throughout.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- GRID: 4 PHONES                                             -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="grid">
+
+  <!-- ─────────────────────────────────────── -->
+  <!-- STAGE 1: NEWCOMER                       -->
+  <!-- ─────────────────────────────────────── -->
+  <div class="stage">
+    <div class="stage-hd">
+      <span class="stage-badge s1">1. Newcomer</span>
+    </div>
+    <div class="stage-desc">Day 0–3 &middot; &lt;10 patients &middot; Bare essentials only</div>
+
+    <div class="phone">
+      <div class="island"></div>
+      <div class="phone-inner">
+        <!-- Status bar -->
+        <div class="sbar">
+          <span class="sbar-t">9:41</span>
+          <div class="sbar-r">
+            <svg width="15" height="10" viewBox="0 0 15 10"><rect x="0" y="4" width="2.5" height="6" rx=".7" fill="rgba(255,255,255,.85)"/><rect x="4" y="2.5" width="2.5" height="7.5" rx=".7" fill="rgba(255,255,255,.85)"/><rect x="8" y=".5" width="2.5" height="9.5" rx=".7" fill="rgba(255,255,255,.85)"/><rect x="12" y=".5" width="2.5" height="9.5" rx=".7" fill="rgba(255,255,255,.22)"/></svg>
+            <svg width="15" height="11" viewBox="0 0 18 12" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="1.7" stroke-linecap="round"><path d="M1 3.5a8 8 0 0116 0"/><path d="M4.5 7a5 5 0 019 0"/><circle cx="9" cy="10.5" r="1" fill="rgba(255,255,255,.85)" stroke="none"/></svg>
+            <svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x=".5" y=".5" width="19" height="10" rx="2.2" stroke="rgba(255,255,255,.55)" stroke-width="1.1"/><rect x="2" y="2" width="14" height="7" rx="1.4" fill="rgba(255,255,255,.88)"/><rect x="20.5" y="3.2" width="3" height="4.6" rx="1.1" fill="rgba(255,255,255,.4)"/></svg>
+          </div>
+        </div>
+
+        <!-- Zone A — NEWCOMER: count only, no timer, no current patient yet -->
+        <div class="za">
+          <div class="za-top">
+            <span class="za-clinic">Cabinet Ben Ali</span>
+            <div class="za-right">
+              <button class="za-ar">&#1593;&#1585;&#1576;&#1610;</button>
+              <div class="za-pres">
+                <div class="za-pdot"></div>
+                <span class="za-ptext">Pr&#233;sent</span>
+                <span class="ms ms-12">expand_more</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Just count — no timer chip -->
+          <div class="za-cr">
+            <div class="za-cnt">
+              <span class="za-num">2</span>
+              <span class="za-unit">patients</span>
+            </div>
+            <!-- no timer -->
+          </div>
+
+          <!-- CTA -->
+          <button class="za-cta">
+            <div class="za-ctal">
+              <div class="za-ctacirc"><span class="ms ms-16">arrow_forward</span></div>
+              <div>
+                <div class="za-ctamain">Appeler Suivant</div>
+                <div class="za-ctasub">Sami &middot; 1er en attente</div>
+              </div>
+            </div>
+            <span class="ms ms-ch">chevron_right</span>
+          </button>
+        </div>
+
+        <!-- Activation checklist -->
+        <div class="act-card">
+          <div class="act-hd">
+            <span class="ms ms-f">rocket_launch</span>
+            <span class="act-title">D&#233;marrage rapide</span>
+          </div>
+          <div class="act-items">
+            <div class="act-item is-done"><span class="ms done">check_circle</span> Compte cr&#233;&#233;</div>
+            <div class="act-item is-done"><span class="ms done">check_circle</span> Tableau de bord configur&#233;</div>
+            <div class="act-item"><span class="ms pending">radio_button_unchecked</span> T&#233;l&#233;charger le QR code</div>
+            <div class="act-item"><span class="ms pending">radio_button_unchecked</span> Ajouter votre 1er patient</div>
+          </div>
+        </div>
+
+        <!-- Zone B — basic queue, no context menus -->
+        <div class="zb">
+          <div class="zb-hd">
+            <span class="zb-lbl">File d'attente</span>
+            <span class="zb-cnt">2 en attente</span>
+          </div>
+          <div class="ql">
+            <div class="qr">
+              <div class="qpos">1</div>
+              <div class="qi">
+                <div class="qn">Sami</div>
+                <div class="qm">
+                  <span class="qdot"></span>
+                  <span class="qw">~10 min</span>
+                  <span class="qsp">&middot;</span>
+                  <span class="qmeth"><span class="ms">edit</span>&thinsp;Manuel</span>
+                </div>
+              </div>
+              <div class="qt"><div class="qt-t">10:24</div><div class="qt-l">arriv&#233;e</div></div>
+              <div class="qbtns">
+                <button class="qbtn"><span class="ms">call</span></button>
+                <!-- no more_vert for NEWCOMER -->
+              </div>
+            </div>
+            <div class="qr">
+              <div class="qpos">2</div>
+              <div class="qi">
+                <div class="qn">Latifa</div>
+                <div class="qm">
+                  <span class="qdot"></span>
+                  <span class="qw">~20 min</span>
+                  <span class="qsp">&middot;</span>
+                  <span class="qmeth"><span class="ms">edit</span>&thinsp;Manuel</span>
+                </div>
+              </div>
+              <div class="qt"><div class="qt-t">10:31</div><div class="qt-l">arriv&#233;e</div></div>
+              <div class="qbtns">
+                <button class="qbtn"><span class="ms">call</span></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Zone C — Sonar -->
+        <div class="zc">
+          <div class="zc-pill"></div>
+          <div class="sonar-wrap">
+            <div class="ring"></div>
+            <div class="ring"></div>
+            <div class="chip">
+              <span class="ms ms-20">person_add</span>
+              Ajouter un patient
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────── -->
+  <!-- STAGE 2: ACTIVATED                      -->
+  <!-- ─────────────────────────────────────── -->
+  <div class="stage">
+    <div class="stage-hd">
+      <span class="stage-badge s2">2. Activated</span>
+    </div>
+    <div class="stage-desc">First QR check-in &middot; Stats &amp; timer appear</div>
+
+    <div class="phone">
+      <div class="island"></div>
+      <div class="phone-inner">
+        <div class="sbar">
+          <span class="sbar-t">10:15</span>
+          <div class="sbar-r">
+            <svg width="15" height="10" viewBox="0 0 15 10"><rect x="0" y="4" width="2.5" height="6" rx=".7" fill="rgba(255,255,255,.85)"/><rect x="4" y="2.5" width="2.5" height="7.5" rx=".7" fill="rgba(255,255,255,.85)"/><rect x="8" y=".5" width="2.5" height="9.5" rx=".7" fill="rgba(255,255,255,.85)"/><rect x="12" y=".5" width="2.5" height="9.5" rx=".7" fill="rgba(255,255,255,.22)"/></svg>
+            <svg width="15" height="11" viewBox="0 0 18 12" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="1.7" stroke-linecap="round"><path d="M1 3.5a8 8 0 0116 0"/><path d="M4.5 7a5 5 0 019 0"/><circle cx="9" cy="10.5" r="1" fill="rgba(255,255,255,.85)" stroke="none"/></svg>
+            <svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x=".5" y=".5" width="19" height="10" rx="2.2" stroke="rgba(255,255,255,.55)" stroke-width="1.1"/><rect x="2" y="2" width="14" height="7" rx="1.4" fill="rgba(255,255,255,.88)"/><rect x="20.5" y="3.2" width="3" height="4.6" rx="1.1" fill="rgba(255,255,255,.4)"/></svg>
+          </div>
+        </div>
+
+        <!-- Zone A — ACTIVATED: timer chip appears, current patient visible -->
+        <div class="za" style="position:relative;">
+          <div class="za-top">
+            <span class="za-clinic">Cabinet Ben Ali</span>
+            <div class="za-right">
+              <button class="za-ar">&#1593;&#1585;&#1576;&#1610;</button>
+              <div class="za-pres">
+                <div class="za-pdot"></div>
+                <span class="za-ptext">Pr&#233;sent</span>
+                <span class="ms ms-12">expand_more</span>
+              </div>
+              <div class="za-cb"><span class="ms ms-14">settings</span></div>
+            </div>
+          </div>
+
+          <div class="za-cr">
+            <div class="za-cnt">
+              <span class="za-num">3</span>
+              <span class="za-unit">patients</span>
+            </div>
+            <!-- NEW: Timer chip -->
+            <div class="za-timer" style="position:relative;">
+              <span class="new-badge" style="top:-14px;right:-8px;">new</span>
+              <span class="ms">schedule</span>
+              <span class="za-ttime">~00:30</span>
+            </div>
+          </div>
+
+          <div class="za-pat">
+            <div class="za-plbl">En consultation</div>
+            <div class="za-pr">
+              <div>
+                <div class="za-pname">Salem</div>
+                <div class="za-pmeta">Arriv&#233; 9:02 &middot; 18 min en cours</div>
+              </div>
+              <div class="za-pbtns">
+                <button class="za-fin"><span class="ms ms-f">check_circle</span> Terminer</button>
+                <button class="za-callbtn"><span class="ms">call</span></button>
+              </div>
+            </div>
+          </div>
+
+          <button class="za-cta">
+            <div class="za-ctal">
+              <div class="za-ctacirc"><span class="ms ms-16">arrow_forward</span></div>
+              <div>
+                <div class="za-ctamain">Appeler Suivant</div>
+                <div class="za-ctasub">Sami &middot; ~10 min d'attente</div>
+              </div>
+            </div>
+            <span class="ms ms-ch">chevron_right</span>
+          </button>
+        </div>
+
+        <!-- No activation checklist — auto-dismissed -->
+
+        <!-- Zone B -->
+        <div class="zb">
+          <div class="zb-hd">
+            <span class="zb-lbl">File d'attente</span>
+            <span class="zb-cnt">2 en attente</span>
+          </div>
+          <div class="ql">
+            <div class="qr">
+              <div class="qpos">2</div>
+              <div class="qi">
+                <div class="qn">Sami</div>
+                <div class="qm">
+                  <span class="qdot"></span>
+                  <span class="qw">~10 min</span>
+                  <span class="qsp">&middot;</span>
+                  <span class="qmeth"><span class="ms">qr_code_2</span>&thinsp;QR</span>
+                </div>
+              </div>
+              <div class="qt"><div class="qt-t">10:24</div><div class="qt-l">arriv&#233;e</div></div>
+              <div class="qbtns">
+                <button class="qbtn"><span class="ms">call</span></button>
+                <!-- still no more_vert -->
+              </div>
+            </div>
+            <div class="qr">
+              <div class="qpos">3</div>
+              <div class="qi">
+                <div class="qn">Latifa</div>
+                <div class="qm">
+                  <span class="qdot"></span>
+                  <span class="qw">~20 min</span>
+                  <span class="qsp">&middot;</span>
+                  <span class="qmeth"><span class="ms">edit</span>&thinsp;Manuel</span>
+                </div>
+              </div>
+              <div class="qt"><div class="qt-t">10:31</div><div class="qt-l">arriv&#233;e</div></div>
+              <div class="qbtns">
+                <button class="qbtn"><span class="ms">call</span></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Zone C -->
+        <div class="zc">
+          <div class="zc-pill"></div>
+          <div class="sonar-wrap">
+            <div class="ring"></div>
+            <div class="ring"></div>
+            <div class="chip">
+              <span class="ms ms-20">person_add</span>
+              Ajouter un patient
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────── -->
+  <!-- STAGE 3: ENGAGED                        -->
+  <!-- ─────────────────────────────────────── -->
+  <div class="stage">
+    <div class="stage-hd">
+      <span class="stage-badge s3">3. Engaged</span>
+    </div>
+    <div class="stage-desc">50+ patients OR 7+ days &middot; Context menus, closing workflow, daily summary</div>
+
+    <div class="phone">
+      <div class="island"></div>
+      <div class="phone-inner">
+        <div class="sbar">
+          <span class="sbar-t">14:22</span>
+          <div class="sbar-r">
+            <svg width="15" height="10" viewBox="0 0 15 10"><rect x="0" y="4" width="2.5" height="6" rx=".7" fill="rgba(255,255,255,.85)"/><rect x="4" y="2.5" width="2.5" height="7.5" rx=".7" fill="rgba(255,255,255,.85)"/><rect x="8" y=".5" width="2.5" height="9.5" rx=".7" fill="rgba(255,255,255,.85)"/><rect x="12" y=".5" width="2.5" height="9.5" rx=".7" fill="rgba(255,255,255,.22)"/></svg>
+            <svg width="15" height="11" viewBox="0 0 18 12" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="1.7" stroke-linecap="round"><path d="M1 3.5a8 8 0 0116 0"/><path d="M4.5 7a5 5 0 019 0"/><circle cx="9" cy="10.5" r="1" fill="rgba(255,255,255,.85)" stroke="none"/></svg>
+            <svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x=".5" y=".5" width="19" height="10" rx="2.2" stroke="rgba(255,255,255,.55)" stroke-width="1.1"/><rect x="2" y="2" width="14" height="7" rx="1.4" fill="rgba(255,255,255,.88)"/><rect x="20.5" y="3.2" width="3" height="4.6" rx="1.1" fill="rgba(255,255,255,.4)"/></svg>
+          </div>
+        </div>
+
+        <!-- Zone A — ENGAGED: status pill + WhatsApp bulk btn -->
+        <div class="za" style="position:relative;">
+          <div class="za-top">
+            <span class="za-clinic">Cabinet Ben Ali</span>
+            <div class="za-right">
+              <!-- NEW: Status pill -->
+              <div class="za-spill" style="position:relative;">
+                <span class="new-badge blue" style="top:-14px;right:-6px;">new</span>
+                <span class="sdot green"></span>
+                Ouvert
+              </div>
+              <!-- NEW: WhatsApp bulk -->
+              <div class="za-wa" style="position:relative;">
+                <span class="new-badge blue" style="top:-14px;right:-12px;">new</span>
+                <span class="ms ms-14 ms-f">chat</span>
+              </div>
+              <div class="za-pres">
+                <div class="za-pdot"></div>
+                <span class="za-ptext">Pr&#233;sent</span>
+              </div>
+              <div class="za-cb"><span class="ms ms-14">settings</span></div>
+            </div>
+          </div>
+
+          <div class="za-cr">
+            <div class="za-cnt">
+              <span class="za-num">5</span>
+              <span class="za-unit">patients</span>
+            </div>
+            <div class="za-timer">
+              <span class="ms">schedule</span>
+              <span class="za-ttime">~00:50</span>
+            </div>
+          </div>
+
+          <div class="za-pat">
+            <div class="za-plbl">En consultation</div>
+            <div class="za-pr">
+              <div>
+                <div class="za-pname">Ahmed</div>
+                <div class="za-pmeta">Arriv&#233; 13:40 &middot; 12 min en cours</div>
+              </div>
+              <div class="za-pbtns">
+                <button class="za-fin"><span class="ms ms-f">check_circle</span> Terminer</button>
+                <button class="za-callbtn"><span class="ms">call</span></button>
+              </div>
+            </div>
+          </div>
+
+          <button class="za-cta">
+            <div class="za-ctal">
+              <div class="za-ctacirc"><span class="ms ms-16">arrow_forward</span></div>
+              <div>
+                <div class="za-ctamain">Appeler Suivant</div>
+                <div class="za-ctasub">Nadia &middot; ~10 min d'attente</div>
+              </div>
+            </div>
+            <span class="ms ms-ch">chevron_right</span>
+          </button>
+        </div>
+
+        <!-- Zone B — with context menus + summary -->
+        <div class="zb">
+          <div class="zb-hd">
+            <span class="zb-lbl">File d'attente</span>
+            <span class="zb-cnt">4 en attente</span>
+          </div>
+          <div class="ql">
+            <div class="qr">
+              <div class="qpos">2</div>
+              <div class="qi">
+                <div class="qn">Nadia</div>
+                <div class="qm">
+                  <span class="qdot"></span>
+                  <span class="qw">~10 min</span>
+                  <span class="qsp">&middot;</span>
+                  <span class="qmeth"><span class="ms">qr_code_2</span>&thinsp;QR</span>
+                </div>
+              </div>
+              <div class="qt"><div class="qt-t">14:01</div><div class="qt-l">arriv&#233;e</div></div>
+              <div class="qbtns" style="position:relative;">
+                <button class="qbtn"><span class="ms">call</span></button>
+                <!-- NEW: context menu -->
+                <button class="qbtn"><span class="ms">more_vert</span></button>
+                <span class="new-badge blue" style="top:-12px;right:-10px;">new</span>
+              </div>
+            </div>
+            <div class="qr">
+              <div class="qpos">3</div>
+              <div class="qi">
+                <div class="qn">Karim</div>
+                <div class="qm">
+                  <span class="qdot"></span>
+                  <span class="qw">~20 min</span>
+                  <span class="qsp">&middot;</span>
+                  <span class="qmeth"><span class="ms">edit</span>&thinsp;Manuel</span>
+                </div>
+              </div>
+              <div class="qt"><div class="qt-t">14:08</div><div class="qt-l">arriv&#233;e</div></div>
+              <div class="qbtns">
+                <button class="qbtn"><span class="ms">call</span></button>
+                <button class="qbtn"><span class="ms">more_vert</span></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- NEW: Daily summary card -->
+          <div class="sum-card" style="position:relative;">
+            <span class="new-badge blue" style="top:-8px;right:10px;">new</span>
+            <div class="sum-hd">Hier</div>
+            <div class="sum-grid">
+              <div class="sum-cell">
+                <div class="sum-icon">&#128101;</div>
+                <div class="sum-val">18</div>
+                <div class="sum-lbl">patients</div>
+              </div>
+              <div class="sum-cell">
+                <div class="sum-icon">&#8987;</div>
+                <div class="sum-val">14 min</div>
+                <div class="sum-lbl">attente moy.</div>
+              </div>
+              <div class="sum-cell">
+                <div class="sum-icon">&#128200;</div>
+                <div class="sum-val">10h</div>
+                <div class="sum-lbl">pic</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Zone C -->
+        <div class="zc">
+          <div class="zc-pill"></div>
+          <div class="sonar-wrap">
+            <div class="ring"></div>
+            <div class="ring"></div>
+            <div class="chip">
+              <span class="ms ms-20">person_add</span>
+              Ajouter un patient
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────── -->
+  <!-- STAGE 4: POWER_USER                     -->
+  <!-- ─────────────────────────────────────── -->
+  <div class="stage">
+    <div class="stage-hd">
+      <span class="stage-badge s4">4. Power User</span>
+    </div>
+    <div class="stage-desc">200+ patients OR 30+ days &middot; Full lifecycle, pre-registration, export</div>
+
+    <div class="phone">
+      <div class="island"></div>
+      <div class="phone-inner">
+        <div class="sbar">
+          <span class="sbar-t">8:45</span>
+          <div class="sbar-r">
+            <svg width="15" height="10" viewBox="0 0 15 10"><rect x="0" y="4" width="2.5" height="6" rx=".7" fill="rgba(255,255,255,.85)"/><rect x="4" y="2.5" width="2.5" height="7.5" rx=".7" fill="rgba(255,255,255,.85)"/><rect x="8" y=".5" width="2.5" height="9.5" rx=".7" fill="rgba(255,255,255,.85)"/><rect x="12" y=".5" width="2.5" height="9.5" rx=".7" fill="rgba(255,255,255,.22)"/></svg>
+            <svg width="15" height="11" viewBox="0 0 18 12" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="1.7" stroke-linecap="round"><path d="M1 3.5a8 8 0 0116 0"/><path d="M4.5 7a5 5 0 019 0"/><circle cx="9" cy="10.5" r="1" fill="rgba(255,255,255,.85)" stroke="none"/></svg>
+            <svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x=".5" y=".5" width="19" height="10" rx="2.2" stroke="rgba(255,255,255,.55)" stroke-width="1.1"/><rect x="2" y="2" width="14" height="7" rx="1.4" fill="rgba(255,255,255,.88)"/><rect x="20.5" y="3.2" width="3" height="4.6" rx="1.1" fill="rgba(255,255,255,.4)"/></svg>
+          </div>
+        </div>
+
+        <!-- Zone A — POWER_USER: PRE_OPEN state (morning, before queue opens) -->
+        <div class="za" style="position:relative;">
+          <div class="za-top">
+            <span class="za-clinic">Cabinet Ben Ali</span>
+            <div class="za-right">
+              <!-- NEW: PRE_OPEN status pill -->
+              <div class="za-spill" style="position:relative;">
+                <span class="new-badge purple" style="top:-14px;right:-6px;">new</span>
+                <span class="sdot blue"></span>
+                Pr&#233;-ouvert
+              </div>
+              <div class="za-wa">
+                <span class="ms ms-14 ms-f">chat</span>
+              </div>
+              <div class="za-pres">
+                <div class="za-pdot" style="background:#FCA5A5;"></div>
+                <span class="za-ptext">Absent</span>
+              </div>
+              <div class="za-cb"><span class="ms ms-14">settings</span></div>
+            </div>
+          </div>
+
+          <!-- Count = 0 in PRE_OPEN -->
+          <div class="za-cr">
+            <div class="za-cnt">
+              <span class="za-num">0</span>
+              <span class="za-unit">patients</span>
+            </div>
+          </div>
+
+          <!-- CTA changes to "Ouvrir la file" in PRE_OPEN -->
+          <button class="za-cta" style="position:relative;">
+            <span class="new-badge purple" style="top:-10px;left:10px;">lifecycle</span>
+            <div class="za-ctal">
+              <div class="za-ctacirc" style="background:var(--green);"><span class="ms ms-16">play_arrow</span></div>
+              <div>
+                <div class="za-ctamain">Ouvrir la file</div>
+                <div class="za-ctasub">D&#233;marrer la journ&#233;e</div>
+              </div>
+            </div>
+            <span class="ms ms-ch">chevron_right</span>
+          </button>
+        </div>
+
+        <!-- Zone B — PRE_OPEN: Morning card + pre-registrations -->
+        <div class="zb">
+          <!-- NEW: Morning card -->
+          <div class="morning-card" style="position:relative;">
+            <span class="new-badge purple" style="top:-8px;right:10px;">new</span>
+            <div class="morning-emoji">&#9728;&#65039;</div>
+            <div class="morning-title">Bonjour, Dr Ben Ali</div>
+            <div class="morning-sub">3 patients pr&#233;-inscrits pour aujourd'hui</div>
+          </div>
+
+          <!-- NEW: Pre-registration list -->
+          <div class="prereg-hd" style="position:relative;">
+            Pr&#233;-inscrits
+            <span class="new-badge purple" style="top:-8px;right:22px;">new</span>
+          </div>
+          <div class="prereg-row">
+            <div class="prereg-dot"></div>
+            <div class="prereg-info">
+              <div class="prereg-name">Fatima Bouzid</div>
+              <div class="prereg-time">RDV 09:00</div>
+            </div>
+            <div class="qt"><div class="qt-t">09:00</div><div class="qt-l">rendez-vous</div></div>
+          </div>
+          <div class="prereg-row">
+            <div class="prereg-dot"></div>
+            <div class="prereg-info">
+              <div class="prereg-name">Karim Mansour</div>
+              <div class="prereg-time">RDV 09:30</div>
+            </div>
+            <div class="qt"><div class="qt-t">09:30</div><div class="qt-l">rendez-vous</div></div>
+          </div>
+          <div class="prereg-row">
+            <div class="prereg-dot"></div>
+            <div class="prereg-info">
+              <div class="prereg-name">Nadia Cherif</div>
+              <div class="prereg-time">RDV 10:00</div>
+            </div>
+            <div class="qt"><div class="qt-t">10:00</div><div class="qt-l">rendez-vous</div></div>
+          </div>
+        </div>
+
+        <!-- Zone C — still the sonar -->
+        <div class="zc">
+          <div class="zc-pill"></div>
+          <div class="sonar-wrap">
+            <div class="ring"></div>
+            <div class="ring"></div>
+            <div class="chip">
+              <span class="ms ms-20">person_add</span>
+              Ajouter un patient
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /grid -->
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- LEGEND                                                      -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="legend">
+  <div class="leg-item">
+    <div class="leg-stage s1">Newcomer</div>
+    <div class="leg-trigger">Day 0–3, &lt;10 patients</div>
+    <div class="leg-features">
+      <div class="leg-feat"><span class="ms ms-f">check_circle</span> Add patient (sonar chip)</div>
+      <div class="leg-feat"><span class="ms ms-f">check_circle</span> Call next (Zone A CTA)</div>
+      <div class="leg-feat"><span class="ms ms-f">check_circle</span> Queue list (basic rows)</div>
+      <div class="leg-feat"><span class="ms ms-f">check_circle</span> WhatsApp share per patient</div>
+      <div class="leg-feat"><span class="ms ms-f">check_circle</span> Activation checklist</div>
+    </div>
+  </div>
+  <div class="leg-item">
+    <div class="leg-stage s2">Activated</div>
+    <div class="leg-trigger">First QR check-in happened</div>
+    <div class="leg-features">
+      <div class="leg-feat"><span class="ms">add_circle</span> Timer chip (~remaining)</div>
+      <div class="leg-feat"><span class="ms">add_circle</span> Current patient in Zone A</div>
+      <div class="leg-feat"><span class="ms">add_circle</span> Settings button</div>
+      <div class="leg-feat"><span class="ms">remove_circle</span> Checklist auto-dismissed</div>
+    </div>
+  </div>
+  <div class="leg-item">
+    <div class="leg-stage s3">Engaged</div>
+    <div class="leg-trigger">50+ patients OR 7+ days active</div>
+    <div class="leg-features">
+      <div class="leg-feat"><span class="ms">add_circle</span> Context menus (more_vert)</div>
+      <div class="leg-feat"><span class="ms">add_circle</span> Status pill (Ouvert/Ferm&#233;)</div>
+      <div class="leg-feat"><span class="ms">add_circle</span> WhatsApp bulk button</div>
+      <div class="leg-feat"><span class="ms">add_circle</span> Daily summary card</div>
+      <div class="leg-feat"><span class="ms">add_circle</span> Closing workflow</div>
+    </div>
+  </div>
+  <div class="leg-item">
+    <div class="leg-stage s4">Power User</div>
+    <div class="leg-trigger">200+ patients OR 30+ days active</div>
+    <div class="leg-features">
+      <div class="leg-feat"><span class="ms">add_circle</span> Lifecycle screens (PRE_OPEN)</div>
+      <div class="leg-feat"><span class="ms">add_circle</span> Morning greeting card</div>
+      <div class="leg-feat"><span class="ms">add_circle</span> Pre-registration list</div>
+      <div class="leg-feat"><span class="ms">add_circle</span> End-of-day summary</div>
+      <div class="leg-feat"><span class="ms">add_circle</span> Export &amp; advanced settings</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

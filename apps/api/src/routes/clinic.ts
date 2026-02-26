@@ -403,4 +403,65 @@ router.get('/qr', authMiddleware, async (req: AuthRequest, res: Response) => {
   }
 });
 
+// ─── Activation Checklist ───────────────────────────────────
+
+/**
+ * GET /api/clinic/activation-progress
+ * Get activation checklist state
+ */
+router.get('/activation-progress', authMiddleware, async (req: AuthRequest, res: Response) => {
+  try {
+    const clinic = await prisma.clinic.findUnique({
+      where: { id: req.clinic!.id },
+      select: {
+        activationQrDownloaded: true,
+        activationFirstPatient: true,
+        activationChecklistDismissed: true,
+      },
+    });
+
+    if (!clinic) {
+      return res.status(404).json({ error: { code: 'CLINIC_NOT_FOUND', message: 'Clinic not found' } });
+    }
+
+    res.json({
+      data: {
+        accountCreated: true,
+        dashboardConfigured: true,
+        qrDownloaded: clinic.activationQrDownloaded,
+        firstPatientAdded: clinic.activationFirstPatient,
+        dismissed: clinic.activationChecklistDismissed,
+      },
+    });
+  } catch (error) {
+    logger.error({ err: error }, 'Error fetching activation progress');
+    res.status(500).json({ error: { code: 'SERVER_ERROR', message: 'Failed to fetch activation progress' } });
+  }
+});
+
+/**
+ * POST /api/clinic/activation-progress
+ * Update activation checklist state
+ */
+router.post('/activation-progress', authMiddleware, async (req: AuthRequest, res: Response) => {
+  try {
+    const { qrDownloaded, firstPatientAdded, dismissed } = req.body;
+
+    const updateData: Record<string, boolean> = {};
+    if (qrDownloaded === true) updateData.activationQrDownloaded = true;
+    if (firstPatientAdded === true) updateData.activationFirstPatient = true;
+    if (dismissed === true) updateData.activationChecklistDismissed = true;
+
+    await prisma.clinic.update({
+      where: { id: req.clinic!.id },
+      data: updateData,
+    });
+
+    res.json({ data: { message: 'Activation progress updated' } });
+  } catch (error) {
+    logger.error({ err: error }, 'Error updating activation progress');
+    res.status(500).json({ error: { code: 'SERVER_ERROR', message: 'Failed to update activation progress' } });
+  }
+});
+
 export default router;

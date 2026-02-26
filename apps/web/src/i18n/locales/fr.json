@@ -499,7 +499,47 @@
       "bravoSubtitle": "Vous venez de gérer votre première file d'attente numérique.",
       "trialBanner": "30 jours d'essai gratuit",
       "noCreditCard": "Aucune carte bancaire requise",
-      "viewDashboard": "Voir mon tableau de bord"
+      "viewDashboard": "Voir mon tableau de bord",
+      "readyTitle": "Votre file d'attente en direct",
+      "readySubtitle": "3 patients attendent déjà. Appuyez sur Appeler pour commencer.",
+      "patient1Name": "Sami B.",
+      "patient2Name": "Leila M.",
+      "patient3Name": "Mehdi K.",
+      "patient4Name": "Fatima D.",
+      "waitMins": "{{mins}} min",
+      "statsWaiting": "en attente",
+      "statsSeen": "vus",
+      "newCheckinToast": "Fatima D. vient de s'inscrire via QR",
+      "playbookTitle": "Votre premier matin avec BléSaf",
+      "playbookSubtitle": "3 étapes pour démarrer",
+      "playbookStep1Title": "Ouvrez votre tableau de bord",
+      "playbookStep1Hint": "Ce tableau de bord — en temps réel",
+      "playbookStep2Title": "Partagez le lien avec l'accueil",
+      "playbookStep2Hint": "L'accueil peut ajouter des patients manuellement",
+      "playbookStep3Title": "Affichez votre QR code",
+      "playbookStep3Hint": "Imprimez-le et placez-le à l'entrée"
+    },
+    "signup": {
+      "title": "Votre cabinet numérique",
+      "titleLine2": "est à 2 minutes.",
+      "subtitle": "Aucune carte bancaire requise.",
+      "emailLabel": "Email professionnel",
+      "passwordLabel": "Mot de passe",
+      "clinicNameLabel": "Nom de votre cabinet",
+      "clinicNameHelper": "Ce nom apparaîtra sur votre QR code.",
+      "cta": "Créer mon compte",
+      "creating": "Création en cours...",
+      "alreadyRegistered": "Déjà inscrit ?",
+      "loginLink": "Se connecter",
+      "errors": {
+        "emailRequired": "Veuillez entrer votre email.",
+        "emailInvalid": "Format d'email invalide.",
+        "emailExists": "Cet email est déjà utilisé.",
+        "passwordRequired": "Veuillez choisir un mot de passe.",
+        "passwordShort": "Le mot de passe doit contenir au moins 8 caractères.",
+        "clinicNameRequired": "Veuillez entrer le nom de votre cabinet.",
+        "generic": "Une erreur est survenue. Veuillez réessayer."
+      }
     }
   },
   "verify": {
