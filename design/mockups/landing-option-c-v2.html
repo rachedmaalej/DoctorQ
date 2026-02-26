@@ -599,14 +599,16 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      min-height: 560px;
+      min-height: 620px;
     }
 
-    /* Phone frame for real screenshot */
+    /* Phone frame for real screenshot — iPhone 14 proportions (390×844 = ~1:2.164) */
     .showcase-phone {
       width: 270px;
+      /* iPhone 14 aspect ratio: 390/844 ≈ 0.462 → height = width / 0.462 */
+      aspect-ratio: 390 / 844;
       flex-shrink: 0;
-      border-radius: 32px;
+      border-radius: 36px;
       border: 6px solid #1E293B;
       overflow: hidden;
       box-shadow:
@@ -614,10 +616,13 @@
         0 0 0 1px rgba(0,0,0,0.04);
       position: relative;
       z-index: 2;
-      background: #FFF;
+      background: #000;
     }
     .showcase-phone img {
       width: 100%;
+      height: calc(100% + 32px); /* extra height to account for cropped admin bar */
+      object-fit: cover;
+      object-position: top;
       display: block;
       /* Crop the admin "Vue en tant que" bar from top */
       margin-top: -32px;
@@ -713,11 +718,11 @@
       line-height: 1.5;
     }
 
-    /* Callout positions — desktop */
-    .callout-1 { top: 30px; right: calc(50% + 175px); }
-    .callout-2 { top: 180px; left: calc(50% + 175px); }
-    .callout-3 { top: 340px; right: calc(50% + 175px); }
-    .callout-4 { top: 470px; left: calc(50% + 175px); }
+    /* Callout positions — desktop (phone is ~585px tall at 270px wide) */
+    .callout-1 { top: 20px; right: calc(50% + 175px); }
+    .callout-2 { top: 195px; left: calc(50% + 175px); }
+    .callout-3 { top: 375px; right: calc(50% + 175px); }
+    .callout-4 { top: 520px; left: calc(50% + 175px); }
 
     /* Responsive: stack below on mobile */
     @media (max-width: 780px) {
@@ -726,7 +731,7 @@
         min-height: auto;
         gap: 32px;
       }
-      .showcase-phone { width: 250px; }
+      .showcase-phone { width: 240px; }
       .hotspot, .connector { display: none; }
       .callout {
         position: static !important;
