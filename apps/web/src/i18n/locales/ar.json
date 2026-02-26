@@ -518,10 +518,36 @@
       "playbookStep3Title": "علّق رمز QR الخاص بك",
       "playbookStep3Hint": "اطبعه وضعه عند المدخل"
     },
+    "setup": {
+      "ready": "عيادتك جاهزة",
+      "openQueue": "لنفتح قائمة الانتظار الأولى.",
+      "openCta": "فتح قائمتي",
+      "addPatient": "لنضف مريضاً تجريبياً لنرى كيف يعمل.",
+      "addCta": "إضافة",
+      "done": "بهذه البساطة. غداً، سيسجّل مرضاك الحقيقيون عبر رمز QR.",
+      "seeCta": "عرض رمز QR",
+      "testPatientName": "مريض تجريبي",
+      "step1": "إنشاء العيادة",
+      "step2": "إعداد قائمة الانتظار",
+      "step3": "إنشاء رمز QR"
+    },
+    "welcome": {
+      "qrTitle": "رمز QR الخاص بك جاهز.",
+      "qrInstruction": "اطبعه وعلّقه في استقبال عيادتك.",
+      "downloadPdf": "تحميل PDF",
+      "shareWhatsApp": "إرسال عبر واتساب",
+      "copyLink": "نسخ الرابط",
+      "linkCopied": "تم نسخ الرابط!",
+      "shareMessage": "امسح رمز QR للانضمام إلى قائمة انتظار {{clinicName}} :",
+      "startCta": "البدء"
+    },
     "signup": {
       "title": "عيادتك الرقمية",
       "titleLine2": "على بعد دقيقتين.",
       "subtitle": "لا حاجة لبطاقة بنكية.",
+      "trialBadge": "30 يوماً مجاناً · بدون التزام",
+      "whatsappHelp": "سؤال؟ تواصل معنا عبر واتساب",
+      "socialProof": "تستخدمه عيادات في تونس",
       "emailLabel": "البريد الإلكتروني المهني",
       "passwordLabel": "كلمة المرور",
       "clinicNameLabel": "اسم عيادتك",
@@ -539,6 +565,14 @@
         "clinicNameRequired": "يرجى إدخال اسم عيادتك.",
         "generic": "حدث خطأ. يرجى المحاولة مرة أخرى."
       }
+    },
+    "emptyState": {
+      "noPatients": "لا يوجد مرضى في القائمة",
+      "noQr": "اطبع رمز QR وعلّقه في الاستقبال.",
+      "waitingFirst": "في انتظار أول مريض...",
+      "qrHint": "هل علّقت رمز QR؟ المرضى سيمسحونه للانضمام للقائمة.",
+      "downloadQr": "تحميل QR",
+      "shareWhatsApp": "واتساب"
     }
   },
   "verify": {

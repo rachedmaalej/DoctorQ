@@ -1,6 +1,8 @@
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/authStore';
 import { webBrand } from '@/lib/brand';
+import { api } from '@/lib/api';
 
 interface BSHeaderProps {
   waitingCount: number;
@@ -19,6 +21,18 @@ export default function BSHeader({
 }: BSHeaderProps) {
   const { t, i18n } = useTranslation();
   const { clinic } = useAuthStore();
+  const [activationComplete, setActivationComplete] = useState(true);
+
+  // Check activation status (subtle dot indicator)
+  useEffect(() => {
+    api.getActivationProgress()
+      .then((data) => {
+        setActivationComplete(
+          (data.qrDownloaded && data.firstPatientAdded) || data.dismissed
+        );
+      })
+      .catch(() => {});
+  }, []);
 
   const toggleLanguage = () => {
     const newLang = i18n.language === 'fr' ? 'ar' : 'fr';
@@ -31,6 +45,21 @@ export default function BSHeader({
       <div className="bs-header-top">
         <span className="bs-clinic-name">
           {clinic?.name || t('blesaf.header.defaultClinic')}
+          {!activationComplete && (
+            <span
+              className="inline-block rounded-full"
+              style={{
+                width: '7px',
+                height: '7px',
+                backgroundColor: '#E6A817',
+                marginLeft: '6px',
+                marginBottom: '1px',
+                verticalAlign: 'middle',
+                animation: 'header-dot-pulse 2s ease-in-out infinite',
+              }}
+              title={t('onboarding.emptyState.noQr')}
+            />
+          )}
         </span>
         <div className="bs-header-actions">
           {/* Language toggle */}

@@ -40,19 +40,13 @@ export async function downloadQrCodePdf(qrDataUrl: string, clinicName: string): 
     { align: 'center' }
   );
 
-  // Sub-instruction
-  doc.setFontSize(14);
-  doc.setTextColor(136, 136, 153); // #888899
+  // Arabic instruction (important for Tunisian patients)
+  doc.setFontSize(16);
+  doc.setTextColor(85, 85, 102); // #555566
   doc.text(
-    'Votre numéro vous sera envoyé',
+    '\u0627\u0645\u0633\u062D \u0647\u0630\u0627 \u0627\u0644\u0631\u0645\u0632 \u0644\u0644\u0627\u0646\u0636\u0645\u0627\u0645 \u0625\u0644\u0649 \u0642\u0627\u0626\u0645\u0629 \u0627\u0644\u0627\u0646\u062A\u0638\u0627\u0631',
     pageWidth / 2,
-    200,
-    { align: 'center' }
-  );
-  doc.text(
-    'par message.',
-    pageWidth / 2,
-    208,
+    198,
     { align: 'center' }
   );
 

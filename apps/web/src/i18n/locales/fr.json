@@ -519,10 +519,36 @@
       "playbookStep3Title": "Affichez votre QR code",
       "playbookStep3Hint": "Imprimez-le et placez-le à l'entrée"
     },
+    "setup": {
+      "ready": "Votre cabinet est prêt",
+      "openQueue": "Ouvrons votre première file d'attente.",
+      "openCta": "Ouvrir ma file",
+      "addPatient": "Ajoutons un patient test pour voir comment ça marche.",
+      "addCta": "Ajouter",
+      "done": "C'est aussi simple que ça. Demain, vos vrais patients s'inscriront via votre QR code.",
+      "seeCta": "Voir mon QR code",
+      "testPatientName": "Patient Test",
+      "step1": "Création du cabinet",
+      "step2": "Configuration de la file",
+      "step3": "Génération du QR code"
+    },
+    "welcome": {
+      "qrTitle": "Votre QR Code est prêt.",
+      "qrInstruction": "Imprimez-le et affichez-le à l'accueil de votre cabinet.",
+      "downloadPdf": "Télécharger le PDF",
+      "shareWhatsApp": "Envoyer par WhatsApp",
+      "copyLink": "Copier le lien",
+      "linkCopied": "Lien copié !",
+      "shareMessage": "Scannez ce QR code pour rejoindre la file d'attente de {{clinicName}} :",
+      "startCta": "Commencer"
+    },
     "signup": {
       "title": "Votre cabinet numérique",
       "titleLine2": "est à 2 minutes.",
       "subtitle": "Aucune carte bancaire requise.",
+      "trialBadge": "30 jours gratuits · sans engagement",
+      "whatsappHelp": "Une question ? Contactez-nous sur WhatsApp",
+      "socialProof": "Utilisé par des cabinets en Tunisie",
       "emailLabel": "Email professionnel",
       "passwordLabel": "Mot de passe",
       "clinicNameLabel": "Nom de votre cabinet",
@@ -540,6 +566,14 @@
         "clinicNameRequired": "Veuillez entrer le nom de votre cabinet.",
         "generic": "Une erreur est survenue. Veuillez réessayer."
       }
+    },
+    "emptyState": {
+      "noPatients": "Aucun patient dans la file",
+      "noQr": "Imprimez votre QR code et affichez-le à l'accueil.",
+      "waitingFirst": "En attente de votre premier patient...",
+      "qrHint": "Votre QR code est affiché ? Les patients scanneront pour rejoindre la file.",
+      "downloadQr": "Télécharger QR",
+      "shareWhatsApp": "WhatsApp"
     }
   },
   "verify": {

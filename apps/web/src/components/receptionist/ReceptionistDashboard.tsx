@@ -62,7 +62,7 @@ export default function ReceptionistDashboard({
     reopenQueue,
     endDay,
     newDay,
-  } = useQueueLifecycle(clinic?.id, queue, stats);
+  } = useQueueLifecycle(clinic?.id, queue, stats, isDoctorPresent);
 
   // ── Add-patient sheet state ───────────────────────────────
   const [isAddSheetOpen, setIsAddSheetOpen] = useState(false);

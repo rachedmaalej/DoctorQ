@@ -13,7 +13,7 @@ import ConfirmModal from '@/components/ui/ConfirmModal';
 import AnnouncementModal from '@/components/queue/AnnouncementModal';
 import { Toast } from '@/components/ui/Toast';
 import TrialBanner from '@/components/ui/TrialBanner';
-import ActivationChecklist from '@/components/onboarding/ActivationChecklist';
+// ActivationChecklist now lives inside BlesafDashboard empty state
 import DevStatsTooltip from '@/components/dashboard/DevStatsTooltip';
 import { QueueStatus } from '@/types';
 export default function DashboardPage() {
@@ -105,12 +105,7 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Activation Checklist — shown for new clinics until dismissed */}
-      {!clinic?.isAdmin && !isImpersonating && (
-        <div className="px-4 pt-3">
-          <ActivationChecklist />
-        </div>
-      )}
+      {/* Activation checklist now integrated directly into BlesafDashboard empty state */}
 
       {/* Impersonation Banner */}
       {isImpersonating && (
