@@ -599,28 +599,36 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      min-height: 400px;
+      min-height: 640px;
     }
 
-    /* Phone frame for real screenshot */
+    /* Phone mockup — real iPhone 14 frame PNG over screenshot */
     .showcase-phone {
-      width: 270px;
+      width: 290px;
       flex-shrink: 0;
-      border-radius: 36px;
-      border: 6px solid #1E293B;
-      overflow: hidden;
-      box-shadow:
-        0 20px 60px rgba(0,0,0,0.12),
-        0 0 0 1px rgba(0,0,0,0.04);
       position: relative;
       z-index: 2;
-      background: #F5F5F0;
     }
-    .showcase-phone img {
+    /* The frame PNG defines the container size */
+    .phone-frame {
       width: 100%;
       display: block;
-      /* Crop the admin "Vue en tant que" red bar from top */
-      margin-top: -18px;
+      position: relative;
+      z-index: 3;
+      pointer-events: none;
+      filter: drop-shadow(0 20px 50px rgba(0,0,0,0.15));
+    }
+    /* Screenshot sits behind the frame, filling the screen area */
+    .phone-screenshot {
+      position: absolute;
+      top: 1.6%;
+      left: 5.6%;
+      width: 88.8%;
+      height: 96.8%;
+      object-fit: cover;
+      object-position: center top;
+      border-radius: 32px;
+      z-index: 1;
     }
 
     /* Pulsing hotspot dots */
@@ -713,11 +721,11 @@
       line-height: 1.5;
     }
 
-    /* Callout positions — desktop (phone is ~340px tall at 270px wide) */
-    .callout-1 { top: 0px; right: calc(50% + 175px); }
-    .callout-2 { top: 100px; left: calc(50% + 175px); }
-    .callout-3 { top: 200px; right: calc(50% + 175px); }
-    .callout-4 { top: 290px; left: calc(50% + 175px); }
+    /* Callout positions — desktop (phone is ~620px tall at 290px wide) */
+    .callout-1 { top: 30px; right: calc(50% + 185px); }
+    .callout-2 { top: 200px; left: calc(50% + 185px); }
+    .callout-3 { top: 370px; right: calc(50% + 185px); }
+    .callout-4 { top: 510px; left: calc(50% + 185px); }
 
     /* Responsive: stack below on mobile */
     @media (max-width: 780px) {
@@ -1172,14 +1180,15 @@
     <div class="section-sub">Tout ce dont vous avez besoin, sur un seul écran. Zéro formation requise.</div>
 
     <div class="dashboard-showcase">
-      <!-- Phone frame with real screenshot -->
+      <!-- Phone mockup: real iPhone 14 frame + dashboard screenshot -->
       <div class="showcase-phone">
-        <img src="Dr_dashboard_05.png" alt="Tableau de bord BleSaf — vue réelle du cabinet" />
-        <!-- Pulsing hotspot dots -->
-        <div class="hotspot" id="hs-1" style="top: 20%; left: 35%"></div>
-        <div class="hotspot" id="hs-2" style="top: 44%; left: 55%"></div>
-        <div class="hotspot" id="hs-3" style="top: 70%; left: 40%"></div>
-        <div class="hotspot" id="hs-4" style="top: 90%; left: 50%"></div>
+        <img class="phone-frame" src="apple-iphone-14-max.png" alt="" />
+        <img class="phone-screenshot" src="Dr_dashboard_05.png" alt="Tableau de bord BleSaf — vue réelle du cabinet" />
+        <!-- Pulsing hotspot dots (positioned over the screen area) -->
+        <div class="hotspot" id="hs-1" style="top: 16%; left: 35%"></div>
+        <div class="hotspot" id="hs-2" style="top: 38%; left: 55%"></div>
+        <div class="hotspot" id="hs-3" style="top: 62%; left: 40%"></div>
+        <div class="hotspot" id="hs-4" style="top: 85%; left: 50%"></div>
       </div>
 
       <!-- SVG connector lines (desktop only) -->
