@@ -618,17 +618,23 @@
       pointer-events: none;
       filter: drop-shadow(0 20px 50px rgba(0,0,0,0.15));
     }
-    /* Screenshot sits behind the frame, filling the screen area */
-    .phone-screenshot {
+    /* Screen area — clips the screenshot to the iPhone display region */
+    .phone-screen {
       position: absolute;
       top: 1.6%;
       left: 5.6%;
       width: 88.8%;
       height: 96.8%;
-      object-fit: cover;
-      object-position: center top;
       border-radius: 32px;
+      overflow: hidden;
       z-index: 1;
+      background: #F5F5F0;
+    }
+    /* Screenshot: full width, shifted up to crop the red admin bar */
+    .phone-screenshot {
+      width: 100%;
+      display: block;
+      transform: translateY(-5.5%);
     }
 
     /* Pulsing hotspot dots */
@@ -1183,7 +1189,9 @@
       <!-- Phone mockup: real iPhone 14 frame + dashboard screenshot -->
       <div class="showcase-phone">
         <img class="phone-frame" src="apple-iphone-14-max.png" alt="" />
-        <img class="phone-screenshot" src="Dr_dashboard_05.png" alt="Tableau de bord BleSaf — vue réelle du cabinet" />
+        <div class="phone-screen">
+          <img class="phone-screenshot" src="Dr_dashboard_05.png" alt="Tableau de bord BleSaf — vue réelle du cabinet" />
+        </div>
         <!-- Pulsing hotspot dots (positioned over the screen area) -->
         <div class="hotspot" id="hs-1" style="top: 16%; left: 35%"></div>
         <div class="hotspot" id="hs-2" style="top: 38%; left: 55%"></div>
