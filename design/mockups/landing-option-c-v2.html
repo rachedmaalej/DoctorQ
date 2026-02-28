@@ -127,15 +127,12 @@
       padding-top: 56px;
     }
 
-    /* Crossfade visual container */
+    /* Crossfade visual container — full-width */
     .da-hero-crossfade {
       position: relative;
       width: 100%;
-      max-width: 640px;
-      margin: 0 auto;
-      height: 360px;
+      height: 480px;
       overflow: hidden;
-      border-radius: 0 0 16px 16px;
     }
     .da-hero-crossfade img {
       position: absolute;
@@ -861,8 +858,9 @@
        RESPONSIVE
        ============================================ */
     @media (max-width: 700px) {
-      .da-hero-crossfade { height: 280px; }
+      .da-hero-crossfade { height: 340px; }
       .da-hero-cf-text h2 { font-size: 18px; }
+      .da-hero-sub { font-size: 13px; }
       .benefits-grid, .steps, .proof-cards, .pricing-cards {
         flex-direction: column;
         align-items: center;
@@ -887,8 +885,8 @@
        ========================================== -->
   <div class="da-hero">
     <div class="da-hero-crossfade" id="da-crossfade">
-      <img class="da-cf-visible" id="da-img-before" src="Without-BleSaf.png" alt="Sans BleSaf">
-      <img class="da-cf-hidden" id="da-img-after" src="With-BleSaf.png" alt="Avec BleSaf">
+      <img class="da-cf-visible" id="da-img-before" src="Without-BleSaf.jpg" alt="Sans BleSaf">
+      <img class="da-cf-hidden" id="da-img-after" src="With-BleSaf.jpg" alt="Avec BleSaf">
 
       <div class="da-hero-cf-badge da-badge-before" id="da-badge">SANS BLESAF</div>
 
