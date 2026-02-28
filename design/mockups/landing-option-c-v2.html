@@ -120,363 +120,182 @@
     .nav-cta:hover { background: #0284C7; }
 
     /* ============================================
-       1. HERO — Dark, problem-first, demo integrated
+       1. HERO — Before/After crossfade (Option A)
        ============================================ */
-    .hero {
-      background: linear-gradient(180deg, #0F172A 0%, #1E293B 100%);
-      padding: 100px 20px 48px;
+    .da-hero {
       text-align: center;
+      padding-top: 56px;
+    }
+
+    /* Crossfade visual container */
+    .da-hero-crossfade {
       position: relative;
+      width: 100%;
+      max-width: 640px;
+      margin: 0 auto;
+      height: 360px;
       overflow: hidden;
+      border-radius: 0 0 16px 16px;
     }
-    /* Subtle grid pattern */
-    .hero::before {
-      content: '';
+    .da-hero-crossfade img {
       position: absolute;
-      inset: 0;
-      background-image:
-        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-      background-size: 40px 40px;
-      pointer-events: none;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: opacity 1.2s ease-in-out;
     }
-    .hero-content { position: relative; z-index: 1; }
+    .da-hero-crossfade img.da-cf-hidden { opacity: 0; }
+    .da-hero-crossfade img.da-cf-visible { opacity: 1; }
 
-    .hero-headline {
-      font-size: 28px;
-      font-weight: 900;
-      color: #F1F5F9;
-      line-height: 1.2;
-      margin-bottom: 12px;
-      max-width: 500px;
-      margin-left: auto;
-      margin-right: auto;
+    /* Gradient overlay for text readability */
+    .da-hero-cf-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 60px 20px 20px;
+      background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
+      z-index: 5;
     }
-    .hero-headline em {
-      font-style: normal;
-      color: #38BDF8;
-    }
-    .hero-sub {
-      font-size: 15px;
-      color: #94A3B8;
-      line-height: 1.5;
-      margin-bottom: 32px;
-      max-width: 440px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    /* Phone-in-hero mockup */
-    .hero-phone-wrapper {
-      margin: 0 auto 24px;
+    .da-hero-cf-texts {
       position: relative;
-      width: 240px;
+      min-height: 80px;
     }
-
-    /* Annotations beside the phone */
-    .hero-annotation {
+    .da-hero-cf-text {
       position: absolute;
-      max-width: 160px;
-      padding: 10px 14px;
-      background: rgba(255,255,255,0.07);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 12px;
-      font-size: 12px;
-      color: #CBD5E1;
-      line-height: 1.45;
-      opacity: 0;
-      transform: translateY(6px);
-      transition: opacity 0.5s ease, transform 0.5s ease;
-      pointer-events: none;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      transition: opacity 0.8s ease-in-out, transform 0.8s ease-in-out;
     }
-    .hero-annotation.show {
+    .da-hero-cf-text.da-cf-hidden {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    .da-hero-cf-text.da-cf-visible {
       opacity: 1;
       transform: translateY(0);
     }
-    .hero-annotation strong {
-      color: #F1F5F9;
-      font-weight: 700;
-    }
-    .hero-annotation-left {
-      right: calc(100% + 16px);
-      top: 50%;
-      transform: translateY(-50%) translateX(-6px);
-      text-align: right;
-    }
-    .hero-annotation-left.show {
-      transform: translateY(-50%) translateX(0);
-    }
-    .hero-annotation-right {
-      left: calc(100% + 16px);
-      top: 50%;
-      transform: translateY(-50%) translateX(6px);
-      text-align: left;
-    }
-    .hero-annotation-right.show {
-      transform: translateY(-50%) translateX(0);
-    }
-
-    /* Phone frame */
-    .phone {
-      width: 240px;
-      aspect-ratio: 71.6 / 147.6;
-      border-radius: 36px;
-      border: 5px solid #3A3A3C;
-      overflow: hidden;
-      box-shadow:
-        0 16px 48px rgba(0,0,0,0.4),
-        0 0 0 1px rgba(255,255,255,0.05);
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      margin: 0 auto;
-    }
-    .phone.vibrate { animation: vibrate 0.4s ease-in-out; }
-    .phone.vibrate-strong { animation: vibrate-strong 0.6s ease-in-out; }
-
-    @keyframes vibrate {
-      0%, 100% { transform: translateX(0); }
-      15% { transform: translateX(-2px) rotate(-0.5deg); }
-      30% { transform: translateX(2px) rotate(0.5deg); }
-      45% { transform: translateX(-1.5px); }
-      60% { transform: translateX(1.5px); }
-      75% { transform: translateX(-1px); }
-    }
-    @keyframes vibrate-strong {
-      0%, 100% { transform: translateX(0); }
-      10% { transform: translateX(-3px) rotate(-1deg); }
-      20% { transform: translateX(3px) rotate(1deg); }
-      30% { transform: translateX(-3px) rotate(-0.5deg); }
-      40% { transform: translateX(3px) rotate(0.5deg); }
-      50% { transform: translateX(-2px); }
-      60% { transform: translateX(2px); }
-      70% { transform: translateX(-1px); }
-      80% { transform: translateX(1px); }
-    }
-
-    .phone-notch {
-      width: 80px;
-      height: 20px;
-      background: #1C1C1E;
-      border-radius: 14px;
-      margin: 8px auto 0;
-      flex-shrink: 0;
-      z-index: 10;
-      position: relative;
-    }
-    .phone-screen {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      overflow: hidden;
-      transition: background 0.8s ease;
-    }
-    .phone-inner {
-      padding: 12px 16px 16px;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      transition: opacity 0.3s ease;
-    }
-
-    /* Live badge */
-    .demo-live {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      margin-bottom: 12px;
-    }
-    .demo-live-dot {
-      width: 7px; height: 7px;
-      border-radius: 50%;
-      background: #22C55E;
-      animation: pulse 1.5s ease-in-out infinite;
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
-      50% { opacity: 0.8; box-shadow: 0 0 0 4px rgba(34,197,94,0); }
-    }
-    .demo-live-text {
-      font-size: 9px;
-      font-weight: 700;
-      color: #22C55E;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    /* Position */
-    .demo-position { text-align: center; margin-bottom: 10px; }
-    .demo-pos-label {
-      font-size: 9px;
-      color: #64748B;
-      text-transform: uppercase;
-      font-weight: 600;
-      letter-spacing: 0.8px;
-      margin-bottom: 2px;
-    }
-    .demo-pos-num {
-      font-size: 52px;
+    .da-hero-cf-text h2 {
+      font-size: 22px;
       font-weight: 900;
-      line-height: 1;
-      transition: color 0.5s ease;
+      color: #FFFFFF;
+      line-height: 1.3;
+      margin-bottom: 6px;
+      text-shadow: 0 1px 6px rgba(0,0,0,0.3);
     }
-    .demo-pos-num.pop { animation: num-pop 0.4s ease-out; }
-    @keyframes num-pop {
-      0% { transform: scale(0.7); opacity: 0.3; }
-      50% { transform: scale(1.1); }
-      100% { transform: scale(1); opacity: 1; }
+    .da-hero-cf-text h2 em {
+      font-style: normal;
+      color: #7DD3FC;
     }
-
-    /* Time card */
-    .demo-time-card {
-      border-radius: 12px;
-      padding: 10px 12px;
-      text-align: center;
-      margin-bottom: 10px;
-      transition: background 0.5s ease;
-    }
-    .demo-time-label {
-      font-size: 9px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 2px;
-      transition: color 0.5s ease;
-    }
-    .demo-time-val {
-      font-size: 26px;
-      font-weight: 900;
-      transition: color 0.5s ease;
+    .da-hero-cf-text p {
+      font-size: 13px;
+      color: rgba(255,255,255,0.8);
+      line-height: 1.5;
     }
 
-    /* Journey dots */
-    .demo-journey {
-      display: flex;
-      align-items: center;
-      gap: 3px;
-      padding: 8px 0;
-    }
-    .demo-j-icon {
-      width: 26px; height: 26px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .demo-j-you { background: #E0F2FE; color: #0284C7; border: 1.5px solid #0EA5E9; }
-    .demo-j-ahead { background: #F1F5F9; color: #94A3B8; }
-    .demo-j-done { background: #D1FAE5; color: #059669; }
-    .demo-j-door { background: #F1F5F9; color: #94A3B8; }
-    .demo-j-line {
-      flex: 1; height: 2px;
-      background: #E2E8F0;
-      transition: background 0.5s ease;
-    }
-    .demo-j-line.done { background: #6EE7B7; }
-
-    /* Status */
-    .demo-status {
-      text-align: center;
+    /* Badge */
+    .da-hero-cf-badge {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      z-index: 6;
+      padding: 5px 14px;
+      border-radius: 20px;
       font-size: 11px;
-      font-weight: 600;
-      padding: 6px 0;
-      min-height: 30px;
-      transition: color 0.5s ease;
-    }
-
-    /* Toast */
-    .demo-toast {
-      position: absolute;
-      top: 34px; left: 12px; right: 12px;
-      background: #1E293B;
-      color: #FFF;
-      padding: 8px 12px;
-      border-radius: 12px;
-      font-size: 10px;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      z-index: 20;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-      opacity: 0;
-      transform: translateY(-12px);
-      transition: opacity 0.3s ease, transform 0.3s ease;
-      pointer-events: none;
-    }
-    .demo-toast.show { opacity: 1; transform: translateY(0); }
-    .demo-toast .material-symbols-outlined { font-size: 15px; flex-shrink: 0; }
-
-    /* Final overlay */
-    .demo-final {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      opacity: 0;
-      transition: opacity 0.5s ease;
-      pointer-events: none;
-      z-index: 5;
-    }
-    .demo-final.show { opacity: 1; }
-    .demo-final-icon {
-      width: 60px; height: 60px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.25);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      animation: final-ring 1s ease-in-out infinite;
-    }
-    @keyframes final-ring {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.3); }
-      50% { box-shadow: 0 0 0 14px rgba(255,255,255,0); }
-    }
-    .demo-final-icon .material-symbols-outlined { font-size: 30px; color: #FFF; }
-    .demo-final-title {
-      font-size: 20px;
-      font-weight: 900;
-      color: #FFF;
+      font-weight: 800;
+      letter-spacing: 0.8px;
       text-transform: uppercase;
-      letter-spacing: 1px;
+      transition: all 0.8s ease-in-out;
     }
-    .demo-final-sub {
-      font-size: 12px;
-      color: rgba(255,255,255,0.85);
-      text-align: center;
-      line-height: 1.4;
+    .da-hero-cf-badge.da-badge-before {
+      background: rgba(239, 68, 68, 0.9);
+      color: #FFF;
+    }
+    .da-hero-cf-badge.da-badge-after {
+      background: rgba(16, 185, 129, 0.9);
+      color: #FFF;
     }
 
-    /* Progress dots under phone */
-    .demo-progress {
+    /* Indicator dots */
+    .da-hero-cf-dots {
+      position: absolute;
+      bottom: 10px;
+      right: 16px;
+      z-index: 10;
       display: flex;
-      justify-content: center;
       gap: 6px;
-      margin: 16px auto 0;
     }
-    .demo-progress-dot {
-      width: 8px; height: 8px;
+    .da-hero-cf-dot {
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
-      background: rgba(255,255,255,0.15);
-      transition: background 0.3s ease, transform 0.3s ease;
+      background: rgba(255,255,255,0.4);
+      transition: all 0.4s ease;
+      cursor: pointer;
+      border: none;
+      padding: 0;
     }
-    .demo-progress-dot.active {
-      background: #38BDF8;
-      transform: scale(1.25);
+    .da-hero-cf-dot.da-dot-active {
+      background: #FFFFFF;
+      width: 24px;
+      border-radius: 4px;
     }
 
-    .hero-cta-row {
+    /* Below-photo section */
+    .da-hero-body {
+      padding: 24px 20px 32px;
+      background: #FFFFFF;
+    }
+    .da-hero-sub {
+      font-size: 14px;
+      color: #475569;
+      line-height: 1.6;
+      margin-bottom: 20px;
+      max-width: 460px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .da-hero-ctas {
       display: flex;
       flex-direction: column;
+      gap: 10px;
       align-items: center;
-      gap: 8px;
-      margin-top: 28px;
+    }
+    .da-hero-btn-primary {
+      padding: 14px 32px;
+      background: #0EA5E9;
+      color: #FFF;
+      border: none;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(14, 165, 233, 0.3);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .da-hero-btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(14, 165, 233, 0.4);
+    }
+    .da-hero-btn-secondary {
+      padding: 10px 20px;
+      background: transparent;
+      color: #0EA5E9;
+      border: 1.5px solid #BAE6FD;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .da-hero-trust {
+      margin-top: 14px;
+      font-size: 11px;
+      color: #94A3B8;
     }
 
     /* ============================================
@@ -1042,8 +861,8 @@
        RESPONSIVE
        ============================================ */
     @media (max-width: 700px) {
-      .hero-annotation { display: none; }
-      .hero-headline { font-size: 24px; }
+      .da-hero-crossfade { height: 280px; }
+      .da-hero-cf-text h2 { font-size: 18px; }
       .benefits-grid, .steps, .proof-cards, .pricing-cards {
         flex-direction: column;
         align-items: center;
@@ -1064,67 +883,43 @@
   </nav>
 
   <!-- ==========================================
-       1. HERO
+       1. HERO — Before/After crossfade
        ========================================== -->
-  <section class="hero">
-    <div class="hero-content">
-      <h1 class="hero-headline">
-        La salle d'attente<br>qui <em>se gère toute seule</em>
-      </h1>
-      <p class="hero-sub">
-        Vos patients suivent leur position en temps réel sur leur téléphone. Plus de cohue, plus de réclamations. Zéro appli à télécharger.
-      </p>
+  <div class="da-hero">
+    <div class="da-hero-crossfade" id="da-crossfade">
+      <img class="da-cf-visible" id="da-img-before" src="Without-BleSaf.png" alt="Sans BleSaf">
+      <img class="da-cf-hidden" id="da-img-after" src="With-BleSaf.png" alt="Avec BleSaf">
 
-      <!-- Animated phone with side annotations -->
-      <div class="hero-phone-wrapper">
-        <div class="hero-annotation hero-annotation-left" id="annot-left"></div>
-        <div class="hero-annotation hero-annotation-right" id="annot-right"></div>
+      <div class="da-hero-cf-badge da-badge-before" id="da-badge">SANS BLESAF</div>
 
-        <div class="phone" id="anim-phone">
-          <div class="phone-notch"></div>
-          <div class="phone-screen" id="anim-screen">
-            <div class="demo-toast" id="anim-toast">
-              <span class="material-symbols-outlined filled" style="color:#34D399">arrow_upward</span>
-              <span id="anim-toast-text"></span>
-            </div>
-
-            <div class="phone-inner" id="anim-inner">
-              <div class="demo-live">
-                <div class="demo-live-dot"></div>
-                <span class="demo-live-text">En direct</span>
-              </div>
-              <div class="demo-position">
-                <div class="demo-pos-label" id="anim-pos-label">Votre position</div>
-                <div class="demo-pos-num" id="anim-pos">#5</div>
-              </div>
-              <div class="demo-time-card" id="anim-time-card">
-                <div class="demo-time-label" id="anim-time-label">Temps d'attente estimé</div>
-                <div class="demo-time-val" id="anim-time">~25 min</div>
-              </div>
-              <div class="demo-journey" id="anim-journey"></div>
-              <div class="demo-status" id="anim-status"></div>
-            </div>
-
-            <div class="demo-final" id="anim-final">
-              <div class="demo-final-icon">
-                <span class="material-symbols-outlined filled">celebration</span>
-              </div>
-              <div class="demo-final-title">C'est votre tour !</div>
-              <div class="demo-final-sub">Le Dr. Ben Ali vous attend.<br>Dirigez-vous vers la salle.</div>
-            </div>
+      <div class="da-hero-cf-overlay">
+        <div class="da-hero-cf-texts">
+          <div class="da-hero-cf-text da-cf-visible" id="da-text-before">
+            <h2>Des patients frustrés, une salle <em>bondée</em></h2>
+            <p>« C'est quand mon tour ? » — la question qui revient 100 fois par jour</p>
+          </div>
+          <div class="da-hero-cf-text da-cf-hidden" id="da-text-after">
+            <h2>Des patients sereins, qui attendent <em>où ils veulent</em></h2>
+            <p>Position en temps réel, estimation précise, notification automatique</p>
           </div>
         </div>
-
-        <!-- Progress dots -->
-        <div class="demo-progress" id="anim-progress"></div>
       </div>
 
-      <div class="hero-cta-row">
-        <button class="cta-btn" onclick="document.querySelector('.pricing').scrollIntoView({behavior:'smooth'})">Essayez gratuitement pendant 30 jours</button>
-        <div class="trust-line-light">Aucune carte bancaire &middot; Installation en 5 minutes</div>
+      <div class="da-hero-cf-dots">
+        <button class="da-hero-cf-dot da-dot-active" id="da-dot-0" onclick="setDaCrossfade(0)"></button>
+        <button class="da-hero-cf-dot" id="da-dot-1" onclick="setDaCrossfade(1)"></button>
       </div>
     </div>
-  </section>
+
+    <div class="da-hero-body">
+      <div class="da-hero-sub">BleSaf transforme l'attente en liberté. Vos patients suivent leur position depuis leur téléphone — pas d'app à télécharger, juste un QR code.</div>
+      <div class="da-hero-ctas">
+        <button class="da-hero-btn-primary" onclick="document.querySelector('.pricing').scrollIntoView({behavior:'smooth'})">Essayez gratuitement 30 jours</button>
+        <button class="da-hero-btn-secondary" onclick="document.querySelector('#how-it-works').scrollIntoView({behavior:'smooth'})">Voir comment ça marche</button>
+      </div>
+      <div class="da-hero-trust">Aucune carte bancaire requise</div>
+    </div>
+  </div>
 
   <!-- ==========================================
        2. BENEFITS — Doctor-centric
@@ -1166,7 +961,7 @@
   <!-- ==========================================
        3. HOW IT WORKS — 3 steps
        ========================================== -->
-  <section class="how-it-works section-pad">
+  <section class="how-it-works section-pad" id="how-it-works">
     <div class="section-title">Opérationnel en 5 minutes</div>
     <div class="section-sub">Pas de formation. Pas de technicien. Vous faites tout vous-même.</div>
     <div class="steps">
@@ -1350,233 +1145,63 @@
        ANIMATION JS
        ========================================== -->
   <script>
+    /* =============================================
+       HERO — Before/After crossfade animation
+       ============================================= */
     (function() {
-      const STATES = [
-        {
-          pos: '#5', time: '~25 min', ahead: 4,
-          bg: 'linear-gradient(180deg, #EFF6FF 0%, #FFFFFF 100%)',
-          posColor: '#3B82F6', timeCardBg: '#EFF6FF', timeLabelColor: '#2563EB', timeColor: '#0F172A',
-          status: 'Vous êtes enregistré dans le saf',
-          statusColor: '#3B82F6',
-          toast: null,
-          annotLeft: '<strong>Sami scanne le QR code.</strong> Il s\'inscrit en 3 secondes.',
-          annotRight: '<strong>Côté cabinet :</strong> vous ne remarquez rien. Aucune action requise.',
-          vibrate: false,
-          duration: 4500
-        },
-        {
-          pos: '#4', time: '~20 min', ahead: 3,
-          bg: 'linear-gradient(180deg, #EFF6FF 0%, #FFFFFF 100%)',
-          posColor: '#0EA5E9', timeCardBg: '#F0F9FF', timeLabelColor: '#0284C7', timeColor: '#0F172A',
-          status: '3 personnes devant vous',
-          statusColor: '#0EA5E9',
-          toast: 'Vous avez avancé d\'une place !',
-          toastIcon: 'arrow_upward', toastIconColor: '#34D399',
-          annotLeft: '<strong>Sami part prendre un café.</strong> Il suit sa position depuis son téléphone.',
-          annotRight: '<strong>Votre salle d\'attente</strong> a une chaise de libre.',
-          vibrate: true,
-          duration: 4500
-        },
-        {
-          pos: '#3', time: '~15 min', ahead: 2,
-          bg: 'linear-gradient(180deg, #F0FDFA 0%, #FFFFFF 100%)',
-          posColor: '#0D9488', timeCardBg: '#F0FDFA', timeLabelColor: '#0F766E', timeColor: '#0F172A',
-          status: 'Vous avez le temps pour un café ☕',
-          statusColor: '#0D9488',
-          toast: 'Encore une place de gagnée !',
-          toastIcon: 'arrow_upward', toastIconColor: '#34D399',
-          annotLeft: '<strong>Sami est serein.</strong> Il sait exactement quand revenir.',
-          annotRight: '<strong>Votre équipe</strong> n\'a répondu à aucune question.',
-          vibrate: true,
-          duration: 4500
-        },
-        {
-          pos: '#2', time: '~8 min', ahead: 1,
-          bg: 'linear-gradient(180deg, #FFFBEB 0%, #FFFFFF 100%)',
-          posColor: '#D97706', timeCardBg: '#FFFBEB', timeLabelColor: '#B45309', timeColor: '#0F172A',
-          status: 'Préparez-vous à revenir',
-          statusColor: '#D97706',
-          toast: 'Plus qu\'une personne devant vous',
-          toastIcon: 'directions_walk', toastIconColor: '#FBBF24',
-          annotLeft: '<strong>Sami se rapproche</strong> du cabinet. Automatiquement prévenu.',
-          annotRight: '',
-          vibrate: true,
-          duration: 4500
-        },
-        {
-          pos: '#1', time: '~3 min', ahead: 0,
-          bg: 'linear-gradient(180deg, #ECFDF5 0%, #F0FDF4 100%)',
-          posColor: '#059669', timeCardBg: '#ECFDF5', timeLabelColor: '#047857', timeColor: '#065F46',
-          status: 'C\'est bientôt votre tour !',
-          statusColor: '#059669',
-          toast: '🔔 Préparez-vous, c\'est imminent !',
-          toastIcon: 'notifications_active', toastIconColor: '#10B981',
-          annotLeft: '',
-          annotRight: '<strong>Sami arrive pile au bon moment.</strong> Pas une minute perdue.',
-          vibrate: 'strong',
-          duration: 5000
-        },
-        {
-          pos: 'final', time: null, ahead: -1,
-          bg: 'linear-gradient(135deg, #059669 0%, #10B981 50%, #34D399 100%)',
-          toast: null,
-          annotLeft: '',
-          annotRight: '<strong>Sami entre détendu.</strong> Pas de stress, pas de file. Votre salle d\'attente est calme.',
-          vibrate: 'strong',
-          duration: 7000
-        }
-      ];
+      var daState = 0;
+      var daInterval = null;
 
-      let currentState = 0;
-      let animTimeout = null;
-      let toastTimeout = null;
+      window.setDaCrossfade = function(state) {
+        daState = state;
+        var imgBefore = document.getElementById('da-img-before');
+        var imgAfter = document.getElementById('da-img-after');
+        var textBefore = document.getElementById('da-text-before');
+        var textAfter = document.getElementById('da-text-after');
+        var badge = document.getElementById('da-badge');
+        var dot0 = document.getElementById('da-dot-0');
+        var dot1 = document.getElementById('da-dot-1');
 
-      const phone     = document.getElementById('anim-phone');
-      const screen    = document.getElementById('anim-screen');
-      const inner     = document.getElementById('anim-inner');
-      const posEl     = document.getElementById('anim-pos');
-      const timeCard  = document.getElementById('anim-time-card');
-      const timeLabel = document.getElementById('anim-time-label');
-      const timeEl    = document.getElementById('anim-time');
-      const journey   = document.getElementById('anim-journey');
-      const statusEl  = document.getElementById('anim-status');
-      const toast     = document.getElementById('anim-toast');
-      const toastText = document.getElementById('anim-toast-text');
-      const finalEl   = document.getElementById('anim-final');
-      const annotLeft = document.getElementById('annot-left');
-      const annotRight = document.getElementById('annot-right');
-      const progressContainer = document.getElementById('anim-progress');
-
-      // Build progress dots
-      STATES.forEach(function(_, i) {
-        const dot = document.createElement('div');
-        dot.className = 'demo-progress-dot';
-        dot.dataset.index = i;
-        progressContainer.appendChild(dot);
-      });
-      const progressDots = progressContainer.querySelectorAll('.demo-progress-dot');
-
-      function buildJourney(ahead) {
-        let html = '';
-        html += '<div class="demo-j-icon demo-j-you"><span class="material-symbols-outlined" style="font-size:13px">person</span></div>';
-        const totalSlots = 4;
-        const done = totalSlots - 1 - ahead;
-        for (let i = 0; i < totalSlots - 1; i++) {
-          const lineDone = i < done;
-          const isAhead = i >= done && i < done + ahead;
-          html += '<div class="demo-j-line' + (lineDone ? ' done' : '') + '"></div>';
-          if (isAhead) {
-            html += '<div class="demo-j-icon demo-j-ahead"><span class="material-symbols-outlined" style="font-size:12px">person</span></div>';
-          } else if (i < done) {
-            html += '<div class="demo-j-icon demo-j-done"><span class="material-symbols-outlined" style="font-size:12px">check</span></div>';
-          }
-        }
-        html += '<div class="demo-j-line' + (ahead === 0 ? ' done' : '') + '"></div>';
-        html += '<div class="demo-j-icon demo-j-door"><span class="material-symbols-outlined" style="font-size:13px">door_front</span></div>';
-        return html;
-      }
-
-      function showToast(text, icon, iconColor) {
-        if (toastTimeout) clearTimeout(toastTimeout);
-        var toastIcon = toast.querySelector('.material-symbols-outlined');
-        toastIcon.textContent = icon || 'arrow_upward';
-        toastIcon.style.color = iconColor || '#34D399';
-        toastText.textContent = text;
-        toast.classList.add('show');
-        toastTimeout = setTimeout(function() { toast.classList.remove('show'); }, 2500);
-      }
-
-      function hideToast() { toast.classList.remove('show'); }
-
-      function updateAnnotations(s) {
-        annotLeft.classList.remove('show');
-        annotRight.classList.remove('show');
-        setTimeout(function() {
-          if (s.annotLeft) {
-            annotLeft.innerHTML = s.annotLeft;
-            annotLeft.classList.add('show');
-          }
-          if (s.annotRight) {
-            annotRight.innerHTML = s.annotRight;
-            annotRight.classList.add('show');
-          }
-        }, 400);
-      }
-
-      function updateProgress(idx) {
-        progressDots.forEach(function(dot, i) {
-          dot.classList.toggle('active', i === idx);
-        });
-      }
-
-      function applyState(idx) {
-        var s = STATES[idx];
-        updateProgress(idx);
-
-        // Vibrate
-        if (s.vibrate) {
-          phone.classList.remove('vibrate', 'vibrate-strong');
-          void phone.offsetWidth;
-          phone.classList.add(s.vibrate === 'strong' ? 'vibrate-strong' : 'vibrate');
-        }
-
-        // Background
-        screen.style.background = s.bg;
-
-        // Toast
-        if (s.toast) {
-          setTimeout(function() { showToast(s.toast, s.toastIcon, s.toastIconColor); }, 200);
+        if (state === 0) {
+          imgBefore.className = 'da-cf-visible';
+          imgAfter.className = 'da-cf-hidden';
+          textBefore.className = 'da-hero-cf-text da-cf-visible';
+          textAfter.className = 'da-hero-cf-text da-cf-hidden';
+          badge.className = 'da-hero-cf-badge da-badge-before';
+          badge.textContent = 'SANS BLESAF';
+          dot0.className = 'da-hero-cf-dot da-dot-active';
+          dot1.className = 'da-hero-cf-dot';
         } else {
-          hideToast();
+          imgBefore.className = 'da-cf-hidden';
+          imgAfter.className = 'da-cf-visible';
+          textBefore.className = 'da-hero-cf-text da-cf-hidden';
+          textAfter.className = 'da-hero-cf-text da-cf-visible';
+          badge.className = 'da-hero-cf-badge da-badge-after';
+          badge.textContent = 'AVEC BLESAF';
+          dot0.className = 'da-hero-cf-dot';
+          dot1.className = 'da-hero-cf-dot da-dot-active';
         }
 
-        // Annotations
-        updateAnnotations(s);
-
-        // Final state
-        if (s.pos === 'final') {
-          inner.style.opacity = '0';
-          setTimeout(function() { finalEl.classList.add('show'); }, 300);
-          return;
+        if (daInterval) {
+          clearInterval(daInterval);
+          daInterval = setInterval(function() {
+            daState = daState === 0 ? 1 : 0;
+            setDaCrossfade(daState);
+          }, 3500);
         }
+      };
 
-        // Normal states
-        finalEl.classList.remove('show');
-        inner.style.opacity = '1';
+      window.startDaCrossfade = function() {
+        if (daInterval) clearInterval(daInterval);
+        daState = 0;
+        setDaCrossfade(0);
+        daInterval = setInterval(function() {
+          daState = daState === 0 ? 1 : 0;
+          setDaCrossfade(daState);
+        }, 3500);
+      };
 
-        posEl.textContent = s.pos;
-        posEl.style.color = s.posColor;
-        posEl.classList.remove('pop');
-        void posEl.offsetWidth;
-        posEl.classList.add('pop');
-
-        timeCard.style.background = s.timeCardBg;
-        timeLabel.style.color = s.timeLabelColor;
-        timeEl.style.color = s.timeColor;
-        timeEl.textContent = s.time;
-
-        statusEl.textContent = s.status;
-        statusEl.style.color = s.statusColor;
-
-        journey.innerHTML = buildJourney(s.ahead);
-      }
-
-      function scheduleNext() {
-        var duration = STATES[currentState].duration || 4500;
-        animTimeout = setTimeout(function() {
-          currentState = (currentState + 1) % STATES.length;
-          applyState(currentState);
-          scheduleNext();
-        }, duration);
-      }
-
-      function startAnim() {
-        currentState = 0;
-        applyState(0);
-        scheduleNext();
-      }
-
-      startAnim();
+      startDaCrossfade();
     })();
 
     /* =============================================
