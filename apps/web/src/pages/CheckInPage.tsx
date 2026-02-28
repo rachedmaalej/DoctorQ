@@ -23,6 +23,7 @@ export default function CheckInPage() {
   const [isDoctorPresent, setIsDoctorPresent] = useState(false);
   const [waitingCount, setWaitingCount] = useState(0);
   const [avgConsultationMins, setAvgConsultationMins] = useState(0);
+  const [clinicStatus, setClinicStatus] = useState<'loading' | 'active' | 'inactive' | 'not_found'>('loading');
 
   useEffect(() => {
     if (clinicId) {
@@ -34,9 +35,16 @@ export default function CheckInPage() {
           setIsDoctorPresent(info.isDoctorPresent);
           setWaitingCount(info.waitingCount);
           setAvgConsultationMins(info.avgConsultationMins);
+          setClinicStatus('active');
         })
-        .catch(() => {
-          // Silently fail - clinic info is optional display
+        .catch((err: any) => {
+          if (err.code === 'CLINIC_INACTIVE') {
+            setClinicStatus('inactive');
+          } else if (err.code === 'CLINIC_NOT_FOUND') {
+            setClinicStatus('not_found');
+          } else {
+            setClinicStatus('active'); // Fallback: let them try
+          }
         });
     }
   }, [clinicId]);
@@ -96,6 +104,9 @@ export default function CheckInPage() {
         return;
       } else if (err.code === 'ALREADY_CHECKED_IN') {
         setError(t('checkin.alreadyCheckedIn') || 'You are already checked in');
+      } else if (err.code === 'CLINIC_INACTIVE') {
+        setClinicStatus('inactive');
+        return;
       } else if (err.code === 'CLINIC_NOT_FOUND') {
         setError(t('checkin.clinicNotFound') || 'Clinic not found');
       } else {
@@ -107,6 +118,39 @@ export default function CheckInPage() {
   };
 
   const displayName = doctorName || clinicName;
+
+  // Show error screen for inactive or not-found clinics
+  if (clinicStatus === 'inactive' || clinicStatus === 'not_found') {
+    return (
+      <div className="min-h-screen bg-[#FAFAF8] flex flex-col">
+        <div className="flex justify-between items-center px-6 pt-4 pb-1">
+          <span className="text-xs font-medium text-bs-text-tertiary">
+            {t('checkin.virtualQueue')}
+          </span>
+          <LanguageSwitcher />
+        </div>
+        <div className="flex-1 flex flex-col items-center justify-center px-6 text-center">
+          <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center mb-4">
+            <span className="material-symbols-rounded text-3xl text-red-400">
+              {clinicStatus === 'inactive' ? 'pause_circle' : 'search_off'}
+            </span>
+          </div>
+          <h1 className="text-xl font-bold text-bs-text-primary mb-2">
+            {clinicStatus === 'inactive' ? t('checkin.clinicInactive') : t('checkin.clinicNotFound')}
+          </h1>
+          <p className="text-sm text-bs-text-secondary max-w-[280px]">
+            {clinicStatus === 'inactive' ? t('checkin.clinicInactiveDesc') : t('checkin.clinicNotFoundDesc')}
+          </p>
+        </div>
+        <div className="flex items-center justify-center gap-1.5 py-4 pb-9">
+          <div className="w-4 h-4 bg-bs-text-tertiary rounded flex items-center justify-center text-white text-[9px] font-extrabold">
+            B
+          </div>
+          <span className="text-xs text-bs-text-tertiary font-medium">BleSaf</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#FAFAF8] flex flex-col">

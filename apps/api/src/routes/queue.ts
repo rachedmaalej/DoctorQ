@@ -381,9 +381,15 @@ router.post('/checkin/:clinicId', async (req, res: Response) => {
       select: { id: true, name: true, isActive: true, avgConsultationMins: true },
     });
 
-    if (!clinic || !clinic.isActive) {
+    if (!clinic) {
       return res.status(404).json({
-        error: { code: 'CLINIC_NOT_FOUND', message: 'Clinic not found or inactive' },
+        error: { code: 'CLINIC_NOT_FOUND', message: 'Clinic not found' },
+      });
+    }
+
+    if (!clinic.isActive) {
+      return res.status(403).json({
+        error: { code: 'CLINIC_INACTIVE', message: 'This clinic is currently inactive' },
       });
     }
 
