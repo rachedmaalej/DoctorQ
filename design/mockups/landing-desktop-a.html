@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BleSaf — Transformez votre salle d'attente</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" rel="stylesheet">
+  <style>
+    /* ── Reset ── */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'IBM Plex Sans', system-ui, sans-serif;
+      background: #FFFFFF;
+      color: #1E293B;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .material-symbols-outlined.filled {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+
+    /* ── CSS Variables ── */
+    :root {
+      --sky: #0EA5E9;
+      --sky-dark: #0284C7;
+      --sky-light: #E0F2FE;
+      --sky-pale: #F0F9FF;
+      --green: #059669;
+      --green-light: #D1FAE5;
+      --ink: #0F172A;
+      --text-mid: #475569;
+      --text-dim: #94A3B8;
+      --border: #E2E8F0;
+      --container-max: 1280px;
+      --gutter: 80px;
+      --section-pad: 96px;
+      --nav-h: 68px;
+    }
+
+    /* ── Layout System ── */
+    .lp-container {
+      max-width: var(--container-max);
+      margin: 0 auto;
+      padding: 0 var(--gutter);
+    }
+    .section-wrap { padding: var(--section-pad) 0; }
+
+    /* ════════════════════════════════════════════════
+       FIXED NAV
+       ════════════════════════════════════════════════ */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      height: var(--nav-h);
+      display: flex;
+      align-items: center;
+      padding: 0 var(--gutter);
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+    .nav-logo {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--ink);
+      letter-spacing: -0.5px;
+      text-decoration: none;
+      margin-right: auto;
+    }
+    .nav-logo span { color: var(--sky); }
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      align-items: center;
+      margin-right: 32px;
+    }
+    .nav-links a {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-mid);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--ink); }
+    .btn-nav {
+      padding: 10px 22px;
+      background: var(--sky);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.2s;
+    }
+    .btn-nav:hover { background: var(--sky-dark); }
+
+    /* ════════════════════════════════════════════════
+       HERO — 2-column split (text left, crossfade photo right)
+       ════════════════════════════════════════════════ */
+    .hero {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      padding-top: var(--nav-h);
+    }
+
+    /* Left: text + CTAs */
+    .hero-left {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 80px 60px 80px var(--gutter);
+    }
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: var(--sky-light);
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--sky-dark);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 28px;
+      width: fit-content;
+    }
+    .hero-eyebrow .material-symbols-outlined {
+      font-size: 16px;
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+
+    .hero-headline {
+      font-size: clamp(2.2rem, 3.2vw, 3.4rem);
+      font-weight: 900;
+      color: var(--ink);
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      margin-bottom: 20px;
+      transition: opacity 0.4s ease;
+    }
+    .hero-headline em {
+      font-style: normal;
+      color: var(--sky);
+    }
+    .hero-sub {
+      font-size: 18px;
+      color: var(--text-mid);
+      line-height: 1.7;
+      margin-bottom: 36px;
+      max-width: 440px;
+      transition: opacity 0.4s ease;
+    }
+    .hero-ctas {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .btn-primary {
+      padding: 16px 32px;
+      background: var(--sky);
+      color: #FFF;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      box-shadow: 0 4px 16px rgba(14, 165, 233, 0.32);
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    }
+    .btn-primary:hover {
+      background: var(--sky-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(14, 165, 233, 0.38);
+    }
+    .btn-secondary {
+      padding: 14px 24px;
+      background: transparent;
+      color: var(--sky);
+      border: 1.5px solid #BAE6FD;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: border-color 0.2s;
+    }
+    .btn-secondary:hover { border-color: var(--sky); }
+    .hero-trust {
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+
+    /* Right: full-height crossfade photo */
+    .hero-right {
+      position: relative;
+      overflow: hidden;
+      background: #0F172A;
+    }
+    .hero-right img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      transition: opacity 1.2s ease-in-out;
+    }
+    .hero-right img.da-cf-hidden { opacity: 0; }
+    .hero-right img.da-cf-visible { opacity: 1; }
+
+    /* Subtle dark-bottom gradient for brand continuity */
+    .hero-right::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 120px;
+      background: linear-gradient(to top, rgba(0,0,0,0.35), transparent);
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* Photo badge — top-left corner of photo panel */
+    .hero-photo-badge {
+      position: absolute;
+      top: 32px;
+      left: 24px;
+      z-index: 10;
+      padding: 6px 18px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      transition: all 0.7s ease-in-out;
+    }
+    .badge-before { background: rgba(239,68,68,0.9); color: #FFF; }
+    .badge-after  { background: rgba(16,185,129,0.9); color: #FFF; }
+
+    /* Dot controls — bottom-right of photo panel */
+    .hero-photo-dots {
+      position: absolute;
+      bottom: 28px;
+      right: 28px;
+      z-index: 10;
+      display: flex;
+      gap: 8px;
+    }
+    .hero-photo-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.4);
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      transition: all 0.4s ease;
+    }
+    .hero-photo-dot.dot-active {
+      background: #FFFFFF;
+      width: 32px;
+      border-radius: 6px;
+    }
+
+    /* ════════════════════════════════════════════════
+       PATIENT JOURNEY TIMELINE — 2 rows of 3
+       ════════════════════════════════════════════════ */
+    .journey-section {
+      background: #FFFFFF;
+    }
+    .section-title {
+      font-size: clamp(1.8rem, 2.4vw, 2.6rem);
+      font-weight: 800;
+      color: var(--ink);
+      text-align: center;
+      margin-bottom: 12px;
+      line-height: 1.2;
+    }
+    .section-sub {
+      font-size: 18px;
+      color: #64748B;
+      text-align: center;
+      margin-bottom: 56px;
+      line-height: 1.5;
+    }
+
+    /* Journey rows — each row has a horizontal dashed connector behind icons */
+    .journey-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px 32px;
+      position: relative;
+    }
+    .journey-row + .journey-row {
+      margin-top: 24px;
+    }
+    /* Horizontal dashed connector line running through icon center height */
+    .journey-row::before {
+      content: '';
+      position: absolute;
+      top: 60px;           /* padding-top(32) + half-icon(28) */
+      left: 15%;           /* just past left icon center */
+      right: 15%;          /* just before right icon center */
+      border-top: 2px dashed #CBD5E1;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .journey-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 32px 24px;
+      border-radius: 16px;
+      background: #F8FAFC;
+      position: relative;
+    }
+    .journey-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 1;          /* sits above the connector line */
+    }
+    .journey-icon .material-symbols-outlined {
+      font-size: 26px;
+    }
+    .journey-time {
+      font-size: 12px;
+      color: var(--text-dim);
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+    .journey-step h4 {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 7px;
+    }
+    .journey-step p {
+      font-size: 14px;
+      color: #64748B;
+      line-height: 1.55;
+    }
+    .journey-step p .wa {
+      color: #25D366;
+      font-weight: 600;
+    }
+
+    /* ════════════════════════════════════════════════
+       DOCTOR BENEFITS — 3-column on green gradient
+       ════════════════════════════════════════════════ */
+    .doctor-section {
+      background: linear-gradient(135deg, #ECFDF5 0%, #F0FDF9 100%);
+    }
+    .doctor-section .section-title { color: #065F46; }
+    .doctor-section .section-sub   { color: #047857; }
+
+    .doctor-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .doctor-card {
+      padding: 40px 32px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.85);
+      text-align: center;
+      backdrop-filter: blur(8px);
+      transition: transform 0.22s, box-shadow 0.22s;
+    }
+    .doctor-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(5, 150, 105, 0.12);
+    }
+    .doctor-card-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 18px;
+      background: var(--green-light);
+      color: var(--green);
+    }
+    .doctor-card-icon .material-symbols-outlined { font-size: 28px; }
+    .doctor-card h4 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #065F46;
+      margin-bottom: 10px;
+    }
+    .doctor-card p {
+      font-size: 15px;
+      color: #6B7280;
+      line-height: 1.65;
+    }
+
+    /* ════════════════════════════════════════════════
+       SETUP — Horizontal process rail
+       ════════════════════════════════════════════════ */
+    .setup-section { background: #FFFFFF; }
+
+    .setup-rail {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .setup-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      flex: 1;
+    }
+    .setup-num {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: var(--sky);
+      color: #FFF;
+      font-size: 22px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 14px rgba(14, 165, 233, 0.32);
+    }
+    .setup-step h4 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 4px;
+    }
+    .setup-step p {
+      font-size: 14px;
+      color: var(--text-dim);
+    }
+    .setup-arrow {
+      font-size: 32px;
+      color: #CBD5E1;
+      flex-shrink: 0;
+      font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+    }
+
+    /* ════════════════════════════════════════════════
+       TESTIMONIAL — 2-column: quote left, author right
+       ════════════════════════════════════════════════ */
+    .testimonial-section { background: #F8FAFC; }
+
+    .testimonial-inner {
+      display: grid;
+      grid-template-columns: 1fr 220px;
+      gap: 64px;
+      align-items: center;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .testimonial-left { position: relative; padding-left: 20px; }
+
+    .testimonial-quote-mark {
+      position: absolute;
+      top: -28px;
+      left: -16px;
+      font-size: 120px;
+      line-height: 1;
+      color: #E2E8F0;
+      font-family: Georgia, 'Times New Roman', serif;
+      pointer-events: none;
+      z-index: 0;
+      user-select: none;
+    }
+    .testimonial-text {
+      font-size: 22px;
+      font-style: italic;
+      color: #334155;
+      line-height: 1.65;
+      position: relative;
+      z-index: 1;
+    }
+    .testimonial-attribution {
+      margin-top: 28px;
+      position: relative;
+      z-index: 1;
+    }
+    .testimonial-author {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .testimonial-role {
+      font-size: 14px;
+      color: var(--text-dim);
+      margin-top: 3px;
+    }
+
+    .testimonial-right {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 12px;
+    }
+    .testimonial-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--sky), var(--sky-dark));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      font-weight: 800;
+      color: #FFF;
+      flex-shrink: 0;
+    }
+    .testimonial-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .testimonial-meta {
+      font-size: 13px;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    /* ════════════════════════════════════════════════
+       PRICING — 2 large cards side-by-side
+       ════════════════════════════════════════════════ */
+    .pricing-section { background: #F8FAFC; }
+
+    .pricing-cards {
+      display: flex;
+      gap: 28px;
+      justify-content: center;
+      align-items: stretch;
+      margin-top: 48px;
+    }
+    .price-card {
+      flex: 1;
+      max-width: 420px;
+      background: #FFFFFF;
+      border-radius: 24px;
+      padding: 48px 40px;
+      border: 1.5px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .price-card.popular {
+      border-color: var(--sky);
+      transform: scale(1.04);
+      box-shadow: 0 8px 40px rgba(14, 165, 233, 0.16);
+      z-index: 1;
+    }
+    .price-badge {
+      position: absolute;
+      top: -13px;
+      right: 28px;
+      background: var(--sky);
+      color: #FFF;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 14px;
+      border-radius: 12px;
+    }
+    .price-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: #64748B;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+    }
+    .price-amount {
+      font-size: 4rem;
+      font-weight: 900;
+      color: var(--ink);
+      line-height: 1;
+    }
+    .price-period {
+      font-size: 16px;
+      color: var(--text-dim);
+      font-weight: 500;
+      margin-top: 4px;
+      margin-bottom: 8px;
+    }
+    .price-note {
+      font-size: 13px;
+      color: #10B981;
+      font-weight: 600;
+      margin-bottom: 28px;
+      min-height: 20px;
+    }
+    .price-features {
+      list-style: none;
+      margin-bottom: 32px;
+      flex: 1;
+    }
+    .price-features li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 9px 0;
+      font-size: 15px;
+      color: #334155;
+      border-bottom: 1px solid #F1F5F9;
+      line-height: 1.5;
+    }
+    .price-features li:last-child { border-bottom: none; }
+    .price-features li .material-symbols-outlined {
+      font-size: 18px;
+      color: #10B981;
+      flex-shrink: 0;
+      margin-top: 1px;
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .btn-price {
+      display: block;
+      width: 100%;
+      padding: 16px 0;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+    .btn-price-outline {
+      background: #F1F5F9;
+      color: #334155;
+    }
+    .btn-price-outline:hover { background: #E2E8F0; }
+    .btn-price-primary {
+      background: var(--sky);
+      color: #FFF;
+      box-shadow: 0 4px 16px rgba(14, 165, 233, 0.32);
+    }
+    .btn-price-primary:hover { background: var(--sky-dark); }
+
+    .pricing-trial {
+      text-align: center;
+      margin-top: 28px;
+      font-size: 14px;
+      color: #64748B;
+    }
+
+    /* ════════════════════════════════════════════════
+       FAQ — 2-column accordion grid
+       ════════════════════════════════════════════════ */
+    .faq-section { background: #FFFFFF; }
+
+    .faq-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 64px;
+      margin-top: 48px;
+    }
+    .faq-item {
+      border-bottom: 1px solid var(--border);
+      padding: 24px 0;
+      cursor: pointer;
+    }
+    .faq-item:first-child { border-top: 1px solid var(--border); }
+    .faq-col > .faq-item:first-child { border-top: 1px solid var(--border); }
+    .faq-q {
+      font-size: 17px;
+      font-weight: 700;
+      color: #334155;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      user-select: none;
+    }
+    .faq-q .material-symbols-outlined {
+      font-size: 22px;
+      color: var(--text-dim);
+      transition: transform 0.25s;
+      flex-shrink: 0;
+    }
+    .faq-a {
+      font-size: 15px;
+      color: #64748B;
+      line-height: 1.7;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease, padding 0.3s ease;
+    }
+    .faq-item.open .faq-a {
+      max-height: 200px;
+      padding-top: 12px;
+    }
+    .faq-item.open .faq-q .material-symbols-outlined {
+      transform: rotate(180deg);
+      color: var(--sky);
+    }
+
+    /* ════════════════════════════════════════════════
+       FOOTER CTA
+       ════════════════════════════════════════════════ */
+    .footer-cta {
+      padding: 96px 0;
+      background: linear-gradient(135deg, #0EA5E9, #0284C7);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .footer-cta::before {
+      content: '';
+      position: absolute;
+      top: -120px; left: 50%;
+      transform: translateX(-50%);
+      width: 700px; height: 700px;
+      background: radial-gradient(circle, rgba(255,255,255,0.09) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .footer-cta-title {
+      font-size: clamp(1.8rem, 2.8vw, 2.8rem);
+      font-weight: 800;
+      color: #FFFFFF;
+      margin-bottom: 16px;
+      line-height: 1.2;
+      position: relative;
+    }
+    .footer-cta-sub {
+      font-size: 18px;
+      color: rgba(255,255,255,0.85);
+      margin-bottom: 36px;
+      max-width: 480px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.65;
+      position: relative;
+    }
+    .btn-cta-footer {
+      display: inline-block;
+      padding: 18px 52px;
+      background: #FFFFFF;
+      color: var(--sky-dark);
+      border: none;
+      border-radius: 14px;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+      transition: transform 0.15s, box-shadow 0.15s;
+      position: relative;
+    }
+    .btn-cta-footer:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+    }
+
+    /* ════════════════════════════════════════════════
+       FOOTER
+       ════════════════════════════════════════════════ */
+    footer {
+      padding: 24px var(--gutter);
+      background: var(--ink);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer-brand {
+      font-size: 16px;
+      font-weight: 800;
+      color: #94A3B8;
+    }
+    .footer-copy {
+      font-size: 13px;
+      color: #475569;
+    }
+
+    /* ════════════════════════════════════════════════
+       RESPONSIVE
+       ════════════════════════════════════════════════ */
+    @media (max-width: 1024px) {
+      :root { --gutter: 48px; --section-pad: 72px; }
+
+      .hero { grid-template-columns: 1fr; min-height: auto; }
+      .hero-left { padding: 100px 48px 56px; }
+      .hero-right { min-height: 55vw; }
+
+      .journey-row { grid-template-columns: 1fr 1fr; gap: 20px; }
+      .journey-row::before { display: none; }
+
+      .doctor-cards { grid-template-columns: 1fr 1fr; gap: 20px; }
+
+      .testimonial-inner { grid-template-columns: 1fr; gap: 32px; max-width: 600px; }
+      .testimonial-right { flex-direction: row; gap: 16px; text-align: left; }
+
+      .pricing-cards { flex-direction: column; align-items: center; }
+      .price-card { max-width: 480px; width: 100%; }
+      .price-card.popular { transform: none; }
+
+      .faq-grid { grid-template-columns: 1fr; }
+
+      nav { padding: 0 48px; }
+      footer { padding: 24px 48px; }
+    }
+
+    @media (max-width: 640px) {
+      :root { --gutter: 20px; --section-pad: 56px; }
+
+      .hero-left { padding: 88px 20px 44px; }
+      .hero-right { min-height: 60vw; }
+      .hero-ctas { flex-direction: column; }
+      .hero-ctas .btn-primary, .hero-ctas .btn-secondary { width: 100%; text-align: center; }
+
+      .journey-row { grid-template-columns: 1fr; }
+
+      .doctor-cards { grid-template-columns: 1fr; }
+
+      .setup-rail { flex-direction: column; gap: 16px; }
+      .setup-arrow { transform: rotate(90deg); }
+
+      nav { padding: 0 20px; }
+      .nav-links { display: none; }
+      footer { padding: 20px; flex-direction: column; gap: 8px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ════════════════════════════════════════════
+       FIXED NAV
+       ════════════════════════════════════════════ -->
+  <nav>
+    <a href="#" class="nav-logo">Ble<span>SAF</span></a>
+    <div class="nav-links">
+      <a href="#parcours">Comment ça marche</a>
+      <a href="#benefices">Pour le médecin</a>
+      <a href="#tarifs">Tarifs</a>
+    </div>
+    <button class="btn-nav">Essai gratuit</button>
+  </nav>
+
+
+  <!-- ════════════════════════════════════════════
+       HERO — split: text left, crossfade photo right
+       ════════════════════════════════════════════ -->
+  <section class="hero" aria-label="Présentation">
+
+    <!-- Left column: text + CTAs -->
+    <div class="hero-left">
+      <div class="hero-eyebrow">
+        <span class="material-symbols-outlined">verified</span>
+        Solution #1 pour les cabinets médicaux tunisiens
+      </div>
+
+      <h1 class="hero-headline" id="da-headline">
+        Des patients frustrés,<br>une salle <em>bondée</em>
+      </h1>
+
+      <p class="hero-sub" id="da-subtext">
+        BleSaf transforme l'attente en liberté. Vos patients suivent leur position depuis leur téléphone — pas d'app à télécharger, juste un QR code.
+      </p>
+
+      <div class="hero-ctas">
+        <button class="btn-primary">Essayez gratuitement 30 jours</button>
+        <button class="btn-secondary">Voir comment ça marche</button>
+      </div>
+      <div class="hero-trust">Aucune carte bancaire requise &nbsp;·&nbsp; Annulez quand vous voulez</div>
+    </div>
+
+    <!-- Right column: crossfade photo -->
+    <div class="hero-right" id="da-crossfade" aria-hidden="true">
+      <img class="da-cf-visible" id="da-img-before" src="../Without-BleSaf.png" alt="Salle d'attente sans BleSaf">
+      <img class="da-cf-hidden"  id="da-img-after"  src="../With-BleSaf.png"    alt="Patient serein avec BleSaf">
+
+      <!-- State badge — top-left of photo -->
+      <div class="hero-photo-badge badge-before" id="da-badge">SANS BLESAF</div>
+
+      <!-- Indicator dots — bottom-right of photo -->
+      <div class="hero-photo-dots" role="group" aria-label="Sélecteur d'état">
+        <button class="hero-photo-dot dot-active" id="da-dot-0" onclick="setDaCrossfade(0)" aria-label="Avant BleSaf"></button>
+        <button class="hero-photo-dot"            id="da-dot-1" onclick="setDaCrossfade(1)" aria-label="Avec BleSaf"></button>
+      </div>
+    </div>
+
+  </section>
+
+
+  <!-- ════════════════════════════════════════════
+       PATIENT JOURNEY TIMELINE — horizontal 3+3 grid
+       ════════════════════════════════════════════ -->
+  <section class="journey-section" id="parcours" aria-labelledby="journey-title">
+    <div class="lp-container section-wrap">
+      <h2 class="section-title" id="journey-title">La matinée d'un patient avec BleSaf</h2>
+      <p class="section-sub">Ce que vos patients vivent, étape par étape</p>
+
+      <!-- Row 1: Steps 1–3 -->
+      <div class="journey-row">
+        <div class="journey-step">
+          <div class="journey-icon" style="background:#E0F2FE; color:#0284C7;">
+            <span class="material-symbols-outlined filled">location_on</span>
+          </div>
+          <div class="journey-time">9h00</div>
+          <h4>Arrive au cabinet</h4>
+          <p>Sami entre dans la salle d'attente</p>
+        </div>
+
+        <div class="journey-step">
+          <div class="journey-icon" style="background:#E0F2FE; color:#0284C7;">
+            <span class="material-symbols-outlined">qr_code_2</span>
+          </div>
+          <div class="journey-time">9h01</div>
+          <h4>Scanne le QR code</h4>
+          <p>Il entre son nom et son numéro. C'est tout. Ou via <span class="wa">WhatsApp</span> pour ceux qui préfèrent.</p>
+        </div>
+
+        <div class="journey-step">
+          <div class="journey-icon" style="background:#FEF3C7; color:#D97706;">
+            <span class="material-symbols-outlined filled">coffee</span>
+          </div>
+          <div class="journey-time">9h02</div>
+          <h4>Va prendre un café</h4>
+          <p>Pourquoi rester assis ? Il sait qu'il est 5ème.</p>
+        </div>
+      </div>
+
+      <!-- Row 2: Steps 4–6 -->
+      <div class="journey-row">
+        <div class="journey-step">
+          <div class="journey-icon" style="background:#E0F2FE; color:#0284C7;">
+            <span class="material-symbols-outlined">smartphone</span>
+          </div>
+          <div class="journey-time">9h15</div>
+          <h4>Vérifie son téléphone</h4>
+          <p>Position #3 · ~15 min d'attente. Mise à jour en temps réel.</p>
+        </div>
+
+        <div class="journey-step">
+          <div class="journey-icon" style="background:#D1FAE5; color:#059669;">
+            <span class="material-symbols-outlined filled">notifications_active</span>
+          </div>
+          <div class="journey-time">9h28</div>
+          <h4>Reçoit l'alerte</h4>
+          <p>"C'est bientôt votre tour !" Il se dirige vers le cabinet.</p>
+        </div>
+
+        <div class="journey-step">
+          <div class="journey-icon" style="background:#ECFDF5; color:#059669;">
+            <span class="material-symbols-outlined filled">sentiment_satisfied</span>
+          </div>
+          <div class="journey-time">9h32</div>
+          <h4>Entre détendu</h4>
+          <p>Pas de stress. Pas d'attente interminable. Juste un patient serein.</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ════════════════════════════════════════════
+       DOCTOR BENEFITS — 3-column on green gradient
+       ════════════════════════════════════════════ -->
+  <section class="doctor-section" id="benefices" aria-labelledby="doctor-title">
+    <div class="lp-container section-wrap">
+      <h2 class="section-title" id="doctor-title">Le résultat pour vous, docteur</h2>
+      <p class="section-sub">Des patients détendus dès la porte du cabinet</p>
+
+      <div class="doctor-cards">
+        <div class="doctor-card">
+          <div class="doctor-card-icon">
+            <span class="material-symbols-outlined filled">mood</span>
+          </div>
+          <h4>Patients calmes</h4>
+          <p>Moins de stress en salle d'attente se traduit directement par de meilleures consultations, pour tout le monde.</p>
+        </div>
+
+        <div class="doctor-card">
+          <div class="doctor-card-icon">
+            <span class="material-symbols-outlined filled">phone_disabled</span>
+          </div>
+          <h4>Zéro appels inutiles</h4>
+          <p>Plus jamais "C'est quand mon tour ?" Chaque patient suit sa position en autonomie, sur son propre téléphone.</p>
+        </div>
+
+        <div class="doctor-card">
+          <div class="doctor-card-icon">
+            <span class="material-symbols-outlined filled">groups</span>
+          </div>
+          <h4>File fluide</h4>
+          <p>Chaque patient entre au bon moment, sans agitation ni bousculade. Votre salle d'attente retrouve sa sérénité.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ════════════════════════════════════════════
+       SETUP — Horizontal 3-step rail
+       ════════════════════════════════════════════ -->
+  <section class="setup-section" aria-labelledby="setup-title">
+    <div class="lp-container section-wrap">
+      <h2 class="section-title" id="setup-title">Installez BleSaf en 3 minutes</h2>
+      <p class="section-sub">Pas de technicien. Pas de formation. Vous êtes prêt en moins de temps qu'une tasse de café.</p>
+
+      <div class="setup-rail">
+        <div class="setup-step">
+          <div class="setup-num">1</div>
+          <h4>Inscrivez-vous</h4>
+          <p>2 minutes</p>
+        </div>
+        <span class="material-symbols-outlined setup-arrow">arrow_forward</span>
+        <div class="setup-step">
+          <div class="setup-num">2</div>
+          <h4>Affichez le QR</h4>
+          <p>Imprimez-le</p>
+        </div>
+        <span class="material-symbols-outlined setup-arrow">arrow_forward</span>
+        <div class="setup-step">
+          <div class="setup-num">3</div>
+          <h4>C'est parti !</h4>
+          <p>Gérez votre file</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ════════════════════════════════════════════
+       TESTIMONIAL — quote left, avatar right
+       ════════════════════════════════════════════ -->
+  <section class="testimonial-section" aria-labelledby="testimonial-title">
+    <div class="lp-container section-wrap">
+      <div class="testimonial-inner">
+
+        <div class="testimonial-left">
+          <span class="testimonial-quote-mark" aria-hidden="true">&ldquo;</span>
+          <p class="testimonial-text">
+            Depuis BleSaf, mes matinées ont changé. Plus d'appels "c'est quand mon tour ?" — mes patients arrivent calmes, et ma secrétaire peut enfin se concentrer sur autre chose.
+          </p>
+          <div class="testimonial-attribution">
+            <div class="testimonial-author">Dr. Aymen Cherif</div>
+            <div class="testimonial-role">Cardiologue · Les Berges du Lac, Tunis</div>
+          </div>
+        </div>
+
+        <div class="testimonial-right">
+          <div class="testimonial-avatar" aria-hidden="true">AC</div>
+          <div>
+            <div class="testimonial-name">Dr. Aymen Cherif</div>
+            <div class="testimonial-meta">Cardiologue<br>Les Berges du Lac, Tunis</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ════════════════════════════════════════════
+       PRICING — 2 cards, annual highlighted
+       ════════════════════════════════════════════ -->
+  <section class="pricing-section" id="tarifs" aria-labelledby="pricing-title">
+    <div class="lp-container section-wrap">
+      <h2 class="section-title" id="pricing-title">Tarifs simples</h2>
+      <p class="section-sub">Pas de frais cachés. Annulez quand vous voulez.</p>
+
+      <div class="pricing-cards">
+        <!-- Monthly -->
+        <div class="price-card">
+          <div class="price-name">Mensuel</div>
+          <div class="price-amount">50</div>
+          <div class="price-period">TND / mois</div>
+          <div class="price-note">&nbsp;</div>
+          <ul class="price-features">
+            <li><span class="material-symbols-outlined">check_circle</span> File d'attente temps réel</li>
+            <li><span class="material-symbols-outlined">check_circle</span> QR code &amp; WhatsApp check-in</li>
+            <li><span class="material-symbols-outlined">check_circle</span> Notifications automatiques</li>
+            <li><span class="material-symbols-outlined">check_circle</span> Multi-médecins</li>
+            <li><span class="material-symbols-outlined">check_circle</span> Support par messagerie</li>
+          </ul>
+          <button class="btn-price btn-price-outline">Choisir Mensuel</button>
+        </div>
+
+        <!-- Annual (popular) -->
+        <div class="price-card popular">
+          <div class="price-badge">Populaire</div>
+          <div class="price-name">Annuel</div>
+          <div class="price-amount">500</div>
+          <div class="price-period">TND / an</div>
+          <div class="price-note">2 mois offerts · économisez 100 TND</div>
+          <ul class="price-features">
+            <li><span class="material-symbols-outlined">check_circle</span> File d'attente temps réel</li>
+            <li><span class="material-symbols-outlined">check_circle</span> QR code &amp; WhatsApp check-in</li>
+            <li><span class="material-symbols-outlined">check_circle</span> Notifications automatiques</li>
+            <li><span class="material-symbols-outlined">check_circle</span> Multi-médecins</li>
+            <li><span class="material-symbols-outlined">check_circle</span> Support prioritaire</li>
+            <li><span class="material-symbols-outlined">check_circle</span> Statistiques &amp; rapports mensuels</li>
+          </ul>
+          <button class="btn-price btn-price-primary">Choisir Annuel</button>
+        </div>
+      </div>
+
+      <p class="pricing-trial">Premier mois gratuit pour démarrer — aucune carte bancaire requise</p>
+    </div>
+  </section>
+
+
+  <!-- ════════════════════════════════════════════
+       FAQ — 2-column accordion
+       ════════════════════════════════════════════ -->
+  <section class="faq-section" aria-labelledby="faq-title">
+    <div class="lp-container section-wrap">
+      <h2 class="section-title" id="faq-title">Questions fréquentes</h2>
+
+      <div class="faq-grid">
+        <!-- Left column -->
+        <div class="faq-col">
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q">C'est compliqué à installer ?<span class="material-symbols-outlined">expand_more</span></div>
+            <div class="faq-a">Non, 5 minutes suffisent. Vous imprimez le QR code, vous l'affichez à l'accueil, c'est prêt. Aucune compétence technique requise.</div>
+          </div>
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q">Mes patients âgés peuvent l'utiliser ?<span class="material-symbols-outlined">expand_more</span></div>
+            <div class="faq-a">Oui ! Ils scannent le QR code avec leur téléphone, c'est tout. Pas besoin d'application à télécharger ni de compte à créer.</div>
+          </div>
+        </div>
+
+        <!-- Right column -->
+        <div class="faq-col">
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q">Mes patients peuvent s'inscrire sur WhatsApp ?<span class="material-symbols-outlined">expand_more</span></div>
+            <div class="faq-a">Oui ! En plus du QR code, vos patients peuvent envoyer leur nom et numéro via WhatsApp pour rejoindre la file — idéal pour ceux qui appellent avant de venir.</div>
+          </div>
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q">Plusieurs médecins dans un cabinet ?<span class="material-symbols-outlined">expand_more</span></div>
+            <div class="faq-a">Oui ! Chaque médecin a sa propre file d'attente dans le même cabinet. Un seul abonnement couvre tout le cabinet, quel que soit le nombre de médecins.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ════════════════════════════════════════════
+       FOOTER CTA
+       ════════════════════════════════════════════ -->
+  <section class="footer-cta" aria-labelledby="footer-cta-title">
+    <div class="lp-container">
+      <h2 class="footer-cta-title" id="footer-cta-title">Transformez votre salle d'attente</h2>
+      <p class="footer-cta-sub">Commencez gratuitement. Voyez la différence dès le premier jour.</p>
+      <button class="btn-cta-footer">Commencer mon essai gratuit</button>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-brand">BleSAF</div>
+    <div class="footer-copy">&copy; 2026 BleSaf · Tous droits réservés</div>
+  </footer>
+
+
+  <script>
+    // ─────────────────────────────────────────────────────
+    // Hero crossfade — before / after state machine
+    // ─────────────────────────────────────────────────────
+    (function () {
+      let state = 0;
+      let timer = null;
+
+      const STATES = [
+        {
+          headline: 'Des patients frustrés,<br>une salle <em>bondée</em>',
+          subtext: 'BleSaf transforme l\'attente en liberté. Vos patients suivent leur position depuis leur téléphone — pas d\'app à télécharger, juste un QR code.',
+          badge: 'SANS BLESAF',
+          badgeClass: 'hero-photo-badge badge-before'
+        },
+        {
+          headline: 'Des patients sereins,<br>qui attendent <em>où ils veulent</em>',
+          subtext: 'Position en temps réel, estimation précise, notification automatique. Plus de "C\'est quand mon tour ?" — vos patients arrivent détendus.',
+          badge: 'AVEC BLESAF',
+          badgeClass: 'hero-photo-badge badge-after'
+        }
+      ];
+
+      const imgBefore  = document.getElementById('da-img-before');
+      const imgAfter   = document.getElementById('da-img-after');
+      const badge      = document.getElementById('da-badge');
+      const dot0       = document.getElementById('da-dot-0');
+      const dot1       = document.getElementById('da-dot-1');
+      const headline   = document.getElementById('da-headline');
+      const subtext    = document.getElementById('da-subtext');
+
+      window.setDaCrossfade = function (s) {
+        state = s;
+        const d = STATES[s];
+
+        // Photo crossfade
+        imgBefore.className = s === 0 ? 'da-cf-visible' : 'da-cf-hidden';
+        imgAfter.className  = s === 1 ? 'da-cf-visible' : 'da-cf-hidden';
+
+        // Badge
+        badge.className   = d.badgeClass;
+        badge.textContent = d.badge;
+
+        // Dots
+        dot0.className = 'hero-photo-dot' + (s === 0 ? ' dot-active' : '');
+        dot1.className = 'hero-photo-dot' + (s === 1 ? ' dot-active' : '');
+
+        // Headline + subtext — quick fade out/in
+        headline.style.opacity = '0';
+        subtext.style.opacity  = '0';
+        setTimeout(() => {
+          headline.innerHTML    = d.headline;
+          subtext.textContent   = d.subtext;
+          headline.style.opacity = '1';
+          subtext.style.opacity  = '1';
+        }, 300);
+
+        // Reset cycle on manual click
+        if (timer) {
+          clearInterval(timer);
+          timer = setInterval(cycle, 3800);
+        }
+      };
+
+      function cycle () {
+        state = state === 0 ? 1 : 0;
+        window.setDaCrossfade(state);
+      }
+
+      function start () {
+        if (timer) clearInterval(timer);
+        window.setDaCrossfade(0);
+        timer = setInterval(cycle, 3800);
+      }
+
+      start();
+    })();
+  </script>
+
+</body>
+</html>

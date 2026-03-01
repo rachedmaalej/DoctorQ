@@ -1,0 +1,1734 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BleSaf — Gestion de file d'attente médicale</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=IBM+Plex+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" rel="stylesheet">
+<style>
+/* ──────────────────────────────────────────────────────────
+   RESET & ROOT
+   ────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --teal:        #0EA884;
+  --teal-light:  #13C49C;
+  --teal-pale:   #E8F8F4;
+  --teal-dim:    #0A7A62;
+  --ink:         #0D1F1A;
+  --page-bg:     #F5F9F8;
+  --white:       #FFFFFF;
+  --border:      #DFF0EB;
+  --text-mid:    #4A6E66;
+  --text-soft:   #8AADA6;
+  --gold:        #F0A030;
+  --gold-pale:   rgba(240,160,48,0.13);
+  --red:         #E85454;
+
+  --container-max: 1280px;
+  --gutter: 80px;
+  --section-pad: 96px;
+}
+
+html { font-size: 16px; scroll-behavior: smooth; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--page-bg);
+  color: var(--ink);
+  overflow-x: hidden;
+}
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+.material-symbols-outlined.filled {
+  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* ──────────────────────────────────────────────────────────
+   NAV — Fixed desktop
+   ────────────────────────────────────────────────────────── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 var(--gutter); height: 68px;
+  background: rgba(245,249,248,0.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+}
+.logo {
+  font-family: 'Sora', sans-serif; font-weight: 800;
+  font-size: 1.45rem; letter-spacing: -0.04em; color: var(--ink);
+  text-decoration: none;
+}
+.logo em { color: var(--teal); font-style: normal; }
+.nav-links { display: flex; align-items: center; gap: 36px; list-style: none; }
+.nav-links a { color: var(--text-mid); text-decoration: none; font-size: 0.9rem; transition: color .2s; }
+.nav-links a:hover { color: var(--ink); }
+.btn-nav {
+  background: var(--teal); color: var(--white);
+  padding: 11px 24px; border-radius: 10px;
+  font-family: 'Sora', sans-serif; font-weight: 600; font-size: 0.875rem;
+  text-decoration: none; transition: all .2s;
+  box-shadow: 0 4px 14px rgba(14,168,132,0.28);
+  border: none; cursor: pointer;
+}
+.btn-nav:hover { background: var(--teal-light); transform: translateY(-1px); }
+
+/* ──────────────────────────────────────────────────────────
+   HERO — 2-column desktop grid
+   ────────────────────────────────────────────────────────── */
+.hero {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  align-items: center;
+  gap: 48px;
+  padding: 100px var(--gutter) 60px;
+  position: relative; overflow: visible;
+  background: var(--page-bg);
+}
+.hero::before {
+  content: '';
+  position: absolute; top: -200px; left: -200px;
+  width: 650px; height: 650px;
+  background: radial-gradient(circle, rgba(14,168,132,0.1) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+/* Left column */
+.hero-left {
+  position: relative; z-index: 2;
+  display: flex; flex-direction: column; gap: 28px;
+  animation: fadeUp .65s ease both;
+}
+.eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--white); border: 1px solid var(--border);
+  padding: 7px 14px; border-radius: 100px;
+  width: fit-content;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.eyebrow-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--teal); animation: blink 2.2s ease-in-out infinite; }
+.eyebrow-text { font-size: 0.72rem; font-weight: 600; color: var(--teal-dim); text-transform: uppercase; letter-spacing: 0.07em; }
+
+h1 { font-family: 'Sora', sans-serif; font-weight: 800; font-size: clamp(2.6rem, 4vw, 3.75rem); line-height: 1.05; letter-spacing: -0.045em; color: var(--ink); }
+h1 .hl { color: var(--teal); position: relative; display: inline-block; }
+h1 .hl::after { content: ''; position: absolute; left: 0; right: 0; bottom: 3px; height: 4px; background: linear-gradient(90deg, rgba(14,168,132,0.3), transparent); border-radius: 4px; }
+
+.sub { font-size: 1.08rem; line-height: 1.7; color: var(--text-mid); max-width: 480px; }
+.sub strong { color: var(--ink); font-weight: 600; }
+
+.cta-block { display: flex; flex-direction: column; gap: 14px; }
+.cta-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: var(--teal); color: var(--white);
+  padding: 15px 30px; border-radius: 12px;
+  font-family: 'Sora', sans-serif; font-weight: 700; font-size: 0.95rem;
+  text-decoration: none; border: none; cursor: pointer;
+  transition: all .25s;
+  box-shadow: 0 8px 28px rgba(14,168,132,0.32); white-space: nowrap;
+}
+.btn-primary:hover { background: var(--teal-light); box-shadow: 0 12px 36px rgba(14,168,132,0.45); transform: translateY(-2px); }
+.btn-primary .arr { transition: transform .25s; display: inline-block; }
+.btn-primary:hover .arr { transform: translateX(4px); }
+.btn-ghost { display: inline-flex; align-items: center; gap: 8px; color: var(--text-mid); font-size: 0.9rem; font-weight: 500; background: none; border: none; cursor: pointer; transition: color .2s; }
+.btn-ghost:hover { color: var(--ink); }
+.cta-fine { font-size: 0.78rem; color: var(--text-soft); display: flex; align-items: center; gap: 6px; }
+.cta-fine svg { color: var(--teal); flex-shrink: 0; }
+
+.proof {
+  display: flex; align-items: center; gap: 16px;
+  padding: 14px 18px;
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: 14px; width: fit-content;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+}
+.avs { display: flex; }
+.av { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--white); margin-left: -9px; display: flex; align-items: center; justify-content: center; font-family: 'Sora', sans-serif; font-size: 0.63rem; font-weight: 700; color: var(--white); }
+.av:first-child { margin-left: 0; }
+.av1 { background: #2a7d67; } .av2 { background: #0f6b55; } .av3 { background: #1a5c4a; } .av4 { background: var(--teal); }
+.proof-text strong { display: block; font-size: 0.875rem; font-weight: 600; color: var(--ink); font-family: 'Sora', sans-serif; }
+.proof-text .stars { color: var(--gold); font-size: 0.72rem; letter-spacing: 1px; }
+.proof-text small { font-size: 0.72rem; color: var(--text-soft); }
+
+/* Right column */
+.hero-right { position: relative; z-index: 2; animation: fadeLeft .75s ease .12s both; }
+.mockup-wrap { position: relative; }
+
+/* Browser frame */
+.browser {
+  background: #0c1a16; border-radius: 16px; overflow: hidden;
+  box-shadow: 0 60px 130px rgba(0,0,0,0.2), 0 20px 40px rgba(0,0,0,0.12), 0 0 0 1px rgba(255,255,255,0.06);
+  transform: perspective(1200px) rotateY(-5deg) rotateX(1.5deg);
+  transform-origin: left center;
+}
+.b-chrome { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(0,0,0,0.3); border-bottom: 1px solid rgba(255,255,255,0.06); }
+.b-dots { display: flex; gap: 5px; }
+.b-dot { width: 10px; height: 10px; border-radius: 50%; }
+.bd1 { background: #FF5F57; } .bd2 { background: #FEBC2E; } .bd3 { background: #28C840; }
+.b-url { flex: 1; background: rgba(255,255,255,0.07); border-radius: 6px; padding: 5px 12px; font-size: 0.7rem; color: rgba(255,255,255,0.3); display: flex; align-items: center; gap: 6px; }
+
+/* Dashboard inside browser */
+.dash { display: grid; grid-template-columns: 1fr; min-height: 490px; }
+.d-main { background: #0f1e1a; display: flex; flex-direction: column; position: relative; }
+.d-topbar { display: flex; align-items: center; justify-content: space-between; padding: 13px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.d-page-title { font-family: 'Sora', sans-serif; font-size: 0.83rem; font-weight: 700; color: rgba(255,255,255,0.9); }
+.d-page-sub { font-size: 0.62rem; color: rgba(255,255,255,0.28); margin-top: 2px; }
+.d-actions { display: flex; align-items: center; gap: 7px; }
+.btn-icon-dash { width: 30px; height: 30px; border-radius: 7px; border: 1px solid rgba(255,255,255,0.07); background: rgba(255,255,255,0.04); display: flex; align-items: center; justify-content: center; cursor: pointer; color: rgba(255,255,255,0.35); }
+.btn-icon-dash svg { width: 12px; height: 12px; }
+.btn-call {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--teal); color: var(--white);
+  padding: 7px 13px; border-radius: 8px;
+  font-family: 'Sora', sans-serif; font-size: 0.7rem; font-weight: 700;
+  border: none; cursor: pointer;
+  box-shadow: 0 4px 14px rgba(14,168,132,0.4);
+  white-space: nowrap; transition: transform .1s, box-shadow .1s, background .15s;
+  position: relative; overflow: hidden;
+}
+.btn-call svg { width: 11px; height: 11px; }
+.btn-call:active { transform: scale(0.95); }
+.btn-call.pressed { transform: scale(0.95); background: var(--teal-light); box-shadow: 0 2px 6px rgba(14,168,132,0.3); }
+.btn-call::after { content: ''; position: absolute; inset: 0; background: rgba(255,255,255,0.2); border-radius: inherit; transform: scale(0); opacity: 0; transition: transform 0s, opacity 0s; }
+.btn-call.ripple::after { transform: scale(2.5); opacity: 0; transition: transform .4s ease-out, opacity .4s ease-out; }
+
+.d-stats { display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 1px solid rgba(255,255,255,0.05); }
+.d-stat { padding: 12px 14px; border-right: 1px solid rgba(255,255,255,0.04); }
+.d-stat:last-child { border-right: none; }
+.d-stat-label { font-size: 0.6rem; color: rgba(255,255,255,0.28); text-transform: uppercase; letter-spacing: 0.07em; }
+.d-stat-val { font-family: 'Sora', sans-serif; font-size: 1.4rem; font-weight: 800; color: rgba(255,255,255,0.85); line-height: 1.1; margin: 3px 0 2px; transition: all .4s ease; }
+.d-stat-val sup { font-size: 0.7rem; font-weight: 500; color: rgba(255,255,255,0.3); vertical-align: super; }
+.c-teal { color: var(--teal-light) !important; }
+.c-gold { color: var(--gold) !important; }
+.d-stat-trend { font-size: 0.6rem; color: rgba(255,255,255,0.25); }
+.t-up { color: var(--teal-light) !important; }
+.t-warn { color: var(--gold) !important; }
+
+.d-queue-area { flex: 1; padding: 10px 14px; display: flex; flex-direction: column; overflow: hidden; }
+.d-q-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.d-q-title { font-size: 0.62rem; color: rgba(255,255,255,0.28); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; }
+.d-q-link { font-size: 0.62rem; color: var(--teal-light); cursor: pointer; }
+
+.q-row {
+  display: flex; align-items: center; gap: 9px;
+  padding: 9px 11px; border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.05);
+  background: rgba(255,255,255,0.02);
+  position: relative; overflow: hidden; margin-bottom: 7px;
+  transition: opacity .35s ease, transform .35s ease, margin .35s ease, max-height .35s ease;
+  max-height: 60px;
+}
+.q-row::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; }
+.q-active { background: rgba(14,168,132,0.07); border-color: rgba(14,168,132,0.18); }
+.q-active::before { background: var(--teal-light); }
+.q-next { background: rgba(240,160,48,0.06); border-color: rgba(240,160,48,0.14); }
+.q-next::before { background: var(--gold); }
+.q-wait::before { background: rgba(255,255,255,0.08); }
+.q-row.exiting { opacity: 0; transform: translateX(-20px); margin-bottom: 0; max-height: 0; padding-top: 0; padding-bottom: 0; border-width: 0; pointer-events: none; }
+.q-row.entering { opacity: 0; transform: translateY(10px); }
+.q-row.enter-active { opacity: 1; transform: translateY(0); }
+
+.q-num { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Sora', sans-serif; font-size: 0.65rem; font-weight: 700; flex-shrink: 0; transition: background .35s, color .35s; }
+.q-active .q-num { background: var(--teal); color: var(--white); }
+.q-next .q-num { background: var(--gold-pale); color: var(--gold); }
+.q-wait .q-num { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.35); }
+
+.q-avatar { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: 'Sora', sans-serif; font-size: 0.6rem; font-weight: 700; color: var(--white); flex-shrink: 0; }
+.qa { background: linear-gradient(135deg, #1e6b54, #0ea884); }
+.qb { background: linear-gradient(135deg, #4a4f9a, #7c82d4); }
+.qc { background: linear-gradient(135deg, #8a3030, #c06060); }
+.qd { background: linear-gradient(135deg, #6b5020, #c49030); }
+
+.q-info { flex: 1; min-width: 0; }
+.q-name { font-size: 0.74rem; font-weight: 500; color: rgba(255,255,255,0.82); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.q-meta { font-size: 0.6rem; color: rgba(255,255,255,0.28); margin-top: 2px; }
+.src-qr { color: var(--teal-light); opacity: 0.85; }
+.q-pill { font-size: 0.6rem; font-weight: 600; padding: 3px 8px; border-radius: 100px; white-space: nowrap; flex-shrink: 0; transition: background .35s, color .35s; }
+.pill-active { background: rgba(14,168,132,0.16); color: var(--teal-light); }
+.pill-next { background: var(--gold-pale); color: var(--gold); }
+.pill-wait { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.35); }
+.q-eta { font-family: 'Sora', sans-serif; font-size: 0.67rem; font-weight: 700; color: rgba(255,255,255,0.25); text-align: right; min-width: 36px; flex-shrink: 0; transition: color .35s; }
+.q-active .q-eta { color: var(--teal-light); }
+.q-next .q-eta { color: var(--gold); }
+
+/* Floating phone mockups */
+.phone-mockup {
+  position: absolute; width: 155px; height: 314px;
+  opacity: 0; z-index: 30;
+  transition: opacity .4s ease, transform .5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.ph-frame { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 5; pointer-events: none; display: block; }
+#phone1 { left: -118px; top: 50%; transform: translateY(-50%) translateX(-30px); }
+#phone1.visible { opacity: 1; transform: translateY(-50%) translateX(0); }
+#phone2 { right: -100px; top: 0%; width: 132px; height: 267px; transform: translateX(30px); }
+#phone2.visible { opacity: 1; transform: translateX(0); }
+#phone2 .ph-screen { border-radius: 12px; }
+#phone3 { right: -83px; top: 51%; width: 109px; height: 220px; transform: translateX(30px); }
+#phone3.visible { opacity: 1; transform: translateX(0); }
+#phone3 .ph-screen { border-radius: 10px; }
+.ph-screen {
+  position: absolute; left: 0%; top: 0.67%; width: 100%; height: 98.4%;
+  overflow: hidden; border-radius: 15px;
+  display: flex; flex-direction: column; z-index: 2; background: #0c1a16;
+}
+.ph-statusbar { display: flex; align-items: center; justify-content: space-between; padding: 6px 10px 3px; font-size: 0.48rem; font-weight: 700; color: rgba(255,255,255,0.75); background: #0c1a16; }
+.ph-statusbar-r { display: flex; align-items: center; gap: 3px; font-size: 0.45rem; }
+.ph-app-header { background: #0c1a16; padding: 3px 10px 6px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(14,168,132,0.2); }
+.ph-app-logo { font-family: "Sora", sans-serif; font-weight: 800; font-size: 0.7rem; letter-spacing: -0.03em; color: #fff; }
+.ph-app-logo em { color: #13C49C; font-style: normal; }
+.ph-app-live { display: flex; align-items: center; gap: 3px; font-size: 0.47rem; color: #13C49C; }
+.ph-app-live-dot { width: 4px; height: 4px; border-radius: 50%; background: #13C49C; animation: blink 2s infinite; }
+.ph-app-body { background: #f5f9f8; flex: 1; display: flex; flex-direction: column; align-items: center; padding: 8px 7px; gap: 5px; overflow: hidden; }
+.ph-greeting { font-family: "Sora", sans-serif; font-size: 0.62rem; font-weight: 700; color: #0D1F1A; text-align: center; white-space: nowrap; }
+.ph-doctor { font-size: 0.46rem; color: #4A6E66; text-align: center; }
+.ph-pos-wrap { display: flex; flex-direction: column; align-items: center; gap: 2px; width: 100%; }
+.ph-pos-number { font-family: "Sora", sans-serif; font-weight: 800; font-size: 2.6rem; line-height: 1; color: #0EA884; }
+.ph-pos-number.urgent { font-size: 1.8rem; animation: bellPulse 1.4s ease-in-out infinite; display: inline-block; }
+.ph-pos-label { font-size: 0.46rem; color: #4A6E66; text-align: center; white-space: nowrap; }
+.ph-dots { display: flex; align-items: center; gap: 4px; }
+.ph-dot { width: 5px; height: 5px; border-radius: 50%; background: #DFF0EB; }
+.ph-dot.done { background: #0EA884; }
+.ph-dot.active { background: #0EA884; box-shadow: 0 0 5px rgba(14,168,132,0.6); }
+.ph-status-card { width: 100%; border-radius: 8px; padding: 6px 8px; display: flex; align-items: center; gap: 6px; }
+.ph-status-card.s-alert { background: #0EA884; }
+.ph-status-card.s-info { background: #fff; border: 1px solid #DFF0EB; }
+.ph-status-icon { font-size: 0.9rem; flex-shrink: 0; }
+.ph-status-text strong { display: block; font-family: "Sora", sans-serif; font-size: 0.5rem; font-weight: 700; line-height: 1.3; }
+.ph-status-card.s-alert .ph-status-text strong { color: #fff; }
+.ph-status-card.s-info .ph-status-text strong { color: #0D1F1A; }
+.ph-status-text small { font-size: 0.44rem; line-height: 1.2; }
+.ph-status-card.s-alert .ph-status-text small { color: rgba(255,255,255,0.82); }
+.ph-status-card.s-info .ph-status-text small { color: #4A6E66; }
+.ph-wait { background: #E8F8F4; border-radius: 6px; padding: 4px 8px; text-align: center; width: 100%; }
+.ph-wait strong { font-family: "Sora", sans-serif; font-size: 0.7rem; font-weight: 800; color: #0EA884; }
+.ph-wait small { font-size: 0.44rem; color: #4A6E66; display: block; }
+
+/* ──────────────────────────────────────────────────────────
+   PHONE DEMO SECTION — Side by side
+   ────────────────────────────────────────────────────────── */
+.demo-section {
+  display: grid;
+  grid-template-columns: 5fr 7fr;
+  gap: 80px;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: var(--section-pad) var(--gutter);
+  align-items: start;
+  background: var(--white);
+}
+.demo-section-wrap {
+  background: var(--white);
+  border-top: 1px solid #E8F8F4;
+}
+
+/* Left sticky column */
+.demo-left {
+  position: sticky;
+  top: 100px;
+}
+.demo-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--teal-pale); border: 1px solid rgba(14,168,132,0.2);
+  padding: 6px 14px; border-radius: 100px;
+  font-size: 0.72rem; font-weight: 600; color: var(--teal-dim);
+  text-transform: uppercase; letter-spacing: 0.07em;
+  margin-bottom: 20px;
+}
+.demo-title {
+  font-family: 'Sora', sans-serif; font-weight: 800;
+  font-size: clamp(1.8rem, 2.5vw, 2.5rem);
+  line-height: 1.1; letter-spacing: -0.035em; color: var(--ink);
+  margin-bottom: 16px;
+}
+.demo-title em { color: var(--teal); font-style: normal; }
+.demo-sub {
+  font-size: 1rem; line-height: 1.7; color: var(--text-mid);
+  margin-bottom: 40px; max-width: 380px;
+}
+
+/* Step indicators */
+.demo-steps { display: flex; flex-direction: column; gap: 0; }
+.demo-step {
+  display: flex; gap: 20px; align-items: flex-start;
+  padding: 20px 20px 20px 0;
+  border-left: 2px solid #E2E8F0;
+  padding-left: 24px;
+  margin-left: 18px;
+  transition: all .3s ease;
+  opacity: 0.4;
+}
+.demo-step.active {
+  opacity: 1;
+  border-left-color: var(--teal);
+}
+.demo-step:last-child { border-left-color: transparent; }
+.demo-step-num {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: #E8F8F4; color: var(--teal-dim);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Sora', sans-serif; font-size: 0.85rem; font-weight: 700;
+  flex-shrink: 0; margin-left: -36px;
+  transition: background .3s, color .3s;
+  border: 2px solid #DFF0EB;
+}
+.demo-step.active .demo-step-num {
+  background: var(--teal); color: #fff;
+  border-color: var(--teal);
+}
+.demo-step-content { flex: 1; min-width: 0; }
+.demo-step-content h3 {
+  font-family: 'Sora', sans-serif; font-size: 1rem; font-weight: 700;
+  color: var(--ink); margin-bottom: 4px;
+}
+.demo-step-content p {
+  font-size: 0.9rem; color: var(--text-mid); line-height: 1.6;
+}
+
+/* Right phone column */
+.demo-right {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 24px;
+}
+
+/* Animated phone mockup — scaled up for desktop */
+.dc-phone-demo {
+  width: 300px;
+  aspect-ratio: 71.6 / 147.6;
+  border-radius: 40px;
+  border: 6px solid #3A3A3C;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.18), 0 8px 24px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.08);
+  position: relative;
+  display: flex; flex-direction: column;
+}
+.dc-phone-demo.vibrate { animation: dc-vibrate 0.4s ease-in-out; }
+.dc-phone-demo.vibrate-strong { animation: dc-vibrate-strong 0.6s ease-in-out; }
+.dc-phone-notch { width: 90px; height: 22px; background: #1C1C1E; border-radius: 14px; margin: 10px auto 0; flex-shrink: 0; z-index: 10; position: relative; }
+.dc-demo-screen { flex: 1; display: flex; flex-direction: column; position: relative; overflow: hidden; transition: background 0.8s ease; }
+.dc-demo-inner { padding: 14px 18px 18px; flex: 1; display: flex; flex-direction: column; transition: opacity 0.3s ease; }
+
+/* Live badge */
+.dc-demo-live { display: flex; align-items: center; gap: 6px; margin-bottom: 14px; }
+.dc-demo-live-dot { width: 8px; height: 8px; border-radius: 50%; background: #22C55E; animation: dc-pulse 1.5s ease-in-out infinite; }
+.dc-demo-live-text { font-size: 11px; font-weight: 700; color: #22C55E; text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* Position display */
+.dc-demo-position { text-align: center; margin-bottom: 10px; }
+.dc-demo-pos-label { font-size: 11px; color: #64748B; text-transform: uppercase; font-weight: 600; letter-spacing: 0.8px; margin-bottom: 2px; transition: color 0.5s ease; }
+.dc-demo-pos-num { font-size: 64px; font-weight: 900; line-height: 1; transition: color 0.5s ease, transform 0.3s ease; }
+.dc-demo-pos-num.pop { animation: dc-num-pop 0.4s ease-out; }
+
+/* Time card */
+.dc-demo-time-card { border-radius: 14px; padding: 10px 14px; text-align: center; margin-bottom: 10px; transition: background 0.5s ease; }
+.dc-demo-time-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; transition: color 0.5s ease; }
+.dc-demo-time-val { font-size: 28px; font-weight: 900; transition: color 0.5s ease; }
+
+/* Journey dots */
+.dc-demo-journey { display: flex; align-items: center; gap: 4px; padding: 8px 0; }
+.dc-demo-j-icon { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.5s ease; flex-shrink: 0; }
+.dc-demo-j-icon .material-symbols-outlined { font-size: 15px; }
+.dc-demo-j-you { background: #E0F2FE; color: #0284C7; border: 1.5px solid #0EA5E9; }
+.dc-demo-j-ahead { background: #F1F5F9; color: #94A3B8; }
+.dc-demo-j-done { background: #D1FAE5; color: #059669; }
+.dc-demo-j-door { background: #F1F5F9; color: #94A3B8; }
+.dc-demo-j-line { flex: 1; height: 2px; background: #E2E8F0; transition: background 0.5s ease; }
+.dc-demo-j-line.done { background: #6EE7B7; }
+
+/* Status */
+.dc-demo-status { text-align: center; font-size: 12px; font-weight: 600; padding: 8px 0; min-height: 32px; transition: color 0.5s ease; }
+
+/* Toast */
+.dc-demo-toast {
+  position: absolute; top: 40px; left: 14px; right: 14px;
+  background: #1E293B; color: #FFFFFF;
+  padding: 9px 13px; border-radius: 14px;
+  font-size: 12px; font-weight: 600;
+  display: flex; align-items: center; gap: 8px;
+  z-index: 20; box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  opacity: 0; transform: translateY(-14px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+}
+.dc-demo-toast.show { opacity: 1; transform: translateY(0); }
+.dc-demo-toast .material-symbols-outlined { font-size: 16px; flex-shrink: 0; }
+
+/* Final overlay */
+.dc-demo-final {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+  opacity: 0; transition: opacity 0.5s ease; pointer-events: none; z-index: 5;
+}
+.dc-demo-final.show { opacity: 1; }
+.dc-demo-final-icon {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: rgba(255,255,255,0.25);
+  display: flex; align-items: center; justify-content: center;
+  animation: dc-final-ring 1s ease-in-out infinite;
+}
+.dc-demo-final-icon .material-symbols-outlined { font-size: 32px; color: #FFFFFF; }
+.dc-demo-final-title { font-size: 20px; font-weight: 900; color: #FFFFFF; text-transform: uppercase; letter-spacing: 1px; }
+.dc-demo-final-sub { font-size: 13px; color: rgba(255,255,255,0.85); text-align: center; line-height: 1.5; }
+
+/* Tooltip below phone */
+.demo-tooltip {
+  text-align: center; max-width: 280px;
+  min-height: 40px; display: flex; align-items: center; justify-content: center;
+}
+.demo-tooltip-text {
+  font-size: 13px; color: #94A3B8; font-style: italic; line-height: 1.5;
+  opacity: 0; transform: translateY(4px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.demo-tooltip-text.show { opacity: 1; transform: translateY(0); }
+
+/* ──────────────────────────────────────────────────────────
+   VALUE PROPS — 3-column grid
+   ────────────────────────────────────────────────────────── */
+.values-section {
+  padding: var(--section-pad) var(--gutter);
+  background: var(--page-bg);
+}
+.section-eyebrow {
+  display: inline-block; font-size: 0.72rem; font-weight: 600;
+  color: var(--teal-dim); text-transform: uppercase; letter-spacing: 0.08em;
+  margin-bottom: 12px;
+}
+.section-title {
+  font-family: 'Sora', sans-serif; font-weight: 800;
+  font-size: clamp(1.8rem, 2.5vw, 2.6rem);
+  line-height: 1.15; letter-spacing: -0.035em; color: var(--ink);
+  margin-bottom: 12px;
+}
+.section-sub {
+  font-size: 1.05rem; color: var(--text-mid); line-height: 1.7;
+  max-width: 560px; margin-bottom: 56px;
+}
+.values-inner {
+  max-width: var(--container-max); margin: 0 auto;
+  text-align: center;
+}
+.values-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px;
+}
+.value-card {
+  background: var(--white); border-radius: 20px;
+  padding: 40px 32px; text-align: center;
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.03);
+  transition: transform .25s, box-shadow .25s;
+}
+.value-card:hover { transform: translateY(-4px); box-shadow: 0 8px 32px rgba(14,168,132,0.1); }
+.value-icon {
+  width: 60px; height: 60px; border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 20px;
+}
+.value-icon .material-symbols-outlined { font-size: 28px; }
+.value-label { font-family: 'Sora', sans-serif; font-size: 1.15rem; font-weight: 700; color: var(--ink); margin-bottom: 10px; }
+.value-desc { font-size: 0.95rem; color: var(--text-mid); line-height: 1.6; }
+
+/* ──────────────────────────────────────────────────────────
+   DASHBOARD SECTION — 2-column
+   ────────────────────────────────────────────────────────── */
+.clinic-section {
+  padding: var(--section-pad) var(--gutter);
+  background: #F0FDFA;
+}
+.clinic-inner {
+  max-width: var(--container-max); margin: 0 auto;
+  display: grid; grid-template-columns: 1fr 1.2fr; gap: 80px; align-items: center;
+}
+.clinic-text {}
+.clinic-text .section-sub { margin-bottom: 32px; }
+.clinic-bullets { display: flex; flex-direction: column; gap: 16px; margin-bottom: 36px; }
+.clinic-bullet { display: flex; align-items: flex-start; gap: 14px; }
+.clinic-bullet-icon {
+  width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+  background: rgba(14,168,132,0.12); color: var(--teal);
+  display: flex; align-items: center; justify-content: center;
+  margin-top: 2px;
+}
+.clinic-bullet-icon .material-symbols-outlined { font-size: 18px; }
+.clinic-bullet-text h4 { font-size: 0.95rem; font-weight: 700; color: var(--ink); margin-bottom: 2px; }
+.clinic-bullet-text p { font-size: 0.875rem; color: var(--text-mid); line-height: 1.5; }
+
+.clinic-browser-wrap { position: relative; }
+.clinic-browser {
+  background: #0c1a16; border-radius: 16px; overflow: hidden;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.18), 0 0 0 1px rgba(255,255,255,0.06);
+  transform: perspective(1200px) rotateY(5deg) rotateX(1.5deg);
+  transform-origin: right center;
+}
+
+/* Mini dashboard inside clinic browser */
+.c-dash { min-height: 360px; display: flex; flex-direction: column; }
+.c-topbar { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); background: #0f1e1a; }
+.c-page-title { font-family: 'Sora', sans-serif; font-size: 0.8rem; font-weight: 700; color: rgba(255,255,255,0.9); }
+.c-page-sub { font-size: 0.6rem; color: rgba(255,255,255,0.28); margin-top: 2px; }
+.c-stats { display: grid; grid-template-columns: repeat(3, 1fr); border-bottom: 1px solid rgba(255,255,255,0.05); background: #0f1e1a; }
+.c-stat { padding: 12px 14px; border-right: 1px solid rgba(255,255,255,0.04); }
+.c-stat:last-child { border-right: none; }
+.c-stat-label { font-size: 0.58rem; color: rgba(255,255,255,0.28); text-transform: uppercase; letter-spacing: 0.07em; }
+.c-stat-val { font-family: 'Sora', sans-serif; font-size: 1.6rem; font-weight: 800; line-height: 1; margin: 4px 0 2px; }
+.c-stat-trend { font-size: 0.58rem; color: rgba(255,255,255,0.25); }
+.c-queue { flex: 1; padding: 12px 14px; background: #0f1e1a; display: flex; flex-direction: column; gap: 6px; }
+.c-q-row { display: flex; align-items: center; gap: 9px; padding: 9px 11px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.05); background: rgba(255,255,255,0.02); position: relative; overflow: hidden; }
+.c-q-row::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; }
+.c-q-active { background: rgba(14,168,132,0.07); border-color: rgba(14,168,132,0.18); }
+.c-q-active::before { background: var(--teal-light); }
+.c-q-next { background: rgba(240,160,48,0.06); border-color: rgba(240,160,48,0.14); }
+.c-q-next::before { background: var(--gold); }
+.c-q-wait::before { background: rgba(255,255,255,0.08); }
+.c-q-num { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Sora', sans-serif; font-size: 0.6rem; font-weight: 700; flex-shrink: 0; }
+.c-q-active .c-q-num { background: var(--teal); color: var(--white); }
+.c-q-next .c-q-num { background: var(--gold-pale); color: var(--gold); }
+.c-q-wait .c-q-num { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.35); }
+.c-q-av { width: 26px; height: 26px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-family: 'Sora', sans-serif; font-size: 0.58rem; font-weight: 700; color: var(--white); flex-shrink: 0; }
+.c-q-info { flex: 1; min-width: 0; }
+.c-q-name { font-size: 0.72rem; font-weight: 500; color: rgba(255,255,255,0.82); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.c-q-meta { font-size: 0.58rem; color: rgba(255,255,255,0.28); }
+.c-q-pill { font-size: 0.58rem; font-weight: 600; padding: 3px 8px; border-radius: 100px; white-space: nowrap; }
+.c-pill-active { background: rgba(14,168,132,0.16); color: var(--teal-light); }
+.c-pill-next { background: var(--gold-pale); color: var(--gold); }
+.c-pill-wait { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.35); }
+.c-btn-call {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--teal); color: var(--white);
+  padding: 9px 16px; border-radius: 9px;
+  font-family: 'Sora', sans-serif; font-size: 0.72rem; font-weight: 700;
+  border: none; cursor: pointer; margin: 10px 14px 14px;
+  box-shadow: 0 4px 14px rgba(14,168,132,0.4);
+  transition: opacity .2s;
+}
+.c-btn-call svg { width: 12px; height: 12px; }
+
+/* ──────────────────────────────────────────────────────────
+   SOCIAL PROOF
+   ────────────────────────────────────────────────────────── */
+.proof-section {
+  padding: var(--section-pad) var(--gutter);
+  background: var(--white);
+}
+.proof-inner {
+  max-width: var(--container-max); margin: 0 auto;
+  display: grid; grid-template-columns: 1.2fr 1fr; gap: 80px; align-items: center;
+}
+.proof-quote-wrap { position: relative; }
+.proof-big-quote {
+  font-size: 9rem; line-height: 0.7; color: #E8F8F4;
+  font-family: Georgia, serif; position: absolute;
+  top: -16px; left: -20px; pointer-events: none; user-select: none;
+}
+.proof-quote {
+  font-size: 1.4rem; font-style: italic; color: #334155;
+  line-height: 1.65; position: relative; z-index: 1;
+  padding-top: 24px;
+}
+.proof-author-row {
+  display: flex; align-items: center; gap: 14px; margin-top: 28px;
+}
+.proof-avatar {
+  width: 52px; height: 52px; border-radius: 50%;
+  background: linear-gradient(135deg, #1e6b54, #0ea884);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Sora', sans-serif; font-weight: 700; font-size: 1rem; color: #fff;
+  flex-shrink: 0;
+}
+.proof-author-name { font-family: 'Sora', sans-serif; font-size: 1rem; font-weight: 700; color: var(--ink); }
+.proof-author-role { font-size: 0.875rem; color: var(--text-soft); margin-top: 2px; }
+
+.proof-stats { display: flex; flex-direction: column; gap: 24px; }
+.proof-stat-card {
+  background: var(--page-bg); border-radius: 16px; padding: 24px 28px;
+  border: 1px solid var(--border);
+}
+.proof-stat-num { font-family: 'Sora', sans-serif; font-size: 2.6rem; font-weight: 900; color: var(--teal); line-height: 1; }
+.proof-stat-label { font-size: 0.9rem; color: var(--text-mid); margin-top: 4px; }
+.proof-cities { font-size: 0.875rem; color: var(--text-soft); margin-top: 4px; }
+.proof-stars { color: var(--gold); font-size: 1.2rem; letter-spacing: 2px; }
+
+/* ──────────────────────────────────────────────────────────
+   PRICING — Desktop enhanced
+   ────────────────────────────────────────────────────────── */
+.pricing-section {
+  padding: var(--section-pad) var(--gutter);
+  background: var(--page-bg);
+}
+.pricing-inner {
+  max-width: var(--container-max); margin: 0 auto; text-align: center;
+}
+.pricing-header { margin-bottom: 56px; }
+.pricing-cards {
+  display: flex; gap: 32px; justify-content: center; align-items: stretch;
+}
+.pricing-card {
+  flex: 1; max-width: 420px;
+  background: var(--white); border-radius: 24px;
+  padding: 44px 40px 36px; border: 1.5px solid var(--border);
+  display: flex; flex-direction: column; text-align: left;
+  position: relative; transition: transform .25s, box-shadow .25s;
+}
+.pricing-card.popular {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 4px rgba(14,168,132,0.08);
+  transform: scale(1.02);
+}
+.pricing-badge {
+  position: absolute; top: -14px; right: 24px;
+  background: var(--teal); color: #fff;
+  font-size: 0.78rem; font-weight: 700;
+  padding: 6px 20px; border-radius: 100px;
+  box-shadow: 0 4px 14px rgba(14,168,132,0.35);
+}
+.pricing-plan-name { font-size: 0.8rem; font-weight: 700; color: var(--text-mid); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 20px; }
+.pricing-amount { display: flex; align-items: baseline; gap: 6px; margin-bottom: 6px; }
+.pricing-num { font-family: 'Sora', sans-serif; font-size: 4rem; font-weight: 900; letter-spacing: -0.04em; color: var(--ink); line-height: 1; }
+.pricing-currency { font-size: 1.4rem; font-weight: 600; color: var(--text-mid); }
+.pricing-period { font-size: 0.9rem; color: var(--text-soft); margin-bottom: 4px; }
+.pricing-savings { font-size: 0.85rem; font-weight: 600; color: var(--teal); margin-bottom: 28px; }
+.pricing-divider { height: 1px; background: var(--border); margin-bottom: 24px; }
+.pricing-features { list-style: none; display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; flex: 1; }
+.pricing-feature { display: flex; align-items: flex-start; gap: 10px; font-size: 0.9rem; color: #334155; }
+.pricing-feature-icon { color: var(--teal); font-size: 18px; flex-shrink: 0; margin-top: -1px; }
+.pricing-cta {
+  display: block; width: 100%;
+  padding: 15px; border-radius: 12px;
+  font-family: 'Sora', sans-serif; font-size: 0.95rem; font-weight: 700;
+  text-align: center; cursor: pointer; border: none;
+  transition: all .25s;
+}
+.pricing-cta-outline {
+  background: var(--page-bg); color: #334155;
+  border: 1.5px solid #CBD5E1;
+}
+.pricing-cta-outline:hover { background: #F0FDFA; border-color: var(--teal); color: var(--teal-dim); }
+.pricing-cta-primary {
+  background: var(--teal); color: #fff;
+  box-shadow: 0 8px 24px rgba(14,168,132,0.32);
+}
+.pricing-cta-primary:hover { background: var(--teal-light); box-shadow: 0 12px 32px rgba(14,168,132,0.45); transform: translateY(-1px); }
+.pricing-trial-note { margin-top: 20px; font-size: 0.85rem; color: var(--text-soft); }
+
+/* ──────────────────────────────────────────────────────────
+   FAQ — 2-column desktop
+   ────────────────────────────────────────────────────────── */
+.faq-section {
+  padding: var(--section-pad) var(--gutter);
+  background: var(--white);
+}
+.faq-inner { max-width: var(--container-max); margin: 0 auto; }
+.faq-header { text-align: center; margin-bottom: 56px; }
+.faq-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0 64px;
+}
+.faq-col { display: flex; flex-direction: column; }
+.faq-item { border-bottom: 1px solid #E8F8F4; padding: 24px 0; cursor: pointer; }
+.faq-item:first-child { border-top: 1px solid #E8F8F4; }
+.faq-q {
+  font-size: 1.05rem; font-weight: 700; color: #0F172A;
+  display: flex; justify-content: space-between; align-items: center; gap: 16px;
+  user-select: none;
+}
+.faq-q .material-symbols-outlined { font-size: 22px; color: #94A3B8; transition: transform 0.2s; flex-shrink: 0; }
+.faq-item.open .faq-q .material-symbols-outlined { transform: rotate(180deg); color: var(--teal); }
+.faq-a {
+  font-size: 0.95rem; color: #64748B; line-height: 1.65;
+  max-height: 0; overflow: hidden; transition: max-height 0.35s ease, padding 0.35s ease;
+}
+.faq-item.open .faq-a { max-height: 200px; padding-top: 12px; }
+
+/* ──────────────────────────────────────────────────────────
+   FOOTER CTA
+   ────────────────────────────────────────────────────────── */
+.footer-cta-section {
+  padding: 80px var(--gutter);
+  background: var(--ink);
+  text-align: center;
+  position: relative; overflow: hidden;
+}
+.footer-cta-section::before {
+  content: '';
+  position: absolute; top: -120px; left: 50%; transform: translateX(-50%);
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(14,168,132,0.15) 0%, transparent 65%);
+  pointer-events: none;
+}
+.footer-cta-eyebrow { font-size: 0.78rem; font-weight: 600; color: var(--teal-light); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 20px; }
+.footer-cta-title { font-family: 'Sora', sans-serif; font-weight: 800; font-size: clamp(2rem, 3vw, 3rem); color: #fff; line-height: 1.15; letter-spacing: -0.04em; margin-bottom: 16px; }
+.footer-cta-sub { font-size: 1.05rem; color: rgba(255,255,255,0.6); margin-bottom: 40px; }
+.footer-cta-row { display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; }
+.footer-cta-btn {
+  padding: 16px 36px; border-radius: 12px;
+  font-family: 'Sora', sans-serif; font-weight: 700; font-size: 1rem;
+  cursor: pointer; border: none;
+  background: var(--teal); color: #fff;
+  box-shadow: 0 8px 28px rgba(14,168,132,0.4);
+  transition: all .25s;
+}
+.footer-cta-btn:hover { background: var(--teal-light); transform: translateY(-2px); }
+.footer-cta-ghost {
+  padding: 16px 36px; border-radius: 12px;
+  font-family: 'Sora', sans-serif; font-weight: 600; font-size: 0.95rem;
+  cursor: pointer; background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.8);
+  border: 1px solid rgba(255,255,255,0.15); transition: all .25s;
+}
+.footer-cta-ghost:hover { background: rgba(255,255,255,0.12); }
+.footer-cta-fine { margin-top: 20px; font-size: 0.82rem; color: rgba(255,255,255,0.35); }
+
+/* ──────────────────────────────────────────────────────────
+   FOOTER
+   ────────────────────────────────────────────────────────── */
+footer {
+  padding: 20px var(--gutter);
+  display: flex; justify-content: space-between; align-items: center;
+  background: #060F0C;
+}
+.footer-brand { font-family: 'Sora', sans-serif; font-weight: 800; font-size: 1.1rem; color: rgba(255,255,255,0.45); }
+.footer-brand em { color: var(--teal); font-style: normal; }
+.footer-copy { font-size: 0.82rem; color: rgba(255,255,255,0.2); }
+
+/* ──────────────────────────────────────────────────────────
+   ANIMATIONS
+   ────────────────────────────────────────────────────────── */
+@keyframes fadeUp { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeLeft { from { opacity: 0; transform: translateX(28px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+@keyframes countUp { 0% { transform: translateY(6px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+@keyframes bellPulse { 0%, 100% { transform: scale(1); } 20% { transform: scale(1.25) rotate(-12deg); } 40% { transform: scale(1.2) rotate(12deg); } 60% { transform: scale(1.15) rotate(-8deg); } 80% { transform: scale(1.1) rotate(6deg); } }
+@keyframes dc-pulse { 0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34,197,94,0.4); } 50% { opacity: 0.8; box-shadow: 0 0 0 5px rgba(34,197,94,0); } }
+@keyframes dc-num-pop { 0% { transform: scale(0.7); opacity: 0.3; } 50% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
+@keyframes dc-final-ring { 0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.3); } 50% { box-shadow: 0 0 0 14px rgba(255,255,255,0); } }
+@keyframes dc-vibrate { 0%, 100% { transform: translateX(0); } 15% { transform: translateX(-2px) rotate(-0.5deg); } 30% { transform: translateX(2px) rotate(0.5deg); } 45% { transform: translateX(-1.5px); } 60% { transform: translateX(1.5px); } 75% { transform: translateX(-1px); } }
+@keyframes dc-vibrate-strong { 0%, 100% { transform: translateX(0); } 10% { transform: translateX(-3px) rotate(-1deg); } 20% { transform: translateX(3px) rotate(1deg); } 30% { transform: translateX(-3px) rotate(-0.5deg); } 40% { transform: translateX(3px) rotate(0.5deg); } 50% { transform: translateX(-2px); } 60% { transform: translateX(2px); } 70% { transform: translateX(-1px); } 80% { transform: translateX(1px); } }
+
+/* ──────────────────────────────────────────────────────────
+   RESPONSIVE — 768px
+   ────────────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  :root { --gutter: 48px; --section-pad: 72px; }
+  .hero { grid-template-columns: 1fr; gap: 48px; min-height: auto; padding-top: 120px; }
+  .hero-right { display: none; }
+  .demo-section { grid-template-columns: 1fr; }
+  .demo-left { position: static; }
+  .demo-right { order: -1; }
+  .pricing-cards { flex-direction: column; align-items: center; }
+  .pricing-card { max-width: 100%; width: 100%; }
+  .pricing-card.popular { transform: none; }
+  .faq-grid { grid-template-columns: 1fr; }
+  .faq-col:first-child .faq-item:first-child { border-top: 1px solid #E8F8F4; }
+  .proof-inner { grid-template-columns: 1fr; }
+  .clinic-inner { grid-template-columns: 1fr; }
+  .clinic-browser-wrap { display: none; }
+  .values-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  :root { --gutter: 24px; --section-pad: 56px; }
+  .nav-links { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <a href="#" class="logo">Blé<em>Saf</em></a>
+  <ul class="nav-links">
+    <li><a href="#demo">Fonctionnalités</a></li>
+    <li><a href="#demo">Comment ça marche</a></li>
+    <li><a href="#pricing">Tarifs</a></li>
+    <li><a href="#pricing" class="btn-nav">Essayer gratuitement</a></li>
+  </ul>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero">
+
+  <!-- Left -->
+  <div class="hero-left">
+    <div class="eyebrow">
+      <div class="eyebrow-dot"></div>
+      <span class="eyebrow-text">Gestion de file d'attente médicale</span>
+    </div>
+    <h1>Autant de patients.<br><span class="hl">Deux fois moins</span><br>de chaos.</h1>
+    <p class="sub">Vos patients s'enregistrent seuls, suivent leur tour depuis leur téléphone, et <strong>reviennent parce qu'ils ont été bien reçus.</strong> Votre équipe respire. Votre consultation, préservée.</p>
+    <div class="cta-block">
+      <div class="cta-row">
+        <a href="#pricing" class="btn-primary">Essayer gratuitement 30 jours <span class="arr">→</span></a>
+        <button class="btn-ghost" onclick="document.getElementById('demo').scrollIntoView({behavior:'smooth'})">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+          Voir la démo
+        </button>
+      </div>
+      <p class="cta-fine">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M12 2L4 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-8-3zM10 17l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+        Aucune carte bancaire requise · Annulation à tout moment
+      </p>
+    </div>
+    <div class="proof">
+      <div class="avs">
+        <div class="av av1">DM</div><div class="av av2">SB</div><div class="av av3">AK</div><div class="av av4">+4</div>
+      </div>
+      <div class="proof-text">
+        <div class="stars">★★★★★</div>
+        <strong>7 cabinets font confiance à BleSaf</strong>
+        <small>« Ma secrétaire ne gère plus la salle. » — Dr. Bouzid</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: Browser + floating phones -->
+  <div class="hero-right">
+    <div class="mockup-wrap">
+
+      <!-- Browser frame -->
+      <div class="browser">
+        <div class="b-chrome">
+          <div class="b-dots"><div class="b-dot bd1"></div><div class="b-dot bd2"></div><div class="b-dot bd3"></div></div>
+          <div class="b-url">🔒 app.blesaf.tn / dashboard</div>
+        </div>
+        <div class="dash">
+          <div class="d-main">
+            <div class="d-topbar">
+              <div>
+                <div class="d-page-title">File d'attente · Vendredi 28 fév.</div>
+                <div class="d-page-sub" id="topbarSub">Temps réel · Mise à jour il y a 4 s</div>
+              </div>
+              <div class="d-actions">
+                <button class="btn-icon-dash"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg></button>
+                <button class="btn-icon-dash"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 11h8V3H3v8zm2-6h4v4H5V5zM3 21h8v-8H3v8zm2-6h4v4H5v-4zM13 3v8h8V3h-8zm6 6h-4V5h4v4zM13 13h2v2h-2zm2 2h2v2h-2zm2-2h2v2h-2zm-4 4h2v2h-2zm2 0h2v2h-2z"/></svg></button>
+                <button class="btn-call" id="btnCall">
+                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                  Appeler le suivant
+                </button>
+              </div>
+            </div>
+            <div class="d-stats">
+              <div class="d-stat">
+                <div class="d-stat-label">En attente</div>
+                <div class="d-stat-val c-teal" id="statWaiting">8</div>
+                <div class="d-stat-trend t-up">↓ −2 depuis 1h</div>
+              </div>
+              <div class="d-stat">
+                <div class="d-stat-label">Consultés</div>
+                <div class="d-stat-val" id="statDone">26</div>
+                <div class="d-stat-trend">Aujourd'hui</div>
+              </div>
+              <div class="d-stat">
+                <div class="d-stat-label">Attente moy.</div>
+                <div class="d-stat-val">18<sup>min</sup></div>
+                <div class="d-stat-trend">Dans les normes</div>
+              </div>
+              <div class="d-stat">
+                <div class="d-stat-label">Check-in QR</div>
+                <div class="d-stat-val c-gold">75<sup>%</sup></div>
+                <div class="d-stat-trend t-warn">↑ +18% ce mois</div>
+              </div>
+            </div>
+            <div class="d-queue-area">
+              <div class="d-q-header">
+                <span class="d-q-title">Patients en file</span>
+                <span class="d-q-link">Voir tout →</span>
+              </div>
+              <div class="q-row q-active" id="row1">
+                <div class="q-num">1</div>
+                <div class="q-avatar qa">FB</div>
+                <div class="q-info">
+                  <div class="q-name">Mme Fatma Bel Haj</div>
+                  <div class="q-meta"><span class="src-qr">⬛ QR</span> · il y a 42 min</div>
+                </div>
+                <span class="q-pill pill-active">En consultation</span>
+                <div class="q-eta">—</div>
+              </div>
+              <div class="q-row q-next" id="row2">
+                <div class="q-num">2</div>
+                <div class="q-avatar qb">KT</div>
+                <div class="q-info">
+                  <div class="q-name">M. Karim Trabelsi</div>
+                  <div class="q-meta"><span class="src-qr">⬛ QR</span> · il y a 28 min</div>
+                </div>
+                <span class="q-pill pill-next">Notifié ✓</span>
+                <div class="q-eta">~3 min</div>
+              </div>
+              <div class="q-row q-wait" id="row3">
+                <div class="q-num">3</div>
+                <div class="q-avatar qc">AK</div>
+                <div class="q-info">
+                  <div class="q-name">Mme Amira Khadhraoui</div>
+                  <div class="q-meta"><span class="src-qr">⬛ QR</span> · il y a 15 min</div>
+                </div>
+                <span class="q-pill pill-wait">En attente</span>
+                <div class="q-eta">~21 min</div>
+              </div>
+              <div class="q-row q-wait" id="row4">
+                <div class="q-num">4</div>
+                <div class="q-avatar qd">HG</div>
+                <div class="q-info">
+                  <div class="q-name">M. Hichem Gharbi</div>
+                  <div class="q-meta">✎ Manuel · il y a 8 min</div>
+                </div>
+                <span class="q-pill pill-wait">En attente</span>
+                <div class="q-eta">~39 min</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Floating phone mockups -->
+      <div class="phone-mockup" id="phone1">
+        <div class="ph-screen">
+          <div class="ph-statusbar"><span>9:41</span><div class="ph-statusbar-r">▐▐ 🔋</div></div>
+          <div class="ph-app-header">
+            <div class="ph-app-logo">Blé<em>Saf</em></div>
+            <div class="ph-app-live"><div class="ph-app-live-dot"></div>En direct</div>
+          </div>
+          <div class="ph-app-body">
+            <div class="ph-greeting">M. Trabelsi</div>
+            <div class="ph-doctor">Dr. Mehdi Saidi · Généraliste</div>
+            <div class="ph-pos-wrap">
+              <div class="ph-pos-number urgent">🔔</div>
+              <div class="ph-pos-label" style="font-weight:700;color:#0EA884;font-size:0.6rem;">C'est votre tour !</div>
+            </div>
+            <div class="ph-dots">
+              <div class="ph-dot done"></div><div class="ph-dot done"></div>
+              <div class="ph-dot done"></div><div class="ph-dot done"></div>
+            </div>
+            <div class="ph-status-card s-alert">
+              <span class="ph-status-icon">🚶</span>
+              <div class="ph-status-text">
+                <strong>Entrez au cabinet</strong>
+                <small>Le médecin vous attend</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phone-mockup" id="phone2">
+        <div class="ph-screen">
+          <div class="ph-statusbar"><span>9:38</span><div class="ph-statusbar-r">▐▐ 🔋</div></div>
+          <div class="ph-app-header">
+            <div class="ph-app-logo">Blé<em>Saf</em></div>
+            <div class="ph-app-live"><div class="ph-app-live-dot"></div>En direct</div>
+          </div>
+          <div class="ph-app-body">
+            <div class="ph-greeting">Mme Khadhraoui</div>
+            <div class="ph-doctor">Dr. Mehdi Saidi · Généraliste</div>
+            <div class="ph-pos-wrap">
+              <div class="ph-pos-number">2</div>
+              <div class="ph-pos-label">personnes avant vous</div>
+            </div>
+            <div class="ph-dots">
+              <div class="ph-dot done"></div><div class="ph-dot done"></div><div class="ph-dot active"></div><div class="ph-dot"></div>
+            </div>
+            <div class="ph-wait"><strong>~18 min</strong><small>Temps estimé</small></div>
+            <div class="ph-status-card s-info">
+              <span class="ph-status-icon">☕</span>
+              <div class="ph-status-text"><strong>Pas d'inquiétude</strong><small>Notification automatique</small></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phone-mockup" id="phone3">
+        <div class="ph-screen">
+          <div class="ph-statusbar"><span>9:32</span><div class="ph-statusbar-r">▐▐ 🔋</div></div>
+          <div class="ph-app-header">
+            <div class="ph-app-logo">Blé<em>Saf</em></div>
+            <div class="ph-app-live"><div class="ph-app-live-dot"></div>En direct</div>
+          </div>
+          <div class="ph-app-body">
+            <div class="ph-greeting">M. Gharbi</div>
+            <div class="ph-doctor">Dr. Mehdi Saidi · Généraliste</div>
+            <div class="ph-pos-wrap">
+              <div class="ph-pos-number">3</div>
+              <div class="ph-pos-label">personnes avant vous</div>
+            </div>
+            <div class="ph-dots">
+              <div class="ph-dot done"></div><div class="ph-dot done"></div><div class="ph-dot active"></div><div class="ph-dot"></div>
+            </div>
+            <div class="ph-wait"><strong>~36 min</strong><small>Temps estimé</small></div>
+            <div class="ph-status-card s-info">
+              <span class="ph-status-icon">☕</span>
+              <div class="ph-status-text"><strong>Pas d'inquiétude</strong><small>Notification automatique</small></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /mockup-wrap -->
+  </div><!-- /hero-right -->
+</section>
+
+<!-- ── PHONE DEMO SECTION — Patient journey animation ── -->
+<div class="demo-section-wrap" id="demo">
+  <div class="demo-section">
+
+    <!-- Left: sticky steps -->
+    <div class="demo-left">
+      <div class="demo-eyebrow">Ce que vos patients vivent</div>
+      <h2 class="demo-title">Liberté totale<br>pendant <em>l'attente</em></h2>
+      <p class="demo-sub">Chaque patient suit sa position en temps réel, depuis n'importe où. Aucune application à télécharger — juste un QR code à l'accueil.</p>
+
+      <div class="demo-steps">
+        <div class="demo-step active" id="step-0">
+          <div class="demo-step-num">1</div>
+          <div class="demo-step-content">
+            <h3>Check-in en 10 secondes</h3>
+            <p>Scan du QR code à l'accueil. Nom et numéro — c'est tout. Sami est immédiatement dans la file à la position #5.</p>
+          </div>
+        </div>
+        <div class="demo-step" id="step-1">
+          <div class="demo-step-num">2</div>
+          <div class="demo-step-content">
+            <h3>Liberté de partir</h3>
+            <p>Sami part prendre un café. Sa position avance automatiquement sur son téléphone — pas besoin de rester assis.</p>
+          </div>
+        </div>
+        <div class="demo-step" id="step-2">
+          <div class="demo-step-num">3</div>
+          <div class="demo-step-content">
+            <h3>Alerte automatique</h3>
+            <p>Le téléphone vibre dès qu'il est prochain. Sami se dirige calmement vers le cabinet, sans surprise.</p>
+          </div>
+        </div>
+        <div class="demo-step" id="step-3">
+          <div class="demo-step-num">4</div>
+          <div class="demo-step-content">
+            <h3>Consultation détendue</h3>
+            <p>Un patient détendu, sans attente frustrante = une meilleure consultation. Moins de cortisol, plus de confiance.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: animated phone -->
+    <div class="demo-right">
+      <div class="dc-phone-demo" id="dc-anim-phone">
+        <div class="dc-phone-notch"></div>
+        <div class="dc-demo-screen" id="dc-anim-screen">
+          <div class="dc-demo-inner" id="dc-anim-inner">
+            <div class="dc-demo-live">
+              <div class="dc-demo-live-dot"></div>
+              <div class="dc-demo-live-text">En direct</div>
+            </div>
+            <div class="dc-demo-position">
+              <div class="dc-demo-pos-label" id="dc-anim-pos-label">VOTRE POSITION</div>
+              <div class="dc-demo-pos-num" id="dc-anim-pos">#5</div>
+            </div>
+            <div class="dc-demo-time-card" id="dc-anim-time-card">
+              <div class="dc-demo-time-label" id="dc-anim-time-label">TEMPS D'ATTENTE</div>
+              <div class="dc-demo-time-val" id="dc-anim-time">~25 min</div>
+            </div>
+            <div class="dc-demo-journey" id="dc-anim-journey"></div>
+            <div class="dc-demo-status" id="dc-anim-status"></div>
+          </div>
+          <div class="dc-demo-toast" id="dc-anim-toast">
+            <span class="material-symbols-outlined">arrow_upward</span>
+            <span id="dc-anim-toast-text">Vous avez avancé d'une place !</span>
+          </div>
+          <div class="dc-demo-final" id="dc-anim-final">
+            <div class="dc-demo-final-icon">
+              <span class="material-symbols-outlined filled">waving_hand</span>
+            </div>
+            <div class="dc-demo-final-title">C'est votre tour !</div>
+            <div class="dc-demo-final-sub">Le médecin vous attend.<br>Entrez détendu.</div>
+          </div>
+        </div>
+      </div>
+      <div class="demo-tooltip">
+        <div class="demo-tooltip-text" id="dc-anim-tooltip"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── VALUE PROPS ── -->
+<section class="values-section">
+  <div class="values-inner">
+    <div class="section-eyebrow">Côté patient</div>
+    <h2 class="section-title">Ce que chaque patient reçoit</h2>
+    <p class="section-sub">Aucune application à télécharger. Juste un QR code et un numéro de téléphone — l'expérience moderne que vos patients méritent.</p>
+    <div class="values-grid">
+      <div class="value-card">
+        <div class="value-icon" style="background:#E0F2FE; color:#0284C7;">
+          <span class="material-symbols-outlined filled">pin_drop</span>
+        </div>
+        <div class="value-label">Position en temps réel</div>
+        <div class="value-desc">Ils savent exactement où ils sont dans la file, mis à jour automatiquement à chaque appel.</div>
+      </div>
+      <div class="value-card">
+        <div class="value-icon" style="background:#FEF3C7; color:#D97706;">
+          <span class="material-symbols-outlined filled">schedule</span>
+        </div>
+        <div class="value-label">Estimation précise</div>
+        <div class="value-desc">Un temps d'attente calculé et mis à jour. Ils organisent leur matinée au lieu de subir l'attente.</div>
+      </div>
+      <div class="value-card">
+        <div class="value-icon" style="background:#D1FAE5; color:#059669;">
+          <span class="material-symbols-outlined filled">notifications_active</span>
+        </div>
+        <div class="value-label">Alerte automatique</div>
+        <div class="value-desc">Notifié quand c'est bientôt son tour — aucune action manuelle, aucun appel à passer.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── DASHBOARD SECTION ── -->
+<section class="clinic-section">
+  <div class="clinic-inner">
+    <div class="clinic-text">
+      <div class="section-eyebrow">Côté cabinet</div>
+      <h2 class="section-title">Simple et puissant</h2>
+      <p class="section-sub">Installez BleSaf en 2 minutes. Un QR code imprimé, un tableau de bord — votre secrétaire gère tout depuis un seul écran.</p>
+      <div class="clinic-bullets">
+        <div class="clinic-bullet">
+          <div class="clinic-bullet-icon">
+            <span class="material-symbols-outlined filled">qr_code_2</span>
+          </div>
+          <div class="clinic-bullet-text">
+            <h4>QR code prêt en 2 min</h4>
+            <p>Un clic pour générer, un clic pour imprimer. Posez-le sur le comptoir de réception.</p>
+          </div>
+        </div>
+        <div class="clinic-bullet">
+          <div class="clinic-bullet-icon">
+            <span class="material-symbols-outlined filled">dashboard</span>
+          </div>
+          <div class="clinic-bullet-text">
+            <h4>Tableau de bord en temps réel</h4>
+            <p>Voir qui attend, combien de temps, et appeler le suivant en un clic.</p>
+          </div>
+        </div>
+        <div class="clinic-bullet">
+          <div class="clinic-bullet-icon">
+            <span class="material-symbols-outlined filled">groups</span>
+          </div>
+          <div class="clinic-bullet-text">
+            <h4>Multi-médecins</h4>
+            <p>Chaque médecin du cabinet a sa propre file d'attente indépendante.</p>
+          </div>
+        </div>
+      </div>
+      <a href="#pricing" class="btn-primary" style="text-decoration:none; display:inline-flex;">
+        Commencer gratuitement <span class="arr">→</span>
+      </a>
+    </div>
+
+    <div class="clinic-browser-wrap">
+      <div class="clinic-browser">
+        <div class="b-chrome">
+          <div class="b-dots"><div class="b-dot bd1"></div><div class="b-dot bd2"></div><div class="b-dot bd3"></div></div>
+          <div class="b-url">🔒 app.blesaf.tn / dashboard</div>
+        </div>
+        <div class="c-dash">
+          <div class="c-topbar">
+            <div>
+              <div class="c-page-title">Cabinet Dr. Ben Ali · Médecine générale</div>
+              <div class="c-page-sub">En ligne · Mis à jour à l'instant</div>
+            </div>
+          </div>
+          <div class="c-stats">
+            <div class="c-stat">
+              <div class="c-stat-label">En attente</div>
+              <div class="c-stat-val c-teal">5</div>
+              <div class="c-stat-trend t-up">↓ flux normal</div>
+            </div>
+            <div class="c-stat">
+              <div class="c-stat-label">Consultés</div>
+              <div class="c-stat-val">12</div>
+              <div class="c-stat-trend">Aujourd'hui</div>
+            </div>
+            <div class="c-stat">
+              <div class="c-stat-label">Attente moy.</div>
+              <div class="c-stat-val">16<sup style="font-size:0.6rem;color:rgba(255,255,255,0.3)">min</sup></div>
+              <div class="c-stat-trend">Bon rythme</div>
+            </div>
+          </div>
+          <div class="c-queue">
+            <div class="c-q-row c-q-active">
+              <div class="c-q-num c-q-active" style="background:#0EA884;color:#fff;">1</div>
+              <div class="c-q-av qa">FB</div>
+              <div class="c-q-info"><div class="c-q-name">Mme Fatma Bel Haj</div><div class="c-q-meta">⬛ QR · 42 min</div></div>
+              <span class="c-q-pill c-pill-active">En consultation</span>
+            </div>
+            <div class="c-q-row c-q-next">
+              <div class="c-q-num" style="background:rgba(240,160,48,0.13);color:#F0A030;">2</div>
+              <div class="c-q-av qb">KT</div>
+              <div class="c-q-info"><div class="c-q-name">M. Karim Trabelsi</div><div class="c-q-meta">⬛ QR · 28 min</div></div>
+              <span class="c-q-pill c-pill-next">Notifié ✓</span>
+            </div>
+            <div class="c-q-row c-q-wait">
+              <div class="c-q-num" style="background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.35);">3</div>
+              <div class="c-q-av qc">AK</div>
+              <div class="c-q-info"><div class="c-q-name">Mme Amira Khadhraoui</div><div class="c-q-meta">⬛ QR · 15 min</div></div>
+              <span class="c-q-pill c-pill-wait">En attente</span>
+            </div>
+          </div>
+          <button class="c-btn-call">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12"><path d="M8 5v14l11-7z"/></svg>
+            Appeler le suivant
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── SOCIAL PROOF ── -->
+<section class="proof-section">
+  <div class="proof-inner">
+    <div class="proof-quote-wrap">
+      <div class="proof-big-quote">"</div>
+      <p class="proof-quote">
+        J'ai vu la différence dès le premier jour. File organisée, patients moins stressés — et moi je consulte sans être interrompu toutes les dix minutes.
+      </p>
+      <div class="proof-author-row">
+        <div class="proof-avatar">SG</div>
+        <div>
+          <div class="proof-author-name">Dr. Samia Gharbi</div>
+          <div class="proof-author-role">Médecin généraliste · Ariana, Tunis</div>
+        </div>
+      </div>
+    </div>
+    <div class="proof-stats">
+      <div class="proof-stat-card">
+        <div class="proof-stars">★★★★★</div>
+        <div class="proof-stat-num">7</div>
+        <div class="proof-stat-label">Cabinets actifs</div>
+        <div class="proof-cities">Tunis · Sfax · Sousse · Ariana</div>
+      </div>
+      <div class="proof-stat-card">
+        <div class="proof-stat-num" style="color:#D97706;">0</div>
+        <div class="proof-stat-label">Applications à installer</div>
+        <div class="proof-cities">QR code + navigateur web — c'est tout</div>
+      </div>
+      <div class="proof-stat-card">
+        <div class="proof-stat-num">2 min</div>
+        <div class="proof-stat-label">Pour démarrer</div>
+        <div class="proof-cities">Inscription → QR code → c'est parti</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PRICING ── -->
+<section class="pricing-section" id="pricing">
+  <div class="pricing-inner">
+    <div class="pricing-header">
+      <div class="section-eyebrow">Tarifs</div>
+      <h2 class="section-title">Simple et transparent</h2>
+      <p class="section-sub" style="margin: 0 auto; text-align:center;">Pas de frais cachés. Pas d'engagement. Commencez avec 30 jours gratuits — aucune carte requise.</p>
+    </div>
+    <div class="pricing-cards">
+
+      <!-- Monthly -->
+      <div class="pricing-card">
+        <div class="pricing-plan-name">Mensuel</div>
+        <div class="pricing-amount">
+          <span class="pricing-num">50</span>
+          <span class="pricing-currency">TND</span>
+        </div>
+        <div class="pricing-period">par mois</div>
+        <div class="pricing-savings" style="visibility:hidden;">placeholder</div>
+        <div class="pricing-divider"></div>
+        <ul class="pricing-features">
+          <li class="pricing-feature">
+            <span class="material-symbols-outlined filled pricing-feature-icon">check_circle</span>
+            File d'attente illimitée
+          </li>
+          <li class="pricing-feature">
+            <span class="material-symbols-outlined filled pricing-feature-icon">check_circle</span>
+            QR code + check-in manuel
+          </li>
+          <li class="pricing-feature">
+            <span class="material-symbols-outlined filled pricing-feature-icon">check_circle</span>
+            Suivi en temps réel
+          </li>
+          <li class="pricing-feature">
+            <span class="material-symbols-outlined filled pricing-feature-icon">check_circle</span>
+            Notifications automatiques
+          </li>
+          <li class="pricing-feature">
+            <span class="material-symbols-outlined filled pricing-feature-icon">check_circle</span>
+            Support par email
+          </li>
+        </ul>
+        <button class="pricing-cta pricing-cta-outline">Commencer gratuitement</button>
+        <div class="pricing-trial-note">30 jours gratuits inclus</div>
+      </div>
+
+      <!-- Annual -->
+      <div class="pricing-card popular">
+        <div class="pricing-badge">Populaire · −17%</div>
+        <div class="pricing-plan-name">Annuel</div>
+        <div class="pricing-amount">
+          <span class="pricing-num">500</span>
+          <span class="pricing-currency">TND</span>
+        </div>
+        <div class="pricing-period">par an</div>
+        <div class="pricing-savings">Économisez 100 TND · 2 mois offerts</div>
+        <div class="pricing-divider"></div>
+        <ul class="pricing-features">
+          <li class="pricing-feature">
+            <span class="material-symbols-outlined filled pricing-feature-icon">check_circle</span>
+            Tout du plan mensuel
+          </li>
+          <li class="pricing-feature">
+            <span class="material-symbols-outlined filled pricing-feature-icon">check_circle</span>
+            Multi-médecins inclus
+          </li>
+          <li class="pricing-feature">
+            <span class="material-symbols-outlined filled pricing-feature-icon">check_circle</span>
+            Statistiques avancées
+          </li>
+          <li class="pricing-feature">
+            <span class="material-symbols-outlined filled pricing-feature-icon">check_circle</span>
+            Support prioritaire
+          </li>
+          <li class="pricing-feature">
+            <span class="material-symbols-outlined filled pricing-feature-icon">check_circle</span>
+            Export des données
+          </li>
+        </ul>
+        <button class="pricing-cta pricing-cta-primary">Commencer gratuitement</button>
+        <div class="pricing-trial-note">30 jours gratuits inclus</div>
+      </div>
+
+    </div>
+    <p class="pricing-trial-note" style="margin-top:32px;">Tous les plans incluent 30 jours d'essai gratuit. Aucune carte bancaire requise.</p>
+  </div>
+</section>
+
+<!-- ── FAQ ── -->
+<section class="faq-section">
+  <div class="faq-inner">
+    <div class="faq-header">
+      <h2 class="section-title">Questions fréquentes</h2>
+    </div>
+    <div class="faq-grid">
+      <div class="faq-col">
+        <div class="faq-item" onclick="this.classList.toggle('open')">
+          <div class="faq-q">C'est compliqué à installer ?<span class="material-symbols-outlined">expand_more</span></div>
+          <div class="faq-a">Non, 5 minutes suffisent. Vous imprimez le QR code, vous l'affichez, c'est prêt ! Aucune compétence technique requise.</div>
+        </div>
+        <div class="faq-item" onclick="this.classList.toggle('open')">
+          <div class="faq-q">Mes patients âgés peuvent l'utiliser ?<span class="material-symbols-outlined">expand_more</span></div>
+          <div class="faq-a">Oui. Ils scannent le QR code avec leur téléphone et ça s'ouvre dans le navigateur — pas d'application à télécharger, pas de compte à créer.</div>
+        </div>
+      </div>
+      <div class="faq-col">
+        <div class="faq-item" onclick="this.classList.toggle('open')">
+          <div class="faq-q">Mes patients peuvent s'inscrire sur WhatsApp ?<span class="material-symbols-outlined">expand_more</span></div>
+          <div class="faq-a">Oui. En plus du QR code, vos patients peuvent envoyer leur nom via WhatsApp pour rejoindre la file — idéal pour ceux qui préfèrent ou appellent avant de venir.</div>
+        </div>
+        <div class="faq-item" onclick="this.classList.toggle('open')">
+          <div class="faq-q">Plusieurs médecins dans un cabinet ?<span class="material-symbols-outlined">expand_more</span></div>
+          <div class="faq-a">Oui. Chaque médecin a sa propre file d'attente avec son propre QR code. Tout se gère depuis un seul tableau de bord.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER CTA ── -->
+<section class="footer-cta-section">
+  <div class="footer-cta-eyebrow">Prêt à transformer votre cabinet ?</div>
+  <h2 class="footer-cta-title">Rejoignez les cabinets<br>qui ont retrouvé la paix</h2>
+  <p class="footer-cta-sub">30 jours gratuits. Résultat visible dès le premier patient.</p>
+  <div class="footer-cta-row">
+    <button class="footer-cta-btn">Commencer mon essai gratuit</button>
+    <button class="footer-cta-ghost">Voir une démo en direct</button>
+  </div>
+  <p class="footer-cta-fine">Aucune carte bancaire · Annulation en un clic · Support en français</p>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-brand">Blé<em>Saf</em></div>
+  <div class="footer-copy">© 2026 BleSaf · Tous droits réservés</div>
+</footer>
+
+<script>
+/* ─────────────────────────────────────────────────
+   DASHBOARD QUEUE ANIMATION (hero browser)
+───────────────────────────────────────────────── */
+const LOOP_DELAY  = 2200;
+const RESET_DELAY = 4800;
+
+function animateQueue() {
+  const btn         = document.getElementById('btnCall');
+  const row1        = document.getElementById('row1');
+  const row2        = document.getElementById('row2');
+  const row3        = document.getElementById('row3');
+  const row4        = document.getElementById('row4');
+  const statWaiting = document.getElementById('statWaiting');
+  const statDone    = document.getElementById('statDone');
+  const phone1      = document.getElementById('phone1');
+  const phone2      = document.getElementById('phone2');
+  const phone3      = document.getElementById('phone3');
+  const topbarSub   = document.getElementById('topbarSub');
+
+  if (!btn) return;
+
+  btn.classList.add('pressed', 'ripple');
+  setTimeout(() => btn.classList.remove('pressed'), 200);
+  setTimeout(() => btn.classList.remove('ripple'), 450);
+
+  setTimeout(() => row1.classList.add('exiting'), 200);
+
+  setTimeout(() => {
+    row2.querySelector('.q-num').textContent = '1';
+    row2.classList.remove('q-next'); row2.classList.add('q-active');
+    row2.querySelector('.q-pill').className = 'q-pill pill-active';
+    row2.querySelector('.q-pill').textContent = 'En consultation';
+    row2.querySelector('.q-eta').textContent = '—';
+
+    row3.querySelector('.q-num').textContent = '2';
+    row3.classList.remove('q-wait'); row3.classList.add('q-next');
+    row3.querySelector('.q-pill').className = 'q-pill pill-next';
+    row3.querySelector('.q-pill').textContent = 'Notifiée ✓';
+    row3.querySelector('.q-eta').textContent = '~18 min';
+
+    row4.querySelector('.q-num').textContent = '3';
+    row4.querySelector('.q-eta').textContent = '~36 min';
+  }, 550);
+
+  setTimeout(() => {
+    [statWaiting, statDone].forEach(el => { el.style.animation = 'none'; el.offsetHeight; el.style.animation = 'countUp .35s ease'; });
+    statWaiting.textContent = '7';
+    statDone.textContent = '27';
+    topbarSub.textContent = "Temps réel · Mise à jour à l'instant";
+  }, 650);
+
+  setTimeout(() => phone1.classList.add('visible'), 950);
+  setTimeout(() => { if(phone2) phone2.classList.add('visible'); }, 1150);
+  setTimeout(() => { if(phone3) phone3.classList.add('visible'); }, 1300);
+
+  setTimeout(() => resetQueue(), 950 + RESET_DELAY);
+}
+
+function resetQueue() {
+  const btn         = document.getElementById('btnCall');
+  const row1        = document.getElementById('row1');
+  const row2        = document.getElementById('row2');
+  const row3        = document.getElementById('row3');
+  const row4        = document.getElementById('row4');
+  const statWaiting = document.getElementById('statWaiting');
+  const statDone    = document.getElementById('statDone');
+  const phone1      = document.getElementById('phone1');
+  const phone2      = document.getElementById('phone2');
+  const phone3      = document.getElementById('phone3');
+  const topbarSub   = document.getElementById('topbarSub');
+
+  if (!row1) return;
+
+  phone1.classList.remove('visible');
+  if(phone2) phone2.classList.remove('visible');
+  if(phone3) phone3.classList.remove('visible');
+
+  setTimeout(() => {
+    [row1,row2,row3,row4].forEach(r => r.style.transition = 'none');
+
+    row1.classList.remove('exiting');
+    row2.querySelector('.q-num').textContent = '2'; row2.classList.remove('q-active','q-wait'); row2.classList.add('q-next');
+    row2.querySelector('.q-pill').className = 'q-pill pill-next'; row2.querySelector('.q-pill').textContent = 'Notifié ✓'; row2.querySelector('.q-eta').textContent = '~3 min';
+    row3.querySelector('.q-num').textContent = '3'; row3.classList.remove('q-active','q-next'); row3.classList.add('q-wait');
+    row3.querySelector('.q-pill').className = 'q-pill pill-wait'; row3.querySelector('.q-pill').textContent = 'En attente'; row3.querySelector('.q-eta').textContent = '~21 min';
+    row4.querySelector('.q-num').textContent = '4'; row4.querySelector('.q-eta').textContent = '~39 min';
+    statWaiting.textContent = '8'; statDone.textContent = '26';
+    topbarSub.textContent = 'Temps réel · Mise à jour il y a 4 s';
+
+    requestAnimationFrame(() => [row1,row2,row3,row4].forEach(r => r.style.transition = ''));
+    setTimeout(animateQueue, LOOP_DELAY);
+  }, 450);
+}
+
+setTimeout(animateQueue, 2500);
+
+
+/* ─────────────────────────────────────────────────
+   PATIENT JOURNEY DEMO ANIMATION
+───────────────────────────────────────────────── */
+(function() {
+  const STATES = [
+    {
+      pos: '#5', time: '~25 min', ahead: 4,
+      bg: 'linear-gradient(180deg, #EFF6FF 0%, #FFFFFF 100%)',
+      posColor: '#3B82F6', timeCardBg: '#EFF6FF', timeLabelColor: '#2563EB', timeColor: '#0F172A',
+      status: 'Vous êtes enregistré dans la file', statusColor: '#3B82F6',
+      toast: null,
+      tooltip: "Sami vient de scanner le QR code. Il est 5ème dans la file.",
+      vibrate: false, step: 0
+    },
+    {
+      pos: '#4', time: '~20 min', ahead: 3,
+      bg: 'linear-gradient(180deg, #EFF6FF 0%, #FFFFFF 100%)',
+      posColor: '#0EA5E9', timeCardBg: '#F0F9FF', timeLabelColor: '#0284C7', timeColor: '#0F172A',
+      status: '3 personnes devant vous', statusColor: '#0EA5E9',
+      toast: "Vous avez avancé d'une place !", toastIcon: 'arrow_upward', toastIconColor: '#34D399',
+      tooltip: "Un patient est passé. Sami avance automatiquement.",
+      vibrate: true, step: 1
+    },
+    {
+      pos: '#3', time: '~15 min', ahead: 2,
+      bg: 'linear-gradient(180deg, #F0FDFA 0%, #FFFFFF 100%)',
+      posColor: '#0D9488', timeCardBg: '#F0FDFA', timeLabelColor: '#0F766E', timeColor: '#0F172A',
+      status: 'Vous avez le temps pour un café ☕', statusColor: '#0D9488',
+      toast: "Encore une place de gagnée !", toastIcon: 'arrow_upward', toastIconColor: '#34D399',
+      tooltip: "Sami est au café. Sa position avance sur son téléphone.",
+      vibrate: true, step: 1
+    },
+    {
+      pos: '#2', time: '~8 min', ahead: 1,
+      bg: 'linear-gradient(180deg, #FFFBEB 0%, #FFFFFF 100%)',
+      posColor: '#D97706', timeCardBg: '#FFFBEB', timeLabelColor: '#B45309', timeColor: '#0F172A',
+      status: 'Préparez-vous à revenir', statusColor: '#D97706',
+      toast: "Plus qu'une personne devant vous", toastIcon: 'directions_walk', toastIconColor: '#FBBF24',
+      tooltip: "Sami commence à se rapprocher du cabinet.",
+      vibrate: true, step: 2
+    },
+    {
+      pos: '#1', time: '~3 min', ahead: 0,
+      bg: 'linear-gradient(180deg, #ECFDF5 0%, #F0FDF4 100%)',
+      posColor: '#059669', timeCardBg: '#ECFDF5', timeLabelColor: '#047857', timeColor: '#065F46',
+      status: "C'est bientôt votre tour !", statusColor: '#059669',
+      toast: '🔔 Préparez-vous, c\'est imminent !', toastIcon: 'notifications_active', toastIconColor: '#10B981',
+      tooltip: "Alerte envoyée ! Sami se dirige vers le cabinet.",
+      vibrate: 'strong', step: 2
+    },
+    {
+      pos: 'final', time: null, ahead: -1,
+      bg: 'linear-gradient(135deg, #059669 0%, #10B981 50%, #34D399 100%)',
+      toast: null,
+      tooltip: "Sami entre détendu. Pas de stress, pas d'attente frustrante.",
+      vibrate: 'strong', step: 3
+    }
+  ];
+
+  let currentState = 0;
+  let animInterval = null;
+  let toastTimeout = null;
+
+  const phone     = document.getElementById('dc-anim-phone');
+  const screen    = document.getElementById('dc-anim-screen');
+  const inner     = document.getElementById('dc-anim-inner');
+  const posEl     = document.getElementById('dc-anim-pos');
+  const timeCard  = document.getElementById('dc-anim-time-card');
+  const timeLabel = document.getElementById('dc-anim-time-label');
+  const timeEl    = document.getElementById('dc-anim-time');
+  const journey   = document.getElementById('dc-anim-journey');
+  const statusEl  = document.getElementById('dc-anim-status');
+  const toast     = document.getElementById('dc-anim-toast');
+  const toastText = document.getElementById('dc-anim-toast-text');
+  const finalEl   = document.getElementById('dc-anim-final');
+  const tooltipEl = document.getElementById('dc-anim-tooltip');
+  const steps     = document.querySelectorAll('.demo-step');
+
+  if (!phone) return;
+
+  function buildJourney(ahead) {
+    let html = '';
+    html += '<div class="dc-demo-j-icon dc-demo-j-you"><span class="material-symbols-outlined" style="font-size:14px">person</span></div>';
+    const totalSlots = 4;
+    const done = totalSlots - 1 - ahead;
+    for (let i = 0; i < totalSlots - 1; i++) {
+      const lineDone = i < done;
+      const isAhead = i >= done && i < done + ahead;
+      html += '<div class="dc-demo-j-line' + (lineDone ? ' done' : '') + '"></div>';
+      if (isAhead) {
+        html += '<div class="dc-demo-j-icon dc-demo-j-ahead"><span class="material-symbols-outlined" style="font-size:13px">person</span></div>';
+      } else if (i < done) {
+        html += '<div class="dc-demo-j-icon dc-demo-j-done"><span class="material-symbols-outlined" style="font-size:13px">check</span></div>';
+      }
+    }
+    html += '<div class="dc-demo-j-line' + (ahead === 0 ? ' done' : '') + '"></div>';
+    html += '<div class="dc-demo-j-icon dc-demo-j-door"><span class="material-symbols-outlined" style="font-size:14px">door_front</span></div>';
+    return html;
+  }
+
+  function showToast(text, icon, iconColor) {
+    if (toastTimeout) clearTimeout(toastTimeout);
+    const toastIcon = toast.querySelector('.material-symbols-outlined');
+    if (toastIcon) { toastIcon.textContent = icon || 'arrow_upward'; toastIcon.style.color = iconColor || '#34D399'; }
+    toastText.textContent = text;
+    toast.classList.add('show');
+    toastTimeout = setTimeout(() => toast.classList.remove('show'), 2400);
+  }
+
+  function updateSteps(activeStep) {
+    steps.forEach((s, i) => s.classList.toggle('active', i === activeStep));
+  }
+
+  function applyState(idx) {
+    const s = STATES[idx];
+
+    if (s.vibrate) {
+      phone.classList.remove('vibrate', 'vibrate-strong');
+      void phone.offsetWidth;
+      phone.classList.add(s.vibrate === 'strong' ? 'vibrate-strong' : 'vibrate');
+    }
+
+    screen.style.background = s.bg;
+    updateSteps(s.step);
+
+    if (s.toast) {
+      setTimeout(() => showToast(s.toast, s.toastIcon, s.toastIconColor), 200);
+    } else {
+      toast.classList.remove('show');
+    }
+
+    tooltipEl.classList.remove('show');
+    setTimeout(() => { tooltipEl.textContent = s.tooltip; tooltipEl.classList.add('show'); }, 400);
+
+    if (s.pos === 'final') {
+      inner.style.opacity = '0';
+      setTimeout(() => finalEl.classList.add('show'), 300);
+      return;
+    }
+
+    finalEl.classList.remove('show');
+    inner.style.opacity = '1';
+
+    posEl.textContent = s.pos;
+    posEl.style.color = s.posColor;
+    posEl.classList.remove('pop');
+    void posEl.offsetWidth;
+    posEl.classList.add('pop');
+
+    timeCard.style.background = s.timeCardBg;
+    timeLabel.style.color = s.timeLabelColor;
+    timeEl.style.color = s.timeColor;
+    timeEl.textContent = s.time;
+
+    statusEl.textContent = s.status;
+    statusEl.style.color = s.statusColor;
+
+    journey.innerHTML = buildJourney(s.ahead);
+  }
+
+  function startAnim() {
+    currentState = 0;
+    applyState(0);
+    animInterval = setInterval(() => {
+      currentState = (currentState + 1) % STATES.length;
+      applyState(currentState);
+    }, 3200);
+  }
+
+  startAnim();
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BleSaf — Deux réalités. Un seul choix.</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" rel="stylesheet">
+  <style>
+    /* ── Reset ── */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'IBM Plex Sans', system-ui, sans-serif;
+      background: #FFFFFF;
+      color: #1E293B;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .material-symbols-outlined.filled {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+
+    /* ── CSS Variables ── */
+    :root {
+      --sky: #0EA5E9;
+      --sky-dark: #0284C7;
+      --sky-light: #E0F2FE;
+      --sky-pale: #F0F9FF;
+      --teal: #0D9488;
+      --teal-light: #CCFBF1;
+      --rose: #F43F5E;
+      --rose-dark: #E11D48;
+      --rose-light: #FFE4E6;
+      --ink: #0F172A;
+      --text-mid: #475569;
+      --text-dim: #94A3B8;
+      --border: #E2E8F0;
+      --container-max: 1280px;
+      --gutter: 80px;
+      --section-pad: 96px;
+      --nav-h: 68px;
+    }
+
+    /* ── Layout ── */
+    .lp-container {
+      max-width: var(--container-max);
+      margin: 0 auto;
+      padding: 0 var(--gutter);
+    }
+    .section-wrap { padding: var(--section-pad) 0; }
+
+    /* ════════════════════════════════════════════════
+       FIXED NAV — transparent over hero, solid elsewhere
+       ════════════════════════════════════════════════ */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 200;
+      height: var(--nav-h);
+      display: flex;
+      align-items: center;
+      padding: 0 var(--gutter);
+      background: rgba(15, 23, 42, 0.7);  /* dark over hero photos */
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      transition: background 0.4s;
+    }
+    nav.light {
+      background: rgba(255, 255, 255, 0.92);
+      border-bottom-color: rgba(0,0,0,0.06);
+    }
+    .nav-logo {
+      font-size: 20px;
+      font-weight: 800;
+      color: #FFFFFF;
+      letter-spacing: -0.5px;
+      text-decoration: none;
+      margin-right: auto;
+      transition: color 0.4s;
+    }
+    nav.light .nav-logo { color: var(--ink); }
+    .nav-logo span { color: #7DD3FC; }
+    nav.light .nav-logo span { color: var(--sky); }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      align-items: center;
+      margin-right: 32px;
+    }
+    .nav-links a {
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.75);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    nav.light .nav-links a { color: var(--text-mid); }
+    .nav-links a:hover { color: #FFFFFF; }
+    nav.light .nav-links a:hover { color: var(--ink); }
+
+    .btn-nav {
+      padding: 10px 22px;
+      background: var(--sky);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.2s;
+    }
+    .btn-nav:hover { background: var(--sky-dark); }
+
+    /* ════════════════════════════════════════════════
+       HERO — Parallax sticky scrollytelling
+       Full-viewport before photo sticks, after photo
+       scrolls up and covers it. Text anchored left/right.
+       ════════════════════════════════════════════════ */
+    .db-hero { position: relative; }
+    .db-hero-scene { position: relative; }
+
+    /* Before photo: sticky background layer */
+    .db-hero-photo-before {
+      position: sticky;
+      top: 0;
+      width: 100%;
+      height: 100vh;
+      z-index: 1;
+      overflow: hidden;
+    }
+    .db-hero-photo-before img {
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: center;
+      display: block;
+      filter: saturate(0.4) brightness(0.65) contrast(1.15);
+    }
+    .db-hero-photo-before-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(
+        135deg,
+        rgba(0,0,0,0.1) 0%,
+        rgba(0,0,0,0.25) 40%,
+        rgba(0,0,0,0.6) 80%,
+        rgba(0,0,0,0.75) 100%
+      );
+    }
+
+    /* Before text — anchored left, vertically centered */
+    .db-before-text {
+      position: absolute;
+      top: 50%;
+      left: var(--gutter);
+      transform: translateY(-50%);
+      max-width: 540px;
+      text-align: left;
+      z-index: 2;
+    }
+    .db-hero-badge {
+      display: inline-block;
+      padding: 6px 18px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    .db-badge-before { background: rgba(239,68,68,0.9); color: #FFF; }
+    .db-badge-after  { background: rgba(16,185,129,0.9); color: #FFF; }
+
+    .db-before-text h2 {
+      font-size: clamp(2.4rem, 3.5vw, 3.2rem);
+      font-weight: 900;
+      color: #FFFFFF;
+      line-height: 1.12;
+      text-shadow: 0 3px 16px rgba(0,0,0,0.5);
+      margin-bottom: 16px;
+    }
+    .db-before-text h2 em {
+      font-style: normal;
+      color: #FCA5A5;  /* rose-300 */
+    }
+    .db-before-text p {
+      font-size: 17px;
+      color: rgba(255,255,255,0.78);
+      line-height: 1.65;
+    }
+
+    /* Scroll cue — bottom center of before photo */
+    .db-scroll-cue {
+      position: absolute;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      animation: db-cue-bob 2s ease-in-out infinite;
+      transition: opacity 0.5s;
+    }
+    .db-scroll-cue.hidden { opacity: 0; pointer-events: none; }
+    .db-scroll-cue span:first-child {
+      font-size: 11px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.55);
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
+    .db-scroll-cue .material-symbols-outlined {
+      font-size: 24px;
+      color: rgba(255,255,255,0.55);
+    }
+    @keyframes db-cue-bob {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50%       { transform: translateX(-50%) translateY(8px); }
+    }
+
+    /* After photo: scrolls up, covers the before */
+    .db-hero-photo-after {
+      position: relative;
+      z-index: 5;
+      width: 100%;
+      overflow: hidden;
+    }
+    .db-hero-photo-after img {
+      width: 100%;
+      height: 100vh;
+      object-fit: cover;
+      object-position: 55% center;
+      display: block;
+      filter: saturate(1.1) brightness(1.0);
+    }
+    .db-hero-photo-after-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(
+        225deg,
+        rgba(0,0,0,0.1) 0%,
+        rgba(0,0,0,0.2) 40%,
+        rgba(0,0,0,0.58) 80%,
+        rgba(0,0,0,0.72) 100%
+      );
+    }
+
+    /* After text — anchored right, vertically centered */
+    .db-after-text {
+      position: absolute;
+      top: 50%;
+      right: var(--gutter);
+      transform: translateY(-50%);
+      max-width: 540px;
+      text-align: right;
+      z-index: 2;
+    }
+    .db-after-text h2 {
+      font-size: clamp(2.4rem, 3.5vw, 3.2rem);
+      font-weight: 900;
+      color: #FFFFFF;
+      line-height: 1.12;
+      text-shadow: 0 3px 16px rgba(0,0,0,0.45);
+      margin-bottom: 16px;
+    }
+    .db-after-text h2 em {
+      font-style: normal;
+      color: #6EE7B7;  /* emerald-300 */
+    }
+    .db-after-text p {
+      font-size: 17px;
+      color: rgba(255,255,255,0.78);
+      line-height: 1.65;
+    }
+    .db-after-bottom-note {
+      position: absolute;
+      bottom: 28px;
+      left: 0; right: 0;
+      text-align: center;
+      z-index: 2;
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.6);
+      letter-spacing: 0.3px;
+    }
+
+    /* ════════════════════════════════════════════════
+       CTA ISLAND — horizontal card below hero
+       ════════════════════════════════════════════════ */
+    .db-cta-island {
+      position: relative;
+      z-index: 6;
+      background: #FFFFFF;
+      padding: var(--section-pad) 0;
+    }
+    .db-cta-card {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 60px 80px;
+      border-radius: 24px;
+      border: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 48px;
+      align-items: center;
+      box-shadow: 0 4px 32px rgba(0,0,0,0.06);
+    }
+    .db-cta-card-left h3 {
+      font-size: clamp(1.6rem, 2.2vw, 2.2rem);
+      font-weight: 800;
+      color: var(--ink);
+      line-height: 1.2;
+      margin-bottom: 12px;
+    }
+    .db-cta-card-left p {
+      font-size: 17px;
+      color: var(--text-mid);
+      line-height: 1.65;
+      max-width: 520px;
+    }
+    .db-cta-card-right {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: flex-end;
+      flex-shrink: 0;
+    }
+    .btn-primary {
+      padding: 16px 32px;
+      background: var(--sky);
+      color: #FFF;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      box-shadow: 0 4px 16px rgba(14, 165, 233, 0.32);
+      transition: background 0.2s, transform 0.15s;
+      white-space: nowrap;
+    }
+    .btn-primary:hover { background: var(--sky-dark); transform: translateY(-1px); }
+    .btn-secondary {
+      padding: 14px 24px;
+      background: transparent;
+      color: var(--sky);
+      border: 1.5px solid #BAE6FD;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: border-color 0.2s;
+      white-space: nowrap;
+    }
+    .btn-secondary:hover { border-color: var(--sky); }
+    .db-cta-trust {
+      font-size: 12px;
+      color: var(--text-dim);
+      text-align: right;
+    }
+
+    /* ════════════════════════════════════════════════
+       CONTRAST ROWS — before/after comparison table
+       ════════════════════════════════════════════════ */
+    .db-contrast-section {
+      background: #FFFFFF;
+      padding: var(--section-pad) 0;
+    }
+    .section-title {
+      font-size: clamp(1.8rem, 2.4vw, 2.6rem);
+      font-weight: 800;
+      color: var(--ink);
+      text-align: center;
+      margin-bottom: 12px;
+      line-height: 1.2;
+    }
+    .section-sub {
+      font-size: 18px;
+      color: #64748B;
+      text-align: center;
+      margin-bottom: 48px;
+      line-height: 1.5;
+    }
+
+    .db-contrast-table {
+      max-width: 960px;
+      margin: 0 auto;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .db-contrast-header {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+    .db-col-header {
+      padding: 20px 32px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+    }
+    .db-col-header-bad  { background: #FAFAFA; color: #9CA3AF; }
+    .db-col-header-good { background: #F0FDFA; color: var(--teal); }
+
+    .db-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-top: 1px solid #F1F5F9;
+    }
+    .db-row:last-child { border-bottom: none; }
+
+    .db-row-cell {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 28px 32px;
+      min-height: 120px;
+    }
+    .db-row-cell-bad  { background: #FAFAFA; }
+    .db-row-cell-good { background: #F0FDFA; }
+
+    .db-row-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .db-row-icon .material-symbols-outlined { font-size: 24px; }
+    .db-row-icon-bad  { background: #FEE2E2; color: #DC2626; }
+    .db-row-icon-good { background: var(--teal-light); color: var(--teal); }
+
+    .db-row-text {
+      font-size: 16px;
+      line-height: 1.55;
+    }
+    .db-row-text-bad  { color: #6B7280; }
+    .db-row-text-good { color: #115E59; font-weight: 500; }
+
+    /* ════════════════════════════════════════════════
+       SETUP — Arrow strip
+       ════════════════════════════════════════════════ */
+    .db-setup-section {
+      background: #F8FAFC;
+      padding: var(--section-pad) 0;
+    }
+    .setup-rail {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .setup-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      flex: 1;
+    }
+    .setup-num {
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      background: var(--sky);
+      color: #FFF;
+      font-size: 22px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 14px rgba(14, 165, 233, 0.32);
+    }
+    .setup-step h4 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 4px;
+    }
+    .setup-step p { font-size: 14px; color: var(--text-dim); }
+    .setup-arrow {
+      font-size: 32px;
+      color: #CBD5E1;
+      flex-shrink: 0;
+      font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+    }
+
+    /* ════════════════════════════════════════════════
+       KEY NUMBERS — Billboard stats with count-up
+       ════════════════════════════════════════════════ */
+    .db-numbers-section {
+      background: #FFFFFF;
+      padding: var(--section-pad) 0;
+    }
+    .db-numbers-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .db-number-card {
+      text-align: center;
+      padding: 52px 40px;
+      background: var(--sky-pale);
+      border-radius: 20px;
+    }
+    .db-number-value {
+      font-size: 5rem;
+      font-weight: 900;
+      color: var(--sky);
+      line-height: 1;
+      display: block;
+      margin-bottom: 8px;
+    }
+    .db-number-label {
+      font-size: 16px;
+      color: #334155;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .db-number-desc {
+      font-size: 14px;
+      color: var(--text-dim);
+      line-height: 1.5;
+    }
+
+    /* ════════════════════════════════════════════════
+       PRICING — 2 large cards
+       ════════════════════════════════════════════════ */
+    .pricing-section { background: #F8FAFC; }
+
+    .pricing-cards {
+      display: flex;
+      gap: 28px;
+      justify-content: center;
+      align-items: stretch;
+      margin-top: 48px;
+    }
+    .price-card {
+      flex: 1;
+      max-width: 420px;
+      background: #FFFFFF;
+      border-radius: 24px;
+      padding: 48px 40px;
+      border: 1.5px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .price-card.popular {
+      border-color: var(--sky);
+      transform: scale(1.04);
+      box-shadow: 0 8px 40px rgba(14, 165, 233, 0.16);
+      z-index: 1;
+    }
+    .price-badge {
+      position: absolute;
+      top: -13px; right: 28px;
+      background: var(--sky);
+      color: #FFF;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 14px;
+      border-radius: 12px;
+    }
+    .price-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: #64748B;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+    }
+    .price-amount {
+      font-size: 4rem;
+      font-weight: 900;
+      color: var(--ink);
+      line-height: 1;
+    }
+    .price-period {
+      font-size: 16px;
+      color: var(--text-dim);
+      font-weight: 500;
+      margin-top: 4px;
+      margin-bottom: 8px;
+    }
+    .price-note {
+      font-size: 13px;
+      color: #10B981;
+      font-weight: 600;
+      margin-bottom: 28px;
+      min-height: 20px;
+    }
+    .price-features {
+      list-style: none;
+      margin-bottom: 32px;
+      flex: 1;
+    }
+    .price-features li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 9px 0;
+      font-size: 15px;
+      color: #334155;
+      border-bottom: 1px solid #F1F5F9;
+      line-height: 1.5;
+    }
+    .price-features li:last-child { border-bottom: none; }
+    .price-features li .material-symbols-outlined {
+      font-size: 18px;
+      color: #10B981;
+      flex-shrink: 0;
+      margin-top: 1px;
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .btn-price {
+      display: block; width: 100%; padding: 16px 0;
+      border-radius: 12px; font-size: 16px; font-weight: 700;
+      border: none; cursor: pointer; font-family: inherit; transition: all 0.2s;
+    }
+    .btn-price-outline { background: #F1F5F9; color: #334155; }
+    .btn-price-outline:hover { background: #E2E8F0; }
+    .btn-price-primary { background: var(--sky); color: #FFF; box-shadow: 0 4px 16px rgba(14,165,233,0.32); }
+    .btn-price-primary:hover { background: var(--sky-dark); }
+    .pricing-trial { text-align: center; margin-top: 28px; font-size: 14px; color: #64748B; }
+
+    /* ════════════════════════════════════════════════
+       FAQ — 2-column accordion
+       ════════════════════════════════════════════════ */
+    .faq-section { background: #FFFFFF; }
+    .faq-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 64px;
+      margin-top: 48px;
+    }
+    .faq-item {
+      border-bottom: 1px solid var(--border);
+      padding: 24px 0;
+      cursor: pointer;
+    }
+    .faq-col > .faq-item:first-child { border-top: 1px solid var(--border); }
+    .faq-q {
+      font-size: 17px; font-weight: 700; color: #334155;
+      display: flex; justify-content: space-between; align-items: center; gap: 16px;
+      user-select: none;
+    }
+    .faq-q .material-symbols-outlined {
+      font-size: 22px; color: var(--text-dim); transition: transform 0.25s; flex-shrink: 0;
+    }
+    .faq-a {
+      font-size: 15px; color: #64748B; line-height: 1.7;
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.3s ease, padding 0.3s ease;
+    }
+    .faq-item.open .faq-a { max-height: 200px; padding-top: 12px; }
+    .faq-item.open .faq-q .material-symbols-outlined { transform: rotate(180deg); color: var(--sky); }
+
+    /* ════════════════════════════════════════════════
+       FOOTER CTA
+       ════════════════════════════════════════════════ */
+    .footer-cta {
+      padding: 96px 0;
+      background: linear-gradient(135deg, #0F172A, #1E293B);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .footer-cta::before {
+      content: '';
+      position: absolute;
+      top: -150px; left: 50%; transform: translateX(-50%);
+      width: 800px; height: 800px;
+      background: radial-gradient(circle, rgba(14,165,233,0.12) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .footer-cta-title {
+      font-size: clamp(1.8rem, 2.8vw, 2.8rem);
+      font-weight: 800; color: #FFFFFF;
+      margin-bottom: 16px; line-height: 1.2; position: relative;
+    }
+    .footer-cta-sub {
+      font-size: 18px; color: rgba(255,255,255,0.75);
+      margin-bottom: 36px; max-width: 500px;
+      margin-left: auto; margin-right: auto; line-height: 1.65; position: relative;
+    }
+    .btn-cta-footer {
+      display: inline-block; padding: 18px 52px;
+      background: var(--sky); color: #FFF; border: none;
+      border-radius: 14px; font-size: 17px; font-weight: 700;
+      cursor: pointer; font-family: inherit;
+      box-shadow: 0 8px 32px rgba(14,165,233,0.35);
+      transition: transform 0.15s, box-shadow 0.15s; position: relative;
+    }
+    .btn-cta-footer:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(14,165,233,0.45); }
+
+    /* ════════════════════════════════════════════════
+       FOOTER
+       ════════════════════════════════════════════════ */
+    footer {
+      padding: 24px var(--gutter);
+      background: var(--ink);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .footer-brand { font-size: 16px; font-weight: 800; color: #94A3B8; }
+    .footer-copy  { font-size: 13px; color: #475569; }
+
+    /* ════════════════════════════════════════════════
+       RESPONSIVE
+       ════════════════════════════════════════════════ */
+    @media (max-width: 1024px) {
+      :root { --gutter: 48px; --section-pad: 72px; }
+
+      .db-before-text, .db-after-text { max-width: 380px; }
+      .db-before-text h2, .db-after-text h2 { font-size: 2.2rem; }
+
+      .db-cta-card { grid-template-columns: 1fr; gap: 32px; padding: 48px 40px; }
+      .db-cta-card-right { align-items: flex-start; }
+      .db-cta-trust { text-align: left; }
+
+      .db-contrast-table { max-width: 100%; }
+      .db-row-cell { padding: 20px 24px; gap: 14px; }
+
+      .db-numbers-grid { grid-template-columns: 1fr; max-width: 480px; }
+
+      .pricing-cards { flex-direction: column; align-items: center; }
+      .price-card { max-width: 480px; width: 100%; }
+      .price-card.popular { transform: none; }
+
+      .faq-grid { grid-template-columns: 1fr; }
+      nav { padding: 0 48px; }
+      footer { padding: 24px 48px; }
+    }
+
+    @media (max-width: 768px) {
+      .db-hero-photo-before img,
+      .db-hero-photo-after img { height: 80vh; }
+
+      .db-before-text { left: 24px; max-width: 280px; }
+      .db-after-text  { right: 24px; max-width: 280px; }
+      .db-before-text h2, .db-after-text h2 { font-size: 1.8rem; }
+      .db-before-text p, .db-after-text p { font-size: 14px; }
+
+      .db-cta-card { padding: 36px 28px; }
+
+      .db-row-cell { flex-direction: column; align-items: flex-start; min-height: auto; }
+      .db-contrast-header .db-col-header { padding: 14px; }
+
+      .setup-rail { flex-direction: column; gap: 16px; }
+      .setup-arrow { transform: rotate(90deg); }
+
+      nav { padding: 0 20px; }
+      .nav-links { display: none; }
+      footer { padding: 20px; flex-direction: column; gap: 8px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ════════════════════════════════════════════
+       FIXED NAV — dark on hero, light elsewhere
+       ════════════════════════════════════════════ -->
+  <nav id="main-nav">
+    <a href="#" class="nav-logo">Ble<span>SAF</span></a>
+    <div class="nav-links">
+      <a href="#comparaison">Comparaison</a>
+      <a href="#chiffres">Chiffres</a>
+      <a href="#tarifs">Tarifs</a>
+    </div>
+    <button class="btn-nav">Essai gratuit</button>
+  </nav>
+
+
+  <!-- ════════════════════════════════════════════
+       HERO — Parallax sticky scrollytelling
+       ════════════════════════════════════════════ -->
+  <section class="db-hero" aria-label="Deux réalités">
+    <div class="db-hero-scene">
+
+      <!-- Photo 1: Before — stays sticky while after scrolls over -->
+      <div class="db-hero-photo-before">
+        <img src="../Without-BleSaf.png" alt="Salle d'attente bondée, avant BleSaf">
+        <div class="db-hero-photo-before-overlay"></div>
+
+        <!-- Left-anchored text: the "before" world -->
+        <div class="db-before-text">
+          <span class="db-hero-badge db-badge-before">Aujourd'hui</span>
+          <h2>Salle bondée,<br>patients <em>stressés</em></h2>
+          <p>« C'est quand mon tour ? » — la question qui revient 100 fois par jour, dans chaque cabinet de Tunisie.</p>
+        </div>
+
+        <!-- Scroll cue -->
+        <div class="db-scroll-cue" id="scroll-cue">
+          <span>Défilez</span>
+          <span class="material-symbols-outlined">expand_more</span>
+        </div>
+      </div>
+
+      <!-- Photo 2: After — scrolls up and covers the before -->
+      <div class="db-hero-photo-after">
+        <img src="../With-BleSaf.png" alt="Patient serein avec BleSaf">
+        <div class="db-hero-photo-after-overlay"></div>
+
+        <!-- Right-anchored text: the "after" world -->
+        <div class="db-after-text">
+          <span class="db-hero-badge db-badge-after">Avec BleSaf</span>
+          <h2>Patients <em>sereins</em>,<br>qui attendent où ils veulent</h2>
+          <p>Position en temps réel sur leur téléphone. Notification automatique quand c'est leur tour. Zéro application à installer.</p>
+        </div>
+
+        <div class="db-after-bottom-note">
+          Un simple QR code à l'accueil transforme l'expérience d'attente
+        </div>
+      </div>
+
+    </div><!-- /.db-hero-scene -->
+  </section>
+
+
+  <!-- ════════════════════════════════════════════
+       CTA ISLAND — horizontal card
+       ════════════════════════════════════════════ -->
+  <section class="db-cta-island" aria-labelledby="cta-headline">
+    <div class="lp-container">
+      <div class="db-cta-card">
+        <div class="db-cta-card-left">
+          <h3 id="cta-headline">QR code, suivi en temps réel, c'est tout.</h3>
+          <p>Pas d'app à télécharger. Vos patients scannent, suivent leur position, et arrivent détendus. Vous lancez en 3 minutes.</p>
+        </div>
+        <div class="db-cta-card-right">
+          <button class="btn-primary">Essayez gratuitement 30 jours</button>
+          <button class="btn-secondary">Voir la démo</button>
+          <div class="db-cta-trust">Aucune carte bancaire requise</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ════════════════════════════════════════════
+       CONTRAST ROWS — before/after comparison table
+       ════════════════════════════════════════════ -->
+  <section class="db-contrast-section" id="comparaison" aria-labelledby="contrast-title">
+    <div class="lp-container">
+      <h2 class="section-title" id="contrast-title">Deux réalités. Un seul choix.</h2>
+      <p class="section-sub">Ce que vos patients vivent chaque matin, avant et après BleSaf</p>
+
+      <div class="db-contrast-table" role="table">
+        <!-- Column headers -->
+        <div class="db-contrast-header" role="row">
+          <div class="db-col-header db-col-header-bad"  role="columnheader">Avant</div>
+          <div class="db-col-header db-col-header-good" role="columnheader">Avec BleSaf</div>
+        </div>
+
+        <!-- Row 1: Attente -->
+        <div class="db-row" role="row">
+          <div class="db-row-cell db-row-cell-bad">
+            <div class="db-row-icon db-row-icon-bad">
+              <span class="material-symbols-outlined filled">event_seat</span>
+            </div>
+            <div class="db-row-text db-row-text-bad">Patient coincé dans une salle bondée, sans savoir quand ce sera son tour</div>
+          </div>
+          <div class="db-row-cell db-row-cell-good">
+            <div class="db-row-icon db-row-icon-good">
+              <span class="material-symbols-outlined filled">coffee</span>
+            </div>
+            <div class="db-row-text db-row-text-good">Patient au café, position #3 sur son téléphone, ~15 min d'attente</div>
+          </div>
+        </div>
+
+        <!-- Row 2: Communication -->
+        <div class="db-row" role="row">
+          <div class="db-row-cell db-row-cell-bad">
+            <div class="db-row-icon db-row-icon-bad">
+              <span class="material-symbols-outlined filled">call</span>
+            </div>
+            <div class="db-row-text db-row-text-bad">Appels incessants : "Docteur, c'est quand mon tour ?"</div>
+          </div>
+          <div class="db-row-cell db-row-cell-good">
+            <div class="db-row-icon db-row-icon-good">
+              <span class="material-symbols-outlined filled">notifications_active</span>
+            </div>
+            <div class="db-row-text db-row-text-good">Notification automatique quand le tour approche. Zéro appel.</div>
+          </div>
+        </div>
+
+        <!-- Row 3: Consultation -->
+        <div class="db-row" role="row">
+          <div class="db-row-cell db-row-cell-bad">
+            <div class="db-row-icon db-row-icon-bad">
+              <span class="material-symbols-outlined filled">mood_bad</span>
+            </div>
+            <div class="db-row-text db-row-text-bad">Patient stressé qui entre après 2 heures d'attente frustrante</div>
+          </div>
+          <div class="db-row-cell db-row-cell-good">
+            <div class="db-row-icon db-row-icon-good">
+              <span class="material-symbols-outlined filled">mood</span>
+            </div>
+            <div class="db-row-text db-row-text-good">Patient détendu qui entre au bon moment, prêt pour sa consultation</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ════════════════════════════════════════════
+       SETUP — Arrow strip
+       ════════════════════════════════════════════ -->
+  <section class="db-setup-section" aria-labelledby="setup-title">
+    <div class="lp-container">
+      <h2 class="section-title" id="setup-title">Prêt en 3 minutes</h2>
+      <p class="section-sub" style="margin-bottom: 56px;">Pas de technicien, pas de formation, pas de matériel spécial.</p>
+
+      <div class="setup-rail">
+        <div class="setup-step">
+          <div class="setup-num">1</div>
+          <h4>Inscrivez-vous</h4>
+          <p>2 minutes</p>
+        </div>
+        <span class="material-symbols-outlined setup-arrow">arrow_forward</span>
+        <div class="setup-step">
+          <div class="setup-num">2</div>
+          <h4>Affichez le QR code</h4>
+          <p>Imprimez-le</p>
+        </div>
+        <span class="material-symbols-outlined setup-arrow">arrow_forward</span>
+        <div class="setup-step">
+          <div class="setup-num">3</div>
+          <h4>C'est parti !</h4>
+          <p>File active</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ════════════════════════════════════════════
+       KEY NUMBERS — Billboard stats
+       ════════════════════════════════════════════ -->
+  <section class="db-numbers-section" id="chiffres" aria-labelledby="numbers-title">
+    <div class="lp-container">
+      <h2 class="section-title" id="numbers-title">BleSaf en chiffres</h2>
+      <p class="section-sub" style="margin-bottom: 56px;">Simple, rapide, accessible</p>
+
+      <div class="db-numbers-grid">
+        <div class="db-number-card">
+          <span class="db-number-value" data-target="2" data-suffix="">2</span>
+          <div class="db-number-label">minutes pour s'inscrire</div>
+          <div class="db-number-desc">De zéro à votre première file en moins de temps qu'un café</div>
+        </div>
+        <div class="db-number-card">
+          <span class="db-number-value" data-target="30" data-suffix="">30</span>
+          <div class="db-number-label">jours gratuits</div>
+          <div class="db-number-desc">Testez sans engagement, sans carte bancaire, sans risque</div>
+        </div>
+        <div class="db-number-card">
+          <span class="db-number-value" data-target="0" data-suffix="">0</span>
+          <div class="db-number-label">application à installer</div>
+          <div class="db-number-desc">Vos patients scannent avec leur téléphone, c'est tout</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ════════════════════════════════════════════
+       PRICING — 2 large cards
+       ════════════════════════════════════════════ -->
+  <section class="pricing-section section-wrap" id="tarifs" aria-labelledby="pricing-title">
+    <div class="lp-container">
+      <h2 class="section-title" id="pricing-title">Tarifs simples</h2>
+      <p class="section-sub">Pas de frais cachés. Annulez quand vous voulez.</p>
+
+      <div class="pricing-cards">
+        <div class="price-card">
+          <div class="price-name">Mensuel</div>
+          <div class="price-amount">50</div>
+          <div class="price-period">TND / mois</div>
+          <div class="price-note">&nbsp;</div>
+          <ul class="price-features">
+            <li><span class="material-symbols-outlined">check_circle</span> File d'attente temps réel</li>
+            <li><span class="material-symbols-outlined">check_circle</span> QR code &amp; WhatsApp check-in</li>
+            <li><span class="material-symbols-outlined">check_circle</span> Notifications automatiques</li>
+            <li><span class="material-symbols-outlined">check_circle</span> Multi-médecins</li>
+            <li><span class="material-symbols-outlined">check_circle</span> Support par messagerie</li>
+          </ul>
+          <button class="btn-price btn-price-outline">Choisir Mensuel</button>
+        </div>
+
+        <div class="price-card popular">
+          <div class="price-badge">Populaire</div>
+          <div class="price-name">Annuel</div>
+          <div class="price-amount">500</div>
+          <div class="price-period">TND / an</div>
+          <div class="price-note">2 mois offerts · économisez 100 TND</div>
+          <ul class="price-features">
+            <li><span class="material-symbols-outlined">check_circle</span> File d'attente temps réel</li>
+            <li><span class="material-symbols-outlined">check_circle</span> QR code &amp; WhatsApp check-in</li>
+            <li><span class="material-symbols-outlined">check_circle</span> Notifications automatiques</li>
+            <li><span class="material-symbols-outlined">check_circle</span> Multi-médecins</li>
+            <li><span class="material-symbols-outlined">check_circle</span> Support prioritaire</li>
+            <li><span class="material-symbols-outlined">check_circle</span> Statistiques &amp; rapports mensuels</li>
+          </ul>
+          <button class="btn-price btn-price-primary">Choisir Annuel</button>
+        </div>
+      </div>
+
+      <p class="pricing-trial">Premier mois gratuit pour démarrer — aucune carte bancaire requise</p>
+    </div>
+  </section>
+
+
+  <!-- ════════════════════════════════════════════
+       FAQ — 2-column accordion
+       ════════════════════════════════════════════ -->
+  <section class="faq-section section-wrap" aria-labelledby="faq-title">
+    <div class="lp-container">
+      <h2 class="section-title" id="faq-title">Questions fréquentes</h2>
+
+      <div class="faq-grid">
+        <div class="faq-col">
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q">C'est compliqué à installer ?<span class="material-symbols-outlined">expand_more</span></div>
+            <div class="faq-a">Non, 5 minutes suffisent. Vous imprimez le QR code, vous l'affichez à l'accueil, c'est prêt. Aucune compétence technique requise.</div>
+          </div>
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q">Mes patients âgés peuvent l'utiliser ?<span class="material-symbols-outlined">expand_more</span></div>
+            <div class="faq-a">Oui ! Ils scannent le QR code avec leur téléphone, c'est tout. Pas besoin d'application à télécharger ni de compte à créer.</div>
+          </div>
+        </div>
+        <div class="faq-col">
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q">Mes patients peuvent s'inscrire sur WhatsApp ?<span class="material-symbols-outlined">expand_more</span></div>
+            <div class="faq-a">Oui ! En plus du QR code, vos patients peuvent envoyer leur nom et numéro via WhatsApp pour rejoindre la file — idéal pour ceux qui appellent avant de venir.</div>
+          </div>
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q">Plusieurs médecins dans un cabinet ?<span class="material-symbols-outlined">expand_more</span></div>
+            <div class="faq-a">Oui ! Chaque médecin a sa propre file d'attente dans le même cabinet. Un seul abonnement couvre tout le cabinet, quel que soit le nombre de médecins.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ════════════════════════════════════════════
+       FOOTER CTA
+       ════════════════════════════════════════════ -->
+  <section class="footer-cta" aria-labelledby="footer-cta-title">
+    <div class="lp-container">
+      <h2 class="footer-cta-title" id="footer-cta-title">Transformez votre salle d'attente</h2>
+      <p class="footer-cta-sub">Commencez gratuitement. Voyez la différence dès le premier jour.</p>
+      <button class="btn-cta-footer">Commencer mon essai gratuit</button>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-brand">BleSAF</div>
+    <div class="footer-copy">&copy; 2026 BleSaf · Tous droits réservés</div>
+  </footer>
+
+
+  <script>
+    // ─────────────────────────────────────────────────────
+    // Nav: switch to light mode when scrolled past hero
+    // ─────────────────────────────────────────────────────
+    (function () {
+      const nav  = document.getElementById('main-nav');
+      const hero = document.querySelector('.db-hero');
+
+      function updateNav () {
+        const heroBottom = hero.getBoundingClientRect().bottom;
+        if (heroBottom <= 68) {
+          nav.classList.add('light');
+        } else {
+          nav.classList.remove('light');
+        }
+      }
+      window.addEventListener('scroll', updateNav, { passive: true });
+      updateNav();
+    })();
+
+    // ─────────────────────────────────────────────────────
+    // Scroll cue: hide once after-photo enters viewport
+    // ─────────────────────────────────────────────────────
+    (function () {
+      const cue       = document.getElementById('scroll-cue');
+      const afterPhoto = document.querySelector('.db-hero-photo-after');
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting) {
+            cue.classList.add('hidden');
+            observer.disconnect();
+          }
+        },
+        { threshold: 0.1 }
+      );
+      observer.observe(afterPhoto);
+    })();
+
+    // ─────────────────────────────────────────────────────
+    // Key Numbers: count-up animation on scroll into view
+    // ─────────────────────────────────────────────────────
+    (function () {
+      const cards = document.querySelectorAll('.db-number-value[data-target]');
+      let animated = false;
+
+      function countUp (el) {
+        const target = parseInt(el.dataset.target, 10);
+        const suffix = el.dataset.suffix || '';
+        if (target === 0) { el.textContent = '0' + suffix; return; }
+
+        const duration = 1200;
+        const start    = performance.now();
+        function frame (now) {
+          const elapsed = now - start;
+          const progress = Math.min(elapsed / duration, 1);
+          // ease-out cubic
+          const eased = 1 - Math.pow(1 - progress, 3);
+          el.textContent = Math.round(eased * target) + suffix;
+          if (progress < 1) requestAnimationFrame(frame);
+        }
+        requestAnimationFrame(frame);
+      }
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (animated) return;
+          if (entries.some(e => e.isIntersecting)) {
+            animated = true;
+            cards.forEach(countUp);
+            observer.disconnect();
+          }
+        },
+        { threshold: 0.3 }
+      );
+
+      const section = document.querySelector('.db-numbers-section');
+      if (section) observer.observe(section);
+    })();
+  </script>
+
+</body>
+</html>
