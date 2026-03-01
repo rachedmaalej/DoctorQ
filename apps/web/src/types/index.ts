@@ -44,6 +44,18 @@ export interface QueueResponse {
   stats: QueueStats;
 }
 
+export interface YesterdayStats {
+  yesterday: {
+    totalPatients: number;
+    avgWaitMins: number | null;
+    date: string;
+  } | null;
+  trends: {
+    patients: { vs7d: number | null; vs30d: number | null; };
+    waitMins: { vs7d: number | null; vs30d: number | null; };
+  } | null;
+}
+
 export interface UILabels {
   customer: string;       // "patient" or "client"
   customers: string;      // "patients" or "clients"

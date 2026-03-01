@@ -1,0 +1,1385 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1340">
+  <title>BléSaf — Desktop Dashboard Redesign Alternatives</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400,0..1,0" rel="stylesheet">
+  <style>
+    /* ── Reset ───────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    button { font-family: inherit; cursor: pointer; }
+    input  { font-family: inherit; }
+
+    /* ── Design Tokens ───────────────────────────────────────────── */
+    :root {
+      --bg:        #F5F0E8;
+      --surface:   #FFFFFF;
+      --surface2:  #F0EFEA;
+      --surface3:  #FAFAF8;
+      --border:    #E8E6DF;
+      --border-sub:#F0EDE6;
+      --header:    #1B3A2D;
+      --header2:   #112B21;
+
+      --teal:      #0F7B6C;
+      --teal-d:    #0A5C50;
+      --teal-l:    #E8F5F1;
+      --teal-m:    #C5E3DE;
+
+      --green:     #2D8B4E;
+      --green-l:   #EDF7F0;
+      --amber:     #D4920B;
+      --amber-l:   #FEF7E6;
+      --red:       #D94F3B;
+      --red-l:     #FDF0ED;
+      --blue:      #3B7DD9;
+      --blue-l:    #EDF3FC;
+
+      --t1:  #1A1A1A;
+      --t2:  #6B6960;
+      --t3:  #9E9B90;
+
+      --font-h: 'DM Sans', system-ui, sans-serif;
+      --font-b: 'DM Sans', system-ui, sans-serif;
+
+      --r:    12px;
+      --r-sm: 8px;
+      --r-xs: 6px;
+      --r-full: 999px;
+    }
+
+    /* ── Icon ────────────────────────────────────────────────────── */
+    .icon {
+      font-family: 'Material Symbols Rounded';
+      font-size: 20px;
+      line-height: 1;
+      display: inline-block;
+      vertical-align: middle;
+      user-select: none;
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .icon.fill { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    .icon.sm   { font-size: 16px; }
+    .icon.xs   { font-size: 14px; }
+    .icon.lg   { font-size: 24px; }
+
+    /* ── Page Shell ──────────────────────────────────────────────── */
+    body {
+      background: #0D0D0D;
+      font-family: var(--font-b);
+      min-width: 1360px;
+      color: var(--t1);
+    }
+
+    .page-header {
+      padding: 36px 48px 24px;
+    }
+    .page-header h1 {
+      font-size: 24px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.03em;
+    }
+    .page-header p {
+      font-size: 14px;
+      color: #555;
+      margin-top: 5px;
+    }
+
+    /* ── Tab Bar ─────────────────────────────────────────────────── */
+    .tab-bar {
+      display: flex;
+      align-items: stretch;
+      background: #0D0D0D;
+      border-bottom: 1px solid #1E1E1E;
+      padding: 0 48px;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      gap: 4px;
+    }
+    .tab-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 20px;
+      color: #555;
+      font-size: 13px;
+      font-weight: 500;
+      border: none;
+      background: none;
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s;
+      white-space: nowrap;
+      letter-spacing: -0.01em;
+    }
+    .tab-btn:hover { color: #aaa; }
+    .tab-btn.active { color: #fff; border-bottom-color: var(--teal); }
+    .tab-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .tab-badge {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 2px 8px;
+      border-radius: var(--r-full);
+      background: #1E1E1E;
+      color: #555;
+    }
+    .tab-btn.active .tab-badge { background: #1E2E28; color: #0F7B6C; }
+
+    /* ── Alt Section ─────────────────────────────────────────────── */
+    .alt-section { display: none; padding: 40px 48px 60px; }
+    .alt-section.active { display: block; }
+
+    .alt-header {
+      max-width: 1280px;
+      margin: 0 auto 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .alt-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.03em;
+    }
+    .alt-pill {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 3px 10px;
+      border-radius: var(--r-full);
+      color: #fff;
+    }
+    .alt-desc {
+      font-size: 14px;
+      color: #555;
+      flex: 1;
+      min-width: 200px;
+    }
+
+    /* ── Mockup Frame ────────────────────────────────────────────── */
+    .mockup {
+      width: 1280px;
+      height: 860px;
+      margin: 0 auto;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 40px 120px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.06);
+      position: relative;
+      font-family: var(--font-b);
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       SHARED ATOMS
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+    /* Topbar */
+    .topbar {
+      background: var(--header);
+      height: 52px;
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      gap: 14px;
+      flex-shrink: 0;
+    }
+    .topbar-logo {
+      font-weight: 800;
+      font-size: 18px;
+      color: #fff;
+      letter-spacing: -0.04em;
+    }
+    .topbar-sep { width: 1px; height: 18px; background: rgba(255,255,255,0.12); }
+    .topbar-clinic-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.35); }
+    .topbar-clinic-name  { font-size: 14px; font-weight: 700; color: #fff; letter-spacing: -0.02em; }
+    .topbar-spacer { flex: 1; }
+
+    /* Pills */
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: var(--r-full);
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .status-pill.open   { background: rgba(45,139,78,0.18); color: #4EC97A; border: 1px solid rgba(45,139,78,0.25); }
+    .status-pill.closed { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.4); }
+    .status-pill.amber  { background: rgba(212,146,11,0.2); color: #EFA825; border: 1px solid rgba(212,146,11,0.25); }
+    .status-pill .dot   { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+    .presence-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 13px;
+      border-radius: var(--r-full);
+      font-size: 13px;
+      font-weight: 600;
+      border: none;
+      background: rgba(78,201,122,0.15);
+      color: #4EC97A;
+      border: 1px solid rgba(78,201,122,0.25);
+    }
+    .presence-pill .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+
+    /* Ghost icon btn (topbar) */
+    .icon-btn {
+      width: 32px; height: 32px;
+      border-radius: var(--r-sm);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.5);
+    }
+    .icon-btn .icon { font-size: 17px; }
+
+    /* Avatar */
+    .avatar {
+      flex-shrink: 0;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+    .av-md { width: 36px; height: 36px; font-size: 14px; }
+    .av-sm { width: 30px; height: 30px; font-size: 12px; }
+
+    /* Wait dot */
+    .wdot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .wdot.g { background: var(--green); }
+    .wdot.a { background: var(--amber); }
+    .wdot.r { background: var(--red); }
+
+    /* Badge */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: var(--r-full);
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .badge.notified { background: var(--amber-l); color: var(--amber); }
+    .badge.priority { background: var(--red-l); color: var(--red); }
+    .badge.waiting  { background: var(--teal-l); color: var(--teal); }
+    .badge.qr       { background: var(--teal-l); color: var(--teal); font-size: 10px; }
+    .badge.manual   { background: var(--surface2); color: var(--t2); font-size: 10px; }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: var(--r);
+      font-size: 13px;
+      font-weight: 600;
+      border: none;
+      white-space: nowrap;
+      letter-spacing: -0.01em;
+    }
+    .btn.teal    { background: var(--teal); color: #fff; }
+    .btn.white   { background: var(--surface); color: var(--t1); border: 1px solid var(--border); }
+    .btn.amber   { background: var(--amber-l); color: var(--amber); border: 1px solid rgba(212,146,11,0.2); }
+    .btn.green   { background: var(--green-l); color: var(--green); border: 1px solid rgba(45,139,78,0.2); }
+    .btn.ghost   { background: none; color: var(--t2); border: 1px solid var(--border); }
+    .btn.wa      { background: #E8F5E8; color: #128C7E; border: 1px solid rgba(18,140,126,0.2); }
+    .btn.lg      { padding: 12px 22px; font-size: 15px; border-radius: 13px; }
+    .btn.sm      { padding: 5px 11px; font-size: 12px; border-radius: var(--r-sm); }
+
+    /* Search wrap */
+    .search-wrap { position: relative; }
+    .search-wrap .icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 16px; color: var(--t3); pointer-events: none; }
+    .search-wrap input {
+      width: 100%;
+      height: 38px;
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      background: var(--surface);
+      padding: 0 14px 0 34px;
+      font-size: 13px;
+      color: var(--t2);
+      outline: none;
+    }
+    .search-wrap input::placeholder { color: var(--t3); }
+
+    /* Row action btn */
+    .row-btn {
+      width: 30px; height: 30px;
+      border-radius: var(--r-sm);
+      display: flex; align-items: center; justify-content: center;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--t2);
+    }
+    .row-btn .icon { font-size: 16px; }
+
+    /* Consultation banner */
+    .consult-card {
+      background: var(--teal);
+      border-radius: var(--r);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .cc-info { flex: 1; }
+    .cc-eyebrow { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.55); margin-bottom: 3px; }
+    .cc-name    { font-size: 22px; font-weight: 800; color: #fff; letter-spacing: -0.02em; line-height: 1.1; }
+    .cc-sub     { font-size: 13px; color: rgba(255,255,255,0.6); margin-top: 3px; }
+    .cc-end-btn {
+      background: #fff; color: var(--teal);
+      border: none; border-radius: var(--r-full);
+      padding: 8px 18px; font-size: 13px; font-weight: 700;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .cc-end-btn .icon { font-size: 16px; }
+    .cc-phone-btn {
+      background: rgba(255,255,255,0.15); color: #fff;
+      border: 1.5px solid rgba(255,255,255,0.3); border-radius: var(--r-full);
+      padding: 8px 12px; display: flex; align-items: center;
+    }
+
+    /* Queue row */
+    .qrow {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      margin-bottom: 6px;
+    }
+    .qrow.notified { border-color: rgba(212,146,11,0.3); background: #FFFDF8; }
+    .pos-bubble {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--surface2); color: var(--t2);
+      font-size: 12px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .qinfo { flex: 1; }
+    .qname { font-size: 14px; font-weight: 600; color: var(--t1); }
+    .qsub  { font-size: 12px; color: var(--t3); margin-top: 1px; }
+    .qwait { display: flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; color: var(--t2); flex-shrink: 0; }
+    .qactions { display: flex; gap: 4px; flex-shrink: 0; }
+
+    /* Section header */
+    .sec-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .sec-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--t3); }
+    .sec-count { font-size: 13px; color: var(--t3); }
+
+    /* Bottom CTA bar */
+    .cta-bar {
+      background: var(--header2);
+      padding: 14px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .cta-next { font-size: 14px; color: rgba(255,255,255,0.55); }
+    .cta-next strong { color: #fff; font-weight: 700; }
+    .cta-btn {
+      background: #fff; color: var(--header);
+      border: none; border-radius: 13px;
+      padding: 11px 24px; font-size: 15px; font-weight: 800;
+      display: flex; align-items: center; gap: 8px; letter-spacing: -0.02em;
+    }
+    .cta-btn .icon { font-size: 20px; }
+
+    /* Divider */
+    .div { height: 1px; background: var(--border); margin: 16px 0; }
+
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       ALTERNATIVE A — SIDEBAR COMMAND
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .a-wrap { display: flex; height: 100%; overflow: hidden; }
+
+    /* Sidebar */
+    .a-sb {
+      width: 244px;
+      flex-shrink: 0;
+      background: var(--surface2);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .a-sb-brand {
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .a-logo { font-weight: 800; font-size: 20px; color: var(--teal); letter-spacing: -0.04em; }
+    .a-clinic-tag { font-size: 10px; color: var(--t3); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 14px; }
+    .a-clinic-name { font-size: 13px; font-weight: 700; color: var(--t1); margin-top: 2px; }
+    .a-clinic-spec { font-size: 12px; color: var(--t3); margin-top: 1px; }
+
+    .a-sb-sec { padding: 14px 16px; border-bottom: 1px solid var(--border); }
+    .a-sec-lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--t3); margin-bottom: 10px; }
+
+    .a-presence {
+      display: flex; align-items: center; gap: 8px;
+      padding: 9px 12px;
+      background: var(--green-l);
+      border: 1px solid rgba(45,139,78,0.2);
+      border-radius: var(--r);
+    }
+    .a-presence-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+    .a-presence-label { font-size: 13px; font-weight: 700; color: var(--green); flex: 1; }
+
+    .a-stat { display: flex; align-items: baseline; gap: 8px; margin-bottom: 9px; }
+    .a-stat:last-child { margin-bottom: 0; }
+    .a-stat-val { font-size: 22px; font-weight: 800; color: var(--t1); letter-spacing: -0.04em; line-height: 1; }
+    .a-stat-val.teal { color: var(--teal); }
+    .a-stat-lbl { font-size: 11px; color: var(--t2); text-transform: uppercase; letter-spacing: 0.04em; }
+
+    .a-queue-status { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+    .a-qs-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+    .a-qs-label { font-size: 14px; font-weight: 600; color: var(--t1); }
+    .a-qs-sub { font-size: 12px; color: var(--t3); margin-bottom: 12px; margin-left: 16px; }
+
+    .a-sb-footer {
+      margin-top: auto;
+      padding: 12px 12px;
+      border-top: 1px solid var(--border);
+    }
+    .a-nav-item {
+      display: flex; align-items: center; gap: 9px;
+      padding: 8px 10px;
+      border-radius: var(--r-sm);
+      color: var(--t2); font-size: 13px;
+      margin-bottom: 2px;
+    }
+    .a-nav-item:hover { background: var(--border); }
+    .a-nav-item .icon { font-size: 17px; }
+
+    /* Main area */
+    .a-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--bg);
+    }
+    .a-subbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 28px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+    .a-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 22px 28px 0;
+    }
+    .a-controls { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+    .a-qr-inline {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 7px 12px; margin-left: auto;
+    }
+    .a-qr-text { font-size: 12px; font-weight: 600; color: var(--t1); }
+    .a-qr-sub  { font-size: 11px; color: var(--t3); }
+
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       ALTERNATIVE B — SPLIT FOCUS
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .b-body {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 390px 1fr;
+      overflow: hidden;
+    }
+
+    /* Left panel */
+    .b-left {
+      background: var(--bg);
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      padding: 24px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .b-consult {
+      background: var(--teal);
+      border-radius: 16px;
+      padding: 22px 20px;
+      margin-bottom: 18px;
+    }
+    .b-c-eyebrow { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: rgba(255,255,255,0.5); margin-bottom: 6px; }
+    .b-c-name    { font-size: 28px; font-weight: 800; color: #fff; letter-spacing: -0.03em; line-height: 1; margin-bottom: 5px; }
+    .b-c-sub     { font-size: 13px; color: rgba(255,255,255,0.6); margin-bottom: 14px; }
+    .b-c-timer   {
+      display: flex; align-items: baseline; gap: 6px; margin-bottom: 18px;
+    }
+    .b-c-timer-val { font-size: 42px; font-weight: 800; color: #fff; letter-spacing: -0.05em; line-height: 1; }
+    .b-c-timer-unit { font-size: 14px; color: rgba(255,255,255,0.6); }
+    .b-c-timer-lbl  { font-size: 11px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.07em; }
+    .b-c-actions { display: flex; gap: 8px; }
+    .b-c-end-btn {
+      flex: 1; background: #fff; color: var(--teal);
+      border: none; border-radius: var(--r-full);
+      padding: 10px 16px; font-size: 13px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .b-c-phone-btn {
+      background: rgba(255,255,255,0.15); color: #fff;
+      border: 1.5px solid rgba(255,255,255,0.3); border-radius: var(--r-full);
+      padding: 10px 14px; display: flex; align-items: center;
+    }
+
+    .b-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 18px; }
+    .b-stat {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 12px 10px; text-align: center;
+    }
+    .b-stat.hi { background: var(--teal-l); border-color: var(--teal-m); }
+    .b-stat-val { font-size: 22px; font-weight: 800; color: var(--t1); letter-spacing: -0.04em; line-height: 1; }
+    .b-stat-val.t { color: var(--teal); }
+    .b-stat-val.sm { font-size: 16px; }
+    .b-stat-lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--t3); margin-top: 4px; }
+
+    .b-cta {
+      width: 100%; background: var(--teal); color: #fff;
+      border: none; border-radius: 13px;
+      padding: 14px; font-size: 16px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      letter-spacing: -0.02em; margin-bottom: 6px;
+    }
+    .b-cta .icon { font-size: 20px; }
+    .b-next-hint { text-align: center; font-size: 12px; color: var(--t3); margin-bottom: 18px; }
+    .b-next-hint strong { color: var(--t1); font-weight: 700; }
+
+    .b-qr {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 12px 14px;
+      display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+    }
+    .b-qr-icon { width: 40px; height: 40px; background: var(--surface2); border-radius: var(--r-sm); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .b-qr-name { font-size: 12px; font-weight: 600; color: var(--t1); }
+    .b-qr-sub  { font-size: 11px; color: var(--t3); }
+
+    .b-secondary { display: flex; gap: 8px; margin-bottom: 14px; }
+    .b-secondary .btn { flex: 1; justify-content: center; font-size: 12px; }
+
+    /* Right panel */
+    .b-right {
+      background: var(--surface);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+    .b-right-ctrl {
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--border);
+      display: flex; gap: 10px; align-items: center;
+      flex-shrink: 0;
+    }
+    .b-right-list { padding: 20px 22px; flex: 1; }
+    .b-qrow {
+      display: flex; align-items: center; gap: 12px;
+      padding: 13px 14px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r); margin-bottom: 8px;
+    }
+    .b-qrow.notified { border-color: rgba(212,146,11,0.3); background: #FFFDF8; }
+    .b-qinfo { flex: 1; }
+    .b-qname { font-size: 14px; font-weight: 600; color: var(--t1); }
+    .b-qsub  { font-size: 12px; color: var(--t3); margin-top: 1px; }
+    .b-qwait { display: flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; color: var(--t2); }
+
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       ALTERNATIVE C — CLINICAL TABLE
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .c-cmd {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 28px;
+      flex-shrink: 0;
+    }
+    .c-stats-row {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+    }
+    .c-chip {
+      display: flex; align-items: center; gap: 12px;
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 10px 18px;
+    }
+    .c-chip.hi { background: var(--teal-l); border-color: var(--teal-m); }
+    .c-chip-val { font-size: 26px; font-weight: 800; letter-spacing: -0.04em; line-height: 1; color: var(--t1); }
+    .c-chip-val.t { color: var(--teal); }
+    .c-chip-val.sm { font-size: 18px; }
+    .c-chip-lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--t3); margin-top: 3px; }
+    .c-chip-sep { flex: 1; }
+    .c-status-cluster { display: flex; align-items: center; gap: 12px; }
+    .c-open-indicator { display: flex; align-items: center; gap: 7px; }
+    .c-open-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+    .c-open-label { font-size: 13px; font-weight: 600; color: var(--green); }
+    .c-open-since  { font-size: 12px; color: var(--t3); }
+
+    .c-ctrl-row { display: flex; align-items: center; gap: 10px; }
+
+    /* Consultation strip (horizontal) */
+    .c-strip {
+      background: var(--teal);
+      padding: 13px 28px;
+      display: flex; align-items: center; gap: 18px;
+      flex-shrink: 0;
+    }
+    .c-strip-badge {
+      font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;
+      background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.9);
+      padding: 3px 10px; border-radius: var(--r-full); flex-shrink: 0;
+    }
+    .c-strip-sep { width: 1px; height: 28px; background: rgba(255,255,255,0.2); }
+    .c-strip-name { font-size: 18px; font-weight: 800; color: #fff; letter-spacing: -0.02em; }
+    .c-strip-sub  { font-size: 13px; color: rgba(255,255,255,0.6); }
+    .c-strip-info { flex: 1; display: flex; align-items: baseline; gap: 10px; }
+    .c-strip-actions { display: flex; align-items: center; gap: 8px; }
+
+    /* Table */
+    .c-table-wrap { flex: 1; overflow-y: auto; }
+    .c-table { width: 100%; border-collapse: collapse; }
+    .c-table thead th {
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;
+      color: var(--t3);
+      background: var(--surface3);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+      position: sticky; top: 0; z-index: 2;
+    }
+    .c-table thead th:first-child { padding-left: 28px; width: 56px; }
+    .c-table thead th:last-child  { padding-right: 28px; text-align: right; }
+    .c-table tbody tr { border-bottom: 1px solid var(--border-sub); }
+    .c-table tbody tr:hover { background: var(--surface3); }
+    .c-table tbody tr.notified-row { background: #FFFDF8; }
+    .c-table tbody tr.notified-row:hover { background: #FFFBF2; }
+    .c-table tbody td { padding: 14px 14px; font-size: 13px; color: var(--t1); vertical-align: middle; }
+    .c-table tbody td:first-child { padding-left: 28px; }
+    .c-table tbody td:last-child  { padding-right: 28px; }
+    .c-pos { font-weight: 700; color: var(--t2); font-size: 14px; }
+    .c-name-cell { display: flex; align-items: center; gap: 10px; }
+    .c-pt-name { font-weight: 600; font-size: 14px; }
+    .c-pt-phone { font-size: 11px; color: var(--t3); margin-top: 1px; }
+    .c-time { color: var(--t2); font-size: 13px; font-feature-settings: 'tnum'; }
+    .c-wait-cell { display: flex; align-items: center; gap: 6px; font-weight: 600; font-size: 13px; }
+    .c-actions { display: flex; gap: 4px; justify-content: flex-end; }
+
+    /* Footer */
+    .c-footer {
+      background: var(--header2);
+      padding: 13px 28px;
+      display: flex; align-items: center; gap: 16px;
+      flex-shrink: 0;
+    }
+    .c-footer-qr { display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,0.4); font-size: 13px; }
+    .c-footer-qr .icon { font-size: 18px; }
+    .c-copy-btn {
+      padding: 4px 12px;
+      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: var(--r-sm); color: rgba(255,255,255,0.6);
+      font-size: 12px;
+    }
+    .c-footer-sep { flex: 1; }
+    .c-footer-next { font-size: 14px; color: rgba(255,255,255,0.5); }
+    .c-footer-next strong { color: #fff; font-weight: 700; }
+  </style>
+</head>
+<body>
+
+<!-- ── Page Header ──────────────────────────────────────────────── -->
+<div class="page-header">
+  <h1>BléSaf — Desktop Dashboard Redesign</h1>
+  <p>3 desktop-native alternatives. Same data, three distinct information architectures. 1280 × 860px viewport.</p>
+</div>
+
+<!-- ── Tab Bar ──────────────────────────────────────────────────── -->
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="showAlt('a', this)">
+    <span class="tab-dot" style="background:#0F7B6C"></span>
+    A — Sidebar Command
+    <span class="tab-badge">SaaS</span>
+  </button>
+  <button class="tab-btn" onclick="showAlt('b', this)">
+    <span class="tab-dot" style="background:#2D8B4E"></span>
+    B — Split Focus
+    <span class="tab-badge">Gmail</span>
+  </button>
+  <button class="tab-btn" onclick="showAlt('c', this)">
+    <span class="tab-dot" style="background:#3B7DD9"></span>
+    C — Clinical Table
+    <span class="tab-badge">EMR</span>
+  </button>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════
+     A — SIDEBAR COMMAND
+══════════════════════════════════════════════════════════════ -->
+<div class="alt-section active" id="alt-a">
+  <div class="alt-header">
+    <span class="alt-title">A — Sidebar Command</span>
+    <span class="alt-pill" style="background:var(--teal)">SaaS Paradigm</span>
+    <span class="alt-desc">Permanent 244px sidebar carries clinic identity, doctor presence, live stats, and lifecycle controls. Main area is exclusively queue management — like Linear or Notion.</span>
+  </div>
+
+  <div class="mockup">
+    <div class="a-wrap">
+
+      <!-- ── Sidebar ───────────────────────────────────────────── -->
+      <div class="a-sb">
+
+        <!-- Brand -->
+        <div class="a-sb-brand">
+          <div class="a-logo">BleSaf</div>
+          <div style="margin-top: 16px;">
+            <div class="a-clinic-tag">Cabinet</div>
+            <div class="a-clinic-name">Dr. Karim Jebali</div>
+            <div class="a-clinic-spec">Médecin généraliste</div>
+          </div>
+        </div>
+
+        <!-- Presence -->
+        <div class="a-sb-sec">
+          <div class="a-sec-lbl">Présence du médecin</div>
+          <div class="a-presence">
+            <div class="a-presence-dot"></div>
+            <span class="a-presence-label">Présent</span>
+            <span class="icon sm" style="color:var(--green)">expand_more</span>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="a-sb-sec">
+          <div class="a-sec-lbl">Aujourd'hui</div>
+          <div class="a-stat">
+            <div class="a-stat-val teal">4</div>
+            <div class="a-stat-lbl">En attente</div>
+          </div>
+          <div class="a-stat">
+            <div class="a-stat-val">1</div>
+            <div class="a-stat-lbl">Vu</div>
+          </div>
+          <div class="a-stat">
+            <div class="a-stat-val" style="font-size:18px">~09:50</div>
+            <div class="a-stat-lbl">Fin estimée</div>
+          </div>
+        </div>
+
+        <!-- Queue status -->
+        <div class="a-sb-sec">
+          <div class="a-sec-lbl">Statut de la file</div>
+          <div class="a-queue-status">
+            <div class="a-qs-dot"></div>
+            <div class="a-qs-label">Ouverte</div>
+          </div>
+          <div class="a-qs-sub">Depuis 08:15</div>
+          <button class="btn amber" style="width:100%; justify-content:center; font-size:12px;">
+            <span class="icon sm">block</span>Fermer la file
+          </button>
+        </div>
+
+        <!-- Footer nav -->
+        <div class="a-sb-footer">
+          <div class="a-nav-item">
+            <span class="icon">settings</span>Paramètres
+          </div>
+          <div class="a-nav-item">
+            <span class="icon">logout</span>Déconnexion
+          </div>
+        </div>
+      </div><!-- /sidebar -->
+
+      <!-- ── Main area ─────────────────────────────────────────── -->
+      <div class="a-main">
+
+        <!-- Sub-bar (thin, white) -->
+        <div class="a-subbar">
+          <div class="search-wrap" style="width:240px">
+            <span class="icon">search</span>
+            <input type="text" placeholder="Nom du patient…">
+          </div>
+          <button class="btn teal"><span class="icon sm">person_add</span>Ajouter</button>
+          <button class="btn white"><span class="icon sm">campaign</span>Annonce</button>
+          <button class="btn wa"><span class="icon sm">share</span>WhatsApp</button>
+          <div style="flex:1"></div>
+          <!-- QR inline -->
+          <div class="a-qr-inline">
+            <span class="icon" style="font-size:18px; color:var(--t3)">qr_code_2</span>
+            <div>
+              <div class="a-qr-text">QR d'enregistrement</div>
+              <div class="a-qr-sub">Pour les patients</div>
+            </div>
+            <button class="btn ghost sm" style="margin-left:4px"><span class="icon xs">content_copy</span>Copier</button>
+          </div>
+        </div>
+
+        <!-- Scrollable content -->
+        <div class="a-content">
+
+          <!-- EN CONSULTATION -->
+          <div style="margin-bottom:20px">
+            <div class="sec-hdr">
+              <div class="sec-label">En consultation</div>
+            </div>
+            <div class="consult-card">
+              <div class="cc-info">
+                <div class="cc-eyebrow">En consultation</div>
+                <div class="cc-name">Sami</div>
+                <div class="cc-sub">Arrivé à 08:36 · 38 min en salle</div>
+              </div>
+              <div style="display:flex; gap:8px">
+                <button class="cc-end-btn"><span class="icon fill sm">check_circle</span>Terminer</button>
+                <button class="cc-phone-btn"><span class="icon" style="font-size:18px; color:#fff">phone</span></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- FILE D'ATTENTE -->
+          <div class="sec-hdr">
+            <div class="sec-label">File d'attente</div>
+            <div class="sec-count">4 patients</div>
+          </div>
+
+          <!-- #2 Karim -->
+          <div class="qrow notified">
+            <div class="pos-bubble" style="background:var(--amber-l);color:var(--amber)">2</div>
+            <div class="avatar av-md" style="background:var(--amber-l);color:var(--amber)">K</div>
+            <div class="qinfo">
+              <div class="qname">Karim</div>
+              <div class="qsub">Arrivé à 08:36 · Sans RDV</div>
+            </div>
+            <div class="qwait"><span class="wdot a"></span>1h 00</div>
+            <span class="badge notified">Notifié</span>
+            <div class="qactions">
+              <div class="row-btn"><span class="icon">phone</span></div>
+              <div class="row-btn"><span class="icon">more_vert</span></div>
+            </div>
+          </div>
+
+          <!-- #3 Mohamed -->
+          <div class="qrow">
+            <div class="pos-bubble">3</div>
+            <div class="avatar av-md" style="background:var(--blue-l);color:var(--blue)">M</div>
+            <div class="qinfo">
+              <div class="qname">Mohamed</div>
+              <div class="qsub">Arrivé à 08:43 · Sans RDV</div>
+            </div>
+            <div class="qwait"><span class="wdot a"></span>53 min</div>
+            <div class="qactions">
+              <div class="row-btn"><span class="icon">phone</span></div>
+              <div class="row-btn"><span class="icon">more_vert</span></div>
+            </div>
+          </div>
+
+          <!-- #4 Slim -->
+          <div class="qrow">
+            <div class="pos-bubble">4</div>
+            <div class="avatar av-md" style="background:var(--surface2);color:var(--t2)">S</div>
+            <div class="qinfo">
+              <div class="qname">Slim</div>
+              <div class="qsub">Arrivé à 09:18 · QR Code</div>
+            </div>
+            <div class="qwait"><span class="wdot g"></span>18 min</div>
+            <div class="qactions">
+              <div class="row-btn"><span class="icon">phone</span></div>
+              <div class="row-btn"><span class="icon">more_vert</span></div>
+            </div>
+          </div>
+
+          <!-- #5 Mounir -->
+          <div class="qrow">
+            <div class="pos-bubble">5</div>
+            <div class="avatar av-md" style="background:var(--surface2);color:var(--t2)">M</div>
+            <div class="qinfo">
+              <div class="qname">Mounir</div>
+              <div class="qsub">Arrivé à 09:18 · QR Code</div>
+            </div>
+            <div class="qwait"><span class="wdot g"></span>18 min</div>
+            <div class="qactions">
+              <div class="row-btn"><span class="icon">phone</span></div>
+              <div class="row-btn"><span class="icon">more_vert</span></div>
+            </div>
+          </div>
+
+        </div><!-- /a-content -->
+
+        <!-- CTA Bar -->
+        <div class="cta-bar">
+          <div class="cta-next">Prochain : <strong>Karim</strong></div>
+          <button class="cta-btn"><span class="icon">arrow_forward</span>Appeler Suivant</button>
+        </div>
+
+      </div><!-- /a-main -->
+    </div><!-- /a-wrap -->
+  </div><!-- /mockup -->
+</div><!-- /alt-a -->
+
+
+<!-- ══════════════════════════════════════════════════════════════
+     B — SPLIT FOCUS
+══════════════════════════════════════════════════════════════ -->
+<div class="alt-section" id="alt-b">
+  <div class="alt-header">
+    <span class="alt-title">B — Split Focus</span>
+    <span class="alt-pill" style="background:var(--green)">Gmail Paradigm</span>
+    <span class="alt-desc">Left panel is a fixed control hub: current consultation, live stats, and the primary CTA. Right panel is the independently scrollable queue — the doctor always sees both at once.</span>
+  </div>
+
+  <div class="mockup">
+    <div style="display:flex; flex-direction:column; height:100%">
+
+      <!-- Slim topbar -->
+      <div class="topbar">
+        <div class="topbar-logo">BleSaf</div>
+        <div class="topbar-sep"></div>
+        <div>
+          <div class="topbar-clinic-label">Cabinet</div>
+          <div class="topbar-clinic-name">Dr. Karim Jebali</div>
+        </div>
+        <div class="topbar-spacer"></div>
+        <div class="status-pill open"><div class="dot"></div>Ouverte</div>
+        <button class="presence-pill"><div class="dot"></div>Présent<span class="icon sm" style="color:#4EC97A">expand_more</span></button>
+        <div class="icon-btn"><span class="icon">settings</span></div>
+        <div class="icon-btn"><span class="icon">logout</span></div>
+      </div>
+
+      <!-- Two-column body -->
+      <div class="b-body">
+
+        <!-- LEFT: Control hub -->
+        <div class="b-left">
+
+          <!-- Consultation card -->
+          <div class="b-consult">
+            <div class="b-c-eyebrow">En consultation</div>
+            <div class="b-c-name">Sami</div>
+            <div class="b-c-sub">Arrivé à 08:36 · Sans RDV</div>
+            <div class="b-c-timer">
+              <div class="b-c-timer-val">38</div>
+              <div>
+                <div class="b-c-timer-unit">min</div>
+                <div class="b-c-timer-lbl">en salle</div>
+              </div>
+            </div>
+            <div class="b-c-actions">
+              <button class="b-c-end-btn"><span class="icon fill sm">check_circle</span>Terminer la consultation</button>
+              <button class="b-c-phone-btn"><span class="icon" style="font-size:18px; color:#fff">phone</span></button>
+            </div>
+          </div>
+
+          <!-- Stats grid -->
+          <div class="b-stats">
+            <div class="b-stat hi">
+              <div class="b-stat-val t">4</div>
+              <div class="b-stat-lbl">Attente</div>
+            </div>
+            <div class="b-stat">
+              <div class="b-stat-val">1</div>
+              <div class="b-stat-lbl">Vus</div>
+            </div>
+            <div class="b-stat">
+              <div class="b-stat-val sm">09:50</div>
+              <div class="b-stat-lbl">Fin est.</div>
+            </div>
+          </div>
+
+          <!-- Primary CTA -->
+          <button class="b-cta"><span class="icon">arrow_forward</span>Appeler Suivant</button>
+          <div class="b-next-hint">Prochain : <strong>Karim</strong></div>
+
+          <div class="div"></div>
+
+          <!-- QR card -->
+          <div class="b-qr">
+            <div class="b-qr-icon"><span class="icon lg" style="color:var(--t3)">qr_code_2</span></div>
+            <div style="flex:1">
+              <div class="b-qr-name">QR d'enregistrement</div>
+              <div class="b-qr-sub">Lien pour les patients</div>
+            </div>
+            <button class="btn ghost sm"><span class="icon xs">content_copy</span>Copier</button>
+          </div>
+
+          <!-- Secondary actions -->
+          <div class="b-secondary">
+            <button class="btn white" style="font-size:12px"><span class="icon sm">campaign</span>Annonce</button>
+            <button class="btn wa" style="font-size:12px"><span class="icon sm">share</span>WhatsApp</button>
+          </div>
+
+          <div class="div"></div>
+
+          <button class="btn amber" style="width:100%; justify-content:center; font-size:12px">
+            <span class="icon sm">block</span>Fermer la file
+          </button>
+
+        </div><!-- /b-left -->
+
+        <!-- RIGHT: Queue list -->
+        <div class="b-right">
+
+          <!-- Controls -->
+          <div class="b-right-ctrl">
+            <div class="search-wrap" style="flex:1">
+              <span class="icon">search</span>
+              <input type="text" placeholder="Nom du patient…">
+            </div>
+            <button class="btn teal"><span class="icon sm">person_add</span>Ajouter</button>
+          </div>
+
+          <!-- List -->
+          <div class="b-right-list">
+            <div class="sec-hdr">
+              <div class="sec-label">File d'attente</div>
+              <div class="sec-count">4 patients</div>
+            </div>
+
+            <!-- #2 Karim -->
+            <div class="b-qrow notified">
+              <div class="pos-bubble" style="background:var(--amber-l);color:var(--amber)">2</div>
+              <div class="avatar av-md" style="background:var(--amber-l);color:var(--amber)">K</div>
+              <div class="b-qinfo">
+                <div class="b-qname">Karim</div>
+                <div class="b-qsub">Arrivé à 08:36 · Sans RDV</div>
+              </div>
+              <div class="b-qwait"><span class="wdot a"></span>1h 00</div>
+              <span class="badge notified">Notifié</span>
+              <div class="qactions">
+                <div class="row-btn"><span class="icon">phone</span></div>
+                <div class="row-btn"><span class="icon">more_vert</span></div>
+              </div>
+            </div>
+
+            <!-- #3 Mohamed -->
+            <div class="b-qrow">
+              <div class="pos-bubble">3</div>
+              <div class="avatar av-md" style="background:var(--blue-l);color:var(--blue)">M</div>
+              <div class="b-qinfo">
+                <div class="b-qname">Mohamed</div>
+                <div class="b-qsub">Arrivé à 08:43 · Sans RDV</div>
+              </div>
+              <div class="b-qwait"><span class="wdot a"></span>53 min</div>
+              <div class="qactions">
+                <div class="row-btn"><span class="icon">phone</span></div>
+                <div class="row-btn"><span class="icon">more_vert</span></div>
+              </div>
+            </div>
+
+            <!-- #4 Slim -->
+            <div class="b-qrow">
+              <div class="pos-bubble">4</div>
+              <div class="avatar av-md" style="background:var(--surface2);color:var(--t2)">S</div>
+              <div class="b-qinfo">
+                <div class="b-qname">Slim</div>
+                <div class="b-qsub">Arrivé à 09:18 · QR Code</div>
+              </div>
+              <div class="b-qwait"><span class="wdot g"></span>18 min</div>
+              <div class="qactions">
+                <div class="row-btn"><span class="icon">phone</span></div>
+                <div class="row-btn"><span class="icon">more_vert</span></div>
+              </div>
+            </div>
+
+            <!-- #5 Mounir -->
+            <div class="b-qrow">
+              <div class="pos-bubble">5</div>
+              <div class="avatar av-md" style="background:var(--surface2);color:var(--t2)">M</div>
+              <div class="b-qinfo">
+                <div class="b-qname">Mounir</div>
+                <div class="b-qsub">Arrivé à 09:18 · QR Code</div>
+              </div>
+              <div class="b-qwait"><span class="wdot g"></span>18 min</div>
+              <div class="qactions">
+                <div class="row-btn"><span class="icon">phone</span></div>
+                <div class="row-btn"><span class="icon">more_vert</span></div>
+              </div>
+            </div>
+
+          </div><!-- /b-right-list -->
+        </div><!-- /b-right -->
+
+      </div><!-- /b-body -->
+    </div>
+  </div><!-- /mockup -->
+</div><!-- /alt-b -->
+
+
+<!-- ══════════════════════════════════════════════════════════════
+     C — CLINICAL TABLE
+══════════════════════════════════════════════════════════════ -->
+<div class="alt-section" id="alt-c">
+  <div class="alt-header">
+    <span class="alt-title">C — Clinical Table</span>
+    <span class="alt-pill" style="background:var(--blue)">EMR Paradigm</span>
+    <span class="alt-desc">Full-width command strip, full-width data table with sortable columns: arrival time, wait, check-in method, status. Maximum information density for secretaries managing 20+ patients per day.</span>
+  </div>
+
+  <div class="mockup" style="background:var(--surface)">
+    <div style="display:flex; flex-direction:column; height:100%">
+
+      <!-- Topbar -->
+      <div class="topbar">
+        <div class="topbar-logo">BleSaf</div>
+        <div class="topbar-sep"></div>
+        <div>
+          <div class="topbar-clinic-label">Cabinet</div>
+          <div class="topbar-clinic-name">Dr. Karim Jebali</div>
+        </div>
+        <div class="topbar-spacer"></div>
+        <button class="presence-pill"><div class="dot"></div>Présent<span class="icon sm" style="color:#4EC97A">expand_more</span></button>
+        <div class="icon-btn"><span class="icon">settings</span></div>
+        <div class="icon-btn"><span class="icon">logout</span></div>
+      </div>
+
+      <!-- Command strip -->
+      <div class="c-cmd">
+        <!-- Stats row -->
+        <div class="c-stats-row">
+          <div class="c-chip hi">
+            <div>
+              <div class="c-chip-val t">4</div>
+              <div class="c-chip-lbl">En attente</div>
+            </div>
+          </div>
+          <div class="c-chip">
+            <div>
+              <div class="c-chip-val">1</div>
+              <div class="c-chip-lbl">Vus</div>
+            </div>
+          </div>
+          <div class="c-chip">
+            <div>
+              <div class="c-chip-val sm">~09:50</div>
+              <div class="c-chip-lbl">Fin estimée</div>
+            </div>
+          </div>
+          <div class="c-chip">
+            <div>
+              <div class="c-chip-val sm">10 min</div>
+              <div class="c-chip-lbl">Durée moy.</div>
+            </div>
+          </div>
+          <div class="c-chip-sep"></div>
+          <div class="c-status-cluster">
+            <div class="c-open-indicator">
+              <div class="c-open-dot"></div>
+              <span class="c-open-label">File ouverte</span>
+              <span class="c-open-since">· depuis 08:15</span>
+            </div>
+            <button class="btn amber"><span class="icon sm">block</span>Fermer la file</button>
+          </div>
+        </div>
+        <!-- Controls row -->
+        <div class="c-ctrl-row">
+          <div class="search-wrap" style="width:320px">
+            <span class="icon">search</span>
+            <input type="text" placeholder="Rechercher un patient…">
+          </div>
+          <button class="btn teal"><span class="icon sm">person_add</span>Ajouter un patient</button>
+          <button class="btn white"><span class="icon sm">campaign</span>Annonce</button>
+          <button class="btn wa"><span class="icon sm">share</span>WhatsApp</button>
+        </div>
+      </div>
+
+      <!-- Consultation strip -->
+      <div class="c-strip">
+        <span class="c-strip-badge">En consultation</span>
+        <div class="c-strip-sep"></div>
+        <div class="c-strip-info">
+          <span class="c-strip-name">Sami</span>
+          <span class="c-strip-sub">Arrivé à 08:36 &nbsp;·&nbsp; 38 min en salle</span>
+        </div>
+        <div class="c-strip-actions">
+          <button class="cc-end-btn"><span class="icon fill sm">check_circle</span>Terminer</button>
+          <button class="cc-phone-btn"><span class="icon" style="font-size:18px; color:#fff">phone</span></button>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="c-table-wrap">
+        <table class="c-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Nom du patient</th>
+              <th>Arrivée</th>
+              <th>Attente <span class="icon xs" style="vertical-align:middle">unfold_more</span></th>
+              <th>Enregistrement</th>
+              <th>Statut</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- #2 Karim -->
+            <tr class="notified-row">
+              <td><span class="c-pos">2</span></td>
+              <td>
+                <div class="c-name-cell">
+                  <div class="avatar av-sm" style="background:var(--amber-l);color:var(--amber)">K</div>
+                  <div>
+                    <div class="c-pt-name">Karim</div>
+                    <div class="c-pt-phone">+216 29 938 383</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="c-time">08:36</span></td>
+              <td>
+                <div class="c-wait-cell" style="color:var(--amber)">
+                  <span class="wdot a"></span>1h 00
+                </div>
+              </td>
+              <td><span class="badge manual">Manuel</span></td>
+              <td><span class="badge notified">Notifié</span></td>
+              <td>
+                <div class="c-actions">
+                  <div class="row-btn"><span class="icon">phone</span></div>
+                  <div class="row-btn"><span class="icon">more_vert</span></div>
+                </div>
+              </td>
+            </tr>
+
+            <!-- #3 Mohamed -->
+            <tr>
+              <td><span class="c-pos">3</span></td>
+              <td>
+                <div class="c-name-cell">
+                  <div class="avatar av-sm" style="background:var(--blue-l);color:var(--blue)">M</div>
+                  <div>
+                    <div class="c-pt-name">Mohamed</div>
+                    <div class="c-pt-phone">+216 26 262 626</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="c-time">08:43</span></td>
+              <td>
+                <div class="c-wait-cell" style="color:var(--amber)">
+                  <span class="wdot a"></span>53 min
+                </div>
+              </td>
+              <td><span class="badge manual">Manuel</span></td>
+              <td><span class="badge waiting">En attente</span></td>
+              <td>
+                <div class="c-actions">
+                  <div class="row-btn"><span class="icon">phone</span></div>
+                  <div class="row-btn"><span class="icon">more_vert</span></div>
+                </div>
+              </td>
+            </tr>
+
+            <!-- #4 Slim -->
+            <tr>
+              <td><span class="c-pos">4</span></td>
+              <td>
+                <div class="c-name-cell">
+                  <div class="avatar av-sm" style="background:var(--surface2);color:var(--t2)">S</div>
+                  <div>
+                    <div class="c-pt-name">Slim</div>
+                    <div class="c-pt-phone">+216 99 000 099</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="c-time">09:18</span></td>
+              <td>
+                <div class="c-wait-cell" style="color:var(--green)">
+                  <span class="wdot g"></span>18 min
+                </div>
+              </td>
+              <td><span class="badge qr">QR Code</span></td>
+              <td><span class="badge" style="background:var(--surface2);color:var(--t2)">En attente</span></td>
+              <td>
+                <div class="c-actions">
+                  <div class="row-btn"><span class="icon">phone</span></div>
+                  <div class="row-btn"><span class="icon">more_vert</span></div>
+                </div>
+              </td>
+            </tr>
+
+            <!-- #5 Mounir -->
+            <tr>
+              <td><span class="c-pos">5</span></td>
+              <td>
+                <div class="c-name-cell">
+                  <div class="avatar av-sm" style="background:var(--surface2);color:var(--t2)">M</div>
+                  <div>
+                    <div class="c-pt-name">Mounir</div>
+                    <div class="c-pt-phone">+216 55 123 456</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="c-time">09:18</span></td>
+              <td>
+                <div class="c-wait-cell" style="color:var(--green)">
+                  <span class="wdot g"></span>18 min
+                </div>
+              </td>
+              <td><span class="badge qr">QR Code</span></td>
+              <td><span class="badge" style="background:var(--surface2);color:var(--t2)">En attente</span></td>
+              <td>
+                <div class="c-actions">
+                  <div class="row-btn"><span class="icon">phone</span></div>
+                  <div class="row-btn"><span class="icon">more_vert</span></div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div><!-- /c-table-wrap -->
+
+      <!-- Footer bar -->
+      <div class="c-footer">
+        <div class="c-footer-qr">
+          <span class="icon">qr_code_2</span>
+          QR d'enregistrement
+          <button class="c-copy-btn">Copier le lien</button>
+        </div>
+        <div class="c-footer-sep"></div>
+        <div class="c-footer-next">Prochain : <strong>Karim</strong></div>
+        <button class="cta-btn"><span class="icon">arrow_forward</span>Appeler Suivant</button>
+      </div>
+
+    </div>
+  </div><!-- /mockup -->
+</div><!-- /alt-c -->
+
+
+<script>
+  function showAlt(id, btn) {
+    document.querySelectorAll('.alt-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('alt-' + id).classList.add('active');
+    btn.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+
+</body>
+</html>

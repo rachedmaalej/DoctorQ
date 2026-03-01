@@ -171,6 +171,7 @@ export default function DashboardPage() {
       {/* Desktop Dashboard - hidden on mobile */}
       <div className="hidden lg:block">
         <DesktopDashboard
+          clinic={clinic}
           queue={queue}
           stats={stats}
           waitingCount={waitingCount}

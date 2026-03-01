@@ -6,17 +6,17 @@ import { useQueueLifecycle } from './useQueueLifecycle';
 import {
   toQueuePatient,
   toCurrentPatient,
-  toPreRegisteredPatients,
   toStatsData,
   toClosingStatsData,
   toDaySummaryBrief,
   toSummaryData,
-  extractLastName,
   getNextPatientPreview,
   getTotalAddedToday,
 } from './adapters';
 import './receptionist.css';
 import '@/components/blesaf/blesaf.css';
+import { useDrawer } from '@/hooks/useDrawer';
+import { SideDrawer } from '@/components/drawer/SideDrawer';
 
 import Header from './Header';
 import QuickAddBar from './QuickAddBar';
@@ -26,8 +26,7 @@ import FloatingCTA from './FloatingCTA';
 import SectionHeader from './SectionHeader';
 import StatusSheet from './StatusSheet';
 import PatientContextSheet from './PatientContextSheet';
-import MorningCard from './MorningCard';
-import PreRegisteredList from './PreRegisteredList';
+import WelcomeScreenMobile from '@/components/queue/WelcomeScreenMobile';
 import ClosingBanner from './ClosingBanner';
 import AllDoneCard from './AllDoneCard';
 import SummaryCard from './SummaryCard';
@@ -50,6 +49,7 @@ export default function ReceptionistDashboard({
 }: ReceptionistDashboardProps) {
   const { t } = useTranslation();
   const avgConsultMins = clinic?.avgConsultationMins ?? 10;
+  const drawerControls = useDrawer();
 
   // ── Lifecycle state machine ───────────────────────────────
   const {
@@ -97,10 +97,6 @@ export default function ReceptionistDashboard({
       steppedOutIds.has(p.id) ? { ...p, badge: 'stepped-out' as const } : p,
     ),
     [waitingEntries, steppedOutIds],
-  );
-  const preRegistered = useMemo(
-    () => toPreRegisteredPatients(queue),
-    [queue],
   );
   const nextPreview = getNextPatientPreview(queue);
   const totalAdded = getTotalAddedToday(stats, queue.length);
@@ -193,7 +189,6 @@ export default function ReceptionistDashboard({
         {/* ═══ Header (all screens) ═══ */}
         <Header
           clinicName={clinic?.name ?? ''}
-          avgConsultMins={avgConsultMins}
           status={queueStatus}
           isAllDone={isAllDone}
           onStatusPillClick={handleStatusPillClick}
@@ -205,29 +200,16 @@ export default function ReceptionistDashboard({
           chip2Value={chip2Value}
           chip3Value={chip3Value}
           className={showPreOpen ? 'animate-bs-slide-in bs-anim-d1' : ''}
-          onWhatsAppClick={() => setIsWhatsAppSheetOpen(true)}
+          onOpenDrawer={drawerControls.open}
         />
 
         {/* ═══ PRE_OPEN Screen ═══ */}
         {showPreOpen && (
-          <>
-            <div className="animate-bs-slide-in bs-anim-d2">
-              <MorningCard
-                doctorLastName={extractLastName(clinic?.doctorName ?? null)}
-                preRegisteredCount={preRegistered.length}
-              />
-            </div>
-            {preRegistered.length > 0 && (
-              <>
-                <div className="animate-bs-slide-in bs-anim-d3">
-                  <SectionHeader title={t('receptionist.sections.preRegistered')} />
-                </div>
-                <div className="animate-bs-slide-in bs-anim-d4">
-                  <PreRegisteredList patients={preRegistered} />
-                </div>
-              </>
-            )}
-          </>
+          <WelcomeScreenMobile
+            doctorName={clinic?.doctorName ?? clinic?.name ?? ''}
+            onOpenQueue={openQueue}
+            isOpening={false}
+          />
         )}
 
         {/* ═══ OPEN Screen ═══ */}
@@ -353,6 +335,16 @@ export default function ReceptionistDashboard({
         clinicName={clinic?.name ?? ''}
         whatsappSentIds={whatsappSentIds}
         onWhatsAppSent={handleWhatsAppSent}
+      />
+
+      {/* ═══ Side Drawer ═══ */}
+      <SideDrawer
+        isOpen={drawerControls.isOpen}
+        onClose={drawerControls.close}
+        clinic={clinic ?? null}
+        waitingCount={waitingEntries.length}
+        isDoctorPresent={isDoctorPresent ?? false}
+        onCloseQueue={closeQueue}
       />
     </div>
   );

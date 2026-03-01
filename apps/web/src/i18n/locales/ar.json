@@ -204,6 +204,9 @@
     "invalidPhone": "رقم هاتف غير صحيح",
     "alreadyCheckedIn": "أنت بالفعل في الصف",
     "clinicNotFound": "العيادة غير موجودة",
+    "clinicNotFoundDesc": "هذا الرابط لا يتطابق مع أي عيادة. تحقق من رمز QR أو اتصل بطبيبك.",
+    "clinicInactive": "العيادة غير متاحة مؤقتًا",
+    "clinicInactiveDesc": "هذه العيادة لا تقبل مرضى في الوقت الحالي. يرجى المحاولة لاحقًا.",
     "error": "فشل التسجيل",
     "privacy": "معلوماتك تبقى خاصة",
     "patientsWaiting": "{{count}} في الانتظار",
@@ -1256,6 +1259,75 @@
       "cash": "نقداً",
       "transfer": "تحويل بنكي",
       "loadError": "تعذر تحميل المعلومات"
+    },
+    "welcome": {
+      "bilanHier": "ملخص الأمس",
+      "patientsVus": "المرضى المُعالَجون",
+      "hier": "الأمس",
+      "personnesPrisesEnCharge": "شخص تم استقباله",
+      "attenteMoy": "متوسط الانتظار",
+      "vsSemPassee": "مقارنة بالأسبوع الماضي",
+      "vs30j": "مقارنة بآخر 30 يومًا",
+      "fileFermee": "الطابور مغلق حالياً",
+      "ouvrirLaFile": "فتح قائمة\nالانتظار",
+      "opening": "جارٍ الفتح…",
+      "noDataYet": "لا توجد بيانات بعد",
+      "noDataSub": "ستظهر الإحصائيات بعد يومك الأول.",
+      "noWaitData": "لا توجد بيانات انتظار"
+    }
+  },
+  "drawer": {
+    "ariaLabel": "القائمة الجانبية",
+    "close": "إغلاق القائمة",
+    "header": {
+      "clinicFallback": "عيادتي",
+      "present": "حاضر",
+      "absent": "غائب",
+      "patients": "مرضى"
+    },
+    "sections": {
+      "qr": "رمز QR",
+      "actions": "إجراءات",
+      "preferences": "التفضيلات",
+      "account": "الحساب"
+    },
+    "qr": {
+      "title": "رمز QR والرابط",
+      "close": "إغلاق",
+      "imageAlt": "رمز QR",
+      "whatsappMessage": "انضم إلى قائمة الانتظار:",
+      "copied": "تم النسخ!",
+      "view": "عرض رمز QR",
+      "viewSub": "عرض ومشاركة",
+      "copy": "نسخ الرابط",
+      "copySub": "رابط التسجيل",
+      "whatsapp": "إرسال عبر واتساب",
+      "whatsappSub": "مشاركة عبر واتساب"
+    },
+    "actions": {
+      "announcement": "إعلان للمرضى",
+      "announcementSub": "رسالة لغرفة الانتظار",
+      "closeQueue": "إغلاق الطابور",
+      "closeQueueSub": "إيقاف التسجيلات"
+    },
+    "preferences": {
+      "language": "اللغة",
+      "settings": "الإعدادات",
+      "settingsSub": "العيادة، الاشتراك…"
+    },
+    "account": {
+      "help": "المساعدة والدعم",
+      "logout": "تسجيل الخروج",
+      "logoutSub": "إنهاء الجلسة"
+    },
+    "qrSheet": {
+      "title": "رمز QR والرابط",
+      "subtitle": "شارك هذا الرمز ليتسجل مرضاك",
+      "loading": "جارٍ تحميل رمز QR…",
+      "copy": "نسخ الرابط",
+      "copied": "تم النسخ!",
+      "openLink": "فتح",
+      "whatsapp": "واتساب"
     }
   }
 }

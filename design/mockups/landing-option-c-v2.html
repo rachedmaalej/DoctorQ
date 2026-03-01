@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BleSaf — La salle d'attente qui se gère toute seule</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" rel="stylesheet">
+  <style>
+    /* ============================================
+       RESET & BASE
+       ============================================ */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'IBM Plex Sans', system-ui, sans-serif;
+      color: #1E293B;
+      background: #FFFFFF;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .material-symbols-outlined.filled {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+
+    /* ============================================
+       SHARED
+       ============================================ */
+    .section-pad { padding: 56px 20px; }
+    .section-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: #0F172A;
+      text-align: center;
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+    .section-sub {
+      font-size: 14px;
+      color: #64748B;
+      text-align: center;
+      margin-bottom: 36px;
+      line-height: 1.5;
+      max-width: 420px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .cta-btn {
+      display: inline-block;
+      padding: 14px 32px;
+      background: #0EA5E9;
+      color: #FFF;
+      border: none;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      text-decoration: none;
+    }
+    .cta-btn:hover { background: #0284C7; transform: translateY(-1px); }
+    .cta-btn:active { transform: translateY(0); }
+    .trust-line {
+      font-size: 12px;
+      color: #94A3B8;
+      margin-top: 10px;
+    }
+    .trust-line-light {
+      font-size: 12px;
+      color: rgba(255,255,255,0.55);
+      margin-top: 10px;
+    }
+
+    /* Inline CTA row between sections */
+    .inline-cta {
+      text-align: center;
+      padding: 0 20px 48px;
+    }
+
+    /* ============================================
+       NAV
+       ============================================ */
+    .nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 24px;
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .nav-logo {
+      font-size: 18px;
+      font-weight: 800;
+      color: #E2E8F0;
+      letter-spacing: -0.5px;
+    }
+    .nav-logo span { color: #0EA5E9; }
+    .nav-cta {
+      padding: 8px 18px;
+      background: #0EA5E9;
+      color: #FFF;
+      border: none;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .nav-cta:hover { background: #0284C7; }
+
+    /* ============================================
+       1. HERO — Before/After crossfade (Option A)
+       ============================================ */
+    .da-hero {
+      text-align: center;
+      padding-top: 56px;
+    }
+
+    /* Crossfade visual container — full-width */
+    .da-hero-crossfade {
+      position: relative;
+      width: 100%;
+      height: 480px;
+      overflow: hidden;
+    }
+    .da-hero-crossfade img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: opacity 1.2s ease-in-out;
+    }
+    .da-hero-crossfade img.da-cf-hidden { opacity: 0; }
+    .da-hero-crossfade img.da-cf-visible { opacity: 1; }
+
+    /* Gradient overlay for text readability */
+    .da-hero-cf-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 60px 20px 20px;
+      background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
+      z-index: 5;
+    }
+    .da-hero-cf-texts {
+      position: relative;
+      min-height: 80px;
+    }
+    .da-hero-cf-text {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      transition: opacity 0.8s ease-in-out, transform 0.8s ease-in-out;
+    }
+    .da-hero-cf-text.da-cf-hidden {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    .da-hero-cf-text.da-cf-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .da-hero-cf-text h2 {
+      font-size: 22px;
+      font-weight: 900;
+      color: #FFFFFF;
+      line-height: 1.3;
+      margin-bottom: 6px;
+      text-shadow: 0 1px 6px rgba(0,0,0,0.3);
+    }
+    .da-hero-cf-text h2 em {
+      font-style: normal;
+      color: #7DD3FC;
+    }
+    .da-hero-cf-text p {
+      font-size: 13px;
+      color: rgba(255,255,255,0.8);
+      line-height: 1.5;
+    }
+
+    /* Badge */
+    .da-hero-cf-badge {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      z-index: 6;
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      transition: all 0.8s ease-in-out;
+    }
+    .da-hero-cf-badge.da-badge-before {
+      background: rgba(239, 68, 68, 0.9);
+      color: #FFF;
+    }
+    .da-hero-cf-badge.da-badge-after {
+      background: rgba(16, 185, 129, 0.9);
+      color: #FFF;
+    }
+
+    /* Indicator dots */
+    .da-hero-cf-dots {
+      position: absolute;
+      bottom: 10px;
+      right: 16px;
+      z-index: 10;
+      display: flex;
+      gap: 6px;
+    }
+    .da-hero-cf-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.4);
+      transition: all 0.4s ease;
+      cursor: pointer;
+      border: none;
+      padding: 0;
+    }
+    .da-hero-cf-dot.da-dot-active {
+      background: #FFFFFF;
+      width: 24px;
+      border-radius: 4px;
+    }
+
+    /* Below-photo section */
+    .da-hero-body {
+      padding: 24px 20px 32px;
+      background: #FFFFFF;
+    }
+    .da-hero-sub {
+      font-size: 14px;
+      color: #475569;
+      line-height: 1.6;
+      margin-bottom: 20px;
+      max-width: 460px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .da-hero-ctas {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+    }
+    .da-hero-btn-primary {
+      padding: 14px 32px;
+      background: #0EA5E9;
+      color: #FFF;
+      border: none;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(14, 165, 233, 0.3);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .da-hero-btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(14, 165, 233, 0.4);
+    }
+    .da-hero-btn-secondary {
+      padding: 10px 20px;
+      background: transparent;
+      color: #0EA5E9;
+      border: 1.5px solid #BAE6FD;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .da-hero-trust {
+      margin-top: 14px;
+      font-size: 11px;
+      color: #94A3B8;
+    }
+
+    /* ============================================
+       2. BENEFITS — Doctor-centric
+       ============================================ */
+    .benefits {
+      background: #FFFFFF;
+    }
+    .benefits-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      max-width: 640px;
+      margin: 0 auto;
+      justify-content: center;
+    }
+    .benefit-card {
+      flex: 1;
+      min-width: 160px;
+      max-width: 200px;
+      text-align: center;
+      padding: 24px 16px;
+      background: #F8FAFC;
+      border-radius: 16px;
+      border: 1px solid #E2E8F0;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .benefit-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    }
+    .benefit-icon {
+      width: 48px; height: 48px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 12px;
+    }
+    .benefit-icon .material-symbols-outlined { font-size: 24px; }
+    .benefit-label {
+      font-size: 14px;
+      font-weight: 700;
+      color: #0F172A;
+      margin-bottom: 4px;
+    }
+    .benefit-desc {
+      font-size: 12px;
+      color: #64748B;
+      line-height: 1.5;
+    }
+
+    /* ============================================
+       3. HOW IT WORKS — 3 steps
+       ============================================ */
+    .how-it-works {
+      background: #F8FAFC;
+    }
+    .steps {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      max-width: 640px;
+      margin: 0 auto;
+      justify-content: center;
+    }
+    .step {
+      flex: 1;
+      min-width: 160px;
+      max-width: 200px;
+      text-align: center;
+      position: relative;
+    }
+    .step-num {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: #0EA5E9;
+      color: #FFF;
+      font-size: 18px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 12px;
+    }
+    .step-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #0F172A;
+      margin-bottom: 4px;
+    }
+    .step-desc {
+      font-size: 12px;
+      color: #64748B;
+      line-height: 1.5;
+    }
+    .step-time {
+      display: inline-block;
+      margin-top: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #0EA5E9;
+      background: #E0F2FE;
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+
+    /* ============================================
+       4. CLINIC DASHBOARD — Annotated Screenshot
+       ============================================ */
+    .clinic-section {
+      background: #F8FAFC;
+      overflow: hidden;
+    }
+
+    .dashboard-showcase {
+      position: relative;
+      max-width: 780px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 640px;
+    }
+
+    /* Phone mockup — real iPhone 14 frame PNG over screenshot */
+    .showcase-phone {
+      width: 290px;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 2;
+    }
+    /* The frame PNG defines the container size */
+    .phone-frame {
+      width: 100%;
+      display: block;
+      position: relative;
+      z-index: 3;
+      pointer-events: none;
+      filter: drop-shadow(0 20px 50px rgba(0,0,0,0.15));
+    }
+    /* Screen area — clips the screenshot to the iPhone display region */
+    .phone-screen {
+      position: absolute;
+      top: 1.6%;
+      left: 5.6%;
+      width: 88.8%;
+      height: 96.8%;
+      border-radius: 32px;
+      overflow: hidden;
+      z-index: 1;
+      background: #F5F5F0;
+    }
+    /* Screenshot fills the screen area */
+    .phone-screenshot {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 8%;
+      display: block;
+    }
+
+    /* Pulsing hotspot dots */
+    .hotspot {
+      position: absolute;
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: #0EA5E9;
+      z-index: 3;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+    .hotspot.visible { opacity: 1; }
+    .hotspot::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      border: 2px solid rgba(14, 165, 233, 0.4);
+      animation: hs-ping 2s ease-in-out infinite;
+    }
+    @keyframes hs-ping {
+      0%, 100% { transform: scale(1); opacity: 0.6; }
+      50% { transform: scale(1.8); opacity: 0; }
+    }
+
+    /* Connector SVG container */
+    .connector {
+      position: absolute;
+      z-index: 1;
+      pointer-events: none;
+    }
+    .connector-line {
+      stroke: #94A3B8;
+      stroke-width: 1.5;
+      stroke-dasharray: 5 4;
+      fill: none;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+    .connector-line.visible {
+      opacity: 1;
+    }
+    /* Small dot at the callout end of the connector */
+    .connector-dot {
+      fill: #94A3B8;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+    .connector-dot.visible {
+      opacity: 1;
+    }
+
+    /* Callout bubbles */
+    .callout {
+      position: absolute;
+      width: 210px;
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 14px;
+      padding: 14px 16px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+      z-index: 4;
+      opacity: 0;
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .callout.callout-left {
+      transform: translateX(-12px);
+    }
+    .callout.callout-right {
+      transform: translateX(12px);
+    }
+    .callout.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    .callout-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: #0EA5E9;
+      color: #FFF;
+      font-size: 11px;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+    .callout-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #0F172A;
+      margin-bottom: 3px;
+      line-height: 1.3;
+    }
+    .callout-desc {
+      font-size: 11px;
+      color: #64748B;
+      line-height: 1.5;
+    }
+
+    /* Callout positions — desktop (phone is ~620px tall at 290px wide) */
+    .callout-1 { top: 30px; right: calc(50% + 185px); }
+    .callout-2 { top: 200px; left: calc(50% + 185px); }
+    .callout-3 { top: 370px; right: calc(50% + 185px); }
+    .callout-4 { top: 510px; left: calc(50% + 185px); }
+
+    /* Responsive: stack below on mobile */
+    @media (max-width: 780px) {
+      .dashboard-showcase {
+        flex-direction: column;
+        min-height: auto;
+        gap: 32px;
+      }
+      .showcase-phone { width: 240px; }
+      .hotspot, .connector { display: none; }
+      .callout {
+        position: static !important;
+        width: 100%;
+        max-width: 360px;
+        transform: none !important;
+        opacity: 0;
+      }
+      .callout.visible {
+        transform: none !important;
+      }
+      .callouts-mobile {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        align-items: center;
+        padding: 0 20px;
+      }
+    }
+    @media (min-width: 781px) {
+      .callouts-mobile { display: contents; }
+    }
+
+    .dash-btn {
+      display: block;
+      width: 100%;
+      margin-top: 12px;
+      padding: 10px;
+      background: #0EA5E9;
+      color: #FFF;
+      border: none;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* ============================================
+       5. SOCIAL PROOF
+       ============================================ */
+    .proof {
+      background: #F8FAFC;
+    }
+    .proof-cards {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      max-width: 640px;
+      margin: 0 auto;
+      justify-content: center;
+    }
+    .proof-card {
+      flex: 1;
+      min-width: 260px;
+      max-width: 320px;
+      background: #FFFFFF;
+      padding: 24px;
+      border-radius: 16px;
+      border: 1px solid #E2E8F0;
+    }
+    .proof-quote {
+      font-size: 14px;
+      font-style: italic;
+      color: #334155;
+      line-height: 1.6;
+      margin-bottom: 16px;
+      position: relative;
+    }
+    .proof-quote::before {
+      content: '\201C';
+      font-size: 36px;
+      color: #0EA5E9;
+      font-style: normal;
+      line-height: 1;
+      position: absolute;
+      top: -8px;
+      left: -4px;
+    }
+    .proof-quote { padding-left: 20px; }
+    .proof-author {
+      font-size: 13px;
+      font-weight: 700;
+      color: #0F172A;
+    }
+    .proof-role {
+      font-size: 11px;
+      color: #94A3B8;
+    }
+
+    /* ============================================
+       6. FAQ
+       ============================================ */
+    .faq {
+      background: #FFFFFF;
+    }
+    .faq-list {
+      max-width: 520px;
+      margin: 0 auto;
+    }
+    .faq-item {
+      border-bottom: 1px solid #E2E8F0;
+      cursor: pointer;
+    }
+    .faq-item:last-child { border-bottom: none; }
+    .faq-q {
+      padding: 18px 0;
+      font-size: 14px;
+      font-weight: 600;
+      color: #0F172A;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+    .faq-q .material-symbols-outlined {
+      font-size: 20px;
+      color: #94A3B8;
+      transition: transform 0.3s ease;
+      flex-shrink: 0;
+    }
+    .faq-item.open .faq-q .material-symbols-outlined {
+      transform: rotate(180deg);
+    }
+    .faq-a {
+      font-size: 13px;
+      color: #64748B;
+      line-height: 1.6;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease, padding 0.3s ease;
+      padding: 0;
+    }
+    .faq-item.open .faq-a {
+      max-height: 200px;
+      padding: 0 0 18px;
+    }
+
+    /* ============================================
+       7. PRICING
+       ============================================ */
+    .pricing {
+      background: #F8FAFC;
+    }
+    .pricing-cards {
+      display: flex;
+      gap: 16px;
+      max-width: 480px;
+      margin: 0 auto;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .price-card {
+      flex: 1;
+      min-width: 200px;
+      max-width: 230px;
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 16px;
+      padding: 28px 20px;
+      text-align: center;
+      position: relative;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .price-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    }
+    .price-card.popular {
+      border-color: #0EA5E9;
+      box-shadow: 0 4px 20px rgba(14, 165, 233, 0.15);
+    }
+    .price-badge {
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #0EA5E9;
+      color: #FFF;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 14px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .price-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #64748B;
+      margin-bottom: 8px;
+    }
+    .price-amount {
+      font-size: 36px;
+      font-weight: 900;
+      color: #0F172A;
+      line-height: 1;
+    }
+    .price-period {
+      font-size: 14px;
+      font-weight: 500;
+      color: #94A3B8;
+    }
+    .price-note {
+      font-size: 12px;
+      color: #0EA5E9;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+    .price-btn {
+      display: block;
+      width: 100%;
+      margin-top: 16px;
+      padding: 10px;
+      border: none;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .price-btn-secondary {
+      background: #F1F5F9;
+      color: #334155;
+    }
+    .price-btn-secondary:hover { background: #E2E8F0; }
+    .price-btn-primary {
+      background: #0EA5E9;
+      color: #FFF;
+    }
+    .price-btn-primary:hover { background: #0284C7; }
+    .trial-note {
+      text-align: center;
+      font-size: 13px;
+      color: #64748B;
+      margin-top: 20px;
+      font-weight: 500;
+    }
+    .trial-note strong {
+      color: #0EA5E9;
+      font-weight: 700;
+    }
+
+    /* ============================================
+       8. FINAL CTA
+       ============================================ */
+    .final-cta {
+      background: linear-gradient(180deg, #0F172A 0%, #1E293B 100%);
+      padding: 64px 20px;
+      text-align: center;
+    }
+    .final-cta-title {
+      font-size: 24px;
+      font-weight: 800;
+      color: #F1F5F9;
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+    .final-cta-sub {
+      font-size: 14px;
+      color: #94A3B8;
+      margin-bottom: 28px;
+      line-height: 1.5;
+    }
+
+    /* Footer */
+    .footer {
+      background: #0F172A;
+      padding: 20px;
+      text-align: center;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    .footer-brand {
+      font-size: 16px;
+      font-weight: 800;
+      color: #475569;
+      margin-bottom: 4px;
+    }
+    .footer-copy {
+      font-size: 11px;
+      color: #475569;
+    }
+
+    /* ============================================
+       RESPONSIVE
+       ============================================ */
+    @media (max-width: 700px) {
+      .da-hero-crossfade { height: 340px; }
+      .da-hero-cf-text h2 { font-size: 18px; }
+      .da-hero-sub { font-size: 13px; }
+      .benefits-grid, .steps, .proof-cards, .pricing-cards {
+        flex-direction: column;
+        align-items: center;
+      }
+      .benefit-card, .step, .proof-card, .price-card {
+        max-width: 100%;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-logo">Ble<span>SAF</span></div>
+    <button class="nav-cta" onclick="document.querySelector('.final-cta').scrollIntoView({behavior:'smooth'})">Essai gratuit</button>
+  </nav>
+
+  <!-- ==========================================
+       1. HERO — Before/After crossfade
+       ========================================== -->
+  <div class="da-hero">
+    <div class="da-hero-crossfade" id="da-crossfade">
+      <img class="da-cf-visible" id="da-img-before" src="Without-BleSaf.jpg" alt="Sans BleSaf">
+      <img class="da-cf-hidden" id="da-img-after" src="With-BleSaf.jpg" alt="Avec BleSaf">
+
+      <div class="da-hero-cf-badge da-badge-before" id="da-badge">SANS BLESAF</div>
+
+      <div class="da-hero-cf-overlay">
+        <div class="da-hero-cf-texts">
+          <div class="da-hero-cf-text da-cf-visible" id="da-text-before">
+            <h2>Des patients frustrés, une salle <em>bondée</em></h2>
+            <p>« C'est quand mon tour ? » — la question qui revient 100 fois par jour</p>
+          </div>
+          <div class="da-hero-cf-text da-cf-hidden" id="da-text-after">
+            <h2>Des patients sereins, qui attendent <em>où ils veulent</em></h2>
+            <p>Position en temps réel, estimation précise, notification automatique</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="da-hero-cf-dots">
+        <button class="da-hero-cf-dot da-dot-active" id="da-dot-0" onclick="setDaCrossfade(0)"></button>
+        <button class="da-hero-cf-dot" id="da-dot-1" onclick="setDaCrossfade(1)"></button>
+      </div>
+    </div>
+
+    <div class="da-hero-body">
+      <div class="da-hero-sub">BleSaf transforme l'attente en liberté. Vos patients suivent leur position depuis leur téléphone — pas d'app à télécharger, juste un QR code.</div>
+      <div class="da-hero-ctas">
+        <button class="da-hero-btn-primary" onclick="document.querySelector('.pricing').scrollIntoView({behavior:'smooth'})">Essayez gratuitement 30 jours</button>
+        <button class="da-hero-btn-secondary" onclick="document.querySelector('#how-it-works').scrollIntoView({behavior:'smooth'})">Voir comment ça marche</button>
+      </div>
+      <div class="da-hero-trust">Aucune carte bancaire requise</div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       2. BENEFITS — Doctor-centric
+       ========================================== -->
+  <section class="benefits section-pad">
+    <div class="section-title">Ce que ça change pour votre cabinet</div>
+    <div class="section-sub">Vos patients sont informés. Votre équipe respire. Votre salle d'attente se vide.</div>
+    <div class="benefits-grid">
+      <div class="benefit-card">
+        <div class="benefit-icon" style="background:#E0F2FE; color:#0284C7;">
+          <span class="material-symbols-outlined filled">weekend</span>
+        </div>
+        <div class="benefit-label">Salle d'attente vide</div>
+        <div class="benefit-desc">Vos patients attendent dehors, au café, chez eux. Plus de salle bondée ni de tension.</div>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-icon" style="background:#FEF3C7; color:#D97706;">
+          <span class="material-symbols-outlined filled">sentiment_very_satisfied</span>
+        </div>
+        <div class="benefit-label">Zéro réclamations</div>
+        <div class="benefit-desc">Plus personne ne demande « c'est quand mon tour ? » — chacun suit sa position sur son téléphone.</div>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-icon" style="background:#D1FAE5; color:#059669;">
+          <span class="material-symbols-outlined filled">medical_services</span>
+        </div>
+        <div class="benefit-label">Plus de temps médical</div>
+        <div class="benefit-desc">Moins de gestion, plus de consultations. Votre équipe se concentre sur le soin.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Inline CTA -->
+  <div class="inline-cta">
+    <button class="cta-btn" onclick="document.querySelector('.pricing').scrollIntoView({behavior:'smooth'})">Commencer l'essai gratuit</button>
+    <div class="trust-line">Aucune carte bancaire requise</div>
+  </div>
+
+  <!-- ==========================================
+       3. HOW IT WORKS — 3 steps
+       ========================================== -->
+  <section class="how-it-works section-pad" id="how-it-works">
+    <div class="section-title">Opérationnel en 5 minutes</div>
+    <div class="section-sub">Pas de formation. Pas de technicien. Vous faites tout vous-même.</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-title">Créez votre compte</div>
+        <div class="step-desc">Nom du cabinet, spécialité, c'est tout. Votre file d'attente est prête.</div>
+        <span class="step-time">2 minutes</span>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-title">Imprimez le QR code</div>
+        <div class="step-desc">On vous fournit le design. Affichez-le dans votre salle d'attente.</div>
+        <span class="step-time">1 minute</span>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-title">Vos patients scannent</div>
+        <div class="step-desc">Ils ouvrent leur téléphone, scannent, et suivent leur position. Aucune appli requise.</div>
+        <span class="step-time">Zéro formation</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       4. CLINIC DASHBOARD
+       ========================================== -->
+  <section class="clinic-section section-pad" id="dashboard-section">
+    <div class="section-title">Votre tableau de bord</div>
+    <div class="section-sub">Tout ce dont vous avez besoin, sur un seul écran. Zéro formation requise.</div>
+
+    <div class="dashboard-showcase">
+      <!-- Phone mockup: real iPhone 14 frame + dashboard screenshot -->
+      <div class="showcase-phone">
+        <img class="phone-frame" src="apple-iphone-14-max.png" alt="" />
+        <div class="phone-screen">
+          <img class="phone-screenshot" src="Dr_dashboard_screenshot.png" alt="Tableau de bord BleSaf — vue réelle du cabinet" />
+        </div>
+        <!-- Pulsing hotspot dots (positioned over the screen area) -->
+        <div class="hotspot" id="hs-1" style="top: 16%; left: 35%"></div>
+        <div class="hotspot" id="hs-2" style="top: 38%; left: 55%"></div>
+        <div class="hotspot" id="hs-3" style="top: 62%; left: 40%"></div>
+        <div class="hotspot" id="hs-4" style="top: 85%; left: 50%"></div>
+      </div>
+
+      <!-- SVG connector curves (desktop only) -->
+      <svg class="connector" id="conn-svg" width="100%" height="100%" style="position:absolute;inset:0;pointer-events:none;">
+        <path class="connector-line" id="cl-1" d="" />
+        <path class="connector-line" id="cl-2" d="" />
+        <path class="connector-line" id="cl-3" d="" />
+        <path class="connector-line" id="cl-4" d="" />
+        <circle class="connector-dot" id="cd-1" r="3" cx="0" cy="0" />
+        <circle class="connector-dot" id="cd-2" r="3" cx="0" cy="0" />
+        <circle class="connector-dot" id="cd-3" r="3" cx="0" cy="0" />
+        <circle class="connector-dot" id="cd-4" r="3" cx="0" cy="0" />
+      </svg>
+
+      <!-- Callout bubbles -->
+      <div class="callouts-mobile">
+        <div class="callout callout-left callout-1" data-index="0">
+          <div class="callout-num">1</div>
+          <div class="callout-title">Tout d'un coup d'oeil</div>
+          <div class="callout-desc">Combien attendent, combien consultés, et quand vous finissez votre journée.</div>
+        </div>
+        <div class="callout callout-right callout-2" data-index="1">
+          <div class="callout-num">2</div>
+          <div class="callout-title">Patient en consultation</div>
+          <div class="callout-desc">Nom, heure d'arrivée et durée. Terminez en un clic quand c'est fini.</div>
+        </div>
+        <div class="callout callout-left callout-3" data-index="2">
+          <div class="callout-num">3</div>
+          <div class="callout-title">File d'attente en direct</div>
+          <div class="callout-desc">Se met à jour automatiquement. Les patients suivent leur position sur leur téléphone.</div>
+        </div>
+        <div class="callout callout-right callout-4" data-index="3">
+          <div class="callout-num">4</div>
+          <div class="callout-title">Appeler le suivant</div>
+          <div class="callout-desc">Un seul bouton. Le patient est notifié instantanément sur son téléphone.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Inline CTA -->
+  <div class="inline-cta">
+    <button class="cta-btn" onclick="document.querySelector('.pricing').scrollIntoView({behavior:'smooth'})">Essayez gratuitement pendant 30 jours</button>
+    <div class="trust-line">Aucune carte bancaire &middot; Annulez quand vous voulez</div>
+  </div>
+
+  <!-- ==========================================
+       5. SOCIAL PROOF
+       ========================================== -->
+  <section class="proof section-pad">
+    <div class="section-title">Les premiers cabinets témoignent</div>
+    <div class="section-sub"></div>
+    <div class="proof-cards">
+      <div class="proof-card">
+        <div class="proof-quote">Notre salle d'attente est transformée. Les patients sont plus calmes et mon équipe moins stressée.</div>
+        <div class="proof-author">Dr. Mohamed Ben Ali</div>
+        <div class="proof-role">Médecin généraliste &middot; Tunis</div>
+      </div>
+      <div class="proof-card">
+        <div class="proof-quote">Mes patients âgés s'y sont mis en une journée. Ils scannent le QR code et c'est tout. Plus simple que prévu.</div>
+        <div class="proof-author">Dr. Amira Khaled</div>
+        <div class="proof-role">Pédiatre &middot; Sfax</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       6. FAQ
+       ========================================== -->
+  <section class="faq section-pad">
+    <div class="section-title">Questions fréquentes</div>
+    <div class="section-sub"></div>
+    <div class="faq-list">
+      <div class="faq-item" onclick="this.classList.toggle('open')">
+        <div class="faq-q">C'est compliqué à installer ?<span class="material-symbols-outlined">expand_more</span></div>
+        <div class="faq-a">Non, 5 minutes suffisent. Vous créez votre compte, imprimez le QR code, vous l'affichez — c'est prêt. Aucun technicien nécessaire.</div>
+      </div>
+      <div class="faq-item" onclick="this.classList.toggle('open')">
+        <div class="faq-q">Mes patients ont besoin de télécharger une appli ?<span class="material-symbols-outlined">expand_more</span></div>
+        <div class="faq-a">Non ! C'est le gros avantage. Ils scannent le QR code avec l'appareil photo de leur téléphone et la page s'ouvre directement dans le navigateur. Aucune installation.</div>
+      </div>
+      <div class="faq-item" onclick="this.classList.toggle('open')">
+        <div class="faq-q">Mes patients âgés peuvent l'utiliser ?<span class="material-symbols-outlined">expand_more</span></div>
+        <div class="faq-a">Oui ! Scanner un QR code, c'est pointer l'appareil photo. L'interface est en arabe et en français, avec de gros chiffres lisibles. Et votre secrétaire peut aussi inscrire manuellement le patient.</div>
+      </div>
+      <div class="faq-item" onclick="this.classList.toggle('open')">
+        <div class="faq-q">Plusieurs médecins dans un même cabinet ?<span class="material-symbols-outlined">expand_more</span></div>
+        <div class="faq-a">Oui ! Chaque médecin a sa propre file d'attente. Les patients choisissent leur médecin en scannant le QR code.</div>
+      </div>
+      <div class="faq-item" onclick="this.classList.toggle('open')">
+        <div class="faq-q">Je peux annuler quand je veux ?<span class="material-symbols-outlined">expand_more</span></div>
+        <div class="faq-a">Oui, sans engagement. Annulez à tout moment depuis votre compte. Pas de frais cachés.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       7. PRICING
+       ========================================== -->
+  <section class="pricing section-pad">
+    <div class="section-title">Tarifs simples, sans surprise</div>
+    <div class="section-sub">Commencez gratuit. Décidez après.</div>
+    <div class="pricing-cards">
+      <div class="price-card">
+        <div class="price-name">Mensuel</div>
+        <div class="price-amount">50<span class="price-period"> TND/mois</span></div>
+        <button class="price-btn price-btn-secondary">Choisir</button>
+      </div>
+      <div class="price-card popular">
+        <div class="price-badge">Populaire</div>
+        <div class="price-name">Annuel</div>
+        <div class="price-amount">500<span class="price-period"> TND/an</span></div>
+        <div class="price-note">2 mois offerts</div>
+        <button class="price-btn price-btn-primary">Choisir</button>
+      </div>
+    </div>
+    <div class="trial-note"><strong>30 jours gratuits</strong> pour démarrer &mdash; aucune carte bancaire requise</div>
+  </section>
+
+  <!-- ==========================================
+       8. FINAL CTA
+       ========================================== -->
+  <section class="final-cta">
+    <div class="final-cta-title">Demain matin, votre salle d'attente<br>peut être différente</div>
+    <div class="final-cta-sub">30 jours gratuits. Résultat visible dès le premier patient.</div>
+    <button class="cta-btn">Essayez gratuitement pendant 30 jours</button>
+    <div class="trust-line-light">Aucune carte bancaire &middot; Aucune appli &middot; Installation en 5 min</div>
+  </section>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="footer-brand">BleSAF</div>
+    <div class="footer-copy">&copy; 2026 BleSaf</div>
+  </div>
+
+
+  <!-- ==========================================
+       ANIMATION JS
+       ========================================== -->
+  <script>
+    /* =============================================
+       HERO — Before/After crossfade animation
+       ============================================= */
+    (function() {
+      var daState = 0;
+      var daInterval = null;
+
+      window.setDaCrossfade = function(state) {
+        daState = state;
+        var imgBefore = document.getElementById('da-img-before');
+        var imgAfter = document.getElementById('da-img-after');
+        var textBefore = document.getElementById('da-text-before');
+        var textAfter = document.getElementById('da-text-after');
+        var badge = document.getElementById('da-badge');
+        var dot0 = document.getElementById('da-dot-0');
+        var dot1 = document.getElementById('da-dot-1');
+
+        if (state === 0) {
+          imgBefore.className = 'da-cf-visible';
+          imgAfter.className = 'da-cf-hidden';
+          textBefore.className = 'da-hero-cf-text da-cf-visible';
+          textAfter.className = 'da-hero-cf-text da-cf-hidden';
+          badge.className = 'da-hero-cf-badge da-badge-before';
+          badge.textContent = 'SANS BLESAF';
+          dot0.className = 'da-hero-cf-dot da-dot-active';
+          dot1.className = 'da-hero-cf-dot';
+        } else {
+          imgBefore.className = 'da-cf-hidden';
+          imgAfter.className = 'da-cf-visible';
+          textBefore.className = 'da-hero-cf-text da-cf-hidden';
+          textAfter.className = 'da-hero-cf-text da-cf-visible';
+          badge.className = 'da-hero-cf-badge da-badge-after';
+          badge.textContent = 'AVEC BLESAF';
+          dot0.className = 'da-hero-cf-dot';
+          dot1.className = 'da-hero-cf-dot da-dot-active';
+        }
+
+        if (daInterval) {
+          clearInterval(daInterval);
+          daInterval = setInterval(function() {
+            daState = daState === 0 ? 1 : 0;
+            setDaCrossfade(daState);
+          }, 3500);
+        }
+      };
+
+      window.startDaCrossfade = function() {
+        if (daInterval) clearInterval(daInterval);
+        daState = 0;
+        setDaCrossfade(0);
+        daInterval = setInterval(function() {
+          daState = daState === 0 ? 1 : 0;
+          setDaCrossfade(daState);
+        }, 3500);
+      };
+
+      startDaCrossfade();
+    })();
+
+    /* =============================================
+       DASHBOARD SECTION — Scroll-triggered callouts
+       ============================================= */
+    (function() {
+      var section = document.getElementById('dashboard-section');
+      if (!section) return;
+
+      var showcase = section.querySelector('.dashboard-showcase');
+      var callouts = section.querySelectorAll('.callout');
+      var hotspots = section.querySelectorAll('.hotspot');
+      var connSvg = document.getElementById('conn-svg');
+      var triggered = false;
+
+      // Map: callout index → side ('left' or 'right')
+      var sides = ['left', 'right', 'left', 'right'];
+
+      function updateConnectors() {
+        if (!connSvg || !showcase) return;
+        var ref = showcase.getBoundingClientRect();
+
+        for (var i = 0; i < 4; i++) {
+          var hs = document.getElementById('hs-' + (i + 1));
+          var co = section.querySelector('.callout-' + (i + 1));
+          var path = document.getElementById('cl-' + (i + 1));
+          var dot = document.getElementById('cd-' + (i + 1));
+          if (!hs || !co || !path || !dot) continue;
+
+          var hsRect = hs.getBoundingClientRect();
+          var coRect = co.getBoundingClientRect();
+
+          // Hotspot center relative to showcase
+          var x1 = hsRect.left + hsRect.width / 2 - ref.left;
+          var y1 = hsRect.top + hsRect.height / 2 - ref.top;
+
+          // Callout connection point: nearest edge, vertically centered
+          var x2, y2;
+          if (sides[i] === 'left') {
+            // Left callout → connect from its right edge
+            x2 = coRect.right - ref.left;
+            y2 = coRect.top + coRect.height / 2 - ref.top;
+          } else {
+            // Right callout → connect from its left edge
+            x2 = coRect.left - ref.left;
+            y2 = coRect.top + coRect.height / 2 - ref.top;
+          }
+
+          // Cubic bezier: gentle horizontal curve
+          var dx = (x2 - x1) * 0.5;
+          var d = 'M' + x1 + ',' + y1
+                + ' C' + (x1 + dx) + ',' + y1
+                + ' ' + (x2 - dx) + ',' + y2
+                + ' ' + x2 + ',' + y2;
+          path.setAttribute('d', d);
+          dot.setAttribute('cx', x2);
+          dot.setAttribute('cy', y2);
+        }
+      }
+
+      function revealCallouts() {
+        if (triggered) return;
+        triggered = true;
+
+        // Show hotspots first
+        hotspots.forEach(function(hs, i) {
+          setTimeout(function() { hs.classList.add('visible'); }, i * 150);
+        });
+
+        // Show connectors + callouts with stagger
+        callouts.forEach(function(el, i) {
+          setTimeout(function() {
+            el.classList.add('visible');
+            // Show connector line + dot together with its callout
+            var path = document.getElementById('cl-' + (i + 1));
+            var dot = document.getElementById('cd-' + (i + 1));
+            if (path) path.classList.add('visible');
+            if (dot) dot.classList.add('visible');
+          }, 300 + i * 250);
+        });
+
+        // Position connectors after a brief delay (callouts need to be laid out)
+        setTimeout(function() {
+          updateConnectors();
+          // Show the SVG container
+          if (connSvg) connSvg.classList.add('visible');
+        }, 250);
+
+        // Reposition on resize
+        window.addEventListener('resize', updateConnectors);
+      }
+
+      // IntersectionObserver for scroll trigger
+      if ('IntersectionObserver' in window) {
+        var observer = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+              revealCallouts();
+              observer.disconnect();
+            }
+          });
+        }, { threshold: 0.2 });
+        observer.observe(section);
+      } else {
+        // Fallback: just show everything
+        revealCallouts();
+      }
+    })();
+  </script>
+
+</body>
+</html>

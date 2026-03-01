@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BléSaf — 5 Approches Hero</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" rel="stylesheet">
+  <style>
+
+    /* ============================================
+       RESET & BASE
+       ============================================ */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'IBM Plex Sans', system-ui, sans-serif;
+      background: #F1F5F9;
+      color: #1E293B;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .material-symbols-outlined.filled {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+
+    /* ============================================
+       PAGE HEADER
+       ============================================ */
+    .page-header {
+      text-align: center;
+      margin-bottom: 28px;
+      max-width: 680px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .page-header h1 {
+      font-size: 24px;
+      font-weight: 800;
+      color: #0F172A;
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+    .page-header p {
+      font-size: 14px;
+      color: #64748B;
+      line-height: 1.6;
+    }
+
+    /* ============================================
+       TAB NAV — 5 APPROACHES
+       ============================================ */
+    .tab-nav {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 36px;
+      max-width: 960px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .tab-btn {
+      flex: 1;
+      min-width: 140px;
+      max-width: 175px;
+      padding: 14px 14px;
+      border: 2px solid #E2E8F0;
+      border-radius: 14px;
+      background: #FFFFFF;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .tab-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      background: #F1F5F9;
+      color: #64748B;
+      font-size: 11px;
+      font-weight: 800;
+      margin-bottom: 3px;
+      transition: all 0.2s ease;
+    }
+    .tab-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #0F172A;
+      transition: color 0.2s ease;
+    }
+    .tab-kw {
+      font-size: 10px;
+      font-weight: 600;
+      color: #94A3B8;
+      transition: color 0.2s ease;
+    }
+    /* Per-color active/hover */
+    .tab-btn[data-color="sky"]:hover,
+    .tab-btn[data-color="sky"].active {
+      border-color: #0EA5E9; background: #0EA5E9;
+      box-shadow: 0 4px 14px rgba(14,165,233,0.32); transform: translateY(-2px);
+    }
+    .tab-btn[data-color="amber"]:hover,
+    .tab-btn[data-color="amber"].active {
+      border-color: #F59E0B; background: #F59E0B;
+      box-shadow: 0 4px 14px rgba(245,158,11,0.32); transform: translateY(-2px);
+    }
+    .tab-btn[data-color="emerald"]:hover,
+    .tab-btn[data-color="emerald"].active {
+      border-color: #10B981; background: #10B981;
+      box-shadow: 0 4px 14px rgba(16,185,129,0.32); transform: translateY(-2px);
+    }
+    .tab-btn[data-color="indigo"]:hover,
+    .tab-btn[data-color="indigo"].active {
+      border-color: #6366F1; background: #6366F1;
+      box-shadow: 0 4px 14px rgba(99,102,241,0.32); transform: translateY(-2px);
+    }
+    .tab-btn[data-color="purple"]:hover,
+    .tab-btn[data-color="purple"].active {
+      border-color: #A855F7; background: #A855F7;
+      box-shadow: 0 4px 14px rgba(168,85,247,0.32); transform: translateY(-2px);
+    }
+    .tab-btn:hover .tab-num,
+    .tab-btn.active .tab-num { background: rgba(255,255,255,0.25); color: #FFF; }
+    .tab-btn:hover .tab-title,
+    .tab-btn.active .tab-title { color: #FFF; }
+    .tab-btn:hover .tab-kw,
+    .tab-btn.active .tab-kw { color: rgba(255,255,255,0.8); }
+
+    /* ============================================
+       LAYOUT — PHONE + META
+       ============================================ */
+    .design-container {
+      display: none;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 40px;
+    }
+    .design-container.active { display: flex; }
+
+    .design-meta {
+      max-width: 300px;
+      padding-top: 40px;
+      flex-shrink: 0;
+    }
+    .design-meta h2 {
+      font-size: 18px;
+      font-weight: 800;
+      color: #0F172A;
+      margin-bottom: 4px;
+    }
+    .meta-hook {
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .meta-headline {
+      font-size: 14px;
+      font-style: italic;
+      color: #334155;
+      background: #F8FAFC;
+      border-left: 3px solid #CBD5E1;
+      padding: 8px 12px;
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 14px;
+      line-height: 1.5;
+    }
+    .design-meta p {
+      font-size: 13px;
+      color: #64748B;
+      line-height: 1.6;
+      margin-bottom: 10px;
+    }
+    .design-meta p strong { color: #334155; }
+    .meta-tag {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 600;
+      margin-right: 4px;
+      margin-bottom: 4px;
+    }
+    @media (max-width: 820px) { .design-meta { display: none; } }
+
+    /* ============================================
+       PHONE FRAME
+       ============================================ */
+    .phone-frame {
+      width: 375px;
+      height: 812px;
+      border-radius: 44px;
+      border: 8px solid #1E293B;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.15), 0 0 0 2px #475569;
+      flex-shrink: 0;
+    }
+    .phone-notch {
+      position: absolute;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 160px; height: 34px;
+      background: #1E293B;
+      border-radius: 0 0 20px 20px;
+      z-index: 100;
+    }
+    .phone-screen {
+      width: 100%; height: 100%;
+      overflow-y: auto;
+      position: relative;
+    }
+    .phone-screen::-webkit-scrollbar { display: none; }
+
+    /* ============================================
+       SHARED — STICKY NAV
+       ============================================ */
+    .lp-nav {
+      position: sticky; top: 0; z-index: 50;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 40px 16px 10px;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    .lp-nav-logo {
+      font-size: 15px; font-weight: 800; color: #0F172A; letter-spacing: -0.5px;
+    }
+    .lp-nav-cta {
+      padding: 6px 14px; border-radius: 8px;
+      font-size: 11px; font-weight: 700;
+      border: none; cursor: pointer; font-family: inherit;
+    }
+
+
+    /* ============================================
+       HERO 1 — CONTRÔLE
+       Dark navy · Product dashboard as proof
+       ============================================ */
+    .h1-hero {
+      background: linear-gradient(160deg, #F0F9FF 0%, #FFFFFF 50%, #F8FAFC 100%);
+      padding: 24px 16px 28px;
+      display: flex;
+      flex-direction: column;
+      min-height: 720px;
+    }
+    .h1-eyebrow {
+      display: inline-flex; align-items: center; gap: 7px;
+      font-size: 9px; font-weight: 800; letter-spacing: 1.2px;
+      text-transform: uppercase; color: #38BDF8; margin-bottom: 14px;
+    }
+    .h1-eyebrow::before {
+      content: ''; display: block;
+      width: 18px; height: 2px;
+      background: #38BDF8; border-radius: 2px;
+    }
+    .h1-headline {
+      font-size: 28px; font-weight: 900;
+      color: #0F172A; line-height: 1.18;
+      margin-bottom: 10px; letter-spacing: -0.6px;
+    }
+    .h1-headline em { font-style: normal; color: #0EA5E9; }
+    .h1-sub {
+      font-size: 12px; color: #475569;
+      line-height: 1.65; margin-bottom: 22px;
+    }
+    /* Dashboard card */
+    .h1-dash {
+      background: #1E293B;
+      border: 1px solid #334155;
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.35);
+    }
+    .h1-dash-header {
+      background: #0F172A;
+      padding: 10px 14px;
+      display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 1px solid #334155;
+    }
+    .h1-dash-clinic { font-size: 11px; font-weight: 700; color: #E2E8F0; }
+    .h1-dash-online {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 10px; color: #34D399; font-weight: 600;
+    }
+    .h1-online-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #34D399;
+      animation: pulse-green 2s ease-in-out infinite;
+    }
+    @keyframes pulse-green {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(52,211,153,0.4); }
+      50% { opacity: 0.8; box-shadow: 0 0 0 4px rgba(52,211,153,0); }
+    }
+    .h1-dash-stats {
+      display: flex; border-bottom: 1px solid #334155;
+    }
+    .h1-dash-stat {
+      flex: 1; text-align: center; padding: 10px 6px;
+    }
+    .h1-dash-stat + .h1-dash-stat { border-left: 1px solid #334155; }
+    .h1-stat-val {
+      font-size: 20px; font-weight: 900; color: #38BDF8; line-height: 1;
+    }
+    .h1-stat-label { font-size: 9px; color: #64748B; margin-top: 2px; }
+    .h1-dash-queue { padding: 6px 14px 2px; }
+    .h1-queue-row {
+      display: flex; align-items: center; gap: 8px;
+      padding: 7px 0;
+      border-bottom: 1px solid rgba(51,65,85,0.6);
+    }
+    .h1-queue-row:last-child { border-bottom: none; }
+    .h1-queue-pos {
+      font-size: 10px; font-weight: 800; color: #475569; width: 22px; flex-shrink: 0;
+    }
+    .h1-queue-name { font-size: 11px; font-weight: 600; color: #CBD5E1; flex: 1; }
+    .h1-queue-badge {
+      font-size: 9px; font-weight: 700; padding: 2px 8px; border-radius: 6px;
+    }
+    .badge-consulting {
+      background: rgba(56,189,248,0.18); color: #38BDF8;
+      animation: badge-breathe 2.5s ease-in-out infinite;
+    }
+    @keyframes badge-breathe {
+      0%, 100% { background: rgba(56,189,248,0.18); }
+      50% { background: rgba(56,189,248,0.30); }
+    }
+    .badge-notified { background: rgba(251,191,36,0.18); color: #FBBF24; }
+    .badge-waiting { background: rgba(71,85,105,0.35); color: #64748B; }
+    .h1-dash-cta {
+      display: block; margin: 10px 14px 14px;
+      padding: 9px; border: none; border-radius: 8px;
+      background: #0EA5E9; color: #FFF;
+      font-size: 11px; font-weight: 700;
+      cursor: pointer; font-family: inherit; text-align: center;
+    }
+    .h1-cta {
+      display: block; width: 100%; padding: 13px;
+      background: #0EA5E9; color: #FFF;
+      border: none; border-radius: 10px;
+      font-size: 13px; font-weight: 700;
+      cursor: pointer; font-family: inherit;
+      box-shadow: 0 4px 16px rgba(14,165,233,0.42);
+      margin-bottom: 10px;
+    }
+    .h1-trust { font-size: 10px; color: #94A3B8; text-align: center; }
+
+
+    /* ============================================
+       HERO 2 — DÉBIT (THROUGHPUT)
+       Warm white · Animated counter
+       ============================================ */
+    .h2-hero {
+      background: #FFFBF0;
+      padding: 24px 16px 28px;
+      display: flex; flex-direction: column;
+      min-height: 720px;
+    }
+    .h2-eyebrow {
+      display: inline-flex; align-items: center; gap: 7px;
+      font-size: 9px; font-weight: 800; letter-spacing: 1.2px;
+      text-transform: uppercase; color: #B45309; margin-bottom: 14px;
+    }
+    .h2-eyebrow-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #F59E0B;
+      animation: pulse-amber 2s ease-in-out infinite;
+    }
+    @keyframes pulse-amber {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.3); opacity: 0.7; }
+    }
+    .h2-headline {
+      font-size: 28px; font-weight: 900; color: #0F172A;
+      line-height: 1.18; margin-bottom: 10px; letter-spacing: -0.6px;
+    }
+    .h2-headline em { font-style: normal; color: #D97706; }
+    .h2-sub {
+      font-size: 12px; color: #64748B;
+      line-height: 1.65; margin-bottom: 20px;
+    }
+    .h2-counter-card {
+      background: #FFFFFF;
+      border-radius: 18px;
+      padding: 24px 20px 20px;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.04);
+      border: 1.5px solid #FEF3C7;
+      margin-bottom: 12px;
+    }
+    .h2-counter-label {
+      font-size: 10px; font-weight: 700; color: #92400E;
+      text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px;
+    }
+    .h2-counter-num {
+      font-size: 80px; font-weight: 900; color: #0F172A;
+      line-height: 1; letter-spacing: -4px;
+      font-variant-numeric: tabular-nums;
+    }
+    .h2-counter-unit {
+      font-size: 12px; color: #64748B; font-weight: 500;
+      margin-top: 4px; margin-bottom: 12px;
+    }
+    .h2-counter-delta {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: #ECFDF5; color: #059669;
+      font-size: 11px; font-weight: 700;
+      padding: 5px 14px; border-radius: 20px;
+    }
+    .h2-counter-delta .material-symbols-outlined { font-size: 15px; }
+    .h2-metrics {
+      display: flex; gap: 8px; margin-bottom: 20px;
+    }
+    .h2-metric {
+      flex: 1; background: #FFFFFF;
+      border-radius: 12px; padding: 12px 8px;
+      text-align: center; border: 1px solid #E2E8F0;
+    }
+    .h2-metric-val {
+      font-size: 20px; font-weight: 900; color: #0F172A; line-height: 1;
+    }
+    .h2-metric-val.amber { color: #D97706; }
+    .h2-metric-val.green { color: #059669; }
+    .h2-metric-label { font-size: 9px; color: #94A3B8; margin-top: 3px; line-height: 1.3; }
+    .h2-cta {
+      display: block; width: 100%; padding: 13px;
+      background: #F59E0B; color: #FFF;
+      border: none; border-radius: 10px;
+      font-size: 13px; font-weight: 700;
+      cursor: pointer; font-family: inherit;
+      box-shadow: 0 4px 16px rgba(245,158,11,0.38);
+      margin-bottom: 10px;
+    }
+    .h2-trust { font-size: 10px; color: #94A3B8; text-align: center; }
+
+
+    /* ============================================
+       HERO 3 — QUALITÉ
+       Photo-first · The human moment
+       ============================================ */
+    .h3-photo-wrap {
+      position: relative;
+      height: 430px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .h3-photo-wrap img {
+      width: 100%; height: 100%;
+      object-fit: cover; display: block;
+    }
+    .h3-overlay {
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(
+        160deg,
+        rgba(6,78,59,0.55) 0%,
+        rgba(5,150,105,0.3) 35%,
+        rgba(0,0,0,0.72) 100%
+      );
+    }
+    .h3-photo-content {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 50px 18px 22px;
+    }
+    .h3-eyebrow {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 9px; font-weight: 800; letter-spacing: 1px;
+      text-transform: uppercase; color: #6EE7B7; margin-bottom: 10px;
+    }
+    .h3-eyebrow .material-symbols-outlined { font-size: 12px !important; }
+    .h3-headline {
+      font-size: 23px; font-weight: 900; color: #FFFFFF;
+      line-height: 1.25; margin-bottom: 8px;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+    .h3-headline em { font-style: italic; color: #A7F3D0; }
+    .h3-sub {
+      font-size: 11px; color: rgba(255,255,255,0.82);
+      line-height: 1.65; margin-bottom: 16px;
+    }
+    .h3-photo-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 9px 18px;
+      background: rgba(255,255,255,0.18);
+      backdrop-filter: blur(8px);
+      color: #FFFFFF;
+      border: 1.5px solid rgba(255,255,255,0.4);
+      border-radius: 10px;
+      font-size: 11px; font-weight: 700;
+      cursor: pointer; font-family: inherit;
+    }
+    .h3-photo-btn .material-symbols-outlined { font-size: 15px !important; }
+    /* White section below photo */
+    .h3-below {
+      background: #FFFFFF;
+      padding: 20px 16px 26px;
+    }
+    .h3-benefits { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+    .h3-benefit { display: flex; align-items: flex-start; gap: 10px; }
+    .h3-benefit-icon {
+      width: 34px; height: 34px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; background: #D1FAE5; color: #059669;
+    }
+    .h3-benefit-icon .material-symbols-outlined { font-size: 17px; }
+    .h3-benefit-label {
+      font-size: 12px; font-weight: 700; color: #1E293B; margin-bottom: 1px;
+    }
+    .h3-benefit-desc { font-size: 10px; color: #94A3B8; line-height: 1.4; }
+    .h3-cta {
+      display: block; width: 100%; padding: 13px;
+      background: #10B981; color: #FFF;
+      border: none; border-radius: 10px;
+      font-size: 13px; font-weight: 700;
+      cursor: pointer; font-family: inherit;
+      box-shadow: 0 4px 16px rgba(16,185,129,0.38);
+      margin-bottom: 8px;
+    }
+    .h3-trust { font-size: 10px; color: #94A3B8; text-align: center; }
+
+
+    /* ============================================
+       HERO 4 — MATINÉE
+       Dark indigo · Before/After timeline
+       ============================================ */
+    .h4-hero {
+      background: linear-gradient(155deg, #1E1B4B 0%, #312E81 60%, #1E1B4B 100%);
+      padding: 24px 16px 28px;
+      display: flex; flex-direction: column;
+      min-height: 720px;
+    }
+    .h4-eyebrow {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 9px; font-weight: 800; letter-spacing: 1.2px;
+      text-transform: uppercase; color: #A5B4FC; margin-bottom: 14px;
+    }
+    .h4-eyebrow .material-symbols-outlined { font-size: 14px !important; }
+    .h4-headline {
+      font-size: 28px; font-weight: 900; color: #FFFFFF;
+      line-height: 1.18; margin-bottom: 10px; letter-spacing: -0.6px;
+    }
+    .h4-sub {
+      font-size: 12px; color: #A5B4FC;
+      line-height: 1.65; margin-bottom: 20px;
+    }
+    /* Timeline comparison card */
+    .h4-tl {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .h4-tl-headers {
+      display: flex;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .h4-tl-head {
+      flex: 1; padding: 8px 12px;
+      font-size: 9px; font-weight: 800;
+      letter-spacing: 0.8px; text-transform: uppercase;
+      text-align: center;
+    }
+    .h4-tl-head-before {
+      background: rgba(239,68,68,0.14); color: #FCA5A5;
+      border-right: 1px solid rgba(255,255,255,0.08);
+    }
+    .h4-tl-head-after { background: rgba(52,211,153,0.1); color: #6EE7B7; }
+    .h4-tl-row { display: flex; border-top: 1px solid rgba(255,255,255,0.06); }
+    .h4-tl-cell {
+      flex: 1; padding: 9px 10px;
+      display: flex; align-items: flex-start; gap: 6px;
+    }
+    .h4-cell-before {
+      background: rgba(239,68,68,0.05);
+      border-right: 1px solid rgba(255,255,255,0.06);
+    }
+    .h4-cell-after { background: rgba(52,211,153,0.04); }
+    .h4-tl-icon { font-size: 14px !important; flex-shrink: 0; margin-top: 1px; }
+    .h4-icon-before { color: #F87171; }
+    .h4-icon-after { color: #34D399; }
+    .h4-tl-text { font-size: 10px; line-height: 1.4; }
+    .h4-time { font-weight: 700; font-size: 9px; margin-bottom: 1px; }
+    .h4-time-before { color: #FCA5A5; }
+    .h4-time-after { color: #6EE7B7; }
+    .h4-desc-before { color: #94A3B8; }
+    .h4-desc-after { color: #CBD5E1; font-weight: 500; }
+    .h4-cta {
+      display: block; width: 100%; padding: 13px;
+      background: #6366F1; color: #FFF;
+      border: none; border-radius: 10px;
+      font-size: 13px; font-weight: 700;
+      cursor: pointer; font-family: inherit;
+      box-shadow: 0 4px 16px rgba(99,102,241,0.42);
+      margin-bottom: 10px;
+    }
+    .h4-trust { font-size: 10px; color: #4C4992; text-align: center; }
+
+
+    /* ============================================
+       HERO 5 — RÉPUTATION
+       Light lavender · Patient reviews
+       ============================================ */
+    .h5-hero {
+      background: linear-gradient(160deg, #FAF5FF 0%, #F3E8FF 100%);
+      padding: 24px 16px 28px;
+      display: flex; flex-direction: column;
+      min-height: 720px;
+    }
+    .h5-eyebrow {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 9px; font-weight: 800; letter-spacing: 1.2px;
+      text-transform: uppercase; color: #9333EA; margin-bottom: 14px;
+    }
+    .h5-eyebrow-stars { display: flex; gap: 1px; }
+    .h5-eyebrow-star { font-size: 12px !important; color: #F59E0B; }
+    .h5-headline {
+      font-size: 28px; font-weight: 900; color: #0F172A;
+      line-height: 1.18; margin-bottom: 10px; letter-spacing: -0.6px;
+    }
+    .h5-sub {
+      font-size: 12px; color: #6B7280;
+      line-height: 1.7; margin-bottom: 18px;
+    }
+    /* Review cards */
+    .h5-reviews { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+    .h5-review {
+      background: #FFFFFF;
+      border-radius: 12px; padding: 12px 14px;
+      box-shadow: 0 2px 10px rgba(139,92,246,0.08), 0 1px 3px rgba(0,0,0,0.04);
+      border: 1px solid rgba(139,92,246,0.1);
+      opacity: 0; transform: translateY(10px);
+      transition: opacity 0.45s ease, transform 0.45s ease;
+    }
+    .h5-review.visible { opacity: 1; transform: translateY(0); }
+    .h5-review-top {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 6px;
+    }
+    .h5-avatar {
+      width: 30px; height: 30px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 800; flex-shrink: 0;
+    }
+    .h5-review-name { font-size: 11px; font-weight: 700; color: #1E293B; flex: 1; }
+    .h5-stars { display: flex; gap: 1px; }
+    .h5-star { font-size: 11px !important; color: #F59E0B; }
+    .h5-review-text { font-size: 11px; color: #475569; line-height: 1.5; font-style: italic; }
+    /* Rating summary bar */
+    .h5-rating-bar {
+      display: flex; align-items: center; justify-content: center; gap: 14px;
+      background: #FFFFFF;
+      border-radius: 12px; padding: 12px 16px;
+      border: 1px solid rgba(139,92,246,0.12);
+      margin-bottom: 18px;
+    }
+    .h5-rating-score {
+      font-size: 32px; font-weight: 900; color: #0F172A;
+      letter-spacing: -1px; line-height: 1;
+    }
+    .h5-rating-detail { display: flex; flex-direction: column; gap: 3px; }
+    .h5-rating-stars { display: flex; gap: 2px; }
+    .h5-rating-star { font-size: 16px !important; color: #F59E0B; }
+    .h5-rating-count { font-size: 10px; color: #94A3B8; }
+    .h5-cta {
+      display: block; width: 100%; padding: 13px;
+      background: #9333EA; color: #FFF;
+      border: none; border-radius: 10px;
+      font-size: 13px; font-weight: 700;
+      cursor: pointer; font-family: inherit;
+      box-shadow: 0 4px 16px rgba(147,51,234,0.38);
+      margin-bottom: 10px;
+    }
+    .h5-trust { font-size: 10px; color: #94A3B8; text-align: center; }
+
+    /* ============================================
+       TAG UTILITIES
+       ============================================ */
+    .tag-sky     { background: #E0F2FE; color: #0369A1; }
+    .tag-amber   { background: #FEF3C7; color: #92400E; }
+    .tag-emerald { background: #D1FAE5; color: #065F46; }
+    .tag-indigo  { background: #E0E7FF; color: #3730A3; }
+    .tag-purple  { background: #F3E8FF; color: #6B21A8; }
+    .tag-slate   { background: #F1F5F9; color: #475569; }
+
+  </style>
+</head>
+<body>
+
+  <div class="page-header">
+    <h1>BléSaf — 5 Approches Hero</h1>
+    <p>Chaque héro adopte une stratégie visuelle distincte, calibrée pour son message. Tous évitent le cadrage "salle vide" et s'adressent aux deux personas : médecin fort volume et médecin qualité de soins.</p>
+  </div>
+
+  <!-- ==========================================
+       TAB NAV
+       ========================================== -->
+  <div class="tab-nav">
+    <button class="tab-btn active" data-color="sky" onclick="showDesign('1')">
+      <span class="tab-num">1</span>
+      <span class="tab-title">Contrôle</span>
+      <span class="tab-kw">Dashboard produit</span>
+    </button>
+    <button class="tab-btn" data-color="amber" onclick="showDesign('2')">
+      <span class="tab-num">2</span>
+      <span class="tab-title">Débit</span>
+      <span class="tab-kw">Compteur animé</span>
+    </button>
+    <button class="tab-btn" data-color="emerald" onclick="showDesign('3')">
+      <span class="tab-num">3</span>
+      <span class="tab-title">Qualité</span>
+      <span class="tab-kw">Photo + empathie</span>
+    </button>
+    <button class="tab-btn" data-color="indigo" onclick="showDesign('4')">
+      <span class="tab-num">4</span>
+      <span class="tab-title">Matinée</span>
+      <span class="tab-kw">Timeline comparée</span>
+    </button>
+    <button class="tab-btn" data-color="purple" onclick="showDesign('5')">
+      <span class="tab-num">5</span>
+      <span class="tab-title">Réputation</span>
+      <span class="tab-kw">Avis patients</span>
+    </button>
+  </div>
+
+
+  <!-- ==========================================
+       DESIGN 1 — CONTRÔLE
+       Visual: Product dashboard on dark navy
+       Headline: "Votre file d'attente. Enfin sous contrôle."
+       ========================================== -->
+  <div class="design-container active" id="design-1">
+    <div class="design-meta">
+      <h2>1 — Contrôle</h2>
+      <div class="meta-hook" style="color:#0EA5E9">Visuel : le produit comme preuve</div>
+      <div class="meta-headline">"Votre file d'attente.<br>Enfin sous contrôle."</div>
+      <p>Le tableau de bord <strong>est</strong> l'argument. Montrer l'outil en action — avant tout discours — prouve que le produit existe et fonctionne. Le médecin voit immédiatement ce qu'il gérerait.</p>
+      <p><strong>Pourquoi ça marche pour les deux personas :</strong> Le médecin fort volume voit 8 patients organisés. Le médecin qualité voit de l'ordre. Personne n'est menacé — la file est <em>organisée</em>, pas <em>vide</em>.</p>
+      <p><strong>Ton :</strong> Autorité, technologie, confiance. Le fond sombre signale un outil sérieux, pas un gadget.</p>
+      <div>
+        <span class="meta-tag tag-sky">Fond marine</span>
+        <span class="meta-tag tag-sky">Dashboard animé</span>
+        <span class="meta-tag tag-slate">Prod-led</span>
+        <span class="meta-tag tag-slate">Les deux personas</span>
+      </div>
+    </div>
+
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+
+        <div class="lp-nav">
+          <div class="lp-nav-logo">Blé<span style="color:#0EA5E9;">SAF</span></div>
+          <button class="lp-nav-cta" style="background:#0EA5E9; color:#FFF;">Essai gratuit</button>
+        </div>
+
+        <div class="h1-hero">
+          <div class="h1-eyebrow">Gestion de file · Pour médecins</div>
+          <div class="h1-headline">Votre file d'attente.<br><em>Enfin sous contrôle.</em></div>
+          <div class="h1-sub">Plus de chaos. Plus de "c'est quand mon tour ?" Juste de l'ordre — pour vous, pour vos patients, pour toute votre équipe.</div>
+
+          <div class="h1-dash">
+            <div class="h1-dash-header">
+              <div class="h1-dash-clinic">Cabinet Dr. Benali</div>
+              <div class="h1-dash-online">
+                <div class="h1-online-dot"></div>
+                En ligne
+              </div>
+            </div>
+            <div class="h1-dash-stats">
+              <div class="h1-dash-stat">
+                <div class="h1-stat-val">8</div>
+                <div class="h1-stat-label">En attente</div>
+              </div>
+              <div class="h1-dash-stat">
+                <div class="h1-stat-val">1</div>
+                <div class="h1-stat-label">En consultation</div>
+              </div>
+              <div class="h1-dash-stat">
+                <div class="h1-stat-val">19</div>
+                <div class="h1-stat-label">Vus aujourd'hui</div>
+              </div>
+            </div>
+            <div class="h1-dash-queue">
+              <div class="h1-queue-row">
+                <div class="h1-queue-pos">#1</div>
+                <div class="h1-queue-name">Amira M.</div>
+                <div class="h1-queue-badge badge-consulting">● En consultation</div>
+              </div>
+              <div class="h1-queue-row">
+                <div class="h1-queue-pos">#2</div>
+                <div class="h1-queue-name">Sami B.</div>
+                <div class="h1-queue-badge badge-notified">Notifié ▶</div>
+              </div>
+              <div class="h1-queue-row">
+                <div class="h1-queue-pos">#3</div>
+                <div class="h1-queue-name">Leila K.</div>
+                <div class="h1-queue-badge badge-waiting">En attente</div>
+              </div>
+              <div class="h1-queue-row">
+                <div class="h1-queue-pos">#4</div>
+                <div class="h1-queue-name">Omar T.</div>
+                <div class="h1-queue-badge badge-waiting">En attente</div>
+              </div>
+            </div>
+            <button class="h1-dash-cta">▶&nbsp; Appeler le suivant</button>
+          </div>
+
+          <button class="h1-cta">Essayez gratuitement — 30 jours</button>
+          <div class="h1-trust">Aucune carte bancaire · Annulez quand vous voulez</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ==========================================
+       DESIGN 2 — DÉBIT (THROUGHPUT)
+       Visual: Animated counter on warm white
+       Headline: "Voyez plus de patients. Stressez moins."
+       ========================================== -->
+  <div class="design-container" id="design-2">
+    <div class="design-meta">
+      <h2>2 — Débit</h2>
+      <div class="meta-hook" style="color:#D97706">Visuel : un seul chiffre, très grand</div>
+      <div class="meta-headline">"Voyez plus de patients.<br>Stressez moins."</div>
+      <p>Un compteur s'anime de 0 à 24 à l'arrivée sur la page. Impossible à ignorer. C'est la promesse directe pour le médecin fort volume : <strong>plus de patients vus</strong>, pas une salle plus vide.</p>
+      <p><strong>Ce qui change le cadrage :</strong> La plupart des outils de file parlent de "moins de stress". Celui-ci dit d'abord "plus de patients" — ce qui résonne avec ceux qui voient le volume comme un indicateur de succès professionnel.</p>
+      <p><strong>Ton :</strong> Énergie, productivité, optimisme. Chaud, pas clinique.</p>
+      <div>
+        <span class="meta-tag tag-amber">Fond chaud</span>
+        <span class="meta-tag tag-amber">Compteur animé</span>
+        <span class="meta-tag tag-slate">Volume-first</span>
+        <span class="meta-tag tag-slate">Fort volume ++</span>
+      </div>
+    </div>
+
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+
+        <div class="lp-nav" style="background:rgba(255,251,240,0.95); border-bottom-color:rgba(245,158,11,0.15);">
+          <div class="lp-nav-logo">Blé<span style="color:#D97706;">SAF</span></div>
+          <button class="lp-nav-cta" style="background:#F59E0B; color:#FFF;">Essai gratuit</button>
+        </div>
+
+        <div class="h2-hero">
+          <div class="h2-eyebrow">
+            <div class="h2-eyebrow-dot"></div>
+            Optimisé pour les cabinets à fort volume
+          </div>
+          <div class="h2-headline">Voyez plus de patients.<br><em>Stressez moins.</em></div>
+          <div class="h2-sub">BléSaf organise votre file pour que vos journées avancent — sans chaos, sans appels, sans patients qui repartent sans être vus.</div>
+
+          <div class="h2-counter-card">
+            <div class="h2-counter-label">Patients vus aujourd'hui</div>
+            <div class="h2-counter-num" id="h2-counter">0</div>
+            <div class="h2-counter-unit">en une seule matinée</div>
+            <div class="h2-counter-delta">
+              <span class="material-symbols-outlined filled">trending_up</span>
+              +3 de plus qu'avant BléSaf
+            </div>
+          </div>
+
+          <div class="h2-metrics">
+            <div class="h2-metric">
+              <div class="h2-metric-val amber">12<span style="font-size:11px;">m</span></div>
+              <div class="h2-metric-label">Attente moyenne</div>
+            </div>
+            <div class="h2-metric">
+              <div class="h2-metric-val green">0</div>
+              <div class="h2-metric-label">Appels "c'est quand ?"</div>
+            </div>
+            <div class="h2-metric">
+              <div class="h2-metric-val green">2</div>
+              <div class="h2-metric-label">No-shows évités</div>
+            </div>
+          </div>
+
+          <button class="h2-cta">Essayez gratuitement — 30 jours</button>
+          <div class="h2-trust">Aucune carte bancaire requise</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ==========================================
+       DESIGN 3 — QUALITÉ
+       Visual: Photography (With-BleSaf.png) full-bleed
+       Headline: "Un patient serein, c'est une meilleure consultation."
+       ========================================== -->
+  <div class="design-container" id="design-3">
+    <div class="design-meta">
+      <h2>3 — Qualité</h2>
+      <div class="meta-hook" style="color:#059669">Visuel : le moment humain, la photo d'abord</div>
+      <div class="meta-headline">"Un patient serein, c'est une meilleure consultation."</div>
+      <p>Ce héro parle la langue du médecin <strong>qualité de soins</strong> — pas de l'efficacité, pas du volume. C'est un énoncé médical : un patient calme donne un meilleur historique, consulte mieux, sort plus satisfait.</p>
+      <p><strong>Terrain neutre sur la salle :</strong> Aucune mention de salle vide ou pleine. On parle uniquement de ce qui se passe <em>à l'instant où le patient entre</em> — un moment que tous les médecins veulent améliorer.</p>
+      <p><strong>Ton :</strong> Empathie, chaleur humaine, qualité médicale. La photo fait le travail émotionnel.</p>
+      <div>
+        <span class="meta-tag tag-emerald">Photo plein écran</span>
+        <span class="meta-tag tag-emerald">Ton médical</span>
+        <span class="meta-tag tag-slate">Qualité ++</span>
+        <span class="meta-tag tag-slate">Fort volume +</span>
+      </div>
+    </div>
+
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+
+        <!-- Nav overlays the photo -->
+        <div class="lp-nav" style="
+          background: transparent;
+          border-bottom: none;
+          position: absolute;
+          top: 0; left: 0; right: 0;
+          z-index: 60;
+          backdrop-filter: none;
+        ">
+          <div class="lp-nav-logo" style="color:#FFFFFF; text-shadow: 0 1px 6px rgba(0,0,0,0.4);">Blé<span style="color:#6EE7B7;">SAF</span></div>
+          <button class="lp-nav-cta" style="background:rgba(255,255,255,0.2); backdrop-filter:blur(8px); color:#FFF; border:1.5px solid rgba(255,255,255,0.35);">Essai gratuit</button>
+        </div>
+
+        <div class="h3-photo-wrap">
+          <img src="With-BleSaf.png" alt="Patient serein avec BléSaf">
+          <div class="h3-overlay"></div>
+          <div class="h3-photo-content">
+            <div class="h3-eyebrow">
+              <span class="material-symbols-outlined filled">verified</span>
+              Qualité de consultation
+            </div>
+            <div class="h3-headline">"Un patient <em>serein</em>,<br>c'est une meilleure<br>consultation."</div>
+            <div class="h3-sub">Quand vos patients n'attendent plus dans le stress, ils arrivent prêts à consulter. Vous travaillez mieux.</div>
+            <button class="h3-photo-btn">
+              <span class="material-symbols-outlined">play_circle</span>
+              Voir comment ça marche
+            </button>
+          </div>
+        </div>
+
+        <div class="h3-below">
+          <div class="h3-benefits">
+            <div class="h3-benefit">
+              <div class="h3-benefit-icon">
+                <span class="material-symbols-outlined filled">sentiment_satisfied</span>
+              </div>
+              <div>
+                <div class="h3-benefit-label">Patient détendu dès l'entrée</div>
+                <div class="h3-benefit-desc">Pas de frustration accumulée — il arrive prêt à écouter et à répondre</div>
+              </div>
+            </div>
+            <div class="h3-benefit">
+              <div class="h3-benefit-icon">
+                <span class="material-symbols-outlined filled">medical_services</span>
+              </div>
+              <div>
+                <div class="h3-benefit-label">Consultation plus fluide</div>
+                <div class="h3-benefit-desc">Un patient calme donne de meilleures informations cliniques</div>
+              </div>
+            </div>
+            <div class="h3-benefit">
+              <div class="h3-benefit-icon">
+                <span class="material-symbols-outlined filled">phone_disabled</span>
+              </div>
+              <div>
+                <div class="h3-benefit-label">Zéro interruptions</div>
+                <div class="h3-benefit-desc">Votre assistante arrête de gérer les appels — elle est à vous</div>
+              </div>
+            </div>
+          </div>
+          <button class="h3-cta">Essayez gratuitement — 30 jours</button>
+          <div class="h3-trust">Aucune carte bancaire · Pas d'application à télécharger</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ==========================================
+       DESIGN 4 — MATINÉE
+       Visual: Before/After timeline on dark indigo
+       Headline: "Reprenez le contrôle de votre matinée."
+       ========================================== -->
+  <div class="design-container" id="design-4">
+    <div class="design-meta">
+      <h2>4 — Matinée</h2>
+      <div class="meta-hook" style="color:#6366F1">Visuel : la comparaison qui fait mal</div>
+      <div class="meta-headline">"Reprenez le contrôle<br>de votre matinée."</div>
+      <p>La timeline montre <strong>la matinée exacte</strong> du médecin. Chaque ligne gauche est une interruption que le médecin reconnaît immédiatement — parce qu'il la vit. La colonne droite est simple, fluide, lisible.</p>
+      <p><strong>Pourquoi c'est puissant :</strong> Ce n'est pas "votre salle sera vide" — c'est "votre 9h00, votre 9h08, votre 9h15 vont ressembler à ça." Ultra-concret, ultra-spécifique.</p>
+      <p><strong>Audience :</strong> Les deux personas, car tous les médecins reconnaissent la matinée chaotique.</p>
+      <div>
+        <span class="meta-tag tag-indigo">Fond sombre</span>
+        <span class="meta-tag tag-indigo">Timeline Avant/Après</span>
+        <span class="meta-tag tag-slate">Pain-first</span>
+        <span class="meta-tag tag-slate">Les deux personas</span>
+      </div>
+    </div>
+
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+
+        <div class="lp-nav" style="background:rgba(30,27,75,0.95); border-bottom-color:rgba(255,255,255,0.06);">
+          <div class="lp-nav-logo" style="color:#E2E8F0;">Blé<span style="color:#A5B4FC;">SAF</span></div>
+          <button class="lp-nav-cta" style="background:#6366F1; color:#FFF;">Essai gratuit</button>
+        </div>
+
+        <div class="h4-hero">
+          <div class="h4-eyebrow">
+            <span class="material-symbols-outlined filled">wb_sunny</span>
+            Votre matinée
+          </div>
+          <div class="h4-headline">Reprenez le contrôle<br>de votre matinée.</div>
+          <div class="h4-sub">Votre assistante arrête de gérer les appels. Vos patients savent où ils en sont. Vous consultez.</div>
+
+          <div class="h4-tl">
+            <div class="h4-tl-headers">
+              <div class="h4-tl-head h4-tl-head-before">Sans BléSaf</div>
+              <div class="h4-tl-head h4-tl-head-after">Avec BléSaf</div>
+            </div>
+            <div class="h4-tl-row">
+              <div class="h4-tl-cell h4-cell-before">
+                <span class="material-symbols-outlined filled h4-tl-icon h4-icon-before">phone_in_talk</span>
+                <div class="h4-tl-text">
+                  <div class="h4-time h4-time-before">9h00</div>
+                  <div class="h4-desc-before">Appel : "C'est quand mon tour ?"</div>
+                </div>
+              </div>
+              <div class="h4-tl-cell h4-cell-after">
+                <span class="material-symbols-outlined filled h4-tl-icon h4-icon-after">check_circle</span>
+                <div class="h4-tl-text">
+                  <div class="h4-time h4-time-after">9h00</div>
+                  <div class="h4-desc-after">1ère consultation</div>
+                </div>
+              </div>
+            </div>
+            <div class="h4-tl-row">
+              <div class="h4-tl-cell h4-cell-before">
+                <span class="material-symbols-outlined filled h4-tl-icon h4-icon-before">phone_in_talk</span>
+                <div class="h4-tl-text">
+                  <div class="h4-time h4-time-before">9h08</div>
+                  <div class="h4-desc-before">Encore un appel</div>
+                </div>
+              </div>
+              <div class="h4-tl-cell h4-cell-after">
+                <span class="material-symbols-outlined filled h4-tl-icon h4-icon-after">check_circle</span>
+                <div class="h4-tl-text">
+                  <div class="h4-time h4-time-after">9h20</div>
+                  <div class="h4-desc-after">2e consultation</div>
+                </div>
+              </div>
+            </div>
+            <div class="h4-tl-row">
+              <div class="h4-tl-cell h4-cell-before">
+                <span class="material-symbols-outlined filled h4-tl-icon h4-icon-before">sentiment_very_dissatisfied</span>
+                <div class="h4-tl-text">
+                  <div class="h4-time h4-time-before">9h15</div>
+                  <div class="h4-desc-before">Patient agité à l'accueil</div>
+                </div>
+              </div>
+              <div class="h4-tl-cell h4-cell-after">
+                <span class="material-symbols-outlined filled h4-tl-icon h4-icon-after">check_circle</span>
+                <div class="h4-tl-text">
+                  <div class="h4-time h4-time-after">9h40</div>
+                  <div class="h4-desc-after">3e consultation</div>
+                </div>
+              </div>
+            </div>
+            <div class="h4-tl-row">
+              <div class="h4-tl-cell h4-cell-before">
+                <span class="material-symbols-outlined filled h4-tl-icon h4-icon-before">schedule</span>
+                <div class="h4-tl-text">
+                  <div class="h4-time h4-time-before">9h30</div>
+                  <div class="h4-desc-before">Retard 20 minutes</div>
+                </div>
+              </div>
+              <div class="h4-tl-cell h4-cell-after">
+                <span class="material-symbols-outlined filled h4-tl-icon h4-icon-after">check_circle</span>
+                <div class="h4-tl-text">
+                  <div class="h4-time h4-time-after">10h00</div>
+                  <div class="h4-desc-after">4e consultation · En avance</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button class="h4-cta">Essayez gratuitement — 30 jours</button>
+          <div class="h4-trust">Aucune carte bancaire requise · Annulez quand vous voulez</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ==========================================
+       DESIGN 5 — RÉPUTATION
+       Visual: Patient review wall on light lavender
+       Headline: "Le cabinet que vos patients recommandent."
+       ========================================== -->
+  <div class="design-container" id="design-5">
+    <div class="design-meta">
+      <h2>5 — Réputation</h2>
+      <div class="meta-hook" style="color:#9333EA">Visuel : la preuve par les patients</div>
+      <div class="meta-headline">"Le cabinet que vos patients recommandent."</div>
+      <p>Ce héro parle à l'ego professionnel du médecin — pas à son efficacité, mais à <strong>sa réputation</strong>. Les avis patients sont le premier moteur de recommandation dans les cabinets tunisiens.</p>
+      <p><strong>Ce qui est puissant :</strong> Le médecin ne voit pas un outil de gestion. Il voit ce que ses patients <em>diraient de lui</em>. C'est aspirationnel, ego-positif, et ne menace aucun modèle de pratique.</p>
+      <p><strong>Risque :</strong> Les avis doivent être spécifiques et crédibles — jamais trop génériques. Et il faut avoir de vrais avis pour que ça tienne à moyen terme.</p>
+      <div>
+        <span class="meta-tag tag-purple">Fond premium</span>
+        <span class="meta-tag tag-purple">Avis patients</span>
+        <span class="meta-tag tag-slate">Ego-first</span>
+        <span class="meta-tag tag-slate">Image-conscious ++</span>
+      </div>
+    </div>
+
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+
+        <div class="lp-nav" style="background:rgba(250,245,255,0.94); border-bottom-color:rgba(139,92,246,0.1);">
+          <div class="lp-nav-logo">Blé<span style="color:#9333EA;">SAF</span></div>
+          <button class="lp-nav-cta" style="background:#9333EA; color:#FFF;">Essai gratuit</button>
+        </div>
+
+        <div class="h5-hero">
+          <div class="h5-eyebrow">
+            <div class="h5-eyebrow-stars">
+              <span class="material-symbols-outlined filled h5-eyebrow-star">star</span>
+              <span class="material-symbols-outlined filled h5-eyebrow-star">star</span>
+              <span class="material-symbols-outlined filled h5-eyebrow-star">star</span>
+              <span class="material-symbols-outlined filled h5-eyebrow-star">star</span>
+              <span class="material-symbols-outlined filled h5-eyebrow-star">star</span>
+            </div>
+            Ce que vos patients disent
+          </div>
+          <div class="h5-headline">Le cabinet que vos patients recommandent.</div>
+          <div class="h5-sub">Une file d'attente organisée.<br>Une expérience mémorable.<br>Des patients qui reviennent — et en parlent.</div>
+
+          <div class="h5-reviews" id="h5-reviews">
+            <div class="h5-review" id="h5-r1">
+              <div class="h5-review-top">
+                <div class="h5-avatar" style="background:#FEF3C7; color:#92400E;">FT</div>
+                <div class="h5-review-name">Fatma T.</div>
+                <div class="h5-stars">
+                  <span class="material-symbols-outlined filled h5-star">star</span>
+                  <span class="material-symbols-outlined filled h5-star">star</span>
+                  <span class="material-symbols-outlined filled h5-star">star</span>
+                  <span class="material-symbols-outlined filled h5-star">star</span>
+                  <span class="material-symbols-outlined filled h5-star">star</span>
+                </div>
+              </div>
+              <div class="h5-review-text">"Enfin un médecin qui organise bien son cabinet ! J'ai recommandé à toute ma famille."</div>
+            </div>
+            <div class="h5-review" id="h5-r2">
+              <div class="h5-review-top">
+                <div class="h5-avatar" style="background:#DBEAFE; color:#1E40AF;">AM</div>
+                <div class="h5-review-name">Anis M.</div>
+                <div class="h5-stars">
+                  <span class="material-symbols-outlined filled h5-star">star</span>
+                  <span class="material-symbols-outlined filled h5-star">star</span>
+                  <span class="material-symbols-outlined filled h5-star">star</span>
+                  <span class="material-symbols-outlined filled h5-star">star</span>
+                  <span class="material-symbols-outlined filled h5-star">star</span>
+                </div>
+              </div>
+              <div class="h5-review-text">"Je reçois un message avant mon tour. Fini les heures coincé dans la salle d'attente."</div>
+            </div>
+            <div class="h5-review" id="h5-r3">
+              <div class="h5-review-top">
+                <div class="h5-avatar" style="background:#D1FAE5; color:#065F46;">SB</div>
+                <div class="h5-review-name">Sana B.</div>
+                <div class="h5-stars">
+                  <span class="material-symbols-outlined filled h5-star">star</span>
+                  <span class="material-symbols-outlined filled h5-star">star</span>
+                  <span class="material-symbols-outlined filled h5-star">star</span>
+                  <span class="material-symbols-outlined filled h5-star">star</span>
+                  <span class="material-symbols-outlined filled h5-star">star</span>
+                </div>
+              </div>
+              <div class="h5-review-text">"C'est le seul médecin dont je ne redoute plus la salle d'attente. Je reviens toujours."</div>
+            </div>
+          </div>
+
+          <div class="h5-rating-bar">
+            <div class="h5-rating-score">4.9</div>
+            <div class="h5-rating-detail">
+              <div class="h5-rating-stars">
+                <span class="material-symbols-outlined filled h5-rating-star">star</span>
+                <span class="material-symbols-outlined filled h5-rating-star">star</span>
+                <span class="material-symbols-outlined filled h5-rating-star">star</span>
+                <span class="material-symbols-outlined filled h5-rating-star">star</span>
+                <span class="material-symbols-outlined filled h5-rating-star">star</span>
+              </div>
+              <div class="h5-rating-count">Note moyenne · 48 avis patients</div>
+            </div>
+          </div>
+
+          <button class="h5-cta">Rejoignez les cabinets qui font la différence</button>
+          <div class="h5-trust">Essai 30 jours gratuit · Aucune carte requise</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <script>
+    /* ----------------------------------------
+       TAB SWITCHING
+       ---------------------------------------- */
+    function showDesign(id) {
+      document.querySelectorAll('.design-container').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById('design-' + id).classList.add('active');
+      document.querySelectorAll('.tab-btn')[parseInt(id) - 1].classList.add('active');
+
+      if (id === '2') triggerH2Counter();
+      if (id === '5') triggerH5Reviews();
+    }
+
+    /* ----------------------------------------
+       HERO 2: Animated counter 0 → 24
+       ---------------------------------------- */
+    function triggerH2Counter() {
+      const el = document.getElementById('h2-counter');
+      if (!el) return;
+      el.textContent = '0';
+      const target = 24;
+      const duration = 1800;
+      const start = performance.now();
+      function step(now) {
+        const progress = Math.min((now - start) / duration, 1);
+        // Ease-out cubic
+        const eased = 1 - Math.pow(1 - progress, 3);
+        el.textContent = Math.round(eased * target);
+        if (progress < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+
+    /* ----------------------------------------
+       HERO 5: Review cards cascade in
+       ---------------------------------------- */
+    function triggerH5Reviews() {
+      const reviews = document.querySelectorAll('.h5-review');
+      reviews.forEach(r => { r.classList.remove('visible'); });
+      reviews.forEach((r, i) => {
+        setTimeout(() => r.classList.add('visible'), 180 + i * 220);
+      });
+    }
+
+    /* ----------------------------------------
+       AUTO-TRIGGER: run animations immediately
+       for the default active design (1 has CSS only)
+       ---------------------------------------- */
+    // Hero 5 reviews: trigger immediately if it ever becomes the default
+    // (nothing needed — Hero 1 is default and CSS-animated)
+  </script>
+
+</body>
+</html>
