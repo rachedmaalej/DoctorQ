@@ -27,6 +27,7 @@ import type {
   FinancialSummary,
   EngagementSummary,
   ClinicDetailEnriched,
+  YesterdayStats,
 } from '@/types';
 import { logger } from './logger';
 import { webBrand } from './brand';
@@ -357,6 +358,10 @@ class ApiClient {
     return this.request('/api/queue/reset-stats', {
       method: 'POST',
     });
+  }
+
+  async getYesterdayStats(): Promise<YesterdayStats> {
+    return this.request<YesterdayStats>('/api/queue/yesterday-stats');
   }
 
   // Patient endpoints (public)

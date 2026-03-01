@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1340">
+  <title>BléSaf — Desktop Settings Variations</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400,0..1,0" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    button { font-family: inherit; cursor: pointer; }
+    input, select, textarea { font-family: inherit; }
+
+    :root {
+      --bg:        #F5F0E8;
+      --surface:   #FFFFFF;
+      --surface2:  #F0EFEA;
+      --surface3:  #FAFAF8;
+      --border:    #E8E6DF;
+      --border-sub:#F0EDE6;
+      --header:    #1B3A2D;
+      --header2:   #112B21;
+      --teal:      #0F7B6C;
+      --teal-d:    #0A5C50;
+      --teal-l:    #E8F5F1;
+      --teal-m:    #C5E3DE;
+      --green:     #2D8B4E;
+      --green-l:   #EDF7F0;
+      --amber:     #D4920B;
+      --amber-l:   #FEF7E6;
+      --red:       #D94F3B;
+      --red-l:     #FDF0ED;
+      --blue:      #3B7DD9;
+      --blue-l:    #EDF3FC;
+      --t1:  #1A1A1A;
+      --t2:  #6B6960;
+      --t3:  #9E9B90;
+      --r:    12px;
+      --r-sm: 8px;
+      --r-full: 999px;
+    }
+
+    .icon {
+      font-family: 'Material Symbols Rounded';
+      font-size: 20px;
+      line-height: 1;
+      display: inline-block;
+      vertical-align: middle;
+      user-select: none;
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .icon.fill { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    .icon.sm   { font-size: 16px; }
+    .icon.xs   { font-size: 14px; }
+    .icon.lg   { font-size: 24px; }
+
+    body {
+      background: #0D0D0D;
+      font-family: 'DM Sans', system-ui, sans-serif;
+      min-width: 1360px;
+      color: var(--t1);
+    }
+
+    .page-header { padding: 36px 48px 24px; }
+    .page-header h1 { font-size: 24px; font-weight: 800; color: #fff; letter-spacing: -0.03em; }
+    .page-header p  { font-size: 14px; color: #555; margin-top: 5px; }
+
+    /* Tab bar */
+    .tab-bar {
+      display: flex; align-items: stretch; background: #0D0D0D;
+      border-bottom: 1px solid #1E1E1E; padding: 0 48px;
+      position: sticky; top: 0; z-index: 200; gap: 4px;
+    }
+    .tab-btn {
+      display: flex; align-items: center; gap: 8px; padding: 14px 20px;
+      color: #555; font-size: 13px; font-weight: 500; border: none;
+      background: none; border-bottom: 2px solid transparent;
+      transition: all 0.15s; white-space: nowrap; letter-spacing: -0.01em;
+    }
+    .tab-btn:hover { color: #aaa; }
+    .tab-btn.active { color: #fff; border-bottom-color: var(--teal); }
+    .tab-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .tab-badge {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.06em; padding: 2px 8px; border-radius: var(--r-full);
+      background: #1E1E1E; color: #555;
+    }
+    .tab-btn.active .tab-badge { background: #1E2E28; color: var(--teal); }
+
+    /* Alt sections */
+    .alt-section { display: none; padding: 40px 48px 60px; }
+    .alt-section.active { display: block; }
+    .alt-header {
+      max-width: 1280px; margin: 0 auto 20px;
+      display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    }
+    .alt-title  { font-size: 22px; font-weight: 800; color: #fff; letter-spacing: -0.03em; }
+    .alt-pill   { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; padding: 3px 10px; border-radius: var(--r-full); color: #fff; }
+    .alt-desc   { font-size: 14px; color: #555; flex: 1; min-width: 200px; }
+
+    /* Mockup frame */
+    .mockup {
+      width: 1280px; height: 860px; margin: 0 auto;
+      border-radius: 14px; overflow: hidden;
+      box-shadow: 0 40px 120px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.06);
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background: var(--bg); display: flex; flex-direction: column;
+    }
+
+    /* ── Shared Atoms ─────────────────────────────────────────────── */
+
+    .topbar {
+      background: var(--header); height: 52px; display: flex;
+      align-items: center; padding: 0 24px; gap: 14px; flex-shrink: 0;
+    }
+    .topbar-logo  { font-weight: 800; font-size: 18px; color: #fff; letter-spacing: -0.04em; }
+    .topbar-sep   { width: 1px; height: 18px; background: rgba(255,255,255,0.12); flex-shrink: 0; }
+    .topbar-title { font-size: 15px; font-weight: 700; color: #fff; letter-spacing: -0.02em; }
+    .topbar-spacer { flex: 1; }
+    .topbar-icon-btn {
+      width: 32px; height: 32px; border-radius: var(--r-sm);
+      display: inline-flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.5);
+    }
+
+    /* Settings group + row (used in all 3 variations) */
+    .st-group {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r); overflow: hidden; margin-bottom: 12px;
+    }
+    .st-row {
+      display: flex; align-items: center; gap: 14px;
+      padding: 13px 18px; border-bottom: 1px solid var(--border-sub);
+      cursor: pointer; transition: background 0.1s;
+    }
+    .st-row:last-child { border-bottom: none; }
+    .st-row:hover { background: var(--surface3); }
+    .st-row.static { cursor: default; }
+    .st-row.static:hover { background: var(--surface); }
+    .st-ico {
+      width: 34px; height: 34px; border-radius: var(--r-sm);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .st-lbl  { font-size: 14px; font-weight: 500; color: var(--t1); flex: 1; }
+    .st-sub  { font-size: 12px; color: var(--t3); margin-top: 2px; }
+    .st-val  { font-size: 13px; color: var(--t2); font-weight: 500; white-space: nowrap; }
+    .st-chev { font-family: 'Material Symbols Rounded'; font-size: 18px; color: #C9C7C0; flex-shrink: 0; }
+    .st-sec-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; color: var(--t3); margin: 20px 0 8px;
+    }
+    .st-sec-label:first-child { margin-top: 0; }
+
+    /* Input fields */
+    .st-input {
+      width: 100%; height: 38px; background: var(--surface2);
+      border: 1.5px solid var(--border); border-radius: var(--r-sm);
+      padding: 0 12px; font-size: 13px; color: var(--t1); outline: none;
+    }
+    .st-input:focus { border-color: var(--teal); background: var(--surface); }
+    .st-input-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--t3); margin-bottom: 5px; display: block;
+    }
+
+    /* Buttons */
+    .btn-teal {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      background: var(--teal); color: #fff; border: none;
+      border-radius: var(--r); padding: 11px 20px; font-size: 14px; font-weight: 700;
+    }
+    .btn-teal.full { width: 100%; }
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: none; border: 1px solid var(--border); border-radius: var(--r-sm);
+      padding: 6px 12px; font-size: 12px; font-weight: 600; color: var(--t2);
+    }
+    .btn-red {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--red-l); color: var(--red);
+      border: 1px solid rgba(217,79,59,0.2); border-radius: var(--r);
+      padding: 13px 18px; font-size: 14px; font-weight: 600; width: 100%;
+    }
+
+    /* Badge */
+    .badge-coming {
+      font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+      padding: 3px 8px; border-radius: var(--r-full); background: var(--amber-l); color: var(--amber);
+    }
+    .badge-plan {
+      font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+      padding: 2px 8px; border-radius: var(--r-full); background: #1A3070; color: #7BA7F5;
+    }
+
+    /* Trial / Subscription card */
+    .trial-card {
+      background: linear-gradient(135deg, #1B3A2D 0%, #0F7B6C 100%);
+      border-radius: 14px; padding: 20px 22px; color: #fff; position: relative; overflow: hidden;
+    }
+    .trial-card::before {
+      content: ''; position: absolute; top: -24px; right: -24px;
+      width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,0.06);
+    }
+    .trial-name   { font-size: 17px; font-weight: 800; letter-spacing: -0.02em; }
+    .trial-days   { font-size: 13px; color: rgba(255,255,255,0.6); margin-top: 2px; }
+    .trial-pbar   { height: 5px; background: rgba(255,255,255,0.15); border-radius: 3px; overflow: hidden; margin: 14px 0 8px; }
+    .trial-fill   { height: 100%; width: 4%; background: rgba(255,255,255,0.7); border-radius: 3px; }
+    .trial-meta   { display: flex; justify-content: space-between; font-size: 12px; color: rgba(255,255,255,0.5); }
+
+    /* Plan cards */
+    .plan-grid { display: flex; gap: 10px; }
+    .plan-card {
+      flex: 1; background: var(--surface); border: 2px solid var(--border);
+      border-radius: var(--r); padding: 14px 16px; cursor: pointer;
+      position: relative; transition: all 0.15s;
+    }
+    .plan-card.selected { border-color: var(--teal); background: var(--teal-l); }
+    .plan-card.selected::after {
+      content: '✓'; position: absolute; top: 10px; right: 12px;
+      width: 20px; height: 20px; border-radius: 50%; background: var(--teal);
+      color: #fff; font-size: 12px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      line-height: 20px; text-align: center;
+    }
+    .plan-type  { font-size: 13px; font-weight: 600; color: var(--t2); margin-bottom: 4px; }
+    .plan-price { font-size: 22px; font-weight: 800; color: var(--t1); letter-spacing: -0.04em; }
+    .plan-unit  { font-size: 12px; color: var(--t3); }
+    .plan-save  { font-size: 10px; font-weight: 700; color: var(--amber); background: var(--amber-l); padding: 2px 7px; border-radius: var(--r-full); display: inline-block; margin-top: 5px; }
+
+    /* Toggle */
+    .toggle { width: 40px; height: 22px; border-radius: 11px; background: var(--teal); position: relative; flex-shrink: 0; }
+    .toggle-knob { position: absolute; top: 3px; right: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+
+    /* Language card */
+    .lang-card {
+      display: flex; align-items: center; gap: 14px;
+      background: var(--surface); border: 2px solid var(--border);
+      border-radius: var(--r); padding: 14px 16px; cursor: pointer;
+      margin-bottom: 10px; transition: all 0.15s;
+    }
+    .lang-card.selected { border-color: var(--teal); background: var(--teal-l); }
+    .lang-flag { width: 38px; height: 38px; border-radius: var(--r-sm); background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+    .lang-dir-ltr { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 2px 6px; border-radius: var(--r-full); background: var(--teal-l); color: var(--teal); display: inline-block; margin-top: 3px; }
+    .lang-dir-rtl { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 2px 6px; border-radius: var(--r-full); background: var(--amber-l); color: var(--amber); display: inline-block; margin-top: 3px; }
+
+    /* Doctor avatar */
+    .doc-avatar {
+      width: 40px; height: 40px; border-radius: 50%; background: var(--teal);
+      color: #fff; font-size: 14px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+
+    /* Patient preview card */
+    .preview-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r); overflow: hidden;
+    }
+    .preview-header {
+      background: var(--surface2); padding: 10px 14px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+    }
+    .preview-header-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--t3); }
+    .preview-body { padding: 14px 16px; }
+
+    /* Coming soon shell */
+    .coming-soon-card {
+      background: var(--surface3); border: 1px dashed var(--border);
+      border-radius: var(--r); padding: 20px; text-align: center;
+    }
+
+    /* Billing history row */
+    .billing-toggle {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 0; border-top: 1px solid var(--border-sub); cursor: pointer; margin-top: 4px;
+    }
+    .billing-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--t3); }
+
+    /* Duration ring helper */
+    .dur-ring { position: relative; }
+    .dur-ring-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .dur-step-btn {
+      width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid var(--border);
+      background: var(--surface); display: flex; align-items: center; justify-content: center;
+      font-size: 20px; color: var(--t2); transition: all 0.1s;
+    }
+    .dur-step-btn:hover { border-color: var(--teal); color: var(--teal); }
+
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       VARIATION A — Sidebar Classique
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+    .a-wrap { display: flex; flex: 1; overflow: hidden; }
+
+    .a-sidebar {
+      width: 224px; flex-shrink: 0;
+      background: var(--surface3); border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; overflow-y: auto; padding: 16px 10px 20px;
+    }
+    .a-group-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; color: var(--t3);
+      padding: 6px 10px; margin-top: 14px; margin-bottom: 2px;
+    }
+    .a-group-label:first-child { margin-top: 0; }
+    .a-nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; border-radius: var(--r-sm); border: none;
+      background: none; color: var(--t2); font-size: 13px; font-weight: 500;
+      text-align: left; width: 100%; transition: all 0.1s;
+    }
+    .a-nav-item:hover  { background: var(--surface2); color: var(--t1); }
+    .a-nav-item.active { background: var(--teal-l); color: var(--teal); font-weight: 600; }
+    .a-nav-item.danger { color: var(--red); }
+    .a-nav-item.danger:hover { background: var(--red-l); }
+    .a-nav-ico { width: 26px; height: 26px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+    .a-content { flex: 1; overflow-y: auto; background: var(--bg); padding: 28px 36px; }
+
+    .a-pane-title {
+      font-size: 20px; font-weight: 800; color: var(--t1); letter-spacing: -0.03em; margin-bottom: 4px;
+    }
+    .a-pane-sub { font-size: 13px; color: var(--t3); margin-bottom: 24px; }
+
+    /* Profile form rows for Var A */
+    .a-form-row { display: grid; grid-template-columns: 150px 1fr; align-items: center; gap: 16px; padding: 12px 18px; background: var(--surface); border-bottom: 1px solid var(--border-sub); }
+    .a-form-row:last-child { border-bottom: none; }
+    .a-form-label { font-size: 13px; font-weight: 500; color: var(--t2); }
+
+    /* Duration card */
+    .dur-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 28px 24px; text-align: center; margin-bottom: 16px; }
+    .dur-num  { font-size: 52px; font-weight: 800; color: var(--t1); letter-spacing: -0.05em; line-height: 1; }
+    .dur-unit { font-size: 14px; color: var(--t3); margin-top: 4px; }
+    .dur-controls { display: flex; align-items: center; justify-content: center; gap: 20px; margin-top: 20px; }
+    .dur-range { font-size: 11px; color: var(--t3); margin-top: 10px; }
+
+    /* Impact timeline dots */
+    .impact-timeline { display: flex; align-items: center; gap: 0; margin-top: 14px; }
+    .it-node { display: flex; flex-direction: column; align-items: center; gap: 5px; flex-shrink: 0; }
+    .it-dot  { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .it-line { flex: 1; height: 1px; background: var(--border); margin-bottom: 18px; }
+    .it-lbl  { font-size: 10px; color: var(--t3); font-weight: 600; }
+
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       VARIATION B — Page Unique
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+    .b-qnav { display: flex; align-items: center; gap: 6px; }
+    .b-qpill {
+      font-size: 12px; font-weight: 600; padding: 5px 14px;
+      border-radius: var(--r-full); background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.65); border: 1px solid rgba(255,255,255,0.15);
+    }
+    .b-qpill.active { background: rgba(255,255,255,0.18); color: #fff; }
+
+    .b-scroll { flex: 1; overflow-y: auto; }
+    .b-inner  { max-width: 680px; margin: 0 auto; padding: 32px 24px 60px; }
+
+    .b-sec-hdr  { display: flex; align-items: center; gap: 14px; margin: 36px 0 16px; }
+    .b-sec-hdr:first-child { margin-top: 0; }
+    .b-sec-name { font-size: 16px; font-weight: 800; color: var(--t1); letter-spacing: -0.02em; white-space: nowrap; }
+    .b-sec-line { flex: 1; height: 1px; background: var(--border); }
+
+    /* Compact row with inline value */
+    .b-row {
+      display: flex; align-items: center; gap: 14px;
+      padding: 12px 18px; border-bottom: 1px solid var(--border-sub);
+      cursor: pointer; transition: background 0.1s;
+    }
+    .b-row:last-child { border-bottom: none; }
+    .b-row:hover  { background: var(--surface3); }
+    .b-row-name   { font-size: 14px; font-weight: 500; color: var(--t1); flex: 1; }
+    .b-row-val    { font-size: 13px; color: var(--t2); }
+
+    /* Inline duration stepper */
+    .b-stepper {
+      display: flex; align-items: center; border: 1.5px solid var(--border);
+      border-radius: var(--r-sm); overflow: hidden; flex-shrink: 0;
+    }
+    .b-step-btn { width: 32px; height: 32px; border: none; background: var(--surface2); color: var(--t2); font-size: 18px; display: flex; align-items: center; justify-content: center; }
+    .b-step-val { width: 56px; text-align: center; font-size: 14px; font-weight: 700; color: var(--t1); border-left: 1px solid var(--border); border-right: 1px solid var(--border); height: 32px; display: flex; align-items: center; justify-content: center; gap: 4px; }
+    .b-step-unit { font-size: 11px; font-weight: 400; color: var(--t3); }
+
+    /* Section anchors */
+    .b-anchor { scroll-margin-top: 52px; }
+
+    /* Info hint */
+    .b-hint {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r-sm); padding: 12px 16px; margin-top: 8px;
+      font-size: 13px; color: var(--t2); line-height: 1.5;
+    }
+
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       VARIATION C — Cards + Panel
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+    .c-body { display: flex; flex: 1; overflow: hidden; }
+
+    .c-grid-area { flex: 1; overflow-y: auto; padding: 28px 32px; background: var(--bg); }
+    .c-grid-label { font-size: 11px; color: var(--t3); margin-bottom: 16px; }
+    .c-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+
+    .c-card {
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: 14px; padding: 18px; cursor: pointer;
+      transition: all 0.15s; display: flex; flex-direction: column; gap: 14px;
+      position: relative; overflow: hidden;
+    }
+    .c-card:hover { border-color: var(--teal-m); box-shadow: 0 4px 20px rgba(0,0,0,0.08); transform: translateY(-1px); }
+    .c-card.active { border-color: var(--teal); border-width: 2px; }
+    .c-card.active::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+    }
+    .c-card-hdr  { display: flex; align-items: flex-start; gap: 12px; }
+    .c-card-ico  { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .c-card-title { font-size: 14px; font-weight: 700; color: var(--t1); }
+    .c-card-sub  { font-size: 12px; color: var(--t3); margin-top: 2px; }
+    .c-card-body { border-top: 1px solid var(--border-sub); padding-top: 12px; display: flex; flex-direction: column; gap: 6px; }
+    .c-kv        { display: flex; align-items: center; justify-content: space-between; }
+    .c-kv-lbl    { font-size: 12px; color: var(--t3); }
+    .c-kv-val    { font-size: 12px; font-weight: 600; color: var(--t1); }
+
+    /* Detail panel (right side) */
+    .c-panel {
+      width: 380px; flex-shrink: 0; background: var(--surface);
+      border-left: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden;
+    }
+    .c-panel-hdr {
+      padding: 18px 22px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+    }
+    .c-panel-hdr-ico { width: 32px; height: 32px; border-radius: var(--r-sm); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .c-panel-title { font-size: 16px; font-weight: 800; color: var(--t1); letter-spacing: -0.02em; flex: 1; }
+    .c-close-btn {
+      width: 28px; height: 28px; border-radius: var(--r-sm); border: 1px solid var(--border);
+      background: none; display: flex; align-items: center; justify-content: center;
+      color: var(--t3); flex-shrink: 0;
+    }
+    .c-panel-body { flex: 1; overflow-y: auto; padding: 20px 22px; }
+
+    /* Panel content panes */
+    .c-pane { display: none; }
+    .c-pane.active { display: block; }
+  </style>
+</head>
+<body>
+
+  <div class="page-header">
+    <h1>BléSaf — Settings Desktop</h1>
+    <p>3 design variations for the desktop doctor's dashboard settings page · All sections from the mobile view</p>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="showAlt('a',this)">
+      <span class="tab-dot" style="background:#0F7B6C"></span>
+      A — Sidebar Classique
+      <span class="tab-badge">macOS-style</span>
+    </button>
+    <button class="tab-btn" onclick="showAlt('b',this)">
+      <span class="tab-dot" style="background:#8B5CF6"></span>
+      B — Page Unique
+      <span class="tab-badge">Linear-style</span>
+    </button>
+    <button class="tab-btn" onclick="showAlt('c',this)">
+      <span class="tab-dot" style="background:#3B7DD9"></span>
+      C — Cards + Panel
+      <span class="tab-badge">Dashboard-style</span>
+    </button>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════════
+       VARIATION A — Sidebar Classique
+  ══════════════════════════════════════════════════════════════ -->
+  <div class="alt-section active" id="alt-a">
+    <div class="alt-header">
+      <span class="alt-title">A — Sidebar Classique</span>
+      <span class="alt-pill" style="background:#0F7B6C">Navigation latérale</span>
+      <span class="alt-desc">Navigation persistante à gauche (macOS / VS Code style). Chaque section s'affiche dans le panneau droit sans quitter la page. Familier pour les utilisateurs desktop.</span>
+    </div>
+    <div class="mockup">
+      <!-- Topbar -->
+      <div class="topbar">
+        <div class="topbar-logo">BléSaf</div>
+        <div class="topbar-sep"></div>
+        <span class="topbar-title">Paramètres</span>
+        <div class="topbar-spacer"></div>
+        <span style="font-size:12px;color:rgba(255,255,255,0.35);">Cabinet Dr Skander Kamoun</span>
+      </div>
+
+      <div class="a-wrap">
+        <!-- Sidebar -->
+        <nav class="a-sidebar">
+          <div class="a-group-label">Cabinet</div>
+          <button class="a-nav-item active" data-pane="profil" onclick="aShowPane('profil',this)">
+            <span class="a-nav-ico" style="background:#E8F5F1;"><span class="icon sm" style="color:#0F7B6C;">domain</span></span>
+            Profil du cabinet
+          </button>
+          <button class="a-nav-item" data-pane="acces" onclick="aShowPane('acces',this)">
+            <span class="a-nav-ico" style="background:#EDF3FC;"><span class="icon sm" style="color:#3B7DD9;">group</span></span>
+            Accès
+          </button>
+          <button class="a-nav-item" data-pane="abonnement" onclick="aShowPane('abonnement',this)">
+            <span class="a-nav-ico" style="background:#E8F5F1;"><span class="icon sm" style="color:#0F7B6C;">card_membership</span></span>
+            Abonnement
+          </button>
+
+          <div class="a-group-label">File d'attente</div>
+          <button class="a-nav-item" data-pane="duree" onclick="aShowPane('duree',this)">
+            <span class="a-nav-ico" style="background:#FEF7E6;"><span class="icon sm" style="color:#D4920B;">timer</span></span>
+            Durée consultation
+          </button>
+          <button class="a-nav-item" data-pane="langue" onclick="aShowPane('langue',this)">
+            <span class="a-nav-ico" style="background:#F0EFEA;"><span class="icon sm" style="color:#6B6960;">translate</span></span>
+            Langue
+          </button>
+
+          <div class="a-group-label">Compte</div>
+          <button class="a-nav-item danger">
+            <span class="a-nav-ico" style="background:#FDF0ED;"><span class="icon sm" style="color:#D94F3B;">logout</span></span>
+            Déconnexion
+          </button>
+        </nav>
+
+        <!-- Content -->
+        <div class="a-content">
+
+          <!-- Pane: Profil -->
+          <div id="a-pane-profil" class="a-pane">
+            <div class="a-pane-title">Profil du cabinet</div>
+            <div class="a-pane-sub">Informations affichées aux patients et dans l'application</div>
+
+            <div class="st-sec-label">Informations du cabinet</div>
+            <div class="st-group" style="overflow:visible;">
+              <div class="a-form-row">
+                <label class="a-form-label">Nom du cabinet</label>
+                <input class="st-input" value="Cabinet Dr Skander Kamoun" />
+              </div>
+              <div class="a-form-row">
+                <label class="a-form-label">Médecin</label>
+                <input class="st-input" value="Dr. Skander Kamoun" />
+              </div>
+              <div class="a-form-row">
+                <label class="a-form-label">Téléphone</label>
+                <input class="st-input" value="22 222 222" />
+              </div>
+              <div class="a-form-row">
+                <label class="a-form-label">Adresse</label>
+                <input class="st-input" value="Tunis, Tunisie" />
+              </div>
+            </div>
+
+            <div style="display:flex;gap:10px;margin-bottom:28px;">
+              <button class="btn-teal">
+                <span class="icon sm fill">check_circle</span>
+                Enregistrer
+              </button>
+              <button class="btn-ghost">Annuler</button>
+            </div>
+
+            <div class="st-sec-label">Sécurité</div>
+            <div class="st-group">
+              <div class="st-row">
+                <div class="st-ico" style="background:#FDF0ED;"><span class="icon sm" style="color:#D94F3B;">lock</span></div>
+                <div style="flex:1;">
+                  <div class="st-lbl">Changer le mot de passe</div>
+                  <div class="st-sub">Sécurisez votre compte</div>
+                </div>
+                <button class="btn-ghost">Modifier</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pane: Accès -->
+          <div id="a-pane-acces" class="a-pane" style="display:none;">
+            <div class="a-pane-title">Accès</div>
+            <div class="a-pane-sub">Médecins et gestion du personnel</div>
+
+            <div class="st-sec-label">Votre médecin</div>
+            <div class="st-group">
+              <div class="st-row static">
+                <div class="doc-avatar">SK</div>
+                <div style="flex:1;">
+                  <div class="st-lbl">Dr. Skander Kamoun</div>
+                  <div class="st-sub" style="display:flex;align-items:center;gap:4px;">
+                    <span class="icon xs" style="color:var(--t3);">settings</span>
+                    Modifiable dans Profil du cabinet
+                  </div>
+                </div>
+                <span style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:var(--r-full);background:var(--teal-l);color:var(--teal);">Principal</span>
+              </div>
+            </div>
+
+            <div class="st-sec-label">Gestion multi-médecins</div>
+            <div class="coming-soon-card">
+              <span class="icon lg" style="color:#C9C7C0;display:block;margin-bottom:10px;">group_add</span>
+              <div style="font-size:15px;font-weight:700;color:var(--t1);margin-bottom:6px;">Gestion multi-médecins</div>
+              <div style="font-size:13px;color:var(--t3);max-width:380px;margin:0 auto;line-height:1.6;">
+                Gérez plusieurs médecins, organisez la file d'attente par praticien, et suivez les performances individuelles.
+              </div>
+              <div style="margin-top:12px;"><span class="badge-coming">Bientôt disponible</span></div>
+            </div>
+          </div>
+
+          <!-- Pane: Abonnement -->
+          <div id="a-pane-abonnement" class="a-pane" style="display:none;max-width:520px;">
+            <div class="a-pane-title">Abonnement</div>
+            <div class="a-pane-sub">Gérer votre plan et vos paiements</div>
+
+            <div class="trial-card" style="margin-bottom:20px;">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px;">
+                <div>
+                  <div class="trial-name">Essai gratuit</div>
+                  <div class="trial-days">Expire le 17 mars 2026</div>
+                </div>
+                <span class="badge-plan">TRIAL</span>
+              </div>
+              <div class="trial-pbar"><div class="trial-fill"></div></div>
+              <div class="trial-meta"><span>0 jours restants</span><span>Expiré</span></div>
+            </div>
+
+            <div class="st-sec-label">Choisir un plan</div>
+            <div class="plan-grid" style="margin-bottom:14px;">
+              <div class="plan-card">
+                <div class="plan-type">Mensuel</div>
+                <div><span class="plan-price">50</span> <span class="plan-unit">TND/mois</span></div>
+              </div>
+              <div class="plan-card selected">
+                <div class="plan-type">Annuel</div>
+                <div><span class="plan-price">500</span> <span class="plan-unit">TND/an</span></div>
+                <span class="plan-save">Économisez 100 TND</span>
+              </div>
+            </div>
+
+            <button class="btn-teal full" style="margin-bottom:20px;">
+              <span class="icon sm">upload</span>
+              S'abonner — 500 TND/an
+            </button>
+
+            <div class="billing-toggle">
+              <span class="billing-label">Historique des paiements</span>
+              <span class="icon sm" style="color:var(--t3);">expand_more</span>
+            </div>
+          </div>
+
+          <!-- Pane: Durée -->
+          <div id="a-pane-duree" class="a-pane" style="display:none;max-width:500px;">
+            <div class="a-pane-title">Durée consultation</div>
+            <div class="a-pane-sub">Temps estimé par patient pour calculer les attentes</div>
+
+            <div class="dur-card">
+              <div class="dur-ring" style="width:130px;height:130px;margin:0 auto 16px;">
+                <svg width="130" height="130" viewBox="0 0 130 130">
+                  <circle cx="65" cy="65" r="54" fill="none" stroke="#F0EFEA" stroke-width="7"/>
+                  <circle cx="65" cy="65" r="54" fill="none" stroke="#0F7B6C" stroke-width="7"
+                    stroke-dasharray="339" stroke-dashoffset="271"
+                    stroke-linecap="round" transform="rotate(-90 65 65)"/>
+                </svg>
+                <div class="dur-ring-center">
+                  <div class="dur-num" style="font-size:40px;">12</div>
+                  <div class="dur-unit">minutes</div>
+                </div>
+              </div>
+              <div class="dur-controls">
+                <button class="dur-step-btn">−</button>
+                <div style="text-align:center;">
+                  <div style="font-size:15px;font-weight:600;color:var(--t2);">12 min / patient</div>
+                </div>
+                <button class="dur-step-btn">+</button>
+              </div>
+              <div class="dur-range">Min 5 min — Max 60 min</div>
+            </div>
+
+            <div class="st-sec-label">Impact sur l'attente</div>
+            <div class="st-group" style="padding:16px 18px;overflow:visible;">
+              <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:14px;">
+                <div class="st-ico" style="background:var(--amber-l);flex-shrink:0;"><span class="icon sm" style="color:var(--amber);">table_chart</span></div>
+                <div style="font-size:13px;color:var(--t2);line-height:1.6;">
+                  Avec <strong style="color:var(--t1);">12 min</strong> par patient, une file de
+                  <strong style="color:var(--teal);">5 patients</strong> représente environ
+                  <strong style="color:var(--t1);">~60 min</strong> d'attente pour le dernier patient.
+                </div>
+              </div>
+              <div class="impact-timeline">
+                <div class="it-node"><div class="it-dot" style="background:var(--teal-l);"><span class="icon xs fill" style="color:var(--teal);">person</span></div><div class="it-lbl">0 min</div></div>
+                <div class="it-line"></div>
+                <div class="it-node"><div class="it-dot" style="background:var(--teal-l);"><span class="icon xs fill" style="color:var(--teal);">person</span></div><div class="it-lbl">12 min</div></div>
+                <div class="it-line"></div>
+                <div class="it-node"><div class="it-dot" style="background:var(--teal-l);"><span class="icon xs fill" style="color:var(--teal);">person</span></div><div class="it-lbl">24 min</div></div>
+                <div class="it-line"></div>
+                <div class="it-node"><div class="it-dot" style="background:var(--amber-l);"><span class="icon xs fill" style="color:var(--amber);">person</span></div><div class="it-lbl">36 min</div></div>
+                <div class="it-line"></div>
+                <div class="it-node"><div class="it-dot" style="background:var(--amber-l);"><span class="icon xs fill" style="color:var(--amber);">person</span></div><div class="it-lbl">48 min</div></div>
+              </div>
+            </div>
+
+            <div class="st-sec-label">Aujourd'hui</div>
+            <div class="st-group">
+              <div class="st-row static">
+                <div class="st-ico" style="background:var(--surface2);"><span class="icon sm" style="color:var(--t3);">trending_up</span></div>
+                <div style="flex:1;"><div class="st-lbl">Durée moyenne réelle</div><div class="st-sub">Basée sur les consultations du jour</div></div>
+                <span style="font-size:18px;font-weight:800;color:var(--t1);">—</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pane: Langue -->
+          <div id="a-pane-langue" class="a-pane" style="display:none;max-width:480px;">
+            <div class="a-pane-title">Langue</div>
+            <div class="a-pane-sub">Interface et expérience patient</div>
+
+            <div class="st-sec-label">Langue de l'interface</div>
+            <div class="lang-card selected">
+              <div class="lang-flag">🇹🇳</div>
+              <div style="flex:1;">
+                <div style="font-size:14px;font-weight:700;color:var(--t1);">Français</div>
+                <div style="font-size:12px;color:var(--t3);">French</div>
+                <span class="lang-dir-ltr">LTR →</span>
+              </div>
+              <div style="width:20px;height:20px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;"><span class="icon xs" style="color:#fff;font-size:13px;">check</span></div>
+            </div>
+            <div class="lang-card">
+              <div class="lang-flag">🇹🇳</div>
+              <div style="flex:1;">
+                <div style="font-size:14px;font-weight:700;color:var(--t1);">العربية</div>
+                <div style="font-size:12px;color:var(--t3);">Arabic</div>
+                <span class="lang-dir-rtl">← RTL</span>
+              </div>
+              <div style="width:20px;height:20px;border-radius:50%;border:1.5px solid var(--border);"></div>
+            </div>
+
+            <div class="st-sec-label">Affichage patient</div>
+            <div class="st-group">
+              <div class="st-row static">
+                <div class="st-ico" style="background:var(--blue-l);"><span class="icon sm" style="color:var(--blue);">language</span></div>
+                <div style="flex:1;"><div class="st-lbl">Sélecteur de langue</div><div class="st-sub">Permettre aux patients de changer la langue</div></div>
+                <div class="toggle"><div class="toggle-knob"></div></div>
+              </div>
+            </div>
+
+            <div class="st-sec-label">Aperçu patient</div>
+            <div class="preview-card">
+              <div class="preview-header">
+                <span class="preview-header-label">Ce que voit le patient</span>
+                <span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;background:var(--teal-l);color:var(--teal);">FR</span>
+              </div>
+              <div class="preview-body">
+                <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--t3);margin-bottom:8px;">Page statut patient</div>
+                <div style="font-size:15px;font-weight:700;color:var(--t1);margin-bottom:3px;">Bienvenue au cabinet</div>
+                <div style="font-size:12px;color:var(--t2);margin-bottom:10px;">Votre position dans la file d'attente :</div>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <span class="icon fill" style="color:var(--teal);">group</span>
+                  <span style="font-size:22px;font-weight:800;color:var(--t1);letter-spacing:-0.04em;">3</span>
+                </div>
+                <div style="font-size:11px;color:var(--t3);margin-top:10px;display:flex;align-items:center;gap:4px;">
+                  <span class="icon xs" style="color:var(--t3);">info</span>
+                  Direction du texte : LTR → (gauche à droite)
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /a-content -->
+      </div><!-- /a-wrap -->
+    </div><!-- /mockup -->
+  </div><!-- /alt-a -->
+
+
+  <!-- ══════════════════════════════════════════════════════════════
+       VARIATION B — Page Unique
+  ══════════════════════════════════════════════════════════════ -->
+  <div class="alt-section" id="alt-b">
+    <div class="alt-header">
+      <span class="alt-title">B — Page Unique</span>
+      <span class="alt-pill" style="background:#8B5CF6">Tout visible d'un coup</span>
+      <span class="alt-desc">Toutes les sections sur une seule page déroulante. Aucune navigation entre panneaux. Idéal pour un accès rapide aux réglages fréquents comme la durée de consultation.</span>
+    </div>
+    <div class="mockup">
+      <div class="topbar">
+        <div class="topbar-logo">BléSaf</div>
+        <div class="topbar-sep"></div>
+        <span class="topbar-title">Paramètres</span>
+        <div class="topbar-spacer"></div>
+        <div class="b-qnav">
+          <button class="b-qpill active" onclick="bScrollTo('b-cabinet')">Cabinet</button>
+          <button class="b-qpill" onclick="bScrollTo('b-queue')">File d'attente</button>
+          <button class="b-qpill" onclick="bScrollTo('b-abo')">Abonnement</button>
+        </div>
+      </div>
+
+      <div class="b-scroll" id="b-scroll-container">
+        <div class="b-inner">
+
+          <!-- CABINET -->
+          <div id="b-cabinet" class="b-anchor">
+            <div class="b-sec-hdr b-sec-hdr:first-child" style="margin-top:0;">
+              <span class="b-sec-name">Cabinet</span>
+              <div class="b-sec-line"></div>
+            </div>
+            <div class="st-group">
+              <div class="b-row">
+                <div class="st-ico" style="background:#E8F5F1;"><span class="icon sm" style="color:var(--teal);">home</span></div>
+                <span class="b-row-name">Nom du cabinet</span>
+                <span class="b-row-val">Cabinet Dr Skander Kamoun</span>
+                <span class="st-chev">chevron_right</span>
+              </div>
+              <div class="b-row">
+                <div class="st-ico" style="background:#EDF3FC;"><span class="icon sm" style="color:var(--blue);">person</span></div>
+                <span class="b-row-name">Médecin</span>
+                <span class="b-row-val">Dr. Skander Kamoun</span>
+                <span class="st-chev">chevron_right</span>
+              </div>
+              <div class="b-row">
+                <div class="st-ico" style="background:#E8F5F1;"><span class="icon sm" style="color:var(--teal);">phone</span></div>
+                <span class="b-row-name">Téléphone</span>
+                <span class="b-row-val">+216 22 222 222</span>
+                <span class="st-chev">chevron_right</span>
+              </div>
+              <div class="b-row">
+                <div class="st-ico" style="background:#FEF7E6;"><span class="icon sm" style="color:var(--amber);">location_on</span></div>
+                <span class="b-row-name">Adresse</span>
+                <span class="b-row-val">Tunis, Tunisie</span>
+                <span class="st-chev">chevron_right</span>
+              </div>
+              <div class="b-row">
+                <div class="st-ico" style="background:#FDF0ED;"><span class="icon sm" style="color:var(--red);">lock</span></div>
+                <span class="b-row-name">Mot de passe</span>
+                <span class="b-row-val" style="color:var(--t3);">••••••••</span>
+                <button class="btn-ghost">Modifier</button>
+              </div>
+            </div>
+
+            <!-- Accès (inline in Cabinet section) -->
+            <div style="margin-top:20px;">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+                <span style="font-size:12px;font-weight:600;color:var(--t2);">Accès</span>
+                <div style="flex:1;height:1px;background:var(--border-sub);"></div>
+              </div>
+              <div class="st-group">
+                <div class="b-row static" style="cursor:default;">
+                  <div class="doc-avatar" style="width:36px;height:36px;font-size:13px;">SK</div>
+                  <div style="flex:1;">
+                    <div class="b-row-name">Dr. Skander Kamoun</div>
+                    <div style="font-size:12px;color:var(--t3);">Médecin principal · Modifiable dans Profil</div>
+                  </div>
+                  <span style="font-size:11px;font-weight:700;padding:3px 8px;border-radius:var(--r-full);background:var(--teal-l);color:var(--teal);">Principal</span>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--surface3);border:1px dashed var(--border);border-radius:var(--r);margin-top:8px;">
+                <span class="icon" style="color:#C9C7C0;">group_add</span>
+                <div style="flex:1;"><div style="font-size:13px;font-weight:600;color:var(--t1);">Gestion multi-médecins</div><div style="font-size:12px;color:var(--t3);">Plusieurs praticiens, files séparées</div></div>
+                <span class="badge-coming">Bientôt</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- FILE D'ATTENTE -->
+          <div id="b-queue" class="b-anchor">
+            <div class="b-sec-hdr">
+              <span class="b-sec-name">File d'attente</span>
+              <div class="b-sec-line"></div>
+            </div>
+            <div class="st-group">
+              <div class="b-row" style="cursor:default;">
+                <div class="st-ico" style="background:#FEF7E6;"><span class="icon sm" style="color:var(--amber);">timer</span></div>
+                <span class="b-row-name">Durée consultation</span>
+                <div style="display:flex;align-items:center;gap:10px;margin-left:auto;">
+                  <span style="font-size:12px;color:var(--t3);">≈ 60 min pour 5 patients</span>
+                  <div class="b-stepper">
+                    <button class="b-step-btn">−</button>
+                    <div class="b-step-val">12 <span class="b-step-unit">min</span></div>
+                    <button class="b-step-btn">+</button>
+                  </div>
+                </div>
+              </div>
+              <div class="b-row">
+                <div class="st-ico" style="background:#F0EFEA;"><span class="icon sm" style="color:var(--t2);">translate</span></div>
+                <span class="b-row-name">Langue de l'interface</span>
+                <span class="b-row-val">Français</span>
+                <span style="font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;background:var(--teal-l);color:var(--teal);margin:0 6px;">LTR</span>
+                <span class="st-chev">chevron_right</span>
+              </div>
+              <div class="b-row" style="cursor:default;">
+                <div class="st-ico" style="background:var(--blue-l);"><span class="icon sm" style="color:var(--blue);">language</span></div>
+                <span class="b-row-name">Sélecteur de langue patient</span>
+                <span class="b-row-val" style="color:var(--teal);">Activé</span>
+                <div class="toggle" style="margin-left:8px;"><div class="toggle-knob"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ABONNEMENT -->
+          <div id="b-abo" class="b-anchor">
+            <div class="b-sec-hdr">
+              <span class="b-sec-name">Abonnement</span>
+              <div class="b-sec-line"></div>
+            </div>
+
+            <div class="trial-card" style="margin-bottom:14px;">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px;">
+                <div><div class="trial-name">Essai gratuit</div><div class="trial-days">Expire le 17 mars 2026</div></div>
+                <span class="badge-plan">TRIAL</span>
+              </div>
+              <div class="trial-pbar"><div class="trial-fill"></div></div>
+              <div class="trial-meta"><span>0 jours restants</span><span>Expiré</span></div>
+            </div>
+
+            <div class="plan-grid" style="margin-bottom:12px;">
+              <div class="plan-card">
+                <div class="plan-type">Mensuel</div>
+                <div><span class="plan-price">50</span> <span class="plan-unit">TND/mois</span></div>
+              </div>
+              <div class="plan-card selected">
+                <div class="plan-type">Annuel</div>
+                <div><span class="plan-price">500</span> <span class="plan-unit">TND/an</span></div>
+                <span class="plan-save">Économisez 100 TND</span>
+              </div>
+            </div>
+
+            <button class="btn-teal full" style="margin-bottom:16px;">
+              <span class="icon sm">upload</span>
+              S'abonner — 500 TND/an
+            </button>
+
+            <div class="billing-toggle">
+              <span class="billing-label">Historique des paiements</span>
+              <span class="icon sm" style="color:var(--t3);">expand_more</span>
+            </div>
+          </div>
+
+          <!-- COMPTE -->
+          <div>
+            <div class="b-sec-hdr">
+              <span class="b-sec-name">Compte</span>
+              <div class="b-sec-line"></div>
+            </div>
+            <button class="btn-red">
+              <span class="icon sm">logout</span>
+              Déconnexion
+            </button>
+          </div>
+
+        </div><!-- /b-inner -->
+      </div><!-- /b-scroll -->
+    </div><!-- /mockup -->
+  </div><!-- /alt-b -->
+
+
+  <!-- ══════════════════════════════════════════════════════════════
+       VARIATION C — Cards + Panel
+  ══════════════════════════════════════════════════════════════ -->
+  <div class="alt-section" id="alt-c">
+    <div class="alt-header">
+      <span class="alt-title">C — Cards + Panel</span>
+      <span class="alt-pill" style="background:#3B7DD9">Vue d'ensemble</span>
+      <span class="alt-desc">Grille de cartes-résumé avec panneau de détail sur la droite. Vision d'ensemble immédiate de toutes les sections. Cliquer sur une carte affiche ses réglages dans le panneau droit.</span>
+    </div>
+    <div class="mockup">
+      <div class="topbar">
+        <div class="topbar-logo">BléSaf</div>
+        <div class="topbar-sep"></div>
+        <span class="topbar-title">Paramètres</span>
+        <div class="topbar-spacer"></div>
+        <span style="font-size:12px;color:rgba(255,255,255,0.35);">Cabinet Dr Skander Kamoun</span>
+      </div>
+
+      <div class="c-body">
+
+        <!-- Cards grid -->
+        <div class="c-grid-area">
+          <div class="c-grid-label">Sélectionnez une catégorie pour voir et modifier ses réglages</div>
+          <div class="c-grid">
+
+            <!-- Profil card -->
+            <div class="c-card active" data-card="profil" onclick="cShowPanel('profil',this)" style="--accent:var(--teal);">
+              <div class="c-card-hdr">
+                <div class="c-card-ico" style="background:#E8F5F1;"><span class="icon" style="color:var(--teal);">domain</span></div>
+                <div><div class="c-card-title">Profil du cabinet</div><div class="c-card-sub">Nom, médecin, coordonnées</div></div>
+              </div>
+              <div class="c-card-body">
+                <div class="c-kv"><span class="c-kv-lbl">Cabinet</span><span class="c-kv-val">Cabinet Dr Skander...</span></div>
+                <div class="c-kv"><span class="c-kv-lbl">Médecin</span><span class="c-kv-val">D. S. Kamoun</span></div>
+                <div class="c-kv"><span class="c-kv-lbl">Téléphone</span><span class="c-kv-val">22 222 222</span></div>
+              </div>
+              <div style="position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--teal);border-radius:0 0 12px 12px;"></div>
+            </div>
+
+            <!-- Abonnement card -->
+            <div class="c-card" data-card="abonnement" onclick="cShowPanel('abonnement',this)">
+              <div class="c-card-hdr">
+                <div class="c-card-ico" style="background:#E8F5F1;"><span class="icon" style="color:var(--teal);">card_membership</span></div>
+                <div><div class="c-card-title">Abonnement</div><div class="c-card-sub">Plan et historique paiements</div></div>
+              </div>
+              <div class="trial-card" style="border-radius:10px;padding:12px 14px;font-size:13px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                  <span style="font-weight:700;">Essai gratuit</span>
+                  <span class="badge-plan">TRIAL</span>
+                </div>
+                <div class="trial-pbar" style="margin:0 0 6px;"><div class="trial-fill"></div></div>
+                <div style="font-size:11px;color:rgba(255,255,255,0.5);">0 jours restants · Expiré</div>
+              </div>
+            </div>
+
+            <!-- Durée card -->
+            <div class="c-card" data-card="duree" onclick="cShowPanel('duree',this)">
+              <div class="c-card-hdr">
+                <div class="c-card-ico" style="background:#FEF7E6;"><span class="icon" style="color:var(--amber);">timer</span></div>
+                <div><div class="c-card-title">Durée consultation</div><div class="c-card-sub">Temps estimé par patient</div></div>
+              </div>
+              <div style="display:flex;align-items:center;gap:14px;padding-top:4px;">
+                <div style="position:relative;width:72px;height:72px;flex-shrink:0;">
+                  <svg width="72" height="72" viewBox="0 0 72 72">
+                    <circle cx="36" cy="36" r="30" fill="none" stroke="#F0EFEA" stroke-width="5"/>
+                    <circle cx="36" cy="36" r="30" fill="none" stroke="#D4920B" stroke-width="5"
+                      stroke-dasharray="188" stroke-dashoffset="150"
+                      stroke-linecap="round" transform="rotate(-90 36 36)"/>
+                  </svg>
+                  <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                    <span style="font-size:20px;font-weight:800;color:var(--t1);letter-spacing:-0.04em;line-height:1;">12</span>
+                    <span style="font-size:9px;color:var(--t3);">min</span>
+                  </div>
+                </div>
+                <div>
+                  <div style="font-size:12px;color:var(--t2);">Impact sur</div>
+                  <div style="font-size:16px;font-weight:800;color:var(--amber);letter-spacing:-0.03em;">~60 min</div>
+                  <div style="font-size:11px;color:var(--t3);">pour 5 patients</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Langue card -->
+            <div class="c-card" data-card="langue" onclick="cShowPanel('langue',this)">
+              <div class="c-card-hdr">
+                <div class="c-card-ico" style="background:#F0EFEA;"><span class="icon" style="color:var(--t2);">translate</span></div>
+                <div><div class="c-card-title">Langue</div><div class="c-card-sub">Interface et affichage patient</div></div>
+              </div>
+              <div class="c-card-body">
+                <div class="c-kv">
+                  <span class="c-kv-lbl">Interface</span>
+                  <span class="c-kv-val" style="display:flex;align-items:center;gap:6px;">Français <span class="lang-dir-ltr" style="font-size:9px;">LTR</span></span>
+                </div>
+                <div class="c-kv">
+                  <span class="c-kv-lbl">Sélecteur patient</span>
+                  <span style="font-size:11px;font-weight:700;color:var(--teal);background:var(--teal-l);padding:2px 8px;border-radius:var(--r-full);">Activé</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Accès card -->
+            <div class="c-card" data-card="acces" onclick="cShowPanel('acces',this)">
+              <div class="c-card-hdr">
+                <div class="c-card-ico" style="background:#EDF3FC;"><span class="icon" style="color:var(--blue);">group</span></div>
+                <div><div class="c-card-title">Accès</div><div class="c-card-sub">Médecins et personnel</div></div>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;padding-top:4px;">
+                <div class="doc-avatar" style="width:38px;height:38px;font-size:13px;">SK</div>
+                <div>
+                  <div style="font-size:13px;font-weight:600;color:var(--t1);">Dr. Skander Kamoun</div>
+                  <div style="font-size:11px;color:var(--t3);">1 médecin · Multi-médecins bientôt</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Compte card -->
+            <div class="c-card" style="border-color:#F9E0DD;" data-card="compte" onclick="cShowPanel('compte',this)">
+              <div class="c-card-hdr">
+                <div class="c-card-ico" style="background:#FDF0ED;"><span class="icon" style="color:var(--red);">account_circle</span></div>
+                <div><div class="c-card-title" style="color:var(--red);">Compte</div><div class="c-card-sub">rached@clinique.tn</div></div>
+              </div>
+              <button class="btn-red" style="margin-top:auto;">
+                <span class="icon sm">logout</span>
+                Déconnexion
+              </button>
+            </div>
+
+          </div><!-- /c-grid -->
+        </div><!-- /c-grid-area -->
+
+        <!-- Detail panel -->
+        <aside class="c-panel">
+
+          <!-- Panel: Profil -->
+          <div id="c-pane-profil" class="c-pane active">
+            <div class="c-panel-hdr">
+              <div class="c-panel-hdr-ico" style="background:#E8F5F1;"><span class="icon sm" style="color:var(--teal);">domain</span></div>
+              <span class="c-panel-title">Profil du cabinet</span>
+              <button class="c-close-btn"><span class="icon xs">close</span></button>
+            </div>
+            <div class="c-panel-body">
+              <div class="st-sec-label">Mon cabinet</div>
+              <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:16px;">
+                <div><label class="st-input-label">Nom du cabinet</label><input class="st-input" value="Cabinet Dr Skander Kamoun"></div>
+                <div><label class="st-input-label">Médecin</label><input class="st-input" value="Dr. Skander Kamoun"></div>
+                <div><label class="st-input-label">Téléphone</label><input class="st-input" value="22 222 222"></div>
+                <div><label class="st-input-label">Adresse</label><input class="st-input" value="Tunis, Tunisie"></div>
+              </div>
+              <button class="btn-teal full" style="margin-bottom:20px;"><span class="icon sm fill">check_circle</span>Enregistrer</button>
+
+              <div class="st-sec-label">Sécurité</div>
+              <div class="st-group">
+                <div class="st-row">
+                  <div class="st-ico" style="background:#FDF0ED;"><span class="icon sm" style="color:var(--red);">lock</span></div>
+                  <div style="flex:1;"><div class="st-lbl">Mot de passe</div><div class="st-sub">Sécurisez votre compte</div></div>
+                  <span class="st-chev">chevron_right</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Panel: Abonnement -->
+          <div id="c-pane-abonnement" class="c-pane">
+            <div class="c-panel-hdr">
+              <div class="c-panel-hdr-ico" style="background:#E8F5F1;"><span class="icon sm" style="color:var(--teal);">card_membership</span></div>
+              <span class="c-panel-title">Abonnement</span>
+              <button class="c-close-btn"><span class="icon xs">close</span></button>
+            </div>
+            <div class="c-panel-body">
+              <div class="trial-card" style="margin-bottom:18px;">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px;">
+                  <div><div class="trial-name">Essai gratuit</div><div class="trial-days">Expire le 17 mars 2026</div></div>
+                  <span class="badge-plan">TRIAL</span>
+                </div>
+                <div class="trial-pbar"><div class="trial-fill"></div></div>
+                <div class="trial-meta"><span>0 jours restants</span><span>Expiré</span></div>
+              </div>
+
+              <div class="st-sec-label">Choisir un plan</div>
+              <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
+                <div class="plan-card">
+                  <div class="plan-type">Mensuel</div>
+                  <div><span class="plan-price">50</span> <span class="plan-unit">TND/mois</span></div>
+                </div>
+                <div class="plan-card selected">
+                  <div class="plan-type">Annuel</div>
+                  <div><span class="plan-price">500</span> <span class="plan-unit">TND/an</span></div>
+                  <span class="plan-save">Économisez 100 TND</span>
+                </div>
+              </div>
+              <button class="btn-teal full" style="margin-bottom:16px;"><span class="icon sm">upload</span>S'abonner — 500 TND/an</button>
+              <div class="billing-toggle"><span class="billing-label">Historique des paiements</span><span class="icon sm" style="color:var(--t3);">expand_more</span></div>
+            </div>
+          </div>
+
+          <!-- Panel: Durée -->
+          <div id="c-pane-duree" class="c-pane">
+            <div class="c-panel-hdr">
+              <div class="c-panel-hdr-ico" style="background:#FEF7E6;"><span class="icon sm" style="color:var(--amber);">timer</span></div>
+              <span class="c-panel-title">Durée consultation</span>
+              <button class="c-close-btn"><span class="icon xs">close</span></button>
+            </div>
+            <div class="c-panel-body">
+              <div class="dur-card" style="padding:24px 20px;">
+                <div class="dur-ring" style="width:110px;height:110px;margin:0 auto 14px;">
+                  <svg width="110" height="110" viewBox="0 0 110 110">
+                    <circle cx="55" cy="55" r="46" fill="none" stroke="#F0EFEA" stroke-width="6"/>
+                    <circle cx="55" cy="55" r="46" fill="none" stroke="#0F7B6C" stroke-width="6"
+                      stroke-dasharray="289" stroke-dashoffset="231"
+                      stroke-linecap="round" transform="rotate(-90 55 55)"/>
+                  </svg>
+                  <div class="dur-ring-center">
+                    <div class="dur-num" style="font-size:34px;">12</div>
+                    <div class="dur-unit">minutes</div>
+                  </div>
+                </div>
+                <div class="dur-controls" style="gap:16px;">
+                  <button class="dur-step-btn">−</button>
+                  <div style="font-size:13px;font-weight:600;color:var(--t2);">12 min / patient</div>
+                  <button class="dur-step-btn">+</button>
+                </div>
+                <div class="dur-range">Min 5 min — Max 60 min</div>
+              </div>
+
+              <div class="st-sec-label">Impact</div>
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:14px;">
+                <div style="display:flex;align-items:flex-start;gap:10px;">
+                  <span class="icon sm" style="color:var(--amber);flex-shrink:0;margin-top:1px;">table_chart</span>
+                  <div style="font-size:12px;color:var(--t2);line-height:1.6;">
+                    Avec <strong style="color:var(--t1);">12 min</strong>, une file de <strong style="color:var(--teal);">5 patients</strong> ≈ <strong style="color:var(--t1);">~60 min</strong> d'attente.
+                  </div>
+                </div>
+              </div>
+
+              <div class="st-sec-label">Aujourd'hui</div>
+              <div class="st-group">
+                <div class="st-row static">
+                  <span class="icon sm" style="color:var(--t3);">trending_up</span>
+                  <div style="flex:1;"><div class="st-lbl">Durée moyenne réelle</div><div class="st-sub">Consultations du jour</div></div>
+                  <span style="font-size:16px;font-weight:800;color:var(--t1);">—</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Panel: Langue -->
+          <div id="c-pane-langue" class="c-pane">
+            <div class="c-panel-hdr">
+              <div class="c-panel-hdr-ico" style="background:#F0EFEA;"><span class="icon sm" style="color:var(--t2);">translate</span></div>
+              <span class="c-panel-title">Langue</span>
+              <button class="c-close-btn"><span class="icon xs">close</span></button>
+            </div>
+            <div class="c-panel-body">
+              <div class="st-sec-label">Langue de l'interface</div>
+              <div class="lang-card selected">
+                <div class="lang-flag">🇹🇳</div>
+                <div style="flex:1;"><div style="font-size:13px;font-weight:700;color:var(--t1);">Français</div><div style="font-size:11px;color:var(--t3);">French</div><span class="lang-dir-ltr">LTR →</span></div>
+                <div style="width:18px;height:18px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;"><span class="icon xs" style="color:#fff;font-size:12px;">check</span></div>
+              </div>
+              <div class="lang-card">
+                <div class="lang-flag">🇹🇳</div>
+                <div style="flex:1;"><div style="font-size:13px;font-weight:700;color:var(--t1);">العربية</div><div style="font-size:11px;color:var(--t3);">Arabic</div><span class="lang-dir-rtl">← RTL</span></div>
+                <div style="width:18px;height:18px;border-radius:50%;border:1.5px solid var(--border);"></div>
+              </div>
+
+              <div class="st-sec-label">Affichage patient</div>
+              <div class="st-group">
+                <div class="st-row static">
+                  <div class="st-ico" style="background:var(--blue-l);"><span class="icon sm" style="color:var(--blue);">language</span></div>
+                  <div style="flex:1;"><div class="st-lbl">Sélecteur de langue</div><div class="st-sub">Permettre aux patients de changer</div></div>
+                  <div class="toggle"><div class="toggle-knob"></div></div>
+                </div>
+              </div>
+
+              <div class="st-sec-label">Aperçu patient</div>
+              <div class="preview-card">
+                <div class="preview-header">
+                  <span class="preview-header-label">Ce que voit le patient</span>
+                  <span style="font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;background:var(--teal-l);color:var(--teal);">FR</span>
+                </div>
+                <div class="preview-body">
+                  <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--t3);margin-bottom:8px;">Page statut patient</div>
+                  <div style="font-size:14px;font-weight:700;color:var(--t1);margin-bottom:3px;">Bienvenue au cabinet</div>
+                  <div style="font-size:12px;color:var(--t2);margin-bottom:8px;">Votre position dans la file d'attente :</div>
+                  <div style="display:flex;align-items:center;gap:6px;"><span class="icon fill" style="color:var(--teal);font-size:18px;">group</span><span style="font-size:20px;font-weight:800;color:var(--t1);">3</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Panel: Accès -->
+          <div id="c-pane-acces" class="c-pane">
+            <div class="c-panel-hdr">
+              <div class="c-panel-hdr-ico" style="background:#EDF3FC;"><span class="icon sm" style="color:var(--blue);">group</span></div>
+              <span class="c-panel-title">Accès</span>
+              <button class="c-close-btn"><span class="icon xs">close</span></button>
+            </div>
+            <div class="c-panel-body">
+              <div class="st-sec-label">Votre médecin</div>
+              <div class="st-group">
+                <div class="st-row static">
+                  <div class="doc-avatar">SK</div>
+                  <div style="flex:1;"><div class="st-lbl">Dr. Skander Kamoun</div><div class="st-sub" style="display:flex;align-items:center;gap:4px;"><span class="icon xs" style="color:var(--t3);">settings</span>Modifiable dans Profil</div></div>
+                </div>
+              </div>
+
+              <div class="st-sec-label">Gestion multi-médecins</div>
+              <div class="coming-soon-card">
+                <span class="icon lg" style="color:#C9C7C0;display:block;margin-bottom:8px;">group_add</span>
+                <div style="font-size:14px;font-weight:700;color:var(--t1);margin-bottom:5px;">Gestion multi-médecins</div>
+                <div style="font-size:12px;color:var(--t3);line-height:1.5;">Gérez plusieurs médecins, organisez la file d'attente par praticien, et suivez les performances.</div>
+                <div style="margin-top:10px;"><span class="badge-coming">Bientôt disponible</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Panel: Compte -->
+          <div id="c-pane-compte" class="c-pane">
+            <div class="c-panel-hdr">
+              <div class="c-panel-hdr-ico" style="background:#FDF0ED;"><span class="icon sm" style="color:var(--red);">account_circle</span></div>
+              <span class="c-panel-title">Compte</span>
+              <button class="c-close-btn"><span class="icon xs">close</span></button>
+            </div>
+            <div class="c-panel-body">
+              <div style="text-align:center;padding:24px 0 20px;">
+                <div style="width:56px;height:56px;border-radius:50%;background:var(--teal);color:#fff;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">SK</div>
+                <div style="font-size:15px;font-weight:700;color:var(--t1);">Dr. Skander Kamoun</div>
+                <div style="font-size:12px;color:var(--t3);margin-top:3px;">rached@clinique.tn</div>
+              </div>
+              <button class="btn-red" style="margin-bottom:8px;">
+                <span class="icon sm">logout</span>
+                Déconnexion
+              </button>
+              <div style="font-size:12px;color:var(--t3);text-align:center;margin-top:6px;">
+                Vous serez déconnecté de l'application
+              </div>
+            </div>
+          </div>
+
+        </aside><!-- /c-panel -->
+      </div><!-- /c-body -->
+    </div><!-- /mockup -->
+  </div><!-- /alt-c -->
+
+
+  <script>
+    // ── Tab switcher ─────────────────────────────────────────────
+    function showAlt(id, btn) {
+      document.querySelectorAll('.alt-section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('alt-' + id).classList.add('active');
+      btn.classList.add('active');
+    }
+
+    // ── Variation A: sidebar pane switching ──────────────────────
+    function aShowPane(id, btn) {
+      document.querySelectorAll('#alt-a .a-pane').forEach(p => p.style.display = 'none');
+      document.getElementById('a-pane-' + id).style.display = 'block';
+      document.querySelectorAll('#alt-a .a-nav-item').forEach(n => n.classList.remove('active'));
+      btn.classList.add('active');
+    }
+
+    // ── Variation B: scroll to section ──────────────────────────
+    function bScrollTo(id) {
+      const el = document.getElementById(id);
+      const container = document.getElementById('b-scroll-container');
+      if (el && container) container.scrollTo({ top: el.offsetTop - 16, behavior: 'smooth' });
+    }
+
+    // ── Variation C: card → panel switching ─────────────────────
+    function cShowPanel(id, card) {
+      document.querySelectorAll('#alt-c .c-card').forEach(c => {
+        c.classList.remove('active');
+        const accent = c.querySelector('[style*="position:absolute;bottom:0"]');
+        // handled via CSS active state
+      });
+      document.querySelectorAll('#alt-c .c-pane').forEach(p => p.classList.remove('active'));
+      if (card) card.classList.add('active');
+      const pane = document.getElementById('c-pane-' + id);
+      if (pane) pane.classList.add('active');
+    }
+
+    // ── Plan card selection (all variations) ────────────────────
+    document.querySelectorAll('.plan-grid').forEach(grid => {
+      grid.querySelectorAll('.plan-card').forEach(card => {
+        card.addEventListener('click', function() {
+          this.closest('.plan-grid').querySelectorAll('.plan-card').forEach(c => c.classList.remove('selected'));
+          this.classList.add('selected');
+        });
+      });
+    });
+
+    // ── Duration steppers ─────────────────────────────────────────
+    // (static mockup — no live update needed)
+  </script>
+</body>
+</html>

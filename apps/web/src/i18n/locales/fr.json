@@ -1260,6 +1260,75 @@
       "cash": "Espèces",
       "transfer": "Virement",
       "loadError": "Impossible de charger les informations"
+    },
+    "welcome": {
+      "bilanHier": "Bilan d'hier",
+      "patientsVus": "Patients vus",
+      "hier": "Hier",
+      "personnesPrisesEnCharge": "personnes prises en charge",
+      "attenteMoy": "Attente moy.",
+      "vsSemPassee": "vs sem. passée",
+      "vs30j": "vs 30 j.",
+      "fileFermee": "File actuellement fermée",
+      "ouvrirLaFile": "Ouvrir la file\nd'attente",
+      "opening": "Ouverture en cours…",
+      "noDataYet": "Pas encore de données",
+      "noDataSub": "Les statistiques apparaîtront après votre première journée.",
+      "noWaitData": "Aucune donnée d'attente"
+    }
+  },
+  "drawer": {
+    "ariaLabel": "Menu latéral",
+    "close": "Fermer le menu",
+    "header": {
+      "clinicFallback": "Mon cabinet",
+      "present": "Présent",
+      "absent": "Absent",
+      "patients": "patients"
+    },
+    "sections": {
+      "qr": "Code QR",
+      "actions": "Actions",
+      "preferences": "Préférences",
+      "account": "Compte"
+    },
+    "qr": {
+      "title": "Code QR & Lien",
+      "close": "Fermer",
+      "imageAlt": "QR Code",
+      "whatsappMessage": "Rejoignez la file d'attente :",
+      "copied": "Copié !",
+      "view": "Voir le QR Code",
+      "viewSub": "Afficher & partager",
+      "copy": "Copier le lien",
+      "copySub": "Lien d'inscription",
+      "whatsapp": "Envoyer par WhatsApp",
+      "whatsappSub": "Partager via WhatsApp"
+    },
+    "actions": {
+      "announcement": "Annonce patients",
+      "announcementSub": "Message en salle d'attente",
+      "closeQueue": "Fermer la file",
+      "closeQueueSub": "Arrêter les inscriptions"
+    },
+    "preferences": {
+      "language": "Langue",
+      "settings": "Paramètres",
+      "settingsSub": "Cabinet, abonnement…"
+    },
+    "account": {
+      "help": "Aide & support",
+      "logout": "Déconnexion",
+      "logoutSub": "Quitter la session"
+    },
+    "qrSheet": {
+      "title": "Code QR & Lien",
+      "subtitle": "Partagez ce code pour que vos patients s'inscrivent",
+      "loading": "Chargement du QR Code…",
+      "copy": "Copier le lien",
+      "copied": "Copié !",
+      "openLink": "Ouvrir",
+      "whatsapp": "WhatsApp"
     }
   }
 }

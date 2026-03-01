@@ -154,6 +154,78 @@ router.post('/next', authMiddleware, subscriptionGate, async (req: AuthRequest, 
   }
 });
 
+// GET /api/queue/yesterday-stats — KPIs for the welcome screen
+router.get('/yesterday-stats', authMiddleware, async (req: AuthRequest, res: Response) => {
+  try {
+    const clinicId = req.clinic!.id;
+
+    const tz = 'Africa/Tunis';
+    const now = new Date(new Date().toLocaleString('en-US', { timeZone: tz }));
+
+    const yesterday = new Date(now);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+    const d8ago = new Date(now);
+    d8ago.setDate(d8ago.getDate() - 8);
+
+    const d31ago = new Date(now);
+    d31ago.setDate(d31ago.getDate() - 31);
+
+    const allStats = await prisma.dailyStat.findMany({
+      where: { clinicId, date: { gte: d31ago } },
+      orderBy: { date: 'desc' },
+    });
+
+    const yesterdayStats = allStats.find(
+      (s) => s.date.toISOString().split('T')[0] === yesterdayStr
+    );
+
+    if (!yesterdayStats) {
+      return res.json({ yesterday: null, trends: null });
+    }
+
+    const week7   = allStats.filter((s) => s.date >= d8ago  && s.date < yesterday);
+    const month30 = allStats.filter((s) => s.date >= d31ago && s.date < yesterday);
+
+    const avg = (arr: typeof allStats, field: 'totalPatients' | 'avgWaitMins') => {
+      if (arr.length === 0) return null;
+      return Math.round(arr.reduce((sum, s) => sum + (s[field] ?? 0), 0) / arr.length);
+    };
+
+    const pctDelta = (current: number, ref: number | null) => {
+      if (ref === null || ref === 0) return null;
+      return Math.round(((current - ref) / ref) * 100);
+    };
+
+    const avg7p  = avg(week7,   'totalPatients');
+    const avg30p = avg(month30, 'totalPatients');
+    const avg7w  = avg(week7,   'avgWaitMins');
+    const avg30w = avg(month30, 'avgWaitMins');
+
+    return res.json({
+      yesterday: {
+        totalPatients: yesterdayStats.totalPatients,
+        avgWaitMins:   yesterdayStats.avgWaitMins,
+        date:          yesterdayStr,
+      },
+      trends: {
+        patients: {
+          vs7d:  pctDelta(yesterdayStats.totalPatients, avg7p),
+          vs30d: pctDelta(yesterdayStats.totalPatients, avg30p),
+        },
+        waitMins: {
+          vs7d:  pctDelta(yesterdayStats.avgWaitMins ?? 0, avg7w),
+          vs30d: pctDelta(yesterdayStats.avgWaitMins ?? 0, avg30w),
+        },
+      },
+    });
+  } catch (error) {
+    logger.error({ err: error }, 'yesterday-stats error');
+    res.status(500).json({ error: { code: 'SERVER_ERROR', message: 'Failed to fetch yesterday stats' } });
+  }
+});
+
 // PATCH /api/queue/:id/status - Update patient status
 router.patch('/:id/status', authMiddleware, subscriptionGate, async (req: AuthRequest, res: Response) => {
   try {
