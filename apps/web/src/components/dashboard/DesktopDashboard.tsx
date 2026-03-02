@@ -280,7 +280,7 @@ function RowBtn({ icon, label, onClick }: { icon: string; label: string; onClick
 export default function DesktopDashboard({
   clinic, queue, stats, waitingCount, isDoctorPresent, isCallingNext, isTogglingPresence,
   exitingPatientId, announcement, subscriptionExpired,
-  onCallNext, onRemovePatient, onReorderPatient, onCompleteConsultation,
+  onCallNext, onRemovePatient, onCompleteConsultation,
   onToggleDoctorPresent, onOpenAnnouncementModal,
 }: DesktopDashboardProps) {
   const { t, i18n } = useTranslation();

@@ -44,7 +44,6 @@ export default function ReceptionistDashboard({
   isDoctorPresent,
   onCallNext,
   onRemovePatient,
-  onReorderPatient,
   onCompleteConsultation,
   onToggleDoctorPresent,
   isTogglingPresence,
