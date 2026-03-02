@@ -102,21 +102,7 @@ export default function DashboardPage() {
       {/* Trial Expiration Banner */}
       <TrialBanner />
 
-      {/* Email verification banner */}
-      {clinic && !clinic.emailVerified && !clinic.isAdmin && !isImpersonating && (
-        <div className="mx-4 mt-3 px-4 py-3 rounded-lg flex items-center justify-between" style={{ backgroundColor: '#E8F5EE', border: '1px solid #C3E6D0' }}>
-          <p className="text-sm" style={{ color: '#1A1A2E' }}>
-            Confirmez votre email pour sécuriser votre compte.
-          </p>
-          <button
-            onClick={() => api.resendVerification(clinic.email).catch(() => {})}
-            className="text-sm font-medium ml-4 whitespace-nowrap"
-            style={{ color: '#1B7A4A' }}
-          >
-            Renvoyer
-          </button>
-        </div>
-      )}
+      {/* Email verification banner — disabled during development, re-enable before sharing */}
 
       {/* Activation checklist now integrated directly into BlesafDashboard empty state */}
 

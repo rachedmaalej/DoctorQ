@@ -289,14 +289,6 @@ export default function ReceptionistDashboard({
       </div>
 
       {/* ═══ Floating CTA ═══ */}
-      {showPreOpen && (
-        <FloatingCTA
-          variant="green"
-          icon="play_arrow"
-          label={t('receptionist.cta.openQueue')}
-          onClick={openQueue}
-        />
-      )}
       {(showOpen || showClosing) && (
         <FloatingCTA
           variant="accent"
