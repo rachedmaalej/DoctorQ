@@ -13,14 +13,27 @@ import ConfirmModal from '@/components/ui/ConfirmModal';
 import AnnouncementModal from '@/components/queue/AnnouncementModal';
 import { Toast } from '@/components/ui/Toast';
 import TrialBanner from '@/components/ui/TrialBanner';
+import SettingsPage from './SettingsPage';
 // ActivationChecklist now lives inside BlesafDashboard empty state
-import DevStatsTooltip from '@/components/dashboard/DevStatsTooltip';
-import { QueueStatus } from '@/types';
+
 export default function DashboardPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { clinic, isImpersonating, impersonatedClinicName, stopImpersonation } = useAuthStore();
   const [subscriptionExpired, setSubscriptionExpired] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [closeDrawerTrigger, setCloseDrawerTrigger] = useState(0);
+
+  // Back button: close settings only (SideDrawer stays open underneath)
+  const handleSettingsBack = () => {
+    setSettingsOpen(false);
+  };
+
+  // Backdrop click: close everything (settings + SideDrawer)
+  const handleSettingsClose = () => {
+    setSettingsOpen(false);
+    setCloseDrawerTrigger(n => n + 1);
+  };
 
   // Check subscription status
   useEffect(() => {
@@ -164,6 +177,8 @@ export default function DashboardPage() {
             onToggleDoctorPresent={handleToggleDoctorPresent}
             isTogglingPresence={isTogglingPresence}
             isCallingNext={isCallingNext}
+            onOpenSettings={() => setSettingsOpen(true)}
+            closeDrawerTrigger={closeDrawerTrigger}
           />
         )}
       </div>
@@ -239,13 +254,12 @@ export default function DashboardPage() {
         onClose={hideToast}
       />
 
-      {/* Dev Stats Tooltip */}
-      {import.meta.env.DEV && (
-        <DevStatsTooltip
-          stats={stats}
-          currentConsultStartedAt={queue.find(p => p.status === QueueStatus.IN_CONSULTATION)?.calledAt}
-        />
-      )}
+      {/* Settings overlay (mobile) */}
+      <SettingsPage
+        isOpen={settingsOpen}
+        onClose={handleSettingsClose}
+        onBack={handleSettingsBack}
+      />
 
     </div>
   );

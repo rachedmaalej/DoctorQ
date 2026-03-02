@@ -4,7 +4,7 @@ import { api } from '@/lib/api';
 import { logger } from '@/lib/logger';
 import { useSocket } from '@/hooks/useSocket';
 import { initAudioContext, playSoftChime, playMedicalChime, playBrightAlert, playPriorityAlarm } from '@/lib/sounds';
-import { isPushSupported, subscribeToPush, getNotificationPermission, isIOS, isStandaloneMode } from '@/lib/pushNotifications';
+
 import type { PatientStatusResponse } from '@/types';
 import { QueueStatus } from '@/types';
 
@@ -50,7 +50,6 @@ export default function PatientStatusPage() {
   const [isLeaving, setIsLeaving] = useState(false);
   const [isDoctorPresent, setIsDoctorPresent] = useState(true);
   const [announcement, setAnnouncement] = useState<string | null>(null);
-  const [notifyEnabled, setNotifyEnabled] = useState(false);
   const [isAbsent, setIsAbsent] = useState(false);
   const [toast, setToast] = useState<{ visible: boolean; message: string }>({ visible: false, message: '' });
 
@@ -63,42 +62,6 @@ export default function PatientStatusPage() {
 
   // ─── Stable Callbacks ───
   const hideToast = useCallback(() => setToast({ visible: false, message: '' }), []);
-
-  // ─── Push Notification Subscription ───
-  const handleEnableNotifications = useCallback(async () => {
-    if (!entryId) return;
-
-    // iOS requires PWA install — show guidance if not in standalone mode
-    if (isIOS() && !isStandaloneMode()) {
-      setToast({
-        visible: true,
-        message: 'Pour recevoir les notifications, ajoutez cette page à votre écran d\'accueil (Partager → Sur l\'écran d\'accueil)',
-      });
-      return;
-    }
-
-    if (!isPushSupported()) {
-      // Fallback: just set notifyEnabled for the in-page sounds
-      setNotifyEnabled(true);
-      return;
-    }
-
-    const subscription = await subscribeToPush(entryId);
-    if (subscription) {
-      setNotifyEnabled(true);
-      setToast({ visible: true, message: 'Notifications activées ! Vous serez alerté même si votre écran est éteint.' });
-    } else {
-      // Permission denied or failed — still enable in-page notifications
-      const perm = getNotificationPermission();
-      if (perm === 'denied') {
-        setToast({
-          visible: true,
-          message: 'Notifications bloquées. Activez-les dans les réglages de votre navigateur.',
-        });
-      }
-      setNotifyEnabled(true);
-    }
-  }, [entryId]);
 
   // ─── Audio Context Init (iOS) ───
   useEffect(() => {
@@ -501,8 +464,6 @@ export default function PatientStatusPage() {
             peopleAhead={peopleAhead}
             avgConsultMins={entry.avgConsultationMins}
             estimatedMins={smoothedEstimate}
-            notifEnabled={notifyEnabled}
-            onNotifClick={handleEnableNotifications}
             isAbsent={isAbsent}
             onAbsentClick={() => setIsAbsent(!isAbsent)}
             isCalled={isCalled}

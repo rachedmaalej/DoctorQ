@@ -40,6 +40,8 @@ router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {
         enableLanguageSwitcher: true,
         specialty: true,
         funFactsEnabled: true,
+        queueMode: true,
+        rdvGraceMinutes: true,
       },
     });
 
@@ -67,10 +69,8 @@ const updateClinicSchema = z.object({
   specialty: z.string().max(50).optional(),
   funFactsEnabled: z.boolean().optional(),
   enableLanguageSwitcher: z.boolean().optional(),
-  // NOTE: New settings fields commented out until DB migration is applied:
-  // clinicHours, enableQrCode, enableManualEntry, defaultCheckInMethod,
-  // notificationSoundEnabled, quietHoursStart, quietHoursEnd,
-  // welcomeMessage, showQueuePosition, showEstimatedWait
+  queueMode: z.enum(['RDV_PRIORITY', 'FIFO', 'RDV_ON_TIME']).optional(),
+  rdvGraceMinutes: z.number().int().min(5).max(30).optional(),
 });
 
 router.patch('/', authMiddleware, subscriptionGate, async (req: AuthRequest, res: Response) => {
@@ -98,8 +98,17 @@ router.patch('/', authMiddleware, subscriptionGate, async (req: AuthRequest, res
         specialty: true,
         funFactsEnabled: true,
         enableLanguageSwitcher: true,
+        queueMode: true,
+        rdvGraceMinutes: true,
       },
     });
+
+    // If queue mode changed, recalculate queue positions
+    if (data.queueMode || data.rdvGraceMinutes !== undefined) {
+      await recalculatePositionsAndStatuses(clinicId);
+      emitQueueUpdate(clinicId).catch(() => {});
+      emitAllPatientUpdates(clinicId).catch(() => {});
+    }
 
     res.json(updatedClinic);
   } catch (error: any) {

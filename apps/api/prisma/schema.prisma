@@ -43,6 +43,10 @@ model Clinic {
   announcement        String?      // Active announcement text (null = no announcement)
   announcementAt      DateTime?    // When the announcement was set
 
+  // Queue rules
+  queueMode           String       @default("RDV_PRIORITY")  // RDV_PRIORITY | FIFO | RDV_ON_TIME
+  rdvGraceMinutes     Int          @default(15)              // Grace period for RDV_ON_TIME mode (5-30 min)
+
   // Business type customization
   businessType        String       @default("medical")  // medical, retail, restaurant, etc.
   showAppointments    Boolean      @default(true)       // Whether to show appointment time field
@@ -150,6 +154,9 @@ model QueueEntry {
 
   // Appointment support (v0.3)
   appointmentTime DateTime?   // Scheduled appointment time (null = walk-in)
+
+  // Emergency flag — patient goes to #2 (right after current consultation)
+  isEmergency   Boolean       @default(false)
 
   // Manual reordering support
   // When set, this patient's position is "pinned" and won't be auto-recalculated

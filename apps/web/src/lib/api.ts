@@ -354,6 +354,13 @@ class ApiClient {
     });
   }
 
+  // Toggle emergency flag on a patient
+  async toggleEmergency(entryId: string): Promise<QueueEntry> {
+    return this.request(`/api/queue/${entryId}/emergency`, {
+      method: 'POST',
+    });
+  }
+
   async resetStats(): Promise<{ message: string; deletedCount: number }> {
     return this.request('/api/queue/reset-stats', {
       method: 'POST',
@@ -431,6 +438,8 @@ class ApiClient {
     specialty?: string;
     funFactsEnabled?: boolean;
     enableLanguageSwitcher?: boolean;
+    queueMode?: 'RDV_PRIORITY' | 'FIFO' | 'RDV_ON_TIME';
+    rdvGraceMinutes?: number;
     clinicHours?: Record<string, unknown> | null;
     enableQrCode?: boolean;
     enableManualEntry?: boolean;

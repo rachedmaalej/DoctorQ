@@ -652,7 +652,29 @@
     "doctorAdded": "Médecin ajouté",
     "doctorUpdated": "Médecin mis à jour",
     "doctorDeleted": "Médecin supprimé",
-    "confirmDeleteDoctor": "Supprimer ce médecin ?"
+    "confirmDeleteDoctor": "Supprimer ce médecin ?",
+    "item": {
+      "queueRules": "Règles de la file",
+      "queueRulesSub": "Priorité RDV, urgences"
+    },
+    "queueRules": {
+      "title": "Règles de la file",
+      "modeLabel": "Mode de tri",
+      "rdvPriority": "RDV prioritaire",
+      "rdvPriorityDesc": "Les patients avec RDV passent avant les sans RDV",
+      "fifo": "Premier arrivé",
+      "fifoDesc": "Ordre d'arrivée, le RDV est informatif",
+      "rdvOnTime": "RDV à l'heure",
+      "rdvOnTimeDesc": "RDV prioritaire seulement si arrivé à l'heure",
+      "graceLabel": "Tolérance de retard",
+      "graceExplain": "Un patient avec RDV qui arrive plus de {{minutes}} min en retard perd sa priorité",
+      "emergencyNote": "L'urgence est toujours disponible. Utilisez le menu patient pour marquer un patient comme urgence — il passera juste après la consultation en cours."
+    },
+    "autoSave": {
+      "saving": "Enregistrement...",
+      "saved": "Modifications enregistrées",
+      "error": "Erreur lors de l'enregistrement"
+    }
   },
   "settingsPanel": {
     "title": "Paramètres",
@@ -1084,6 +1106,8 @@
       "absent": "Absent"
     },
     "patientContext": {
+      "emergency": "Urgence",
+      "emergencyDesc": "Passe en priorité absolue",
       "priority": "Marquer prioritaire",
       "priorityDesc": "Remonter dans la file",
       "steppedOut": "Marquer sorti",
@@ -1288,19 +1312,29 @@
     },
     "sections": {
       "qr": "Code QR",
+      "controls": "Contrôles",
       "actions": "Actions",
       "preferences": "Préférences",
       "account": "Compte"
+    },
+    "toggles": {
+      "doctor": "Médecin",
+      "queue": "File d'attente",
+      "queueOpen": "Ouverte",
+      "queueClosed": "Fermée"
     },
     "qr": {
       "title": "Code QR & Lien",
       "close": "Fermer",
       "imageAlt": "QR Code",
+      "display": "Afficher",
+      "scanMessage": "Scannez pour rejoindre la file",
+      "tapToClose": "Appuyez pour fermer",
       "whatsappMessage": "Rejoignez la file d'attente :",
       "copied": "Copié !",
       "view": "Voir le QR Code",
       "viewSub": "Afficher & partager",
-      "copy": "Copier le lien",
+      "copy": "Copier",
       "copySub": "Lien d'inscription",
       "whatsapp": "Envoyer par WhatsApp",
       "whatsappSub": "Partager via WhatsApp"

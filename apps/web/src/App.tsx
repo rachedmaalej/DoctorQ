@@ -15,7 +15,6 @@ const SubscriptionPage = lazy(() => import('./pages/SubscriptionPage'));
 const VerifyEmailPage = lazy(() => import('./pages/VerifyEmailPage'));
 const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage'));
 const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage'));
-const SettingsPage = lazy(() => import('./pages/SettingsPage'));
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
 const ClinicsDirectoryPage = lazy(() => import('./pages/admin/clinics/ClinicsDirectoryPage'));
 const ClinicsClinicDetailPage = lazy(() => import('./pages/admin/clinics/ClinicDetailPage'));
@@ -115,10 +114,6 @@ function App() {
         <Route
           path="/subscription"
           element={isAuthenticated ? <SubscriptionPage /> : <Navigate to="/login" />}
-        />
-        <Route
-          path="/settings"
-          element={isAuthenticated ? <SettingsPage /> : <Navigate to="/login" />}
         />
         <Route
           path="/admin"

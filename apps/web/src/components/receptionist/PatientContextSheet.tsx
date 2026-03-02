@@ -11,6 +11,7 @@ interface PatientContextSheetProps {
   patient: QueuePatient | null;
   onClose: () => void;
   onMarkPriority?: (id: string) => void;
+  onMarkEmergency?: (id: string) => void;
   onMarkSteppedOut?: (id: string) => void;
   onRemove?: (id: string) => void;
   onWhatsAppSend?: (id: string) => void;
@@ -19,6 +20,7 @@ interface PatientContextSheetProps {
 }
 
 const actions = [
+  { key: 'emergency', icon: 'emergency', iconBg: '#FDF0ED', iconColor: '#D94F3B' },
   { key: 'priority', icon: 'priority_high', iconBg: '#FEF7E6', iconColor: '#D4920B' },
   { key: 'stepped-out', icon: 'directions_walk', iconBg: '#EDF3FC', iconColor: '#3B7DD9' },
   { key: 'phone', icon: 'phone', iconBg: '#EDF7F0', iconColor: '#2D8B4E' },
@@ -31,6 +33,7 @@ export default function PatientContextSheet({
   patient,
   onClose,
   onMarkPriority,
+  onMarkEmergency,
   onMarkSteppedOut,
   onRemove,
   onWhatsAppSend,
@@ -40,6 +43,7 @@ export default function PatientContextSheet({
   const { t } = useTranslation();
 
   const actionLabels: Record<string, { label: string; desc: string }> = {
+    emergency: { label: t('receptionist.patientContext.emergency', 'Urgence'), desc: t('receptionist.patientContext.emergencyDesc', 'Passe en priorité absolue') },
     priority: { label: t('receptionist.patientContext.priority'), desc: t('receptionist.patientContext.priorityDesc') },
     'stepped-out': { label: t('receptionist.patientContext.steppedOut'), desc: t('receptionist.patientContext.steppedOutDesc') },
     phone: { label: t('receptionist.patientContext.callPatient'), desc: t('receptionist.patientContext.callPatientDesc') },
@@ -87,6 +91,9 @@ export default function PatientContextSheet({
   const handleAction = (key: string) => {
     if (!patient) return;
     switch (key) {
+      case 'emergency':
+        onMarkEmergency?.(patient.id);
+        break;
       case 'priority':
         onMarkPriority?.(patient.id);
         break;

@@ -21,6 +21,10 @@ import type {
 // ── Individual entry mappers ────────────────────────────────
 
 export function toQueuePatient(entry: QueueEntry): QueuePatient {
+  let badge: QueuePatient['badge'] = null;
+  if (entry.isEmergency) badge = 'emergency';
+  else if (!entry.patientPhone) badge = 'no-phone';
+
   return {
     id: entry.id,
     position: entry.position,
@@ -28,7 +32,7 @@ export function toQueuePatient(entry: QueueEntry): QueuePatient {
     waitMinutes: getWaitingMinutes(entry.arrivedAt),
     hasPhone: !!entry.patientPhone,
     phone: entry.patientPhone || '',
-    badge: !entry.patientPhone ? 'no-phone' : null,
+    badge,
   };
 }
 
