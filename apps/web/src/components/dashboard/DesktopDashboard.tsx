@@ -325,8 +325,6 @@ export default function DesktopDashboard({
 
   // Patient context sheet
   const [contextPatient, setContextPatient] = useState<QueuePatient | null>(null);
-  const [steppedOutIds, setSteppedOutIds] = useState<Set<string>>(new Set());
-
   // Queue lifecycle
   const avgConsultMins = clinic?.avgConsultationMins ?? 10;
   const { queueStatus, isAllDone, closedSummary, openQueue, closeQueue, reopenQueue, endDay, newDay } =
@@ -342,10 +340,8 @@ export default function DesktopDashboard({
   const inConsultEntry  = queue.find(e => e.status === QueueStatus.IN_CONSULTATION);
   const waitingEntries  = queue.filter(e => e.status === QueueStatus.WAITING || e.status === QueueStatus.NOTIFIED);
   const queuePatients   = useMemo(
-    () => waitingEntries.map(toQueuePatient).map(p =>
-      steppedOutIds.has(p.id) ? { ...p, badge: 'stepped-out' as const } : p
-    ),
-    [waitingEntries, steppedOutIds],
+    () => waitingEntries.map(toQueuePatient),
+    [waitingEntries],
   );
   const patientById = useMemo(() => {
     const map = new Map<string, QueuePatient>();
@@ -373,14 +369,13 @@ export default function DesktopDashboard({
     ? `${Math.floor(estWaitMins / 60)}h${String(estWaitMins % 60).padStart(2, '0')}`
     : `${estWaitMins} min`;
 
-  const handleMarkPriority = useCallback((id: string) => { onReorderPatient(id, 1); }, [onReorderPatient]);
-  const handleMarkSteppedOut = useCallback((id: string) => {
-    setSteppedOutIds(prev => {
-      const n = new Set(prev);
-      if (n.has(id)) n.delete(id); else n.add(id);
-      return n;
-    });
-  }, []);
+  const { fetchQueue } = useQueueStore();
+  const handleMarkSteppedOut = useCallback(async (id: string) => {
+    try {
+      await api.toggleSteppedOut(id);
+      fetchQueue();
+    } catch { /* handled by API layer */ }
+  }, [fetchQueue]);
   const handleShare = useCallback(async () => {
     if (navigator.share) {
       try { await navigator.share({ title: 'Résumé de journée', text: `${summaryData.totalPatientsSeen} patients vus.` }); }
@@ -948,12 +943,9 @@ export default function DesktopDashboard({
         isOpen={contextPatient !== null}
         patient={contextPatient}
         onClose={() => setContextPatient(null)}
-        onMarkPriority={handleMarkPriority}
         onMarkSteppedOut={handleMarkSteppedOut}
         onRemove={onRemovePatient}
-        onWhatsAppSend={handleWhatsAppSent}
         onPhoneUpdated={() => setContextPatient(null)}
-        clinicName={clinic?.name ?? ''}
       />
       {settingsMounted && (
         <DesktopSettingsDrawer
