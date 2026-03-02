@@ -103,27 +103,38 @@ export default function BSClinicProfilePanel({ isOpen, onClose }: BSClinicProfil
     setExpandedRow(expandedRow === id ? null : id);
   };
 
-  // Format phone: +216XXXXXXXX → +216 XX XXX XXX (8 digits max)
-  const formatPhone = (raw: string) => {
-    const digits = raw.replace(/\D/g, '');
-    if (digits.startsWith('216') && digits.length >= 4) {
-      const local = digits.slice(3, 11); // max 8 digits
-      if (local.length <= 2) return `+216 ${local}`;
-      if (local.length <= 5) return `+216 ${local.slice(0, 2)} ${local.slice(2)}`;
-      return `+216 ${local.slice(0, 2)} ${local.slice(2, 5)} ${local.slice(5, 8)}`;
+  // Extract local 8-digit part from any phone format
+  const getLocalDigits = (raw: string): string => {
+    if (!raw) return '';
+    // Properly stored with +216 prefix → extract directly
+    if (raw.startsWith('+216')) {
+      return raw.slice(4).replace(/\D/g, '').slice(0, 8);
     }
-    return raw;
+    const digits = raw.replace(/\D/g, '');
+    // Starts with 216 and too long to be local only → strip country code
+    if (digits.startsWith('216') && digits.length > 8) {
+      return digits.slice(3).slice(0, 8);
+    }
+    // Otherwise treat all digits as local
+    return digits.slice(0, 8);
+  };
+
+  // Format phone for display: +216 XX XXX XXX
+  const formatPhone = (raw: string): string => {
+    if (!raw) return '';
+    const local = getLocalDigits(raw);
+    if (!local) return '+216 ';
+    if (local.length <= 2) return `+216 ${local}`;
+    if (local.length <= 5) return `+216 ${local.slice(0, 2)} ${local.slice(2)}`;
+    return `+216 ${local.slice(0, 2)} ${local.slice(2, 5)} ${local.slice(5, 8)}`;
   };
 
   const handlePhoneChange = (input: string) => {
-    // Store only digits with leading +, limit to +216 + 8 digits
-    let stripped = input.replace(/[^\d+]/g, '');
-    if (stripped.startsWith('+216')) {
-      stripped = '+216' + stripped.slice(4).replace(/\D/g, '').slice(0, 8);
-    } else if (stripped.startsWith('216')) {
-      stripped = '+216' + stripped.slice(3).replace(/\D/g, '').slice(0, 8);
-    }
-    setClinicForm({ ...clinicForm, phone: stripped });
+    const digits = input.replace(/\D/g, '');
+    // Strip country code if present (from displayed +216 prefix)
+    const local = digits.startsWith('216') ? digits.slice(3).slice(0, 8) : digits.slice(0, 8);
+    // Always store in +216XXXXXXXX format
+    setClinicForm({ ...clinicForm, phone: local ? `+216${local}` : '' });
   };
 
 

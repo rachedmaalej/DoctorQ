@@ -2,7 +2,7 @@ import type { QueueEntry, QueueStats, Clinic } from '@/types';
 
 export type QueueScreenStatus = 'PRE_OPEN' | 'OPEN' | 'CLOSING' | 'CLOSED';
 
-export type BadgeType = 'priority' | 'stepped-out' | 'no-phone' | null;
+export type BadgeType = 'priority' | 'emergency' | 'stepped-out' | 'no-phone' | null;
 
 /** Snapshot persisted to localStorage when the receptionist ends the day */
 export interface ClosedDaySummary {
@@ -26,6 +26,9 @@ export interface ReceptionistDashboardProps {
   onToggleDoctorPresent: () => void;
   isTogglingPresence?: boolean;
   isCallingNext: boolean;
+  onOpenSettings?: () => void;
+  /** Increment to close the SideDrawer from outside (e.g. settings backdrop dismiss) */
+  closeDrawerTrigger?: number;
 }
 
 export interface PreRegisteredPatient {

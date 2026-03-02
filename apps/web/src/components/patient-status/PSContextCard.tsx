@@ -1,5 +1,5 @@
 import type { Phase } from './utils';
-import PSNotifPrompt from './PSNotifPrompt';
+
 import PSAbsentButton from './PSAbsentButton';
 
 interface PSContextCardProps {
@@ -7,8 +7,6 @@ interface PSContextCardProps {
   peopleAhead: number;
   avgConsultMins?: number;
   estimatedMins: number;
-  notifEnabled: boolean;
-  onNotifClick: () => void;
   isAbsent: boolean;
   onAbsentClick: () => void;
   isCalled: boolean;
@@ -19,8 +17,6 @@ export default function PSContextCard({
   peopleAhead,
   avgConsultMins,
   estimatedMins,
-  notifEnabled,
-  onNotifClick,
   isAbsent,
   onAbsentClick,
   isCalled,
@@ -60,11 +56,6 @@ export default function PSContextCard({
           <span className="material-symbols-rounded">{tipIcon}</span>
           {tipText}
         </div>
-
-        {/* Notification Prompt */}
-        {!notifEnabled && (
-          <PSNotifPrompt phase={phase} isEnabled={notifEnabled} onClick={onNotifClick} />
-        )}
 
         {/* Absent Button */}
         <PSAbsentButton isAbsent={isAbsent} onToggle={onAbsentClick} />
@@ -115,10 +106,6 @@ export default function PSContextCard({
           {tipText}
         </div>
 
-        {/* Notification confirmed state */}
-        {notifEnabled && (
-          <PSNotifPrompt phase={phase} isEnabled={notifEnabled} onClick={onNotifClick} />
-        )}
       </div>
     );
   }

@@ -232,8 +232,9 @@ function LeftStatCard({ value, label, highlighted, small }: {
 
 // ─── Queue Badge ──────────────────────────────────────────────────────────────
 
-function QueueBadge({ badge }: { badge: 'priority' | 'stepped-out' | 'no-phone' }) {
+function QueueBadge({ badge }: { badge: 'priority' | 'emergency' | 'stepped-out' | 'no-phone' }) {
   const styles: Record<string, { bg: string; color: string; label: string }> = {
+    emergency:     { bg: '#FEE2E2', color: '#DC2626', label: 'Urgence' },
     priority:      { bg: C.amber100, color: C.amber600, label: 'Prioritaire' },
     'stepped-out': { bg: C.blue50, color: C.blue, label: 'Sorti' },
     'no-phone':    { bg: C.surface2, color: C.textMuted, label: 'Sans tél.' },

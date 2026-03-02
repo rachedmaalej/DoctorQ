@@ -651,7 +651,29 @@
     "doctorAdded": "تم إضافة الطبيب",
     "doctorUpdated": "تم تحديث الطبيب",
     "doctorDeleted": "تم حذف الطبيب",
-    "confirmDeleteDoctor": "حذف هذا الطبيب؟"
+    "confirmDeleteDoctor": "حذف هذا الطبيب؟",
+    "item": {
+      "queueRules": "قواعد الطابور",
+      "queueRulesSub": "أولوية المواعيد، الحالات الطارئة"
+    },
+    "queueRules": {
+      "title": "قواعد الطابور",
+      "modeLabel": "نمط الترتيب",
+      "rdvPriority": "أولوية الموعد",
+      "rdvPriorityDesc": "المرضى الذين لديهم موعد يمرون قبل غيرهم",
+      "fifo": "الأول وصولاً",
+      "fifoDesc": "حسب ترتيب الوصول، الموعد للمعلومات فقط",
+      "rdvOnTime": "الموعد في الوقت",
+      "rdvOnTimeDesc": "أولوية الموعد فقط إذا وصل في الوقت",
+      "graceLabel": "فترة السماح بالتأخير",
+      "graceExplain": "المريض الذي لديه موعد ويصل متأخراً أكثر من {{minutes}} دقيقة يفقد أولويته",
+      "emergencyNote": "الحالة الطارئة متاحة دائماً. استخدم قائمة المريض لتحديد مريض كحالة طارئة — سيمر مباشرة بعد الاستشارة الحالية."
+    },
+    "autoSave": {
+      "saving": "جاري الحفظ...",
+      "saved": "تم حفظ التعديلات",
+      "error": "خطأ أثناء الحفظ"
+    }
   },
   "settingsPanel": {
     "title": "الإعدادات",
@@ -1083,6 +1105,8 @@
       "absent": "غائب"
     },
     "patientContext": {
+      "emergency": "حالة طارئة",
+      "emergencyDesc": "أولوية مطلقة",
       "priority": "تحديد كأولوية",
       "priorityDesc": "تقديم في الصف",
       "steppedOut": "تحديد كخارج",
@@ -1287,19 +1311,29 @@
     },
     "sections": {
       "qr": "رمز QR",
+      "controls": "التحكم",
       "actions": "إجراءات",
       "preferences": "التفضيلات",
       "account": "الحساب"
+    },
+    "toggles": {
+      "doctor": "الطبيب",
+      "queue": "قائمة الانتظار",
+      "queueOpen": "مفتوحة",
+      "queueClosed": "مغلقة"
     },
     "qr": {
       "title": "رمز QR والرابط",
       "close": "إغلاق",
       "imageAlt": "رمز QR",
+      "display": "عرض",
+      "scanMessage": "امسح للانضمام إلى قائمة الانتظار",
+      "tapToClose": "اضغط للإغلاق",
       "whatsappMessage": "انضم إلى قائمة الانتظار:",
       "copied": "تم النسخ!",
       "view": "عرض رمز QR",
       "viewSub": "عرض ومشاركة",
-      "copy": "نسخ الرابط",
+      "copy": "نسخ",
       "copySub": "رابط التسجيل",
       "whatsapp": "إرسال عبر واتساب",
       "whatsappSub": "مشاركة عبر واتساب"

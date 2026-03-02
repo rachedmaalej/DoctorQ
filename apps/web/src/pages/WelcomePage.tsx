@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import QRCode from 'qrcode';
@@ -30,20 +30,9 @@ export default function WelcomePage() {
   const [linkCopied, setLinkCopied] = useState(false);
   const [isRegeneratingQr, setIsRegeneratingQr] = useState(false);
 
-  // Guard: must be authenticated
-  if (!isAuthenticated || !clinicId) {
-    return <Navigate to="/signup" replace />;
-  }
+  const checkinUrl = qrCodeUrl || `https://${webBrand.domain}/checkin/${clinicId ?? ''}`;
 
-  // If onboarding already completed, go to dashboard
-  if (authClinic?.onboardingCompleted) {
-    return <Navigate to="/dashboard" replace />;
-  }
-
-  const checkinUrl = qrCodeUrl || `https://${webBrand.domain}/checkin/${clinicId}`;
-
-  // Regenerate QR if missing (e.g. page refresh)
-  // eslint-disable-next-line react-hooks/rules-of-hooks
+  // All hooks must be declared before any early returns
   const regenerateQr = useCallback(async () => {
     if (qrCodeDataUrl) return;
     setIsRegeneratingQr(true);
@@ -62,8 +51,7 @@ export default function WelcomePage() {
   }, [qrCodeDataUrl, checkinUrl, setQrCode]);
 
   // Auto-regenerate on mount if missing
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  useState(() => { regenerateQr(); });
+  useEffect(() => { regenerateQr(); }, [regenerateQr]);
 
   const handleDownloadPdf = useCallback(async () => {
     if (!qrCodeDataUrl) return;
@@ -110,6 +98,16 @@ export default function WelcomePage() {
     await checkAuth();
     navigate('/dashboard', { replace: true });
   }, [checkAuth, navigate]);
+
+  // Guard: must be authenticated
+  if (!isAuthenticated || !clinicId) {
+    return <Navigate to="/signup" replace />;
+  }
+
+  // If onboarding already completed, go to dashboard
+  if (authClinic?.onboardingCompleted) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   const playbook = [
     {

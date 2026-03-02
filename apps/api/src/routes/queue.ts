@@ -22,7 +22,7 @@ import {
   updatePatientStatus,
   formatPhoneNumber,
 } from '../services/queueService.js';
-import { reorderPatient, updateStatusesAfterReorder } from '../services/positionService.js';
+import { reorderPatient, updateStatusesAfterReorder, recalculatePositionsAndStatuses } from '../services/positionService.js';
 import { resetStats, computeSmartWaitEstimate } from '../services/statsService.js';
 import { logger } from '../lib/logger.js';
 import { emitQueueUpdate, emitPatientUpdate, emitAllPatientUpdates } from '../services/notificationService.js';
@@ -395,6 +395,49 @@ router.post('/reorder', authMiddleware, subscriptionGate, async (req: AuthReques
     logger.error({ err: error }, "Reorder queue error");
     res.status(500).json({
       error: { code: 'SERVER_ERROR', message: 'Failed to reorder queue' },
+    });
+  }
+});
+
+// POST /api/queue/:id/emergency - Toggle emergency flag on a patient
+router.post('/:id/emergency', authMiddleware, subscriptionGate, async (req: AuthRequest, res: Response) => {
+  try {
+    const clinicId = req.clinic!.id;
+    const { id } = req.params;
+
+    // Verify entry belongs to clinic and is active
+    const entry = await prisma.queueEntry.findFirst({
+      where: {
+        id,
+        clinicId,
+        status: { in: [QueueStatus.WAITING, QueueStatus.NOTIFIED] },
+      },
+    });
+
+    if (!entry) {
+      return res.status(404).json({
+        error: { code: 'ENTRY_NOT_FOUND', message: 'Queue entry not found or not active' },
+      });
+    }
+
+    // Toggle emergency flag
+    const updated = await prisma.queueEntry.update({
+      where: { id },
+      data: { isEmergency: !entry.isEmergency },
+    });
+
+    // Recalculate positions (emergency patients jump to #2)
+    await recalculatePositionsAndStatuses(clinicId);
+
+    // Emit socket updates
+    emitQueueUpdate(clinicId).catch(() => {});
+    emitAllPatientUpdates(clinicId).catch(() => {});
+
+    res.json({ data: updated });
+  } catch (error) {
+    logger.error({ err: error }, 'Toggle emergency error');
+    res.status(500).json({
+      error: { code: 'SERVER_ERROR', message: 'Failed to toggle emergency' },
     });
   }
 });

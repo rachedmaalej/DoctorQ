@@ -349,64 +349,6 @@
   font-variation-settings: 'FILL' 1;
 }
 
-/* ─── Notification Prompt ─── */
-
-.ps-notif-prompt {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
-  background: #EEF2FF;
-  border: 1px solid #D4DBFA;
-  border-radius: var(--radius-xs);
-  margin-top: 12px;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.ps-notif-prompt:active { background: #E0E5FC; }
-
-.ps-notif-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: #4F5AE5;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  flex-shrink: 0;
-}
-
-.ps-notif-icon .material-symbols-rounded {
-  font-size: 18px;
-  font-variation-settings: 'FILL' 1;
-}
-
-.ps-notif-text {
-  flex: 1;
-  font-size: 13px;
-  font-weight: 600;
-  color: #3B44B5;
-  line-height: 1.35;
-}
-
-.ps-notif-arrow { color: #4F5AE5; }
-.ps-notif-arrow .material-symbols-rounded { font-size: 18px; }
-
-/* Notif confirmed state (Ready phase) */
-.ps-notif-prompt.confirmed {
-  background: #FEF7E6;
-  border-color: rgba(212,146,11,0.2);
-}
-.ps-notif-prompt.confirmed .ps-notif-icon {
-  background: #D4920B;
-}
-.ps-notif-prompt.confirmed .ps-notif-text {
-  color: #92690B;
-}
-.ps-notif-prompt.confirmed .ps-notif-arrow { color: #D4920B; }
-
 /* ─── Absent Button ─── */
 
 .ps-absent-btn {

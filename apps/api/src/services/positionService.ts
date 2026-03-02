@@ -10,62 +10,120 @@ import { QueueStatus } from '@prisma/client';
 /**
  * Recalculate positions and auto-assign statuses for a clinic's queue
  *
- * Rules (when doctor IS present):
+ * Status rules (when doctor IS present):
  * - Position #1 → IN_CONSULTATION
  * - Position #2 → NOTIFIED
  * - All others → WAITING
  *
- * Rules (when doctor is NOT present):
+ * Status rules (when doctor is NOT present):
  * - Position #1 → NOTIFIED (next up, but no active consultation)
  * - All others → WAITING
  * - No patient is placed IN_CONSULTATION
  *
- * Position ordering priority:
- * 1. Manually reordered patients (priorityOrder IS NOT NULL) - ordered by priorityOrder timestamp
- * 2. Patients with appointments - ordered by appointmentTime
- * 3. Walk-in patients (no appointment) - ordered by arrivedAt
+ * Position ordering depends on clinic's queueMode:
  *
- * This ensures:
- * - Manual reordering by receptionist is PERSISTENT and takes highest priority
- * - Patients with appointments are seen before walk-ins
- * - Within each group, earlier times come first
+ * RDV_PRIORITY (default):
+ *   IN_CONSULTATION > Emergency > Manual reorder > Appointments > Walk-ins (arrivedAt)
+ *
+ * FIFO:
+ *   IN_CONSULTATION > Emergency > Manual reorder > arrivedAt (appointments are informational)
+ *
+ * RDV_ON_TIME:
+ *   IN_CONSULTATION > Emergency > Manual reorder > On-time appointments > Walk-ins (arrivedAt)
+ *   (RDV patients who arrive more than rdvGraceMinutes late lose appointment priority)
  *
  * OPTIMIZED: Uses batch SQL update instead of N individual updates
  */
 export async function recalculatePositionsAndStatuses(clinicId: string): Promise<void> {
-  // Check doctor presence to determine status rules
   const clinic = await prisma.clinic.findUnique({
     where: { id: clinicId },
-    select: { isDoctorPresent: true },
+    select: { isDoctorPresent: true, queueMode: true, rdvGraceMinutes: true },
   });
   const doctorPresent = clinic?.isDoctorPresent ?? false;
+  const queueMode = clinic?.queueMode ?? 'RDV_PRIORITY';
+  const graceMinutes = clinic?.rdvGraceMinutes ?? 15;
 
   await prisma.$transaction(async (tx) => {
-    // Step 1: Renumber positions based on priority rules
-    // Order: 1) Manually pinned (priorityOrder NOT NULL), 2) Appointments, 3) Walk-ins
-    await tx.$executeRaw`
-      WITH ranked AS (
-        SELECT id,
-               ROW_NUMBER() OVER (
-                 ORDER BY
-                   -- First: manually reordered patients keep their relative order
-                   CASE WHEN "priorityOrder" IS NOT NULL THEN 0 ELSE 1 END ASC,
-                   "priorityOrder" ASC NULLS LAST,
-                   -- Second: patients with appointments (earlier appointments first)
-                   CASE WHEN "appointmentTime" IS NOT NULL THEN 0 ELSE 1 END ASC,
-                   "appointmentTime" ASC NULLS LAST,
-                   -- Third: walk-ins by arrival time
-                   "arrivedAt" ASC
-               ) as new_position
-        FROM "QueueEntry"
-        WHERE "clinicId" = ${clinicId}
-        AND status IN ('WAITING', 'NOTIFIED', 'IN_CONSULTATION')
-      )
-      UPDATE "QueueEntry"
-      SET position = ranked.new_position
-      FROM ranked
-      WHERE "QueueEntry".id = ranked.id
-    `;
+    // Step 1: Renumber positions based on queue mode
+    switch (queueMode) {
+      case 'FIFO':
+        // Strict arrival order — appointments are informational only
+        await tx.$executeRaw`
+          WITH ranked AS (
+            SELECT id,
+                   ROW_NUMBER() OVER (
+                     ORDER BY
+                       CASE WHEN status = 'IN_CONSULTATION' THEN 0 ELSE 1 END ASC,
+                       CASE WHEN "isEmergency" = true THEN 0 ELSE 1 END ASC,
+                       CASE WHEN "priorityOrder" IS NOT NULL THEN 0 ELSE 1 END ASC,
+                       "priorityOrder" ASC NULLS LAST,
+                       "arrivedAt" ASC
+                   ) as new_position
+            FROM "QueueEntry"
+            WHERE "clinicId" = ${clinicId}
+            AND status IN ('WAITING', 'NOTIFIED', 'IN_CONSULTATION')
+          )
+          UPDATE "QueueEntry"
+          SET position = ranked.new_position
+          FROM ranked
+          WHERE "QueueEntry".id = ranked.id
+        `;
+        break;
+
+      case 'RDV_ON_TIME':
+        // Appointments get priority only if patient arrived within grace period
+        await tx.$executeRaw`
+          WITH ranked AS (
+            SELECT id,
+                   ROW_NUMBER() OVER (
+                     ORDER BY
+                       CASE WHEN status = 'IN_CONSULTATION' THEN 0 ELSE 1 END ASC,
+                       CASE WHEN "isEmergency" = true THEN 0 ELSE 1 END ASC,
+                       CASE WHEN "priorityOrder" IS NOT NULL THEN 0 ELSE 1 END ASC,
+                       "priorityOrder" ASC NULLS LAST,
+                       CASE WHEN "appointmentTime" IS NOT NULL
+                            AND "arrivedAt" <= "appointmentTime" + INTERVAL '1 minute' * ${graceMinutes}
+                            THEN 0 ELSE 1 END ASC,
+                       "appointmentTime" ASC NULLS LAST,
+                       "arrivedAt" ASC
+                   ) as new_position
+            FROM "QueueEntry"
+            WHERE "clinicId" = ${clinicId}
+            AND status IN ('WAITING', 'NOTIFIED', 'IN_CONSULTATION')
+          )
+          UPDATE "QueueEntry"
+          SET position = ranked.new_position
+          FROM ranked
+          WHERE "QueueEntry".id = ranked.id
+        `;
+        break;
+
+      default: // RDV_PRIORITY
+        // Appointments always have priority over walk-ins
+        await tx.$executeRaw`
+          WITH ranked AS (
+            SELECT id,
+                   ROW_NUMBER() OVER (
+                     ORDER BY
+                       CASE WHEN status = 'IN_CONSULTATION' THEN 0 ELSE 1 END ASC,
+                       CASE WHEN "isEmergency" = true THEN 0 ELSE 1 END ASC,
+                       CASE WHEN "priorityOrder" IS NOT NULL THEN 0 ELSE 1 END ASC,
+                       "priorityOrder" ASC NULLS LAST,
+                       CASE WHEN "appointmentTime" IS NOT NULL THEN 0 ELSE 1 END ASC,
+                       "appointmentTime" ASC NULLS LAST,
+                       "arrivedAt" ASC
+                   ) as new_position
+            FROM "QueueEntry"
+            WHERE "clinicId" = ${clinicId}
+            AND status IN ('WAITING', 'NOTIFIED', 'IN_CONSULTATION')
+          )
+          UPDATE "QueueEntry"
+          SET position = ranked.new_position
+          FROM ranked
+          WHERE "QueueEntry".id = ranked.id
+        `;
+        break;
+    }
 
     if (doctorPresent) {
       // Doctor present: position #1 → IN_CONSULTATION, #2 → NOTIFIED, 3+ → WAITING

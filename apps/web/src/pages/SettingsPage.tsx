@@ -1,432 +1,405 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, Link } from 'react-router-dom';
-import { useAuthStore } from '../stores/authStore';
-import { api } from '../lib/api';
-import type { Doctor } from '../types';
-import Header from '../components/layout/Header';
+import { useAuthStore } from '@/stores/authStore';
+import { api } from '@/lib/api';
+import { Icon } from '@/components/ui/Icon';
+import BSClinicProfilePanel from '@/components/blesaf/BSClinicProfilePanel';
+import BSConsultationDurationPanel from '@/components/blesaf/BSConsultationDurationPanel';
+import BSSubscriptionPanel from '@/components/blesaf/BSSubscriptionPanel';
+import BSQueueRulesPanel from '@/components/blesaf/BSQueueRulesPanel';
 
-export default function SettingsPage() {
-  const { t } = useTranslation();
-  const navigate = useNavigate();
-  const { clinic, checkAuth } = useAuthStore();
+type PanelKey = 'profile' | 'duration' | 'queue-rules' | 'subscription';
 
-  // Clinic info form
-  const [clinicForm, setClinicForm] = useState({
-    name: '',
-    doctorName: '',
-    doctorGender: '' as 'M' | 'F' | '',
-    phone: '',
-    address: '',
-  });
+interface SubInfo {
+  status: string;
+  plan: string | null;
+  daysRemaining: number | null;
+  trialEndsAt: string | null;
+  subscriptionEndsAt: string | null;
+}
 
-  // Password form
-  const [passwordForm, setPasswordForm] = useState({
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: '',
-  });
+interface SettingsDrawerProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onBack?: () => void;
+}
 
-  // UI state
-  const [savingClinic, setSavingClinic] = useState(false);
-  const [savingPassword, setSavingPassword] = useState(false);
-  const [clinicMessage, setClinicMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  const [passwordMessage, setPasswordMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+/* ── Reusable row ───────────────────────────────────────────── */
+function SettingsRow({
+  icon, iconBg, iconColor, label, sublabel, rightText, rightBadge, isLast, onClick,
+}: {
+  icon: string;
+  iconBg: string;
+  iconColor: string;
+  label: string;
+  sublabel: string;
+  rightText?: string;
+  rightBadge?: { text: string; bg: string; color: string };
+  isLast?: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      type="button"
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 14,
+        width: '100%',
+        padding: '14px 16px',
+        background: 'transparent',
+        border: 'none',
+        borderBottom: isLast ? 'none' : '1px solid #F0EFEA',
+        cursor: 'pointer',
+        textAlign: 'left',
+        fontFamily: 'inherit',
+        WebkitTapHighlightColor: 'transparent',
+      }}
+    >
+      {/* Icon */}
+      <span
+        style={{
+          display: 'flex',
+          width: 40,
+          height: 40,
+          flexShrink: 0,
+          alignItems: 'center',
+          justifyContent: 'center',
+          borderRadius: 12,
+          background: iconBg,
+        }}
+      >
+        <Icon name={icon} size={20} style={{ color: iconColor }} />
+      </span>
 
-  // Doctors state
-  const [doctors, setDoctors] = useState<Doctor[]>([]);
-  const [newDoctorName, setNewDoctorName] = useState('');
-  const [newDoctorSpecialty, setNewDoctorSpecialty] = useState('');
-  const [addingDoctor, setAddingDoctor] = useState(false);
+      {/* Text */}
+      <span style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <span style={{ fontSize: 14, fontWeight: 600, color: '#1A1A1A', lineHeight: 1.3 }}>{label}</span>
+        <span style={{ fontSize: 12, color: '#8E9693', lineHeight: 1.3 }}>{sublabel}</span>
+      </span>
 
-  // Subscription state
-  const [subInfo, setSubInfo] = useState<{
-    status: string; plan: string | null; daysRemaining: number | null;
-    canUseApp: boolean;
-    trialEndsAt: string | null; subscriptionEndsAt: string | null;
-  } | null>(null);
+      {/* Right side */}
+      {rightText && (
+        <span style={{ fontSize: 12, fontWeight: 600, color: '#6B6960', flexShrink: 0 }}>{rightText}</span>
+      )}
+      {rightBadge && (
+        <span style={{
+          fontSize: 10,
+          fontWeight: 700,
+          color: rightBadge.color,
+          background: rightBadge.bg,
+          borderRadius: 999,
+          padding: '3px 10px',
+          flexShrink: 0,
+          letterSpacing: '0.03em',
+        }}>
+          {rightBadge.text}
+        </span>
+      )}
+      <Icon name="chevron_right" size={16} style={{ color: '#C5C3BC', flexShrink: 0 }} />
+    </button>
+  );
+}
+
+/* ── Section label ──────────────────────────────────────────── */
+function SectionLabel({ icon, label }: { icon: string; label: string }) {
+  return (
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: 6,
+      padding: '0 4px',
+      marginBottom: 8,
+    }}>
+      <Icon name={icon} size={13} style={{ color: '#8E9693' }} />
+      <span style={{
+        fontSize: 10,
+        fontWeight: 700,
+        textTransform: 'uppercase',
+        letterSpacing: '0.1em',
+        color: '#8E9693',
+      }}>
+        {label}
+      </span>
+    </div>
+  );
+}
+
+/* ── White card wrapper ─────────────────────────────────────── */
+function Card({ children }: { children: React.ReactNode }) {
+  return (
+    <div style={{
+      background: '#FFFFFF',
+      borderRadius: 16,
+      border: '1px solid #EEEDEA',
+      overflow: 'hidden',
+    }}>
+      {children}
+    </div>
+  );
+}
+
+/* ── Main Component ─────────────────────────────────────────── */
+export default function SettingsDrawer({ isOpen, onClose, onBack }: SettingsDrawerProps) {
+  const { t, i18n } = useTranslation();
+  const { clinic } = useAuthStore();
+  const [openPanel, setOpenPanel] = useState<PanelKey | null>(null);
+  const [subInfo, setSubInfo] = useState<SubInfo | null>(null);
+
+  const isRtl = i18n.dir() === 'rtl';
 
   useEffect(() => {
-    api.getDoctors().then(setDoctors).catch(() => {});
-    api.getSubscription().then(setSubInfo).catch(() => {});
-  }, []);
+    if (isOpen) {
+      api.getSubscription().then(setSubInfo).catch(() => {});
+    }
+  }, [isOpen]);
 
+  // Close open panel when settings drawer closes
   useEffect(() => {
-    if (clinic) {
-      setClinicForm({
-        name: clinic.name || '',
-        doctorName: clinic.doctorName || '',
-        doctorGender: (clinic.doctorGender as 'M' | 'F') || '',
-        phone: (clinic as any).phone || '',
-        address: (clinic as any).address || '',
-      });
-    }
-  }, [clinic]);
+    if (!isOpen) setOpenPanel(null);
+  }, [isOpen]);
 
-  const handleSaveClinic = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSavingClinic(true);
-    setClinicMessage(null);
-    try {
-      await api.updateClinic({
-        name: clinicForm.name,
-        doctorName: clinicForm.doctorName || undefined,
-        doctorGender: clinicForm.doctorGender || undefined,
-        phone: clinicForm.phone || undefined,
-        address: clinicForm.address || undefined,
-      });
-      await checkAuth();
-      setClinicMessage({ type: 'success', text: t('settings.saved') });
-    } catch {
-      setClinicMessage({ type: 'error', text: t('settings.saveError') });
-    } finally {
-      setSavingClinic(false);
-    }
-  };
-
-  const handleChangePassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setPasswordMessage(null);
-
-    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      setPasswordMessage({ type: 'error', text: t('settings.passwordMismatch') });
-      return;
-    }
-
-    setSavingPassword(true);
-    try {
-      await api.changePassword(passwordForm.currentPassword, passwordForm.newPassword);
-      setPasswordMessage({ type: 'success', text: t('settings.passwordChanged') });
-      setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
-    } catch (err: any) {
-      if (err.code === 'INVALID_PASSWORD') {
-        setPasswordMessage({ type: 'error', text: t('settings.wrongPassword') });
-      } else {
-        setPasswordMessage({ type: 'error', text: t('settings.passwordError') });
+  // Escape key closes settings (capture phase to prevent SideDrawer from also closing)
+  useEffect(() => {
+    if (!isOpen) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.stopImmediatePropagation();
+        if (openPanel) {
+          setOpenPanel(null);
+        } else {
+          (onBack ?? onClose)();
+        }
       }
-    } finally {
-      setSavingPassword(false);
-    }
-  };
+    };
+    window.addEventListener('keydown', handler, true);
+    return () => window.removeEventListener('keydown', handler, true);
+  }, [isOpen, openPanel, onBack, onClose]);
 
-  const handleAddDoctor = async () => {
-    if (!newDoctorName.trim()) return;
-    setAddingDoctor(true);
-    try {
-      const doctor = await api.createDoctor({
-        name: newDoctorName.trim(),
-        specialty: newDoctorSpecialty.trim() || undefined,
-      });
-      setDoctors([...doctors, doctor]);
-      setNewDoctorName('');
-      setNewDoctorSpecialty('');
-    } catch {
-      // silently fail
-    } finally {
-      setAddingDoctor(false);
-    }
-  };
+  const closePanel = () => setOpenPanel(null);
 
-  const handleDeleteDoctor = async (doctorId: string) => {
-    if (!confirm(t('settings.confirmDeleteDoctor'))) return;
-    try {
-      await api.deleteDoctor(doctorId);
-      setDoctors(doctors.filter(d => d.id !== doctorId));
-    } catch {
-      // silently fail
-    }
-  };
+  const avgMins = clinic?.avgConsultationMins ?? 10;
+  const isTrial = subInfo?.status === 'TRIAL';
+  const isActive = subInfo?.status === 'ACTIVE';
+  const daysLeft = subInfo?.daysRemaining ?? 0;
+  const trialEndDate = subInfo?.trialEndsAt
+    ? new Date(subInfo.trialEndsAt).toLocaleDateString('fr-TN', { day: 'numeric', month: 'long' })
+    : '';
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header />
+    <>
+      {/* Transparent backdrop — catches clicks above SideDrawer's backdrop */}
+      <div
+        onClick={onClose}
+        aria-hidden="true"
+        style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 1002,
+          background: 'transparent',
+          pointerEvents: isOpen ? 'auto' : 'none',
+        }}
+      />
 
-      <div className="max-w-3xl mx-auto px-4 py-8 space-y-8">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-900">{t('settings.title')}</h1>
+      {/* Settings panel — same dimensions as SideDrawer */}
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={t('settings.title', 'Paramètres')}
+        style={{
+          position: 'fixed',
+          top: 0,
+          bottom: 0,
+          [isRtl ? 'left' : 'right']: 0,
+          zIndex: 1003,
+          width: '88%',
+          maxWidth: 300,
+          display: 'flex',
+          flexDirection: 'column',
+          background: '#F6F5F0',
+          overflow: 'hidden',
+          boxShadow: isRtl
+            ? '8px 0 32px rgba(0,0,0,0.14)'
+            : '-8px 0 32px rgba(0,0,0,0.14)',
+          opacity: isOpen ? 1 : 0,
+          transform: isOpen
+            ? 'translateX(0)'
+            : isRtl ? 'translateX(-100%)' : 'translateX(100%)',
+          transition: 'transform 400ms cubic-bezier(0.4, 0, 0.2, 1), opacity 300ms ease',
+          willChange: 'transform, opacity',
+          fontFamily: "'DM Sans', sans-serif",
+          pointerEvents: isOpen ? 'auto' : 'none',
+        }}
+      >
+        {/* ── Header ──────────────────────────── */}
+        <header
+          style={{
+            flexShrink: 0,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+            height: 56,
+            padding: '0 16px',
+            background: '#FFFFFF',
+          }}
+        >
           <button
-            onClick={() => navigate('/dashboard')}
-            className="text-sm text-primary-600 hover:text-primary-700 font-medium"
+            onClick={onBack ?? onClose}
+            type="button"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: 36,
+              height: 36,
+              borderRadius: 12,
+              border: 'none',
+              background: '#F0EFEA',
+              cursor: 'pointer',
+              color: '#1A1A1A',
+            }}
           >
-            {t('common.back')}
+            <Icon name="arrow_back" size={18} />
           </button>
-        </div>
+          <span style={{ fontSize: 18, fontWeight: 700, color: '#1A1A1A', letterSpacing: '-0.02em' }}>
+            {t('settings.title', 'Paramètres')}
+          </span>
+        </header>
 
-        {/* Clinic Info */}
-        <form onSubmit={handleSaveClinic} className="bg-white rounded-2xl p-6 shadow-sm space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">{t('settings.clinicInfo')}</h2>
+        {/* ── Scrollable body ─────────────────── */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: '16px 14px 32px' }}>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                {t('settings.clinicName')}
-              </label>
-              <input
-                id="name"
-                type="text"
-                value={clinicForm.name}
-                onChange={(e) => setClinicForm({ ...clinicForm, name: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-              />
-            </div>
-            <div>
-              <label htmlFor="doctorName" className="block text-sm font-medium text-gray-700 mb-1">
-                {t('settings.doctorName')}
-              </label>
-              <div className="flex gap-2">
-                <div className="flex rounded-lg border border-gray-300 overflow-hidden flex-shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => setClinicForm({ ...clinicForm, doctorGender: 'M' })}
-                    className={`px-3 py-3 text-sm font-medium transition-colors ${
-                      clinicForm.doctorGender === 'M'
-                        ? 'bg-primary-500 text-white'
-                        : 'bg-white text-gray-600 hover:bg-gray-50'
-                    }`}
-                  >
-                    {t('onboarding.clinic.genderMr')}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setClinicForm({ ...clinicForm, doctorGender: 'F' })}
-                    className={`px-3 py-3 text-sm font-medium transition-colors border-s border-gray-300 ${
-                      clinicForm.doctorGender === 'F'
-                        ? 'bg-primary-500 text-white'
-                        : 'bg-white text-gray-600 hover:bg-gray-50'
-                    }`}
-                  >
-                    {t('onboarding.clinic.genderMs')}
-                  </button>
+          {/* ── Trial / Subscription Banner ──── */}
+          {subInfo && (isTrial || isActive) && (
+            <div style={{
+              position: 'relative',
+              overflow: 'hidden',
+              background: 'linear-gradient(135deg, #3D7367 0%, #2C5748 100%)',
+              borderRadius: 16,
+              padding: '18px 18px 16px',
+              marginBottom: 20,
+            }}>
+              {/* Decorative circle */}
+              <div style={{
+                position: 'absolute',
+                top: -12,
+                right: -12,
+                width: 64,
+                height: 64,
+                borderRadius: '50%',
+                background: 'rgba(255,255,255,0.08)',
+                pointerEvents: 'none',
+              }} />
+
+              <div style={{ position: 'relative' }}>
+                <div style={{ fontSize: 18, fontWeight: 800, color: '#FFFFFF', marginBottom: 6 }}>
+                  {isTrial ? t('settings.banner.trial', 'Essai gratuit') : (subInfo.plan === 'YEARLY' ? 'Annuel' : 'Mensuel')}
                 </div>
-                <input
-                  id="doctorName"
-                  type="text"
-                  value={clinicForm.doctorName}
-                  onChange={(e) => setClinicForm({ ...clinicForm, doctorName: e.target.value })}
-                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                />
-              </div>
-            </div>
-            <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-                {t('settings.phone')}
-              </label>
-              <input
-                id="phone"
-                type="tel"
-                value={clinicForm.phone}
-                onChange={(e) => setClinicForm({ ...clinicForm, phone: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-              />
-            </div>
-            <div>
-              <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
-                {t('settings.address')}
-              </label>
-              <input
-                id="address"
-                type="text"
-                value={clinicForm.address}
-                onChange={(e) => setClinicForm({ ...clinicForm, address: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-              />
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <button
-              type="submit"
-              disabled={savingClinic}
-              className="bg-primary-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-primary-700 transition-colors disabled:opacity-50"
-            >
-              {savingClinic ? t('settings.saving') : t('settings.saveSettings')}
-            </button>
-            {clinicMessage && (
-              <p className={`text-sm ${clinicMessage.type === 'success' ? 'text-green-600' : 'text-red-600'}`}>
-                {clinicMessage.text}
-              </p>
-            )}
-          </div>
-        </form>
-
-        {/* Subscription & Billing */}
-        {subInfo && (
-          <div className="bg-white rounded-2xl p-6 shadow-sm space-y-4">
-            <h2 className="text-lg font-semibold text-gray-900">{t('settings.subscription', 'Subscription & Billing')}</h2>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Plan & Status */}
-              <div className="p-4 bg-gray-50 rounded-xl">
-                <p className="text-xs font-medium text-gray-500 mb-1">{t('settings.currentPlan', 'Current Plan')}</p>
-                <p className="text-lg font-bold text-gray-900">
-                  {subInfo.status === 'TRIAL' ? t('settings.freeTrial', 'Free Trial') : (subInfo.plan || '-')}
-                </p>
-                <span className={`inline-block mt-1 text-xs font-medium px-2 py-0.5 rounded-full ${
-                  subInfo.status === 'ACTIVE' ? 'bg-green-100 text-green-700' :
-                  subInfo.status === 'TRIAL' ? 'bg-blue-100 text-blue-700' :
-                  subInfo.status === 'EXPIRED' ? 'bg-red-100 text-red-700' :
-                  'bg-gray-100 text-gray-700'
-                }`}>
+                <span style={{
+                  display: 'inline-block',
+                  fontSize: 9,
+                  fontWeight: 700,
+                  letterSpacing: '0.06em',
+                  color: '#FFFFFF',
+                  background: 'rgba(0,0,0,0.25)',
+                  borderRadius: 4,
+                  padding: '2px 8px',
+                  marginBottom: 12,
+                }}>
                   {subInfo.status}
                 </span>
-              </div>
 
-              {/* Days Remaining */}
-              <div className="p-4 bg-gray-50 rounded-xl">
-                <p className="text-xs font-medium text-gray-500 mb-1">{t('settings.daysRemaining', 'Days Remaining')}</p>
-                <p className={`text-lg font-bold ${
-                  (subInfo.daysRemaining ?? 0) <= 3 ? 'text-red-600' :
-                  (subInfo.daysRemaining ?? 0) <= 7 ? 'text-amber-600' : 'text-gray-900'
-                }`}>
-                  {subInfo.daysRemaining ?? '-'}
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  {subInfo.status === 'TRIAL' && subInfo.trialEndsAt
-                    ? new Date(subInfo.trialEndsAt).toLocaleDateString()
-                    : subInfo.subscriptionEndsAt
-                      ? new Date(subInfo.subscriptionEndsAt).toLocaleDateString()
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)' }}>
+                    {daysLeft} {t('settings.banner.daysLeft', 'jours restants')}
+                  </span>
+                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)' }}>
+                    {isTrial && trialEndDate
+                      ? `${t('settings.banner.expires', 'Expire le')} ${trialEndDate}`
                       : ''}
-                </p>
+                  </span>
+                </div>
+
+                {/* Progress bar */}
+                <div style={{ height: 4, background: 'rgba(255,255,255,0.2)', borderRadius: 999 }}>
+                  <div style={{
+                    height: '100%',
+                    borderRadius: 999,
+                    background: '#FFFFFF',
+                    width: `${Math.max(3, isTrial ? 100 - (daysLeft / 30) * 100 : 100 - (daysLeft / 365) * 100)}%`,
+                    transition: 'width 600ms',
+                  }} />
+                </div>
               </div>
-
             </div>
-
-            {/* Upgrade CTA */}
-            {(subInfo.status === 'TRIAL' || subInfo.status === 'EXPIRED') && (
-              <Link
-                to="/subscription"
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-colors"
-              >
-                <span className="material-symbols-outlined text-xl">upgrade</span>
-                {subInfo.status === 'EXPIRED'
-                  ? t('settings.renewNow', 'Renew Now')
-                  : t('settings.upgradePlan', 'Upgrade Plan')}
-              </Link>
-            )}
-          </div>
-        )}
-
-        {/* Change Password */}
-        <form onSubmit={handleChangePassword} className="bg-white rounded-2xl p-6 shadow-sm space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">{t('settings.changePassword')}</h2>
-
-          <div className="space-y-4 max-w-md">
-            <div>
-              <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700 mb-1">
-                {t('settings.currentPassword')}
-              </label>
-              <input
-                id="currentPassword"
-                type="password"
-                value={passwordForm.currentPassword}
-                onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
-                required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-              />
-            </div>
-            <div>
-              <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-1">
-                {t('settings.newPassword')}
-              </label>
-              <input
-                id="newPassword"
-                type="password"
-                value={passwordForm.newPassword}
-                onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
-                required
-                minLength={8}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-              />
-            </div>
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
-                {t('settings.confirmPassword')}
-              </label>
-              <input
-                id="confirmPassword"
-                type="password"
-                value={passwordForm.confirmPassword}
-                onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
-                required
-                minLength={8}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-              />
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <button
-              type="submit"
-              disabled={savingPassword}
-              className="bg-primary-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-primary-700 transition-colors disabled:opacity-50"
-            >
-              {savingPassword ? t('settings.saving') : t('settings.changePassword')}
-            </button>
-            {passwordMessage && (
-              <p className={`text-sm ${passwordMessage.type === 'success' ? 'text-green-600' : 'text-red-600'}`}>
-                {passwordMessage.text}
-              </p>
-            )}
-          </div>
-        </form>
-
-        {/* Manage Doctors */}
-        <div className="bg-white rounded-2xl p-6 shadow-sm space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">{t('settings.doctors')}</h2>
-
-          {/* Doctor list */}
-          {doctors.length === 0 ? (
-            <p className="text-sm text-gray-500">{t('settings.noDoctors')}</p>
-          ) : (
-            <ul className="divide-y divide-gray-100">
-              {doctors.map(doctor => (
-                <li key={doctor.id} className="flex items-center justify-between py-3">
-                  <div>
-                    <p className="font-medium text-gray-900">{doctor.name}</p>
-                    {doctor.specialty && (
-                      <p className="text-sm text-gray-500">{doctor.specialty}</p>
-                    )}
-                  </div>
-                  <button
-                    onClick={() => handleDeleteDoctor(doctor.id)}
-                    className="text-red-500 hover:text-red-700 p-1"
-                    title={t('common.delete')}
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                  </button>
-                </li>
-              ))}
-            </ul>
           )}
 
-          {/* Add doctor */}
-          <div className="flex gap-2">
-            <input
-              type="text"
-              placeholder={t('settings.doctorNameLabel')}
-              value={newDoctorName}
-              onChange={(e) => setNewDoctorName(e.target.value)}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          {/* ── MON CABINET ────────────────────── */}
+          <SectionLabel icon="domain" label={t('settings.section.cabinet', 'Mon cabinet')} />
+          <Card>
+            <SettingsRow
+              icon="local_hospital"
+              iconBg="#EAF3EF"
+              iconColor="#356B58"
+              label={t('settings.item.profile', 'Profil du cabinet')}
+              sublabel={t('settings.item.profileSub', 'Nom, médecin, coordonnées')}
+              onClick={() => setOpenPanel('profile')}
             />
-            <input
-              type="text"
-              placeholder={t('settings.specialty')}
-              value={newDoctorSpecialty}
-              onChange={(e) => setNewDoctorSpecialty(e.target.value)}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            <SettingsRow
+              icon="timer"
+              iconBg="#E8F5F1"
+              iconColor="#0F7B6C"
+              label={t('settings.item.duration', 'Consultation')}
+              sublabel={t('settings.item.durationSub', 'Estime l\'attente patient')}
+              rightText={`${avgMins} min`}
+              onClick={() => setOpenPanel('duration')}
             />
-            <button
-              onClick={handleAddDoctor}
-              disabled={addingDoctor || !newDoctorName.trim()}
-              className="bg-primary-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-primary-700 transition-colors disabled:opacity-50"
-            >
-              {t('settings.addDoctor')}
-            </button>
-          </div>
+            <SettingsRow
+              icon="sort"
+              iconBg="#FEF7E6"
+              iconColor="#D4920B"
+              label={t('settings.item.queueRules', "Règles de la file")}
+              sublabel={t('settings.item.queueRulesSub', "Priorité RDV, urgences")}
+              isLast
+              onClick={() => setOpenPanel('queue-rules')}
+            />
+          </Card>
+
+          <div style={{ height: 20 }} />
+
+          {/* ── ABONNEMENT ─────────────────────── */}
+          <SectionLabel icon="payments" label={t('settings.section.subscription', 'Abonnement')} />
+          <Card>
+            <SettingsRow
+              icon="receipt_long"
+              iconBg="#E8F5F1"
+              iconColor="#0F7B6C"
+              label={t('settings.item.subscription', 'Abonnement')}
+              sublabel={
+                isTrial
+                  ? `${t('settings.banner.trial', 'Essai gratuit')} · ${daysLeft} ${t('settings.banner.daysLeft', 'jours restants')}`
+                  : isActive
+                    ? (subInfo?.plan === 'YEARLY' ? 'Annuel' : 'Mensuel')
+                    : t('settings.item.subscriptionSub', 'Plan, facturation, paiements')
+              }
+              rightBadge={isTrial ? { text: 'ESSAI', bg: '#E8F5F1', color: '#0F7B6C' } : undefined}
+              isLast
+              onClick={() => setOpenPanel('subscription')}
+            />
+          </Card>
         </div>
       </div>
-    </div>
+
+      {/* ── Panels — wrapped in elevated stacking context so they paint above
+           the Settings drawer (z-1003). The BS panels use z-index 80/90 in CSS,
+           which would otherwise be behind the drawer. ──────────── */}
+      <div style={{ position: 'relative', zIndex: 1004 }}>
+        <BSClinicProfilePanel isOpen={openPanel === 'profile'} onClose={closePanel} />
+        <BSConsultationDurationPanel isOpen={openPanel === 'duration'} onClose={closePanel} />
+        <BSQueueRulesPanel isOpen={openPanel === 'queue-rules'} onClose={closePanel} />
+        <BSSubscriptionPanel isOpen={openPanel === 'subscription'} onClose={closePanel} />
+      </div>
+    </>
   );
 }

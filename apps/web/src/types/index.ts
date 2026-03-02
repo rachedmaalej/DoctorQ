@@ -23,6 +23,7 @@ export interface QueueEntry {
   status: QueueStatus;
   checkInMethod: CheckInMethod;
   appointmentTime: string | null;  // v0.3: Scheduled appointment time
+  isEmergency?: boolean;
   arrivedAt: string;
   notifiedAt: string | null;
   calledAt: string | null;
@@ -95,6 +96,8 @@ export interface Clinic {
   specialty?: string | null;
   funFactsEnabled?: boolean;
   enableLanguageSwitcher?: boolean;
+  queueMode?: string;
+  rdvGraceMinutes?: number;
   clinicHours?: ClinicHours | null;
   enableQrCode?: boolean;
   enableManualEntry?: boolean;

@@ -1,6 +1,8 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { QueueStatus } from '@/types';
+import { api } from '@/lib/api';
+import { useQueueStore } from '@/stores/queueStore';
 import type { ReceptionistDashboardProps, QueuePatient } from './types';
 import { useQueueLifecycle } from './useQueueLifecycle';
 import {
@@ -46,10 +48,19 @@ export default function ReceptionistDashboard({
   onCompleteConsultation,
   onToggleDoctorPresent,
   isTogglingPresence,
+  onOpenSettings,
+  closeDrawerTrigger,
 }: ReceptionistDashboardProps) {
   const { t } = useTranslation();
   const avgConsultMins = clinic?.avgConsultationMins ?? 10;
   const drawerControls = useDrawer();
+
+  // Close drawer when triggered from parent (e.g. settings backdrop dismiss)
+  useEffect(() => {
+    if (closeDrawerTrigger && closeDrawerTrigger > 0) {
+      drawerControls.close();
+    }
+  }, [closeDrawerTrigger]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Lifecycle state machine ───────────────────────────────
   const {
@@ -151,6 +162,14 @@ export default function ReceptionistDashboard({
   const handleMarkPriority = useCallback((id: string) => {
     onReorderPatient(id, 1);
   }, [onReorderPatient]);
+
+  const { fetchQueue } = useQueueStore();
+  const handleMarkEmergency = useCallback(async (id: string) => {
+    try {
+      await api.toggleEmergency(id);
+      fetchQueue();
+    } catch { /* handled by API layer */ }
+  }, [fetchQueue]);
 
   const handleMarkSteppedOut = useCallback((id: string) => {
     setSteppedOutIds(prev => {
@@ -309,6 +328,7 @@ export default function ReceptionistDashboard({
         patient={contextPatient}
         onClose={() => setContextPatient(null)}
         onMarkPriority={handleMarkPriority}
+        onMarkEmergency={handleMarkEmergency}
         onMarkSteppedOut={handleMarkSteppedOut}
         onRemove={onRemovePatient}
         onWhatsAppSend={handleWhatsAppSent}
@@ -345,6 +365,12 @@ export default function ReceptionistDashboard({
         waitingCount={waitingEntries.length}
         isDoctorPresent={isDoctorPresent ?? false}
         onCloseQueue={closeQueue}
+        onOpenSettings={onOpenSettings}
+        onToggleDoctorPresent={onToggleDoctorPresent}
+        isTogglingPresence={isTogglingPresence}
+        queueStatus={queueStatus}
+        onOpenQueue={openQueue}
+        onReopenQueue={reopenQueue}
       />
     </div>
   );

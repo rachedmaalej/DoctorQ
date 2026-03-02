@@ -122,7 +122,7 @@ export default function CheckInPage() {
   // Show error screen for inactive or not-found clinics
   if (clinicStatus === 'inactive' || clinicStatus === 'not_found') {
     return (
-      <div className="min-h-screen bg-[#FAFAF8] flex flex-col">
+      <div className="min-h-screen bg-[#FAFAF8] flex flex-col overflow-x-hidden">
         <div className="flex justify-between items-center px-6 pt-4 pb-1">
           <span className="text-xs font-medium text-bs-text-tertiary">
             {t('checkin.virtualQueue')}
@@ -153,7 +153,7 @@ export default function CheckInPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAFAF8] flex flex-col">
+    <div className="min-h-screen bg-[#FAFAF8] flex flex-col overflow-x-hidden">
       {/* Top bar */}
       <div className="flex justify-between items-center px-6 pt-4 pb-1">
         <span className="text-xs font-medium text-bs-text-tertiary">
@@ -173,14 +173,14 @@ export default function CheckInPage() {
         </div>
 
         {/* Doctor name */}
-        <h1 className="text-[28px] font-extrabold text-bs-text-primary tracking-tight">
+        <h1 className="text-[24px] sm:text-[28px] font-extrabold text-bs-text-primary tracking-tight break-words">
           {displayName}
         </h1>
 
         {/* Specialty badge */}
         {specialty && (
           <div className="mt-2.5">
-            <span className="inline-flex px-5 py-1.5 bg-bs-accent-light text-bs-accent rounded-full text-xs font-bold uppercase tracking-wide">
+            <span className="inline-flex px-5 py-1.5 bg-bs-accent-light text-bs-accent rounded-full text-xs font-bold uppercase tracking-wide max-w-full text-center">
               {specialty}
             </span>
           </div>
@@ -197,14 +197,14 @@ export default function CheckInPage() {
 
       {/* Social proof bar — smaller, secondary */}
       <div className="mx-5 flex bg-bs-accent-light border border-bs-accent/10 rounded-xl overflow-hidden">
-        <div className="flex-1 text-center py-2.5 px-3">
+        <div className="flex-1 min-w-0 text-center py-2.5 px-2">
           <div className="text-base font-extrabold text-bs-accent">{waitingCount}</div>
-          <div className="text-[10px] text-bs-text-secondary mt-0.5">{t('checkin.waitingInQueue')}</div>
+          <div className="text-[10px] text-bs-text-secondary mt-0.5 truncate">{t('checkin.waitingInQueue')}</div>
         </div>
-        <div className="w-px bg-bs-accent/15" />
-        <div className="flex-1 text-center py-2.5 px-3">
-          <div className="text-base font-extrabold text-bs-accent">~{avgConsultationMins} min</div>
-          <div className="text-[10px] text-bs-text-secondary mt-0.5">{t('checkin.avgConsultationTime')}</div>
+        <div className="w-px bg-bs-accent/15 flex-shrink-0" />
+        <div className="flex-1 min-w-0 text-center py-2.5 px-2">
+          <div className="text-base font-extrabold text-bs-accent truncate">~{avgConsultationMins} min</div>
+          <div className="text-[10px] text-bs-text-secondary mt-0.5 truncate">{t('checkin.avgConsultationTime')}</div>
         </div>
       </div>
 
@@ -277,29 +277,18 @@ export default function CheckInPage() {
         </button>
 
         {/* Trust row */}
-        <div className="flex items-center justify-center gap-4 mt-3.5">
-          <span className="flex items-center gap-1 text-xs text-bs-text-tertiary font-medium">
-            <span className="material-symbols-rounded text-sm">lock</span>
+        <div className="flex items-center justify-center flex-wrap gap-x-4 gap-y-1 mt-3.5">
+          <span className="flex items-center gap-1 text-xs text-bs-text-tertiary font-medium whitespace-nowrap">
+            <span className="material-symbols-rounded text-sm flex-shrink-0">lock</span>
             {t('checkin.dataProtected')}
           </span>
-          <div className="w-[3px] h-[3px] rounded-full bg-bs-border" />
-          <span className="flex items-center gap-1 text-xs text-bs-text-tertiary font-medium">
-            <span className="material-symbols-rounded text-sm">update</span>
+          <div className="w-[3px] h-[3px] rounded-full bg-bs-border flex-shrink-0" />
+          <span className="flex items-center gap-1 text-xs text-bs-text-tertiary font-medium whitespace-nowrap">
+            <span className="material-symbols-rounded text-sm flex-shrink-0">update</span>
             {t('checkin.realTimeTracking')}
           </span>
         </div>
       </form>
-
-      {/* Testimonial */}
-      <div className="mx-5 mt-4 p-3.5 bg-black/[0.02] rounded-lg">
-        <span className="material-symbols-rounded text-xl text-bs-text-tertiary">format_quote</span>
-        <p className="text-[13px] italic text-bs-text-secondary leading-relaxed">
-          {t('checkin.testimonialText')}
-        </p>
-        <p className="text-[11px] text-bs-text-tertiary mt-1.5">
-          {t('checkin.testimonialAuthor')}
-        </p>
-      </div>
 
       {/* Brand footer */}
       <div className="flex items-center justify-center gap-1.5 py-4 pb-9">

@@ -104,8 +104,9 @@ export default function QueueItem({ patient, isFirst, isLast, onContextOpen, wha
   );
 }
 
-function Badge({ type }: { type: 'priority' | 'stepped-out' | 'no-phone' }) {
+function Badge({ type }: { type: 'priority' | 'emergency' | 'stepped-out' | 'no-phone' }) {
   const styles: Record<string, { bg: string; text: string; label: string; fontWeight: string }> = {
+    emergency: { bg: 'bg-red-50', text: 'text-red-600', label: 'Urgence', fontWeight: '700' },
     priority: { bg: 'bg-bs-amber-light', text: 'text-bs-amber', label: 'Prioritaire', fontWeight: '700' },
     'stepped-out': { bg: 'bg-bs-blue-light', text: 'text-bs-blue', label: 'Sorti', fontWeight: '700' },
     'no-phone': { bg: 'bg-bs-surface-alt', text: 'text-bs-text-tertiary', label: 'Sans tél.', fontWeight: '600' },
