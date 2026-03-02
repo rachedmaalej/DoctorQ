@@ -997,6 +997,7 @@ export async function getClinicForImpersonation(clinicId: string) {
       isDoctorPresent: true,
       businessType: true,
       showAppointments: true,
+      multiDoctorEnabled: true,
     },
   });
 
