@@ -1,4 +1,4 @@
-import 'dotenv/config';       // Must be first — loads .env before other modules evaluate
+import 'dotenv/config'; // Must be first — loads .env before other modules evaluate
 import dns from 'node:dns';
 dns.setDefaultResultOrder('ipv4first');
 
