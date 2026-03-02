@@ -1035,29 +1035,33 @@
       "newDay": "Nouvelle journée"
     },
     "addPatient": {
-      "nameRequired": "Le nom du patient est requis",
-      "addError": "Erreur lors de l'ajout",
       "title": "Nouveau patient",
-      "subtitle": "Sera en position #{{position}} · Attente estimée {{wait}}",
+      "nameLabel": "Nom du patient",
+      "namePlaceholder": "Prénom et nom…",
+      "nameRequired": "Le nom du patient est requis",
+      "visitTypeLabel": "Type de visite",
       "walkIn": "Sans rendez-vous",
       "withAppointment": "Avec rendez-vous",
       "appointmentTime": "Heure du rendez-vous",
-      "patientName": "Nom du patient",
       "phone": "Numéro de téléphone",
+      "phoneLabel": "Numéro de téléphone",
       "phoneOptional": "(optionnel)",
-      "phoneHint": "Permet d'appeler le patient et de suivre sa position",
-      "qrFallbackTitle": "Pas de numéro ?",
-      "qrFallbackDesc": "Le patient peut scanner le QR du comptoir pour s'inscrire lui-même.",
-      "submitting": "Ajout en cours...",
+      "phoneHelp": "8 chiffres après +216, ex : 55 123 456",
+      "phoneWhatsappHint": "Pour suivi WhatsApp",
+      "priorityLabel": "Priorité médicale",
+      "prioritySub": "Passe en position #2",
       "submit": "Ajouter à la file",
+      "submitting": "Ajout en cours...",
+      "addError": "Erreur lors de l'ajout",
+      "returning": "Habitué",
+      "returningBadge": "Habitué · Position #{{position}}",
+      "lastVisit": "Dernière visite",
       "confirmPosition": "Position #{{position}} · Attente estimée {{wait}}",
       "sendWhatsApp": "Envoyer le lien par WhatsApp",
-      "sendWhatsAppDesc": "Envoyer le lien de suivi au patient",
-      "noPhoneInfo": "Aucun numéro renseigné. Pour lier le patient :",
-      "showQr": "Montrer le QR code",
-      "showQrDesc": "Le patient scanne pour suivre sa position",
-      "addPhoneLater": "Ajouter le numéro plus tard",
-      "addPhoneLaterDesc": "Via le menu du patient dans la file",
+      "sendWhatsAppDesc": "Suivi de position par WhatsApp",
+      "whatsappTitle": "Envoyer le lien à {{name}}",
+      "whatsappSub": "Suivi de position par WhatsApp",
+      "addAnother": "Ajouter un autre patient",
       "done": "Terminé — Retour à la file"
     }
   },
@@ -1363,5 +1367,8 @@
       "openLink": "Ouvrir",
       "whatsapp": "WhatsApp"
     }
+  },
+  "whatsapp": {
+    "message": "Bonjour, vous êtes inscrit(e) à la file de {{clinicName}}. Suivez votre position en temps réel ici : {{url}}"
   }
 }

@@ -780,6 +780,331 @@
   font-size: 14px;
 }
 
+/* ─── Autocomplete Dropdown ─── */
+
+.bs-autocomplete-dropdown {
+  border: 1.5px solid var(--accent);
+  border-top: none;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  overflow: hidden;
+  margin-top: -2px;
+  background: var(--surface);
+}
+
+.bs-autocomplete-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.15s;
+  font-family: inherit;
+  text-align: left;
+}
+
+.bs-autocomplete-item:hover,
+.bs-autocomplete-item:focus {
+  background: var(--accent-light);
+}
+
+.bs-autocomplete-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.bs-autocomplete-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bs-autocomplete-meta {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.bs-autocomplete-meta .material-symbols-rounded {
+  font-size: 11px;
+}
+
+.bs-returning-badge {
+  flex-shrink: 0;
+  background: var(--accent-light);
+  color: var(--accent);
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 3px 6px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.bs-returning-badge .material-symbols-rounded {
+  font-size: 10px;
+}
+
+/* ─── Name Input with Search Icon ─── */
+
+.bs-name-input-wrap {
+  position: relative;
+}
+
+.bs-name-input-wrap .bs-form-input {
+  padding-right: 36px;
+}
+
+.bs-name-search-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-tertiary);
+}
+
+/* ─── Phone Digit Counter ─── */
+
+.bs-phone-counter {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 10px;
+  font-weight: 700;
+  font-family: 'IBM Plex Mono', monospace;
+  color: var(--text-tertiary);
+  transition: color 0.2s;
+}
+
+.bs-phone-counter.complete {
+  color: var(--accent);
+}
+
+.bs-phone-input-wrap {
+  position: relative;
+  flex: 1;
+}
+
+/* ─── Priority Toggle ─── */
+
+.bs-priority-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--amber-light, #FFF8E1);
+  border: 1px solid var(--amber, #D4920B);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  margin-bottom: 16px;
+}
+
+.bs-priority-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bs-priority-icon {
+  color: var(--amber, #D4920B);
+}
+
+.bs-priority-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #78350F;
+}
+
+.bs-priority-sub {
+  font-size: 10px;
+  color: #92400E;
+}
+
+.bs-priority-switch {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  border-radius: 10px;
+  border: none;
+  background: var(--border);
+  cursor: pointer;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.bs-priority-switch.active {
+  background: var(--amber, #D4920B);
+}
+
+.bs-priority-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  transition: transform 0.2s;
+}
+
+.bs-priority-switch.active .bs-priority-knob {
+  transform: translateX(16px);
+}
+
+/* ─── Success Animations ─── */
+
+@keyframes bs-pop-in {
+  from { transform: scale(0.3); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+.bs-pop-in {
+  animation: bs-pop-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes bs-drain {
+  from { stroke-dashoffset: 0; }
+  to   { stroke-dashoffset: 34.6; }
+}
+
+/* ─── WhatsApp CTA Button ─── */
+
+.bs-whatsapp-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #25D366;
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(37, 211, 102, 0.35);
+  transition: all 0.15s;
+  font-family: inherit;
+  margin-bottom: 10px;
+}
+
+.bs-whatsapp-btn:active {
+  transform: scale(0.98);
+}
+
+.bs-whatsapp-icon {
+  width: 28px;
+  height: 28px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.bs-whatsapp-title {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.bs-whatsapp-sub {
+  font-size: 10px;
+  opacity: 0.8;
+  font-weight: 500;
+}
+
+.bs-whatsapp-arrow {
+  margin-left: auto;
+  opacity: 0.7;
+}
+
+/* ─── Add Another Button ─── */
+
+.bs-add-another-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: var(--accent-light);
+  border: 1px solid rgba(15,123,108,0.3);
+  color: var(--accent);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 12px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background 0.15s;
+  margin-bottom: 10px;
+}
+
+.bs-add-another-btn:hover {
+  background: rgba(15,123,108,0.12);
+}
+
+/* ─── Countdown Dismiss ─── */
+
+.bs-dismiss-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.bs-dismiss-btn:hover {
+  color: var(--text-primary);
+}
+
+/* ─── Returning Badge in Confirm ─── */
+
+.bs-confirm-returning {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  background: #DCFCE7;
+  color: #166534;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 100px;
+}
+
+.bs-confirm-returning .material-symbols-rounded {
+  font-size: 12px;
+}
+
 /* QR Fallback Card */
 .bs-qr-fallback {
   display: flex;
