@@ -87,17 +87,6 @@ export default function BlesafDashboard({
     [waitingCount, avgConsultMins, remainingCurrentMins]
   );
 
-  // Estimated wait for next added patient
-  const estimatedWaitForNew = useMemo(() => {
-    const totalMins = Math.round(remainingCurrentMins + waitingCount * avgConsultMins);
-    if (totalMins >= 60) {
-      const h = Math.floor(totalMins / 60);
-      const m = totalMins % 60;
-      return `~${h}h${m > 0 ? String(m).padStart(2, '0') : ''}`;
-    }
-    return `~${totalMins} min`;
-  }, [remainingCurrentMins, waitingCount, avgConsultMins]);
-
   // ── Handlers ──
 
   const handleQuickAdd = (name: string) => {
@@ -154,8 +143,6 @@ export default function BlesafDashboard({
         isOpen={isAddSheetOpen}
         onClose={() => setIsAddSheetOpen(false)}
         prefilledName={quickAddName}
-        estimatedPosition={waitingCount + (inConsultation ? 1 : 0) + 1}
-        estimatedWait={estimatedWaitForNew}
         clinicName=""
       />
     </div>

@@ -37,6 +37,7 @@ const addPatientSchema = z.object({
   checkInMethod: z.enum(['QR_CODE', 'MANUAL', 'WHATSAPP']).default('MANUAL'),
   appointmentTime: z.string().optional(),
   arrivedAt: z.string().optional(),
+  isEmergency: z.boolean().optional(),
 });
 
 const updatePatientSchema = z.object({
@@ -74,7 +75,7 @@ router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {
 router.post('/', authMiddleware, subscriptionGate, async (req: AuthRequest, res: Response) => {
   try {
     const clinicId = req.clinic!.id;
-    const { patientPhone, patientName, checkInMethod, appointmentTime, arrivedAt } = addPatientSchema.parse(req.body);
+    const { patientPhone, patientName, checkInMethod, appointmentTime, arrivedAt, isEmergency } = addPatientSchema.parse(req.body);
 
     // Parse appointment time if provided (converts local time to UTC using brand timezone)
     let appointmentDateTime: Date | undefined;
@@ -98,6 +99,7 @@ router.post('/', authMiddleware, subscriptionGate, async (req: AuthRequest, res:
       checkInMethod: checkInMethod as CheckInMethod,
       appointmentTime: appointmentDateTime,
       arrivedAt: arrivedAtDateTime,
+      isEmergency,
     });
 
     if (result.isAlreadyCheckedIn) {

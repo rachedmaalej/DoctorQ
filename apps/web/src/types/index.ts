@@ -137,6 +137,15 @@ export interface AddPatientData {
   patientName?: string;
   appointmentTime?: string;  // v0.3: HH:MM format
   arrivedAt?: string;        // ISO string for demo/testing - defaults to now() if not provided
+  isEmergency?: boolean;
+}
+
+export interface PatientSuggestion {
+  id: string;
+  name: string;
+  phone: string | null;
+  visitCount: number;
+  lastVisitAt: string;
 }
 
 export interface UpdateStatusData {

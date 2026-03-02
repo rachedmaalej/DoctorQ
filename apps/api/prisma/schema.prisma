@@ -112,6 +112,7 @@ model Clinic {
   paymentRecords        PaymentRecord[]
   subscriptionEvents    SubscriptionEvent[]
   doctors               Doctor[]
+  patients              Patient[]
 
   @@index([email])
   @@index([subscriptionStatus])
@@ -134,6 +135,24 @@ model Doctor {
   queueEntries        QueueEntry[]
 
   @@index([clinicId, isActive])
+}
+
+model Patient {
+  id          String      @id @default(uuid())
+  clinicId    String
+  name        String
+  phone       String?
+  visitCount  Int         @default(1)
+  lastVisitAt DateTime    @updatedAt
+  createdAt   DateTime    @default(now())
+  deletedAt   DateTime?   // Soft-delete for data compliance
+
+  clinic      Clinic      @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  entries     QueueEntry[]
+
+  @@unique([clinicId, phone])
+  @@index([clinicId, name])
+  @@index([clinicId, lastVisitAt])
 }
 
 model QueueEntry {
@@ -173,6 +192,10 @@ model QueueEntry {
 
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
+
+  // Patient record link (for autocomplete & visit tracking)
+  patientId     String?
+  patient       Patient?      @relation(fields: [patientId], references: [id])
 
   pushSubscriptions PushSubscription[]
 

@@ -177,13 +177,6 @@ export default function ReceptionistDashboard({
     }
   }, [summaryData.totalPatientsSeen, clinic?.name]);
 
-  // Estimated values for the add-patient sheet
-  const estimatedPosition = waitingEntries.length + 1 + (inConsultationEntry ? 1 : 0);
-  const estimatedWaitMins = estimatedPosition * avgConsultMins;
-  const estimatedWait = estimatedWaitMins >= 60
-    ? `${Math.floor(estimatedWaitMins / 60)}h${String(estimatedWaitMins % 60).padStart(2, '0')}`
-    : `${estimatedWaitMins} min`;
-
   return (
     <div
       className="bs-dashboard relative w-full max-w-[375px] mx-auto overflow-hidden"
@@ -319,8 +312,6 @@ export default function ReceptionistDashboard({
         isOpen={isAddSheetOpen}
         onClose={() => setIsAddSheetOpen(false)}
         prefilledName={addSheetName}
-        estimatedPosition={estimatedPosition}
-        estimatedWait={estimatedWait}
         clinicName={clinic?.name ?? ''}
         onWhatsAppSent={handleWhatsAppSent}
       />

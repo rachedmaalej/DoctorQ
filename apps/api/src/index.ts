@@ -34,6 +34,7 @@ import doctorRoutes from './routes/doctor.js';
 import metricsRoutes from './routes/metrics.js';
 import leadsRoutes from './routes/leads.js';
 import pushRoutes from './routes/push.js';
+import patientRoutes from './routes/patients.js';
 import { metricsMiddleware, activeSocketConnections } from './lib/metrics.js';
 import { logger } from './lib/logger.js';
 import { brand } from './lib/brand.js';
@@ -329,6 +330,7 @@ app.use('/api/clinic', clinicRoutes);
 app.use('/api/clinic/doctors', doctorRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/push', pushRoutes);
+app.use('/api/patients', patientRoutes);
 
 // Apply rate limiting to authenticated endpoints
 app.use('/api/queue', authRateLimiter);

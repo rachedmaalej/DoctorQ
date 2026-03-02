@@ -28,6 +28,7 @@ import type {
   EngagementSummary,
   ClinicDetailEnriched,
   YesterdayStats,
+  PatientSuggestion,
 } from '@/types';
 import { logger } from './logger';
 import { webBrand } from './brand';
@@ -306,6 +307,12 @@ class ApiClient {
       method: 'POST',
       body: JSON.stringify(data),
     });
+  }
+
+  async searchPatients(query: string): Promise<PatientSuggestion[]> {
+    return this.request<PatientSuggestion[]>(
+      `/api/patients/search?q=${encodeURIComponent(query)}`
+    );
   }
 
   async callNext(): Promise<{ called: QueueEntry; notified: QueueEntry[] }> {

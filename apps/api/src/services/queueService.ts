@@ -9,6 +9,7 @@ import { recalculatePositionsAndStatuses, getNextPosition } from './positionServ
 import { emitQueueUpdate, emitPatientUpdate, emitAllPatientUpdates } from './notificationService.js';
 import { getQueueStats, getStartOfToday, computeSmartWaitEstimate, invalidateStatsCache } from './statsService.js';
 import { brand } from '../lib/brand.js';
+import { logger } from '../lib/logger.js';
 
 export interface AddPatientInput {
   clinicId: string;
@@ -17,6 +18,7 @@ export interface AddPatientInput {
   checkInMethod?: CheckInMethod;
   appointmentTime?: Date;
   arrivedAt?: Date;
+  isEmergency?: boolean;
 }
 
 export interface AddPatientResult {
@@ -48,6 +50,7 @@ export async function addPatient(input: AddPatientInput): Promise<AddPatientResu
     checkInMethod = CheckInMethod.MANUAL,
     appointmentTime,
     arrivedAt,
+    isEmergency = false,
   } = input;
 
   const formattedPhone = patientPhone ? formatPhoneNumber(patientPhone) : '';
@@ -99,6 +102,7 @@ export async function addPatient(input: AddPatientInput): Promise<AddPatientResu
         status: QueueStatus.WAITING,
         checkInMethod,
         appointmentTime,
+        isEmergency,
         ...(arrivedAt && { arrivedAt }),
       },
     });
@@ -108,6 +112,32 @@ export async function addPatient(input: AddPatientInput): Promise<AddPatientResu
 
   if (result.isAlreadyCheckedIn) {
     return result as AddPatientResult;
+  }
+
+  // Upsert Patient record for autocomplete & visit tracking (non-critical, fire-and-forget)
+  if (formattedPhone) {
+    try {
+      const patient = await prisma.patient.upsert({
+        where: { clinicId_phone: { clinicId, phone: formattedPhone } },
+        create: {
+          clinicId,
+          name: patientName || '',
+          phone: formattedPhone,
+          visitCount: 1,
+        },
+        update: {
+          visitCount: { increment: 1 },
+          ...(patientName && { name: patientName }),
+        },
+      });
+      await prisma.queueEntry.update({
+        where: { id: result.entry.id },
+        data: { patientId: patient.id },
+      });
+    } catch (err) {
+      // Non-critical — queue entry is already created, log and continue
+      logger.warn({ err }, 'Failed to upsert Patient record');
+    }
   }
 
   // Recalculate positions and statuses (uses its own transaction)

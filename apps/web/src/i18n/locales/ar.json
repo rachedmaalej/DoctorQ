@@ -1034,30 +1034,34 @@
       "newDay": "يوم جديد"
     },
     "addPatient": {
-      "nameRequired": "اسم المريض مطلوب",
-      "addError": "خطأ أثناء الإضافة",
       "title": "مريض جديد",
-      "subtitle": "سيكون في الموقع #{{position}} · انتظار مقدر {{wait}}",
+      "nameLabel": "اسم المريض",
+      "namePlaceholder": "الاسم الأول واللقب…",
+      "nameRequired": "اسم المريض مطلوب",
+      "visitTypeLabel": "نوع الزيارة",
       "walkIn": "بدون موعد",
-      "withAppointment": "بموعد",
+      "withAppointment": "مع موعد",
       "appointmentTime": "وقت الموعد",
-      "patientName": "اسم المريض",
       "phone": "رقم الهاتف",
+      "phoneLabel": "رقم الهاتف",
       "phoneOptional": "(اختياري)",
-      "phoneHint": "يسمح بالاتصال بالمريض ومتابعة موقعه",
-      "qrFallbackTitle": "بدون رقم؟",
-      "qrFallbackDesc": "يمكن للمريض مسح رمز QR في الاستقبال للتسجيل بنفسه.",
+      "phoneHelp": "8 أرقام بعد 216+، مثال: 55 123 456",
+      "phoneWhatsappHint": "لمتابعة واتساب",
+      "priorityLabel": "أولوية طبية",
+      "prioritySub": "ينتقل إلى الموقع #2",
+      "submit": "أضف إلى الطابور",
       "submitting": "جاري الإضافة...",
-      "submit": "إضافة إلى الصف",
-      "confirmPosition": "الموقع #{{position}} · انتظار مقدر {{wait}}",
+      "addError": "خطأ أثناء الإضافة",
+      "returning": "معتاد",
+      "returningBadge": "معتاد · الموقع #{{position}}",
+      "lastVisit": "آخر زيارة",
+      "confirmPosition": "الموقع #{{position}} · الانتظار المقدر {{wait}}",
       "sendWhatsApp": "إرسال الرابط عبر واتساب",
-      "sendWhatsAppDesc": "إرسال رابط المتابعة للمريض",
-      "noPhoneInfo": "لا يوجد رقم هاتف. لربط المريض:",
-      "showQr": "عرض رمز QR",
-      "showQrDesc": "المريض يمسح لمتابعة موقعه",
-      "addPhoneLater": "إضافة الرقم لاحقاً",
-      "addPhoneLaterDesc": "من قائمة المريض في الصف",
-      "done": "تم — العودة إلى الصف"
+      "sendWhatsAppDesc": "متابعة الموقع عبر واتساب",
+      "whatsappTitle": "إرسال الرابط إلى {{name}}",
+      "whatsappSub": "متابعة الموقع عبر واتساب",
+      "addAnother": "إضافة مريض آخر",
+      "done": "تم — العودة إلى الطابور"
     }
   },
   "receptionist": {
@@ -1362,5 +1366,8 @@
       "openLink": "فتح",
       "whatsapp": "واتساب"
     }
+  },
+  "whatsapp": {
+    "message": "مرحبا، أنت مسجل(ة) في طابور {{clinicName}}. تابع موقعك مباشرة هنا: {{url}}"
   }
 }
