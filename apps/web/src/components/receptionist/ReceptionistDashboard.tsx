@@ -85,9 +85,6 @@ export default function ReceptionistDashboard({
   // ── Patient context sheet state ─────────────────────────
   const [contextPatient, setContextPatient] = useState<QueuePatient | null>(null);
 
-  // ── Stepped-out badges (client-side only) ───────────────
-  const [steppedOutIds, setSteppedOutIds] = useState<Set<string>>(new Set());
-
   // ── WhatsApp tracking (client-side only) ───────────────
   const [whatsappSentIds, setWhatsappSentIds] = useState<Set<string>>(new Set());
   const [isWhatsAppSheetOpen, setIsWhatsAppSheetOpen] = useState(false);
@@ -104,10 +101,8 @@ export default function ReceptionistDashboard({
 
   const currentPatient = inConsultationEntry ? toCurrentPatient(inConsultationEntry) : null;
   const queuePatients = useMemo(
-    () => waitingEntries.map(toQueuePatient).map(p =>
-      steppedOutIds.has(p.id) ? { ...p, badge: 'stepped-out' as const } : p,
-    ),
-    [waitingEntries, steppedOutIds],
+    () => waitingEntries.map(toQueuePatient),
+    [waitingEntries],
   );
   const nextPreview = getNextPatientPreview(queue);
   const totalAdded = getTotalAddedToday(stats, queue.length);
@@ -159,10 +154,6 @@ export default function ReceptionistDashboard({
   };
 
   // ── Context sheet actions ───────────────────────────────
-  const handleMarkPriority = useCallback((id: string) => {
-    onReorderPatient(id, 1);
-  }, [onReorderPatient]);
-
   const { fetchQueue } = useQueueStore();
   const handleMarkEmergency = useCallback(async (id: string) => {
     try {
@@ -171,13 +162,12 @@ export default function ReceptionistDashboard({
     } catch { /* handled by API layer */ }
   }, [fetchQueue]);
 
-  const handleMarkSteppedOut = useCallback((id: string) => {
-    setSteppedOutIds(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
-      return next;
-    });
-  }, []);
+  const handleMarkSteppedOut = useCallback(async (id: string) => {
+    try {
+      await api.toggleSteppedOut(id);
+      fetchQueue();
+    } catch { /* handled by API layer */ }
+  }, [fetchQueue]);
 
   const handleShare = useCallback(async () => {
     const text = t('receptionist.share.text', { count: summaryData.totalPatientsSeen });
@@ -319,13 +309,10 @@ export default function ReceptionistDashboard({
         isOpen={contextPatient !== null}
         patient={contextPatient}
         onClose={() => setContextPatient(null)}
-        onMarkPriority={handleMarkPriority}
         onMarkEmergency={handleMarkEmergency}
         onMarkSteppedOut={handleMarkSteppedOut}
         onRemove={onRemovePatient}
-        onWhatsAppSend={handleWhatsAppSent}
         onPhoneUpdated={() => setContextPatient(null)}
-        clinicName={clinic?.name ?? ''}
       />
 
       {/* ═══ Add Patient Sheet ═══ */}

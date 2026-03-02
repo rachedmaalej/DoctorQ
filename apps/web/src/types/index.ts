@@ -24,6 +24,7 @@ export interface QueueEntry {
   checkInMethod: CheckInMethod;
   appointmentTime: string | null;  // v0.3: Scheduled appointment time
   isEmergency?: boolean;
+  isSteppedOut?: boolean;
   arrivedAt: string;
   notifiedAt: string | null;
   calledAt: string | null;

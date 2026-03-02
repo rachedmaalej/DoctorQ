@@ -442,6 +442,43 @@ router.post('/:id/emergency', authMiddleware, subscriptionGate, async (req: Auth
   }
 });
 
+// POST /api/queue/:id/stepped-out - Toggle stepped-out flag on a patient
+router.post('/:id/stepped-out', authMiddleware, subscriptionGate, async (req: AuthRequest, res: Response) => {
+  try {
+    const clinicId = req.clinic!.id;
+    const { id } = req.params;
+
+    const entry = await prisma.queueEntry.findFirst({
+      where: {
+        id,
+        clinicId,
+        status: { in: [QueueStatus.WAITING, QueueStatus.NOTIFIED] },
+      },
+    });
+
+    if (!entry) {
+      return res.status(404).json({
+        error: { code: 'ENTRY_NOT_FOUND', message: 'Queue entry not found or not active' },
+      });
+    }
+
+    const updated = await prisma.queueEntry.update({
+      where: { id },
+      data: { isSteppedOut: !entry.isSteppedOut },
+    });
+
+    emitQueueUpdate(clinicId).catch(() => {});
+    emitAllPatientUpdates(clinicId).catch(() => {});
+
+    res.json({ data: updated });
+  } catch (error) {
+    logger.error({ err: error }, 'Toggle stepped-out error');
+    res.status(500).json({
+      error: { code: 'SERVER_ERROR', message: 'Failed to toggle stepped-out' },
+    });
+  }
+});
+
 // DELETE /api/queue - Clear all patients from queue
 router.delete('/', authMiddleware, subscriptionGate, async (req: AuthRequest, res: Response) => {
   try {

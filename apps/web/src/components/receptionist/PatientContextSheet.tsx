@@ -10,21 +10,16 @@ interface PatientContextSheetProps {
   isOpen: boolean;
   patient: QueuePatient | null;
   onClose: () => void;
-  onMarkPriority?: (id: string) => void;
   onMarkEmergency?: (id: string) => void;
   onMarkSteppedOut?: (id: string) => void;
   onRemove?: (id: string) => void;
-  onWhatsAppSend?: (id: string) => void;
   onPhoneUpdated?: () => void;
-  clinicName?: string;
 }
 
 const actions = [
   { key: 'emergency', icon: 'emergency', iconBg: '#FDF0ED', iconColor: '#D94F3B' },
-  { key: 'priority', icon: 'priority_high', iconBg: '#FEF7E6', iconColor: '#D4920B' },
   { key: 'stepped-out', icon: 'directions_walk', iconBg: '#EDF3FC', iconColor: '#3B7DD9' },
-  { key: 'phone', icon: 'phone', iconBg: '#EDF7F0', iconColor: '#2D8B4E' },
-  { key: 'whatsapp', icon: 'chat', iconBg: '#E8F8EE', iconColor: '#25D366' },
+  { key: 'copy-url', icon: 'link', iconBg: '#EDF3FC', iconColor: '#3B7DD9' },
   { key: 'remove', icon: 'person_remove', iconBg: '#FDF0ED', iconColor: '#D94F3B' },
 ] as const;
 
@@ -32,22 +27,26 @@ export default function PatientContextSheet({
   isOpen,
   patient,
   onClose,
-  onMarkPriority,
   onMarkEmergency,
   onMarkSteppedOut,
   onRemove,
-  onWhatsAppSend,
   onPhoneUpdated,
-  clinicName,
 }: PatientContextSheetProps) {
   const { t } = useTranslation();
 
+  const isSteppedOut = patient?.badge === 'stepped-out';
+
   const actionLabels: Record<string, { label: string; desc: string }> = {
     emergency: { label: t('receptionist.patientContext.emergency', 'Urgence'), desc: t('receptionist.patientContext.emergencyDesc', 'Passe en priorité absolue') },
-    priority: { label: t('receptionist.patientContext.priority'), desc: t('receptionist.patientContext.priorityDesc') },
-    'stepped-out': { label: t('receptionist.patientContext.steppedOut'), desc: t('receptionist.patientContext.steppedOutDesc') },
-    phone: { label: t('receptionist.patientContext.callPatient'), desc: t('receptionist.patientContext.callPatientDesc') },
-    whatsapp: { label: t('receptionist.patientContext.sendWhatsApp'), desc: t('receptionist.patientContext.sendWhatsAppDesc') },
+    'stepped-out': {
+      label: isSteppedOut
+        ? t('receptionist.patientContext.steppedBack', 'Marquer revenu')
+        : t('receptionist.patientContext.steppedOut'),
+      desc: isSteppedOut
+        ? t('receptionist.patientContext.steppedBackDesc', 'Le patient est de retour')
+        : t('receptionist.patientContext.steppedOutDesc'),
+    },
+    'copy-url': { label: t('receptionist.patientContext.copyUrl', 'Copier URL'), desc: t('receptionist.patientContext.copyUrlDesc', 'Lien de suivi de la position') },
     remove: { label: t('receptionist.patientContext.removePatient'), desc: t('receptionist.patientContext.removePatientDesc') },
   };
 
@@ -60,6 +59,7 @@ export default function PatientContextSheet({
     setShowPhoneInput(false);
     setPhoneValue('');
     setIsSavingPhone(false);
+    setCopied(false);
   }, [isOpen, patient?.id]);
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -88,32 +88,25 @@ export default function PatientContextSheet({
     }
   };
 
+  const [copied, setCopied] = useState(false);
+
   const handleAction = (key: string) => {
     if (!patient) return;
     switch (key) {
       case 'emergency':
         onMarkEmergency?.(patient.id);
         break;
-      case 'priority':
-        onMarkPriority?.(patient.id);
-        break;
       case 'stepped-out':
         onMarkSteppedOut?.(patient.id);
         break;
-      case 'phone':
-        if (patient.phone) {
-          window.open(`tel:${patient.phone}`, '_self');
-        }
-        return; // don't close sheet after phone tap
-      case 'whatsapp':
-        if (patient.phone) {
-          const statusUrl = `${window.location.origin}/patient/${patient.id}`;
-          const message = `${clinicName ?? ''} - Suivez votre position: ${statusUrl}`;
-          const waUrl = `https://wa.me/${patient.phone.replace('+', '')}?text=${encodeURIComponent(message)}`;
-          window.open(waUrl, '_blank');
-          onWhatsAppSend?.(patient.id);
-        }
-        return; // don't close sheet
+      case 'copy-url': {
+        const statusUrl = `${window.location.origin}/patient/${patient.id}`;
+        navigator.clipboard.writeText(statusUrl).then(() => {
+          setCopied(true);
+          setTimeout(() => { setCopied(false); onClose(); }, 800);
+        }).catch(() => onClose());
+        return; // don't close immediately — show feedback first
+      }
       case 'add-phone':
         setShowPhoneInput(true);
         return; // don't close sheet
@@ -123,8 +116,6 @@ export default function PatientContextSheet({
     }
     onClose();
   };
-
-  const isPhoneDisabled = !patient?.hasPhone;
 
   return (
     <>
@@ -168,8 +159,6 @@ export default function PatientContextSheet({
         {/* Action rows */}
         <div className="flex flex-col">
           {actions.map((action) => {
-            // Hide phone/whatsapp actions for no-phone patients; show add-phone instead
-            if ((action.key === 'phone' || action.key === 'whatsapp') && isPhoneDisabled) return null;
             return (
               <button
                 key={action.key}
@@ -191,14 +180,16 @@ export default function PatientContextSheet({
                     className="material-symbols-rounded"
                     style={{ fontSize: 20, color: action.iconColor }}
                   >
-                    {action.icon}
+                    {action.key === 'stepped-out' && isSteppedOut ? 'undo' : action.icon}
                   </span>
                 </div>
 
                 {/* Label + description */}
                 <div className="flex-1 min-w-0">
                   <div className="text-bs-text-primary font-semibold" style={{ fontSize: 15 }}>
-                    {actionLabels[action.key]?.label}
+                    {action.key === 'copy-url' && copied
+                      ? t('receptionist.patientContext.copied', 'Copié !')
+                      : actionLabels[action.key]?.label}
                   </div>
                   <div className="text-bs-text-tertiary" style={{ fontSize: 12 }}>
                     {actionLabels[action.key]?.desc}
@@ -217,7 +208,7 @@ export default function PatientContextSheet({
           })}
 
           {/* Add phone number action — only for patients without phone */}
-          {isPhoneDisabled && !showPhoneInput && (
+          {!patient?.hasPhone && !showPhoneInput && (
             <button
               onClick={() => handleAction('add-phone')}
               className="flex items-center gap-3 text-left transition-colors duration-150 active:bg-bs-surface-alt"
@@ -246,7 +237,7 @@ export default function PatientContextSheet({
           )}
 
           {/* Inline phone input */}
-          {isPhoneDisabled && showPhoneInput && (
+          {!patient?.hasPhone && showPhoneInput && (
             <div style={{ padding: '10px 12px' }}>
               <div
                 className="flex items-center"

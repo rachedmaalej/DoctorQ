@@ -361,6 +361,13 @@ class ApiClient {
     });
   }
 
+  // Toggle stepped-out flag on a patient
+  async toggleSteppedOut(entryId: string): Promise<QueueEntry> {
+    return this.request(`/api/queue/${entryId}/stepped-out`, {
+      method: 'POST',
+    });
+  }
+
   async resetStats(): Promise<{ message: string; deletedCount: number }> {
     return this.request('/api/queue/reset-stats', {
       method: 'POST',

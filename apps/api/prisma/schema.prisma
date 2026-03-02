@@ -158,6 +158,9 @@ model QueueEntry {
   // Emergency flag — patient goes to #2 (right after current consultation)
   isEmergency   Boolean       @default(false)
 
+  // Stepped-out flag — patient temporarily left the waiting room
+  isSteppedOut  Boolean       @default(false)
+
   // Manual reordering support
   // When set, this patient's position is "pinned" and won't be auto-recalculated
   // Value is the timestamp when manually reordered (used for ordering pinned patients)
