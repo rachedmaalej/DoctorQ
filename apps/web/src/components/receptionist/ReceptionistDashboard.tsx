@@ -191,8 +191,6 @@ export default function ReceptionistDashboard({
         <Header
           clinicName={clinic?.name ?? ''}
           status={queueStatus}
-          isAllDone={isAllDone}
-          onStatusPillClick={handleStatusPillClick}
           isDoctorPresent={isDoctorPresent}
           onToggleDoctorPresent={onToggleDoctorPresent}
           isTogglingPresence={isTogglingPresence}

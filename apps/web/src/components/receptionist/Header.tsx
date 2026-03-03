@@ -2,14 +2,11 @@ import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { webBrand } from '@/lib/brand';
 import type { QueueScreenStatus } from './types';
-import StatusPill from './StatusPill';
 import StatsStrip from './StatsStrip';
 
 interface HeaderProps {
   clinicName: string;
   status: QueueScreenStatus;
-  isAllDone?: boolean;
-  onStatusPillClick?: () => void;
   isDoctorPresent?: boolean;
   onToggleDoctorPresent?: () => void;
   isTogglingPresence?: boolean;
@@ -24,8 +21,6 @@ interface HeaderProps {
 export default function Header({
   clinicName,
   status,
-  isAllDone,
-  onStatusPillClick,
   isDoctorPresent,
   onToggleDoctorPresent,
   isTogglingPresence = false,
@@ -177,14 +172,6 @@ export default function Header({
                 </div>
               )}
             </div>
-          )}
-
-          {!showPresence && (
-            <StatusPill
-              status={status}
-              isAllDone={isAllDone}
-              onClick={onStatusPillClick}
-            />
           )}
 
           {/* Menu button — opens SideDrawer */}

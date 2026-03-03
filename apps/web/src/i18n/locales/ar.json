@@ -24,7 +24,18 @@
     "createAccount": "إنشاء حساب",
     "emailNotVerified": "يرجى التحقق من بريدك الإلكتروني قبل تسجيل الدخول.",
     "resendVerification": "إعادة إرسال رسالة التحقق",
-    "verificationSent": "تم إرسال رسالة التحقق. تحقق من صندوق الوارد."
+    "verificationSent": "تم إرسال رسالة التحقق. تحقق من صندوق الوارد.",
+    "loginEyebrow": "فضاء الطبيب",
+    "loginHeadline": "مرحباً بعودتك،\nيا دكتور.",
+    "loginSubline": "قائمة انتظارك في انتظارك.",
+    "loginCardSubtitle": "ادخل إلى لوحة التحكم",
+    "rememberMe": "تذكرني",
+    "forgotPasswordShort": "نسيت؟",
+    "noAccountPrompt": "ليس لديك حساب؟",
+    "trialCta": "← 14 يوم مجاناً",
+    "trustSsl": "SSL آمن",
+    "trustEncrypted": "مشفّر",
+    "trustCompliant": "متوافق"
   },
   "queue": {
     "title": "قائمة الانتظار",

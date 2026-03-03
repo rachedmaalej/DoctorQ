@@ -117,6 +117,7 @@ export default {
         dm: ['DM Sans', 'system-ui', 'sans-serif'],
         'dm-mono': ['DM Mono', 'monospace'],
         fraunces: ['Fraunces', 'Georgia', 'serif'],
+        'dm-serif': ['DM Serif Display', 'Georgia', 'serif'],
       },
       // BleSaf receptionist dashboard tokens
       boxShadow: {
