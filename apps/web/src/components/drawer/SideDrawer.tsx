@@ -9,6 +9,7 @@ import type { QueueScreenStatus } from '@/components/receptionist/types';
 import { Icon } from '@/components/ui/Icon';
 import { DrawerItem } from './DrawerItem';
 import { DrawerSection } from './DrawerSection';
+import HelpSupportDrawer from '@/components/help/HelpSupportDrawer';
 
 interface SideDrawerProps {
   isOpen: boolean;
@@ -110,6 +111,7 @@ export function SideDrawer({
   const [qrLoading, setQrLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [showQrFullScreen, setShowQrFullScreen] = useState(false);
+  const [helpDrawerOpen, setHelpDrawerOpen] = useState(false);
 
   const currentLang = i18n.language;
   const isRtl = i18n.dir() === 'rtl';
@@ -152,7 +154,7 @@ export function SideDrawer({
   };
 
   const handleSupport = () => {
-    window.open(`mailto:${webBrand.supportEmail}`, '_blank');
+    setHelpDrawerOpen(true);
   };
 
   const handleCopy = async () => {
@@ -569,6 +571,13 @@ export function SideDrawer({
           </div>
         </div>
       )}
+
+      {/* ── Help & Support drawer ──────────────────── */}
+      <HelpSupportDrawer
+        open={helpDrawerOpen}
+        onClose={() => setHelpDrawerOpen(false)}
+        clinicName={clinic?.name ?? ''}
+      />
     </>
   );
 }

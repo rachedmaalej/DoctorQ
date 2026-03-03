@@ -52,10 +52,6 @@ export default function ReceptionistPreview() {
   const handleEndDay = () => { setQueueStatus('CLOSED'); setIsAllDone(false); };
   const handleShowAllDone = () => { setIsAllDone(true); };
   const handleNewDay = () => { setQueueStatus('PRE_OPEN'); setIsAllDone(false); };
-  const handleStatusPillClick = () => {
-    if (queueStatus === 'OPEN' || queueStatus === 'CLOSING') setIsSheetOpen(true);
-  };
-
   return (
     <div
       className="relative w-full max-w-[375px] mx-auto overflow-hidden"

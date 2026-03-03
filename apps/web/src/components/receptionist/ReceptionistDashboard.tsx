@@ -138,12 +138,6 @@ export default function ReceptionistDashboard({
     setIsAddSheetOpen(true);
   };
 
-  const handleStatusPillClick = () => {
-    if (queueStatus === 'OPEN' || queueStatus === 'CLOSING') {
-      setIsSheetOpen(true);
-    }
-  };
-
   const handleCallNextFromCard = () => {
     if (showClosing && waitingEntries.length === 0 && inConsultationEntry) {
       onCompleteConsultation();
