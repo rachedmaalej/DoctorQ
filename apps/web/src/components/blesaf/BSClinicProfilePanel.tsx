@@ -182,13 +182,12 @@ export default function BSClinicProfilePanel({ isOpen, onClose }: BSClinicProfil
             {/* Clinic name */}
             <button className="bs-settings-item" onClick={() => toggleRow('name')}>
               <div className="bs-settings-ico" style={{ background: '#E8F5F1', color: '#0F7B6C' }}>
-                <span className="material-symbols-rounded" style={{ fontSize: 18 }}>home</span>
+                <span className="material-symbols-rounded" style={{ fontSize: 20 }}>home</span>
               </div>
               <div className="bs-settings-txt">
                 <div className="bs-settings-name">{t('settingsBs.clinicProfile.clinicName')}</div>
                 <div className="bs-settings-desc">{t('settingsBs.clinicProfile.clinicNameDesc')}</div>
               </div>
-              <span className="bs-settings-value">{clinicForm.name || '—'}</span>
               <span className="material-symbols-rounded bs-settings-chev">chevron_right</span>
             </button>
             <div className={`bs-expand ${expandedRow === 'name' ? 'open' : ''}`}>
@@ -204,16 +203,12 @@ export default function BSClinicProfilePanel({ isOpen, onClose }: BSClinicProfil
             {/* Doctor name */}
             <button className="bs-settings-item" onClick={() => toggleRow('doctor')}>
               <div className="bs-settings-ico" style={{ background: '#E8F5F1', color: '#0F7B6C' }}>
-                <span className="material-symbols-rounded" style={{ fontSize: 18 }}>person</span>
+                <span className="material-symbols-rounded" style={{ fontSize: 20 }}>person</span>
               </div>
               <div className="bs-settings-txt">
                 <div className="bs-settings-name">{t('settingsBs.clinicProfile.doctor')}</div>
                 <div className="bs-settings-desc">{t('settingsBs.clinicProfile.doctorDesc')}</div>
               </div>
-              <span className="bs-settings-value">
-                {clinicForm.doctorGender ? `${clinicForm.doctorGender === 'M' ? t('settingsBs.clinicProfile.mr') : t('settingsBs.clinicProfile.mrs')} ` : ''}
-                {clinicForm.doctorName ? clinicForm.doctorName.split(' ').map(w => w[0]).join('. ') + '.' : '—'}
-              </span>
               <span className="material-symbols-rounded bs-settings-chev">chevron_right</span>
             </button>
             <div className={`bs-expand ${expandedRow === 'doctor' ? 'open' : ''}`}>
@@ -242,13 +237,12 @@ export default function BSClinicProfilePanel({ isOpen, onClose }: BSClinicProfil
             {/* Phone */}
             <button className="bs-settings-item" onClick={() => toggleRow('phone')}>
               <div className="bs-settings-ico" style={{ background: '#EDF3FC', color: '#3B7DD9' }}>
-                <span className="material-symbols-rounded" style={{ fontSize: 18 }}>phone</span>
+                <span className="material-symbols-rounded" style={{ fontSize: 20 }}>phone</span>
               </div>
               <div className="bs-settings-txt">
                 <div className="bs-settings-name">{t('settingsBs.clinicProfile.phone')}</div>
                 <div className="bs-settings-desc">{t('settingsBs.clinicProfile.phoneDesc')}</div>
               </div>
-              <span className="bs-settings-value">{clinicForm.phone ? formatPhone(clinicForm.phone) : '—'}</span>
               <span className="material-symbols-rounded bs-settings-chev">chevron_right</span>
             </button>
             <div className={`bs-expand ${expandedRow === 'phone' ? 'open' : ''}`}>
@@ -265,13 +259,12 @@ export default function BSClinicProfilePanel({ isOpen, onClose }: BSClinicProfil
             {/* Address */}
             <button className="bs-settings-item" onClick={() => toggleRow('address')}>
               <div className="bs-settings-ico" style={{ background: '#EDF3FC', color: '#3B7DD9' }}>
-                <span className="material-symbols-rounded" style={{ fontSize: 18 }}>location_on</span>
+                <span className="material-symbols-rounded" style={{ fontSize: 20 }}>location_on</span>
               </div>
               <div className="bs-settings-txt">
                 <div className="bs-settings-name">{t('settingsBs.clinicProfile.address')}</div>
                 <div className="bs-settings-desc">{t('settingsBs.clinicProfile.addressDesc')}</div>
               </div>
-              <span className="bs-settings-value">{clinicForm.address || '—'}</span>
               <span className="material-symbols-rounded bs-settings-chev">chevron_right</span>
             </button>
             <div className={`bs-expand ${expandedRow === 'address' ? 'open' : ''}`}>
@@ -290,7 +283,7 @@ export default function BSClinicProfilePanel({ isOpen, onClose }: BSClinicProfil
           <div className="bs-settings-group">
             <button className="bs-settings-item" onClick={() => toggleRow('password')}>
               <div className="bs-settings-ico" style={{ background: '#FDF0ED', color: '#D94F3B' }}>
-                <span className="material-symbols-rounded" style={{ fontSize: 18 }}>lock</span>
+                <span className="material-symbols-rounded" style={{ fontSize: 20 }}>lock</span>
               </div>
               <div className="bs-settings-txt">
                 <div className="bs-settings-name">{t('settingsBs.clinicProfile.changePassword')}</div>
