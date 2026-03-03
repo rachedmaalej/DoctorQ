@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BleSAF — V1 Color Variations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<!-- Sora for UI text, DM Serif Display for hero headline -->
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Sora:wght@300;400;500;600;700&display=swap"/>
+<!-- Material Symbols Rounded — MD3 icon set -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" rel="stylesheet"/>
+<style>
+/* ─── Reset ─── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ─── Material icon helper ─── */
+.mi {
+  font-family: 'Material Symbols Rounded';
+  font-weight: normal; font-style: normal;
+  font-size: inherit; line-height: 1;
+  display: inline-flex; align-items: center; justify-content: center;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Page Shell ─── */
+body {
+  font-family: 'Sora', sans-serif;
+  background: #111318;
+  min-height: 100vh;
+}
+
+/* ─── Topbar ─── */
+.topbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 11px 20px;
+  background: rgba(17,19,24,0.95); backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.topbar-label {
+  font-size: 10px; font-weight: 600; letter-spacing: .12em;
+  text-transform: uppercase; color: rgba(255,255,255,0.28); margin-right: 6px;
+}
+.tab {
+  padding: 6px 18px; border-radius: 7px; font-size: 12.5px; font-weight: 500;
+  cursor: pointer; border: 1px solid rgba(255,255,255,0.09);
+  background: transparent; color: rgba(255,255,255,0.4);
+  transition: all .18s; font-family: inherit;
+}
+.tab.active { background: rgba(255,255,255,0.11); color: #fff; border-color: rgba(255,255,255,0.2); }
+.tab:hover:not(.active) { color: rgba(255,255,255,0.7); border-color: rgba(255,255,255,0.14); }
+
+/* ─── Scene ─── */
+.scene { display: none; padding: 72px 24px 64px; flex-direction: column; align-items: center; min-height: 100vh; }
+.scene.active { display: flex; }
+
+/* ─── Color swatch strip ─── */
+.swatch-strip {
+  max-width: 390px; width: 100%; margin-bottom: 20px;
+  display: flex; align-items: center; gap: 10px;
+}
+.swatch { width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0; }
+.swatch-info { display: flex; flex-direction: column; gap: 2px; }
+.swatch-name { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.75); }
+.swatch-hex { font-size: 11px; color: rgba(255,255,255,0.3); letter-spacing: .04em; font-family: monospace; }
+.swatch-sep { width: 1px; height: 20px; background: rgba(255,255,255,0.1); margin: 0 4px; }
+.swatch-note { font-size: 11px; color: rgba(255,255,255,0.3); line-height: 1.5; }
+
+/* ─── Phone Shell ─── */
+.phone-outer {
+  max-width: 390px; width: 100%;
+  border-radius: 52px; padding: 14px;
+  background: #1c1c1e;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.09),
+    0 40px 90px rgba(0,0,0,0.75),
+    inset 0 0 0 1px rgba(255,255,255,0.04);
+  position: relative;
+}
+/* Dynamic Island */
+.phone-outer::before {
+  content: ''; position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
+  width: 120px; height: 36px; background: #1c1c1e; border-radius: 0 0 22px 22px; z-index: 10;
+}
+.phone-outer::after {
+  content: ''; position: absolute; top: 18px; left: 50%; transform: translateX(-50%);
+  width: 120px; height: 34px; background: #000; border-radius: 20px; z-index: 11;
+}
+.phone-screen {
+  border-radius: 40px; overflow: hidden;
+  height: 812px; position: relative;
+}
+
+/* ─── Status bar ─── */
+.statusbar {
+  position: absolute; top: 0; left: 0; right: 0; z-index: 30;
+  height: 52px; padding: 14px 28px 0;
+  display: flex; align-items: center; justify-content: space-between;
+  pointer-events: none;
+}
+.sb-time { font-size: 15px; font-weight: 600; letter-spacing: -.3px; }
+.sb-icons { display: flex; align-items: center; gap: 6px; }
+.sb-icons .mi { font-size: 18px; }
+
+/* ══════════════════════════════════════════════════════════
+   SHARED V1 LAYOUT STRUCTURE
+══════════════════════════════════════════════════════════ */
+
+/* Hero panel */
+.v1-hero {
+  padding: 58px 28px 56px;
+  position: relative; overflow: hidden; flex-shrink: 0;
+}
+.v1-hero-grid {
+  position: absolute; inset: 0; opacity: .04;
+  background-image:
+    linear-gradient(rgba(255,255,255,.8) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.8) 1px, transparent 1px);
+  background-size: 36px 36px;
+}
+.v1-hero-radial-tl {
+  position: absolute; top: -60px; left: -60px;
+  width: 260px; height: 260px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,.1) 0%, transparent 65%);
+}
+.v1-hero-radial-br {
+  position: absolute; bottom: -40px; right: -40px;
+  width: 200px; height: 200px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,0,0,.15) 0%, transparent 65%);
+}
+
+.v1-logo {
+  position: relative; z-index: 1;
+  display: flex; align-items: center; gap: 10px; margin-bottom: 30px;
+}
+.v1-logo-box {
+  width: 40px; height: 40px; border-radius: 11px;
+  background: rgba(255,255,255,.18); backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,.22);
+  display: flex; align-items: center; justify-content: center;
+}
+.v1-logo-box .mi { font-size: 22px; color: #fff; }
+.v1-logo-name { font-size: 22px; font-weight: 700; color: #fff; letter-spacing: -.4px; }
+.v1-logo-name span { opacity: .62; }
+
+.v1-eyebrow {
+  position: relative; z-index: 1;
+  font-size: 11px; font-weight: 600; letter-spacing: .13em;
+  text-transform: uppercase; color: rgba(255,255,255,.52); margin-bottom: 9px;
+}
+.v1-headline {
+  position: relative; z-index: 1;
+  font-family: 'DM Serif Display', serif;
+  font-size: 34px; line-height: 1.18; color: #fff; margin-bottom: 7px;
+}
+.v1-headline em { font-style: italic; opacity: .72; }
+.v1-subline {
+  position: relative; z-index: 1;
+  font-size: 14px; color: rgba(255,255,255,.58); line-height: 1.5;
+}
+
+/* Card (bottom sheet) */
+.v1-card {
+  background: var(--card-bg, #fff);
+  border-radius: 30px 30px 0 0;
+  flex: 1; margin-top: -26px; position: relative; z-index: 2;
+  padding: 14px 28px 0;
+  display: flex; flex-direction: column;
+  box-shadow: 0 -6px 28px rgba(0,0,0,.12);
+}
+.v1-handle {
+  width: 38px; height: 4px; border-radius: 2px;
+  background: var(--handle, #e2e8f0);
+  margin: 0 auto 26px; flex-shrink: 0;
+}
+.v1-card-title { font-size: 20px; font-weight: 700; color: var(--text-primary); letter-spacing: -.4px; margin-bottom: 3px; }
+.v1-card-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; line-height: 1.5; }
+
+/* Fields */
+.v1-field { margin-bottom: 16px; }
+.v1-label {
+  display: block; font-size: 12px; font-weight: 600;
+  color: var(--label-color); letter-spacing: .04em; margin-bottom: 8px;
+}
+.v1-input-wrap { position: relative; display: flex; align-items: center; }
+.v1-input-icon {
+  position: absolute; left: 14px; pointer-events: none;
+  color: var(--icon-muted); font-size: 20px;
+}
+.v1-input {
+  width: 100%; padding: 14px 48px 14px 44px;
+  border-radius: 14px; font-size: 16px; font-family: 'Sora', sans-serif;
+  border: 1.5px solid var(--input-border); background: var(--input-bg);
+  color: var(--text-primary); outline: none;
+  -webkit-appearance: none; appearance: none;
+  transition: border-color .15s, box-shadow .15s, background .15s;
+  min-height: 54px;
+}
+.v1-input:focus {
+  border-color: var(--accent);
+  background: var(--input-focus-bg);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+.v1-input::placeholder { color: var(--placeholder); font-size: 15px; }
+
+.v1-eye-btn {
+  position: absolute; right: 13px;
+  background: none; border: none; cursor: pointer; padding: 6px;
+  color: var(--icon-muted); display: flex; align-items: center;
+  border-radius: 8px; transition: color .15s;
+}
+.v1-eye-btn .mi { font-size: 21px; }
+.v1-eye-btn:hover { color: var(--accent); }
+
+.v1-row {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 22px;
+}
+.v1-remember {
+  display: flex; align-items: center; gap: 9px;
+  font-size: 13px; color: var(--text-muted); cursor: pointer;
+}
+.v1-checkbox {
+  width: 20px; height: 20px; border-radius: 6px;
+  border: 1.5px solid var(--input-border); background: var(--input-bg);
+  flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  accent-color: var(--accent); cursor: pointer;
+}
+.v1-checkbox input { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; }
+.v1-forgot {
+  font-size: 13px; color: var(--accent); font-weight: 600;
+  text-decoration: none; transition: opacity .15s;
+}
+.v1-forgot:hover { opacity: .75; }
+
+/* Spacer to push bottom to thumb zone */
+.v1-spacer { flex: 1; min-height: 8px; }
+
+/* Bottom section */
+.v1-bottom { padding-bottom: 36px; flex-shrink: 0; }
+
+.v1-btn {
+  width: 100%; padding: 0 20px;
+  border-radius: 16px; font-size: 16px; font-weight: 700;
+  background: var(--accent); color: #fff; border: none; cursor: pointer;
+  font-family: 'Sora', sans-serif;
+  box-shadow: var(--btn-shadow);
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: transform .13s, box-shadow .13s;
+  min-height: 56px;
+}
+.v1-btn:active { transform: scale(.97); box-shadow: none; }
+.v1-btn .mi { font-size: 22px; }
+
+.v1-divider {
+  display: flex; align-items: center; gap: 11px; margin: 18px 0 16px;
+}
+.v1-div-line { flex: 1; height: 1px; background: var(--divider); }
+.v1-div-text { font-size: 11px; color: var(--text-muted); letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; }
+
+/* Biometric row */
+.v1-bio { display: flex; gap: 10px; }
+.v1-bio-btn {
+  flex: 1; min-height: 52px; border-radius: 14px;
+  border: 1.5px solid var(--input-border); background: var(--input-bg);
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  font-size: 13px; font-weight: 600; color: var(--text-secondary);
+  cursor: pointer; font-family: 'Sora', sans-serif;
+  transition: border-color .15s, background .15s;
+}
+.v1-bio-btn:active { border-color: var(--accent); background: var(--focus-ring); }
+.v1-bio-btn .mi { font-size: 22px; color: var(--accent); }
+
+.v1-signup {
+  text-align: center; font-size: 13px;
+  color: var(--text-muted); margin-top: 18px;
+}
+.v1-signup a { color: var(--accent); font-weight: 600; text-decoration: none; }
+
+/* Trust row at very bottom */
+.v1-trust {
+  display: flex; align-items: center; justify-content: center; gap: 16px;
+  margin-top: 16px; padding-top: 14px;
+  border-top: 1px solid var(--divider);
+}
+.v1-trust-item {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 11px; color: var(--text-muted);
+}
+.v1-trust-item .mi { font-size: 14px; color: var(--accent); opacity: .75; }
+
+/* ══════════════════════════════════════════════════════════
+   THEME 1 — AUTHORITY BLUE (original)
+   #1252a3 — professional, clinical trust
+══════════════════════════════════════════════════════════ */
+.theme-blue {
+  --accent:           #1252a3;
+  --accent-dark:      #0e3f82;
+  --hero-from:        #1252a3;
+  --hero-to:          #1a6bd6;
+  --card-bg:          #ffffff;
+  --handle:           #dde3ed;
+  --text-primary:     #0d1f3c;
+  --text-secondary:   #374151;
+  --text-muted:       #6b7a90;
+  --label-color:      #374151;
+  --icon-muted:       #94a3b8;
+  --placeholder:      #b0bac8;
+  --input-border:     #dde3ed;
+  --input-bg:         #f8fafc;
+  --input-focus-bg:   #fff;
+  --focus-ring:       rgba(18,82,163,.1);
+  --btn-shadow:       0 6px 20px rgba(18,82,163,.35);
+  --divider:          #eef2f8;
+  --screen-bg:        #f0f5fb;
+}
+
+/* ══════════════════════════════════════════════════════════
+   THEME 2 — BLESAF VERT (app's actual green)
+   Matching the Help & Support screenshot: #1B6B52 teal-forest
+   Warm cream background: #F2EEE7
+══════════════════════════════════════════════════════════ */
+.theme-green {
+  --accent:           #1B6B52;
+  --accent-dark:      #145240;
+  --hero-from:        #1B6B52;
+  --hero-to:          #227a5e;
+  --card-bg:          #ffffff;
+  --handle:           #d5e5de;
+  --text-primary:     #0f2820;
+  --text-secondary:   #1e3a2e;
+  --text-muted:       #5a7a6c;
+  --label-color:      #2a4a3a;
+  --icon-muted:       #8aaa9a;
+  --placeholder:      #a8c0b5;
+  --input-border:     #cde0d7;
+  --input-bg:         #f5faf7;
+  --input-focus-bg:   #ffffff;
+  --focus-ring:       rgba(27,107,82,.1);
+  --btn-shadow:       0 6px 20px rgba(27,107,82,.35);
+  --divider:          #e4f0eb;
+  --screen-bg:        #eef5f1;
+}
+
+/* ══════════════════════════════════════════════════════════
+   THEME 3 — TERRE CUITE
+   Warm slate-amber: sophisticated, warm trust for France market
+   #7C4A2D amber-terracotta hero
+══════════════════════════════════════════════════════════ */
+.theme-terra {
+  --accent:           #C05621;
+  --accent-dark:      #9C4319;
+  --hero-from:        #7C3D1A;
+  --hero-to:          #A0501F;
+  --card-bg:          #ffffff;
+  --handle:           #e8d9ce;
+  --text-primary:     #2d1810;
+  --text-secondary:   #4a2c1e;
+  --text-muted:       #8a6558;
+  --label-color:      #4a2c1e;
+  --icon-muted:       #b89080;
+  --placeholder:      #c4a090;
+  --input-border:     #e8d9ce;
+  --input-bg:         #fdf8f5;
+  --input-focus-bg:   #fff;
+  --focus-ring:       rgba(192,86,33,.1);
+  --btn-shadow:       0 6px 20px rgba(192,86,33,.35);
+  --divider:          #f0e5de;
+  --screen-bg:        #faf3ee;
+}
+
+/* Hero background applies the theme gradient */
+.hero-gradient {
+  background: linear-gradient(155deg, var(--hero-from) 0%, var(--hero-to) 100%);
+}
+
+/* Screen BG */
+.screen-bg { background: var(--screen-bg); }
+
+/* ─── Annotation card ─── */
+.annotation {
+  max-width: 390px; width: 100%; margin-top: 18px;
+  padding: 16px 20px; border-radius: 14px;
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
+}
+.ann-title { font-size: 12px; font-weight: 700; color: rgba(255,255,255,.75); margin-bottom: 10px; }
+.ann-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.ann-item { display: flex; flex-direction: column; gap: 3px; }
+.ann-swatch-row { display: flex; align-items: center; gap: 7px; }
+.ann-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+.ann-role { font-size: 11px; font-weight: 600; color: rgba(255,255,255,.55); }
+.ann-hex { font-size: 10px; color: rgba(255,255,255,.3); font-family: monospace; letter-spacing: .04em; }
+
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="topbar">
+  <span class="topbar-label">Palette</span>
+  <button class="tab active" onclick="show(1)">1 — Authority Blue</button>
+  <button class="tab" onclick="show(2)">2 — BleSaf Vert</button>
+  <button class="tab" onclick="show(3)">3 — Terre Cuite</button>
+</nav>
+
+
+<!-- ══════════════════════════════════════════
+     HELPER: builds one complete V1 screen
+     Called via inline instantiation per scene
+════════════════════════════════════════════ -->
+
+<!-- ══ SCENE 1 — AUTHORITY BLUE ══ -->
+<div id="s1" class="scene active">
+
+  <!-- Swatch strip -->
+  <div class="swatch-strip">
+    <div class="swatch" style="background:#1252a3;box-shadow:0 0 0 2px rgba(18,82,163,.4)"></div>
+    <div class="swatch-info">
+      <span class="swatch-name">Authority Blue</span>
+      <span class="swatch-hex">#1252A3</span>
+    </div>
+    <div class="swatch-sep"></div>
+    <div class="swatch-note">Original brand blue. Communicates clinical<br/>trust and professional authority.</div>
+  </div>
+
+  <div class="phone-outer">
+    <div class="phone-screen screen-bg theme-blue" style="background:var(--screen-bg);display:flex;flex-direction:column;">
+
+      <!-- Status bar -->
+      <div class="statusbar" style="color:#fff;">
+        <span class="sb-time">9:41</span>
+        <div class="sb-icons">
+          <span class="mi" style="font-size:17px;">signal_cellular_alt</span>
+          <span class="mi" style="font-size:17px;">wifi</span>
+          <span class="mi" style="font-size:17px;">battery_5_bar</span>
+        </div>
+      </div>
+
+      <!-- Hero -->
+      <div class="v1-hero hero-gradient theme-blue">
+        <div class="v1-hero-grid"></div>
+        <div class="v1-hero-radial-tl"></div>
+        <div class="v1-hero-radial-br"></div>
+        <div class="v1-logo">
+          <div class="v1-logo-box"><span class="mi">stacks</span></div>
+          <div class="v1-logo-name">Blé<span>SAF</span></div>
+        </div>
+        <div class="v1-eyebrow">Espace praticien</div>
+        <h1 class="v1-headline">Bon retour,<br/><em>Docteur.</em></h1>
+        <p class="v1-subline">Votre file d'attente vous attend.</p>
+      </div>
+
+      <!-- Card -->
+      <div class="v1-card theme-blue">
+        <div class="v1-handle"></div>
+        <div class="v1-card-title">Connexion</div>
+        <div class="v1-card-sub">Accédez à votre tableau de bord</div>
+
+        <div class="v1-field">
+          <label class="v1-label">ADRESSE E-MAIL</label>
+          <div class="v1-input-wrap">
+            <span class="mi v1-input-icon">mail</span>
+            <input type="email" class="v1-input theme-blue" placeholder="dr.nom@cabinet.tn" inputmode="email" autocomplete="email"/>
+          </div>
+        </div>
+
+        <div class="v1-field">
+          <label class="v1-label">MOT DE PASSE</label>
+          <div class="v1-input-wrap">
+            <span class="mi v1-input-icon">lock</span>
+            <input type="password" class="v1-input theme-blue" placeholder="••••••••" autocomplete="current-password"/>
+            <button class="v1-eye-btn theme-blue" type="button" aria-label="Afficher le mot de passe">
+              <span class="mi">visibility</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="v1-row">
+          <label class="v1-remember theme-blue">
+            <div class="v1-checkbox"><input type="checkbox"/></div>
+            Se souvenir de moi
+          </label>
+          <a href="#" class="v1-forgot theme-blue">Oublié ?</a>
+        </div>
+
+        <div class="v1-spacer"></div>
+
+        <div class="v1-bottom">
+          <button class="v1-btn theme-blue">
+            Se connecter
+            <span class="mi">arrow_forward</span>
+          </button>
+
+          <div class="v1-divider theme-blue">
+            <div class="v1-div-line"></div>
+            <span class="v1-div-text">Ou accès rapide</span>
+            <div class="v1-div-line"></div>
+          </div>
+
+          <div class="v1-bio">
+            <button class="v1-bio-btn theme-blue">
+              <span class="mi">face_unlock</span>
+              Face ID
+            </button>
+            <button class="v1-bio-btn theme-blue">
+              <span class="mi">fingerprint</span>
+              Touch ID
+            </button>
+          </div>
+
+          <div class="v1-signup theme-blue">
+            Pas de compte ? <a href="#">14 jours gratuits →</a>
+          </div>
+
+          <div class="v1-trust theme-blue">
+            <div class="v1-trust-item"><span class="mi">verified_user</span> SSL sécurisé</div>
+            <div class="v1-trust-item"><span class="mi">encrypted</span> Chiffré</div>
+            <div class="v1-trust-item"><span class="mi">gpp_good</span> Conforme</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Color annotation -->
+  <div class="annotation">
+    <div class="ann-title">Color tokens — Authority Blue</div>
+    <div class="ann-grid">
+      <div class="ann-item">
+        <div class="ann-swatch-row"><div class="ann-dot" style="background:#1252a3"></div><span class="ann-role">Primary / CTA</span></div>
+        <span class="ann-hex">#1252A3</span>
+      </div>
+      <div class="ann-item">
+        <div class="ann-swatch-row"><div class="ann-dot" style="background:#1a6bd6"></div><span class="ann-role">Hero gradient end</span></div>
+        <span class="ann-hex">#1A6BD6</span>
+      </div>
+      <div class="ann-item">
+        <div class="ann-swatch-row"><div class="ann-dot" style="background:#0d1f3c"></div><span class="ann-role">Text primary</span></div>
+        <span class="ann-hex">#0D1F3C</span>
+      </div>
+      <div class="ann-item">
+        <div class="ann-swatch-row"><div class="ann-dot" style="background:#f0f5fb"></div><span class="ann-role">Screen background</span></div>
+        <span class="ann-hex">#F0F5FB</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ SCENE 2 — BLESAF VERT ══ -->
+<div id="s2" class="scene">
+
+  <div class="swatch-strip">
+    <div class="swatch" style="background:#1B6B52;box-shadow:0 0 0 2px rgba(27,107,82,.5)"></div>
+    <div class="swatch-info">
+      <span class="swatch-name">BleSaf Vert</span>
+      <span class="swatch-hex">#1B6B52</span>
+    </div>
+    <div class="swatch-sep"></div>
+    <div class="swatch-note">Matches the app's actual green system.<br/>Extracted from Help & Support screen.</div>
+  </div>
+
+  <div class="phone-outer">
+    <div class="phone-screen theme-green" style="background:var(--screen-bg);display:flex;flex-direction:column;">
+
+      <div class="statusbar" style="color:#fff;">
+        <span class="sb-time">9:41</span>
+        <div class="sb-icons">
+          <span class="mi" style="font-size:17px;">signal_cellular_alt</span>
+          <span class="mi" style="font-size:17px;">wifi</span>
+          <span class="mi" style="font-size:17px;">battery_5_bar</span>
+        </div>
+      </div>
+
+      <div class="v1-hero hero-gradient theme-green">
+        <div class="v1-hero-grid"></div>
+        <div class="v1-hero-radial-tl"></div>
+        <div class="v1-hero-radial-br"></div>
+        <div class="v1-logo">
+          <div class="v1-logo-box"><span class="mi">stacks</span></div>
+          <div class="v1-logo-name">Blé<span>SAF</span></div>
+        </div>
+        <div class="v1-eyebrow">Espace praticien</div>
+        <h1 class="v1-headline">Bon retour,<br/><em>Docteur.</em></h1>
+        <p class="v1-subline">Votre file d'attente vous attend.</p>
+      </div>
+
+      <div class="v1-card theme-green">
+        <div class="v1-handle"></div>
+        <div class="v1-card-title">Connexion</div>
+        <div class="v1-card-sub">Accédez à votre tableau de bord</div>
+
+        <div class="v1-field">
+          <label class="v1-label">ADRESSE E-MAIL</label>
+          <div class="v1-input-wrap">
+            <span class="mi v1-input-icon">mail</span>
+            <input type="email" class="v1-input theme-green" placeholder="dr.nom@cabinet.tn" inputmode="email" autocomplete="email"/>
+          </div>
+        </div>
+
+        <div class="v1-field">
+          <label class="v1-label">MOT DE PASSE</label>
+          <div class="v1-input-wrap">
+            <span class="mi v1-input-icon">lock</span>
+            <input type="password" class="v1-input theme-green" placeholder="••••••••" autocomplete="current-password"/>
+            <button class="v1-eye-btn theme-green" type="button" aria-label="Afficher le mot de passe">
+              <span class="mi">visibility</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="v1-row">
+          <label class="v1-remember theme-green">
+            <div class="v1-checkbox"><input type="checkbox"/></div>
+            Se souvenir de moi
+          </label>
+          <a href="#" class="v1-forgot theme-green">Oublié ?</a>
+        </div>
+
+        <div class="v1-spacer"></div>
+
+        <div class="v1-bottom">
+          <button class="v1-btn theme-green">
+            Se connecter
+            <span class="mi">arrow_forward</span>
+          </button>
+
+          <div class="v1-divider theme-green">
+            <div class="v1-div-line"></div>
+            <span class="v1-div-text">Ou accès rapide</span>
+            <div class="v1-div-line"></div>
+          </div>
+
+          <div class="v1-bio">
+            <button class="v1-bio-btn theme-green">
+              <span class="mi">face_unlock</span>
+              Face ID
+            </button>
+            <button class="v1-bio-btn theme-green">
+              <span class="mi">fingerprint</span>
+              Touch ID
+            </button>
+          </div>
+
+          <div class="v1-signup theme-green">
+            Pas de compte ? <a href="#">14 jours gratuits →</a>
+          </div>
+
+          <div class="v1-trust theme-green">
+            <div class="v1-trust-item"><span class="mi">verified_user</span> SSL sécurisé</div>
+            <div class="v1-trust-item"><span class="mi">encrypted</span> Chiffré</div>
+            <div class="v1-trust-item"><span class="mi">gpp_good</span> Conforme</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="annotation">
+    <div class="ann-title">Color tokens — BleSaf Vert</div>
+    <div class="ann-grid">
+      <div class="ann-item">
+        <div class="ann-swatch-row"><div class="ann-dot" style="background:#1B6B52"></div><span class="ann-role">Primary / CTA</span></div>
+        <span class="ann-hex">#1B6B52</span>
+      </div>
+      <div class="ann-item">
+        <div class="ann-swatch-row"><div class="ann-dot" style="background:#227a5e"></div><span class="ann-role">Hero gradient end</span></div>
+        <span class="ann-hex">#227A5E</span>
+      </div>
+      <div class="ann-item">
+        <div class="ann-swatch-row"><div class="ann-dot" style="background:#0f2820"></div><span class="ann-role">Text primary</span></div>
+        <span class="ann-hex">#0F2820</span>
+      </div>
+      <div class="ann-item">
+        <div class="ann-swatch-row"><div class="ann-dot" style="background:#eef5f1"></div><span class="ann-role">Screen background</span></div>
+        <span class="ann-hex">#EEF5F1</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ SCENE 3 — TERRE CUITE ══ -->
+<div id="s3" class="scene">
+
+  <div class="swatch-strip">
+    <div class="swatch" style="background:#C05621;box-shadow:0 0 0 2px rgba(192,86,33,.5)"></div>
+    <div class="swatch-info">
+      <span class="swatch-name">Terre Cuite</span>
+      <span class="swatch-hex">#C05621</span>
+    </div>
+    <div class="swatch-sep"></div>
+    <div class="swatch-note">Warm authority. Suits AuSuivant / France<br/>market — distinctive, non-clinical.</div>
+  </div>
+
+  <div class="phone-outer">
+    <div class="phone-screen theme-terra" style="background:var(--screen-bg);display:flex;flex-direction:column;">
+
+      <div class="statusbar" style="color:#fff;">
+        <span class="sb-time">9:41</span>
+        <div class="sb-icons">
+          <span class="mi" style="font-size:17px;">signal_cellular_alt</span>
+          <span class="mi" style="font-size:17px;">wifi</span>
+          <span class="mi" style="font-size:17px;">battery_5_bar</span>
+        </div>
+      </div>
+
+      <div class="v1-hero hero-gradient theme-terra">
+        <div class="v1-hero-grid"></div>
+        <div class="v1-hero-radial-tl"></div>
+        <div class="v1-hero-radial-br"></div>
+        <div class="v1-logo">
+          <div class="v1-logo-box"><span class="mi">stacks</span></div>
+          <div class="v1-logo-name">Blé<span>SAF</span></div>
+        </div>
+        <div class="v1-eyebrow">Espace praticien</div>
+        <h1 class="v1-headline">Bon retour,<br/><em>Docteur.</em></h1>
+        <p class="v1-subline">Votre file d'attente vous attend.</p>
+      </div>
+
+      <div class="v1-card theme-terra">
+        <div class="v1-handle"></div>
+        <div class="v1-card-title">Connexion</div>
+        <div class="v1-card-sub">Accédez à votre tableau de bord</div>
+
+        <div class="v1-field">
+          <label class="v1-label">ADRESSE E-MAIL</label>
+          <div class="v1-input-wrap">
+            <span class="mi v1-input-icon">mail</span>
+            <input type="email" class="v1-input theme-terra" placeholder="dr.nom@cabinet.tn" inputmode="email" autocomplete="email"/>
+          </div>
+        </div>
+
+        <div class="v1-field">
+          <label class="v1-label">MOT DE PASSE</label>
+          <div class="v1-input-wrap">
+            <span class="mi v1-input-icon">lock</span>
+            <input type="password" class="v1-input theme-terra" placeholder="••••••••" autocomplete="current-password"/>
+            <button class="v1-eye-btn theme-terra" type="button" aria-label="Afficher le mot de passe">
+              <span class="mi">visibility</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="v1-row">
+          <label class="v1-remember theme-terra">
+            <div class="v1-checkbox"><input type="checkbox"/></div>
+            Se souvenir de moi
+          </label>
+          <a href="#" class="v1-forgot theme-terra">Oublié ?</a>
+        </div>
+
+        <div class="v1-spacer"></div>
+
+        <div class="v1-bottom">
+          <button class="v1-btn theme-terra">
+            Se connecter
+            <span class="mi">arrow_forward</span>
+          </button>
+
+          <div class="v1-divider theme-terra">
+            <div class="v1-div-line"></div>
+            <span class="v1-div-text">Ou accès rapide</span>
+            <div class="v1-div-line"></div>
+          </div>
+
+          <div class="v1-bio">
+            <button class="v1-bio-btn theme-terra">
+              <span class="mi">face_unlock</span>
+              Face ID
+            </button>
+            <button class="v1-bio-btn theme-terra">
+              <span class="mi">fingerprint</span>
+              Touch ID
+            </button>
+          </div>
+
+          <div class="v1-signup theme-terra">
+            Pas de compte ? <a href="#">14 jours gratuits →</a>
+          </div>
+
+          <div class="v1-trust theme-terra">
+            <div class="v1-trust-item"><span class="mi">verified_user</span> SSL sécurisé</div>
+            <div class="v1-trust-item"><span class="mi">encrypted</span> Chiffré</div>
+            <div class="v1-trust-item"><span class="mi">gpp_good</span> Conforme</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="annotation">
+    <div class="ann-title">Color tokens — Terre Cuite</div>
+    <div class="ann-grid">
+      <div class="ann-item">
+        <div class="ann-swatch-row"><div class="ann-dot" style="background:#C05621"></div><span class="ann-role">Primary / CTA</span></div>
+        <span class="ann-hex">#C05621</span>
+      </div>
+      <div class="ann-item">
+        <div class="ann-swatch-row"><div class="ann-dot" style="background:#A0501F"></div><span class="ann-role">Hero gradient end</span></div>
+        <span class="ann-hex">#A0501F</span>
+      </div>
+      <div class="ann-item">
+        <div class="ann-swatch-row"><div class="ann-dot" style="background:#2d1810"></div><span class="ann-role">Text primary</span></div>
+        <span class="ann-hex">#2D1810</span>
+      </div>
+      <div class="ann-item">
+        <div class="ann-swatch-row"><div class="ann-dot" style="background:#faf3ee"></div><span class="ann-role">Screen background</span></div>
+        <span class="ann-hex">#FAF3EE</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function show(n) {
+  document.querySelectorAll('.scene').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('s' + n).classList.add('active');
+  document.querySelectorAll('.tab')[n - 1].classList.add('active');
+}
+</script>
+</body>
+</html>

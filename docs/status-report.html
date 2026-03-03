@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BléSaf / AuSuivant — Status Report</title>
+<style>
+  :root {
+    --green: #1B7A4A;
+    --green-light: #E8F5EE;
+    --green-bg: #F4F7F5;
+    --navy: #1A1A2E;
+    --navy-light: #2D2D44;
+    --amber: #D97706;
+    --amber-light: #FEF3C7;
+    --red: #DC2626;
+    --red-light: #FEE2E2;
+    --blue: #2563EB;
+    --blue-light: #DBEAFE;
+    --gray-50: #F9FAFB;
+    --gray-100: #F3F4F6;
+    --gray-200: #E5E7EB;
+    --gray-300: #D1D5DB;
+    --gray-400: #9CA3AF;
+    --gray-500: #6B7280;
+    --gray-600: #4B5563;
+    --gray-700: #374151;
+    --gray-800: #1F2937;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--gray-50);
+    color: var(--navy);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Header ── */
+  .report-header {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+    color: white;
+    padding: 48px 0 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .report-header::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    background: rgba(27, 122, 74, 0.12);
+  }
+  .header-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px;
+    position: relative;
+    z-index: 1;
+  }
+  .header-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .header-brand .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--green);
+    display: inline-block;
+  }
+  .header-brand span {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    opacity: 0.7;
+  }
+  .report-header h1 {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    letter-spacing: -0.5px;
+  }
+  .report-header .subtitle {
+    font-size: 15px;
+    opacity: 0.6;
+    font-weight: 400;
+  }
+  .header-meta {
+    display: flex;
+    gap: 24px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+  }
+  .meta-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .meta-chip .label { opacity: 0.6; }
+  .meta-chip .value { opacity: 1; }
+
+  /* ── Container ── */
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 32px 24px 64px;
+  }
+
+  /* ── KPI Row ── */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+  .kpi-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--gray-200);
+  }
+  .kpi-card .kpi-label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--gray-500);
+    margin-bottom: 6px;
+  }
+  .kpi-card .kpi-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--navy);
+    line-height: 1.2;
+  }
+  .kpi-card .kpi-detail {
+    font-size: 12px;
+    color: var(--gray-400);
+    margin-top: 4px;
+  }
+
+  /* ── Section ── */
+  .section {
+    margin-bottom: 40px;
+  }
+  .section-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title .icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+  .icon-green { background: var(--green-light); color: var(--green); }
+  .icon-amber { background: var(--amber-light); color: var(--amber); }
+  .icon-red { background: var(--red-light); color: var(--red); }
+  .icon-blue { background: var(--blue-light); color: var(--blue); }
+
+  /* ── Cards ── */
+  .card {
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--gray-200);
+    overflow: hidden;
+  }
+  .card + .card { margin-top: 16px; }
+  .card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--gray-100);
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--navy);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  /* ── Feature Grid ── */
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+  }
+  .feature-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--gray-200);
+    transition: border-color 0.15s;
+  }
+  .feature-card:hover { border-color: var(--gray-300); }
+  .feature-card h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .feature-card p {
+    font-size: 13px;
+    color: var(--gray-500);
+    line-height: 1.5;
+  }
+
+  /* ── Status badge ── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+  }
+  .badge-done { background: var(--green-light); color: var(--green); }
+  .badge-progress { background: var(--amber-light); color: var(--amber); }
+  .badge-todo { background: var(--gray-100); color: var(--gray-500); }
+  .badge-blocked { background: var(--red-light); color: var(--red); }
+  .badge-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .badge-done .badge-dot { background: var(--green); }
+  .badge-progress .badge-dot { background: var(--amber); }
+  .badge-todo .badge-dot { background: var(--gray-400); }
+  .badge-blocked .badge-dot { background: var(--red); }
+
+  /* ── Table ── */
+  .table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  thead th {
+    text-align: left;
+    padding: 10px 16px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--gray-500);
+    background: var(--gray-50);
+    border-bottom: 1px solid var(--gray-200);
+    white-space: nowrap;
+  }
+  tbody td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--gray-100);
+    vertical-align: top;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: var(--gray-50); }
+  td.task-name { font-weight: 500; color: var(--navy); }
+  td.effort { color: var(--gray-400); font-size: 12px; white-space: nowrap; }
+  td.notes { color: var(--gray-500); font-size: 12px; max-width: 340px; }
+
+  /* ── Brand comparison ── */
+  .brand-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 700px) {
+    .brand-grid { grid-template-columns: 1fr; }
+  }
+  .brand-card {
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--gray-200);
+    overflow: hidden;
+  }
+  .brand-card-header {
+    padding: 16px 20px;
+    font-weight: 700;
+    font-size: 16px;
+    border-bottom: 1px solid var(--gray-100);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .brand-card-header .flag { font-size: 20px; }
+  .brand-card-body { padding: 0; }
+  .brand-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    font-size: 13px;
+    border-bottom: 1px solid var(--gray-50);
+  }
+  .brand-row:last-child { border-bottom: none; }
+  .brand-row .label { color: var(--gray-500); }
+  .brand-row .value { font-weight: 600; color: var(--navy); text-align: right; }
+
+  /* ── Progress bar ── */
+  .progress-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+  .progress-bar {
+    flex: 1;
+    height: 8px;
+    background: var(--gray-100);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.6s ease;
+  }
+  .progress-fill.green { background: var(--green); }
+  .progress-fill.amber { background: var(--amber); }
+  .progress-pct {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--navy);
+    min-width: 40px;
+    text-align: right;
+  }
+  .progress-label {
+    font-size: 12px;
+    color: var(--gray-400);
+    margin-bottom: 12px;
+  }
+
+  /* ── Blocker strip ── */
+  .blocker-strip {
+    background: var(--red-light);
+    border: 1px solid #FECACA;
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-bottom: 16px;
+  }
+  .blocker-strip h4 {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--red);
+    margin-bottom: 4px;
+  }
+  .blocker-strip p {
+    font-size: 12px;
+    color: #991B1B;
+    line-height: 1.5;
+  }
+
+  /* ── Phase timeline ── */
+  .timeline {
+    display: flex;
+    gap: 0;
+    margin-bottom: 40px;
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--gray-200);
+  }
+  .timeline-phase {
+    flex: 1;
+    padding: 20px;
+    background: white;
+    border-right: 1px solid var(--gray-200);
+    position: relative;
+  }
+  .timeline-phase:last-child { border-right: none; }
+  .timeline-phase.active {
+    background: var(--green-light);
+    border-right-color: #C3E6D0;
+  }
+  .timeline-phase .phase-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+  .timeline-phase.done .phase-label { color: var(--green); }
+  .timeline-phase.active .phase-label { color: var(--green); }
+  .timeline-phase.upcoming .phase-label { color: var(--gray-400); }
+  .timeline-phase .phase-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 2px;
+  }
+  .timeline-phase .phase-dates {
+    font-size: 11px;
+    color: var(--gray-400);
+  }
+  .timeline-phase .phase-marker {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+  }
+  .timeline-phase.done .phase-marker {
+    background: var(--green);
+    color: white;
+  }
+  .timeline-phase.active .phase-marker {
+    background: var(--amber);
+    color: white;
+    animation: pulse 2s infinite;
+  }
+  .timeline-phase.upcoming .phase-marker {
+    background: var(--gray-200);
+    color: var(--gray-400);
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(217, 119, 6, 0.3); }
+    50% { box-shadow: 0 0 0 6px rgba(217, 119, 6, 0); }
+  }
+
+  /* ── Checklist ── */
+  .checklist { list-style: none; padding: 0; }
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 20px;
+    font-size: 13px;
+    border-bottom: 1px solid var(--gray-50);
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .check-icon {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .check-done { background: var(--green); color: white; }
+  .check-wip { background: var(--amber); color: white; }
+  .check-todo { background: var(--gray-200); color: var(--gray-400); }
+  .check-text { color: var(--navy); }
+  .check-text.done { color: var(--gray-400); text-decoration: line-through; }
+
+  /* ── Cost table ── */
+  .cost-total {
+    font-weight: 700;
+    color: var(--green);
+    font-size: 15px;
+  }
+
+  /* ── Footer ── */
+  .report-footer {
+    text-align: center;
+    padding: 32px 24px;
+    color: var(--gray-400);
+    font-size: 12px;
+    border-top: 1px solid var(--gray-100);
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 700px) {
+    .kpi-row { grid-template-columns: repeat(2, 1fr); }
+    .feature-grid { grid-template-columns: 1fr; }
+    .timeline { flex-direction: column; }
+    .report-header h1 { font-size: 24px; }
+    .header-meta { gap: 8px; }
+    .meta-chip { font-size: 11px; padding: 4px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════ HEADER ═══════════════════ -->
+<header class="report-header">
+  <div class="header-inner">
+    <div class="header-brand">
+      <span class="dot"></span>
+      <span>Status Report</span>
+    </div>
+    <h1>BléSaf / AuSuivant</h1>
+    <p class="subtitle">SaaS Queue Management for Medical Clinics</p>
+    <div class="header-meta">
+      <div class="meta-chip">
+        <span class="label">Date:</span>
+        <span class="value">2 Mars 2026</span>
+      </div>
+      <div class="meta-chip">
+        <span class="label">Phase:</span>
+        <span class="value">B — Ramadan Build</span>
+      </div>
+      <div class="meta-chip">
+        <span class="label">Branch:</span>
+        <span class="value">main (33 commits ahead)</span>
+      </div>
+      <div class="meta-chip">
+        <span class="label">Launch target:</span>
+        <span class="value">7 Avril 2026</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+<!-- ═══════════════════ KPIs ═══════════════════ -->
+<div class="kpi-row">
+  <div class="kpi-card">
+    <div class="kpi-label">API Code</div>
+    <div class="kpi-value">20,652</div>
+    <div class="kpi-detail">lines TypeScript</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">Web Code</div>
+    <div class="kpi-value">42,557</div>
+    <div class="kpi-detail">lines TypeScript / TSX</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">API Endpoints</div>
+    <div class="kpi-value">54+</div>
+    <div class="kpi-detail">across 10 route files</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">Tests</div>
+    <div class="kpi-value">~145</div>
+    <div class="kpi-detail">unit + e2e + a11y</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">Monthly Cost</div>
+    <div class="kpi-value">$5</div>
+    <div class="kpi-detail">Railway only</div>
+  </div>
+</div>
+
+<!-- ═══════════════════ TIMELINE ═══════════════════ -->
+<div class="section">
+  <div class="section-title">
+    <div class="icon icon-blue">&#9776;</div>
+    Roadmap Timeline
+  </div>
+  <div class="timeline">
+    <div class="timeline-phase done">
+      <div class="phase-marker">&#10003;</div>
+      <div class="phase-label">Phase A</div>
+      <div class="phase-title">Pre-Ramadan Sprint</div>
+      <div class="phase-dates">Feb 12 – 17</div>
+    </div>
+    <div class="timeline-phase active">
+      <div class="phase-marker">&#9679;</div>
+      <div class="phase-label">Phase B</div>
+      <div class="phase-title">Ramadan Build</div>
+      <div class="phase-dates">Feb 18 – Mar 19</div>
+    </div>
+    <div class="timeline-phase upcoming">
+      <div class="phase-marker">&#8212;</div>
+      <div class="phase-label">Eid Break</div>
+      <div class="phase-title">Mandatory Rest</div>
+      <div class="phase-dates">Mar 20 – 24</div>
+    </div>
+    <div class="timeline-phase upcoming">
+      <div class="phase-marker">&#8212;</div>
+      <div class="phase-label">Phase C</div>
+      <div class="phase-title">Post-Eid Launch</div>
+      <div class="phase-dates">Mar 25 onwards</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ CURRENT BLOCKERS ═══════════════════ -->
+<div class="section">
+  <div class="section-title">
+    <div class="icon icon-red">!</div>
+    Current Blockers
+  </div>
+  <div class="blocker-strip">
+    <h4>Production Login 403</h4>
+    <p>Old production API had email verification gate on login. PR #39 merged to <code>production</code> with the fix (email gate removed). Railway is redeploying. Workaround: click verification email or wait for deploy.</p>
+  </div>
+  <div class="blocker-strip">
+    <h4>33 Commits Not Yet Live</h4>
+    <p>Side drawer, onboarding, settings panels, push notifications, i18n improvements — all built on <code>main</code> but only just merged to <code>production</code> via PR #39. Railway + Vercel deployments in progress.</p>
+  </div>
+  <div class="blocker-strip">
+    <h4>2 DB Migrations Pending</h4>
+    <p>Push subscription table and multi-doctor flag need <code>prisma migrate deploy</code> on prod DB. Will run automatically via Dockerfile start command on Railway redeploy.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════ BRAND COMPARISON ═══════════════════ -->
+<div class="section">
+  <div class="section-title">
+    <div class="icon icon-blue">&#9878;</div>
+    Brand Maturity
+  </div>
+
+  <div class="brand-grid">
+    <!-- Tunisia -->
+    <div class="brand-card">
+      <div class="brand-card-header">
+        <span class="flag">&#127481;&#127475;</span>
+        BléSaf — Tunisia
+      </div>
+      <div class="brand-card-body">
+        <div style="padding: 16px 20px 8px;">
+          <div class="progress-wrap">
+            <div class="progress-bar"><div class="progress-fill green" style="width: 85%;"></div></div>
+            <div class="progress-pct">85%</div>
+          </div>
+          <div class="progress-label">Overall launch readiness</div>
+        </div>
+        <div class="brand-row"><span class="label">Mobile Dashboard</span><span class="badge badge-done"><span class="badge-dot"></span> Complete</span></div>
+        <div class="brand-row"><span class="label">Desktop Dashboard</span><span class="badge badge-done"><span class="badge-dot"></span> Complete</span></div>
+        <div class="brand-row"><span class="label">Side Drawer</span><span class="badge badge-done"><span class="badge-dot"></span> Complete</span></div>
+        <div class="brand-row"><span class="label">Settings Panels (8)</span><span class="badge badge-done"><span class="badge-dot"></span> Complete</span></div>
+        <div class="brand-row"><span class="label">Onboarding (3 steps)</span><span class="badge badge-done"><span class="badge-dot"></span> Complete</span></div>
+        <div class="brand-row"><span class="label">Landing Page (15 sections)</span><span class="badge badge-done"><span class="badge-dot"></span> Complete</span></div>
+        <div class="brand-row"><span class="label">Admin Panel (37 pages)</span><span class="badge badge-done"><span class="badge-dot"></span> Complete</span></div>
+        <div class="brand-row"><span class="label">i18n (FR + AR / RTL)</span><span class="badge badge-done"><span class="badge-dot"></span> Complete</span></div>
+        <div class="brand-row"><span class="label">Konnect Payments</span><span class="badge badge-progress"><span class="badge-dot"></span> Test Mode</span></div>
+        <div class="brand-row"><span class="label">Domain (blesaf.tn)</span><span class="badge badge-todo"><span class="badge-dot"></span> Not configured</span></div>
+        <div class="brand-row"><span class="label">Legal Pages</span><span class="badge badge-todo"><span class="badge-dot"></span> Not started</span></div>
+      </div>
+    </div>
+
+    <!-- France -->
+    <div class="brand-card">
+      <div class="brand-card-header">
+        <span class="flag">&#127467;&#127479;</span>
+        AuSuivant — France
+      </div>
+      <div class="brand-card-body">
+        <div style="padding: 16px 20px 8px;">
+          <div class="progress-wrap">
+            <div class="progress-bar"><div class="progress-fill amber" style="width: 50%;"></div></div>
+            <div class="progress-pct">50%</div>
+          </div>
+          <div class="progress-label">Overall launch readiness</div>
+        </div>
+        <div class="brand-row"><span class="label">Mobile Dashboard</span><span class="badge badge-done"><span class="badge-dot"></span> Complete</span></div>
+        <div class="brand-row"><span class="label">Desktop Dashboard</span><span class="badge badge-progress"><span class="badge-dot"></span> Inherits TN</span></div>
+        <div class="brand-row"><span class="label">Side Drawer</span><span class="badge badge-todo"><span class="badge-dot"></span> Not started</span></div>
+        <div class="brand-row"><span class="label">Settings Panels</span><span class="badge badge-progress"><span class="badge-dot"></span> 1 combined</span></div>
+        <div class="brand-row"><span class="label">Onboarding</span><span class="badge badge-progress"><span class="badge-dot"></span> Not tested</span></div>
+        <div class="brand-row"><span class="label">Landing Page</span><span class="badge badge-todo"><span class="badge-dot"></span> Not started</span></div>
+        <div class="brand-row"><span class="label">Admin Panel</span><span class="badge badge-done"><span class="badge-dot"></span> Complete</span></div>
+        <div class="brand-row"><span class="label">i18n (FR only)</span><span class="badge badge-done"><span class="badge-dot"></span> Complete</span></div>
+        <div class="brand-row"><span class="label">Stripe Payments</span><span class="badge badge-todo"><span class="badge-dot"></span> Not tested</span></div>
+        <div class="brand-row"><span class="label">Domain (filosoin.fr)</span><span class="badge badge-todo"><span class="badge-dot"></span> Not configured</span></div>
+        <div class="brand-row"><span class="label">Legal (RGPD)</span><span class="badge badge-todo"><span class="badge-dot"></span> Not started</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ ACCOMPLISHED ═══════════════════ -->
+<div class="section">
+  <div class="section-title">
+    <div class="icon icon-green">&#10003;</div>
+    Accomplished (Complete)
+  </div>
+
+  <div class="feature-grid">
+    <div class="feature-card">
+      <h4><span class="badge badge-done"><span class="badge-dot"></span> Done</span> Queue Engine</h4>
+      <p>Full CRUD, real-time Socket.io, position recalculation, batch updates, appointment support, priority ordering, drag-to-reorder on desktop.</p>
+    </div>
+    <div class="feature-card">
+      <h4><span class="badge badge-done"><span class="badge-dot"></span> Done</span> Authentication</h4>
+      <p>Clinic-level JWT, admin impersonation, role-based access, change password, email verification, password reset flows.</p>
+    </div>
+    <div class="feature-card">
+      <h4><span class="badge badge-done"><span class="badge-dot"></span> Done</span> Subscription System</h4>
+      <p>Trial (30d), Monthly (50 TND / 49 EUR), Yearly plans. Enforcement gate, trial countdown banner, expiration cron jobs.</p>
+    </div>
+    <div class="feature-card">
+      <h4><span class="badge badge-done"><span class="badge-dot"></span> Done</span> Payment Integration</h4>
+      <p>Konnect (Tunisia, millimes) + Stripe (France, cents). Webhook handling, checkout flow, payment history, admin-recorded payments.</p>
+    </div>
+    <div class="feature-card">
+      <h4><span class="badge badge-done"><span class="badge-dot"></span> Done</span> Real-Time (Socket.io)</h4>
+      <p>Token-verified rooms (clinic, patient, clinic:patients). Queue updates, doctor presence, position changes, call notifications.</p>
+    </div>
+    <div class="feature-card">
+      <h4><span class="badge badge-done"><span class="badge-dot"></span> Done</span> Email System</h4>
+      <p>Resend integration. 6+ templates (verification, welcome, trial warning, password reset) in FR + AR.</p>
+    </div>
+    <div class="feature-card">
+      <h4><span class="badge badge-done"><span class="badge-dot"></span> Done</span> Web Push + PWA</h4>
+      <p>VAPID keys, service worker, push subscription per queue entry. Manifest, installable, standalone mode.</p>
+    </div>
+    <div class="feature-card">
+      <h4><span class="badge badge-done"><span class="badge-dot"></span> Done</span> Admin Panel</h4>
+      <p>37 pages. KPIs with trends, clinic directory, detail pages (4 sub-tabs), financial analytics (MRR/ARR), engagement, feature adoption, platform health.</p>
+    </div>
+    <div class="feature-card">
+      <h4><span class="badge badge-done"><span class="badge-dot"></span> Done</span> Onboarding Wizard</h4>
+      <p>3-step flow: signup &rarr; clinic setup (doctor, specialty, consultation time) &rarr; welcome (QR code, PDF download, WhatsApp share, playbook).</p>
+    </div>
+    <div class="feature-card">
+      <h4><span class="badge badge-done"><span class="badge-dot"></span> Done</span> Landing Page</h4>
+      <p>15 sections: hero, how-it-works, benefits, before/after, testimonials, pricing, FAQ, CTA. iPhone mockup frames, doctor slideshow.</p>
+    </div>
+    <div class="feature-card">
+      <h4><span class="badge badge-done"><span class="badge-dot"></span> Done</span> BléSaf Dashboard</h4>
+      <p>18 components. Mobile + desktop. Side drawer, 8 settings panels, quick-add, current patient card, summary view, WhatsApp sharing.</p>
+    </div>
+    <div class="feature-card">
+      <h4><span class="badge badge-done"><span class="badge-dot"></span> Done</span> CI/CD + Infrastructure</h4>
+      <p>GitHub Actions (lint, typecheck, build, test). Railway (API, Dockerfile, health checks). Vercel (Web, SPA rewrites). Supabase (pgbouncer + direct URL). Sentry + Prometheus.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ IN PROGRESS ═══════════════════ -->
+<div class="section">
+  <div class="section-title">
+    <div class="icon icon-amber">&#9997;</div>
+    Started But Not Complete
+  </div>
+
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Status</th>
+            <th>What's Done</th>
+            <th>What's Missing</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="task-name">Multi-Doctor Support</td>
+            <td><span class="badge badge-progress"><span class="badge-dot"></span> 60%</span></td>
+            <td class="notes">DB schema (Doctor model, FK on QueueEntry), CRUD endpoints (5), toggle in settings, <code>multiDoctorEnabled</code> flag</td>
+            <td class="notes">Doctor selection during patient add, per-doctor queue views, doctor-specific stats</td>
+          </tr>
+          <tr>
+            <td class="task-name">Patient Check-In Page</td>
+            <td><span class="badge badge-progress"><span class="badge-dot"></span> 80%</span></td>
+            <td class="notes">Redesigned UI, QR code scanning, manual entry, clinic info display</td>
+            <td class="notes">Real-world testing with physical phones/QR scanners, WhatsApp Business API connection</td>
+          </tr>
+          <tr>
+            <td class="task-name">Settings Panels (BléSaf)</td>
+            <td><span class="badge badge-progress"><span class="badge-dot"></span> 75%</span></td>
+            <td class="notes">8 panels built and wired to dashboard</td>
+            <td class="notes">Team access panel: no invite backend. Waiting room display: TV mode not built. Clinic hours: no enforcement</td>
+          </tr>
+          <tr>
+            <td class="task-name">Subscription Enforcement</td>
+            <td><span class="badge badge-progress"><span class="badge-dot"></span> 70%</span></td>
+            <td class="notes">Gate middleware, trial countdown banner, warning emails</td>
+            <td class="notes">Graceful expiry UX (currently generic error), payment reminder emails, auto-downgrade flow</td>
+          </tr>
+          <tr>
+            <td class="task-name">AuSuivant (France)</td>
+            <td><span class="badge badge-progress"><span class="badge-dot"></span> 50%</span></td>
+            <td class="notes">11 mobile components, admin dashboard, GDPR name masking, phone/currency config</td>
+            <td class="notes">Independent desktop design, Stripe production testing, RGPD privacy policy, landing page, side drawer, <code>filosoin.fr</code> domain</td>
+          </tr>
+          <tr>
+            <td class="task-name">Landing Page</td>
+            <td><span class="badge badge-progress"><span class="badge-dot"></span> 85%</span></td>
+            <td class="notes">15 components, FR copy, hero with iPhone mockups, pricing section</td>
+            <td class="notes">Arabic version, interactive product demo, performance/image optimization, SEO meta/OG tags, <code>blesaf.tn</code> domain</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ REMAINING ═══════════════════ -->
+<div class="section">
+  <div class="section-title">
+    <div class="icon icon-red">&#9888;</div>
+    Critical — Before Launch (Apr 7)
+  </div>
+
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Task</th>
+            <th>Effort</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="task-name">Konnect production go-live</td>
+            <td class="effort">~4h</td>
+            <td class="notes">Switch from test mode, test real 65 TND payment, verify webhooks end-to-end</td>
+          </tr>
+          <tr>
+            <td class="task-name">Email delivery testing</td>
+            <td class="effort">~2h</td>
+            <td class="notes">Verify Resend emails reach inbox (not spam) for verification, welcome, trial warnings</td>
+          </tr>
+          <tr>
+            <td class="task-name">Subscription expiry UX</td>
+            <td class="effort">~8h</td>
+            <td class="notes">Graceful block when trial/sub expired, upgrade CTA, payment reminders</td>
+          </tr>
+          <tr>
+            <td class="task-name">Landing page mobile + perf</td>
+            <td class="effort">~4h</td>
+            <td class="notes">Performance audit, image optimization, responsive testing</td>
+          </tr>
+          <tr>
+            <td class="task-name">End-to-end journey testing</td>
+            <td class="effort">~12h</td>
+            <td class="notes">Cold test: signup &rarr; verify &rarr; onboard &rarr; add patient &rarr; check-in &rarr; complete</td>
+          </tr>
+          <tr>
+            <td class="task-name">Load testing (5–10 clinics)</td>
+            <td class="effort">~8h</td>
+            <td class="notes">Socket.io room isolation, concurrent queue ops, DB performance</td>
+          </tr>
+          <tr>
+            <td class="task-name"><code>blesaf.tn</code> domain + SSL</td>
+            <td class="effort">~2h</td>
+            <td class="notes">DNS config, Vercel custom domain binding</td>
+          </tr>
+          <tr>
+            <td class="task-name">Legal pages (terms + privacy)</td>
+            <td class="effort">~4h</td>
+            <td class="notes">Tunisia-specific, displayed during signup and from footer</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">
+    <div class="icon icon-amber">&#9998;</div>
+    Medium Priority — Launch Quality
+  </div>
+
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Task</th>
+            <th>Effort</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="task-name">Error boundaries</td>
+            <td class="effort">~4h</td>
+            <td class="notes">Graceful crash handling, "something went wrong" screens</td>
+          </tr>
+          <tr>
+            <td class="task-name">Clinic hours enforcement</td>
+            <td class="effort">~4h</td>
+            <td class="notes">Prevent check-ins outside hours, "closed" display on patient page</td>
+          </tr>
+          <tr>
+            <td class="task-name">Payment history (clinic-facing)</td>
+            <td class="effort">~4h</td>
+            <td class="notes">Clinics see their own billing history</td>
+          </tr>
+          <tr>
+            <td class="task-name">Waiting room TV mode</td>
+            <td class="effort">~8h</td>
+            <td class="notes">Full-screen queue display for waiting room screens</td>
+          </tr>
+          <tr>
+            <td class="task-name">WhatsApp Business API</td>
+            <td class="effort">~12h</td>
+            <td class="notes">Actual notification delivery (currently link sharing only)</td>
+          </tr>
+          <tr>
+            <td class="task-name">Team access / multi-user</td>
+            <td class="effort">~16h</td>
+            <td class="notes">Invite receptionist, role separation (doctor vs receptionist)</td>
+          </tr>
+          <tr>
+            <td class="task-name">Bundle splitting</td>
+            <td class="effort">~4h</td>
+            <td class="notes">React.lazy() for route-level code splitting</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">
+    <div class="icon icon-blue">&#8594;</div>
+    Low Priority — Post-Launch
+  </div>
+
+  <div class="card">
+    <ul class="checklist">
+      <li>
+        <span class="check-icon check-todo">&#8212;</span>
+        <span class="check-text">France (AuSuivant) independent desktop design</span>
+      </li>
+      <li>
+        <span class="check-icon check-todo">&#8212;</span>
+        <span class="check-text">France Stripe production setup (needs French company entity)</span>
+      </li>
+      <li>
+        <span class="check-icon check-todo">&#8212;</span>
+        <span class="check-text">France RGPD-specific privacy policy + DPO</span>
+      </li>
+      <li>
+        <span class="check-icon check-todo">&#8212;</span>
+        <span class="check-text">Arabic landing page (full translation of 15 sections)</span>
+      </li>
+      <li>
+        <span class="check-icon check-todo">&#8212;</span>
+        <span class="check-text">Multi-doctor queue views (per-doctor patient lists, doctor-specific wait estimates)</span>
+      </li>
+      <li>
+        <span class="check-icon check-todo">&#8212;</span>
+        <span class="check-text">Redis adapter for Socket.io (needed past ~50 concurrent clinics)</span>
+      </li>
+      <li>
+        <span class="check-icon check-todo">&#8212;</span>
+        <span class="check-text">E2E test expansion (edge cases beyond current 69 tests)</span>
+      </li>
+      <li>
+        <span class="check-icon check-todo">&#8212;</span>
+        <span class="check-text">SMS notification support (removed Feb 2026, Socket.io-only for now)</span>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- ═══════════════════ TECH STACK ═══════════════════ -->
+<div class="section">
+  <div class="section-title">
+    <div class="icon icon-blue">&#9881;</div>
+    Tech Stack
+  </div>
+
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Layer</th><th>Technology</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="task-name">Frontend</td><td>React 18 + TypeScript + Vite 5 + Tailwind CSS 3.4</td></tr>
+          <tr><td class="task-name">State</td><td>Zustand 4.4</td></tr>
+          <tr><td class="task-name">Real-time</td><td>Socket.io (client + server)</td></tr>
+          <tr><td class="task-name">i18n</td><td>react-i18next (FR + AR with RTL)</td></tr>
+          <tr><td class="task-name">Backend</td><td>Node.js 20+ + Express 4 + TypeScript</td></tr>
+          <tr><td class="task-name">Database</td><td>PostgreSQL 15+ (Supabase) + Prisma ORM</td></tr>
+          <tr><td class="task-name">Auth</td><td>JWT (clinic-level, admin impersonation)</td></tr>
+          <tr><td class="task-name">Payments</td><td>Konnect (Tunisia) + Stripe (France)</td></tr>
+          <tr><td class="task-name">Email</td><td>Resend API (6+ templates, FR + AR)</td></tr>
+          <tr><td class="task-name">Push</td><td>Web Push API + VAPID + Service Worker</td></tr>
+          <tr><td class="task-name">Monitoring</td><td>Sentry + Prometheus + Grafana</td></tr>
+          <tr><td class="task-name">Hosting</td><td>Vercel (Web) + Railway (API) + Supabase (DB)</td></tr>
+          <tr><td class="task-name">CI/CD</td><td>GitHub Actions (lint, typecheck, build, test)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ DB SCHEMA ═══════════════════ -->
+<div class="section">
+  <div class="section-title">
+    <div class="icon icon-green">&#9707;</div>
+    Database Schema
+  </div>
+
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Model</th><th>Purpose</th><th>Key Fields</th><th>Indexes</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="task-name">Clinic</td>
+            <td class="notes">Tenant entity: auth, subscription, settings, presence</td>
+            <td class="notes">email, name, passwordHash, subscriptionStatus, trialEndsAt, isDoctorPresent, businessType</td>
+            <td class="effort">3</td>
+          </tr>
+          <tr>
+            <td class="task-name">Doctor</td>
+            <td class="notes">Multi-doctor support (optional FK on QueueEntry)</td>
+            <td class="notes">clinicId, name, specialty, isActive, avgConsultationMins</td>
+            <td class="effort">1</td>
+          </tr>
+          <tr>
+            <td class="task-name">QueueEntry</td>
+            <td class="notes">Core queue item with status tracking</td>
+            <td class="notes">clinicId, status, position, checkInMethod, appointmentTime, arrivedAt, calledAt, completedAt</td>
+            <td class="effort">15</td>
+          </tr>
+          <tr>
+            <td class="task-name">DailyStat</td>
+            <td class="notes">Archived daily metrics per clinic (midnight cron)</td>
+            <td class="notes">clinicId, date, totalPatients, avgWaitMins, avgConsultationMins, noShows</td>
+            <td class="effort">2</td>
+          </tr>
+          <tr>
+            <td class="task-name">PaymentRecord</td>
+            <td class="notes">Admin-recorded or Konnect/Stripe payments</td>
+            <td class="notes">clinicId, amount, month, method, reference, status</td>
+            <td class="effort">2</td>
+          </tr>
+          <tr>
+            <td class="task-name">SubscriptionEvent</td>
+            <td class="notes">Subscription lifecycle audit trail</td>
+            <td class="notes">clinicId, eventType, amount, paymentRef, notes</td>
+            <td class="effort">3</td>
+          </tr>
+          <tr>
+            <td class="task-name">PushSubscription</td>
+            <td class="notes">Web Push notification endpoints per patient</td>
+            <td class="notes">entryId, endpoint, p256dh, auth</td>
+            <td class="effort">1</td>
+          </tr>
+          <tr>
+            <td class="task-name">Lead</td>
+            <td class="notes">Email captures from landing/teaser pages</td>
+            <td class="notes">email, source, createdAt</td>
+            <td class="effort">1</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ INFRASTRUCTURE COSTS ═══════════════════ -->
+<div class="section">
+  <div class="section-title">
+    <div class="icon icon-green">$</div>
+    Infrastructure Costs
+  </div>
+
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Service</th><th>Cost/mo</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="task-name">Railway</td><td class="effort">$5</td><td class="notes">API hosting (has $5 credit)</td></tr>
+          <tr><td class="task-name">Supabase</td><td class="effort">$0</td><td class="notes">Free tier (dev DB)</td></tr>
+          <tr><td class="task-name">Vercel</td><td class="effort">$0</td><td class="notes">Hobby plan (free)</td></tr>
+          <tr><td class="task-name">Resend</td><td class="effort">$0</td><td class="notes">Free (3k emails/month)</td></tr>
+          <tr><td class="task-name">Konnect</td><td class="effort">$0</td><td class="notes">Free (1.6% transaction fees only)</td></tr>
+          <tr><td class="task-name">Sentry</td><td class="effort">$0</td><td class="notes">Free (5k errors/month)</td></tr>
+          <tr>
+            <td class="task-name" style="font-weight: 700;">Total</td>
+            <td class="cost-total">$5/mo</td>
+            <td class="notes">Break-even at 1 paying clinic</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ REVENUE PROJECTION ═══════════════════ -->
+<div class="section">
+  <div class="section-title">
+    <div class="icon icon-green">&#8599;</div>
+    Revenue Projection
+  </div>
+
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Clinics</th><th>Revenue (TND)</th><th>Infra Cost</th><th>Konnect Fees</th><th>Profit (TND)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="task-name">0 (now)</td><td>0</td><td class="effort">16 TND</td><td class="effort">0</td><td style="color: var(--red); font-weight: 600;">-16</td></tr>
+          <tr><td class="task-name">3 (trial)</td><td>0</td><td class="effort">16</td><td class="effort">0</td><td style="color: var(--red); font-weight: 600;">-16</td></tr>
+          <tr><td class="task-name">10 (paying)</td><td>500</td><td class="effort">16</td><td class="effort">10</td><td style="color: var(--green); font-weight: 600;">+474</td></tr>
+          <tr><td class="task-name">30 (paying)</td><td>1,500</td><td class="effort">16</td><td class="effort">26</td><td style="color: var(--green); font-weight: 600;">+1,458</td></tr>
+          <tr><td class="task-name">50 (paying)</td><td>2,500</td><td class="effort">144</td><td class="effort">42</td><td style="color: var(--green); font-weight: 600;">+2,314</td></tr>
+          <tr><td class="task-name">100 (paying)</td><td>5,000</td><td class="effort">208</td><td class="effort">82</td><td style="color: var(--green); font-weight: 600;">+4,710</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ LAUNCH TARGETS ═══════════════════ -->
+<div class="section">
+  <div class="section-title">
+    <div class="icon icon-green">&#9873;</div>
+    Launch Targets
+  </div>
+
+  <div class="brand-grid">
+    <div class="card" style="padding: 20px;">
+      <h4 style="font-size: 14px; font-weight: 700; color: var(--navy); margin-bottom: 12px;">By Apr 25 (Beat 3 complete)</h4>
+      <ul class="checklist" style="margin: 0;">
+        <li style="padding: 6px 0;"><span class="check-icon check-todo">&#8212;</span><span class="check-text">3–5 founding clinics signed up</span></li>
+        <li style="padding: 6px 0;"><span class="check-icon check-todo">&#8212;</span><span class="check-text">&gt;70% activation rate (completed onboarding)</span></li>
+        <li style="padding: 6px 0;"><span class="check-icon check-todo">&#8212;</span><span class="check-text">&gt;60% first patient check-in rate</span></li>
+        <li style="padding: 6px 0;"><span class="check-icon check-todo">&#8212;</span><span class="check-text">&gt;50% 7-day retention</span></li>
+      </ul>
+    </div>
+    <div class="card" style="padding: 20px;">
+      <h4 style="font-size: 14px; font-weight: 700; color: var(--navy); margin-bottom: 12px;">By May 30 (Decision Point)</h4>
+      <ul class="checklist" style="margin: 0;">
+        <li style="padding: 6px 0;"><span class="check-icon check-todo">&#8212;</span><span class="check-text">10+ daily active clinics</span></li>
+        <li style="padding: 6px 0;"><span class="check-icon check-todo">&#8212;</span><span class="check-text">Positive unit economics validated</span></li>
+        <li style="padding: 6px 0;"><span class="check-icon check-todo">&#8212;</span><span class="check-text">Ready for public launch?</span></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ CAMPAIGN PLAN ═══════════════════ -->
+<div class="section">
+  <div class="section-title">
+    <div class="icon icon-amber">&#9733;</div>
+    Campaign Plan (Post-Eid)
+  </div>
+
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Beat</th><th>Dates</th><th>Action</th><th>Goal</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="task-name">1. Mystery</td>
+            <td class="effort">Apr 7–9</td>
+            <td class="notes">Hand-deliver mystery cards with QR to 30–50 clinics in Tunis. "Your waiting room is about to change."</td>
+            <td class="notes">Curiosity + brand awareness</td>
+          </tr>
+          <tr>
+            <td class="task-name">2. Reveal</td>
+            <td class="effort">Apr 10–14</td>
+            <td class="notes">WhatsApp follow-up: "Hi Dr. [Name], we dropped off a card. BléSaf is a digital queue — here's a 2-min demo."</td>
+            <td class="notes">Warm leads, demo views</td>
+          </tr>
+          <tr>
+            <td class="task-name">3. Founding Signups</td>
+            <td class="effort">Apr 15–19</td>
+            <td class="notes">"Be one of the first 10 clinics in Tunis to go digital." Landing page live, payment works.</td>
+            <td class="notes">3–5 founding clinics</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<footer class="report-footer">
+  BléSaf / AuSuivant &mdash; Generated March 2, 2026 &mdash; Monorepo: <code>apps/api</code> + <code>apps/web</code>
+</footer>
+
+</body>
+</html>
