@@ -167,6 +167,8 @@ export interface PatientStatusResponse extends QueueEntry {
   isDoctorPresent?: boolean;
   estimatedWaitMins?: number;
   avgConsultationMins?: number;
+  confidence?: 'high' | 'medium' | 'low';
+  doctorAbsent?: boolean;
   clinicName?: string;
   doctorName?: string;
   doctorGender?: string | null;

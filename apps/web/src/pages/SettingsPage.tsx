@@ -242,6 +242,7 @@ export default function SettingsDrawer({ isOpen, onClose, onBack }: SettingsDraw
             height: 56,
             padding: '0 16px',
             background: '#FFFFFF',
+            borderBottom: '1px solid #E8E6DF',
           }}
         >
           <button

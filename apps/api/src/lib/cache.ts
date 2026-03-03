@@ -137,5 +137,5 @@ export const CacheTTL = {
   QUEUE: 5000,      // 5 seconds - queue changes frequently
   STATS: 10000,     // 10 seconds - stats can be slightly stale
   CLINIC: 60000,    // 1 minute - clinic info rarely changes
-  EFFECTIVE_AVG: 30000, // 30 seconds - consultation avg changes after each patient
+  EFFECTIVE_AVG: 10000, // 10 seconds - invalidateStatsCache() handles event-driven clearing
 };

@@ -11,6 +11,7 @@ import { emitToRoom } from '../lib/socket.js';
 import { logger } from '../lib/logger.js';
 import { recalculatePositionsAndStatuses } from '../services/positionService.js';
 import { emitQueueUpdate, emitAllPatientUpdates } from '../services/notificationService.js';
+import { invalidateStatsCache } from '../services/statsService.js';
 
 const router = Router();
 
@@ -106,6 +107,7 @@ router.patch('/', authMiddleware, subscriptionGate, async (req: AuthRequest, res
     // If queue mode changed, recalculate queue positions
     if (data.queueMode || data.rdvGraceMinutes !== undefined) {
       await recalculatePositionsAndStatuses(clinicId);
+      invalidateStatsCache(clinicId);
       emitQueueUpdate(clinicId).catch(() => {});
       emitAllPatientUpdates(clinicId).catch(() => {});
     }
@@ -156,6 +158,7 @@ router.post('/doctor-presence', authMiddleware, subscriptionGate, async (req: Au
     await recalculatePositionsAndStatuses(clinicId);
 
     // Fire-and-forget: emit socket updates in background
+    invalidateStatsCache(clinicId);
     emitQueueUpdate(clinicId).catch(() => {});
     emitAllPatientUpdates(clinicId).catch(() => {});
 

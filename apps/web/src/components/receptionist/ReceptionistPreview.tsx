@@ -9,6 +9,7 @@ import type { QueueScreenStatus } from './types';
 import './receptionist.css';
 
 import Header from './Header';
+import DashboardKpiStrip from '@/components/dashboard/DashboardKpiStrip';
 import QuickAddBar from './QuickAddBar';
 import CurrentPatientCard from './CurrentPatientCard';
 import QueueList from './QueueList';
@@ -36,15 +37,15 @@ export default function ReceptionistPreview() {
   const showClosing = queueStatus === 'CLOSING' && !isAllDone;
   const showAllDone = queueStatus === 'CLOSING' && isAllDone;
   const showClosed = queueStatus === 'CLOSED';
-  const showStats = showOpen || showClosing;
+  const showKpi = showOpen || showClosing;
 
   const currentPatient = showClosing ? closingCurrentPatient : mockData.currentPatient;
   const activeQueue = showClosing ? closingQueue : mockData.queue;
   const nextPreview = showClosing ? closingNextPreview : mockData.nextPatientPreview;
 
-  const chip1Value = showClosing ? mockData.closingStats.remainingCount : mockData.stats.waitingCount;
-  const chip2Value = showClosing ? mockData.closingStats.seenCount : mockData.stats.seenCount;
-  const chip3Value = showClosing ? mockData.closingStats.estimatedEndTime : mockData.stats.estimatedEndTime;
+  const kpiWaiting = showClosing ? mockData.closingStats.remainingCount : mockData.stats.waitingCount;
+  const kpiSeen = showClosing ? mockData.closingStats.seenCount : mockData.stats.seenCount;
+  const kpiMaxWait = showClosing ? mockData.closingStats.maxWait : mockData.stats.maxWait;
 
   const handleOpenQueue = () => { setQueueStatus('OPEN'); setIsAllDone(false); };
   const handleCloseQueue = () => { setQueueStatus('CLOSING'); setIsAllDone(false); };
@@ -66,12 +67,17 @@ export default function ReceptionistPreview() {
           clinicName={mockData.clinicName}
           status={queueStatus}
           isDoctorPresent={isDoctorPresent}
-          showStats={showStats}
-          chip1Value={chip1Value}
-          chip2Value={chip2Value}
-          chip3Value={chip3Value}
           className={showPreOpen ? 'animate-bs-slide-in bs-anim-d1' : ''}
         />
+
+        {showKpi && (
+          <DashboardKpiStrip
+            waitingCount={kpiWaiting}
+            seenCount={kpiSeen}
+            maxWait={kpiMaxWait}
+            mode={showClosing ? 'remaining' : 'waiting'}
+          />
+        )}
 
         {showPreOpen && (
           <>

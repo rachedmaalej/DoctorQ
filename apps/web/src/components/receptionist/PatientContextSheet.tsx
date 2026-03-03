@@ -11,14 +11,12 @@ interface PatientContextSheetProps {
   patient: QueuePatient | null;
   onClose: () => void;
   onMarkEmergency?: (id: string) => void;
-  onMarkSteppedOut?: (id: string) => void;
   onRemove?: (id: string) => void;
   onPhoneUpdated?: () => void;
 }
 
 const actions = [
   { key: 'emergency', icon: 'emergency', iconBg: '#FDF0ED', iconColor: '#D94F3B' },
-  { key: 'stepped-out', icon: 'directions_walk', iconBg: '#EDF3FC', iconColor: '#3B7DD9' },
   { key: 'copy-url', icon: 'link', iconBg: '#EDF3FC', iconColor: '#3B7DD9' },
   { key: 'remove', icon: 'person_remove', iconBg: '#FDF0ED', iconColor: '#D94F3B' },
 ] as const;
@@ -28,24 +26,13 @@ export default function PatientContextSheet({
   patient,
   onClose,
   onMarkEmergency,
-  onMarkSteppedOut,
   onRemove,
   onPhoneUpdated,
 }: PatientContextSheetProps) {
   const { t } = useTranslation();
 
-  const isSteppedOut = patient?.badge === 'stepped-out';
-
   const actionLabels: Record<string, { label: string; desc: string }> = {
     emergency: { label: t('receptionist.patientContext.emergency', 'Urgence'), desc: t('receptionist.patientContext.emergencyDesc', 'Passe en priorité absolue') },
-    'stepped-out': {
-      label: isSteppedOut
-        ? t('receptionist.patientContext.steppedBack', 'Marquer revenu')
-        : t('receptionist.patientContext.steppedOut'),
-      desc: isSteppedOut
-        ? t('receptionist.patientContext.steppedBackDesc', 'Le patient est de retour')
-        : t('receptionist.patientContext.steppedOutDesc'),
-    },
     'copy-url': { label: t('receptionist.patientContext.copyUrl', 'Copier URL'), desc: t('receptionist.patientContext.copyUrlDesc', 'Lien de suivi de la position') },
     remove: { label: t('receptionist.patientContext.removePatient'), desc: t('receptionist.patientContext.removePatientDesc') },
   };
@@ -95,9 +82,6 @@ export default function PatientContextSheet({
     switch (key) {
       case 'emergency':
         onMarkEmergency?.(patient.id);
-        break;
-      case 'stepped-out':
-        onMarkSteppedOut?.(patient.id);
         break;
       case 'copy-url': {
         const statusUrl = `${window.location.origin}/patient/${patient.id}`;
@@ -180,7 +164,7 @@ export default function PatientContextSheet({
                     className="material-symbols-rounded"
                     style={{ fontSize: 20, color: action.iconColor }}
                   >
-                    {action.key === 'stepped-out' && isSteppedOut ? 'undo' : action.icon}
+                    {action.icon}
                   </span>
                 </div>
 

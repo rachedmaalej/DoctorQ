@@ -20,12 +20,13 @@ export function isCalledState(status: string): boolean {
 }
 
 // ─── Eyebrow Text ───
+// Returns i18n key for status label
 
-export function deriveEyebrow(phase: Phase, peopleAhead: number, status: string): string {
-  if (status === 'IN_CONSULTATION') return "C'est votre tour";
-  if (phase === 'go') return 'Vous êtes le prochain';
-  if (phase === 'ready') return peopleAhead === 2 ? 'Préparez-vous' : 'Bientôt votre tour';
-  return 'Attente estimée'; // relax
+export function deriveEyebrowKey(phase: Phase, peopleAhead: number, status: string): string {
+  if (status === 'IN_CONSULTATION') return 'status.cestVotreTour';
+  if (phase === 'go') return 'status.vousPassezApres';
+  if (phase === 'ready') return peopleAhead === 2 ? 'status.preparez' : 'status.bientotVotreTour';
+  return 'status.attenteEstimee'; // relax
 }
 
 // ─── Ring Progress Calculation ───
@@ -36,8 +37,8 @@ export function calculateRingProgress(peopleAhead: number, initialPeopleAhead: n
   return Math.min(1, Math.max(0, 1 - (peopleAhead / initialPeopleAhead)));
 }
 
-// Ring circumference for r=85: 2 * PI * 85 ≈ 534
-export const RING_CIRCUMFERENCE = 534;
+// Ring circumference for r=48: 2 * PI * 48 ≈ 301.59
+export const RING_CIRCUMFERENCE = 301.59;
 
 export function ringDashOffset(progress: number): number {
   return RING_CIRCUMFERENCE * (1 - progress);
@@ -94,15 +95,6 @@ export function parseHeroTime(totalMinutes: number): HeroTimeParts {
   return { prefix: '~', minutes: m, hasHours: false };
 }
 
-// ─── Subtext ───
-
-export function deriveSubtext(peopleAhead: number): { count: number; text: string } {
-  if (peopleAhead <= 1) {
-    return { count: 1, text: 'personne devant vous' };
-  }
-  return { count: peopleAhead, text: 'personnes devant vous' };
-}
-
 // ─── Toast Message ───
 
 export function deriveToastMessage(peopleAhead: number): string | null {
@@ -114,9 +106,13 @@ export function deriveToastMessage(peopleAhead: number): string | null {
 }
 
 // ─── Estimate Smoothing ───
-// Never show estimate increasing by more than 5 minutes in a single update
+// Never show estimate increasing by more than maxIncrease minutes in a single update
 
-export function smoothEstimate(newMins: number, prevDisplayedMins: number | null): number {
+export function smoothEstimate(
+  newMins: number,
+  prevDisplayedMins: number | null,
+  confidence?: 'high' | 'medium' | 'low'
+): number {
   if (prevDisplayedMins === null) return Math.max(0, Math.round(newMins));
 
   const rounded = Math.max(0, Math.round(newMins));
@@ -124,10 +120,11 @@ export function smoothEstimate(newMins: number, prevDisplayedMins: number | null
   // If estimate decreased, show the new lower value immediately
   if (rounded <= prevDisplayedMins) return rounded;
 
-  // If estimate increased by more than 5 min, cap the visible increase
+  // Cap visible increases — wider cap for low confidence (inherently uncertain)
+  const maxIncrease = confidence === 'low' ? 10 : 5;
   const increase = rounded - prevDisplayedMins;
-  if (increase > 5) {
-    return prevDisplayedMins + 5;
+  if (increase > maxIncrease) {
+    return prevDisplayedMins + maxIncrease;
   }
 
   return rounded;

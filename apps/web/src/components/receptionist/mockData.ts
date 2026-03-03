@@ -14,13 +14,13 @@ export const mockData: DashboardData = {
   stats: {
     waitingCount: 8,
     seenCount: 14,
-    estimatedEndTime: '~18:45',
+    maxWait: 62,
   },
 
   closingStats: {
     remainingCount: 3,
     seenCount: 24,
-    estimatedEndTime: '~19:10',
+    maxWait: 91,
   },
 
   currentPatient: {
