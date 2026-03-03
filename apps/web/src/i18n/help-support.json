@@ -1,0 +1,164 @@
+{
+  "fr": {
+    "headerTitle": "Aide & support",
+    "contactLabel": "CONTACTER LE SUPPORT",
+    "contactTitle": "Parler avec un conseiller",
+    "contactSub": "Réponse en moins de 2h · Lun–Sam, 8h–18h",
+    "whatsappMessage": "Bonjour, j'ai besoin d'aide avec BleSaf.",
+    "faqLabel": "QUESTIONS FRÉQUENTES",
+    "searchPlaceholder": "Chercher une réponse…",
+    "emptyTitle": "Aucun résultat",
+    "emptySub": "Essayez un autre mot-clé ou contactez notre équipe via WhatsApp.",
+    "videoLabel": "TUTORIELS VIDÉO",
+    "langToggle": "عربي",
+    "faqs": [
+      {
+        "icon": "qr_code_2",
+        "q": "Le QR code ne fonctionne pas — que faire ?",
+        "a": "Vérifiez que la file est bien ouverte (bouton « Ouverte » en vert). Régénérez le QR depuis Paramètres → Code QR → Afficher si nécessaire. Assurez-vous que le patient pointe sa caméra directement sur le code, à 20–30 cm de distance."
+      },
+      {
+        "icon": "sms",
+        "q": "Le SMS n'a pas été reçu par le patient",
+        "a": "Vérifiez d'abord que le numéro est au format tunisien (+216 XX XXX XXX). Consultez votre solde de crédits SMS dans Paramètres → Abonnement. Si le solde est épuisé, les notifications sont interrompues. Un SMS peut prendre 2 à 5 min selon l'opérateur."
+      },
+      {
+        "icon": "swap_vert",
+        "q": "Comment changer l'ordre des patients dans la file ?",
+        "a": "Appuyez longuement sur le nom d'un patient — une poignée de glissement apparaîtra. Faites glisser vers le haut ou bas pour repositionner. Pour une urgence, utilisez le bouton « ⚡ Priorité » qui place le patient en position n°1 immédiatement."
+      },
+      {
+        "icon": "door_back",
+        "q": "Comment fermer la file en fin de journée ?",
+        "a": "Appuyez sur le statut « Ouverte » en haut de l'écran, puis sélectionnez « Fermer la file ». La file passe en mode Fermeture — les patients restants sont servis, mais aucun nouveau ne peut rejoindre. Un résumé de journée s'affiche quand la file est vide."
+      },
+      {
+        "icon": "share",
+        "q": "Comment partager le QR code avec mes patients ?",
+        "a": "Depuis l'écran d'accueil, appuyez Code QR → Afficher pour le plein écran. Appuyez WhatsApp pour l'envoyer directement. Pour l'imprimer, appuyez Copier puis collez-le dans n'importe quel éditeur ou messagerie."
+      },
+      {
+        "icon": "visibility_off",
+        "q": "Ma file est-elle visible quand je marque « Absent » ?",
+        "a": "Non. Marquer le médecin « Absent » ferme temporairement l'accès. Les patients déjà inscrits restent dans la file et reçoivent leurs notifications normalement quand vous repassez à « Présent »."
+      },
+      {
+        "icon": "person_add",
+        "q": "Comment ajouter un patient sans smartphone ?",
+        "a": "Appuyez « + Ajouter patient » et renseignez nom et numéro manuellement. Si le patient n'a pas de téléphone, ajoutez-le sans numéro — il n'aura pas de SMS mais apparaîtra bien dans la file."
+      }
+    ],
+    "videos": [
+      {
+        "title": "Configurer votre cabinet",
+        "duration": "1:20",
+        "icon": "settings",
+        "tag": "Démarrage",
+        "pillVariant": "teal"
+      },
+      {
+        "title": "Ajouter votre premier patient",
+        "duration": "0:58",
+        "icon": "person_add",
+        "tag": "Démarrage",
+        "pillVariant": "teal",
+        "arcadeUrl": "https://demo.arcade.software/GdaoUXqGsDUcypQANivD?embed&embed_mobile=inline&embed_desktop=inline&show_copy_link=true"
+      },
+      {
+        "title": "Partager le QR code",
+        "duration": "1:05",
+        "icon": "qr_code_2",
+        "tag": "Quotidien",
+        "pillVariant": "amber"
+      },
+      {
+        "title": "Gérer les urgences & priorités",
+        "duration": "1:40",
+        "icon": "emergency",
+        "tag": "Avancé",
+        "pillVariant": "red"
+      }
+    ]
+  },
+  "ar": {
+    "headerTitle": "المساعدة والدعم",
+    "contactLabel": "التواصل مع الدعم",
+    "contactTitle": "التحدث مع مستشار",
+    "contactSub": "رد خلال ساعتين · الإثنين–السبت، 8ص–6م",
+    "whatsappMessage": "مرحباً، أحتاج مساعدة في استخدام BleSaf.",
+    "faqLabel": "الأسئلة الشائعة",
+    "searchPlaceholder": "ابحث عن إجابة…",
+    "emptyTitle": "لا توجد نتائج",
+    "emptySub": "جرّب كلمة مختلفة أو تواصل مع فريقنا عبر WhatsApp.",
+    "videoLabel": "دروس مصورة",
+    "langToggle": "FR",
+    "faqs": [
+      {
+        "icon": "qr_code_2",
+        "q": "رمز QR لا يعمل — ماذا أفعل؟",
+        "a": "تأكد أن قائمة الانتظار مفتوحة (زر «مفتوح» باللون الأخضر). أعد إنشاء رمز QR من الإعدادات ← رمز QR ← عرض إذا لزم الأمر. تأكد من أن المريض يوجّه كاميرا هاتفه مباشرة على بُعد 20–30 سم."
+      },
+      {
+        "icon": "sms",
+        "q": "لم يتلقَّ المريض رسالة SMS",
+        "a": "تحقق من أن الرقم بالتنسيق التونسي (+216 XX XXX XXX). راجع رصيد رسائلك في الإعدادات ← الاشتراك. إذا نفد الرصيد، تتوقف الإشعارات. قد يستغرق وصول الرسالة 2 إلى 5 دقائق حسب المشغل."
+      },
+      {
+        "icon": "swap_vert",
+        "q": "كيف أغير ترتيب المرضى في القائمة؟",
+        "a": "اضغط مطوّلاً على اسم المريض — ستظهر مقبض السحب. اسحب للأعلى أو الأسفل لإعادة الترتيب. في حالات الطوارئ، استخدم زر «⚡ أولوية» الذي يضع المريض في المركز الأول فوراً."
+      },
+      {
+        "icon": "door_back",
+        "q": "كيف أغلق القائمة في نهاية اليوم؟",
+        "a": "اضغط على حالة «مفتوح» في أعلى الشاشة، ثم اختر «إغلاق القائمة». تنتقل إلى وضع الإغلاق — يُخدَم المرضى المتبقون لكن لا يمكن لمرضى جدد الانضمام. يظهر ملخص اليوم تلقائياً."
+      },
+      {
+        "icon": "share",
+        "q": "كيف أشارك رمز QR مع مرضاي؟",
+        "a": "من الشاشة الرئيسية، اضغط رمز QR ← عرض لعرضه بملء الشاشة. اضغط WhatsApp لإرساله مباشرة. للطباعة، اضغط نسخ ثم الصقه في أي محرر أو تطبيق مراسلة."
+      },
+      {
+        "icon": "visibility_off",
+        "q": "هل تظهر قائمتي عند وضع «غائب»؟",
+        "a": "لا. وضع «غائب» يغلق الوصول مؤقتاً — لا يمكن للمرضى الانضمام عبر QR. المرضى المسجلون مسبقاً يبقون في القائمة ويتلقون إشعاراتهم عادةً حين تعود إلى «حاضر»."
+      },
+      {
+        "icon": "person_add",
+        "q": "كيف أضيف مريضاً بدون هاتف ذكي؟",
+        "a": "اضغط «+ إضافة مريض» وأدخل الاسم ورقم الهاتف يدوياً. إذا لم يكن للمريض هاتف، يمكنك إضافته بدون رقم — لن يتلقى SMS لكنه سيظهر في القائمة."
+      }
+    ],
+    "videos": [
+      {
+        "title": "إعداد عيادتك",
+        "duration": "1:20",
+        "icon": "settings",
+        "tag": "البداية",
+        "pillVariant": "teal"
+      },
+      {
+        "title": "إضافة أول مريض",
+        "duration": "0:58",
+        "icon": "person_add",
+        "tag": "البداية",
+        "pillVariant": "teal",
+        "arcadeUrl": "https://demo.arcade.software/GdaoUXqGsDUcypQANivD?embed&embed_mobile=inline&embed_desktop=inline&show_copy_link=true"
+      },
+      {
+        "title": "مشاركة رمز QR",
+        "duration": "1:05",
+        "icon": "qr_code_2",
+        "tag": "يومي",
+        "pillVariant": "amber"
+      },
+      {
+        "title": "إدارة الحالات الطارئة",
+        "duration": "1:40",
+        "icon": "emergency",
+        "tag": "متقدم",
+        "pillVariant": "red"
+      }
+    ]
+  }
+}
