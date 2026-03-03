@@ -69,8 +69,6 @@ export default function ReceptionistPreview() {
         <Header
           clinicName={mockData.clinicName}
           status={queueStatus}
-          isAllDone={isAllDone}
-          onStatusPillClick={handleStatusPillClick}
           isDoctorPresent={isDoctorPresent}
           showStats={showStats}
           chip1Value={chip1Value}

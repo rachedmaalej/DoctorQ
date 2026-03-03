@@ -1576,3 +1576,467 @@
   0%, 100% { opacity: 1; }
   50% { opacity: 0.3; }
 }
+
+
+/* ═══════════════════════════════════════════════════════════
+   LOGIN PAGE — .bs-login scope
+═══════════════════════════════════════════════════════════ */
+
+.bs-login {
+  --accent: #0F7B6C;
+  --accent-dark: #0A5C50;
+  --accent-light: #E8F5F1;
+  --bg: #F6F5F0;
+  --surface: #FFFFFF;
+  --border: #E8E6DF;
+  --text-primary: #1A1A1A;
+  --text-secondary: #6B6960;
+  --text-tertiary: #9E9B90;
+
+  font-family: 'DM Sans', 'IBM Plex Sans Arabic', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+
+.bs-login *, .bs-login *::before, .bs-login *::after {
+  box-sizing: border-box;
+}
+
+/* Wrapper — on desktop centres the "phone" shell */
+.bs-login-wrapper {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 100dvh;
+}
+
+/* ─── Hero ─── */
+.bs-login-hero {
+  position: relative;
+  background: linear-gradient(155deg, var(--accent) 0%, #10917e 100%);
+  padding: 48px 28px 56px;
+  color: #fff;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+/* Grid overlay */
+.bs-login-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.04;
+  background-image:
+    linear-gradient(rgba(255,255,255,.8) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.8) 1px, transparent 1px);
+  background-size: 36px 36px;
+  pointer-events: none;
+}
+
+/* Top-left radial glow */
+.bs-login-hero::after {
+  content: '';
+  position: absolute;
+  top: -60px;
+  left: -60px;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,.1) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+/* Bottom-right radial shadow */
+.bs-login-hero-shadow {
+  position: absolute;
+  bottom: -40px;
+  right: -40px;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,0,0,.15) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+/* Logo in hero */
+.bs-login-logo {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.bs-login-logo-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  background: rgba(255,255,255,.18);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bs-login-logo-text {
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.4px;
+}
+
+.bs-login-logo-text span {
+  opacity: 0.62;
+}
+
+/* Eyebrow */
+.bs-login-eyebrow {
+  position: relative;
+  z-index: 1;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.52);
+  margin-bottom: 9px;
+}
+
+/* Headline */
+.bs-login-headline {
+  position: relative;
+  z-index: 1;
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-size: 34px;
+  line-height: 1.18;
+  color: #fff;
+  margin-bottom: 7px;
+  white-space: pre-line;
+}
+
+.bs-login-headline em {
+  font-style: italic;
+  opacity: 0.72;
+}
+
+/* Subline */
+.bs-login-subline {
+  position: relative;
+  z-index: 1;
+  font-size: 14px;
+  color: rgba(255,255,255,.58);
+  line-height: 1.5;
+}
+
+/* ─── Card ─── */
+.bs-login-card {
+  background: var(--surface);
+  border-radius: 30px 30px 0 0;
+  margin-top: -26px;
+  position: relative;
+  z-index: 2;
+  padding: 14px 28px 36px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 -6px 28px rgba(0,0,0,.12);
+}
+
+.bs-login-handle {
+  width: 38px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border);
+  margin: 0 auto 24px;
+  flex-shrink: 0;
+}
+
+.bs-login-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.4px;
+  margin-bottom: 3px;
+}
+
+.bs-login-subtitle {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+/* ─── Form Fields ─── */
+.bs-login-field {
+  margin-bottom: 16px;
+}
+
+.bs-login-field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.bs-login-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.bs-login-input-icon {
+  position: absolute;
+  left: 14px;
+  pointer-events: none;
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  z-index: 1;
+}
+
+.bs-login-input {
+  width: 100%;
+  padding: 14px 16px 14px 44px;
+  border-radius: 14px;
+  font-size: 15px;
+  font-family: 'DM Sans', 'IBM Plex Sans Arabic', sans-serif;
+  border: 1.5px solid var(--border);
+  background: var(--bg);
+  color: var(--text-primary);
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: border-color .15s, box-shadow .15s, background .15s;
+  min-height: 54px;
+}
+
+.bs-login-input:focus {
+  border-color: var(--accent);
+  background: var(--surface);
+  box-shadow: 0 0 0 3px rgba(15,123,108,.1);
+}
+
+.bs-login-input::placeholder {
+  color: var(--text-tertiary);
+  font-size: 14px;
+}
+
+/* Password eye toggle */
+.bs-login-eye-btn {
+  position: absolute;
+  right: 13px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  border-radius: 8px;
+  transition: color .15s;
+}
+
+.bs-login-eye-btn:hover {
+  color: var(--accent);
+}
+
+/* ─── Options row (remember + forgot) ─── */
+.bs-login-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 22px;
+}
+
+.bs-login-remember {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.bs-login-remember input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.bs-login-forgot {
+  font-size: 13px;
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+  transition: opacity .15s;
+}
+
+.bs-login-forgot:hover {
+  opacity: 0.75;
+}
+
+/* ─── Spacer ─── */
+.bs-login-spacer {
+  flex: 1;
+  min-height: 16px;
+}
+
+/* ─── Submit button ─── */
+.bs-login-btn {
+  width: 100%;
+  padding: 0 20px;
+  border-radius: 16px;
+  font-size: 16px;
+  font-weight: 700;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-family: 'DM Sans', 'IBM Plex Sans Arabic', sans-serif;
+  box-shadow: 0 6px 20px rgba(15,123,108,.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform .13s, box-shadow .13s;
+  min-height: 56px;
+}
+
+.bs-login-btn:hover {
+  background: var(--accent-dark);
+}
+
+.bs-login-btn:active {
+  transform: scale(.97);
+  box-shadow: none;
+}
+
+.bs-login-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ─── Signup link ─── */
+.bs-login-signup {
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-top: 18px;
+}
+
+.bs-login-signup a {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.bs-login-signup a:hover {
+  opacity: 0.75;
+}
+
+/* ─── Trust signals ─── */
+.bs-login-trust {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.bs-login-trust-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--text-tertiary);
+}
+
+.bs-login-trust-item .material-symbols-rounded {
+  font-size: 14px;
+  color: var(--accent);
+  opacity: 0.75;
+}
+
+/* ─── Error banner ─── */
+.bs-login-error {
+  background: #FDF0ED;
+  border: 1px solid rgba(217,79,59,.2);
+  color: #D94F3B;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+/* ─── Dev quick login ─── */
+.bs-login-dev {
+  margin-bottom: 16px;
+  padding: 10px 14px;
+  background: var(--accent-light);
+  border: 1px solid rgba(15,123,108,.12);
+  border-radius: 10px;
+}
+
+.bs-login-dev-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+
+.bs-login-dev-btns {
+  display: flex;
+  gap: 8px;
+}
+
+.bs-login-dev-btn {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(15,123,108,.1);
+  color: var(--accent);
+  border: none;
+  border-radius: 6px;
+  padding: 7px 10px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background .15s;
+}
+
+.bs-login-dev-btn:hover {
+  background: rgba(15,123,108,.2);
+}
+
+/* ─── Desktop responsive ─── */
+@media (min-width: 640px) {
+  .bs-login {
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+  }
+
+  .bs-login-wrapper {
+    max-width: 420px;
+    width: 100%;
+    min-height: auto;
+    border-radius: 28px;
+    overflow: hidden;
+    box-shadow: 0 12px 48px rgba(0,0,0,.15);
+  }
+
+  .bs-login-card {
+    border-radius: 30px 30px 28px 28px;
+    flex: initial;
+  }
+}

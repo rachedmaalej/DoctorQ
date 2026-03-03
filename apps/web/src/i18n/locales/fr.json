@@ -24,7 +24,18 @@
     "createAccount": "Créer un compte",
     "emailNotVerified": "Veuillez vérifier votre email avant de vous connecter.",
     "resendVerification": "Renvoyer l'email de vérification",
-    "verificationSent": "Email de vérification envoyé. Vérifiez votre boîte de réception."
+    "verificationSent": "Email de vérification envoyé. Vérifiez votre boîte de réception.",
+    "loginEyebrow": "Espace praticien",
+    "loginHeadline": "Bon retour,\nDocteur.",
+    "loginSubline": "Votre file d'attente vous attend.",
+    "loginCardSubtitle": "Accédez à votre tableau de bord",
+    "rememberMe": "Se souvenir de moi",
+    "forgotPasswordShort": "Oublié ?",
+    "noAccountPrompt": "Pas de compte ?",
+    "trialCta": "14 jours gratuits →",
+    "trustSsl": "SSL sécurisé",
+    "trustEncrypted": "Chiffré",
+    "trustCompliant": "Conforme"
   },
   "queue": {
     "title": "File d'Attente",
