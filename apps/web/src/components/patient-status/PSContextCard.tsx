@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { Phase } from './utils';
 
 import PSAbsentButton from './PSAbsentButton';
@@ -6,33 +7,35 @@ interface PSContextCardProps {
   phase: Phase;
   peopleAhead: number;
   avgConsultMins?: number;
-  estimatedMins: number;
   isAbsent: boolean;
   onAbsentClick: () => void;
   isCalled: boolean;
+  confidence?: 'high' | 'medium' | 'low';
 }
 
 export default function PSContextCard({
   phase,
   peopleAhead,
   avgConsultMins,
-  estimatedMins,
   isAbsent,
   onAbsentClick,
   isCalled,
+  confidence,
 }: PSContextCardProps) {
+  const { t } = useTranslation();
+
   // No context cards for called (#0) or done
   if (isCalled || phase === 'done') return null;
 
-  // ─── Relax Phase ───
+  // ─── Relax Phase (States 1-2: position ≥ 4) ───
   if (phase === 'relax') {
     const avgDisplay = avgConsultMins ? `~${avgConsultMins} min` : '~20 min';
 
     // Contextual tip varies by position
     const tipIcon = peopleAhead >= 5 ? 'coffee' : 'schedule';
     const tipText = peopleAhead >= 5
-      ? 'Vous avez le temps pour un café \u2615'
-      : 'Encore un peu de patience...';
+      ? t('status.alertCafe')
+      : t('status.alertPatience');
     const tipClass = peopleAhead >= 5 ? 'tip-cafe' : 'tip-patience';
 
     return (
@@ -40,13 +43,15 @@ export default function PSContextCard({
         {/* Info Card */}
         <div className="ps-info-card phase-relax">
           <div className="ps-info-row">
-            <span className="ps-info-label">Durée moy. par patient</span>
+            <span className="ps-info-label">{t('status.dureeMoyParPatient')}</span>
             <span className="ps-info-value phase-relax">{avgDisplay}</span>
           </div>
           <div className="ps-info-row">
-            <span className="ps-info-label">Basé sur</span>
+            <span className="ps-info-label">{t('status.baseSur')}</span>
             <span className="ps-info-value" style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>
-              les consultations du jour
+              {confidence === 'high' ? t('status.consultationsDuJour')
+                : confidence === 'medium' ? t('status.historiqueRecent')
+                : 'valeur par défaut'}
             </span>
           </div>
         </div>
@@ -57,46 +62,31 @@ export default function PSContextCard({
           {tipText}
         </div>
 
-        {/* Absent Button */}
+        {/* Absent Button — only visible on states 1-2 (position ≥ 4) */}
         <PSAbsentButton isAbsent={isAbsent} onToggle={onAbsentClick} />
       </div>
     );
   }
 
-  // ─── Ready Phase ───
+  // ─── Ready Phase (States 3-4: position 2-3) ───
   if (phase === 'ready') {
     const avgDisplay = avgConsultMins ? `~${avgConsultMins} min` : '~17 min';
-    const estimateDisplay = estimatedMins >= 60
-      ? `~${Math.floor(estimatedMins / 60)}h${(estimatedMins % 60).toString().padStart(2, '0')}`
-      : `~${estimatedMins} min`;
 
     // At position #2 vs #3
     const isUrgent = peopleAhead === 2;
     const tipIcon = isUrgent ? 'warning' : 'location_on';
     const tipText = isUrgent
-      ? "Ne vous éloignez pas — c'est bientôt à vous"
-      : "Restez dans la salle d'attente";
+      ? t('status.alertNePasEloigner')
+      : t('status.alertSalle');
     const tipClass = isUrgent ? 'tip-warning' : 'tip-stay';
 
     return (
       <div className="ps-info-area ps-fade-up-d3">
-        {/* Info Card */}
+        {/* Info Card — single row only (redundant rows removed per spec) */}
         <div className="ps-info-card phase-ready">
           <div className="ps-info-row">
-            <span className="ps-info-label">
-              {isUrgent ? 'Encore' : 'Personnes devant vous'}
-            </span>
-            <span className="ps-info-value phase-ready">
-              {isUrgent ? `${peopleAhead} patients` : String(peopleAhead)}
-            </span>
-          </div>
-          <div className="ps-info-row">
-            <span className="ps-info-label">
-              {isUrgent ? 'Estimation' : 'Durée moy. par patient'}
-            </span>
-            <span className="ps-info-value phase-ready">
-              {isUrgent ? estimateDisplay : avgDisplay}
-            </span>
+            <span className="ps-info-label">{t('status.dureeMoyParPatient')}</span>
+            <span className="ps-info-value phase-ready">{avgDisplay}</span>
           </div>
         </div>
 
@@ -121,7 +111,7 @@ export default function PSContextCard({
           >
             location_on
           </span>
-          Restez devant la porte du cabinet
+          {t('status.alertPorte')}
         </div>
       </div>
     );

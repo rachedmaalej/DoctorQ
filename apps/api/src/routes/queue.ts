@@ -23,7 +23,7 @@ import {
   formatPhoneNumber,
 } from '../services/queueService.js';
 import { reorderPatient, updateStatusesAfterReorder, recalculatePositionsAndStatuses } from '../services/positionService.js';
-import { resetStats, computeSmartWaitEstimate } from '../services/statsService.js';
+import { resetStats, computeSmartWaitEstimate, invalidateStatsCache } from '../services/statsService.js';
 import { logger } from '../lib/logger.js';
 import { emitQueueUpdate, emitPatientUpdate, emitAllPatientUpdates } from '../services/notificationService.js';
 import { localTimeToUtc } from '../lib/timezone.js';
@@ -382,6 +382,7 @@ router.post('/reorder', authMiddleware, subscriptionGate, async (req: AuthReques
     const updatedEntry = await prisma.queueEntry.findUnique({ where: { id: entryId } });
 
     // Fire-and-forget: emit socket updates in background
+    invalidateStatsCache(clinicId);
     emitQueueUpdate(clinicId).catch(() => {});
     emitAllPatientUpdates(clinicId).catch(() => {});
 
@@ -432,6 +433,7 @@ router.post('/:id/emergency', authMiddleware, subscriptionGate, async (req: Auth
     await recalculatePositionsAndStatuses(clinicId);
 
     // Emit socket updates
+    invalidateStatsCache(clinicId);
     emitQueueUpdate(clinicId).catch(() => {});
     emitAllPatientUpdates(clinicId).catch(() => {});
 
@@ -469,6 +471,7 @@ router.post('/:id/stepped-out', authMiddleware, subscriptionGate, async (req: Au
       data: { isSteppedOut: !entry.isSteppedOut },
     });
 
+    invalidateStatsCache(clinicId);
     emitQueueUpdate(clinicId).catch(() => {});
     emitAllPatientUpdates(clinicId).catch(() => {});
 

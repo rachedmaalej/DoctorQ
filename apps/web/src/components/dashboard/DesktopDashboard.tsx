@@ -8,7 +8,7 @@ import { api } from '@/lib/api';
 import { formatTime } from '@/lib/time';
 import type { QueueEntry, QueueStats as QueueStatsType, Clinic } from '@/types';
 import { QueueStatus } from '@/types';
-import { calculateEndEstimate, getConsultationMinutes } from '@/components/blesaf/utils';
+import { getConsultationMinutes } from '@/components/blesaf/utils';
 import '@/components/blesaf/blesaf.css';
 import '@/components/receptionist/receptionist.css';
 import { useQueueLifecycle } from '@/components/receptionist/useQueueLifecycle';
@@ -351,12 +351,11 @@ export default function DesktopDashboard({
 
   const currentPatient = inConsultEntry ? toCurrentPatient(inConsultEntry) : null;
   const elapsed        = inConsultEntry?.calledAt ? getConsultationMinutes(inConsultEntry.calledAt) : 0;
-  const remaining      = Math.max(0, avgConsultMins - elapsed);
-  const estimatedEnd   = stats ? calculateEndEstimate(waitingCount, avgConsultMins, remaining) : '--:--';
+  const maxWait        = stats?.maxWait ?? null;
   const seenCount      = stats?.seen ?? 0;
   const nextPreview    = getNextPatientPreview(queue);
 
-  const closingStats   = stats ? toClosingStatsData(stats, queue, avgConsultMins) : null;
+  const closingStats   = stats ? toClosingStatsData(stats) : null;
   const summaryBrief   = stats
     ? toDaySummaryBrief(stats)
     : { totalPatients: 0, avgWaitMinutes: 0, avgConsultMinutes: 0 };
@@ -369,13 +368,7 @@ export default function DesktopDashboard({
     ? `${Math.floor(estWaitMins / 60)}h${String(estWaitMins % 60).padStart(2, '0')}`
     : `${estWaitMins} min`;
 
-  const { fetchQueue } = useQueueStore();
-  const handleMarkSteppedOut = useCallback(async (id: string) => {
-    try {
-      await api.toggleSteppedOut(id);
-      fetchQueue();
-    } catch { /* handled by API layer */ }
-  }, [fetchQueue]);
+
   const handleShare = useCallback(async () => {
     if (navigator.share) {
       try { await navigator.share({ title: 'Résumé de journée', text: `${summaryData.totalPatientsSeen} patients vus.` }); }
@@ -581,7 +574,11 @@ export default function DesktopDashboard({
                   highlighted
                 />
                 <LeftStatCard value={seenCount} label="Vus" />
-                <LeftStatCard value={estimatedEnd} label="Fin est." small />
+                <LeftStatCard
+                  value={maxWait != null ? (maxWait >= 60 ? `${Math.floor(maxWait / 60)}h${String(maxWait % 60).padStart(2, '0')}` : `${maxWait} min`) : '--'}
+                  label="Attente max"
+                  small
+                />
               </div>
 
               {/* Primary CTA */}
@@ -943,7 +940,6 @@ export default function DesktopDashboard({
         isOpen={contextPatient !== null}
         patient={contextPatient}
         onClose={() => setContextPatient(null)}
-        onMarkSteppedOut={handleMarkSteppedOut}
         onRemove={onRemovePatient}
         onPhoneUpdated={() => setContextPatient(null)}
       />

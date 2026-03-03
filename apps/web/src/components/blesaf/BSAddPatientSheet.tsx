@@ -109,12 +109,25 @@ export default function BSAddPatientSheet({
     return () => clearTimeout(timer);
   }, [name, selectedPatient]);
 
-  // Auto-close confirmation after 3 seconds
+  // Debounce confirmation button presses to prevent double-fires
+  const confirmActionRef = useRef(false);
+  const guardAction = (fn: () => void) => {
+    if (confirmActionRef.current) return;
+    confirmActionRef.current = true;
+    fn();
+    setTimeout(() => { confirmActionRef.current = false; }, 200);
+  };
+
+  // Auto-dismiss confirmation after 4 seconds
+  const autoDismissRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
-    if (step !== 'confirm' || !isOpen) return;
-    const timer = setTimeout(handleDone, 3000);
-    return () => clearTimeout(timer);
-  }, [step, isOpen]);
+    if (step === 'confirm') {
+      autoDismissRef.current = setTimeout(() => handleDone(), 4000);
+      return () => {
+        if (autoDismissRef.current) clearTimeout(autoDismissRef.current);
+      };
+    }
+  }, [step]);
 
   // ─── Handlers ───
 
@@ -224,18 +237,21 @@ export default function BSAddPatientSheet({
     setTimeout(() => nameInputRef.current?.focus(), 100);
   };
 
+  const whatsAppUrl = addedEntry && phoneDigits
+    ? (() => {
+        const statusUrl = `${window.location.origin}/patient/${addedEntry.id}`;
+        const message = t('whatsapp.message', { clinicName, url: statusUrl });
+        return `https://wa.me/${webBrand.phone.countryCode.replace('+', '')}${phoneDigits}?text=${encodeURIComponent(message)}`;
+      })()
+    : undefined;
+
   const handleSendWhatsApp = () => {
-    if (!addedEntry || !phoneDigits) return;
-    const statusUrl = `${window.location.origin}/patient/${addedEntry.id}`;
-    const message = t('whatsapp.message', { clinicName, url: statusUrl });
-    const waUrl = `https://wa.me/${webBrand.phone.countryCode.replace('+', '')}${phoneDigits}?text=${encodeURIComponent(message)}`;
-    window.open(waUrl, '_blank');
+    if (!whatsAppUrl || !addedEntry) return;
+    window.open(whatsAppUrl, '_blank', 'noopener,noreferrer');
     onWhatsAppSent?.(addedEntry.id);
   };
 
   // ─── Helpers ───
-
-  const firstName = name.trim().split(' ')[0];
 
   function formatRelativeDate(dateStr: string): string {
     const date = new Date(dateStr);
@@ -260,6 +276,7 @@ export default function BSAddPatientSheet({
       <div className={`bs-add-sheet ${isOpen ? 'open' : ''}`}>
         <div className="bs-sheet-handle" />
 
+        <div key={step} className="bs-sheet-step">
         {step === 'form' ? (
           /* ─── FORM STEP ─── */
           <>
@@ -453,91 +470,86 @@ export default function BSAddPatientSheet({
         ) : (
           /* ─── CONFIRMATION STEP ─── */
           <>
-            {/* Success card */}
-            <div className="bs-confirm-card">
-              {/* SVG check icon with pop-in animation */}
-              <div
-                className="bs-confirm-check bs-pop-in"
-                style={{ boxShadow: '0 0 0 8px rgba(15,123,108,0.15)' }}
-              >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                  <path d="M5 12l5 5L19 7" stroke="white" strokeWidth="2.5"
-                        strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
-              <div className="bs-confirm-name">{name.trim()}</div>
-              {addedEntry && (
-                <div className="bs-confirm-pos">
-                  Position #{addedEntry.position}
+            {/* Header row */}
+            <div className="bs-confirm-header">
+              <div className="bs-confirm-identity">
+                <div className="bs-check-circle">
+                  <Icon name="check" size={16} fill />
                 </div>
-              )}
-              {/* Returning patient badge */}
-              {selectedPatient && (
-                <div className="bs-confirm-returning">
-                  <Icon name="history" size={12} />
-                  {t('blesaf.addPatient.returningBadge', { position: addedEntry?.position ?? '' })}
+                <div>
+                  <p className="bs-confirm-name">{name.trim()}</p>
+                  <p className="bs-confirm-sub">
+                    {visitType === 'walk-in'
+                      ? t('confirmation.sub_walk_in')
+                      : t('confirmation.sub_appointment')}
+                  </p>
+                </div>
+              </div>
+              {addedEntry && (
+                <div className="bs-position-pill">
+                  <span className="bs-position-label">{t('confirmation.position_label')}</span>
+                  <span className="bs-position-number" aria-label={`${t('confirmation.position_label')} ${addedEntry.position}`}>
+                    {addedEntry.position}
+                  </span>
                 </div>
               )}
             </div>
 
-            {/* WhatsApp CTA — only when phone was provided */}
-            {phoneDigits.length > 0 && addedEntry && (
+            {/* Action buttons */}
+            <div className="bs-action-buttons">
+              {/* WhatsApp */}
               <button
-                type="button"
-                className="bs-whatsapp-btn"
-                onClick={handleSendWhatsApp}
+                className="bs-action-btn bs-action-btn--wa"
+                onClick={() => guardAction(handleSendWhatsApp)}
+                disabled={!whatsAppUrl}
+                aria-label={t('confirmation.btn_whatsapp_label')}
+                title={!whatsAppUrl
+                  ? t('confirmation.btn_whatsapp_tooltip_no_phone')
+                  : t('confirmation.btn_whatsapp_label')}
               >
-                <div className="bs-whatsapp-icon">
-                  <Icon name="smartphone" size={16} />
-                </div>
-                <div style={{ flex: 1, textAlign: 'left' }}>
-                  <div className="bs-whatsapp-title">
-                    {t('blesaf.addPatient.whatsappTitle', { name: firstName })}
-                  </div>
-                  <div className="bs-whatsapp-sub">
-                    {t('blesaf.addPatient.whatsappSub')}
-                  </div>
-                </div>
-                <Icon name="chevron_right" size={18} className="bs-whatsapp-arrow" />
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                </svg>
               </button>
-            )}
 
-            {/* Add another patient */}
-            <button
-              type="button"
-              className="bs-add-another-btn"
-              onClick={handleAddAnother}
-            >
-              <Icon name="add" size={16} />
-              {t('blesaf.addPatient.addAnother')}
-            </button>
+              {/* Add another */}
+              <button
+                className="bs-action-btn bs-action-btn--add"
+                onClick={() => guardAction(handleAddAnother)}
+                aria-label={t('confirmation.btn_add_another_label')}
+                title={t('confirmation.btn_add_another_label')}
+              >
+                <Icon name="person_add" size={22} />
+              </button>
 
-            {/* Done with countdown ring */}
-            <button
-              type="button"
-              className="bs-dismiss-btn"
-              onClick={handleDone}
-            >
-              <svg width="16" height="16" viewBox="0 0 14 14" style={{ flexShrink: 0 }}>
-                <circle cx="7" cy="7" r="5.5" fill="none" stroke="#d1fae5" strokeWidth="2"/>
-                <circle
-                  cx="7" cy="7" r="5.5" fill="none"
-                  stroke="var(--accent, #0F7B6C)"
-                  strokeWidth="2"
-                  strokeDasharray="34.6"
-                  strokeDashoffset="0"
-                  strokeLinecap="round"
-                  style={{
-                    transformOrigin: 'center',
-                    transform: 'rotate(-90deg)',
-                    animation: 'bs-drain 3s linear forwards',
-                  }}
-                />
-              </svg>
-              {t('blesaf.addPatient.done')}
-            </button>
+              {/* Dismiss — with ring countdown */}
+              <button
+                className="bs-action-btn bs-action-btn--back"
+                onClick={() => guardAction(handleDone)}
+                aria-label={t('confirmation.btn_dismiss_label')}
+                title={t('confirmation.btn_dismiss_label')}
+              >
+                <div className="bs-dismiss-ring-wrap">
+                  <svg className="bs-dismiss-ring" viewBox="0 0 36 36">
+                    <circle cx="18" cy="18" r="15" fill="none" stroke="var(--border, #E8E6DF)" strokeWidth="2.5" />
+                    <circle
+                      className="bs-dismiss-ring-progress"
+                      cx="18" cy="18" r="15"
+                      fill="none"
+                      stroke="var(--text-tertiary, #9E9B90)"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeDasharray="94.25"
+                      strokeDashoffset="94.25"
+                    />
+                  </svg>
+                  <Icon name="undo" size={16} className="bs-dismiss-ring-icon" />
+                </div>
+              </button>
+            </div>
           </>
         )}
+        </div>
       </div>
     </>
   );

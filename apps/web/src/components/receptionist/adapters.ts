@@ -3,7 +3,6 @@ import { QueueStatus } from '@/types';
 import { getWaitingMinutes } from '@/lib/time';
 import {
   abbreviateName,
-  calculateEndEstimate,
   getConsultationMinutes,
   formatTimeShort,
 } from '@/components/blesaf/utils';
@@ -62,33 +61,21 @@ export function toPreRegisteredPatients(entries: QueueEntry[]): PreRegisteredPat
 
 export function toStatsData(
   stats: QueueStats,
-  queue: QueueEntry[],
-  avgConsultMins: number,
 ): StatsData {
-  const inConsult = queue.find(e => e.status === QueueStatus.IN_CONSULTATION);
-  const elapsed = inConsult?.calledAt ? getConsultationMinutes(inConsult.calledAt) : 0;
-  const remainingCurrent = Math.max(0, avgConsultMins - elapsed);
-
   return {
     waitingCount: stats.waiting,
     seenCount: stats.seen,
-    estimatedEndTime: calculateEndEstimate(stats.waiting, avgConsultMins, remainingCurrent),
+    maxWait: stats.maxWait,
   };
 }
 
 export function toClosingStatsData(
   stats: QueueStats,
-  queue: QueueEntry[],
-  avgConsultMins: number,
 ): ClosingStatsData {
-  const inConsult = queue.find(e => e.status === QueueStatus.IN_CONSULTATION);
-  const elapsed = inConsult?.calledAt ? getConsultationMinutes(inConsult.calledAt) : 0;
-  const remainingCurrent = Math.max(0, avgConsultMins - elapsed);
-
   return {
     remainingCount: stats.waiting,
     seenCount: stats.seen,
-    estimatedEndTime: calculateEndEstimate(stats.waiting, avgConsultMins, remainingCurrent),
+    maxWait: stats.maxWait,
   };
 }
 

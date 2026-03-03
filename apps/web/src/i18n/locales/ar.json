@@ -1075,6 +1075,47 @@
       "done": "تم — العودة إلى الطابور"
     }
   },
+  "confirmation": {
+    "sub_walk_in": "تمت الإضافة · بدون موعد",
+    "sub_appointment": "تمت الإضافة · بموعد",
+    "position_label": "الرقم",
+    "btn_whatsapp_label": "إرسال تذكرة المتابعة عبر واتساب",
+    "btn_whatsapp_tooltip_no_phone": "لا يوجد رقم مسجل",
+    "btn_add_another_label": "إضافة مريض آخر",
+    "btn_dismiss_label": "انتهى — العودة إلى قائمة الانتظار"
+  },
+  "status": {
+    "bonjour": "مرحباً",
+    "attenteEstimee": "وقت الانتظار المتوقع",
+    "bientotVotreTour": "دورك قريباً",
+    "preparez": "استعد",
+    "vousPassezApres": "أنت التالي",
+    "cestVotreTour": "جاء دورك",
+    "cEstPresqueVotreTour": "دورك على وشك أن يأتي",
+    "onVousAttend": "نحن بانتظارك !",
+    "devantVous": "أمامك",
+    "dureeMoyParPatient": "متوسط مدة الاستشارة",
+    "baseSur": "بناءً على",
+    "historiqueRecent": "السجل الأخير",
+    "consultationsDuJour": "استشارات اليوم",
+    "consultationEnCours": "الاستشارة الحالية توشك على الانتهاء.",
+    "dirigezVous": "توجّه إلى غرفة الاستشارة.",
+    "alertCafe": "لديك وقت لتناول قهوة",
+    "alertPatience": "بعض الصبر…",
+    "alertSalle": "ابق في غرفة الانتظار",
+    "alertNePasEloigner": "لا تبتعد — دورك قريب جداً",
+    "alertPorte": "ابق أمام باب العيادة",
+    "jeAbsente": "سأغيب لحظة",
+    "jArrive": "أنا قادم !"
+  },
+  "kpi": {
+    "waiting_label": "في الانتظار",
+    "remaining_label": "المتبقون",
+    "seen_label": "تمّت رؤيتهم",
+    "max_wait_label": "أطول انتظار",
+    "max_wait_unavailable": "—",
+    "region_label": "ملخص قائمة الانتظار"
+  },
   "receptionist": {
     "header": {
       "openTools": "فتح الأدوات",
@@ -1185,7 +1226,8 @@
       "remaining": "متبقين",
       "waiting": "في الانتظار",
       "seen": "تم فحصهم",
-      "estimatedEnd": "نهاية مقدرة"
+      "estimatedEnd": "نهاية مقدرة",
+      "maxWait": "أطول انتظار"
     },
     "sections": {
       "inConsultation": "في الفحص",

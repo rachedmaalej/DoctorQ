@@ -1076,6 +1076,47 @@
       "done": "Terminé — Retour à la file"
     }
   },
+  "confirmation": {
+    "sub_walk_in": "Ajoutée · Sans rendez-vous",
+    "sub_appointment": "Ajoutée · Avec rendez-vous",
+    "position_label": "POS.",
+    "btn_whatsapp_label": "Envoyer le bon de suivi par WhatsApp",
+    "btn_whatsapp_tooltip_no_phone": "Aucun numéro enregistré",
+    "btn_add_another_label": "Ajouter un autre patient",
+    "btn_dismiss_label": "Terminer — Retour à la file"
+  },
+  "status": {
+    "bonjour": "Bonjour",
+    "attenteEstimee": "Attente estimée",
+    "bientotVotreTour": "Bientôt votre tour",
+    "preparez": "Préparez-vous",
+    "vousPassezApres": "Vous passez après",
+    "cestVotreTour": "C'est votre tour",
+    "cEstPresqueVotreTour": "C'est presque votre tour",
+    "onVousAttend": "On vous attend !",
+    "devantVous": "devant vous",
+    "dureeMoyParPatient": "Durée moy. par patient",
+    "baseSur": "Basé sur",
+    "historiqueRecent": "l'historique récent",
+    "consultationsDuJour": "les consultations du jour",
+    "consultationEnCours": "La consultation en cours se termine bientôt.",
+    "dirigezVous": "Dirigez-vous vers la salle de consultation.",
+    "alertCafe": "Vous avez le temps pour un café",
+    "alertPatience": "Encore un peu de patience…",
+    "alertSalle": "Restez dans la salle d'attente",
+    "alertNePasEloigner": "Ne vous éloignez pas — c'est bientôt à vous",
+    "alertPorte": "Restez devant la porte du cabinet",
+    "jeAbsente": "Je m'absente un moment",
+    "jArrive": "J'arrive !"
+  },
+  "kpi": {
+    "waiting_label": "En attente",
+    "remaining_label": "Restants",
+    "seen_label": "Vus",
+    "max_wait_label": "Attente max",
+    "max_wait_unavailable": "—",
+    "region_label": "Résumé de la file d'attente"
+  },
   "receptionist": {
     "header": {
       "openTools": "Ouvrir les outils",
@@ -1186,7 +1227,8 @@
       "remaining": "Restants",
       "waiting": "En attente",
       "seen": "Vus",
-      "estimatedEnd": "Fin estimée"
+      "estimatedEnd": "Fin estimée",
+      "maxWait": "Attente max"
     },
     "sections": {
       "inConsultation": "En consultation",

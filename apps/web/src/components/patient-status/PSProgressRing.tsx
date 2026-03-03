@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { Phase } from './utils';
 import { RING_CIRCUMFERENCE, ringDashOffset } from './utils';
 
@@ -16,25 +17,26 @@ const phaseColors = {
 };
 
 export default function PSProgressRing({ phase, peopleAhead, progress, isDoctorPresent }: PSProgressRingProps) {
+  const { t } = useTranslation();
   const colors = phaseColors[phase] || phaseColors.relax;
   const offset = ringDashOffset(progress);
   const doctorAbsent = isDoctorPresent === false;
 
   return (
     <div className={`ps-ring-container ps-fade-up-d2 ${doctorAbsent ? 'doctor-absent' : ''}`}>
-      <svg className="ps-ring-svg" viewBox="0 0 200 200">
+      <svg className="ps-ring-svg" viewBox="0 0 112 112">
         <circle
           className="ps-ring-track"
-          cx="100"
-          cy="100"
-          r="85"
+          cx="56"
+          cy="56"
+          r="48"
           stroke={colors.track}
         />
         <circle
           className="ps-ring-progress"
-          cx="100"
-          cy="100"
-          r="85"
+          cx="56"
+          cy="56"
+          r="48"
           stroke={colors.ring}
           strokeDasharray={RING_CIRCUMFERENCE}
           strokeDashoffset={offset}
@@ -44,7 +46,7 @@ export default function PSProgressRing({ phase, peopleAhead, progress, isDoctorP
         <div className="ps-ring-number" style={{ color: colors.number }}>
           {peopleAhead}
         </div>
-        <div className="ps-ring-label">devant vous</div>
+        <div className="ps-ring-label">{t('status.devantVous')}</div>
       </div>
     </div>
   );

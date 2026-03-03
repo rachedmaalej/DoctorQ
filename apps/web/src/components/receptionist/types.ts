@@ -59,13 +59,13 @@ export interface CurrentPatientData {
 export interface StatsData {
   waitingCount: number;
   seenCount: number;
-  estimatedEndTime: string; // "~18:45"
+  maxWait: number | null;
 }
 
 export interface ClosingStatsData {
   remainingCount: number;
   seenCount: number;
-  estimatedEndTime: string;
+  maxWait: number | null;
 }
 
 export interface DaySummaryBrief {

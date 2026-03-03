@@ -513,7 +513,7 @@ export async function getPatientStatus(entryId: string) {
     return null;
   }
 
-  const { estimatedWaitMins, effectiveAvgMins } = await computeSmartWaitEstimate(
+  const { estimatedWaitMins, effectiveAvgMins, confidence, doctorAbsent } = await computeSmartWaitEstimate(
     entry.clinicId,
     entry.position,
     entry.doctorId
@@ -534,6 +534,8 @@ export async function getPatientStatus(entryId: string) {
     completedAt: entry.completedAt,
     estimatedWaitMins,
     avgConsultationMins: effectiveAvgMins,
+    confidence,
+    doctorAbsent,
     clinicName: entry.clinic.name,
     doctorName: entry.clinic.doctorName,
     doctorGender: entry.clinic.doctorGender,

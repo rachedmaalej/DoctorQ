@@ -8,7 +8,6 @@ import { useQueueLifecycle } from './useQueueLifecycle';
 import {
   toQueuePatient,
   toCurrentPatient,
-  toStatsData,
   toClosingStatsData,
   toDaySummaryBrief,
   toSummaryData,
@@ -21,6 +20,7 @@ import { useDrawer } from '@/hooks/useDrawer';
 import { SideDrawer } from '@/components/drawer/SideDrawer';
 
 import Header from './Header';
+import DashboardKpiStrip from '@/components/dashboard/DashboardKpiStrip';
 import QuickAddBar from './QuickAddBar';
 import CurrentPatientCard from './CurrentPatientCard';
 import QueueList from './QueueList';
@@ -51,7 +51,6 @@ export default function ReceptionistDashboard({
   closeDrawerTrigger,
 }: ReceptionistDashboardProps) {
   const { t } = useTranslation();
-  const avgConsultMins = clinic?.avgConsultationMins ?? 10;
   const drawerControls = useDrawer();
 
   // Close drawer when triggered from parent (e.g. settings backdrop dismiss)
@@ -106,8 +105,7 @@ export default function ReceptionistDashboard({
   const nextPreview = getNextPatientPreview(queue);
   const totalAdded = getTotalAddedToday(stats, queue.length);
 
-  const statsData = stats ? toStatsData(stats, queue, avgConsultMins) : null;
-  const closingStatsData = stats ? toClosingStatsData(stats, queue, avgConsultMins) : null;
+  const closingStatsData = stats ? toClosingStatsData(stats) : null;
   const summaryBrief = stats
     ? toDaySummaryBrief(stats)
     : { totalPatients: 0, avgWaitMinutes: 0, avgConsultMinutes: 0 };
@@ -119,18 +117,7 @@ export default function ReceptionistDashboard({
   const showClosing = queueStatus === 'CLOSING' && !isAllDone;
   const showAllDone = queueStatus === 'CLOSING' && isAllDone;
   const showClosed = queueStatus === 'CLOSED';
-  const showStats = showOpen || showClosing;
-
-  // Stats chip values
-  const chip1Value = showClosing
-    ? (closingStatsData?.remainingCount ?? 0)
-    : (statsData?.waitingCount ?? 0);
-  const chip2Value = showClosing
-    ? (closingStatsData?.seenCount ?? 0)
-    : (statsData?.seenCount ?? 0);
-  const chip3Value = showClosing
-    ? (closingStatsData?.estimatedEndTime ?? '')
-    : (statsData?.estimatedEndTime ?? '');
+  const showKpi = showOpen || showClosing;
 
   // ── Handlers ──────────────────────────────────────────────
   const handleQuickAdd = (name: string) => {
@@ -155,12 +142,6 @@ export default function ReceptionistDashboard({
     } catch { /* handled by API layer */ }
   }, [fetchQueue]);
 
-  const handleMarkSteppedOut = useCallback(async (id: string) => {
-    try {
-      await api.toggleSteppedOut(id);
-      fetchQueue();
-    } catch { /* handled by API layer */ }
-  }, [fetchQueue]);
 
   const handleShare = useCallback(async () => {
     const text = t('receptionist.share.text', { count: summaryData.totalPatientsSeen });
@@ -188,13 +169,19 @@ export default function ReceptionistDashboard({
           isDoctorPresent={isDoctorPresent}
           onToggleDoctorPresent={onToggleDoctorPresent}
           isTogglingPresence={isTogglingPresence}
-          showStats={showStats}
-          chip1Value={chip1Value}
-          chip2Value={chip2Value}
-          chip3Value={chip3Value}
           className={showPreOpen ? 'animate-bs-slide-in bs-anim-d1' : ''}
           onOpenDrawer={drawerControls.open}
         />
+
+        {/* ═══ KPI Strip (OPEN + CLOSING) ═══ */}
+        {showKpi && stats && (
+          <DashboardKpiStrip
+            waitingCount={stats.waiting}
+            seenCount={stats.seen}
+            maxWait={stats.maxWait}
+            mode={showClosing ? 'remaining' : 'waiting'}
+          />
+        )}
 
         {/* ═══ PRE_OPEN Screen ═══ */}
         {showPreOpen && (
@@ -294,7 +281,6 @@ export default function ReceptionistDashboard({
         patient={contextPatient}
         onClose={() => setContextPatient(null)}
         onMarkEmergency={handleMarkEmergency}
-        onMarkSteppedOut={handleMarkSteppedOut}
         onRemove={onRemovePatient}
         onPhoneUpdated={() => setContextPatient(null)}
       />

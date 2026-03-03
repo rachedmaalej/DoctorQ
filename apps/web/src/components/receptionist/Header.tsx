@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { webBrand } from '@/lib/brand';
 import type { QueueScreenStatus } from './types';
-import StatsStrip from './StatsStrip';
 
 interface HeaderProps {
   clinicName: string;
@@ -10,10 +9,6 @@ interface HeaderProps {
   isDoctorPresent?: boolean;
   onToggleDoctorPresent?: () => void;
   isTogglingPresence?: boolean;
-  showStats?: boolean;
-  chip1Value?: number;
-  chip2Value?: number;
-  chip3Value?: string;
   className?: string;
   onOpenDrawer?: () => void;
 }
@@ -24,10 +19,6 @@ export default function Header({
   isDoctorPresent,
   onToggleDoctorPresent,
   isTogglingPresence = false,
-  showStats,
-  chip1Value = 0,
-  chip2Value = 0,
-  chip3Value = '',
   className,
   onOpenDrawer,
 }: HeaderProps) {
@@ -193,17 +184,6 @@ export default function Header({
         </div>
       </div>
 
-      {/* ── Stats Strip ───────────────────────────────── */}
-      {showStats && (
-        <div className="px-5 pt-1.5 pb-2">
-          <StatsStrip
-            status={status}
-            chip1Value={chip1Value}
-            chip2Value={chip2Value}
-            chip3Value={chip3Value}
-          />
-        </div>
-      )}
     </div>
   );
 }

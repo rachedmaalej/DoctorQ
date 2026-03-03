@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { api } from '@/lib/api';
 import { logger } from '@/lib/logger';
 import { useSocket } from '@/hooks/useSocket';
@@ -39,6 +40,7 @@ function vibrate(pattern: number | number[] = 200): void {
 export default function PatientStatusPage() {
   const { entryId } = useParams<{ entryId: string }>();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   // ─── Core State ───
   const [entry, setEntry] = useState<PatientStatusResponse | null>(null);
@@ -55,6 +57,7 @@ export default function PatientStatusPage() {
 
   // ─── Refs ───
   const previousPositionRef = useRef<number | null>(null);
+  const prevStatusRef = useRef<string | null>(null);
   const displayedEstimateRef = useRef<number | null>(null);
   const initialPeopleAheadRef = useRef<number>(0);
   const audioInitRef = useRef(false);
@@ -120,84 +123,88 @@ export default function PatientStatusPage() {
 
   // ─── Socket Handlers ───
 
-  const handlePatientCalled = useCallback((data: { position: number; status: string; estimatedWaitMins?: number }) => {
+  const handlePatientCalled = useCallback((data: { position: number; status: string; estimatedWaitMins?: number; confidence?: 'high' | 'medium' | 'low' }) => {
     logger.log('[PatientStatus] handlePatientCalled received:', data);
-    setEntry((prev) => {
-      if (!prev) return null;
 
-      const status = data.status as QueueStatus;
-      const newPosition = data.position;
-      const oldPosition = previousPositionRef.current;
-      const peopleAhead = Math.max(0, newPosition - 1);
+    const status = data.status as QueueStatus;
+    const newPosition = data.position;
+    const oldPosition = previousPositionRef.current;
+    const oldStatus = prevStatusRef.current;
+    const peopleAhead = Math.max(0, newPosition - 1);
 
-      // Show toast + sound if position improved
-      if (oldPosition !== null && newPosition < oldPosition && status !== QueueStatus.IN_CONSULTATION) {
-        const toastMsg = deriveToastMessage(peopleAhead);
-        if (toastMsg) {
-          setToast({ visible: true, message: toastMsg });
-        }
-
-        // Sound + vibration based on new position
-        if (status === QueueStatus.NOTIFIED) {
-          playBrightAlert();
-          vibrate(400);
-        } else if (newPosition === 3) {
-          playMedicalChime();
-        } else {
-          playSoftChime();
-        }
+    // Sound + toast if position improved (side effects OUTSIDE state updater)
+    if (oldPosition !== null && newPosition < oldPosition && status !== QueueStatus.IN_CONSULTATION) {
+      const toastMsg = deriveToastMessage(peopleAhead);
+      if (toastMsg) {
+        setToast({ visible: true, message: toastMsg });
       }
 
-      previousPositionRef.current = newPosition;
+      if (status === QueueStatus.NOTIFIED) {
+        playBrightAlert();
+        vibrate(400);
+      } else if (newPosition === 3) {
+        playMedicalChime();
+      } else {
+        playSoftChime();
+      }
+    }
 
-      // Patient called — Priority Alarm × 2
-      if (status === QueueStatus.IN_CONSULTATION && prev.status !== QueueStatus.IN_CONSULTATION) {
+    // Patient called — Priority Alarm × 2
+    if (status === QueueStatus.IN_CONSULTATION && oldStatus !== QueueStatus.IN_CONSULTATION) {
+      playPriorityAlarm();
+      vibrate([300, 100, 300, 100, 400]);
+      setTimeout(() => {
         playPriorityAlarm();
         vibrate([300, 100, 300, 100, 400]);
-        setTimeout(() => {
-          playPriorityAlarm();
-          vibrate([300, 100, 300, 100, 400]);
-        }, 1200);
-      }
+      }, 1200);
+    }
 
+    previousPositionRef.current = newPosition;
+    prevStatusRef.current = status;
+
+    setEntry((prev) => {
+      if (!prev) return null;
       return {
         ...prev,
         status,
         position: newPosition,
         ...(data.estimatedWaitMins !== undefined && { estimatedWaitMins: data.estimatedWaitMins }),
+        ...(data.confidence !== undefined && { confidence: data.confidence }),
       };
     });
   }, []);
 
   const handlePositionChanged = useCallback((data: { entryId: string; newPosition: number; estimatedWait: number }) => {
-    setEntry((prev) => {
-      if (prev && data.entryId === prev.id) {
-        const oldPosition = previousPositionRef.current;
-        const newPosition = data.newPosition;
-        const peopleAhead = Math.max(0, newPosition - 1);
+    if (data.entryId !== entryId) return;
 
-        if (oldPosition !== null && newPosition < oldPosition) {
-          const toastMsg = deriveToastMessage(peopleAhead);
-          if (toastMsg) {
-            setToast({ visible: true, message: toastMsg });
-          }
+    const oldPosition = previousPositionRef.current;
+    const newPosition = data.newPosition;
+    const peopleAhead = Math.max(0, newPosition - 1);
 
-          if (newPosition <= 2) {
-            playBrightAlert();
-            vibrate(400);
-          } else if (newPosition === 3) {
-            playMedicalChime();
-          } else {
-            playSoftChime();
-          }
-        }
-
-        previousPositionRef.current = newPosition;
-        return { ...prev, position: newPosition };
+    // Sound + toast if position improved (side effects OUTSIDE state updater)
+    if (oldPosition !== null && newPosition < oldPosition) {
+      const toastMsg = deriveToastMessage(peopleAhead);
+      if (toastMsg) {
+        setToast({ visible: true, message: toastMsg });
       }
-      return prev;
+
+      if (newPosition <= 2) {
+        playBrightAlert();
+        vibrate(400);
+      } else if (newPosition === 3) {
+        playMedicalChime();
+      } else {
+        playSoftChime();
+      }
+    }
+
+    previousPositionRef.current = newPosition;
+
+    setEntry((prev) => {
+      if (!prev) return prev;
+      return { ...prev, position: newPosition };
     });
-  }, []);
+  }, [entryId]);
 
   const handleDoctorPresence = useCallback((data: { clinicId: string; isDoctorPresent: boolean }) => {
     if (entry?.clinicId === data.clinicId || !entry) {
@@ -219,6 +226,7 @@ export default function PatientStatusPage() {
       const freshData = await api.getPatientStatus(data.entryId);
       setEntry(freshData);
       previousPositionRef.current = freshData.position;
+      prevStatusRef.current = freshData.status;
       if (freshData.isDoctorPresent !== undefined) {
         setIsDoctorPresent(freshData.isDoctorPresent);
       }
@@ -247,6 +255,7 @@ export default function PatientStatusPage() {
         const data = await api.getPatientStatus(entryId);
         setEntry(data);
         previousPositionRef.current = data.position;
+        prevStatusRef.current = data.status;
         displayedEstimateRef.current = data.estimatedWaitMins ?? null;
         // Capture initial position for ring progress calculation
         const initialAhead = Math.max(0, data.position - 1);
@@ -334,7 +343,7 @@ export default function PatientStatusPage() {
 
   // Estimate smoothing
   const rawEstimate = entry.estimatedWaitMins ?? 0;
-  const smoothedEstimate = smoothEstimate(rawEstimate, displayedEstimateRef.current);
+  const smoothedEstimate = smoothEstimate(rawEstimate, displayedEstimateRef.current, entry.confidence);
   displayedEstimateRef.current = smoothedEstimate;
 
   // Initial people ahead (for ring progress)
@@ -356,7 +365,7 @@ export default function PatientStatusPage() {
       <div className={`ps-mood-bg phase-${phase}`} />
 
       {/* Layer 2: Content */}
-      <div className="ps-content">
+      <div className="ps-content ps-content--spaced">
         {/* Header */}
         <PSHeader
           clinicName={entry.clinicName}
@@ -378,6 +387,13 @@ export default function PatientStatusPage() {
           delayMinutes={appointmentDelayMins}
         />
 
+        {/* Name Tag — shown on all states */}
+        {entry.patientName && (
+          <p className="ps-name-tag ps-fade-up">
+            {t('status.bonjour')}, <strong className="ps-name-tag-name">{entry.patientName}</strong>
+          </p>
+        )}
+
         {/* Hero Section — mutually exclusive */}
 
         {/* Relax/Ready: time estimate + progress ring */}
@@ -389,6 +405,7 @@ export default function PatientStatusPage() {
             initialPeopleAhead={initialPeopleAhead}
             status={entry.status}
             isDoctorPresent={isDoctorPresent}
+            confidence={entry.confidence}
           />
         )}
 
@@ -463,10 +480,10 @@ export default function PatientStatusPage() {
             phase={phase}
             peopleAhead={peopleAhead}
             avgConsultMins={entry.avgConsultationMins}
-            estimatedMins={smoothedEstimate}
             isAbsent={isAbsent}
             onAbsentClick={() => setIsAbsent(!isAbsent)}
             isCalled={isCalled}
+            confidence={entry.confidence}
           />
         )}
 

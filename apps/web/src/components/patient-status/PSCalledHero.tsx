@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { deriveDoctorNarrative, deriveDoctorWaiting } from './utils';
+import { useTranslation } from 'react-i18next';
+import { deriveDoctorWaiting } from './utils';
 
 interface PSCalledHeroProps {
   patientName?: string;
@@ -16,6 +17,7 @@ export default function PSCalledHero({
   calledAt,
   onArrive,
 }: PSCalledHeroProps) {
+  const { t } = useTranslation();
   const [hasArrived, setHasArrived] = useState(false);
   const [waitingMins, setWaitingMins] = useState(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -44,10 +46,8 @@ export default function PSCalledHero({
   const displayName = patientName || 'Patient';
   const waitingText = deriveDoctorWaiting(doctorGender);
 
-  // ─── Position #0: "C'EST VOTRE TOUR" ───
+  // ─── Position #0: State 6 — "C'est votre tour" ───
   if (isCalled) {
-    const narrative = deriveDoctorNarrative(doctorGender);
-
     return (
       <div style={{ position: 'relative' }}>
         <div className="ps-go-bg-overlay" style={{
@@ -55,9 +55,9 @@ export default function PSCalledHero({
         }} />
         <div className="ps-go-hero ps-fade-up-d1" style={{ paddingTop: 60 }}>
           <div className="ps-go-name" style={{ fontSize: 22 }}>{displayName}</div>
-          <div className="ps-go-headline">C'EST VOTRE TOUR</div>
+          <div className="ps-go-headline">{t('status.onVousAttend')}</div>
           <div className="ps-go-sub" style={{ whiteSpace: 'pre-line' }}>
-            {narrative}
+            {t('status.dirigezVous')}
           </div>
 
           {/* Pulsing icon */}
@@ -74,7 +74,7 @@ export default function PSCalledHero({
             disabled={hasArrived}
           >
             <span className="material-symbols-rounded">check_circle</span>
-            {hasArrived ? 'En route...' : "J'arrive !"}
+            {hasArrived ? 'En route...' : t('status.jArrive')}
           </button>
 
           {/* Waiting timer */}
@@ -89,17 +89,18 @@ export default function PSCalledHero({
     );
   }
 
-  // ─── Position #1: "Vous êtes le prochain" ───
+  // ─── Position #1: State 5 — "Vous passez après" (gender-neutral) ───
   return (
     <div style={{ position: 'relative' }}>
       <div className="ps-go-bg-overlay" />
       <div className="ps-go-hero ps-fade-up-d1">
-        <div className="ps-go-eyebrow">Vous êtes le prochain</div>
+        <div className="ps-go-eyebrow">{t('status.vousPassezApres')}</div>
         <div className="ps-go-name">{displayName}</div>
+        <div className="ps-go-headline" style={{ fontSize: 32, marginTop: 4 }}>
+          {t('status.cEstPresqueVotreTour')}
+        </div>
         <div className="ps-go-sub">
-          Le patient actuel est en consultation.
-          <br />
-          Vous passez juste après.
+          {t('status.consultationEnCours')}
         </div>
 
         {/* Pulsing icon */}

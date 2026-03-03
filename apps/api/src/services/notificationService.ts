@@ -47,10 +47,11 @@ export function emitPatientUpdate(
   position: number,
   status: string,
   estimatedWaitMins?: number,
+  confidence?: 'high' | 'medium' | 'low',
 ): void {
   const roomName = `patient:${entryId}`;
-  logger.debug({ room: roomName, position, status, estimatedWaitMins }, 'Emitting patient:called');
-  emitToRoom(roomName, 'patient:called', { position, status, estimatedWaitMins });
+  logger.debug({ room: roomName, position, status, estimatedWaitMins, confidence }, 'Emitting patient:called');
+  emitToRoom(roomName, 'patient:called', { position, status, estimatedWaitMins, confidence });
 
   // Send Web Push for critical statuses (non-blocking — fire and forget)
   if (isPushConfigured()) {
@@ -98,11 +99,11 @@ export async function emitAllPatientUpdates(clinicId: string): Promise<void> {
   });
 
   for (const patient of patients) {
-    const { estimatedWaitMins } = await computeSmartWaitEstimate(
+    const { estimatedWaitMins, confidence } = await computeSmartWaitEstimate(
       clinicId,
       patient.position,
       patient.doctorId,
     );
-    emitPatientUpdate(patient.id, patient.position, patient.status, estimatedWaitMins);
+    emitPatientUpdate(patient.id, patient.position, patient.status, estimatedWaitMins, confidence);
   }
 }

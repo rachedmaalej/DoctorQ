@@ -4,6 +4,7 @@
  */
 
 let audioCtx: AudioContext | null = null;
+let audioUnlocked = false;
 
 function getAudioContext(): AudioContext {
   if (!audioCtx) {
@@ -28,6 +29,7 @@ export function initAudioContext(): void {
     source.buffer = buffer;
     source.connect(ctx.destination);
     source.start(0);
+    audioUnlocked = true;
   } catch (e) {
     console.warn('[Sound] Failed to initialize audio context:', e);
   }
@@ -38,6 +40,7 @@ export function initAudioContext(): void {
  * Used when patient moves forward in queue (position >= 3).
  */
 export function playSoftChime(volume = 0.25): void {
+  if (!audioUnlocked) return;
   try {
     const ctx = getAudioContext();
     const t = ctx.currentTime;
@@ -61,6 +64,7 @@ export function playSoftChime(volume = 0.25): void {
  * Used when patient reaches position #2 (almost there).
  */
 export function playMedicalChime(volume = 0.35): void {
+  if (!audioUnlocked) return;
   try {
     const ctx = getAudioContext();
     const t = ctx.currentTime;
@@ -86,6 +90,7 @@ export function playMedicalChime(volume = 0.35): void {
  * Used when patient reaches position #1 (you're next).
  */
 export function playBrightAlert(volume = 0.35): void {
+  if (!audioUnlocked) return;
   try {
     const ctx = getAudioContext();
     const t = ctx.currentTime;
@@ -111,6 +116,7 @@ export function playBrightAlert(volume = 0.35): void {
  * Used when it's the patient's turn (IN_CONSULTATION).
  */
 export function playPriorityAlarm(volume = 0.45): void {
+  if (!audioUnlocked) return;
   try {
     const ctx = getAudioContext();
     const t = ctx.currentTime;
