@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { webBrand } from '@/lib/brand';
+import { getSpecialtyLabel } from '@/lib/utils';
 
 interface PSHeaderProps {
   clinicName?: string;
@@ -22,7 +23,7 @@ export default function PSHeader({ clinicName, specialty, isDoctorPresent = true
           <div className="ps-clinic-name">{clinicName}</div>
         )}
         {specialty && (
-          <div className="ps-clinic-doc">{specialty}</div>
+          <div className="ps-clinic-doc">{getSpecialtyLabel(specialty)}</div>
         )}
       </div>
       <div className="ps-header-right">

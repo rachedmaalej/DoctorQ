@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { api } from '../../../../lib/api';
 import { webBrand } from '../../../../lib/brand';
+import { getSpecialtyLabel } from '../../../../lib/utils';
 import type { ClinicDetail, ClinicEditableFields } from '../../../../types';
 
 interface ClinicSettingsTabProps {
@@ -159,7 +160,7 @@ export default function ClinicSettingsTab({ detail, onRefresh, onResetPassword }
                 <option value="other">Autres</option>
               </select>
             ) : (
-              <p className="text-sm text-[#132E2C] font-medium">{specialtyLabel(clinic.businessType)}</p>
+              <p className="text-sm text-[#132E2C] font-medium">{getSpecialtyLabel(clinic.businessType)}</p>
             )}
           </SettingsField>
 
@@ -208,24 +209,3 @@ function SettingsField({ label, editing, children }: { label: string; editing: b
   );
 }
 
-const SPECIALTY_LABELS: Record<string, string> = {
-  general: 'Médecine Générale',
-  gynecology: 'Gynécologie-Obstétrique',
-  pediatrics: 'Pédiatrie',
-  ophthalmology: 'Ophtalmologie',
-  cardiology: 'Cardiologie',
-  dermatology: 'Dermatologie',
-  orthopedics: 'Orthopédie et Traumatologie',
-  radiology: 'Radiologie',
-  gastroenterology: 'Gastro-Entérologie',
-  other: 'Autres',
-  // legacy values for backward compatibility
-  ent: 'ORL',
-  dental: 'Dentaire',
-  medical: 'Medical',
-  retail: 'Retail',
-};
-
-function specialtyLabel(value: string): string {
-  return SPECIALTY_LABELS[value] || value;
-}

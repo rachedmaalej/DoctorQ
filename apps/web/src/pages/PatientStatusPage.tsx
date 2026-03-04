@@ -294,12 +294,6 @@ export default function PatientStatusPage() {
     }
   };
 
-  // ─── "J'arrive!" handler ───
-  const handleArrive = () => {
-    // Future: POST /api/patient/:entryId/arrive
-    logger.log('[PatientStatus] Patient confirmed arrival');
-  };
-
   // ─── Loading State ───
   if (isLoading) {
     return (
@@ -387,8 +381,8 @@ export default function PatientStatusPage() {
           delayMinutes={appointmentDelayMins}
         />
 
-        {/* Name Tag — shown on all states */}
-        {entry.patientName && (
+        {/* Name Tag — hidden in go phase (name already in PSCalledHero) */}
+        {entry.patientName && !isGo && (
           <p className="ps-name-tag ps-fade-up">
             {t('status.bonjour')}, <strong className="ps-name-tag-name">{entry.patientName}</strong>
           </p>
@@ -409,15 +403,16 @@ export default function PatientStatusPage() {
           />
         )}
 
-        {/* Go: next (#1) or called (#0) */}
+        {/* Go: next (#1) or called (#0) — flex:1 so hero fills vertical space */}
         {isGo && !isCancelled && (
-          <PSCalledHero
-            patientName={entry.patientName || undefined}
-            doctorGender={entry.doctorGender}
-            isCalled={isCalled}
-            calledAt={entry.calledAt}
-            onArrive={handleArrive}
-          />
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+            <PSCalledHero
+              patientName={entry.patientName || undefined}
+              doctorGender={entry.doctorGender}
+              isCalled={isCalled}
+              calledAt={entry.calledAt}
+            />
+          </div>
         )}
 
         {/* Done */}

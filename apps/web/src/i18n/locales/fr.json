@@ -12,6 +12,25 @@
     "close": "Fermer",
     "back": "Retour"
   },
+  "specialties": {
+    "general": "Médecine Générale",
+    "general_medicine": "Médecine Générale",
+    "gynecology": "Gynécologie-Obstétrique",
+    "pediatrics": "Pédiatrie",
+    "ophthalmology": "Ophtalmologie",
+    "cardiology": "Cardiologie",
+    "dermatology": "Dermatologie",
+    "orthopedics": "Orthopédie et Traumatologie",
+    "radiology": "Radiologie",
+    "gastroenterology": "Gastro-Entérologie",
+    "dentistry": "Dentisterie",
+    "ent": "ORL",
+    "dental": "Dentaire",
+    "medical": "Médical",
+    "retail": "Commerce",
+    "internal_medicine": "Médecine Interne",
+    "other": "Autres"
+  },
   "auth": {
     "login": "Connexion",
     "logout": "Déconnexion",
@@ -1090,9 +1109,9 @@
     "attenteEstimee": "Attente estimée",
     "bientotVotreTour": "Bientôt votre tour",
     "preparez": "Préparez-vous",
-    "vousPassezApres": "Vous passez après",
+    "vousPassezApres": "Prochain patient",
     "cestVotreTour": "C'est votre tour",
-    "cEstPresqueVotreTour": "C'est presque votre tour",
+    "cEstPresqueVotreTour": "C'est presque à vous",
     "onVousAttend": "On vous attend !",
     "devantVous": "devant vous",
     "dureeMoyParPatient": "Durée moy. par patient",
@@ -1105,7 +1124,7 @@
     "alertPatience": "Encore un peu de patience…",
     "alertSalle": "Restez dans la salle d'attente",
     "alertNePasEloigner": "Ne vous éloignez pas — c'est bientôt à vous",
-    "alertPorte": "Restez devant la porte du cabinet",
+    "alertPorte": "Nous vous appelons dans quelques instants",
     "jeAbsente": "Je m'absente un moment",
     "jArrive": "J'arrive !"
   },
@@ -1379,6 +1398,15 @@
       "queueOpen": "Ouverte",
       "queueClosed": "Fermée"
     },
+    "controls": {
+      "langue": "Langue",
+      "medecin": "Médecin",
+      "fileAttente": "File d'attente",
+      "present": "Présent",
+      "absent": "Absent",
+      "ouverte": "Ouverte",
+      "fermee": "Fermée"
+    },
     "qr": {
       "title": "Code QR & Lien",
       "close": "Fermer",
@@ -1423,5 +1451,28 @@
   },
   "whatsapp": {
     "message": "Bonjour, vous êtes inscrit(e) à la file de {{clinicName}}. Suivez votre position en temps réel ici : {{url}}"
+  },
+  "helpSupport": {
+    "title": "Aide & support",
+    "sections": {
+      "support": "Contacter le support",
+      "faq": "Questions fréquentes",
+      "tutorials": "Tutoriels vidéo"
+    },
+    "support": {
+      "title": "Parler avec un conseiller",
+      "subtitle": "Réponse en moins de 2h · Lun-Sam, 8h-18h",
+      "whatsappMessage": "Bonjour, j'ai besoin d'aide avec BleSaf."
+    },
+    "faq": {
+      "searchPlaceholder": "Chercher une réponse...",
+      "viewAll": "Voir toutes les questions →",
+      "noResults": "Aucun résultat trouvé",
+      "noResultsSub": "Essayez avec d'autres mots ou contactez le support",
+      "contactSupport": "Contacter le support"
+    },
+    "footer": {
+      "version": "BleSaf v{{version}} · © {{year}} BleSaf SARL"
+    }
   }
 }

@@ -12,6 +12,25 @@
     "close": "إغلاق",
     "back": "رجوع"
   },
+  "specialties": {
+    "general": "طب عام",
+    "general_medicine": "طب عام",
+    "gynecology": "طب النساء والتوليد",
+    "pediatrics": "طب الأطفال",
+    "ophthalmology": "طب العيون",
+    "cardiology": "طب القلب",
+    "dermatology": "طب الجلد",
+    "orthopedics": "جراحة العظام",
+    "radiology": "الأشعة",
+    "gastroenterology": "طب الجهاز الهضمي",
+    "dentistry": "طب الأسنان",
+    "ent": "أنف وأذن وحنجرة",
+    "dental": "طب الأسنان",
+    "medical": "طبي",
+    "retail": "تجارة",
+    "internal_medicine": "طب باطني",
+    "other": "أخرى"
+  },
   "auth": {
     "login": "تسجيل الدخول",
     "logout": "تسجيل الخروج",
@@ -1089,9 +1108,9 @@
     "attenteEstimee": "وقت الانتظار المتوقع",
     "bientotVotreTour": "دورك قريباً",
     "preparez": "استعد",
-    "vousPassezApres": "أنت التالي",
+    "vousPassezApres": "المريض التالي",
     "cestVotreTour": "جاء دورك",
-    "cEstPresqueVotreTour": "دورك على وشك أن يأتي",
+    "cEstPresqueVotreTour": "دورك قريب جداً",
     "onVousAttend": "نحن بانتظارك !",
     "devantVous": "أمامك",
     "dureeMoyParPatient": "متوسط مدة الاستشارة",
@@ -1104,7 +1123,7 @@
     "alertPatience": "بعض الصبر…",
     "alertSalle": "ابق في غرفة الانتظار",
     "alertNePasEloigner": "لا تبتعد — دورك قريب جداً",
-    "alertPorte": "ابق أمام باب العيادة",
+    "alertPorte": "سنناديك خلال لحظات",
     "jeAbsente": "سأغيب لحظة",
     "jArrive": "أنا قادم !"
   },
@@ -1378,6 +1397,15 @@
       "queueOpen": "مفتوحة",
       "queueClosed": "مغلقة"
     },
+    "controls": {
+      "langue": "اللغة",
+      "medecin": "الطبيب",
+      "fileAttente": "قائمة الانتظار",
+      "present": "حاضر",
+      "absent": "غائب",
+      "ouverte": "مفتوحة",
+      "fermee": "مغلقة"
+    },
     "qr": {
       "title": "رمز QR والرابط",
       "close": "إغلاق",
@@ -1422,5 +1450,28 @@
   },
   "whatsapp": {
     "message": "مرحبا، أنت مسجل(ة) في طابور {{clinicName}}. تابع موقعك مباشرة هنا: {{url}}"
+  },
+  "helpSupport": {
+    "title": "المساعدة والدعم",
+    "sections": {
+      "support": "التواصل مع الدعم",
+      "faq": "الاسئلة الشائعة",
+      "tutorials": "فيديوهات تعليمية"
+    },
+    "support": {
+      "title": "التحدث مع مستشار",
+      "subtitle": "رد في اقل من ساعتين · الاثنين-السبت، 8ص-6م",
+      "whatsappMessage": "مرحبا، احتاج مساعدة في بليساف."
+    },
+    "faq": {
+      "searchPlaceholder": "ابحث عن اجابة...",
+      "viewAll": "← عرض جميع الاسئلة",
+      "noResults": "لم يتم العثور على نتائج",
+      "noResultsSub": "جرّب كلمات أخرى أو تواصل مع الدعم",
+      "contactSupport": "تواصل مع الدعم"
+    },
+    "footer": {
+      "version": "بليساف v{{version}} · © {{year}} BleSaf SARL"
+    }
   }
 }
