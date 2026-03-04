@@ -25,12 +25,34 @@ export function formatWaitTime(arrivedAt: string): string {
 }
 
 /**
- * Abbreviate a full name: "Fatma Khaldi" → "Fatma K."
+ * Abbreviate a full name, keeping at least one real name part visible.
+ * Handles honorific prefixes (M., Mme, Dr., etc.).
+ *
+ *   "Fatma Khaldi"        → "Fatma K."
+ *   "M. Karim Mansour"    → "M. Karim M."
+ *   "Mme Sana Trabelsi"   → "Mme Sana T."
+ *   "Dr. Ali Ben Salah"   → "Dr. Ali B."
  */
+const HONORIFICS = new Set(['m.', 'mme', 'mme.', 'mr', 'mr.', 'mrs', 'mrs.', 'ms', 'ms.', 'dr', 'dr.', 'pr', 'pr.']);
+
 export function abbreviateName(fullName: string | null): string {
   if (!fullName) return '';
   const parts = fullName.trim().split(/\s+/);
   if (parts.length === 1) return parts[0];
+
+  // Detect leading honorific
+  const hasHonorific = HONORIFICS.has(parts[0].toLowerCase());
+
+  if (hasHonorific && parts.length === 2) {
+    // "M. Mansour" → keep as-is
+    return parts.join(' ');
+  }
+  if (hasHonorific && parts.length >= 3) {
+    // "M. Karim Mansour" → "M. Karim M."
+    return `${parts[0]} ${parts[1]} ${parts[parts.length - 1][0]}.`;
+  }
+
+  // No honorific: "Karim Mansour" → "Karim M."
   return `${parts[0]} ${parts[parts.length - 1][0]}.`;
 }
 

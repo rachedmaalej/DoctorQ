@@ -1,5 +1,6 @@
 import type { ClinicDetail } from '../../../../types';
 import SubscriptionStatusPanel from '../SubscriptionStatusPanel';
+import { getSpecialtyLabel } from '@/lib/utils';
 
 interface ClinicOverviewTabProps {
   detail: ClinicDetail;
@@ -33,7 +34,7 @@ export default function ClinicOverviewTab({ detail, onRefresh, onUpgrade, upgrad
           <InfoField label="Email" value={clinic.email} />
           <InfoField label="Phone" value={clinic.phone || '—'} />
           <InfoField label="Language" value={clinic.language === 'ar' ? 'Arabic' : 'French'} />
-          <InfoField label="Spécialité" value={specialtyLabel(clinic.businessType)} />
+          <InfoField label="Spécialité" value={getSpecialtyLabel(clinic.businessType)} />
           <InfoField label="Avg Consultation" value={`${clinic.avgConsultationMins} min`} />
           <InfoField label="Notify at Position" value={`#${clinic.notifyAtPosition}`} />
           <InfoField label="Created" value={new Date(clinic.createdAt).toLocaleDateString('fr-FR')} />
@@ -131,24 +132,3 @@ function KpiCell({ label, value, color, last }: { label: string; value: number; 
   );
 }
 
-const SPECIALTY_LABELS: Record<string, string> = {
-  general: 'Médecine Générale',
-  gynecology: 'Gynécologie-Obstétrique',
-  pediatrics: 'Pédiatrie',
-  ophthalmology: 'Ophtalmologie',
-  cardiology: 'Cardiologie',
-  dermatology: 'Dermatologie',
-  orthopedics: 'Orthopédie et Traumatologie',
-  radiology: 'Radiologie',
-  gastroenterology: 'Gastro-Entérologie',
-  other: 'Autres',
-  // legacy values for backward compatibility
-  ent: 'ORL',
-  dental: 'Dentaire',
-  medical: 'Medical',
-  retail: 'Retail',
-};
-
-function specialtyLabel(value: string): string {
-  return SPECIALTY_LABELS[value] || value;
-}

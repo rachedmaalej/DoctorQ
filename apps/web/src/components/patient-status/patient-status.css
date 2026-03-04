@@ -512,49 +512,63 @@
   font-size: 48px;
 }
 
-/* "J'arrive" button */
-.ps-arrive-btn {
+/* Compact pulse ring (called state — smaller to balance layout) */
+.ps-go-pulse-ring--compact {
+  width: 130px;
+  height: 130px;
+}
+.ps-go-pulse-ring--compact .ps-go-icon-circle {
+  width: 80px;
+  height: 80px;
+}
+.ps-go-pulse-ring--compact .ps-go-icon-circle .material-symbols-rounded {
+  font-size: 36px;
+}
+
+/* ─── Stacked Status Timer (Called state — Option E) ─── */
+
+.ps-stacked-status {
+  text-align: center;
+  padding: 16px 24px 24px;
+}
+
+.ps-stacked-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--go-accent-soft);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  width: calc(100% - 48px);
-  margin: 0 auto;
-  height: 56px;
-  background: var(--go-accent);
-  border: none;
-  border-radius: var(--radius);
-  color: #fff;
-  font-family: inherit;
-  font-size: 17px;
-  font-weight: 700;
-  cursor: pointer;
-  box-shadow: 0 6px 24px rgba(26,122,58,0.3);
-  transition: all 0.15s;
+  margin: 0 auto 10px;
 }
 
-.ps-arrive-btn:active { transform: scale(0.97); }
-.ps-arrive-btn .material-symbols-rounded { font-size: 22px; }
-
-.ps-arrive-btn:disabled {
-  background: var(--text-tertiary);
-  box-shadow: none;
-  cursor: default;
+.ps-stacked-icon .material-symbols-rounded {
+  font-size: 20px;
+  color: var(--go-accent);
 }
 
-/* Waiting timer */
-.ps-waiting-timer {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  margin-top: 16px;
-  font-size: 13px;
-  color: var(--text-tertiary);
+.ps-stacked-label {
+  font-size: 12px;
+  color: var(--text-secondary);
   font-weight: 500;
 }
 
-.ps-waiting-timer .material-symbols-rounded { font-size: 16px; }
+.ps-stacked-time {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--go-accent);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  margin-top: 4px;
+}
+
+.ps-stacked-unit {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  font-weight: 500;
+  margin-top: 2px;
+}
 
 /* ─── Footer ─── */
 

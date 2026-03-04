@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BleSaf — Called Screen Timer — 5 Alternatives</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0&display=swap" rel="stylesheet">
+  <style>
+    /* ============================================
+       RESET & GLOBAL
+       ============================================ */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      background: #F1F5F9;
+      color: #1E293B;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    /* ============================================
+       PAGE HEADER
+       ============================================ */
+    .page-header { text-align: center; margin-bottom: 20px; }
+    .page-header h1 { font-size: 22px; font-weight: 800; color: #0F172A; margin-bottom: 4px; }
+    .page-header p { font-size: 13px; color: #64748B; line-height: 1.5; max-width: 600px; margin: 0 auto; }
+
+    /* ============================================
+       TAB NAVIGATION
+       ============================================ */
+    .tab-nav {
+      display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;
+      margin-bottom: 28px; max-width: 900px; margin-left: auto; margin-right: auto;
+    }
+    .tab-btn {
+      padding: 10px 16px; border: 2px solid #E2E8F0; border-radius: 12px;
+      background: #FFFFFF; font-family: inherit; font-size: 12px; font-weight: 600;
+      color: #475569; cursor: pointer; transition: all 0.2s; white-space: nowrap;
+    }
+    .tab-btn:hover { border-color: #1A7A3A; color: #1A7A3A; background: #F0FDF4; }
+    .tab-btn.active {
+      background: #1A7A3A; border-color: #1A7A3A; color: #FFFFFF;
+      box-shadow: 0 2px 8px rgba(26,122,58,0.3);
+    }
+    .tab-btn .rec { font-size: 9px; background: rgba(255,255,255,0.25); padding: 2px 6px; border-radius: 4px; margin-left: 4px; }
+
+    /* ============================================
+       LAYOUT
+       ============================================ */
+    .design-container { display: none; justify-content: center; align-items: flex-start; gap: 40px; }
+    .design-container.active { display: flex; }
+
+    .design-meta { max-width: 300px; padding-top: 30px; }
+    .design-meta h2 { font-size: 18px; font-weight: 800; color: #0F172A; margin-bottom: 4px; }
+    .design-meta .philosophy { font-size: 13px; color: #1A7A3A; font-weight: 700; margin-bottom: 10px; }
+    .design-meta p { font-size: 12px; color: #64748B; line-height: 1.6; margin-bottom: 10px; }
+    .design-meta .label { font-size: 11px; font-weight: 700; color: #334155; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; margin-top: 14px; }
+    .design-meta ul { font-size: 12px; color: #64748B; line-height: 1.7; padding-left: 16px; }
+
+    .tag {
+      display: inline-block; padding: 3px 9px; border-radius: 20px;
+      font-size: 10px; font-weight: 600; margin-right: 3px; margin-bottom: 3px;
+    }
+    .tag-green { background: #D1FAE5; color: #065F46; }
+    .tag-blue { background: #E0F2FE; color: #0369A1; }
+    .tag-amber { background: #FEF3C7; color: #92400E; }
+    .tag-purple { background: #EDE9FE; color: #5B21B6; }
+
+    /* ============================================
+       PHONE FRAME
+       ============================================ */
+    .phone-frame {
+      width: 375px; height: 812px; border-radius: 44px; border: 8px solid #1E293B;
+      overflow: hidden; position: relative; flex-shrink: 0;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.15), 0 0 0 2px #475569;
+    }
+    .phone-notch {
+      position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+      width: 126px; height: 34px; background: #1E293B; border-radius: 0 0 20px 20px; z-index: 100;
+    }
+    .phone-screen {
+      width: 100%; height: 100%; overflow-y: auto; position: relative;
+      font-family: 'Plus Jakarta Sans', 'IBM Plex Sans Arabic', -apple-system, sans-serif;
+    }
+    .phone-screen::-webkit-scrollbar { display: none; }
+
+    .material-symbols-rounded { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    .material-symbols-rounded.filled { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+
+    @media (max-width: 800px) {
+      .design-meta { display: none; }
+      .design-container.active { justify-content: center; }
+    }
+
+    /* ============================================
+       SHARED SCREEN STYLES (Go Phase)
+       ============================================ */
+    .screen {
+      min-height: 100%; display: flex; flex-direction: column;
+      background: #EEFBF3; position: relative;
+    }
+
+    /* Header */
+    .ps-header {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      padding: 50px 24px 12px;
+    }
+    .ps-clinic-name { font-size: 15px; font-weight: 700; color: #1A1917; }
+    .ps-clinic-spec { font-size: 12px; color: #9E9B90; margin-top: 1px; }
+    .ps-header-right { display: flex; align-items: center; gap: 8px; }
+    .ps-doctor-dot { width: 8px; height: 8px; border-radius: 50%; background: #22C55E; }
+    .ps-lang-btn {
+      font-family: 'IBM Plex Sans Arabic', sans-serif; font-size: 13px; font-weight: 600;
+      background: rgba(0,0,0,0.04); border: 1px solid #E8E6DF; border-radius: 100px;
+      padding: 5px 14px; cursor: pointer; color: #1A1917;
+    }
+
+    /* Hero content (shared across all 5) */
+    .hero-zone {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; text-align: center;
+      padding: 0 24px; position: relative; z-index: 2;
+    }
+    .bg-overlay {
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% 40%, rgba(34,197,94,0.12) 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
+    }
+    .go-name { font-size: 22px; font-weight: 800; color: #1A7A3A; line-height: 1.2; letter-spacing: -0.02em; }
+    .go-headline { font-size: 44px; font-weight: 800; color: #1A7A3A; line-height: 1; margin-top: 4px; letter-spacing: -0.04em; }
+    .go-sub { font-size: 15px; color: #6B6960; margin-top: 12px; font-weight: 500; line-height: 1.4; }
+
+    /* Pulsing icon */
+    .pulse-ring {
+      width: 130px; height: 130px; margin: 20px auto 0;
+      position: relative; display: flex; align-items: center; justify-content: center;
+    }
+    .pulse-ring::before, .pulse-ring::after {
+      content: ''; position: absolute; inset: 0; border-radius: 50%;
+      border: 3px solid #22C55E; animation: ring-pulse 2s ease-out infinite;
+    }
+    .pulse-ring::after { animation-delay: 1s; }
+    @keyframes ring-pulse {
+      0% { transform: scale(0.8); opacity: 0.8; }
+      100% { transform: scale(1.4); opacity: 0; }
+    }
+    .icon-circle {
+      width: 80px; height: 80px; border-radius: 50%; background: #22C55E;
+      display: flex; align-items: center; justify-content: center;
+      position: relative; z-index: 2; box-shadow: 0 8px 32px rgba(34,197,94,0.35);
+    }
+    .icon-circle .material-symbols-rounded { font-size: 40px; color: #fff; font-variation-settings: 'FILL' 1; }
+
+    /* Footer */
+    .ps-footer {
+      padding: 16px 24px 36px; text-align: center;
+      font-size: 12px; color: #9E9B90; font-weight: 500;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .ps-footer-mark {
+      width: 16px; height: 16px; background: #9E9B90; border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 9px; font-weight: 800;
+    }
+
+    /* ============================================
+       TIMER ZONE — bottom area (differs per design)
+       ============================================ */
+    .timer-zone { position: relative; z-index: 2; }
+
+    /* --- DESIGN A: Gentle Beacon --- */
+    .timer-a {
+      margin: 0 24px 20px; padding: 16px 20px;
+      background: rgba(26,122,58,0.06); border: 1px solid rgba(26,122,58,0.12);
+      border-radius: 16px; display: flex; align-items: center; gap: 14px;
+    }
+    .timer-a .beacon-dot {
+      width: 10px; height: 10px; border-radius: 50%; background: #22C55E;
+      flex-shrink: 0; animation: breathe 3s ease-in-out infinite;
+    }
+    @keyframes breathe {
+      0%, 100% { transform: scale(1); opacity: 0.8; }
+      50% { transform: scale(1.35); opacity: 1; }
+    }
+    .timer-a .beacon-text { flex: 1; }
+    .timer-a .beacon-label { font-size: 12px; color: #6B6960; font-weight: 500; }
+    .timer-a .beacon-time {
+      font-size: 22px; font-weight: 800; color: #1A7A3A; letter-spacing: -0.02em;
+      font-variant-numeric: tabular-nums; margin-top: 2px;
+    }
+
+    /* --- DESIGN B: Timestamp Anchor --- */
+    .timer-b { text-align: center; padding: 20px 24px 24px; }
+    .timer-b .ts-label { font-size: 14px; font-weight: 600; color: #1A7A3A; }
+    .timer-b .ts-time {
+      font-size: 13px; color: #9E9B90; font-weight: 500; margin-top: 4px;
+    }
+
+    /* --- DESIGN C: Progress Bar Morph --- */
+    .timer-c {
+      margin: 0 24px 20px; height: 56px; border-radius: 16px;
+      border: 2px solid rgba(26,122,58,0.25); background: rgba(26,122,58,0.04);
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      position: relative; overflow: hidden;
+    }
+    .timer-c .morph-icon { font-size: 20px; color: #1A7A3A; }
+    .timer-c .morph-text { font-size: 14px; font-weight: 600; color: #1A7A3A; }
+    .timer-c .morph-time {
+      font-size: 14px; font-weight: 800; color: #1A7A3A;
+      font-variant-numeric: tabular-nums;
+    }
+    .timer-c .morph-bar {
+      position: absolute; bottom: 0; left: 0; height: 3px;
+      background: linear-gradient(90deg, #22C55E, #1A7A3A);
+      border-radius: 0 3px 3px 0;
+      animation: morph-fill 60s linear infinite;
+    }
+    @keyframes morph-fill {
+      0% { width: 0%; }
+      100% { width: 100%; }
+    }
+
+    /* --- DESIGN D: Inline Timer Strip --- */
+    .timer-d {
+      margin: 0 24px 20px; padding: 12px 18px;
+      background: #fff; border: 1px solid #E8E6DF; border-radius: 12px;
+      display: flex; align-items: center; gap: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .timer-d .strip-icon-wrap {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: #D4F5DF; display: flex; align-items: center; justify-content: center;
+    }
+    .timer-d .strip-icon-wrap .material-symbols-rounded { font-size: 20px; color: #1A7A3A; }
+    .timer-d .strip-text { flex: 1; font-size: 12px; color: #6B6960; font-weight: 500; line-height: 1.3; }
+    .timer-d .strip-time {
+      font-size: 20px; font-weight: 800; color: #1A7A3A;
+      font-variant-numeric: tabular-nums; letter-spacing: -0.01em;
+    }
+
+    /* --- DESIGN E: Stacked Status --- */
+    .timer-e { text-align: center; padding: 16px 24px 24px; }
+    .timer-e .stacked-icon {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: #D4F5DF; display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 10px;
+    }
+    .timer-e .stacked-icon .material-symbols-rounded { font-size: 20px; color: #1A7A3A; }
+    .timer-e .stacked-label { font-size: 12px; color: #6B6960; font-weight: 500; }
+    .timer-e .stacked-time {
+      font-size: 28px; font-weight: 800; color: #1A7A3A; letter-spacing: -0.02em;
+      font-variant-numeric: tabular-nums; margin-top: 4px;
+    }
+    .timer-e .stacked-unit { font-size: 12px; color: #9E9B90; font-weight: 500; margin-top: 2px; }
+  </style>
+</head>
+<body>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1>Écran « Appelé » — Timer d'attente</h1>
+    <p>Remplacement du bouton "J'arrive !" par un indicateur passif montrant depuis combien de temps le docteur attend. 5 approches, même contenu au-dessus.</p>
+  </div>
+
+  <!-- Tab Navigation -->
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="showDesign(0)">A — Gentle Beacon <span class="rec">★</span></button>
+    <button class="tab-btn" onclick="showDesign(1)">B — Timestamp Anchor</button>
+    <button class="tab-btn" onclick="showDesign(2)">C — Progress Morph</button>
+    <button class="tab-btn" onclick="showDesign(3)">D — Inline Strip</button>
+    <button class="tab-btn" onclick="showDesign(4)">E — Stacked Status</button>
+  </div>
+
+  <!-- ============================================
+       DESIGN A: Gentle Beacon (Recommended)
+       ============================================ -->
+  <div class="design-container active" id="design-0">
+    <div class="design-meta">
+      <h2>A — Gentle Beacon</h2>
+      <div class="philosophy">« Un phare doux, pas une alarme »</div>
+      <p>Une carte arrondie avec un point lumineux qui « respire », le message genré du docteur, et un chrono MM:SS. L'accent teal reste constant — pas d'escalade de couleur pour ne pas culpabiliser le patient.</p>
+      <div class="label">Pourquoi cette approche</div>
+      <ul>
+        <li>Le point animé signale « c'est en direct » sans agresser</li>
+        <li>Le chrono est lisible en un coup d'œil grâce à la taille 22px</li>
+        <li>La carte conteneur crée une séparation visuelle nette avec le héros</li>
+        <li>Le message "Le docteur vous attend" est humain et chaleureux</li>
+      </ul>
+      <div class="label">Tags</div>
+      <span class="tag tag-green">Recommandé</span>
+      <span class="tag tag-blue">Calme</span>
+      <span class="tag tag-purple">Animation subtile</span>
+    </div>
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <div class="screen">
+          <div class="ps-header">
+            <div>
+              <div class="ps-clinic-name">Cabinet Dr Skander Kamoun</div>
+              <div class="ps-clinic-spec">Ophtalmologie</div>
+            </div>
+            <div class="ps-header-right">
+              <div class="ps-doctor-dot"></div>
+              <button class="ps-lang-btn">عربي</button>
+            </div>
+          </div>
+          <div class="bg-overlay"></div>
+          <div class="hero-zone">
+            <div class="go-name">Mourad</div>
+            <div class="go-headline">On vous attend !</div>
+            <div class="go-sub">Dirigez-vous vers la salle de consultation.</div>
+            <div class="pulse-ring">
+              <div class="icon-circle">
+                <span class="material-symbols-rounded filled">door_open</span>
+              </div>
+            </div>
+          </div>
+          <div class="timer-zone">
+            <div class="timer-a">
+              <div class="beacon-dot"></div>
+              <div class="beacon-text">
+                <div class="beacon-label">Le docteur vous attend depuis</div>
+                <div class="beacon-time" data-timer="a">2:34</div>
+              </div>
+            </div>
+          </div>
+          <div class="ps-footer">
+            <div class="ps-footer-mark">B</div> BleSaf
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================
+       DESIGN B: Timestamp Anchor
+       ============================================ -->
+  <div class="design-container" id="design-1">
+    <div class="design-meta">
+      <h2>B — Timestamp Anchor</h2>
+      <div class="philosophy">« Un repère temporel, pas un compte à rebours »</div>
+      <p>Deux lignes centrées : le message principal « Le docteur est prêt » et l'heure d'appel en format absolu « Depuis 14h32 ». Pas de chrono qui tourne — le patient calcule mentalement le temps écoulé.</p>
+      <div class="label">Pourquoi cette approche</div>
+      <ul>
+        <li>Évite l'effet « montre regardée » — pas de chiffres qui bougent</li>
+        <li>Le timestamp absolu donne une ancre factuelle et neutre</li>
+        <li>Ultra-minimal, aucune distraction visuelle</li>
+        <li>Idéal pour les patients qui vérifient leur écran de loin</li>
+      </ul>
+      <div class="label">Tags</div>
+      <span class="tag tag-blue">Minimal</span>
+      <span class="tag tag-green">Anti-anxiété</span>
+    </div>
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <div class="screen">
+          <div class="ps-header">
+            <div>
+              <div class="ps-clinic-name">Cabinet Dr Skander Kamoun</div>
+              <div class="ps-clinic-spec">Ophtalmologie</div>
+            </div>
+            <div class="ps-header-right">
+              <div class="ps-doctor-dot"></div>
+              <button class="ps-lang-btn">عربي</button>
+            </div>
+          </div>
+          <div class="bg-overlay"></div>
+          <div class="hero-zone">
+            <div class="go-name">Mourad</div>
+            <div class="go-headline">On vous attend !</div>
+            <div class="go-sub">Dirigez-vous vers la salle de consultation.</div>
+            <div class="pulse-ring">
+              <div class="icon-circle">
+                <span class="material-symbols-rounded filled">door_open</span>
+              </div>
+            </div>
+          </div>
+          <div class="timer-zone">
+            <div class="timer-b">
+              <div class="ts-label">Le docteur est prêt pour vous</div>
+              <div class="ts-time">Depuis <span data-timestamp="b">14h32</span></div>
+            </div>
+          </div>
+          <div class="ps-footer">
+            <div class="ps-footer-mark">B</div> BleSaf
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================
+       DESIGN C: Progress Bar Morph
+       ============================================ -->
+  <div class="design-container" id="design-2">
+    <div class="design-meta">
+      <h2>C — Progress Bar Morph</h2>
+      <div class="philosophy">« Le bouton se transforme »</div>
+      <p>Le conteneur du bouton reste en place mais se transforme : fond rempli → outline avec le texte du timer à l'intérieur. Une fine barre de progression se remplit le long du bord inférieur. Le bouton « a fait son action ».</p>
+      <div class="label">Pourquoi cette approche</div>
+      <ul>
+        <li>Continuité visuelle — l'élément reste au même endroit</li>
+        <li>L'outline réduit le poids visuel (action faite → passif)</li>
+        <li>La barre de progression donne un signal « vivant » subtil</li>
+        <li>Pattern inspiré d'Uber (Timed Button)</li>
+      </ul>
+      <div class="label">Tags</div>
+      <span class="tag tag-purple">Morphing</span>
+      <span class="tag tag-blue">Familier</span>
+      <span class="tag tag-amber">Progressif</span>
+    </div>
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <div class="screen">
+          <div class="ps-header">
+            <div>
+              <div class="ps-clinic-name">Cabinet Dr Skander Kamoun</div>
+              <div class="ps-clinic-spec">Ophtalmologie</div>
+            </div>
+            <div class="ps-header-right">
+              <div class="ps-doctor-dot"></div>
+              <button class="ps-lang-btn">عربي</button>
+            </div>
+          </div>
+          <div class="bg-overlay"></div>
+          <div class="hero-zone">
+            <div class="go-name">Mourad</div>
+            <div class="go-headline">On vous attend !</div>
+            <div class="go-sub">Dirigez-vous vers la salle de consultation.</div>
+            <div class="pulse-ring">
+              <div class="icon-circle">
+                <span class="material-symbols-rounded filled">door_open</span>
+              </div>
+            </div>
+          </div>
+          <div class="timer-zone">
+            <div class="timer-c">
+              <span class="material-symbols-rounded morph-icon">schedule</span>
+              <span class="morph-text">En attente depuis</span>
+              <span class="morph-time" data-timer="c">2:34</span>
+              <div class="morph-bar" style="width: 40%"></div>
+            </div>
+          </div>
+          <div class="ps-footer">
+            <div class="ps-footer-mark">B</div> BleSaf
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================
+       DESIGN D: Inline Timer Strip
+       ============================================ -->
+  <div class="design-container" id="design-3">
+    <div class="design-meta">
+      <h2>D — Inline Timer Strip</h2>
+      <div class="philosophy">« Une notification calme »</div>
+      <p>Carte blanche horizontale avec icône dans un carré teinté, texte à gauche, chrono à droite. Comme une notification-banner ancrée en bas. Le fond blanc crée un contraste net avec l'arrière-plan vert.</p>
+      <div class="label">Pourquoi cette approche</div>
+      <ul>
+        <li>Format « carte de notification » immédiatement reconnaissable</li>
+        <li>Le fond blanc sur fond vert crée un ancrage visuel fort</li>
+        <li>L'icône dans un carré arrondi ajoute une touche de couleur structurée</li>
+        <li>Le chrono aligné à droite facilite le scan rapide</li>
+      </ul>
+      <div class="label">Tags</div>
+      <span class="tag tag-blue">Structuré</span>
+      <span class="tag tag-green">Scannable</span>
+      <span class="tag tag-amber">Notification-style</span>
+    </div>
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <div class="screen">
+          <div class="ps-header">
+            <div>
+              <div class="ps-clinic-name">Cabinet Dr Skander Kamoun</div>
+              <div class="ps-clinic-spec">Ophtalmologie</div>
+            </div>
+            <div class="ps-header-right">
+              <div class="ps-doctor-dot"></div>
+              <button class="ps-lang-btn">عربي</button>
+            </div>
+          </div>
+          <div class="bg-overlay"></div>
+          <div class="hero-zone">
+            <div class="go-name">Mourad</div>
+            <div class="go-headline">On vous attend !</div>
+            <div class="go-sub">Dirigez-vous vers la salle de consultation.</div>
+            <div class="pulse-ring">
+              <div class="icon-circle">
+                <span class="material-symbols-rounded filled">door_open</span>
+              </div>
+            </div>
+          </div>
+          <div class="timer-zone">
+            <div class="timer-d">
+              <div class="strip-icon-wrap">
+                <span class="material-symbols-rounded">schedule</span>
+              </div>
+              <div class="strip-text">Le docteur vous attend depuis</div>
+              <div class="strip-time" data-timer="d">2:34</div>
+            </div>
+          </div>
+          <div class="ps-footer">
+            <div class="ps-footer-mark">B</div> BleSaf
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================
+       DESIGN E: Stacked Status
+       ============================================ -->
+  <div class="design-container" id="design-4">
+    <div class="design-meta">
+      <h2>E — Stacked Status</h2>
+      <div class="philosophy">« Rythme vertical unifié »</div>
+      <p>Cercle d'icône (horloge) au-dessus de « Le docteur vous attend » au-dessus du chrono en grand format. Centré verticalement, harmonisé avec la mise en page héros au-dessus. Le plus intégré visuellement.</p>
+      <div class="label">Pourquoi cette approche</div>
+      <ul>
+        <li>Rythme vertical cohérent avec le héros (icône → texte → valeur)</li>
+        <li>Le chrono en 28px est imposant sans être agressif</li>
+        <li>Le cercle d'icône rappelle le « pulse ring » au-dessus</li>
+        <li>L'annotation « min : sec » aide à lire le format</li>
+      </ul>
+      <div class="label">Tags</div>
+      <span class="tag tag-purple">Cohérent</span>
+      <span class="tag tag-green">Intégré</span>
+      <span class="tag tag-blue">Grand chrono</span>
+    </div>
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <div class="screen">
+          <div class="ps-header">
+            <div>
+              <div class="ps-clinic-name">Cabinet Dr Skander Kamoun</div>
+              <div class="ps-clinic-spec">Ophtalmologie</div>
+            </div>
+            <div class="ps-header-right">
+              <div class="ps-doctor-dot"></div>
+              <button class="ps-lang-btn">عربي</button>
+            </div>
+          </div>
+          <div class="bg-overlay"></div>
+          <div class="hero-zone">
+            <div class="go-name">Mourad</div>
+            <div class="go-headline">On vous attend !</div>
+            <div class="go-sub">Dirigez-vous vers la salle de consultation.</div>
+            <div class="pulse-ring">
+              <div class="icon-circle">
+                <span class="material-symbols-rounded filled">door_open</span>
+              </div>
+            </div>
+          </div>
+          <div class="timer-zone">
+            <div class="timer-e">
+              <div class="stacked-icon">
+                <span class="material-symbols-rounded">schedule</span>
+              </div>
+              <div class="stacked-label">Le docteur vous attend depuis</div>
+              <div class="stacked-time" data-timer="e">2:34</div>
+              <div class="stacked-unit">min : sec</div>
+            </div>
+          </div>
+          <div class="ps-footer">
+            <div class="ps-footer-mark">B</div> BleSaf
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================
+       JAVASCRIPT: Tab switching + live timers
+       ============================================ -->
+  <script>
+    // Tab switching
+    function showDesign(index) {
+      document.querySelectorAll('.design-container').forEach((el, i) => {
+        el.classList.toggle('active', i === index);
+      });
+      document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+        btn.classList.toggle('active', i === index);
+      });
+    }
+
+    // Live timers — all start at 2:34 (154 seconds) and tick up
+    let elapsed = 154; // seconds
+
+    function formatTimer(secs) {
+      const m = Math.floor(secs / 60);
+      const s = secs % 60;
+      return m + ':' + String(s).padStart(2, '0');
+    }
+
+    function formatTimestamp(secs) {
+      // Simulate "called at" = now minus elapsed
+      const calledAt = new Date(Date.now() - secs * 1000);
+      const h = calledAt.getHours();
+      const m = String(calledAt.getMinutes()).padStart(2, '0');
+      return h + 'h' + m;
+    }
+
+    function updateTimers() {
+      elapsed++;
+      const formatted = formatTimer(elapsed);
+
+      // Update all MM:SS timers
+      document.querySelectorAll('[data-timer]').forEach(el => {
+        el.textContent = formatted;
+      });
+
+      // Update timestamp display (Design B)
+      document.querySelectorAll('[data-timestamp]').forEach(el => {
+        el.textContent = formatTimestamp(elapsed);
+      });
+
+      // Update progress bar (Design C) — fills over 10 minutes
+      const barEl = document.querySelector('.morph-bar');
+      if (barEl) {
+        const pct = Math.min(100, (elapsed / 600) * 100);
+        barEl.style.width = pct + '%';
+      }
+    }
+
+    // Initial render
+    updateTimers();
+
+    // Tick every second
+    setInterval(updateTimers, 1000);
+  </script>
+
+</body>
+</html>

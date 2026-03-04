@@ -4,12 +4,14 @@ import { useAuthStore } from '@/stores/authStore';
 import { webBrand } from '@/lib/brand';
 import { api } from '@/lib/api';
 import { logger } from '@/lib/logger';
+import { getSpecialtyLabel } from '@/lib/utils';
 import type { Clinic } from '@/types';
 import type { QueueScreenStatus } from '@/components/receptionist/types';
 import { Icon } from '@/components/ui/Icon';
+import { ControlSwitch } from '@/components/ui/ControlSwitch';
 import { DrawerItem } from './DrawerItem';
 import { DrawerSection } from './DrawerSection';
-import HelpSupportDrawer from '@/components/help/HelpSupportDrawer';
+import HelpSupportDrawer from '@/components/layout/drawers/HelpSupportDrawer';
 
 interface SideDrawerProps {
   isOpen: boolean;
@@ -24,68 +26,6 @@ interface SideDrawerProps {
   queueStatus: QueueScreenStatus;
   onOpenQueue: () => void;
   onReopenQueue: () => void;
-}
-
-/* ── Reusable pill toggle row ─────────────────────────── */
-function ToggleRow({
-  icon, label, options, activeIndex, onToggle, disabled, warnWhenRight,
-}: {
-  icon: string;
-  label: string;
-  options: [string, string];
-  activeIndex: 0 | 1;
-  onToggle: (index: 0 | 1) => void;
-  disabled?: boolean;
-  /** Use amber highlight when the right (index 1) option is active */
-  warnWhenRight?: boolean;
-}) {
-  const activeBg = (warnWhenRight && activeIndex === 1) ? '#B95F30' : '#356B58';
-
-  return (
-    <div style={{
-      display: 'flex', alignItems: 'center', gap: 10,
-      borderRadius: 12, padding: '8px 8px',
-    }}>
-      <span style={{
-        display: 'flex', height: 30, width: 30, flexShrink: 0,
-        alignItems: 'center', justifyContent: 'center',
-        borderRadius: 8, background: '#F0EFEA',
-      }}>
-        <Icon name={icon} size={17} style={{ color: '#4A5250' }} />
-      </span>
-      <span style={{ flex: 1, fontSize: 12, fontWeight: 600, color: '#1A1C1B' }}>
-        {label}
-      </span>
-      <div style={{
-        display: 'flex', gap: 2, borderRadius: 999,
-        border: '1px solid #DDE2E0', background: '#F2F4F3', padding: 2,
-      }}>
-        {options.map((opt, i) => (
-          <button
-            key={opt}
-            onClick={() => !disabled && onToggle(i as 0 | 1)}
-            type="button"
-            aria-pressed={activeIndex === i}
-            style={{
-              borderRadius: 999,
-              padding: '2px 8px',
-              fontSize: 9,
-              fontWeight: 700,
-              border: 'none',
-              cursor: disabled ? 'default' : 'pointer',
-              transition: 'all 150ms',
-              background: activeIndex === i ? activeBg : 'transparent',
-              color: activeIndex === i ? '#FFFFFF' : '#8E9693',
-              opacity: disabled ? 0.5 : 1,
-              fontFamily: 'inherit',
-            }}
-          >
-            {opt}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
 }
 
 export function SideDrawer({
@@ -113,7 +53,6 @@ export function SideDrawer({
   const [showQrFullScreen, setShowQrFullScreen] = useState(false);
   const [helpDrawerOpen, setHelpDrawerOpen] = useState(false);
 
-  const currentLang = i18n.language;
   const isRtl = i18n.dir() === 'rtl';
 
   // Focus close button when drawer opens
@@ -172,13 +111,17 @@ export function SideDrawer({
     window.open(`https://wa.me/?text=${msg}`, '_blank', 'noopener');
   };
 
-  const handleQueueToggle = (index: 0 | 1) => {
-    if (index === 0) {
+  const handleQueueToggle = (wantOpen: boolean) => {
+    if (wantOpen) {
       if (queueStatus === 'PRE_OPEN') onOpenQueue();
       else if (queueStatus === 'CLOSING') onReopenQueue();
     } else {
       if (queueStatus === 'OPEN') onCloseQueue();
     }
+  };
+
+  const handleLanguageToggle = (isFr: boolean) => {
+    i18n.changeLanguage(isFr ? 'fr' : 'ar');
   };
 
   const isQueueOpen = queueStatus === 'OPEN';
@@ -286,16 +229,16 @@ export function SideDrawer({
               </button>
             </div>
 
-            {/* Clinic name & doctor */}
+            {/* Clinic name & specialty */}
             <div style={{
               fontSize: 13, fontWeight: 800, lineHeight: 1.3,
               color: '#FFFFFF', letterSpacing: '-0.02em',
             }}>
               {clinic?.name ?? t('drawer.header.clinicFallback')}
             </div>
-            {clinic?.doctorName && (
+            {clinic?.specialty && (
               <div style={{ marginTop: 2, fontSize: 10, color: 'rgba(255,255,255,0.60)' }}>
-                {clinic.doctorName}
+                {getSpecialtyLabel(clinic.specialty)}
               </div>
             )}
 
@@ -396,41 +339,64 @@ export function SideDrawer({
 
           <div style={{ height: 1, background: '#EEF1F0', margin: '6px 10px' }} />
 
-          {/* ── Controls section (3 toggles) ── */}
-          <DrawerSection iconName="tune" label={t('drawer.sections.controls', 'Contrôles')}>
+          {/* ── Controls section (3 switches) ── */}
+          <section style={{ padding: '10px 18px 6px' }}>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 4, marginBottom: 6,
+              fontSize: 9, fontWeight: 700, letterSpacing: '0.1em',
+              textTransform: 'uppercase' as const, color: '#8E9693',
+            }}>
+              <span className="material-symbols-rounded" style={{ fontSize: 11, color: '#8E9693' }}>tune</span>
+              {t('drawer.sections.controls')}
+            </div>
+
             {webBrand.supportedLanguages.length > 1 && (
-              <ToggleRow
+              <ControlSwitch
                 icon="language"
-                label={t('drawer.preferences.language')}
-                options={['FR', 'AR']}
-                activeIndex={currentLang === 'ar' ? 1 : 0}
-                onToggle={(i) => i18n.changeLanguage(i === 0 ? 'fr' : 'ar')}
+                label={t('drawer.controls.langue')}
+                checked={i18n.language === 'fr'}
+                onChange={handleLanguageToggle}
+                labelOn="FR"
+                labelOff="AR"
+                colorOn="teal"
+                colorOff="muted"
+                bilingualLabels
               />
             )}
-            <ToggleRow
-              icon="person"
-              label={t('drawer.toggles.doctor', 'Médecin')}
-              options={[t('drawer.header.present'), t('drawer.header.absent')]}
-              activeIndex={isDoctorPresent ? 0 : 1}
-              onToggle={() => onToggleDoctorPresent()}
+
+            <div style={{ borderTop: '1px solid #E8E6DF' }} />
+
+            <ControlSwitch
+              icon="stethoscope"
+              label={t('drawer.controls.medecin')}
+              checked={isDoctorPresent}
+              onChange={() => onToggleDoctorPresent()}
+              labelOn={t('drawer.controls.present')}
+              labelOff={t('drawer.controls.absent')}
+              colorOn="green"
+              colorOff="red"
               disabled={isTogglingPresence}
-              warnWhenRight
             />
-            <ToggleRow
-              icon="event_available"
-              label={t('drawer.toggles.queue', "File d'attente")}
-              options={[t('drawer.toggles.queueOpen', 'Ouverte'), t('drawer.toggles.queueClosed', 'Fermée')]}
-              activeIndex={isQueueOpen ? 0 : 1}
-              onToggle={handleQueueToggle}
+
+            <div style={{ borderTop: '1px solid #E8E6DF' }} />
+
+            <ControlSwitch
+              icon="calendar_today"
+              label={t('drawer.controls.fileAttente')}
+              checked={isQueueOpen}
+              onChange={handleQueueToggle}
+              labelOn={t('drawer.controls.ouverte')}
+              labelOff={t('drawer.controls.fermee')}
+              colorOn="green"
+              colorOff="red"
               disabled={isQueueDisabled}
-              warnWhenRight
             />
-          </DrawerSection>
+          </section>
 
           <div style={{ height: 1, background: '#EEF1F0', margin: '6px 10px' }} />
 
-          {/* ── Paramètres ── */}
-          <div style={{ padding: '6px 10px' }}>
+          {/* ── Account section ── */}
+          <DrawerSection iconName="manage_accounts" label={t('drawer.sections.account')}>
             <DrawerItem
               iconName="settings"
               iconBg="#F0EFEA"
@@ -440,12 +406,6 @@ export function SideDrawer({
               rightElement={<Icon name="chevron_right" size={15} style={{ color: '#8E9693' }} />}
               onClick={handleSettings}
             />
-          </div>
-
-          <div style={{ height: 1, background: '#EEF1F0', margin: '6px 10px' }} />
-
-          {/* ── Account section ── */}
-          <DrawerSection iconName="manage_accounts" label={t('drawer.sections.account')}>
             <DrawerItem
               iconName="help_outline"
               iconBg="#F0EFEA"
@@ -574,9 +534,8 @@ export function SideDrawer({
 
       {/* ── Help & Support drawer ──────────────────── */}
       <HelpSupportDrawer
-        open={helpDrawerOpen}
+        isOpen={helpDrawerOpen}
         onClose={() => setHelpDrawerOpen(false)}
-        clinicName={clinic?.name ?? ''}
       />
     </>
   );
