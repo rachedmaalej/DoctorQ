@@ -21,6 +21,7 @@ import {
   getPatientStatus,
   updatePatientStatus,
   formatPhoneNumber,
+  ensureDailyReset,
 } from '../services/queueService.js';
 import { reorderPatient, updateStatusesAfterReorder, recalculatePositionsAndStatuses } from '../services/positionService.js';
 import { resetStats, computeSmartWaitEstimate, invalidateStatsCache } from '../services/statsService.js';
@@ -60,6 +61,10 @@ const reorderSchema = z.object({
 router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
     const clinicId = req.clinic!.id;
+
+    // Lazy cleanup: ensure today's midnight reset ran (idempotent, fast no-op if already done)
+    await ensureDailyReset(clinicId);
+
     const { queue, stats } = await getQueue(clinicId);
 
     res.json({ data: { queue, stats } });

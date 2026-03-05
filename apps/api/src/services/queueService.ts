@@ -7,6 +7,7 @@ import { prisma } from '../lib/prisma.js';
 import { QueueStatus, CheckInMethod, QueueEntry } from '@prisma/client';
 import { recalculatePositionsAndStatuses, getNextPosition } from './positionService.js';
 import { emitQueueUpdate, emitPatientUpdate, emitAllPatientUpdates } from './notificationService.js';
+import { emitToRoom } from '../lib/socket.js';
 import { getQueueStats, getStartOfToday, computeSmartWaitEstimate, invalidateStatsCache } from './statsService.js';
 import { brand } from '../lib/brand.js';
 import { logger } from '../lib/logger.js';
@@ -484,6 +485,54 @@ export async function archiveAndClearQueue(clinicId: string): Promise<{ archived
   emitQueueUpdate(clinicId).catch(() => {});
 
   return { archived: totalPatients, deleted: deleted.count };
+}
+
+/**
+ * Lazy daily reset: ensures today's midnight cleanup ran for a clinic.
+ * If the midnight cron missed (server downtime, restart), this runs the
+ * same cleanup on the first queue fetch of the day. Idempotent — safe to
+ * call multiple times (checks lastDailyResetAt before doing any work).
+ */
+export async function ensureDailyReset(clinicId: string): Promise<boolean> {
+  const startOfToday = getStartOfToday();
+
+  const clinic = await prisma.clinic.findUnique({
+    where: { id: clinicId },
+    select: { lastDailyResetAt: true },
+  });
+
+  if (!clinic) return false;
+
+  // If reset already ran today, no-op
+  if (clinic.lastDailyResetAt && clinic.lastDailyResetAt >= startOfToday) {
+    return false;
+  }
+
+  logger.info(`[Lazy Reset] Clinic ${clinicId}: midnight reset missed, running now...`);
+
+  const { archived, deleted } = await archiveAndClearQueue(clinicId);
+
+  await prisma.clinic.update({
+    where: { id: clinicId },
+    data: {
+      isDoctorPresent: false,
+      announcement: null,
+      announcementAt: null,
+      lastDailyResetAt: new Date(),
+    },
+  });
+
+  emitToRoom(`clinic:${clinicId}`, 'doctor:presence', {
+    clinicId,
+    isDoctorPresent: false,
+  });
+  emitToRoom(`clinic:${clinicId}:patients`, 'doctor:presence', {
+    clinicId,
+    isDoctorPresent: false,
+  });
+
+  logger.info(`[Lazy Reset] Clinic ${clinicId}: archived ${archived}, deleted ${deleted}`);
+  return true;
 }
 
 /**

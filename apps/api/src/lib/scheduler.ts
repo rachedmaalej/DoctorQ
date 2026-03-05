@@ -26,6 +26,7 @@ export function initScheduledTasks() {
             isDoctorPresent: false,
             announcement: null,
             announcementAt: null,
+            lastDailyResetAt: new Date(),
           },
         });
 

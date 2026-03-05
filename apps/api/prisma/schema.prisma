@@ -75,6 +75,7 @@ model Clinic {
 
   // Activity tracking
   lastLoginAt         DateTime?    // Last login timestamp for churn detection
+  lastDailyResetAt    DateTime?    // Last successful midnight reset (for lazy cleanup)
 
   // Subscription fields (for self-service)
   subscriptionStatus    SubscriptionStatus @default(TRIAL)
