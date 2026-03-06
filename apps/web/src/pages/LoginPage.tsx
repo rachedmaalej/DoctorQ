@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/authStore';
 import { webBrand } from '@/lib/brand';
 import { Icon } from '@/components/ui/Icon';
-import '@/components/blesaf/blesaf.css';
+import '@/components/shared/shared.css';
 
 // Dev credentials per brand
 const DEV_CREDS = {

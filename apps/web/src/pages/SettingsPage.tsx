@@ -3,10 +3,10 @@ import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/authStore';
 import { api } from '@/lib/api';
 import { Icon } from '@/components/ui/Icon';
-import BSClinicProfilePanel from '@/components/blesaf/BSClinicProfilePanel';
-import BSConsultationDurationPanel from '@/components/blesaf/BSConsultationDurationPanel';
-import BSSubscriptionPanel from '@/components/blesaf/BSSubscriptionPanel';
-import BSQueueRulesPanel from '@/components/blesaf/BSQueueRulesPanel';
+import BSClinicProfilePanel from '@/components/shared/BSClinicProfilePanel';
+import BSConsultationDurationPanel from '@/components/shared/BSConsultationDurationPanel';
+import BSSubscriptionPanel from '@/components/shared/BSSubscriptionPanel';
+import BSQueueRulesPanel from '@/components/shared/BSQueueRulesPanel';
 
 type PanelKey = 'profile' | 'duration' | 'queue-rules' | 'subscription';
 

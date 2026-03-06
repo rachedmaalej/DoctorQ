@@ -3,7 +3,7 @@ import type { QueueEntry, QueueStats } from '@/types';
 import { QueueStatus } from '@/types';
 import { useAuthStore } from '@/stores/authStore';
 import { calculateEndEstimate } from './utils';
-import './blesaf.css';
+import './shared.css';
 
 import BSHeader from './BSHeader';
 import BSQuickAdd from './BSQuickAdd';

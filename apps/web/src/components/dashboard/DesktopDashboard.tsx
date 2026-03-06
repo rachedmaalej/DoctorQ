@@ -8,8 +8,8 @@ import { api } from '@/lib/api';
 import { formatTime } from '@/lib/time';
 import type { QueueEntry, QueueStats as QueueStatsType, Clinic } from '@/types';
 import { QueueStatus } from '@/types';
-import { getConsultationMinutes } from '@/components/blesaf/utils';
-import '@/components/blesaf/blesaf.css';
+import { getConsultationMinutes } from '@/components/shared/utils';
+import '@/components/shared/shared.css';
 import '@/components/receptionist/receptionist.css';
 import { useQueueLifecycle } from '@/components/receptionist/useQueueLifecycle';
 import {
@@ -31,7 +31,7 @@ import ClosingBanner from '@/components/receptionist/ClosingBanner';
 import PatientContextSheet from '@/components/receptionist/PatientContextSheet';
 import { useQueueStore } from '@/stores/queueStore';
 import { logger } from '@/lib/logger';
-import BSWhatsAppSheet from '@/components/blesaf/BSWhatsAppSheet';
+import BSWhatsAppSheet from '@/components/shared/BSWhatsAppSheet';
 
 // ─── Design Tokens ────────────────────────────────────────────────────────────
 

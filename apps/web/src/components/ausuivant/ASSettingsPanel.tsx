@@ -8,15 +8,15 @@ import {
 } from 'lucide-react';
 import type { Clinic } from '@/types';
 import { useAuthStore } from '@/stores/authStore';
-import BSClinicProfilePanel from '@/components/blesaf/BSClinicProfilePanel';
-import BSTeamAccessPanel from '@/components/blesaf/BSTeamAccessPanel';
-import BSSubscriptionPanel from '@/components/blesaf/BSSubscriptionPanel';
-import BSConsultationDurationPanel from '@/components/blesaf/BSConsultationDurationPanel';
-import BSLanguagePanel from '@/components/blesaf/BSLanguagePanel';
-import BSClinicHoursPanel from '@/components/blesaf/BSClinicHoursPanel';
-import BSCheckInMethodsPanel from '@/components/blesaf/BSCheckInMethodsPanel';
-import BSNotificationsPanel from '@/components/blesaf/BSNotificationsPanel';
-import BSWaitingRoomDisplayPanel from '@/components/blesaf/BSWaitingRoomDisplayPanel';
+import BSClinicProfilePanel from '@/components/shared/BSClinicProfilePanel';
+import BSTeamAccessPanel from '@/components/shared/BSTeamAccessPanel';
+import BSSubscriptionPanel from '@/components/shared/BSSubscriptionPanel';
+import BSConsultationDurationPanel from '@/components/shared/BSConsultationDurationPanel';
+import BSLanguagePanel from '@/components/shared/BSLanguagePanel';
+import BSClinicHoursPanel from '@/components/shared/BSClinicHoursPanel';
+import BSCheckInMethodsPanel from '@/components/shared/BSCheckInMethodsPanel';
+import BSNotificationsPanel from '@/components/shared/BSNotificationsPanel';
+import BSWaitingRoomDisplayPanel from '@/components/shared/BSWaitingRoomDisplayPanel';
 
 interface ASSettingsPanelProps {
   isOpen: boolean;

@@ -4,7 +4,7 @@ import { Icon } from '@/components/ui/Icon';
 import { useHelpSearch } from '@/hooks/useHelpSearch';
 import type { FaqItem } from '@/hooks/useHelpSearch';
 import helpData from '@/i18n/help-support.json';
-import '@/components/blesaf/blesaf.css';
+import '@/components/shared/shared.css';
 
 interface VideoItem {
   title: string;

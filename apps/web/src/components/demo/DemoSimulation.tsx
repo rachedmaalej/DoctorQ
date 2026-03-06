@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import clsx from 'clsx';
 import '@/components/receptionist/receptionist.css';
-import '@/components/blesaf/blesaf.css';
+import '@/components/shared/shared.css';
 
 // ── Design Tokens (matches receptionist/DesktopDashboard inline tokens) ──
 

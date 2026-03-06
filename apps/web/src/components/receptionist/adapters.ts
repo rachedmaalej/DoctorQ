@@ -5,7 +5,7 @@ import {
   abbreviateName,
   getConsultationMinutes,
   formatTimeShort,
-} from '@/components/blesaf/utils';
+} from '@/components/shared/utils';
 import type {
   QueuePatient,
   CurrentPatientData,

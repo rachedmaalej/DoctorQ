@@ -15,7 +15,7 @@ import {
   getTotalAddedToday,
 } from './adapters';
 import './receptionist.css';
-import '@/components/blesaf/blesaf.css';
+import '@/components/shared/shared.css';
 import { useDrawer } from '@/hooks/useDrawer';
 import { SideDrawer } from '@/components/drawer/SideDrawer';
 
@@ -34,8 +34,8 @@ import AllDoneCard from './AllDoneCard';
 import SummaryCard from './SummaryCard';
 import TimelineBar from './TimelineBar';
 import SummaryActionBar from './SummaryActionBar';
-import BSAddPatientSheet from '@/components/blesaf/BSAddPatientSheet';
-import BSWhatsAppSheet from '@/components/blesaf/BSWhatsAppSheet';
+import BSAddPatientSheet from '@/components/shared/BSAddPatientSheet';
+import BSWhatsAppSheet from '@/components/shared/BSWhatsAppSheet';
 
 export default function ReceptionistDashboard({
   queue,
