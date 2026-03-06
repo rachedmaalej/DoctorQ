@@ -68,11 +68,17 @@ export function useQueueLifecycle(
   // ── Auto-promote PRE_OPEN → OPEN ─────────────────────────
   // Promote when: (a) doctor already present (e.g. opened during onboarding),
   // (b) verified queue activity for this clinic, or (c) seen count > 0.
+  // Date guard: ignore entries from previous days to prevent stale auto-promotion.
   useEffect(() => {
     if (queueStatus !== 'PRE_OPEN' || !clinicId) return;
 
-    // Verify queue entries belong to this clinic
-    const myQueue = queue.filter(e => e.clinicId === clinicId);
+    // Verify queue entries belong to this clinic AND are from today
+    const todayStr = getDateKey();
+    const myQueue = queue.filter(e => {
+      if (e.clinicId !== clinicId) return false;
+      const entryDate = new Date(e.arrivedAt).toISOString().slice(0, 10);
+      return entryDate === todayStr;
+    });
     const hasInConsult = myQueue.some(e => e.status === QueueStatus.IN_CONSULTATION);
     // Only trust stats.seen when we have at least one verified queue entry
     const hasSeen = myQueue.length > 0 && stats && stats.seen > 0;

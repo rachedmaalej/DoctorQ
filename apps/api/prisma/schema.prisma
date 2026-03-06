@@ -46,6 +46,7 @@ model Clinic {
   // Queue rules
   queueMode           String       @default("RDV_PRIORITY")  // RDV_PRIORITY | FIFO | RDV_ON_TIME
   rdvGraceMinutes     Int          @default(15)              // Grace period for RDV_ON_TIME mode (5-30 min)
+  enableStepOut       Boolean      @default(false)           // Allow patients to temporarily step out of queue
 
   // Business type customization
   businessType        String       @default("medical")  // medical, retail, restaurant, etc.
@@ -75,6 +76,7 @@ model Clinic {
 
   // Activity tracking
   lastLoginAt         DateTime?    // Last login timestamp for churn detection
+  lastDailyResetAt    DateTime?    // Last successful midnight reset (for lazy cleanup)
 
   // Subscription fields (for self-service)
   subscriptionStatus    SubscriptionStatus @default(TRIAL)
@@ -109,6 +111,8 @@ model Clinic {
 
   queueEntries          QueueEntry[]
   dailyStats            DailyStat[]
+  hourlyStats           HourlyStat[]
+  doctorDailyStats      DoctorDailyStat[]
   paymentRecords        PaymentRecord[]
   subscriptionEvents    SubscriptionEvent[]
   doctors               Doctor[]
@@ -179,6 +183,8 @@ model QueueEntry {
 
   // Stepped-out flag — patient temporarily left the waiting room
   isSteppedOut  Boolean       @default(false)
+  stepOutCount  Int           @default(0)    // How many times patient has stepped out (max 2)
+  steppedOutAt  DateTime?                    // When patient stepped out (for 60-min timeout)
 
   // Manual reordering support
   // When set, this patient's position is "pinned" and won't be auto-recalculated
@@ -247,17 +253,100 @@ model DailyStat {
   clinic        Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
 
   date                DateTime @db.Date
+  dayOfWeek           Int      @default(0)   // 0=Sun..6=Sat
+
+  // Volume
   totalPatients       Int      @default(0)
+  completed           Int      @default(0)
+  noShows             Int      @default(0)
+  cancelled           Int      @default(0)
+
+  // Timing averages (kept for backward compatibility)
   avgWaitMins         Int?
   avgConsultationMins Int?
-  noShows             Int      @default(0)
+
+  // Richer timing (enables accurate cross-day averaging)
+  maxWaitMins         Int?
+  minWaitMins         Int?
+  totalWaitMins       Int      @default(0)   // Sum of all wait times in minutes
+  totalConsultMins    Int      @default(0)   // Sum of all consultation durations
+  patientsWithWait    Int      @default(0)   // Count with valid wait data
+  patientsWithConsult Int      @default(0)   // Count with valid consult data
+
+  // Check-in method breakdown
+  checkInQr           Int      @default(0)
+  checkInManual       Int      @default(0)
+  checkInWhatsapp     Int      @default(0)
+
+  // Walk-in vs appointment
+  walkIns             Int      @default(0)
+  appointments        Int      @default(0)
+  emergencies         Int      @default(0)
+
+  // Pre-computed
+  peakHour            Int?     // 0-23, busiest arrival hour
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
   @@unique([clinicId, date])
   @@index([clinicId, date])
+  @@index([clinicId, dayOfWeek])
 }
+
+model HourlyStat {
+  id             String   @id @default(uuid())
+  clinicId       String
+  clinic         Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+
+  date           DateTime @db.Date
+  hour           Int      // 0-23
+  dayOfWeek      Int      // 0=Sun..6=Sat
+
+  // Counts
+  arrivals          Int   @default(0)
+  completed         Int   @default(0)
+  noShows           Int   @default(0)
+
+  // Timing (sums for accurate cross-hour/day averaging)
+  totalWaitMins     Int   @default(0)
+  totalConsultMins  Int   @default(0)
+  patientsWithWait  Int   @default(0)
+
+  // Method breakdown
+  checkInQr         Int   @default(0)
+  checkInManual     Int   @default(0)
+
+  createdAt      DateTime @default(now())
+
+  @@unique([clinicId, date, hour])
+  @@index([clinicId, dayOfWeek, hour])
+  @@index([clinicId, date])
+}
+
+model DoctorDailyStat {
+  clinic         Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  id             String   @id @default(uuid())
+  clinicId       String
+  doctorId       String
+
+  date           DateTime @db.Date
+
+  totalPatients     Int   @default(0)
+  completed         Int   @default(0)
+  noShows           Int   @default(0)
+  totalWaitMins     Int   @default(0)
+  totalConsultMins  Int   @default(0)
+  patientsWithWait  Int   @default(0)
+  patientsWithConsult Int @default(0)
+
+  createdAt      DateTime @default(now())
+
+  @@unique([clinicId, doctorId, date])
+  @@index([clinicId, date])
+  @@index([doctorId, date])
+}
+
 
 model PaymentRecord {
   id         String   @id @default(uuid())

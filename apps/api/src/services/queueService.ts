@@ -7,7 +7,9 @@ import { prisma } from '../lib/prisma.js';
 import { QueueStatus, CheckInMethod, QueueEntry } from '@prisma/client';
 import { recalculatePositionsAndStatuses, getNextPosition } from './positionService.js';
 import { emitQueueUpdate, emitPatientUpdate, emitAllPatientUpdates } from './notificationService.js';
+import { emitToRoom } from '../lib/socket.js';
 import { getQueueStats, getStartOfToday, computeSmartWaitEstimate, invalidateStatsCache } from './statsService.js';
+import { buildDailySnapshot, buildHourlySnapshots, buildDoctorSnapshots, type SnapshotEntry } from './metricsService.js';
 import { brand } from '../lib/brand.js';
 import { logger } from '../lib/logger.js';
 
@@ -408,10 +410,11 @@ export async function clearQueue(clinicId: string): Promise<number> {
 
 /**
  * Archive daily stats and clear the queue for midnight reset.
- * Unlike clearQueue(), this:
+ *
  * 1. Auto-completes IN_CONSULTATION patients
- * 2. Saves stats to DailyStat before deleting
- * 3. Only deletes WAITING/NOTIFIED (keeps COMPLETED/NO_SHOW)
+ * 2. Snapshots enriched stats into DailyStat, HourlyStat, DoctorDailyStat
+ * 3. Deletes WAITING/NOTIFIED entries (stale queue)
+ * 4. Prunes terminal entries (COMPLETED/NO_SHOW/CANCELLED) from previous days
  */
 export async function archiveAndClearQueue(clinicId: string): Promise<{ archived: number; deleted: number }> {
   // Step 1: Auto-complete any patients still IN_CONSULTATION
@@ -420,59 +423,89 @@ export async function archiveAndClearQueue(clinicId: string): Promise<{ archived
     data: { status: QueueStatus.COMPLETED, completedAt: new Date() },
   });
 
-  // Step 2: Snapshot today's stats into DailyStat
+  // Step 2: Fetch all today's entries for snapshot building
   const startOfToday = getStartOfToday();
-  const totalPatients = await prisma.queueEntry.count({
+  const todayEntries = await prisma.queueEntry.findMany({
     where: { clinicId, arrivedAt: { gte: startOfToday } },
-  });
-  const noShows = await prisma.queueEntry.count({
-    where: { clinicId, status: QueueStatus.NO_SHOW, arrivedAt: { gte: startOfToday } },
-  });
-  const patientsWithWait = await prisma.queueEntry.findMany({
-    where: { clinicId, status: QueueStatus.COMPLETED, arrivedAt: { gte: startOfToday }, calledAt: { not: null } },
-    select: { arrivedAt: true, calledAt: true, completedAt: true },
-  });
+    select: {
+      arrivedAt: true, calledAt: true, completedAt: true,
+      status: true, checkInMethod: true, appointmentTime: true,
+      isEmergency: true, doctorId: true,
+    },
+  }) as SnapshotEntry[];
 
-  // Exclude the last patient (latest calledAt) from average calculation.
-  // Receptionists often forget to close the queue, so the last patient's
-  // timing data is unreliable.
-  let avgWaitMins: number | null = null;
-  if (patientsWithWait.length > 0) {
-    const sorted = [...patientsWithWait].sort(
-      (a, b) => a.calledAt!.getTime() - b.calledAt!.getTime()
-    );
-    const forAverage = sorted.length > 1 ? sorted.slice(0, -1) : sorted;
-    const total = forAverage.reduce((sum, e) =>
-      sum + Math.round((e.calledAt!.getTime() - e.arrivedAt.getTime()) / 60000), 0);
-    avgWaitMins = Math.round(total / forAverage.length);
-  }
+  // Step 3: Build and write enriched snapshots (only if there were patients)
+  if (todayEntries.length > 0) {
+    const daily = buildDailySnapshot(clinicId, todayEntries, startOfToday);
+    const hourly = buildHourlySnapshots(clinicId, todayEntries, startOfToday);
+    const doctorStats = buildDoctorSnapshots(clinicId, todayEntries, startOfToday);
 
-  // Calculate average consultation duration (completedAt - calledAt)
-  let avgConsultationMins: number | null = null;
-  const patientsWithConsult = patientsWithWait.filter(e => e.calledAt && e.completedAt);
-  if (patientsWithConsult.length > 0) {
-    // Exclude last patient (may have been auto-completed at midnight)
-    const sorted = [...patientsWithConsult].sort(
-      (a, b) => a.completedAt!.getTime() - b.completedAt!.getTime()
-    );
-    const forAverage = sorted.length > 1 ? sorted.slice(0, -1) : sorted;
-    const totalDuration = forAverage.reduce((sum, e) =>
-      sum + Math.round((e.completedAt!.getTime() - e.calledAt!.getTime()) / 60000), 0);
-    avgConsultationMins = Math.round(totalDuration / forAverage.length);
-  }
-
-  // Upsert DailyStat (only if there were patients)
-  if (totalPatients > 0) {
-    const today = new Date(startOfToday);
-    today.setUTCHours(12, 0, 0, 0); // Noon UTC to avoid date boundary issues
+    // Upsert DailyStat
     await prisma.dailyStat.upsert({
-      where: { clinicId_date: { clinicId, date: today } },
-      create: { clinicId, date: today, totalPatients, avgWaitMins, avgConsultationMins, noShows },
-      update: { totalPatients, avgWaitMins, avgConsultationMins, noShows },
+      where: { clinicId_date: { clinicId, date: daily.date } },
+      create: daily,
+      update: {
+        dayOfWeek: daily.dayOfWeek,
+        totalPatients: daily.totalPatients,
+        completed: daily.completed,
+        noShows: daily.noShows,
+        cancelled: daily.cancelled,
+        avgWaitMins: daily.avgWaitMins,
+        avgConsultationMins: daily.avgConsultationMins,
+        maxWaitMins: daily.maxWaitMins,
+        minWaitMins: daily.minWaitMins,
+        totalWaitMins: daily.totalWaitMins,
+        totalConsultMins: daily.totalConsultMins,
+        patientsWithWait: daily.patientsWithWait,
+        patientsWithConsult: daily.patientsWithConsult,
+        checkInQr: daily.checkInQr,
+        checkInManual: daily.checkInManual,
+        checkInWhatsapp: daily.checkInWhatsapp,
+        walkIns: daily.walkIns,
+        appointments: daily.appointments,
+        emergencies: daily.emergencies,
+        peakHour: daily.peakHour,
+      },
     });
+
+    // Upsert HourlyStat entries
+    for (const h of hourly) {
+      await prisma.hourlyStat.upsert({
+        where: { clinicId_date_hour: { clinicId, date: h.date, hour: h.hour } },
+        create: h,
+        update: {
+          dayOfWeek: h.dayOfWeek,
+          arrivals: h.arrivals,
+          completed: h.completed,
+          noShows: h.noShows,
+          totalWaitMins: h.totalWaitMins,
+          totalConsultMins: h.totalConsultMins,
+          patientsWithWait: h.patientsWithWait,
+          checkInQr: h.checkInQr,
+          checkInManual: h.checkInManual,
+        },
+      });
+    }
+
+    // Upsert DoctorDailyStat entries
+    for (const d of doctorStats) {
+      await prisma.doctorDailyStat.upsert({
+        where: { clinicId_doctorId_date: { clinicId, doctorId: d.doctorId, date: d.date } },
+        create: d,
+        update: {
+          totalPatients: d.totalPatients,
+          completed: d.completed,
+          noShows: d.noShows,
+          totalWaitMins: d.totalWaitMins,
+          totalConsultMins: d.totalConsultMins,
+          patientsWithWait: d.patientsWithWait,
+          patientsWithConsult: d.patientsWithConsult,
+        },
+      });
+    }
   }
 
-  // Step 3: Delete only WAITING/NOTIFIED entries
+  // Step 4: Delete WAITING/NOTIFIED entries (stale queue)
   const deleted = await prisma.queueEntry.deleteMany({
     where: {
       clinicId,
@@ -480,10 +513,71 @@ export async function archiveAndClearQueue(clinicId: string): Promise<{ archived
     },
   });
 
+  // Step 5: Prune terminal entries from previous days (already archived)
+  const pruned = await prisma.queueEntry.deleteMany({
+    where: {
+      clinicId,
+      status: { in: [QueueStatus.COMPLETED, QueueStatus.NO_SHOW, QueueStatus.CANCELLED] },
+      arrivedAt: { lt: startOfToday },
+    },
+  });
+
+  if (pruned.count > 0) {
+    logger.info(`[Archive] Clinic ${clinicId}: pruned ${pruned.count} terminal entries from previous days`);
+  }
+
   invalidateStatsCache(clinicId);
   emitQueueUpdate(clinicId).catch(() => {});
 
-  return { archived: totalPatients, deleted: deleted.count };
+  return { archived: todayEntries.length, deleted: deleted.count };
+}
+
+/**
+ * Lazy daily reset: ensures today's midnight cleanup ran for a clinic.
+ * If the midnight cron missed (server downtime, restart), this runs the
+ * same cleanup on the first queue fetch of the day. Idempotent — safe to
+ * call multiple times (checks lastDailyResetAt before doing any work).
+ */
+export async function ensureDailyReset(clinicId: string): Promise<boolean> {
+  const startOfToday = getStartOfToday();
+
+  const clinic = await prisma.clinic.findUnique({
+    where: { id: clinicId },
+    select: { lastDailyResetAt: true },
+  });
+
+  if (!clinic) return false;
+
+  // If reset already ran today, no-op
+  if (clinic.lastDailyResetAt && clinic.lastDailyResetAt >= startOfToday) {
+    return false;
+  }
+
+  logger.info(`[Lazy Reset] Clinic ${clinicId}: midnight reset missed, running now...`);
+
+  const { archived, deleted } = await archiveAndClearQueue(clinicId);
+
+  await prisma.clinic.update({
+    where: { id: clinicId },
+    data: {
+      isDoctorPresent: false,
+      announcement: null,
+      announcementAt: null,
+      lastDailyResetAt: new Date(),
+    },
+  });
+
+  emitToRoom(`clinic:${clinicId}`, 'doctor:presence', {
+    clinicId,
+    isDoctorPresent: false,
+  });
+  emitToRoom(`clinic:${clinicId}:patients`, 'doctor:presence', {
+    clinicId,
+    isDoctorPresent: false,
+  });
+
+  logger.info(`[Lazy Reset] Clinic ${clinicId}: archived ${archived}, deleted ${deleted}`);
+  return true;
 }
 
 /**
@@ -504,6 +598,7 @@ export async function getPatientStatus(entryId: string) {
           announcementAt: true,
           specialty: true,
           funFactsEnabled: true,
+          enableStepOut: true,
         },
       },
     },
@@ -511,6 +606,19 @@ export async function getPatientStatus(entryId: string) {
 
   if (!entry) {
     return null;
+  }
+
+  // Auto-expire step-out if > 60 minutes (check-on-access pattern)
+  if (entry.isSteppedOut && entry.steppedOutAt) {
+    const elapsed = Date.now() - new Date(entry.steppedOutAt).getTime();
+    if (elapsed > 60 * 60 * 1000) {
+      await prisma.queueEntry.update({
+        where: { id: entry.id },
+        data: { isSteppedOut: false, steppedOutAt: null },
+      });
+      entry.isSteppedOut = false;
+      entry.steppedOutAt = null;
+    }
   }
 
   const { estimatedWaitMins, effectiveAvgMins, confidence, doctorAbsent } = await computeSmartWaitEstimate(
@@ -532,6 +640,9 @@ export async function getPatientStatus(entryId: string) {
     notifiedAt: entry.notifiedAt,
     calledAt: entry.calledAt,
     completedAt: entry.completedAt,
+    isSteppedOut: entry.isSteppedOut,
+    stepOutCount: entry.stepOutCount,
+    steppedOutAt: entry.steppedOutAt,
     estimatedWaitMins,
     avgConsultationMins: effectiveAvgMins,
     confidence,
@@ -544,6 +655,7 @@ export async function getPatientStatus(entryId: string) {
     announcementAt: entry.clinic.announcementAt,
     specialty: entry.clinic.specialty,
     funFactsEnabled: entry.clinic.funFactsEnabled,
+    enableStepOut: entry.clinic.enableStepOut,
   };
 }
 

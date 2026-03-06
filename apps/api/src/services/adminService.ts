@@ -733,65 +733,43 @@ export async function getClinicDetails(clinicId: string): Promise<ClinicDetail> 
     return { date: dateKey, count };
   });
 
-  // Monthly stats
-  const monthlyEntries = await prisma.queueEntry.findMany({
-    where: { clinicId, arrivedAt: { gte: startOfMonth } },
-    select: { checkInMethod: true, arrivedAt: true, calledAt: true, status: true },
+  // Monthly stats (from DailyStat, plus today's live QueueEntry)
+  const monthlyDailyStats = await prisma.dailyStat.findMany({
+    where: { clinicId, date: { gte: startOfMonth } },
+    select: { totalPatients: true, totalWaitMins: true, patientsWithWait: true, checkInQr: true },
   });
-
-  const monthlyQr = monthlyEntries.filter((e) => e.checkInMethod === 'QR_CODE').length;
-  const monthlySeen = monthlyEntries.filter(
-    (e) => e.calledAt && (e.status === 'IN_CONSULTATION' || e.status === 'COMPLETED')
-  );
-  // Exclude last patient per day from average (unreliable timing data)
-  let monthlyAvgWait: number | null = null;
-  if (monthlySeen.length > 0) {
-    const sorted = [...monthlySeen].sort(
-      (a, b) => a.calledAt!.getTime() - b.calledAt!.getTime()
-    );
-    const forAvg = sorted.length > 1 ? sorted.slice(0, -1) : sorted;
-    const waits = forAvg.map((e) =>
-      Math.round((e.calledAt!.getTime() - e.arrivedAt.getTime()) / 60000)
-    );
-    monthlyAvgWait = Math.round(waits.reduce((a, b) => a + b, 0) / waits.length);
-  }
+  const monthlyTotalFromStats = monthlyDailyStats.reduce((s, d) => s + d.totalPatients, 0);
+  const monthlyQrFromStats = monthlyDailyStats.reduce((s, d) => s + d.checkInQr, 0);
+  const monthlyWaitSum = monthlyDailyStats.reduce((s, d) => s + d.totalWaitMins, 0);
+  const monthlyWaitCount = monthlyDailyStats.reduce((s, d) => s + d.patientsWithWait, 0);
+  // Add today's live count
+  const todayMonthlyCount = await prisma.queueEntry.count({ where: { clinicId, arrivedAt: { gte: startOfToday } } });
+  const monthlyTotal = monthlyTotalFromStats + todayMonthlyCount;
+  const monthlyAvgWait = monthlyWaitCount > 0 ? Math.round(monthlyWaitSum / monthlyWaitCount) : null;
 
   const monthlyStats = {
-    totalPatients: monthlyEntries.length,
+    totalPatients: monthlyTotal,
     avgWaitMins: monthlyAvgWait,
-    qrRate: monthlyEntries.length > 0
-      ? Math.round((monthlyQr / monthlyEntries.length) * 100)
+    qrRate: monthlyTotal > 0
+      ? Math.round((monthlyQrFromStats / monthlyTotal) * 100)
       : 0,
   };
 
-  // All-time stats
-  const allTimeEntries = await prisma.queueEntry.findMany({
+  // All-time stats (from DailyStat aggregates — no full QueueEntry scan)
+  const allTimeAgg = await prisma.dailyStat.aggregate({
     where: { clinicId },
-    select: { checkInMethod: true, arrivedAt: true, calledAt: true, status: true },
+    _sum: { totalPatients: true, totalWaitMins: true, patientsWithWait: true, checkInQr: true },
   });
-
-  const allTimeQr = allTimeEntries.filter((e) => e.checkInMethod === 'QR_CODE').length;
-  const allTimeSeen = allTimeEntries.filter(
-    (e) => e.calledAt && (e.status === 'IN_CONSULTATION' || e.status === 'COMPLETED')
-  );
-  // Exclude last patient from average (unreliable timing data)
-  let allTimeAvgWait: number | null = null;
-  if (allTimeSeen.length > 0) {
-    const sorted = [...allTimeSeen].sort(
-      (a, b) => a.calledAt!.getTime() - b.calledAt!.getTime()
-    );
-    const forAvg = sorted.length > 1 ? sorted.slice(0, -1) : sorted;
-    const waits = forAvg.map((e) =>
-      Math.round((e.calledAt!.getTime() - e.arrivedAt.getTime()) / 60000)
-    );
-    allTimeAvgWait = Math.round(waits.reduce((a, b) => a + b, 0) / waits.length);
-  }
+  const allTimeTotal = (allTimeAgg._sum.totalPatients || 0) + todayMonthlyCount;
+  const allTimeWaitSum = allTimeAgg._sum.totalWaitMins || 0;
+  const allTimeWaitCount = allTimeAgg._sum.patientsWithWait || 0;
+  const allTimeQr = allTimeAgg._sum.checkInQr || 0;
 
   const allTimeStats = {
-    totalPatients: allTimeEntries.length,
-    avgWaitMins: allTimeAvgWait,
-    qrRate: allTimeEntries.length > 0
-      ? Math.round((allTimeQr / allTimeEntries.length) * 100)
+    totalPatients: allTimeTotal,
+    avgWaitMins: allTimeWaitCount > 0 ? Math.round(allTimeWaitSum / allTimeWaitCount) : null,
+    qrRate: allTimeTotal > 0
+      ? Math.round((allTimeQr / allTimeTotal) * 100)
       : 0,
   };
 
@@ -1724,89 +1702,92 @@ export async function getClinicDetailEnriched(clinicId: string): Promise<ClinicD
     where: { clinicId, eventType: 'trial_extended' },
   });
 
-  // ── 3. Last 30 days entries ─────────────────────────────
-  const entries30d = await prisma.queueEntry.findMany({
-    where: { clinicId, arrivedAt: { gte: thirtyDaysAgo } },
+  // ── 3. Last 30 days stats (from DailyStat, not raw QueueEntry) ──
+  const stats30d = await prisma.dailyStat.findMany({
+    where: { clinicId, date: { gte: thirtyDaysAgo } },
     select: {
-      id: true,
-      status: true,
-      checkInMethod: true,
-      arrivedAt: true,
-      calledAt: true,
-      completedAt: true,
-      patientName: true,
+      date: true, totalPatients: true, noShows: true,
+      totalWaitMins: true, patientsWithWait: true,
+      totalConsultMins: true, patientsWithConsult: true,
+      checkInQr: true, checkInManual: true, checkInWhatsapp: true,
+      peakHour: true,
     },
-    orderBy: { arrivedAt: 'desc' },
+    orderBy: { date: 'desc' },
   });
 
-  // All-time count
-  const patientsAllTime = await prisma.queueEntry.count({ where: { clinicId } });
+  // All-time count (from DailyStat aggregate + today's live)
+  const allTimeAgg2 = await prisma.dailyStat.aggregate({
+    where: { clinicId },
+    _sum: { totalPatients: true, noShows: true },
+  });
+  const todayLiveCount = await prisma.queueEntry.count({ where: { clinicId, arrivedAt: { gte: startOfToday } } });
+  const patientsAllTime = (allTimeAgg2._sum.totalPatients || 0) + todayLiveCount;
 
-  const patientsLast30Days = entries30d.length;
+  const patientsLast30Days = stats30d.reduce((s, d) => s + d.totalPatients, 0) + todayLiveCount;
   const avgPatientsPerDay = Math.round((patientsLast30Days / 30) * 10) / 10;
 
-  // Check-in method counts
-  const qrCheckInsLast30Days = entries30d.filter(e => e.checkInMethod === 'QR_CODE').length;
-  const manualCheckInsLast30Days = entries30d.filter(e => e.checkInMethod === 'MANUAL').length;
-  const whatsappCheckInsLast30Days = entries30d.filter(e => e.checkInMethod === 'WHATSAPP').length;
+  // Check-in method counts (30d)
+  const qrCheckInsLast30Days = stats30d.reduce((s, d) => s + d.checkInQr, 0);
+  const manualCheckInsLast30Days = stats30d.reduce((s, d) => s + d.checkInManual, 0);
+  const whatsappCheckInsLast30Days = stats30d.reduce((s, d) => s + d.checkInWhatsapp, 0);
   const qrAdoptionRate = patientsLast30Days > 0
     ? Math.round((qrCheckInsLast30Days / patientsLast30Days) * 100) : 0;
 
-  // Wait time (30d) — entries that were called
-  const seenEntries30d = entries30d.filter(e => e.calledAt && (e.status === 'IN_CONSULTATION' || e.status === 'COMPLETED'));
-  let avgWaitTimeMinutes = 0;
-  if (seenEntries30d.length > 0) {
-    const waits = seenEntries30d.map(e =>
-      Math.round((e.calledAt!.getTime() - e.arrivedAt.getTime()) / 60000)
-    );
-    avgWaitTimeMinutes = Math.round(waits.reduce((a, b) => a + b, 0) / waits.length);
-  }
+  // Wait time (30d) — accurate cross-day average from sums
+  const waitSum30d = stats30d.reduce((s, d) => s + d.totalWaitMins, 0);
+  const waitCount30d = stats30d.reduce((s, d) => s + d.patientsWithWait, 0);
+  const avgWaitTimeMinutes = waitCount30d > 0 ? Math.round(waitSum30d / waitCount30d) : 0;
 
-  // Consultation time (30d) — entries that were completed
-  const completedEntries30d = entries30d.filter(e => e.completedAt && e.calledAt);
-  let avgConsultationMinutes = 0;
-  if (completedEntries30d.length > 0) {
-    const durations = completedEntries30d.map(e =>
-      Math.round((e.completedAt!.getTime() - e.calledAt!.getTime()) / 60000)
-    );
-    avgConsultationMinutes = Math.round(durations.reduce((a, b) => a + b, 0) / durations.length);
-  }
+  // Consultation time (30d)
+  const consultSum30d = stats30d.reduce((s, d) => s + d.totalConsultMins, 0);
+  const consultCount30d = stats30d.reduce((s, d) => s + d.patientsWithConsult, 0);
+  const avgConsultationMinutes = consultCount30d > 0 ? Math.round(consultSum30d / consultCount30d) : 0;
 
-  // No-show rate
-  const noShowCount = entries30d.filter(e => e.status === 'NO_SHOW').length;
-  const noShowRate = patientsAllTime > 0 ? Math.round((noShowCount / patientsAllTime) * 100) : 0;
+  // No-show rate (30d)
+  const noShowCount = stats30d.reduce((s, d) => s + d.noShows, 0);
+  const noShowRate = patientsLast30Days > 0 ? Math.round((noShowCount / patientsLast30Days) * 100) : 0;
 
-  // Wait time change vs last week
+  // Wait time change vs last week (from DailyStat)
   const sevenDaysAgo = new Date(startOfToday);
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
   const fourteenDaysAgo = new Date(startOfToday);
   fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
 
-  const thisWeekSeen = seenEntries30d.filter(e => e.arrivedAt >= sevenDaysAgo);
-  const lastWeekSeen = seenEntries30d.filter(e => e.arrivedAt >= fourteenDaysAgo && e.arrivedAt < sevenDaysAgo);
+  const thisWeekStats = stats30d.filter(d => d.date >= sevenDaysAgo);
+  const lastWeekStats = stats30d.filter(d => d.date >= fourteenDaysAgo && d.date < sevenDaysAgo);
 
-  const avgWaitThisWeek = thisWeekSeen.length > 0
-    ? Math.round(thisWeekSeen.map(e => (e.calledAt!.getTime() - e.arrivedAt.getTime()) / 60000).reduce((a, b) => a + b, 0) / thisWeekSeen.length)
-    : null;
-  const avgWaitLastWeek = lastWeekSeen.length > 0
-    ? Math.round(lastWeekSeen.map(e => (e.calledAt!.getTime() - e.arrivedAt.getTime()) / 60000).reduce((a, b) => a + b, 0) / lastWeekSeen.length)
-    : null;
+  const thisWeekWaitSum = thisWeekStats.reduce((s, d) => s + d.totalWaitMins, 0);
+  const thisWeekWaitCount = thisWeekStats.reduce((s, d) => s + d.patientsWithWait, 0);
+  const lastWeekWaitSum = lastWeekStats.reduce((s, d) => s + d.totalWaitMins, 0);
+  const lastWeekWaitCount = lastWeekStats.reduce((s, d) => s + d.patientsWithWait, 0);
+
+  const avgWaitThisWeek = thisWeekWaitCount > 0 ? Math.round(thisWeekWaitSum / thisWeekWaitCount) : null;
+  const avgWaitLastWeek = lastWeekWaitCount > 0 ? Math.round(lastWeekWaitSum / lastWeekWaitCount) : null;
 
   const avgWaitTimeChangeVsLastWeek = (avgWaitThisWeek !== null && avgWaitLastWeek !== null)
     ? avgWaitThisWeek - avgWaitLastWeek
     : 0;
 
-  // Peak hour range (30d)
-  const hourCounts = new Map<number, number>();
-  for (const e of entries30d) {
-    const h = e.arrivedAt.getHours();
-    hourCounts.set(h, (hourCounts.get(h) || 0) + 1);
-  }
-  let peakHour = 9, peakCount = 0;
-  for (const [h, c] of hourCounts) {
-    if (c > peakCount) { peakHour = h; peakCount = c; }
-  }
+  // Peak hour range (from HourlyStat 30d)
+  const hourlyAgg = await prisma.hourlyStat.groupBy({
+    by: ['hour'],
+    where: { clinicId, date: { gte: thirtyDaysAgo } },
+    _sum: { arrivals: true },
+    orderBy: { _sum: { arrivals: 'desc' } },
+    take: 1,
+  });
+  const peakHour = hourlyAgg.length > 0 ? hourlyAgg[0].hour : 9;
   const peakHourRange = `${String(peakHour).padStart(2, '0')}:00–${String(peakHour + 2).padStart(2, '0')}:00`;
+
+  // Fetch today's live QueueEntry for activity section + recent patients list
+  const todayEntries = await prisma.queueEntry.findMany({
+    where: { clinicId, arrivedAt: { gte: startOfToday } },
+    select: {
+      id: true, status: true, checkInMethod: true,
+      arrivedAt: true, calledAt: true, completedAt: true, patientName: true,
+    },
+    orderBy: { arrivedAt: 'desc' },
+  });
 
   // Last active
   const lastActiveDaysAgo = clinic.lastLoginAt
@@ -1887,7 +1868,6 @@ export async function getClinicDetailEnriched(clinicId: string): Promise<ClinicD
   const qrCodeLastScannedAt = lastQrEntry?.arrivedAt.toISOString() ?? null;
 
   // ── 7. Today's Activity ─────────────────────────────────
-  const todayEntries = entries30d.filter(e => e.arrivedAt >= startOfToday);
   const todayWaiting = todayEntries.filter(e => e.status === 'WAITING' || e.status === 'NOTIFIED').length;
   const todayInConsultation = todayEntries.filter(e => e.status === 'IN_CONSULTATION').length;
   const todayCompleted = todayEntries.filter(e => e.status === 'COMPLETED').length;
@@ -2082,20 +2062,19 @@ export async function getClinicDetailEnriched(clinicId: string): Promise<ClinicD
   const avgPerActiveDay = activeDays > 0 ? Math.round((patientsLast30Days / activeDays) * 10) / 10 : 0;
 
   // ── 11. Method Chart Data ──────────────────────────────
-  // QR growth: compare first 7d vs last 7d of the 30d period
-  const first7d = entries30d.filter(e => {
-    const age = (now.getTime() - e.arrivedAt.getTime()) / (1000 * 60 * 60 * 24);
-    return age >= 23 && age < 30; // first week of 30d period
-  });
-  const last7d = entries30d.filter(e => {
-    const age = (now.getTime() - e.arrivedAt.getTime()) / (1000 * 60 * 60 * 24);
-    return age >= 0 && age < 7;
-  });
+  // QR growth: compare first 7d vs last 7d of the 30d period (from DailyStat)
+  const twentyThreeDaysAgo = new Date(startOfToday);
+  twentyThreeDaysAgo.setDate(twentyThreeDaysAgo.getDate() - 23);
+  const first7dStats = stats30d.filter(d => d.date < twentyThreeDaysAgo);
+  const last7dStats = stats30d.filter(d => d.date >= sevenDaysAgo);
 
-  const first7dQrRate = first7d.length > 0
-    ? Math.round((first7d.filter(e => e.checkInMethod === 'QR_CODE').length / first7d.length) * 100) : 0;
-  const last7dQrRate = last7d.length > 0
-    ? Math.round((last7d.filter(e => e.checkInMethod === 'QR_CODE').length / last7d.length) * 100) : 0;
+  const first7dTotal = first7dStats.reduce((s, d) => s + d.totalPatients, 0);
+  const first7dQr = first7dStats.reduce((s, d) => s + d.checkInQr, 0);
+  const last7dTotal = last7dStats.reduce((s, d) => s + d.totalPatients, 0);
+  const last7dQr = last7dStats.reduce((s, d) => s + d.checkInQr, 0);
+
+  const first7dQrRate = first7dTotal > 0 ? Math.round((first7dQr / first7dTotal) * 100) : 0;
+  const last7dQrRate = last7dTotal > 0 ? Math.round((last7dQr / last7dTotal) * 100) : 0;
   const qrGrowing = last7dQrRate > first7dQrRate;
   const qrGrowthNote = qrGrowing
     ? `Went from ${first7dQrRate}% in week 1 to ${last7dQrRate}% in week 4`
@@ -2200,7 +2179,7 @@ export async function getClinicDetailEnriched(clinicId: string): Promise<ClinicD
   timeline.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
   // ── 13. Recent Patients ─────────────────────────────────
-  const recentEntries = entries30d.slice(0, 50); // already sorted desc
+  const recentEntries = todayEntries.slice(0, 50); // today's entries, sorted desc
   const recentPatients = recentEntries.map((e, idx) => {
     const waitMinutes = e.calledAt
       ? Math.round((e.calledAt.getTime() - e.arrivedAt.getTime()) / 60000) : null;
