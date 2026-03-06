@@ -9,6 +9,7 @@ import { QueueStatus } from '@prisma/client';
 import { QueueStats } from '../types/index.js';
 import { cache, CacheKeys, CacheTTL } from '../lib/cache.js';
 import { getStartOfToday } from '../lib/timezone.js';
+import { computeWaitMetrics } from './metricsService.js';
 
 // Re-export for backward compatibility (other files import from statsService)
 export { getStartOfToday } from '../lib/timezone.js';
@@ -88,31 +89,12 @@ export async function getQueueStats(clinicId: string): Promise<QueueStats> {
     }),
   ]);
 
-  // Filter entries that have both arrivedAt and calledAt timestamps
-  const patientsWithWaitTime = seenPatientsToday.filter(
-    (entry) => entry.arrivedAt && entry.calledAt
+  // Use centralized metrics for wait time calculation
+  const waitMetrics = computeWaitMetrics(
+    seenPatientsToday.map(e => ({ arrivedAt: e.arrivedAt, calledAt: e.calledAt, completedAt: null }))
   );
-
-  let avgWait: number | null = null;
-  let maxWait: number | null = null;
-
-  if (patientsWithWaitTime.length > 0) {
-    // Exclude the last patient called (latest calledAt) from averages.
-    // Receptionists often forget to close the queue, so the last patient
-    // stays IN_CONSULTATION until auto-completed at midnight, distorting times.
-    const sorted = [...patientsWithWaitTime].sort(
-      (a, b) => a.calledAt!.getTime() - b.calledAt!.getTime()
-    );
-    const forAverage = sorted.length > 1 ? sorted.slice(0, -1) : sorted;
-
-    const waitTimes = forAverage.map((entry) => {
-      return Math.round((entry.calledAt!.getTime() - entry.arrivedAt!.getTime()) / 60000);
-    });
-
-    const totalWait = waitTimes.reduce((sum, wait) => sum + wait, 0);
-    avgWait = Math.round(totalWait / forAverage.length);
-    maxWait = Math.max(...waitTimes);
-  }
+  const avgWait = waitMetrics.avgMins;
+  const maxWait = waitMetrics.maxMins;
 
   // Calculate last consultation duration (use second-to-last if available,
   // since the last patient's completedAt is often auto-set at midnight)
