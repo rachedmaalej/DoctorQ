@@ -16,9 +16,9 @@ function getSocketUrl(): string {
     if (hostname.includes('vercel.app') || hostname.includes('doctor-q') || hostname.includes('blesaf')) {
       return 'https://doctorqapi-production-ac8b.up.railway.app';
     }
-    // FiloSoin production (France) — override VITE_SOCKET_URL in Vercel env for France deployments
-    if (hostname.includes('filosoin')) {
-      return import.meta.env.VITE_SOCKET_URL || 'https://doctorqapi-production-ac8b.up.railway.app';
+    // AuSuivant production (France)
+    if (hostname.includes('ausuivant')) {
+      return 'https://ausuivant-api-production-production.up.railway.app';
     }
   }
 

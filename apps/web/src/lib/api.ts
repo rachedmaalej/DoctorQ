@@ -47,9 +47,9 @@ function getApiUrl(): string {
     if (hostname.includes('vercel.app') || hostname.includes('doctor-q') || hostname.includes('blesaf')) {
       return 'https://doctorqapi-production-ac8b.up.railway.app';
     }
-    // FiloSoin production (France) — override VITE_API_URL in Vercel env for France deployments
-    if (hostname.includes('filosoin')) {
-      return import.meta.env.VITE_API_URL || 'https://doctorqapi-production-ac8b.up.railway.app';
+    // AuSuivant production (France)
+    if (hostname.includes('ausuivant')) {
+      return 'https://ausuivant-api-production-production.up.railway.app';
     }
   }
 
@@ -390,6 +390,16 @@ class ApiClient {
     return this.request<PatientStatusResponse>(`/api/queue/patient/${entryId}`);
   }
 
+  // Patient step out of queue (public)
+  async stepOut(entryId: string): Promise<{ message: string; isSteppedOut: boolean; stepOutCount: number; steppedOutAt: string }> {
+    return this.request(`/api/queue/patient/${entryId}/step-out`, { method: 'POST' });
+  }
+
+  // Patient step back into queue (public)
+  async stepBack(entryId: string): Promise<{ message: string; isSteppedOut: boolean }> {
+    return this.request(`/api/queue/patient/${entryId}/step-back`, { method: 'POST' });
+  }
+
   // Patient leave queue (public)
   async leaveQueue(entryId: string): Promise<{ message: string; status: string }> {
     return this.request(`/api/queue/patient/${entryId}/leave`, {
@@ -454,6 +464,7 @@ class ApiClient {
     enableLanguageSwitcher?: boolean;
     queueMode?: 'RDV_PRIORITY' | 'FIFO' | 'RDV_ON_TIME';
     rdvGraceMinutes?: number;
+    enableStepOut?: boolean;
     clinicHours?: Record<string, unknown> | null;
     enableQrCode?: boolean;
     enableManualEntry?: boolean;
