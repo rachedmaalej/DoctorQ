@@ -32,4 +32,4 @@ RUN ls -la /app/apps/api/dist/ || echo "dist folder not found!"
 EXPOSE 3001
 
 # Run pending migrations then start the API
-CMD cd apps/api && npx prisma migrate deploy && cd ../.. && pnpm --filter @doctorq/api start
+CMD cd apps/api && npx prisma db push --accept-data-loss && cd ../.. && pnpm --filter @doctorq/api start
