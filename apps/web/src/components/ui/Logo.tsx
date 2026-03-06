@@ -1,7 +1,7 @@
 /**
  * Brand Logo Component
  * BleSaf: "Blé" uses Reem Kufi + "Saf" uses Bebas Neue
- * FiloSoin: "Filo" uses IBM Plex Sans + "Soin" uses Bebas Neue
+ * AuSuivant: "Au" uses IBM Plex Sans + "Suivant" uses Bebas Neue
  */
 
 import { webBrand } from '../../lib/brand';

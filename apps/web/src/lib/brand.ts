@@ -80,10 +80,10 @@ const brands: Record<BrandId, WebBrandConfig> = {
   },
   france: {
     id: 'france',
-    name: 'FiloSoin',
-    domain: 'filosoin.fr',
-    supportEmail: 'support@filosoin.fr',
-    analyticsDomain: 'filosoin.fr',
+    name: 'AuSuivant',
+    domain: 'ausuivant.fr',
+    supportEmail: 'support@ausuivant.fr',
+    analyticsDomain: 'ausuivant.fr',
     country: 'FR',
     defaultLanguage: 'fr',
     supportedLanguages: ['fr'],
@@ -107,7 +107,7 @@ const brands: Record<BrandId, WebBrandConfig> = {
       yearlyUnit: 'EUR/an',
     },
     legal: {
-      entityName: 'FiloSoin SAS',
+      entityName: 'AuSuivant SAS',
       jurisdiction: 'tribunaux compétents de Paris',
     },
   },

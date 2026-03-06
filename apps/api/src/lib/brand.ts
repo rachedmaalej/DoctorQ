@@ -90,11 +90,11 @@ const brands: Record<BrandId, BrandDefaults> = {
   },
   france: {
     id: 'france',
-    name: 'FiloSoin',          // placeholder — update when name is chosen
-    legalEntity: 'FiloSoin SAS',
-    domain: 'filosoin.fr',
-    supportEmail: 'support@filosoin.fr',
-    fromEmail: 'FiloSoin <noreply@filosoin.fr>',
+    name: 'AuSuivant',
+    legalEntity: 'AuSuivant SAS',
+    domain: 'ausuivant.fr',
+    supportEmail: 'support@ausuivant.fr',
+    fromEmail: 'AuSuivant <noreply@ausuivant.fr>',
     country: 'FR',
     timezone: 'Europe/Paris',
     defaultLanguage: 'fr',
