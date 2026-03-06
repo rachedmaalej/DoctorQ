@@ -45,11 +45,13 @@ const httpServer = createServer(app);
 // Parse CORS origins: merge env-configured origins with always-allowed origins
 const alwaysAllowed = [
   'https://web-zeta-five-39.vercel.app',
+  'https://ausuivant-production.vercel.app',
   'http://localhost:5173',
   'http://localhost:5174',
   'http://localhost:5175',
   'http://localhost:5176',
   'http://localhost:5177',
+  'http://localhost:5178',
 ];
 const envOrigins = (process.env.CORS_ORIGIN || process.env.FRONTEND_URL || '')
   .split(',')
