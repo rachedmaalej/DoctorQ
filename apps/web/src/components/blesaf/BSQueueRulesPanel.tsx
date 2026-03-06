@@ -25,39 +25,45 @@ export default function BSQueueRulesPanel({ isOpen, onClose }: BSQueueRulesPanel
   const { clinic } = useAuthStore();
   const [mode, setMode] = useState<QueueMode>('RDV_PRIORITY');
   const [grace, setGrace] = useState(15);
+  const [stepOutEnabled, setStepOutEnabled] = useState(false);
   const [autoSaveStatus, setAutoSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const savedModeRef = useRef<QueueMode>('RDV_PRIORITY');
   const savedGraceRef = useRef(15);
+  const savedStepOutRef = useRef(false);
 
   useEffect(() => {
     if (clinic) {
       const m = (clinic.queueMode as QueueMode) || 'RDV_PRIORITY';
       const g = clinic.rdvGraceMinutes ?? 15;
+      const so = clinic.enableStepOut ?? false;
       setMode(m);
       setGrace(g);
+      setStepOutEnabled(so);
       savedModeRef.current = m;
       savedGraceRef.current = g;
+      savedStepOutRef.current = so;
     }
   }, [clinic]);
 
   const hasChanges = useCallback(() => {
-    return savedModeRef.current !== mode || savedGraceRef.current !== grace;
-  }, [mode, grace]);
+    return savedModeRef.current !== mode || savedGraceRef.current !== grace || savedStepOutRef.current !== stepOutEnabled;
+  }, [mode, grace, stepOutEnabled]);
 
   const autoSave = useCallback(async () => {
     if (!hasChanges()) return;
     setAutoSaveStatus('saving');
     try {
-      await api.updateClinic({ queueMode: mode, rdvGraceMinutes: grace });
+      await api.updateClinic({ queueMode: mode, rdvGraceMinutes: grace, enableStepOut: stepOutEnabled });
       savedModeRef.current = mode;
       savedGraceRef.current = grace;
+      savedStepOutRef.current = stepOutEnabled;
       setAutoSaveStatus('saved');
       setTimeout(() => setAutoSaveStatus('idle'), 2000);
     } catch {
       setAutoSaveStatus('error');
       setTimeout(() => setAutoSaveStatus('idle'), 3000);
     }
-  }, [mode, grace, hasChanges]);
+  }, [mode, grace, stepOutEnabled, hasChanges]);
 
   const handleClose = useCallback(async () => {
     if (hasChanges()) {
@@ -240,6 +246,59 @@ export default function BSQueueRulesPanel({ isOpen, onClose }: BSQueueRulesPanel
               {autoSaveStatus === 'error' && t('settings.autoSave.error', "Erreur lors de l'enregistrement")}
             </div>
           )}
+
+          {/* Step-out toggle */}
+          <div className="bs-settings-label" style={{ marginTop: 4 }}>
+            {t('settings.queueRules.stepOutLabel', 'Absence temporaire')}
+          </div>
+          <div style={{
+            background: '#FFF',
+            border: '1px solid #E8E6DF',
+            borderRadius: 14,
+            padding: '14px 16px',
+            marginBottom: 20,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+          }}>
+            <div style={{
+              width: 40, height: 40, borderRadius: 10,
+              background: '#FFF7ED',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              flexShrink: 0,
+            }}>
+              <span className="material-symbols-rounded" style={{ fontSize: 20, color: '#EA580C' }}>
+                directions_walk
+              </span>
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 14, fontWeight: 600, color: '#1A1A1A' }}>
+                {t('settings.queueRules.enableStepOut', "Autoriser l'absence")}
+              </div>
+              <div style={{ fontSize: 12, color: '#8E9693', lineHeight: 1.3, marginTop: 2 }}>
+                {t('settings.queueRules.enableStepOutDesc', "Le patient peut s'absenter 60 min (2x max)")}
+              </div>
+            </div>
+            <button
+              onClick={() => setStepOutEnabled(prev => !prev)}
+              style={{
+                width: 48, height: 28, borderRadius: 14,
+                background: stepOutEnabled ? '#0F7B6C' : '#D1D1D1',
+                border: 'none', cursor: 'pointer',
+                position: 'relative', transition: 'background 0.2s',
+                flexShrink: 0,
+              }}
+            >
+              <div style={{
+                width: 22, height: 22, borderRadius: '50%',
+                background: '#FFF',
+                position: 'absolute', top: 3,
+                left: stepOutEnabled ? 23 : 3,
+                transition: 'left 0.2s',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
+              }} />
+            </button>
+          </div>
 
           {/* Explanation card */}
           <div style={{

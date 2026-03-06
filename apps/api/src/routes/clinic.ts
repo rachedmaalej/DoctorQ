@@ -43,6 +43,7 @@ router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {
         funFactsEnabled: true,
         queueMode: true,
         rdvGraceMinutes: true,
+        enableStepOut: true,
       },
     });
 
@@ -72,6 +73,7 @@ const updateClinicSchema = z.object({
   enableLanguageSwitcher: z.boolean().optional(),
   queueMode: z.enum(['RDV_PRIORITY', 'FIFO', 'RDV_ON_TIME']).optional(),
   rdvGraceMinutes: z.number().int().min(5).max(30).optional(),
+  enableStepOut: z.boolean().optional(),
 });
 
 router.patch('/', authMiddleware, subscriptionGate, async (req: AuthRequest, res: Response) => {
@@ -101,6 +103,7 @@ router.patch('/', authMiddleware, subscriptionGate, async (req: AuthRequest, res
         enableLanguageSwitcher: true,
         queueMode: true,
         rdvGraceMinutes: true,
+        enableStepOut: true,
       },
     });
 

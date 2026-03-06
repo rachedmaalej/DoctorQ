@@ -25,6 +25,8 @@ export interface QueueEntry {
   appointmentTime: string | null;  // v0.3: Scheduled appointment time
   isEmergency?: boolean;
   isSteppedOut?: boolean;
+  stepOutCount?: number;
+  steppedOutAt?: string | null;
   arrivedAt: string;
   notifiedAt: string | null;
   calledAt: string | null;
@@ -99,6 +101,7 @@ export interface Clinic {
   enableLanguageSwitcher?: boolean;
   queueMode?: string;
   rdvGraceMinutes?: number;
+  enableStepOut?: boolean;
   clinicHours?: ClinicHours | null;
   enableQrCode?: boolean;
   enableManualEntry?: boolean;
@@ -176,6 +179,7 @@ export interface PatientStatusResponse extends QueueEntry {
   announcementAt?: string | null;
   specialty?: string | null;
   funFactsEnabled?: boolean;
+  enableStepOut?: boolean;
 }
 
 // ─── Admin Types ─────────────────────────────────────────────

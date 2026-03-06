@@ -80,6 +80,13 @@ body {
   min-height: 100vh;
 }
 
+/* Prevent iOS Safari auto-zoom on input focus (requires font-size >= 16px) */
+@supports (-webkit-touch-callout: none) {
+  input, textarea, select {
+    font-size: 16px;
+  }
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
@@ -257,6 +264,8 @@ tr:nth-child(10).queue-row-shift { animation-delay: 450ms; }
 /* ─── Landing Page Scroll-Reveal Animations ─────────────── */
 html {
   scroll-behavior: smooth;
+  touch-action: manipulation;      /* Disable double-tap-to-zoom on iOS Safari */
+  -webkit-text-size-adjust: 100%;  /* Prevent Safari text size auto-adjustment */
 }
 
 section[id] {

@@ -136,7 +136,7 @@ export default function SignupPage() {
                   style={{
                     borderColor: errors.email ? '#D94040' : '#D0DDD6',
                     borderRadius: '6px',
-                    fontSize: '15px',
+                    fontSize: '16px',
                   }}
                 />
                 {errors.email && (
@@ -166,7 +166,7 @@ export default function SignupPage() {
                     style={{
                       borderColor: errors.password ? '#D94040' : '#D0DDD6',
                       borderRadius: '6px',
-                      fontSize: '15px',
+                      fontSize: '16px',
                     }}
                   />
                   <button
@@ -201,7 +201,7 @@ export default function SignupPage() {
                   style={{
                     borderColor: errors.clinicName ? '#D94040' : '#D0DDD6',
                     borderRadius: '6px',
-                    fontSize: '15px',
+                    fontSize: '16px',
                   }}
                 />
                 <p className="mt-1.5" style={{ color: '#888899', fontSize: '12px' }}>

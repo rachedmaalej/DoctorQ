@@ -1,31 +1,58 @@
 import { useTranslation } from 'react-i18next';
 import type { Phase } from './utils';
 
-import PSAbsentButton from './PSAbsentButton';
+import PSStepOutCard from './PSStepOutCard';
 
 interface PSContextCardProps {
   phase: Phase;
   peopleAhead: number;
   avgConsultMins?: number;
-  isAbsent: boolean;
-  onAbsentClick: () => void;
   isCalled: boolean;
   confidence?: 'high' | 'medium' | 'low';
+  // Step-out props
+  enableStepOut?: boolean;
+  isSteppedOut?: boolean;
+  stepOutCount?: number;
+  steppedOutAt?: string | null;
+  onStepOut?: () => void;
+  onStepBack?: () => void;
+  isSteppingOut?: boolean;
 }
 
 export default function PSContextCard({
   phase,
   peopleAhead,
   avgConsultMins,
-  isAbsent,
-  onAbsentClick,
   isCalled,
   confidence,
+  enableStepOut = false,
+  isSteppedOut = false,
+  stepOutCount = 0,
+  steppedOutAt = null,
+  onStepOut,
+  onStepBack,
+  isSteppingOut = false,
 }: PSContextCardProps) {
   const { t } = useTranslation();
 
   // No context cards for called (#0) or done
   if (isCalled || phase === 'done') return null;
+
+  // ─── Stepped Out: Always show return card when patient is absent ───
+  if (isSteppedOut && enableStepOut && onStepOut && onStepBack) {
+    return (
+      <div className="ps-info-area ps-fade-up-d3">
+        <PSStepOutCard
+          isSteppedOut={isSteppedOut}
+          stepOutCount={stepOutCount}
+          steppedOutAt={steppedOutAt}
+          onStepOut={onStepOut}
+          onStepBack={onStepBack}
+          isLoading={isSteppingOut}
+        />
+      </div>
+    );
+  }
 
   // ─── Relax Phase (States 1-2: position ≥ 4) ───
   if (phase === 'relax') {
@@ -62,8 +89,17 @@ export default function PSContextCard({
           {tipText}
         </div>
 
-        {/* Absent Button — only visible on states 1-2 (position ≥ 4) */}
-        <PSAbsentButton isAbsent={isAbsent} onToggle={onAbsentClick} />
+        {/* Step-Out Button — only visible when enabled and position >= 3 */}
+        {enableStepOut && onStepOut && onStepBack && (
+          <PSStepOutCard
+            isSteppedOut={isSteppedOut}
+            stepOutCount={stepOutCount}
+            steppedOutAt={steppedOutAt}
+            onStepOut={onStepOut}
+            onStepBack={onStepBack}
+            isLoading={isSteppingOut}
+          />
+        )}
       </div>
     );
   }
