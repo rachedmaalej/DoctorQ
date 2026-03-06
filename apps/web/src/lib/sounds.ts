@@ -138,5 +138,31 @@ export function playPriorityAlarm(volume = 0.45): void {
   }
 }
 
+/**
+ * Sound #11: Step-Out Reminder — descending double-ping (E5 → C5).
+ * Used to remind stepped-out patients that the queue is moving.
+ */
+export function playStepOutReminder(volume = 0.35): void {
+  if (!audioUnlocked) return;
+  try {
+    const ctx = getAudioContext();
+    const t = ctx.currentTime;
+    [659.25, 523.25].forEach((freq, i) => { // E5, C5 — descending "come back"
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, t + i * 0.18);
+      gain.gain.setValueAtTime(volume * 0.35, t + i * 0.18);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.18 + 0.3);
+      osc.start(t + i * 0.18);
+      osc.stop(t + i * 0.18 + 0.3);
+    });
+  } catch (e) {
+    console.warn('[Sound] Step-out reminder failed:', e);
+  }
+}
+
 // Legacy alias for dashboard usage
 export const playDoorbellSound = playMedicalChime;

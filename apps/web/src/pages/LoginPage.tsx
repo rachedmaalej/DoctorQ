@@ -13,7 +13,7 @@ const DEV_CREDS = {
     clinic: { email: 'dr.skander@example.tn', password: 'password123' },
   },
   france: {
-    admin: { email: 'admin@filosoin.fr', password: 'FiloSoinAdmin2024!' },
+    admin: { email: 'admin@ausuivant.fr', password: 'AuSuivantAdmin2024!' },
     clinic: { email: 'dr.perrin@example.fr', password: 'password123' },
   },
 } as const;

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { api } from '@/lib/api';
 import { logger } from '@/lib/logger';
 import { useSocket } from '@/hooks/useSocket';
-import { initAudioContext, playSoftChime, playMedicalChime, playBrightAlert, playPriorityAlarm } from '@/lib/sounds';
+import { initAudioContext, playSoftChime, playMedicalChime, playBrightAlert, playPriorityAlarm, playStepOutReminder } from '@/lib/sounds';
 
 import type { PatientStatusResponse } from '@/types';
 import { QueueStatus } from '@/types';
@@ -52,7 +52,11 @@ export default function PatientStatusPage() {
   const [isLeaving, setIsLeaving] = useState(false);
   const [isDoctorPresent, setIsDoctorPresent] = useState(true);
   const [announcement, setAnnouncement] = useState<string | null>(null);
-  const [isAbsent, setIsAbsent] = useState(false);
+  const [isSteppedOut, setIsSteppedOut] = useState(false);
+  const [stepOutCount, setStepOutCount] = useState(0);
+  const [steppedOutAt, setSteppedOutAt] = useState<string | null>(null);
+  const [enableStepOut, setEnableStepOut] = useState(false);
+  const [isSteppingOut, setIsSteppingOut] = useState(false);
   const [toast, setToast] = useState<{ visible: boolean; message: string }>({ visible: false, message: '' });
 
   // ─── Refs ───
@@ -62,6 +66,7 @@ export default function PatientStatusPage() {
   const initialPeopleAheadRef = useRef<number>(0);
   const audioInitRef = useRef(false);
   const lastAnnouncementRef = useRef<string | null>(null);
+  const isSteppedOutRef = useRef(false);
 
   // ─── Stable Callbacks ───
   const hideToast = useCallback(() => setToast({ visible: false, message: '' }), []);
@@ -123,7 +128,7 @@ export default function PatientStatusPage() {
 
   // ─── Socket Handlers ───
 
-  const handlePatientCalled = useCallback((data: { position: number; status: string; estimatedWaitMins?: number; confidence?: 'high' | 'medium' | 'low' }) => {
+  const handlePatientCalled = useCallback((data: { position: number; status: string; estimatedWaitMins?: number; confidence?: 'high' | 'medium' | 'low'; isSteppedOut?: boolean }) => {
     logger.log('[PatientStatus] handlePatientCalled received:', data);
 
     const status = data.status as QueueStatus;
@@ -132,8 +137,20 @@ export default function PatientStatusPage() {
     const oldStatus = prevStatusRef.current;
     const peopleAhead = Math.max(0, newPosition - 1);
 
-    // Sound + toast if position improved (side effects OUTSIDE state updater)
-    if (oldPosition !== null && newPosition < oldPosition && status !== QueueStatus.IN_CONSULTATION) {
+    // Update stepped-out state from socket if provided
+    if (data.isSteppedOut !== undefined) {
+      isSteppedOutRef.current = data.isSteppedOut;
+      setIsSteppedOut(data.isSteppedOut);
+    }
+
+    // Stepped-out patient: play reminder sound on any queue movement
+    if (isSteppedOutRef.current && oldPosition !== null && oldPosition !== newPosition) {
+      playStepOutReminder();
+      vibrate(200);
+      setToast({ visible: true, message: 'La file avance ! Revenez vite.' });
+    }
+    // Normal sound + toast if position improved (not stepped out)
+    else if (!isSteppedOutRef.current && oldPosition !== null && newPosition < oldPosition && status !== QueueStatus.IN_CONSULTATION) {
       const toastMsg = deriveToastMessage(peopleAhead);
       if (toastMsg) {
         setToast({ visible: true, message: toastMsg });
@@ -170,6 +187,7 @@ export default function PatientStatusPage() {
         position: newPosition,
         ...(data.estimatedWaitMins !== undefined && { estimatedWaitMins: data.estimatedWaitMins }),
         ...(data.confidence !== undefined && { confidence: data.confidence }),
+        ...(data.isSteppedOut !== undefined && { isSteppedOut: data.isSteppedOut }),
       };
     });
   }, []);
@@ -264,6 +282,12 @@ export default function PatientStatusPage() {
         }
         if (data.isDoctorPresent !== undefined) setIsDoctorPresent(data.isDoctorPresent);
         if (data.announcement !== undefined) setAnnouncement(data.announcement);
+        // Initialize step-out state
+        setEnableStepOut(data.enableStepOut ?? false);
+        setIsSteppedOut(data.isSteppedOut ?? false);
+        setStepOutCount(data.stepOutCount ?? 0);
+        setSteppedOutAt(data.steppedOutAt ?? null);
+        isSteppedOutRef.current = data.isSteppedOut ?? false;
       } catch (err: any) {
         setError(err.message || 'Failed to load patient status');
       } finally {
@@ -291,6 +315,38 @@ export default function PatientStatusPage() {
       setIsQuitModalOpen(false);
     } finally {
       setIsLeaving(false);
+    }
+  };
+
+  // ─── Step Out / Step Back ───
+  const handleStepOut = async () => {
+    if (!entryId) return;
+    setIsSteppingOut(true);
+    try {
+      const result = await api.stepOut(entryId);
+      setIsSteppedOut(true);
+      isSteppedOutRef.current = true;
+      setStepOutCount(result.stepOutCount);
+      setSteppedOutAt(result.steppedOutAt);
+    } catch (err: any) {
+      logger.error('Failed to step out:', err);
+    } finally {
+      setIsSteppingOut(false);
+    }
+  };
+
+  const handleStepBack = async () => {
+    if (!entryId) return;
+    setIsSteppingOut(true);
+    try {
+      await api.stepBack(entryId);
+      setIsSteppedOut(false);
+      isSteppedOutRef.current = false;
+      setSteppedOutAt(null);
+    } catch (err: any) {
+      logger.error('Failed to step back:', err);
+    } finally {
+      setIsSteppingOut(false);
     }
   };
 
@@ -475,10 +531,15 @@ export default function PatientStatusPage() {
             phase={phase}
             peopleAhead={peopleAhead}
             avgConsultMins={entry.avgConsultationMins}
-            isAbsent={isAbsent}
-            onAbsentClick={() => setIsAbsent(!isAbsent)}
             isCalled={isCalled}
             confidence={entry.confidence}
+            enableStepOut={enableStepOut}
+            isSteppedOut={isSteppedOut}
+            stepOutCount={stepOutCount}
+            steppedOutAt={steppedOutAt}
+            onStepOut={handleStepOut}
+            onStepBack={handleStepBack}
+            isSteppingOut={isSteppingOut}
           />
         )}
 

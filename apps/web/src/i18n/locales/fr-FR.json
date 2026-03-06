@@ -79,8 +79,8 @@
       "support": "Support en 24h"
     },
     "beforeAfter": {
-      "beforeTitle": "Sans FiloSoin",
-      "afterTitle": "Avec FiloSoin",
+      "beforeTitle": "Sans AuSuivant",
+      "afterTitle": "Avec AuSuivant",
       "before1": "Salle d'attente surpeuplée, patients agités",
       "before2": "Appels téléphoniques incessants : « C'est quand mon tour ? »",
       "before3": "Patients qui partent sans être vus",
@@ -100,7 +100,7 @@
       "step3Desc": "Les patients s'enregistrent seuls et suivent leur position. Vous gérez tout depuis votre tableau de bord."
     },
     "benefits": {
-      "title": "Pourquoi choisir FiloSoin ?",
+      "title": "Pourquoi choisir AuSuivant ?",
       "card1Title": "Gain de temps",
       "card1Desc": "Plus de gestion manuelle. Les patients s'enregistrent seuls via QR code et suivent leur position en temps réel.",
       "card2Title": "Patients sereins",
@@ -116,7 +116,7 @@
     },
     "trust": {
       "title": "Vos données sont en sécurité",
-      "subtitle": "FiloSoin est conçu pour respecter les normes européennes les plus strictes en matière de protection des données personnelles.",
+      "subtitle": "AuSuivant est conçu pour respecter les normes européennes les plus strictes en matière de protection des données personnelles.",
       "pillar1Title": "RGPD Conforme",
       "pillar1Desc": "Conformité totale au Règlement Européen 2016/679 sur la protection des données.",
       "pillar2Title": "Hébergement UE",
@@ -149,15 +149,15 @@
       "q2": "Mes patients âgés peuvent l'utiliser ?",
       "a2": "Oui ! Ils scannent simplement le QR code avec l'appareil photo de leur téléphone. Pas besoin de télécharger une application. Sinon, la réceptionniste peut les ajouter manuellement.",
       "q3": "Est-ce conforme au RGPD ?",
-      "a3": "Absolument. FiloSoin est conforme au Règlement Européen 2016/679. Données hébergées en UE, chiffrement SSL, noms anonymisés par défaut (Prénom N.), et droit à l'effacement garanti.",
+      "a3": "Absolument. AuSuivant est conforme au Règlement Européen 2016/679. Données hébergées en UE, chiffrement SSL, noms anonymisés par défaut (Prénom N.), et droit à l'effacement garanti.",
       "q4": "Quels modes de paiement acceptez-vous ?",
       "a4": "Nous acceptons les cartes bancaires (Visa, Mastercard) via Stripe, la plateforme de paiement la plus sécurisée d'Europe.",
-      "q5": "Puis-je utiliser FiloSoin avec plusieurs médecins ?",
-      "a5": "Oui ! FiloSoin supporte plusieurs praticiens dans le même cabinet, chacun avec sa propre file d'attente et ses propres statistiques.",
+      "q5": "Puis-je utiliser AuSuivant avec plusieurs médecins ?",
+      "a5": "Oui ! AuSuivant supporte plusieurs praticiens dans le même cabinet, chacun avec sa propre file d'attente et ses propres statistiques.",
       "q6": "Que se passe-t-il à la fin de l'essai gratuit ?",
       "a6": "Votre essai se termine simplement. Pas de facturation automatique. Vous choisissez de vous abonner ou non, sans surprise.",
       "q7": "Proposez-vous un support technique ?",
-      "a7": "Oui, notre équipe est disponible par email à support@filosoin.fr. Temps de réponse moyen : moins de 24 heures."
+      "a7": "Oui, notre équipe est disponible par email à support@ausuivant.fr. Temps de réponse moyen : moins de 24 heures."
     },
     "cta": {
       "title": "Prêt à transformer votre salle d'attente ?",
@@ -177,42 +177,42 @@
       "title": "Conditions Générales d'Utilisation",
       "section1": {
         "title": "1. Objet",
-        "content": "Les présentes conditions générales régissent l'utilisation de la plateforme FiloSoin, un service de gestion de file d'attente pour les cabinets médicaux en France, édité par la société FiloSoin SAS. En utilisant FiloSoin, vous acceptez ces conditions dans leur intégralité."
+        "content": "Les présentes conditions générales régissent l'utilisation de la plateforme AuSuivant, un service de gestion de file d'attente pour les cabinets médicaux en France, édité par la société AuSuivant SAS. En utilisant AuSuivant, vous acceptez ces conditions dans leur intégralité."
       },
       "section2": {
         "title": "2. Description du Service",
-        "content": "FiloSoin est une plateforme SaaS (Software as a Service) qui permet aux professionnels de santé de gérer leur file d'attente de manière numérique. Le service inclut : la gestion de la file d'attente en temps réel, l'enregistrement des patients via QR code, le suivi en temps réel de la position pour les patients, et un tableau de bord de statistiques."
+        "content": "AuSuivant est une plateforme SaaS (Software as a Service) qui permet aux professionnels de santé de gérer leur file d'attente de manière numérique. Le service inclut : la gestion de la file d'attente en temps réel, l'enregistrement des patients via QR code, le suivi en temps réel de la position pour les patients, et un tableau de bord de statistiques."
       },
       "section3": {
         "title": "3. Inscription et Compte",
-        "content": "Pour utiliser FiloSoin, vous devez créer un compte en fournissant des informations exactes et complètes. Vous êtes responsable de la confidentialité de vos identifiants de connexion. Chaque compte correspond à un cabinet médical. Vous devez être un professionnel de santé autorisé à exercer en France."
+        "content": "Pour utiliser AuSuivant, vous devez créer un compte en fournissant des informations exactes et complètes. Vous êtes responsable de la confidentialité de vos identifiants de connexion. Chaque compte correspond à un cabinet médical. Vous devez être un professionnel de santé autorisé à exercer en France."
       },
       "section4": {
         "title": "4. Période d'Essai et Abonnement",
-        "content": "FiloSoin offre une période d'essai gratuite de 30 jours. À l'issue de cette période, un abonnement payant est nécessaire pour continuer à utiliser le service. Les tarifs en vigueur sont affichés sur la page d'abonnement. Le paiement s'effectue par carte bancaire via Stripe. L'abonnement est renouvelable mensuellement ou annuellement selon le plan choisi."
+        "content": "AuSuivant offre une période d'essai gratuite de 30 jours. À l'issue de cette période, un abonnement payant est nécessaire pour continuer à utiliser le service. Les tarifs en vigueur sont affichés sur la page d'abonnement. Le paiement s'effectue par carte bancaire via Stripe. L'abonnement est renouvelable mensuellement ou annuellement selon le plan choisi."
       },
       "section5": {
         "title": "5. Protection des Données (RGPD)",
-        "content": "FiloSoin s'engage à protéger les données personnelles conformément au Règlement Général sur la Protection des Données (RGPD - Règlement UE 2016/679) et à la loi Informatique et Libertés. Les données des patients sont traitées uniquement dans le cadre de la gestion de la file d'attente et ne sont jamais partagées avec des tiers. Le responsable de traitement est FiloSoin SAS. Pour plus de détails, consultez notre Politique de Confidentialité."
+        "content": "AuSuivant s'engage à protéger les données personnelles conformément au Règlement Général sur la Protection des Données (RGPD - Règlement UE 2016/679) et à la loi Informatique et Libertés. Les données des patients sont traitées uniquement dans le cadre de la gestion de la file d'attente et ne sont jamais partagées avec des tiers. Le responsable de traitement est AuSuivant SAS. Pour plus de détails, consultez notre Politique de Confidentialité."
       },
       "section6": {
         "title": "6. Disponibilité du Service",
-        "content": "FiloSoin s'efforce de maintenir le service disponible 24h/24 et 7j/7. Toutefois, des interruptions temporaires peuvent survenir pour des raisons de maintenance ou de mise à jour. FiloSoin ne saurait être tenu responsable des dommages résultant d'une interruption temporaire du service."
+        "content": "AuSuivant s'efforce de maintenir le service disponible 24h/24 et 7j/7. Toutefois, des interruptions temporaires peuvent survenir pour des raisons de maintenance ou de mise à jour. AuSuivant ne saurait être tenu responsable des dommages résultant d'une interruption temporaire du service."
       },
       "section7": {
         "title": "7. Résiliation et Droit de Rétractation",
-        "content": "Vous pouvez résilier votre abonnement à tout moment. La résiliation prend effet à la fin de la période d'abonnement en cours. Conformément au Code de la consommation, vous disposez d'un droit de rétractation de 14 jours à compter de la souscription. En cas de résiliation, vos données seront conservées pendant 30 jours, après quoi elles seront supprimées définitivement. FiloSoin se réserve le droit de suspendre ou résilier un compte en cas de violation des présentes conditions."
+        "content": "Vous pouvez résilier votre abonnement à tout moment. La résiliation prend effet à la fin de la période d'abonnement en cours. Conformément au Code de la consommation, vous disposez d'un droit de rétractation de 14 jours à compter de la souscription. En cas de résiliation, vos données seront conservées pendant 30 jours, après quoi elles seront supprimées définitivement. AuSuivant se réserve le droit de suspendre ou résilier un compte en cas de violation des présentes conditions."
       },
       "section8": {
         "title": "8. Droit Applicable",
-        "content": "Les présentes conditions sont régies par le droit français. Tout litige relatif à l'interprétation ou l'exécution des présentes conditions sera soumis aux tribunaux compétents de Paris. Pour toute question, contactez-nous à support@filosoin.fr."
+        "content": "Les présentes conditions sont régies par le droit français. Tout litige relatif à l'interprétation ou l'exécution des présentes conditions sera soumis aux tribunaux compétents de Paris. Pour toute question, contactez-nous à support@ausuivant.fr."
       }
     },
     "privacy": {
       "title": "Politique de Confidentialité",
       "section1": {
         "title": "1. Données Collectées",
-        "content": "FiloSoin collecte les données suivantes : pour les professionnels de santé — nom du cabinet, nom du médecin, adresse email, numéro de téléphone, adresse du cabinet ; pour les patients — prénom (ou pseudonyme), numéro de téléphone (optionnel), position dans la file d'attente et heures de passage."
+        "content": "AuSuivant collecte les données suivantes : pour les professionnels de santé — nom du cabinet, nom du médecin, adresse email, numéro de téléphone, adresse du cabinet ; pour les patients — prénom (ou pseudonyme), numéro de téléphone (optionnel), position dans la file d'attente et heures de passage."
       },
       "section2": {
         "title": "2. Base Légale et Utilisation des Données",
@@ -228,15 +228,15 @@
       },
       "section5": {
         "title": "5. Partage des Données",
-        "content": "FiloSoin ne vend, ne loue et ne partage pas vos données personnelles avec des tiers, à l'exception des sous-traitants techniques nécessaires au fonctionnement du service (hébergement, paiement). Ces sous-traitants sont soumis aux mêmes obligations de protection des données. Les données ne sont jamais utilisées à des fins publicitaires. Aucun transfert de données hors de l'Union Européenne n'est effectué."
+        "content": "AuSuivant ne vend, ne loue et ne partage pas vos données personnelles avec des tiers, à l'exception des sous-traitants techniques nécessaires au fonctionnement du service (hébergement, paiement). Ces sous-traitants sont soumis aux mêmes obligations de protection des données. Les données ne sont jamais utilisées à des fins publicitaires. Aucun transfert de données hors de l'Union Européenne n'est effectué."
       },
       "section6": {
         "title": "6. Vos Droits (RGPD)",
-        "content": "Conformément au RGPD, vous disposez des droits suivants : droit d'accès, de rectification, d'effacement, de limitation du traitement, de portabilité des données, et d'opposition. Vous pouvez également introduire une réclamation auprès de la CNIL. Pour exercer ces droits, contactez-nous à support@filosoin.fr. Nous traiterons votre demande dans un délai de 30 jours."
+        "content": "Conformément au RGPD, vous disposez des droits suivants : droit d'accès, de rectification, d'effacement, de limitation du traitement, de portabilité des données, et d'opposition. Vous pouvez également introduire une réclamation auprès de la CNIL. Pour exercer ces droits, contactez-nous à support@ausuivant.fr. Nous traiterons votre demande dans un délai de 30 jours."
       },
       "section7": {
         "title": "7. Délégué à la Protection des Données",
-        "content": "Pour toute question relative à la protection de vos données personnelles, vous pouvez nous contacter à : support@filosoin.fr. Responsable du traitement : FiloSoin SAS, Paris, France."
+        "content": "Pour toute question relative à la protection de vos données personnelles, vous pouvez nous contacter à : support@ausuivant.fr. Responsable du traitement : AuSuivant SAS, Paris, France."
       }
     }
   }

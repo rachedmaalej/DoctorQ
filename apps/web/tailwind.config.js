@@ -46,7 +46,7 @@ export default {
           800: '#623F04',
           900: '#312002',
         },
-        // FiloSoin France landing page palette
+        // AuSuivant France landing page palette
         fr: {
           navy: '#0F172A',
           'navy-800': '#1E293B',

@@ -9,8 +9,8 @@ const brandConfig: Record<string, { title: string; analyticsDomain: string }> = 
     analyticsDomain: 'blesaf.tn',
   },
   france: {
-    title: 'FiloSoin - Gestion de File d\'Attente',
-    analyticsDomain: 'filosoin.fr',
+    title: 'AuSuivant - Gestion de File d\'Attente',
+    analyticsDomain: 'ausuivant.fr',
   },
 };
 

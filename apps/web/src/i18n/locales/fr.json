@@ -698,7 +698,10 @@
       "rdvOnTimeDesc": "RDV prioritaire seulement si arrivé à l'heure",
       "graceLabel": "Tolérance de retard",
       "graceExplain": "Un patient avec RDV qui arrive plus de {{minutes}} min en retard perd sa priorité",
-      "emergencyNote": "L'urgence est toujours disponible. Utilisez le menu patient pour marquer un patient comme urgence — il passera juste après la consultation en cours."
+      "emergencyNote": "L'urgence est toujours disponible. Utilisez le menu patient pour marquer un patient comme urgence — il passera juste après la consultation en cours.",
+      "stepOutLabel": "Absence temporaire",
+      "enableStepOut": "Autoriser l'absence",
+      "enableStepOutDesc": "Le patient peut s'absenter 60 min (2x max)"
     },
     "autoSave": {
       "saving": "Enregistrement...",
@@ -1126,7 +1129,16 @@
     "alertNePasEloigner": "Ne vous éloignez pas — c'est bientôt à vous",
     "alertPorte": "Nous vous appelons dans quelques instants",
     "jeAbsente": "Je m'absente un moment",
-    "jArrive": "J'arrive !"
+    "jArrive": "J'arrive !",
+    "stepOut": {
+      "button": "Je m'absente un moment",
+      "active": "Vous \u00eates absent(e)",
+      "countdown": "{{minutes}} min restantes",
+      "return": "Revenir dans la file",
+      "reminder": "La file avance ! Revenez vite.",
+      "limitReached": "Limite d'absences atteinte",
+      "usage": "{{count}}/{{max}} absences"
+    }
   },
   "kpi": {
     "waiting_label": "En attente",

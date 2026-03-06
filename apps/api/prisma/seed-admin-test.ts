@@ -573,7 +573,7 @@ async function seedAdminTestData() {
     const isTN = def.country === 'TN';
     const monthlyAmt = isTN ? 65_000 : 4_900;
     const yearlyAmt = isTN ? 650_000 : 49_000;
-    const adminEmail = isTN ? 'admin@blesaf.tn' : 'admin@filosoin.fr';
+    const adminEmail = isTN ? 'admin@blesaf.tn' : 'admin@ausuivant.fr';
 
     if (
       def.subscriptionStatus === SubscriptionStatus.ACTIVE &&

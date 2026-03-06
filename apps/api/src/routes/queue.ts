@@ -451,7 +451,7 @@ router.post('/:id/emergency', authMiddleware, subscriptionGate, async (req: Auth
   }
 });
 
-// POST /api/queue/:id/stepped-out - Toggle stepped-out flag on a patient
+// POST /api/queue/:id/stepped-out - Toggle stepped-out flag on a patient (receptionist)
 router.post('/:id/stepped-out', authMiddleware, subscriptionGate, async (req: AuthRequest, res: Response) => {
   try {
     const clinicId = req.clinic!.id;
@@ -471,11 +471,17 @@ router.post('/:id/stepped-out', authMiddleware, subscriptionGate, async (req: Au
       });
     }
 
+    const steppingOut = !entry.isSteppedOut;
     const updated = await prisma.queueEntry.update({
       where: { id },
-      data: { isSteppedOut: !entry.isSteppedOut },
+      data: {
+        isSteppedOut: steppingOut,
+        steppedOutAt: steppingOut ? new Date() : null,
+        ...(steppingOut ? { stepOutCount: { increment: 1 } } : {}),
+      },
     });
 
+    await recalculatePositionsAndStatuses(clinicId);
     invalidateStatsCache(clinicId);
     emitQueueUpdate(clinicId).catch(() => {});
     emitAllPatientUpdates(clinicId).catch(() => {});
@@ -615,6 +621,127 @@ router.post('/patient/:entryId/leave', async (req, res: Response) => {
     logger.error({ err: error }, "Patient leave queue error");
     res.status(500).json({
       error: { code: 'SERVER_ERROR', message: 'Failed to leave queue' },
+    });
+  }
+});
+
+// POST /api/queue/patient/:entryId/step-out - Patient steps out of queue (public)
+router.post('/patient/:entryId/step-out', async (req, res: Response) => {
+  try {
+    const { entryId } = req.params;
+
+    const entry = await prisma.queueEntry.findUnique({
+      where: { id: entryId },
+      include: { clinic: { select: { enableStepOut: true } } },
+    });
+
+    if (!entry) {
+      return res.status(404).json({
+        error: { code: 'ENTRY_NOT_FOUND', message: 'Queue entry not found' },
+      });
+    }
+
+    if (!entry.clinic.enableStepOut) {
+      return res.status(403).json({
+        error: { code: 'STEP_OUT_DISABLED', message: 'Step-out is not enabled for this clinic' },
+      });
+    }
+
+    if (entry.status !== QueueStatus.WAITING) {
+      return res.status(400).json({
+        error: { code: 'INVALID_STATUS', message: 'Can only step out while waiting' },
+      });
+    }
+
+    if (entry.position < 3) {
+      return res.status(400).json({
+        error: { code: 'POSITION_TOO_LOW', message: 'Can only step out from position 3 or higher' },
+      });
+    }
+
+    if (entry.isSteppedOut) {
+      return res.status(400).json({
+        error: { code: 'ALREADY_STEPPED_OUT', message: 'Already stepped out' },
+      });
+    }
+
+    if (entry.stepOutCount >= 2) {
+      return res.status(400).json({
+        error: { code: 'STEP_OUT_LIMIT', message: 'Maximum step-out limit reached (2)' },
+      });
+    }
+
+    const updated = await prisma.queueEntry.update({
+      where: { id: entryId },
+      data: {
+        isSteppedOut: true,
+        steppedOutAt: new Date(),
+        stepOutCount: { increment: 1 },
+      },
+    });
+
+    await recalculatePositionsAndStatuses(entry.clinicId);
+    invalidateStatsCache(entry.clinicId);
+    emitQueueUpdate(entry.clinicId).catch(() => {});
+    emitAllPatientUpdates(entry.clinicId).catch(() => {});
+
+    res.json({
+      data: {
+        message: 'Stepped out successfully',
+        isSteppedOut: true,
+        stepOutCount: updated.stepOutCount,
+        steppedOutAt: updated.steppedOutAt,
+      },
+    });
+  } catch (error) {
+    logger.error({ err: error }, 'Patient step-out error');
+    res.status(500).json({
+      error: { code: 'SERVER_ERROR', message: 'Failed to step out' },
+    });
+  }
+});
+
+// POST /api/queue/patient/:entryId/step-back - Patient returns to queue (public)
+router.post('/patient/:entryId/step-back', async (req, res: Response) => {
+  try {
+    const { entryId } = req.params;
+
+    const entry = await prisma.queueEntry.findUnique({
+      where: { id: entryId },
+    });
+
+    if (!entry) {
+      return res.status(404).json({
+        error: { code: 'ENTRY_NOT_FOUND', message: 'Queue entry not found' },
+      });
+    }
+
+    if (!entry.isSteppedOut) {
+      return res.status(400).json({
+        error: { code: 'NOT_STEPPED_OUT', message: 'Patient is not stepped out' },
+      });
+    }
+
+    await prisma.queueEntry.update({
+      where: { id: entryId },
+      data: {
+        isSteppedOut: false,
+        steppedOutAt: null,
+      },
+    });
+
+    await recalculatePositionsAndStatuses(entry.clinicId);
+    invalidateStatsCache(entry.clinicId);
+    emitQueueUpdate(entry.clinicId).catch(() => {});
+    emitAllPatientUpdates(entry.clinicId).catch(() => {});
+
+    res.json({
+      data: { message: 'Returned to queue successfully', isSteppedOut: false },
+    });
+  } catch (error) {
+    logger.error({ err: error }, 'Patient step-back error');
+    res.status(500).json({
+      error: { code: 'SERVER_ERROR', message: 'Failed to step back' },
     });
   }
 });

@@ -58,13 +58,13 @@ async function main() {
 
   console.log(`Created admin account: ${admin.email}`);
 
-  // Create France (FiloSoin) admin + clinic for multi-brand dev testing
-  const franceAdminHash = await bcrypt.hash('FiloSoinAdmin2024!', 10);
+  // Create France (AuSuivant) admin + clinic for multi-brand dev testing
+  const franceAdminHash = await bcrypt.hash('AuSuivantAdmin2024!', 10);
   const franceAdmin = await prisma.clinic.create({
     data: {
-      name: 'FiloSoin Admin',
+      name: 'AuSuivant Admin',
       doctorName: 'Admin',
-      email: 'admin@filosoin.fr',
+      email: 'admin@ausuivant.fr',
       passwordHash: franceAdminHash,
       emailVerified: true,
       phone: '+33100000000',
@@ -190,9 +190,9 @@ async function main() {
   console.log('\nTest Credentials (BleSaf):');
   console.log('  Clinic: dr.skander@example.tn / password123');
   console.log('  Admin:  admin@doctorq.tn / BlesafAdmin2024!');
-  console.log('\nTest Credentials (FiloSoin/France):');
+  console.log('\nTest Credentials (AuSuivant/France):');
   console.log('  Clinic: dr.perrin@example.fr / password123');
-  console.log('  Admin:  admin@filosoin.fr / FiloSoinAdmin2024!');
+  console.log('  Admin:  admin@ausuivant.fr / AuSuivantAdmin2024!');
 }
 
 main()
