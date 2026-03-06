@@ -32,7 +32,10 @@
     "db:snapshot": "cd apps/api && npx tsx prisma/db-snapshot.ts",
     "db:snapshot:only": "cd apps/api && npx tsx prisma/db-snapshot.ts --snapshot",
     "db:diff": "cd apps/api && npx tsx prisma/db-snapshot.ts --diff",
-    "db:snapshots": "cd apps/api && npx tsx prisma/db-snapshot.ts --list"
+    "db:snapshots": "cd apps/api && npx tsx prisma/db-snapshot.ts --list",
+    "deploy:blesaf": "git push origin main:deploy/blesaf",
+    "deploy:ausuivant": "git push origin main:deploy/ausuivant",
+    "deploy:all": "git push origin main:deploy/blesaf main:deploy/ausuivant"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",

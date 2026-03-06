@@ -49,9 +49,8 @@ export default function LoginPage() {
     }
   };
 
-  const brandName = webBrand.id === 'france'
-    ? <><span>Filo</span><span style={{ opacity: 0.62 }}>SOIN</span></>
-    : <><span>Blé</span><span style={{ opacity: 0.62 }}>SAF</span></>;
+  const [first, second] = webBrand.theme.logo.parts;
+  const brandName = <><span>{first.text}</span><span style={{ opacity: 0.62 }}>{second.text}</span></>;
 
   return (
     <div className="bs-login">

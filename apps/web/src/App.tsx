@@ -63,7 +63,7 @@ function App() {
     <Suspense fallback={<PageLoader />}>
       <Routes>
         {/* Root redirects to dashboard (if logged in) or landing */}
-        <Route path="/" element={isAuthenticated ? <Navigate to={needsOnboarding ? '/signup/setup' : '/dashboard'} /> : (webBrand.id === 'france' ? <LandingPageFr /> : <LandingPage />)} />
+        <Route path="/" element={isAuthenticated ? <Navigate to={needsOnboarding ? '/signup/setup' : '/dashboard'} /> : (webBrand.theme.dashboard.variant === 'compact' ? <LandingPageFr /> : <LandingPage />)} />
 
         {/* Signup flow (3 steps) */}
         <Route path="/signup" element={

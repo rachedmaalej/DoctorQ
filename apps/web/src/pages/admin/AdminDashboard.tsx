@@ -31,7 +31,7 @@ import PlatformHealthTab from '../../components/admin/tabs/PlatformHealthTab';
 
 const VALID_TABS: AdminTab[] = ['overview', 'clinics', 'financial', 'engagement', 'platform'];
 
-const isFrance = webBrand.id === 'france';
+const isFrance = webBrand.theme.dashboard.variant === 'compact';
 
 export default function AdminDashboard() {
   const navigate = useNavigate();

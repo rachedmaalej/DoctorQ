@@ -2,13 +2,14 @@ name: CI
 
 on:
   pull_request:
-    branches: [production]
+    branches: [production, deploy/blesaf, deploy/ausuivant]
   push:
     branches: [main]
 
 jobs:
-  ci:
-    name: Lint, Type-check, Build, Test
+  # Shared checks: lint, type-check API, build API, test API (brand-agnostic)
+  shared:
+    name: Shared (Lint, API)
     runs-on: ubuntu-latest
 
     steps:
@@ -49,17 +50,60 @@ jobs:
       - name: Type-check API
         run: cd apps/api && npx tsc --noEmit
 
-      - name: Type-check Web
-        run: cd apps/web && npx tsc --noEmit
-
       - name: Build API
         run: pnpm build:api
 
-      - name: Build Web
-        run: pnpm build:web
-
       - name: Test API
         run: pnpm test:api -- --run
+
+  # Per-brand checks: type-check web, build web, test web
+  web:
+    name: Web (${{ matrix.brand }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        brand: [blesaf, france]
+
+    env:
+      VITE_BRAND: ${{ matrix.brand }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.9
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Cache pnpm dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: cd apps/api && npx prisma generate
+
+      - name: Type-check Web
+        run: cd apps/web && npx tsc --noEmit
+
+      - name: Build Web
+        run: pnpm build:web
 
       - name: Test Web
         run: pnpm test:web -- --run

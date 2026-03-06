@@ -98,9 +98,7 @@ export default function TeaserPage() {
 
         {/* Subtle mystery branding */}
         <p className="mt-12 text-gray-600 text-xs">
-          {webBrand.id === 'france'
-            ? 'Une initiative pour les cabinets médicaux français.'
-            : 'Une initiative pour les cabinets médicaux tunisiens.'}
+          {webBrand.theme.teaserTagline}
         </p>
       </div>
     </div>

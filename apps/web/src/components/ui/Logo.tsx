@@ -20,19 +20,11 @@ const sizeClasses = {
 };
 
 export default function Logo({ size = 'md', className = '' }: LogoProps) {
-  if (webBrand.id === 'france') {
-    return (
-      <h1 className={`font-bold text-primary-700 ${sizeClasses[size]} ${className}`}>
-        <span style={{ fontFamily: "'IBM Plex Sans', sans-serif" }}>Filo</span>
-        <span style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.05em' }}>SOIN</span>
-      </h1>
-    );
-  }
-
+  const [first, second] = webBrand.theme.logo.parts;
   return (
     <h1 className={`font-bold text-primary-700 ${sizeClasses[size]} ${className}`}>
-      <span style={{ fontFamily: "'Reem Kufi', sans-serif" }}>Blé</span>
-      <span style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.05em' }}>SAF</span>
+      <span style={{ fontFamily: first.font }}>{first.text}</span>
+      <span style={{ fontFamily: second.font, letterSpacing: '0.05em' }}>{second.text}</span>
     </h1>
   );
 }

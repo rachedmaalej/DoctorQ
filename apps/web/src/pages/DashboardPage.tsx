@@ -110,7 +110,7 @@ export default function DashboardPage() {
       {isImpersonating && (
         <div
           className="text-white px-4 py-2 flex items-center justify-between"
-          style={{ backgroundColor: webBrand.id === 'france' ? '#002395' : '#E70013' }}
+          style={{ backgroundColor: webBrand.theme.colors.impersonation }}
         >
           <div className="flex items-center gap-2">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -122,7 +122,7 @@ export default function DashboardPage() {
           <button
             onClick={handleExitImpersonation}
             className="px-3 py-1 text-sm bg-white rounded-lg font-medium hover:bg-white/90 transition-colors"
-            style={{ color: webBrand.id === 'france' ? '#002395' : '#E70013' }}
+            style={{ color: webBrand.theme.colors.impersonation }}
           >
             {t('common.exitToAdmin')}
           </button>
@@ -137,7 +137,7 @@ export default function DashboardPage() {
       ) : (
       <>
       <div className="lg:hidden">
-        {webBrand.id === 'france' ? (
+        {webBrand.theme.dashboard.variant === 'compact' ? (
           <AuSuivantDashboard
             queue={queue}
             stats={stats}

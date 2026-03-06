@@ -5,6 +5,21 @@
 
 export type BrandId = 'blesaf' | 'france';
 
+export interface BrandTheme {
+  colors: {
+    primary: string;
+    surface: string;
+    impersonation: string;
+  };
+  logo: {
+    parts: [{ text: string; font: string }, { text: string; font: string }];
+  };
+  dashboard: {
+    variant: 'receptionist' | 'compact';
+  };
+  teaserTagline: string;
+}
+
 export interface WebBrandConfig {
   id: BrandId;
   name: string;
@@ -42,6 +57,8 @@ export interface WebBrandConfig {
     entityName: string;
     jurisdiction: string;
   };
+
+  theme: BrandTheme;
 }
 
 const brands: Record<BrandId, WebBrandConfig> = {
@@ -77,6 +94,23 @@ const brands: Record<BrandId, WebBrandConfig> = {
       entityName: 'Blesaf SARL',
       jurisdiction: 'tribunaux compétents de Tunis',
     },
+    theme: {
+      colors: {
+        primary: '#0D9488',
+        surface: '#F5F0E8',
+        impersonation: '#E70013',
+      },
+      logo: {
+        parts: [
+          { text: 'Blé', font: "'Reem Kufi', sans-serif" },
+          { text: 'SAF', font: "'Bebas Neue', sans-serif" },
+        ],
+      },
+      dashboard: {
+        variant: 'receptionist',
+      },
+      teaserTagline: 'Une initiative pour les cabinets médicaux tunisiens.',
+    },
   },
   france: {
     id: 'france',
@@ -109,6 +143,23 @@ const brands: Record<BrandId, WebBrandConfig> = {
     legal: {
       entityName: 'AuSuivant SAS',
       jurisdiction: 'tribunaux compétents de Paris',
+    },
+    theme: {
+      colors: {
+        primary: '#1B6B4A',
+        surface: '#F7F6F3',
+        impersonation: '#002395',
+      },
+      logo: {
+        parts: [
+          { text: 'Au', font: "'IBM Plex Sans', sans-serif" },
+          { text: 'SUIVANT', font: "'Bebas Neue', sans-serif" },
+        ],
+      },
+      dashboard: {
+        variant: 'compact',
+      },
+      teaserTagline: 'Une initiative pour les cabinets médicaux français.',
     },
   },
 };
