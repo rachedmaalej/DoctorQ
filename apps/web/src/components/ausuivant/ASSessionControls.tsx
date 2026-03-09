@@ -1,61 +1,87 @@
-import { CheckCircle, Pause } from 'lucide-react';
+import ASIcon from './ASIcon';
+
+
+export type DashboardView = 'queue' | 'schedule';
 
 interface ASSessionControlsProps {
-  isDoctorPresent: boolean;
-  onToggle: () => void;
-  isToggling: boolean;
+  activeView: DashboardView;
+  onViewChange: (view: DashboardView) => void;
+  waitingCount: number;
 }
 
-export default function ASSessionControls({ isDoctorPresent, onToggle, isToggling }: ASSessionControlsProps) {
+export default function ASSessionControls({
+  activeView,
+  onViewChange,
+  waitingCount,
+}: ASSessionControlsProps) {
   return (
     <div
       className="as-fade-up as-fade-up-2"
-      style={{
-        padding: '10px 20px',
-        background: 'var(--surface)',
-      }}
+      style={{ padding: '0 18px 14px' }}
     >
-      <div className="flex gap-2">
-        {/* Consultations actives */}
+      <div
+        className="flex gap-1"
+        style={{
+          padding: 3,
+          borderRadius: 'var(--radius-sm)',
+          background: 'var(--color-surface-alt)',
+        }}
+      >
         <button
-          onClick={() => { if (!isDoctorPresent) onToggle(); }}
-          disabled={isToggling}
-          className="flex-1 flex items-center justify-center gap-1.5 transition-colors"
+          onClick={() => onViewChange('queue')}
+          className="flex-1 flex items-center justify-center gap-1.5"
           style={{
-            padding: 10,
-            borderRadius: 'var(--radius-sm)',
-            border: `1px solid ${isDoctorPresent ? 'rgba(27,107,74,0.2)' : 'var(--border)'}`,
-            background: isDoctorPresent ? 'var(--accent-light)' : 'var(--surface)',
-            color: isDoctorPresent ? 'var(--accent)' : 'var(--text-secondary)',
-            fontSize: 13,
-            fontWeight: 500,
+            padding: '7px 10px',
+            borderRadius: 8,
+            border: 'none',
+            background: activeView === 'queue' ? 'var(--color-surface)' : 'transparent',
+            boxShadow: activeView === 'queue' ? 'var(--shadow-card)' : 'none',
+            color: activeView === 'queue' ? 'var(--color-text-primary)' : 'var(--color-text-muted)',
+            fontFamily: "'Outfit', sans-serif",
+            fontSize: 12,
+            fontWeight: 600,
             cursor: 'pointer',
-            fontFamily: 'inherit',
+            transition: 'all 0.2s ease',
           }}
         >
-          <CheckCircle size={16} />
-          Consultations actives
+          <ASIcon name="list" size={14} />
+          Salle
+          {waitingCount > 0 && (
+            <span
+              style={{
+                background: activeView === 'queue' ? 'var(--color-primary)' : 'var(--color-text-muted)',
+                color: 'white',
+                fontSize: 10,
+                fontWeight: 700,
+                padding: '1px 6px',
+                borderRadius: 10,
+                minWidth: 18,
+                textAlign: 'center',
+              }}
+            >
+              {waitingCount}
+            </span>
+          )}
         </button>
-
-        {/* Mettre en pause */}
         <button
-          onClick={() => { if (isDoctorPresent) onToggle(); }}
-          disabled={isToggling}
-          className="flex-1 flex items-center justify-center gap-1.5 transition-colors"
+          onClick={() => onViewChange('schedule')}
+          className="flex-1 flex items-center justify-center gap-1.5"
           style={{
-            padding: 10,
-            borderRadius: 'var(--radius-sm)',
-            border: `1px solid ${!isDoctorPresent ? 'rgba(27,107,74,0.2)' : 'var(--border)'}`,
-            background: !isDoctorPresent ? 'var(--accent-light)' : 'var(--surface)',
-            color: !isDoctorPresent ? 'var(--accent)' : 'var(--text-secondary)',
-            fontSize: 13,
-            fontWeight: 500,
+            padding: '7px 10px',
+            borderRadius: 8,
+            border: 'none',
+            background: activeView === 'schedule' ? 'var(--color-surface)' : 'transparent',
+            boxShadow: activeView === 'schedule' ? 'var(--shadow-card)' : 'none',
+            color: activeView === 'schedule' ? 'var(--color-text-primary)' : 'var(--color-text-muted)',
+            fontFamily: "'Outfit', sans-serif",
+            fontSize: 12,
+            fontWeight: 600,
             cursor: 'pointer',
-            fontFamily: 'inherit',
+            transition: 'all 0.2s ease',
           }}
         >
-          <Pause size={16} />
-          Mettre en pause
+          <ASIcon name="calendar_today" size={14} />
+          Agenda
         </button>
       </div>
     </div>

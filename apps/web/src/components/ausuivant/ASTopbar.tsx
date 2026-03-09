@@ -1,79 +1,89 @@
-import { Settings } from 'lucide-react';
+import ASIcon from './ASIcon';
 
 interface ASTopbarProps {
   onOpenSettings: () => void;
   isSessionActive: boolean;
+  /** Desktop-only: render search + action buttons between brand and settings */
+  desktopSlot?: React.ReactNode;
 }
 
-export default function ASTopbar({ onOpenSettings, isSessionActive }: ASTopbarProps) {
+export default function ASTopbar({ onOpenSettings, isSessionActive, desktopSlot }: ASTopbarProps) {
   return (
-    <header
-      className="sticky top-0 z-[100] flex items-center justify-between"
-      style={{
-        background: 'var(--surface)',
-        borderBottom: '1px solid var(--border-light)',
-        padding: '12px 20px',
-      }}
-    >
-      {/* Left: Brand + session status */}
-      <div className="flex items-center gap-3">
+    <>
+      {/* Tricolor accent bar */}
+      <div className="as-tricolor-bar" />
+
+      <header
+        className="sticky top-0 z-[100] flex items-center justify-between"
+        style={{
+          background: 'var(--color-primary)',
+          padding: '12px 18px',
+          boxShadow: 'var(--shadow-navbar)',
+        }}
+      >
+        {/* Left: Brand title */}
         <span
-          className="font-fraunces"
           style={{
-            fontSize: 18,
-            fontWeight: 600,
-            color: 'var(--accent)',
-            letterSpacing: '-0.3px',
+            fontFamily: "'Outfit', sans-serif",
+            fontSize: 16,
+            fontWeight: 700,
+            color: 'var(--color-text-on-primary)',
+            flexShrink: 0,
           }}
         >
           AuSuivant
         </span>
 
-        {isSessionActive && (
-          <div className="flex items-center gap-2">
-            <span
-              className="as-pulse-session"
+        {/* Desktop slot: search + actions (inserted between brand and right controls) */}
+        {desktopSlot}
+
+        {/* Right: Present badge + hamburger */}
+        <div className="flex items-center gap-2" style={{ flexShrink: 0 }}>
+          {isSessionActive && (
+            <div
+              className="flex items-center gap-1.5"
               style={{
-                width: 8,
-                height: 8,
-                borderRadius: '50%',
-                background: 'var(--accent)',
-                display: 'inline-block',
-              }}
-            />
-            <span
-              className="font-dm"
-              style={{
-                fontSize: 13,
-                fontWeight: 500,
-                color: 'var(--text-secondary)',
+                background: 'rgba(255, 255, 255, 0.15)',
+                padding: '5px 12px',
+                borderRadius: 'var(--radius-pill)',
+                fontSize: 11,
+                fontWeight: 600,
+                color: 'var(--color-text-on-primary)',
+                border: 'none',
               }}
             >
-              En consultation
-            </span>
-          </div>
-        )}
-      </div>
+              <span
+                className="as-pulse-session"
+                style={{
+                  width: 7,
+                  height: 7,
+                  borderRadius: '50%',
+                  background: '#4ADE80',
+                  display: 'inline-block',
+                }}
+              />
+              Présent
+            </div>
+          )}
 
-      {/* Right: Settings gear */}
-      <button
-        onClick={onOpenSettings}
-        aria-label="Paramètres"
-        className="flex items-center justify-center transition-colors"
-        style={{
-          width: 36,
-          height: 36,
-          borderRadius: 'var(--radius-sm)',
-          background: 'transparent',
-          border: 'none',
-          color: 'var(--text-secondary)',
-          cursor: 'pointer',
-        }}
-        onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--surface-alt)')}
-        onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
-      >
-        <Settings size={20} />
-      </button>
-    </header>
+          <button
+            onClick={onOpenSettings}
+            aria-label="Menu"
+            className="flex items-center justify-center"
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: 'var(--radius)',
+              background: 'rgba(255, 255, 255, 0.15)',
+              border: 'none',
+              cursor: 'pointer',
+              color: 'var(--color-text-on-primary)',
+            }}
+          >
+            <ASIcon name="menu" size={20} />
+          </button>
+        </div>
+      </header>
+    </>
   );
 }

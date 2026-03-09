@@ -1,42 +1,123 @@
-/* AuSuivant Design System — scoped to .as-dashboard */
+/* AuSuivant Design System — Azur Médical — scoped to .as-dashboard */
+
+/* Match body bg to prevent white bleed-through (scrollbar gutter, edges) */
+body:has(.as-desktop) {
+  background: #F2F5FB;
+  overflow: hidden;
+}
 
 .as-dashboard {
-  /* Color Tokens */
-  --bg: #F7F6F3;
-  --surface: #FFFFFF;
-  --surface-alt: #F0EFEC;
-  --border: #E4E2DD;
-  --border-light: #ECEAE5;
-  --text-primary: #1A1A1A;
-  --text-secondary: #6B6560;
-  --text-tertiary: #9C9690;
-  --accent: #1B6B4A;
-  --accent-light: #E8F5EE;
-  --accent-hover: #15553B;
-  --warning: #C4841D;
-  --warning-light: #FFF8EC;
-  --danger: #C0392B;
-  --danger-light: #FDEEEC;
-  --blue: #2C5F8A;
-  --blue-light: #EDF3F8;
+  /* ─── Color Tokens — Azur Médical (Cobalt / Amber) ─── */
+  --color-bg: #F2F5FB;
+  --color-surface: #FFFFFF;
+  --color-surface-alt: #EDF0F7;
+  --color-border: #DDE3F0;
+  --color-border-subtle: #EDF0F7;
+  --color-border-strong: #B0BDD8;
 
-  /* Shadows */
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
-  --shadow-md: 0 2px 8px rgba(0,0,0,0.06);
-  --shadow-lg: 0 4px 20px rgba(0,0,0,0.08);
+  /* Text */
+  --color-text-primary: #0D1B3E;
+  --color-text-secondary: #3D5080;
+  --color-text-muted: #6B7A99;
+  --color-text-disabled: #B0B9CC;
+  --color-text-on-primary: #FFFFFF;
+  --color-text-on-accent: #FFFFFF;
 
-  /* Radii */
-  --radius: 12px;
-  --radius-sm: 8px;
-  --radius-lg: 16px;
+  /* Primary = Cobalt */
+  --color-primary: #1A3C8F;
+  --color-primary-light: #E8EEF9;
+  --color-primary-dark: #122B6B;
+  --color-primary-subtle: #F2F5FB;
+
+  /* Accent = Amber */
+  --color-accent: #E8712A;
+  --color-accent-dark: #C45B1A;
+  --color-accent-soft: #FEF0E6;
+
+  /* Section: Doctors — Cobalt family */
+  --section-doctors-bg: #E8EEF9;
+  --section-doctors-accent: #1A3C8F;
+  --section-doctors-border: #B0BDD8;
+  --section-doctors-text: #1A3C8F;
+  --section-doctors-muted: #6B7A99;
+
+  /* Section: In Consultation — Amber family */
+  --section-consult-bg: #FEF0E6;
+  --section-consult-accent: #E8712A;
+  --section-consult-border: #F5C9A0;
+  --section-consult-text: #C45B1A;
+  --section-consult-muted: #E8712A;
+
+  /* Section: Waiting — Green family */
+  --section-waiting-bg: #E8F5EE;
+  --section-waiting-accent: #1A7A4A;
+  --section-waiting-border: #A8D5BC;
+  --section-waiting-text: #1A7A4A;
+  --section-waiting-muted: #4A9B6E;
+
+  /* Status colors */
+  --color-status-waiting: #E8712A;
+  --color-status-waiting-bg: #FEF0E6;
+  --color-status-notified: #2D5FBF;
+  --color-status-notified-bg: #E8EEF9;
+  --color-status-in-consult: #1A7A4A;
+  --color-status-in-consult-bg: #E8F5EE;
+  --color-status-urgent: #C0392B;
+  --color-status-urgent-bg: #FDECEA;
+  --color-status-done: #6B7A99;
+  --color-status-done-bg: #EDF0F7;
+
+  /* Semantic */
+  --color-warning: #B87A00;
+  --color-warning-bg: #FEF0E6;
+  --color-error: #C0392B;
+  --color-error-bg: #FDECEA;
+  --color-success: #1A7A4A;
+  --color-success-bg: #E8F5EE;
+  --color-info: #1A3C8F;
+  --color-info-bg: #E8EEF9;
+
+  /* Doctor presence */
+  --color-doctor-present: #1A7A4A;
+  --color-doctor-absent: #C0392B;
+
+  /* Doctor color tokens */
+  --doctor-cobalt: #1A3C8F;
+  --doctor-green: #1A7A4A;
+  --doctor-amber: #E8712A;
+  --doctor-violet: #5A3C8F;
+  --doctor-rose: #8F3C5A;
+  --doctor-neutral: #6B7A99;
+
+  /* Schedule slot status tokens */
+  --slot-expected: #6B7A99;
+  --slot-arrived: #1A7A4A;
+  --slot-consulting: #1A3C8F;
+  --slot-completed: #1A7A4A;
+  --slot-noshow: #C0392B;
+  --slot-late: #E8712A;
+  --slot-regulation: #DDE3F0;
+
+  /* Shadows — cobalt-tinted */
+  --shadow-card: 0 1px 3px rgba(13, 27, 62, 0.04);
+  --shadow-dropdown: 0 2px 8px rgba(13, 27, 62, 0.08);
+  --shadow-modal: 0 4px 20px rgba(13, 27, 62, 0.12);
+  --shadow-navbar: 0 1px 4px rgba(13, 27, 62, 0.06);
+
+  /* Radii — Azur Médical */
+  --radius: 8px;
+  --radius-sm: 6px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-pill: 100px;
 
   /* Base */
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
   -webkit-font-smoothing: antialiased;
   font-family: 'DM Sans', -apple-system, sans-serif;
-  background: var(--bg);
-  color: var(--text-primary);
+  background: var(--color-bg);
+  color: var(--color-text-primary);
   max-width: 430px;
   margin: 0 auto;
   min-height: 100dvh;
@@ -45,6 +126,14 @@
 
 .as-dashboard *, .as-dashboard *::before, .as-dashboard *::after {
   box-sizing: border-box;
+}
+
+/* ─── Tricolor Bar ─── */
+
+.as-tricolor-bar {
+  height: 3px;
+  background: linear-gradient(90deg, #002395 33%, #F0F0F0 33% 66%, #ED2939 66%);
+  flex-shrink: 0;
 }
 
 /* ─── Animations ─── */
@@ -115,28 +204,30 @@
 /* ─── Form Inputs ─── */
 
 .as-dashboard input,
-.as-dashboard textarea {
+.as-dashboard textarea,
+.as-dashboard select {
   font-family: 'DM Sans', -apple-system, sans-serif;
   font-size: 16px;
-  color: var(--text-primary);
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius-sm);
+  color: var(--color-text-primary);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius);
   padding: 13px 14px;
   width: 100%;
   outline: none;
-  background: var(--surface);
+  background: var(--color-surface);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .as-dashboard input::placeholder,
 .as-dashboard textarea::placeholder {
-  color: var(--text-tertiary);
+  color: var(--color-text-muted);
 }
 
 .as-dashboard input:focus,
-.as-dashboard textarea:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(27, 107, 74, 0.08);
+.as-dashboard textarea:focus,
+.as-dashboard select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(26, 60, 143, 0.12);
 }
 
 /* ─── Toggle Switch ─── */
@@ -152,11 +243,11 @@
 }
 
 .as-toggle[aria-checked="true"] {
-  background-color: var(--accent);
+  background-color: var(--color-primary);
 }
 
 .as-toggle[aria-checked="false"] {
-  background-color: var(--border);
+  background-color: var(--color-border);
 }
 
 .as-toggle-knob {
@@ -166,7 +257,7 @@
   height: 18px;
   border-radius: 50%;
   background: white;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
   transition: left 0.2s ease;
 }
 
@@ -176,4 +267,154 @@
 
 .as-toggle[aria-checked="false"] .as-toggle-knob {
   left: 3px;
+}
+
+/* ─── Consultation Card ─── */
+
+.as-consultation-card {
+  background: var(--section-consult-bg);
+  border: 1px solid var(--section-consult-border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+}
+
+/* ─── Section Containers ─── */
+
+.as-section-doctors {
+  background: var(--section-doctors-bg);
+  border-radius: var(--radius-lg);
+  padding: 12px 14px;
+  margin: 0 12px 10px;
+  border: 1px solid var(--section-doctors-border);
+}
+
+.as-section-consultation {
+  background: var(--section-consult-bg);
+  border-radius: var(--radius-lg);
+  padding: 14px 14px 10px;
+  margin: 0 12px 10px;
+  border: 1px solid var(--section-consult-border);
+}
+
+.as-section-waiting {
+  background: var(--section-waiting-bg);
+  border-radius: var(--radius-lg);
+  padding: 14px 14px 10px;
+  margin: 0 12px;
+  border: 1px solid var(--section-waiting-border);
+}
+
+.as-section-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  padding: 0 4px;
+}
+
+.as-section-header-label {
+  font-family: 'Outfit', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ─── Desktop Layout (Phase 4) ─── */
+
+.as-desktop {
+  --drawer-detail: 360px;
+  max-width: none;
+  margin: 0;
+  height: 100dvh;
+  overflow-y: auto;
+  scrollbar-width: none; /* Firefox */
+}
+.as-desktop::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+/* Command Center: single-column flow, centered content */
+.as-command-center {
+  min-height: 100dvh;
+}
+
+/* Desktop detail drawer (slides from right) */
+@keyframes as-slideInRight {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.as-detail-drawer-desktop {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: var(--drawer-detail);
+  height: 100dvh;
+  background: var(--color-bg);
+  border-left: 1px solid var(--color-border-subtle);
+  box-shadow: var(--shadow-modal);
+  z-index: 210;
+  overflow-y: auto;
+  animation: as-slideInRight 0.2s ease-out both;
+}
+
+/* Hide scrollbar on doctor pills strip */
+.as-doctor-pills-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* ─── View Transitions (Phase 5) ─── */
+
+/* Slide-up for mobile bottom sheets */
+@keyframes as-slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.as-slide-up {
+  animation: as-slideUp 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Doctor pill state transitions */
+.as-doctor-pill {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, opacity 0.2s ease, box-shadow 0.15s ease;
+}
+
+/* Active pill — menu is open for this doctor */
+.as-doctor-pill[data-active-menu="true"] {
+  box-shadow: 0 0 0 2px var(--color-surface), 0 0 0 4px currentColor;
+  z-index: 111;
+  position: relative;
+}
+
+/* Menu enter animation — MD3 standard easing */
+.as-menu-enter {
+  animation: as-menuOpen 0.15s cubic-bezier(0.2, 0, 0, 1) both;
+  transform-origin: top center;
+}
+
+@keyframes as-menuOpen {
+  from {
+    opacity: 0;
+    transform: scaleY(0.92) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scaleY(1) translateY(0);
+  }
+}
+
+/* View switch crossfade */
+.as-view-enter {
+  animation: as-fadeUp 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Focus-visible ring for accessibility */
+.as-dashboard button:focus-visible,
+.as-dashboard [role="button"]:focus-visible,
+.as-dashboard a:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
 }

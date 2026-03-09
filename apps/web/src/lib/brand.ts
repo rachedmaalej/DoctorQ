@@ -15,7 +15,7 @@ export interface BrandTheme {
     parts: [{ text: string; font: string }, { text: string; font: string }];
   };
   dashboard: {
-    variant: 'receptionist' | 'compact';
+    variant: 'receptionist' | 'schedule';
   };
   teaserTagline: string;
 }
@@ -146,8 +146,8 @@ const brands: Record<BrandId, WebBrandConfig> = {
     },
     theme: {
       colors: {
-        primary: '#1B6B4A',
-        surface: '#F7F6F3',
+        primary: '#1A3C8F',
+        surface: '#F2F5FB',
         impersonation: '#002395',
       },
       logo: {
@@ -157,7 +157,7 @@ const brands: Record<BrandId, WebBrandConfig> = {
         ],
       },
       dashboard: {
-        variant: 'compact',
+        variant: 'schedule',
       },
       teaserTagline: 'Une initiative pour les cabinets médicaux français.',
     },

@@ -1,11 +1,5 @@
+import ASIcon from './ASIcon';
 import { useEffect, useState } from 'react';
-import {
-  ChevronLeft, ChevronRight,
-  House, Users, Monitor,
-  Clock, Bell, Smartphone, Globe,
-  BarChart3, Mail,
-  CreditCard, HelpCircle, Shield,
-} from 'lucide-react';
 import type { Clinic } from '@/types';
 import { useAuthStore } from '@/stores/authStore';
 import BSClinicProfilePanel from '@/components/shared/BSClinicProfilePanel';
@@ -27,11 +21,11 @@ interface ASSettingsPanelProps {
 // Icon box color variants
 type IconColor = 'green' | 'blue' | 'warm' | 'gray' | 'red';
 const iconColors: Record<IconColor, { bg: string; fg: string }> = {
-  green: { bg: 'var(--accent-light)', fg: 'var(--accent)' },
-  blue: { bg: 'var(--blue-light)', fg: 'var(--blue)' },
-  warm: { bg: 'var(--warning-light)', fg: 'var(--warning)' },
-  gray: { bg: 'var(--surface-alt)', fg: 'var(--text-secondary)' },
-  red: { bg: 'var(--danger-light)', fg: 'var(--danger)' },
+  green: { bg: 'var(--color-primary-light)', fg: 'var(--color-primary)' },
+  blue: { bg: 'var(--color-info-bg)', fg: 'var(--color-info)' },
+  warm: { bg: 'var(--color-warning-bg)', fg: 'var(--color-warning)' },
+  gray: { bg: 'var(--color-surface-alt)', fg: 'var(--color-text-secondary)' },
+  red: { bg: 'var(--color-error-bg)', fg: 'var(--color-error)' },
 };
 
 interface SettingsItemProps {
@@ -51,7 +45,7 @@ function SettingsItem({ icon, iconColor, title, description, right, onClick, isL
       className="flex items-center gap-3.5 cursor-pointer transition-colors"
       style={{
         padding: '14px 20px',
-        borderBottom: isLast ? 'none' : '1px solid var(--border-light)',
+        borderBottom: isLast ? 'none' : '1px solid var(--color-border-subtle)',
       }}
       onClick={onClick}
       onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(0,0,0,0.015)')}
@@ -73,10 +67,10 @@ function SettingsItem({ icon, iconColor, title, description, right, onClick, isL
 
       {/* Content */}
       <div className="flex-1 min-w-0">
-        <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--text-primary)' }}>
+        <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text-primary)' }}>
           {title}
         </div>
-        <div style={{ fontSize: 12, color: 'var(--text-tertiary)', marginTop: 1 }}>
+        <div style={{ fontSize: 12, color: 'var(--color-text-muted)', marginTop: 1 }}>
           {description}
         </div>
       </div>
@@ -110,11 +104,11 @@ function ValueChevron({ value }: { value?: string }) {
   return (
     <>
       {value && (
-        <span style={{ fontSize: 13, color: 'var(--text-tertiary)', fontWeight: 500 }}>
+        <span style={{ fontSize: 13, color: 'var(--color-text-muted)', fontWeight: 500 }}>
           {value}
         </span>
       )}
-      <ChevronRight size={16} style={{ color: 'var(--border)' }} />
+      <ASIcon name="chevron_right" size={16} style={{ color: 'var(--color-border)' }} />
     </>
   );
 }
@@ -177,7 +171,7 @@ export default function ASSettingsPanel({ isOpen, onClose, clinic }: ASSettingsP
       <div
         className="fixed inset-0"
         style={{
-          background: isOpen ? 'rgba(0,0,0,0.4)' : 'rgba(0,0,0,0)',
+          background: isOpen ? 'rgba(44,74,62,0.4)' : 'rgba(44,74,62,0)',
           zIndex: 200,
           pointerEvents: isOpen ? 'auto' : 'none',
           transition: 'background 0.3s ease',
@@ -193,20 +187,23 @@ export default function ASSettingsPanel({ isOpen, onClose, clinic }: ASSettingsP
           width: '100%',
           maxWidth: 430,
           height: '100dvh',
-          background: 'var(--bg)',
+          background: 'var(--color-bg)',
           zIndex: 210,
           overflowY: 'auto',
           overscrollBehavior: 'contain',
           transition: 'right 0.4s cubic-bezier(0.22, 1, 0.36, 1)',
         }}
       >
+        {/* Tricolor bar */}
+        <div className="as-tricolor-bar" />
+
         {/* Topbar */}
         <div
           className="sticky top-0 flex items-center gap-3"
           style={{
             padding: '14px 20px',
-            background: 'var(--surface)',
-            borderBottom: '1px solid var(--border-light)',
+            background: 'var(--color-surface)',
+            borderBottom: '1px solid var(--color-border-subtle)',
             zIndex: 5,
           }}
         >
@@ -221,10 +218,10 @@ export default function ASSettingsPanel({ isOpen, onClose, clinic }: ASSettingsP
               background: 'transparent',
               border: 'none',
               cursor: 'pointer',
-              color: 'var(--text-primary)',
+              color: 'var(--color-text-primary)',
             }}
           >
-            <ChevronLeft size={20} />
+            <ASIcon name="chevron_left" size={20} />
           </button>
           <span style={{ fontSize: 17, fontWeight: 700, letterSpacing: '-0.3px' }}>
             Paramètres
@@ -237,21 +234,21 @@ export default function ASSettingsPanel({ isOpen, onClose, clinic }: ASSettingsP
           style={{
             margin: '12px 20px',
             padding: 16,
-            background: 'var(--surface)',
+            background: 'var(--color-surface)',
             borderRadius: 'var(--radius)',
-            border: '1px solid var(--border-light)',
+            border: '1px solid var(--color-border-subtle)',
           }}
         >
           <div
-            className="flex items-center justify-center flex-shrink-0 font-fraunces"
+            className="flex items-center justify-center flex-shrink-0"
             style={{
               width: 48,
               height: 48,
-              borderRadius: '50%',
-              background: 'var(--accent)',
+              borderRadius: 'var(--radius)',
+              background: 'linear-gradient(135deg, var(--color-primary), var(--color-primary))',
               color: 'white',
-              fontSize: 20,
-              fontWeight: 600,
+              fontSize: 18,
+              fontWeight: 700,
             }}
           >
             {initials || 'Dr'}
@@ -260,7 +257,7 @@ export default function ASSettingsPanel({ isOpen, onClose, clinic }: ASSettingsP
             <div style={{ fontSize: 15, fontWeight: 600, letterSpacing: '-0.2px' }}>
               {doctorName || 'Dr.'}
             </div>
-            <div style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>
+            <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
               Médecin généraliste
             </div>
             <span
@@ -271,8 +268,8 @@ export default function ASSettingsPanel({ isOpen, onClose, clinic }: ASSettingsP
                 fontWeight: 600,
                 padding: '2px 8px',
                 borderRadius: 20,
-                background: 'var(--accent-light)',
-                color: 'var(--accent)',
+                background: 'var(--color-primary-light)',
+                color: '#3A7A5E',
               }}
             >
               {planLabel}
@@ -283,7 +280,7 @@ export default function ASSettingsPanel({ isOpen, onClose, clinic }: ASSettingsP
         {/* ─── MON CABINET ─── */}
         <SettingsSection label="MON CABINET">
           <SettingsItem
-            icon={<House size={18} />}
+            icon={<ASIcon name="home" size={18} />}
             iconColor="green"
             title="Profil du cabinet"
             description="Nom, adresse, spécialité"
@@ -291,7 +288,7 @@ export default function ASSettingsPanel({ isOpen, onClose, clinic }: ASSettingsP
             onClick={() => setShowClinicProfile(true)}
           />
           <SettingsItem
-            icon={<Clock size={18} />}
+            icon={<ASIcon name="schedule" size={18} />}
             iconColor="warm"
             title="Horaires du cabinet"
             description="Planning hebdomadaire, pauses"
@@ -299,7 +296,7 @@ export default function ASSettingsPanel({ isOpen, onClose, clinic }: ASSettingsP
             onClick={() => setShowClinicHours(true)}
           />
           <SettingsItem
-            icon={<Users size={18} />}
+            icon={<ASIcon name="group" size={18} />}
             iconColor="blue"
             title="Accès"
             description="Gérer les secrétaires et collaborateurs"
@@ -307,7 +304,7 @@ export default function ASSettingsPanel({ isOpen, onClose, clinic }: ASSettingsP
             onClick={() => setShowTeamAccess(true)}
           />
           <SettingsItem
-            icon={<CreditCard size={18} />}
+            icon={<ASIcon name="credit_card" size={18} />}
             iconColor="green"
             title="Abonnement"
             description="Gérer votre abonnement"
@@ -315,7 +312,7 @@ export default function ASSettingsPanel({ isOpen, onClose, clinic }: ASSettingsP
             onClick={() => setShowSubscription(true)}
           />
           <SettingsItem
-            icon={<Monitor size={18} />}
+            icon={<ASIcon name="desktop_windows" size={18} />}
             iconColor="green"
             title="Affichage salle d'attente"
             description="Personnaliser la page patient"
@@ -328,7 +325,7 @@ export default function ASSettingsPanel({ isOpen, onClose, clinic }: ASSettingsP
         {/* ─── FILE D'ATTENTE ─── */}
         <SettingsSection label="FILE D'ATTENTE">
           <SettingsItem
-            icon={<Clock size={18} />}
+            icon={<ASIcon name="schedule" size={18} />}
             iconColor="warm"
             title="Durée moy. consultation"
             description="Utilisée pour estimer l'attente"
@@ -336,7 +333,7 @@ export default function ASSettingsPanel({ isOpen, onClose, clinic }: ASSettingsP
             onClick={() => setShowConsultationDuration(true)}
           />
           <SettingsItem
-            icon={<Bell size={18} />}
+            icon={<ASIcon name="notifications" size={18} />}
             iconColor="blue"
             title="Notifications patients"
             description="Alertes, sons, heures silencieuses"
@@ -344,7 +341,7 @@ export default function ASSettingsPanel({ isOpen, onClose, clinic }: ASSettingsP
             onClick={() => setShowNotifications(true)}
           />
           <SettingsItem
-            icon={<Smartphone size={18} />}
+            icon={<ASIcon name="smartphone" size={18} />}
             iconColor="gray"
             title="Méthodes d'enregistrement"
             description="QR code, saisie manuelle, WhatsApp"
@@ -352,7 +349,7 @@ export default function ASSettingsPanel({ isOpen, onClose, clinic }: ASSettingsP
             onClick={() => setShowCheckInMethods(true)}
           />
           <SettingsItem
-            icon={<Globe size={18} />}
+            icon={<ASIcon name="language" size={18} />}
             iconColor="gray"
             title="Langue"
             description={clinic?.language === 'ar' ? 'العربية' : 'Français'}
@@ -365,14 +362,14 @@ export default function ASSettingsPanel({ isOpen, onClose, clinic }: ASSettingsP
         {/* ─── BILAN & RAPPORTS ─── */}
         <SettingsSection label="BILAN & RAPPORTS">
           <SettingsItem
-            icon={<BarChart3 size={18} />}
+            icon={<ASIcon name="bar_chart" size={18} />}
             iconColor="green"
             title="Bilan de fin de journée"
             description="Résumé quotidien sur le tableau de bord"
             right={<ToggleSwitch checked={true} onChange={() => {}} />}
           />
           <SettingsItem
-            icon={<Mail size={18} />}
+            icon={<ASIcon name="mail" size={18} />}
             iconColor="blue"
             title="Rapport hebdomadaire"
             description="E-mail chaque lundi avec vos statistiques"
@@ -384,14 +381,14 @@ export default function ASSettingsPanel({ isOpen, onClose, clinic }: ASSettingsP
         {/* ─── COMPTE ─── */}
         <SettingsSection label="COMPTE">
           <SettingsItem
-            icon={<HelpCircle size={18} />}
+            icon={<ASIcon name="help" size={18} />}
             iconColor="gray"
             title="Aide & support"
             description="FAQ, contact, tutoriels"
             right={<ValueChevron />}
           />
           <SettingsItem
-            icon={<Shield size={18} />}
+            icon={<ASIcon name="shield" size={18} />}
             iconColor="gray"
             title="Confidentialité & RGPD"
             description="Politique de données, droits patients"
@@ -409,8 +406,8 @@ export default function ASSettingsPanel({ isOpen, onClose, clinic }: ASSettingsP
               padding: 12,
               borderRadius: 'var(--radius-sm)',
               background: 'transparent',
-              border: '1px solid var(--danger)',
-              color: 'var(--danger)',
+              border: '1px solid var(--color-error)',
+              color: 'var(--color-error)',
               fontSize: 14,
               fontWeight: 600,
               cursor: 'pointer',
@@ -419,7 +416,7 @@ export default function ASSettingsPanel({ isOpen, onClose, clinic }: ASSettingsP
           >
             Se déconnecter
           </button>
-          <div style={{ fontSize: 11, color: 'var(--text-tertiary)', marginTop: 12 }}>
+          <div style={{ fontSize: 11, color: 'var(--color-text-muted)', marginTop: 12 }}>
             AuSuivant v1.0.0 · © 2026
           </div>
         </div>
@@ -476,16 +473,16 @@ function SettingsSection({ label, children }: { label: string; children: React.R
           textTransform: 'uppercase',
           letterSpacing: '1.2px',
           fontWeight: 600,
-          color: 'var(--text-tertiary)',
+          color: 'var(--color-text-muted)',
         }}
       >
         {label}
       </div>
       <div
         style={{
-          background: 'var(--surface)',
-          borderTop: '1px solid var(--border-light)',
-          borderBottom: '1px solid var(--border-light)',
+          background: 'var(--color-surface)',
+          borderTop: '1px solid var(--color-border-subtle)',
+          borderBottom: '1px solid var(--color-border-subtle)',
         }}
       >
         {children}
