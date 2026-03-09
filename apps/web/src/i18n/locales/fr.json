@@ -257,7 +257,8 @@
     "realTimeTracking": "Suivi en temps réel",
     "testimonialText": "« J'ai pu attendre au café au lieu de rester assise 45 minutes dans la salle d'attente. »",
     "testimonialAuthor": "— Patiente, Clinique La Marsa",
-    "virtualQueue": "Saf virtuel"
+    "virtualQueue": "Saf virtuel",
+    "selectDoctor": "Votre médecin"
   },
   "dashboard": {
     "title": "Tableau de Bord",

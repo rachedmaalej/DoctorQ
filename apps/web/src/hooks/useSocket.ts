@@ -1,6 +1,6 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
-import type { QueueEntry, QueueStats } from '@/types';
+import type { QueueEntry, QueueStats, Doctor } from '@/types';
 
 // Auto-detect production API URL based on hostname
 function getSocketUrl(): string {
@@ -90,10 +90,24 @@ interface UseSocketOptions {
   onDoctorPresence?: (data: { clinicId: string; isDoctorPresent: boolean }) => void;
   onAnnouncement?: (data: { clinicId: string; announcement: string | null; announcementAt: string | null }) => void;
   onPatientRoomJoined?: (data: { entryId: string; success: boolean }) => void;
+  onDoctorsUpdated?: (data: { doctors: Doctor[] }) => void;
 }
 
 export function useSocket(options: UseSocketOptions = {}) {
   const socketInstance = getSocket();
+  const [connected, setConnected] = useState(socketInstance.connected);
+
+  // Track socket connection state
+  useEffect(() => {
+    const onConnect = () => setConnected(true);
+    const onDisconnect = () => setConnected(false);
+    socketInstance.on('connect', onConnect);
+    socketInstance.on('disconnect', onDisconnect);
+    return () => {
+      socketInstance.off('connect', onConnect);
+      socketInstance.off('disconnect', onDisconnect);
+    };
+  }, [socketInstance]);
 
   // Store callbacks in refs to keep them fresh without re-running effect
   const onQueueUpdatedRef = useRef(options.onQueueUpdated);
@@ -102,6 +116,7 @@ export function useSocket(options: UseSocketOptions = {}) {
   const onDoctorPresenceRef = useRef(options.onDoctorPresence);
   const onAnnouncementRef = useRef(options.onAnnouncement);
   const onPatientRoomJoinedRef = useRef(options.onPatientRoomJoined);
+  const onDoctorsUpdatedRef = useRef(options.onDoctorsUpdated);
 
   // Update refs when callbacks change
   useEffect(() => {
@@ -111,7 +126,8 @@ export function useSocket(options: UseSocketOptions = {}) {
     onDoctorPresenceRef.current = options.onDoctorPresence;
     onAnnouncementRef.current = options.onAnnouncement;
     onPatientRoomJoinedRef.current = options.onPatientRoomJoined;
-  }, [options.onQueueUpdated, options.onPatientCalled, options.onPositionChanged, options.onDoctorPresence, options.onAnnouncement, options.onPatientRoomJoined]);
+    onDoctorsUpdatedRef.current = options.onDoctorsUpdated;
+  }, [options.onQueueUpdated, options.onPatientCalled, options.onPositionChanged, options.onDoctorPresence, options.onAnnouncement, options.onPatientRoomJoined, options.onDoctorsUpdated]);
 
   // Set up event listeners
   useEffect(() => {
@@ -149,6 +165,11 @@ export function useSocket(options: UseSocketOptions = {}) {
       onAnnouncementRef.current?.(data);
     };
 
+    const handleDoctorsUpdated = (data: { doctors: Doctor[] }) => {
+      console.log('[Socket.io] Received doctors:updated event', data);
+      onDoctorsUpdatedRef.current?.(data);
+    };
+
     socketInstance.on('queue:updated', handleQueueUpdated);
     socketInstance.on('patient:called', handlePatientCalled);
     socketInstance.on('position:changed', handlePositionChanged);
@@ -156,6 +177,7 @@ export function useSocket(options: UseSocketOptions = {}) {
     socketInstance.on('joined:patient', handleJoinedPatient);
     socketInstance.on('doctor:presence', handleDoctorPresence);
     socketInstance.on('clinic:announcement', handleAnnouncement);
+    socketInstance.on('doctors:updated', handleDoctorsUpdated);
 
     return () => {
       socketInstance.off('queue:updated', handleQueueUpdated);
@@ -165,6 +187,7 @@ export function useSocket(options: UseSocketOptions = {}) {
       socketInstance.off('joined:patient', handleJoinedPatient);
       socketInstance.off('doctor:presence', handleDoctorPresence);
       socketInstance.off('clinic:announcement', handleAnnouncement);
+      socketInstance.off('doctors:updated', handleDoctorsUpdated);
     };
   }, [socketInstance]);
 
@@ -200,6 +223,7 @@ export function useSocket(options: UseSocketOptions = {}) {
 
   return {
     socket: socketInstance,
+    connected,
     joinClinicRoom,
     joinPatientRoom,
   };

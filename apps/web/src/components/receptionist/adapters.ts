@@ -21,7 +21,7 @@ import type {
 
 export function toQueuePatient(entry: QueueEntry): QueuePatient {
   let badge: QueuePatient['badge'] = null;
-  if (entry.isEmergency) badge = 'emergency';
+  if (entry.priority === 'urgent') badge = 'emergency';
   else if (entry.isSteppedOut) badge = 'stepped-out';
   else if (!entry.patientPhone) badge = 'no-phone';
 

@@ -27,7 +27,6 @@
     "db:migrate": "pnpm --filter @doctorq/api db:migrate",
     "db:migrate:deploy": "pnpm --filter @doctorq/api db:migrate:deploy",
     "db:migrate:status": "pnpm --filter @doctorq/api db:migrate:status",
-    "db:seed": "pnpm --filter @doctorq/api db:seed",
     "db:studio": "pnpm --filter @doctorq/api db:studio",
     "db:snapshot": "cd apps/api && npx tsx prisma/db-snapshot.ts",
     "db:snapshot:only": "cd apps/api && npx tsx prisma/db-snapshot.ts --snapshot",

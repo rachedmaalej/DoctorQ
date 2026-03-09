@@ -256,7 +256,8 @@
     "realTimeTracking": "متابعة فورية",
     "testimonialText": "« تمكنت من الانتظار في المقهى بدلاً من الجلوس 45 دقيقة في غرفة الانتظار. »",
     "testimonialAuthor": "— مريضة، عيادة المرسى",
-    "virtualQueue": "الصف الافتراضي"
+    "virtualQueue": "الصف الافتراضي",
+    "selectDoctor": "طبيبك"
   },
   "dashboard": {
     "title": "لوحة التحكم",

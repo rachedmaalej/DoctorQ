@@ -23,7 +23,7 @@ export interface SnapshotEntry extends TimingEntry {
   status: QueueStatus;
   checkInMethod: CheckInMethod;
   appointmentTime: Date | null;
-  isEmergency: boolean;
+  priority: 'normal' | 'urgent';
   doctorId: string | null;
 }
 
@@ -205,7 +205,7 @@ export function buildDailySnapshot(
   // Walk-in vs appointment
   const appointmentEntries = entries.filter(e => e.appointmentTime !== null);
   const walkInEntries = entries.filter(e => e.appointmentTime === null);
-  const emergencyEntries = entries.filter(e => e.isEmergency);
+  const emergencyEntries = entries.filter(e => e.priority === 'urgent');
 
   // Peak hour (by arrivedAt)
   const hourCounts = new Map<number, number>();

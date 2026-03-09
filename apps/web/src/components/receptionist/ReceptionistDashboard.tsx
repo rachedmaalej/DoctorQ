@@ -137,7 +137,7 @@ export default function ReceptionistDashboard({
   const { fetchQueue } = useQueueStore();
   const handleMarkEmergency = useCallback(async (id: string) => {
     try {
-      await api.toggleEmergency(id);
+      await api.toggleUrgent(id);
       fetchQueue();
     } catch { /* handled by API layer */ }
   }, [fetchQueue]);
@@ -169,7 +169,7 @@ export default function ReceptionistDashboard({
           isDoctorPresent={isDoctorPresent}
           onToggleDoctorPresent={onToggleDoctorPresent}
           isTogglingPresence={isTogglingPresence}
-          className={showPreOpen ? 'animate-bs-slide-in bs-anim-d1' : ''}
+          className={showPreOpen ? 'animate-bs-slide-in bs-anim-d1 mb-3' : 'mb-3'}
           onOpenDrawer={drawerControls.open}
         />
 

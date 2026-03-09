@@ -117,6 +117,7 @@ model Clinic {
   subscriptionEvents    SubscriptionEvent[]
   doctors               Doctor[]
   patients              Patient[]
+  scheduleSlots         ScheduleSlot[]
 
   @@index([email])
   @@index([subscriptionStatus])
@@ -124,19 +125,25 @@ model Clinic {
 }
 
 model Doctor {
-  id                  String   @id @default(uuid())
+  id                  String       @id @default(uuid())
   clinicId            String
-  clinic              Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  clinic              Clinic       @relation(fields: [clinicId], references: [id], onDelete: Cascade)
 
   name                String
   specialty           String?
-  isActive            Boolean  @default(true)
-  avgConsultationMins Int      @default(15)
+  isActive            Boolean      @default(true)
+  avgConsultationMins Int          @default(15)
 
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  state               DoctorState  @default(inactive)
+  stateUpdatedAt      DateTime?
+  homeVisitETA        DateTime?
+  colorToken          String       @default("blue")
+
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
 
   queueEntries        QueueEntry[]
+  scheduleSlots       ScheduleSlot[]
 
   @@index([clinicId, isActive])
 }
@@ -178,8 +185,8 @@ model QueueEntry {
   // Appointment support (v0.3)
   appointmentTime DateTime?   // Scheduled appointment time (null = walk-in)
 
-  // Emergency flag — patient goes to #2 (right after current consultation)
-  isEmergency   Boolean       @default(false)
+  // Priority level — urgent patients float to top of queue
+  priority      Priority      @default(normal)
 
   // Stepped-out flag — patient temporarily left the waiting room
   isSteppedOut  Boolean       @default(false)
@@ -202,6 +209,10 @@ model QueueEntry {
   // Patient record link (for autocomplete & visit tracking)
   patientId     String?
   patient       Patient?      @relation(fields: [patientId], references: [id])
+
+  // Schedule slot link (null = walk-in)
+  slotId        String?       @unique
+  slot          ScheduleSlot? @relation(fields: [slotId], references: [id], onDelete: SetNull)
 
   pushSubscriptions PushSubscription[]
 
@@ -232,6 +243,20 @@ enum CheckInMethod {
   QR_CODE
   MANUAL
   WHATSAPP
+}
+
+enum Priority {
+  normal
+  urgent
+}
+
+enum DoctorState {
+  consulting
+  free
+  pause
+  absent_today
+  home_visit
+  inactive
 }
 
 enum SubscriptionStatus {
@@ -408,4 +433,34 @@ model Lead {
   createdAt DateTime @default(now())
 
   @@index([createdAt])
+}
+
+// ─── Phase 2: Schedule View ───
+
+model ScheduleSlot {
+  id          String    @id @default(cuid())
+  clinicId    String
+  doctorId    String
+  date        DateTime  @db.Date
+  startTime   DateTime
+  endTime     DateTime
+  slotType    SlotType  @default(named)
+  patientName String?
+  doctoLibId  String?   // External booking reference for future Doctolib import
+
+  clinic      Clinic    @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  doctor      Doctor    @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  queueEntry  QueueEntry?
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([clinicId, date])
+  @@index([doctorId, date])
+}
+
+enum SlotType {
+  named
+  regulation
+  unplanned
 }

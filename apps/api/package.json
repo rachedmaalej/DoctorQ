@@ -4,9 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "cross-env BRAND=blesaf PORT=3001 FRONTEND_URL=http://localhost:5174 tsx watch src/index.ts",
-    "dev:tn": "cross-env BRAND=blesaf PORT=3001 FRONTEND_URL=http://localhost:5174 tsx watch src/index.ts",
-    "dev:fr": "cross-env BRAND=france PORT=3002 FRONTEND_URL=http://localhost:5175 tsx watch src/index.ts",
+    "dev": "cross-env BRAND=blesaf PORT=3001 FRONTEND_URL=http://localhost:5200 tsx watch src/index.ts",
+    "dev:tn": "cross-env BRAND=blesaf PORT=3001 FRONTEND_URL=http://localhost:5200 tsx watch src/index.ts",
+    "dev:fr": "cross-env BRAND=france PORT=3010 FRONTEND_URL=http://localhost:5190 tsx watch src/index.ts",
     "build": "prisma generate && tsc",
     "start": "node dist/index.js",
     "test": "vitest",
@@ -14,7 +14,6 @@
     "db:migrate": "prisma migrate dev",
     "db:migrate:deploy": "prisma migrate deploy",
     "db:migrate:status": "prisma migrate status",
-    "db:seed": "tsx prisma/seed.ts",
     "db:seed:prod": "tsx prisma/seed-production.ts",
     "db:studio": "prisma studio",
     "postinstall": "prisma generate"

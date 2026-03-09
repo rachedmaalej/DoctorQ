@@ -19,7 +19,6 @@ import { Server } from 'socket.io';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
-import bcrypt from 'bcryptjs';
 import { setSocketIO } from './lib/socket.js';
 import { initScheduledTasks } from './lib/scheduler.js';
 import { prisma } from './lib/prisma.js';
@@ -35,6 +34,7 @@ import metricsRoutes from './routes/metrics.js';
 import leadsRoutes from './routes/leads.js';
 import pushRoutes from './routes/push.js';
 import patientRoutes from './routes/patients.js';
+import scheduleRoutes from './routes/schedule.js';
 import { metricsMiddleware, activeSocketConnections } from './lib/metrics.js';
 import { logger } from './lib/logger.js';
 import { brand } from './lib/brand.js';
@@ -52,6 +52,8 @@ const alwaysAllowed = [
   'http://localhost:5176',
   'http://localhost:5177',
   'http://localhost:5178',
+  'http://localhost:5190',
+  'http://localhost:5200',
 ];
 const envOrigins = (process.env.CORS_ORIGIN || process.env.FRONTEND_URL || '')
   .split(',')
@@ -155,163 +157,6 @@ app.get('/api/brand', (_req, res) => {
   res.json({ brand: brand.id, country: brand.country });
 });
 
-// Seed endpoint (disabled in production, protected by JWT_SECRET)
-app.post('/api/seed', async (req, res) => {
-  if (process.env.NODE_ENV === 'production') {
-    return res.status(403).json({ error: 'Seed endpoint is disabled in production' });
-  }
-
-  const { secret, clinic: clinicData } = req.body;
-
-  // Verify secret matches JWT_SECRET (only admin knows this)
-  if (secret !== process.env.JWT_SECRET) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-
-  try {
-    // If clinic data provided, create that clinic
-    if (clinicData) {
-      const { name, email, password, phone, address, language, avgConsultationMins, notifyAtPosition, businessType, showAppointments } = clinicData;
-
-      // For deletes, only email is required - deletes clinic and all related data
-      if (clinicData.delete) {
-        if (!email) {
-          return res.status(400).json({ error: 'email is required for deletion' });
-        }
-        // Safety check: prevent deleting Dr. Kamoun's clinic
-        if (email === 'dr.kamoun@doctorq.tn') {
-          return res.status(403).json({ error: 'Cannot delete the primary clinic' });
-        }
-        const existing = await prisma.clinic.findUnique({ where: { email } });
-        if (!existing) {
-          return res.status(404).json({ error: 'Clinic not found' });
-        }
-        // Delete clinic (cascade will delete queue entries and daily stats)
-        await prisma.clinic.delete({ where: { email } });
-        return res.json({
-          message: 'Clinic deleted successfully',
-          clinicId: existing.id,
-          email
-        });
-      }
-
-      // For updates, only email is required
-      if (clinicData.update) {
-        if (!email) {
-          return res.status(400).json({ error: 'email is required for updates' });
-        }
-        const existing = await prisma.clinic.findUnique({ where: { email } });
-        if (!existing) {
-          return res.status(404).json({ error: 'Clinic not found' });
-        }
-        const updateData: Record<string, unknown> = {};
-        if (password) {
-          updateData.passwordHash = await bcrypt.hash(password, 10);
-        }
-        if (businessType !== undefined) updateData.businessType = businessType;
-        if (showAppointments !== undefined) updateData.showAppointments = showAppointments;
-        if (name) updateData.name = name;
-        if (avgConsultationMins !== undefined) updateData.avgConsultationMins = avgConsultationMins;
-        if (notifyAtPosition !== undefined) updateData.notifyAtPosition = notifyAtPosition;
-
-        await prisma.clinic.update({
-          where: { email },
-          data: updateData,
-        });
-        return res.json({
-          message: 'Clinic updated successfully',
-          clinicId: existing.id,
-          updated: Object.keys(updateData)
-        });
-      }
-
-      // Validate required fields for new clinic creation
-      if (!name || !email || !password) {
-        return res.status(400).json({ error: 'name, email, and password are required' });
-      }
-
-      // Check if clinic already exists
-      const existing = await prisma.clinic.findUnique({ where: { email } });
-      if (existing) {
-        // Legacy: If resetPassword flag is set, update the password only
-        if (clinicData.resetPassword) {
-          const newPasswordHash = await bcrypt.hash(password, 10);
-          await prisma.clinic.update({
-            where: { email },
-            data: { passwordHash: newPasswordHash },
-          });
-          return res.json({
-            message: 'Password reset successfully',
-            clinicId: existing.id,
-            credentials: { email, password }
-          });
-        }
-        return res.json({ message: 'Clinic already exists', clinicId: existing.id });
-      }
-
-      const passwordHash = await bcrypt.hash(password, 10);
-
-      const clinic = await prisma.clinic.create({
-        data: {
-          name,
-          email,
-          passwordHash,
-          phone: phone || null,
-          address: address || null,
-          language: language || 'fr',
-          avgConsultationMins: avgConsultationMins || 10,
-          notifyAtPosition: notifyAtPosition || 2,
-          enableWhatsApp: false,
-          businessType: businessType || 'general',
-          showAppointments: showAppointments !== false,
-          country: brand.country,
-        },
-      });
-
-      return res.json({
-        message: 'Clinic created successfully',
-        clinicId: clinic.id,
-        credentials: { email, password }
-      });
-    }
-
-    // Fallback: Create Dr. Kamoun's clinic (original behavior)
-    const existingClinic = await prisma.clinic.findUnique({
-      where: { email: 'dr.kamoun@doctorq.tn' }
-    });
-
-    if (existingClinic) {
-      return res.json({ message: 'Clinic already exists', clinicId: existingClinic.id });
-    }
-
-    const seedPassword = process.env.SEED_PASSWORD || 'DoctorQ2024!';
-    const passwordHash = await bcrypt.hash(seedPassword, 10);
-    const clinic = await prisma.clinic.create({
-      data: {
-        name: 'Cabinet Dr Skander Kamoun',
-        doctorName: 'Dr. Skander Kamoun',
-        email: 'dr.kamoun@doctorq.tn',
-        passwordHash,
-        phone: '+21671234567',
-        address: 'Tunis, Tunisia',
-        language: 'fr',
-        avgConsultationMins: 10,
-        notifyAtPosition: 2,
-        enableWhatsApp: false,
-        country: brand.country,
-      },
-    });
-
-    res.json({
-      message: 'Clinic created successfully',
-      clinicId: clinic.id,
-    });
-  } catch (error) {
-    logger.error({ err: error }, 'Seed error');
-    res.status(500).json({ error: 'Failed to seed database' });
-  }
-});
-
 // Prometheus metrics endpoint
 app.use('/metrics', metricsRoutes);
 
@@ -330,6 +175,7 @@ app.use('/api/subscription', subscriptionRoutes);
 app.use('/api/queue', queueRoutes);
 app.use('/api/clinic', clinicRoutes);
 app.use('/api/clinic/doctors', doctorRoutes);
+app.use('/api/clinic/schedule', scheduleRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/push', pushRoutes);
 app.use('/api/patients', patientRoutes);

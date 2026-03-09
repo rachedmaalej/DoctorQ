@@ -9,7 +9,7 @@ import AusuivantDarkTopBar from '../ausuivant/components/AusuivantDarkTopBar';
 const BlesafClinicDetail = lazy(() => import('./blesaf/BlesafClinicDetail'));
 const AusuivantClinicDetail = lazy(() => import('./ausuivant/AusuivantClinicDetail'));
 
-const isFrance = webBrand.theme.dashboard.variant === 'compact';
+const isFrance = webBrand.theme.dashboard.variant === 'schedule';
 
 export default function ClinicDetailPage() {
   const navigate = useNavigate();

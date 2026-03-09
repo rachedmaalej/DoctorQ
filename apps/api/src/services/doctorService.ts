@@ -1,9 +1,11 @@
 /**
  * Doctor Service
- * CRUD operations for managing doctors within a clinic
+ * CRUD operations + state management for doctors within a clinic
  */
 
+import { DoctorState } from '@prisma/client';
 import { prisma } from '../lib/prisma.js';
+import { emitDoctorState, emitPatientTransferred } from '../lib/socket.js';
 
 export interface CreateDoctorInput {
   clinicId: string;
@@ -79,4 +81,168 @@ export async function deleteDoctor(clinicId: string, doctorId: string) {
 
   await prisma.doctor.delete({ where: { id: doctorId } });
   return true;
+}
+
+// ─── Phase 3: Doctor State Management ───
+
+const VALID_STATES: DoctorState[] = ['consulting', 'free', 'pause', 'absent_today', 'home_visit', 'inactive'];
+
+export async function updateDoctorState(
+  clinicId: string,
+  doctorId: string,
+  state: DoctorState,
+  homeVisitETA?: string,
+) {
+  const doctor = await prisma.doctor.findFirst({
+    where: { id: doctorId, clinicId },
+  });
+  if (!doctor) return null;
+
+  if (!VALID_STATES.includes(state)) {
+    throw new Error(`Invalid doctor state: ${state}`);
+  }
+
+  const updated = await prisma.doctor.update({
+    where: { id: doctorId },
+    data: {
+      state,
+      stateUpdatedAt: new Date(),
+      homeVisitETA: state === 'home_visit' && homeVisitETA ? new Date(homeVisitETA) : null,
+    },
+  });
+
+  emitDoctorState(clinicId, doctorId, state, homeVisitETA);
+  return updated;
+}
+
+export type AbsenceOption = 'close' | 'reassign' | 'keep';
+
+export async function handleAbsence(
+  clinicId: string,
+  doctorId: string,
+  option: AbsenceOption,
+) {
+  // Mark doctor as absent
+  await updateDoctorState(clinicId, doctorId, 'absent_today');
+
+  if (option === 'close') {
+    // Cancel remaining schedule slots for today
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    await prisma.scheduleSlot.deleteMany({
+      where: {
+        clinicId,
+        doctorId,
+        date: { gte: today, lt: tomorrow },
+        queueEntry: null, // Only delete unfilled slots
+      },
+    });
+
+    return { action: 'closed', reassigned: 0 };
+  }
+
+  if (option === 'reassign') {
+    return reassignPatients(clinicId, doctorId);
+  }
+
+  // option === 'keep' — no further action
+  return { action: 'kept', reassigned: 0 };
+}
+
+export async function reassignPatients(clinicId: string, fromDoctorId: string) {
+  // Get available doctors (not absent, not inactive, not the departing doctor)
+  const available = await prisma.doctor.findMany({
+    where: {
+      clinicId,
+      isActive: true,
+      id: { not: fromDoctorId },
+      state: { in: ['free', 'consulting', 'pause'] },
+    },
+  });
+
+  if (available.length === 0) {
+    return { action: 'reassign_failed', reassigned: 0, reason: 'no_available_doctors' };
+  }
+
+  // Get waiting patients for the absent doctor
+  const patients = await prisma.queueEntry.findMany({
+    where: {
+      clinicId,
+      doctorId: fromDoctorId,
+      status: { in: ['WAITING', 'NOTIFIED'] },
+    },
+    orderBy: { position: 'asc' },
+  });
+
+  if (patients.length === 0) {
+    return { action: 'reassigned', reassigned: 0 };
+  }
+
+  // Get current queue counts per available doctor for balanced distribution
+  const counts = new Map<string, number>();
+  for (const doc of available) {
+    const count = await prisma.queueEntry.count({
+      where: {
+        clinicId,
+        doctorId: doc.id,
+        status: { in: ['WAITING', 'NOTIFIED'] },
+      },
+    });
+    counts.set(doc.id, count);
+  }
+
+  // Distribute patients to doctor with fewest waiting
+  let reassigned = 0;
+  for (const patient of patients) {
+    // Find doctor with lowest count
+    let minDoc = available[0].id;
+    let minCount = counts.get(available[0].id) || 0;
+    for (const doc of available) {
+      const c = counts.get(doc.id) || 0;
+      if (c < minCount) {
+        minDoc = doc.id;
+        minCount = c;
+      }
+    }
+
+    await prisma.queueEntry.update({
+      where: { id: patient.id },
+      data: { doctorId: minDoc },
+    });
+
+    emitPatientTransferred(clinicId, patient.id, fromDoctorId, minDoc);
+    counts.set(minDoc, (counts.get(minDoc) || 0) + 1);
+    reassigned++;
+  }
+
+  return { action: 'reassigned', reassigned };
+}
+
+export async function transferPatient(
+  clinicId: string,
+  patientId: string,
+  targetDoctorId: string,
+) {
+  const entry = await prisma.queueEntry.findFirst({
+    where: { id: patientId, clinicId },
+  });
+  if (!entry) return null;
+
+  const targetDoctor = await prisma.doctor.findFirst({
+    where: { id: targetDoctorId, clinicId, isActive: true },
+  });
+  if (!targetDoctor) return null;
+
+  const fromDoctorId = entry.doctorId;
+
+  const updated = await prisma.queueEntry.update({
+    where: { id: patientId },
+    data: { doctorId: targetDoctorId },
+  });
+
+  emitPatientTransferred(clinicId, patientId, fromDoctorId || '', targetDoctorId);
+  return updated;
 }

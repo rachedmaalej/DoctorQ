@@ -418,42 +418,96 @@
       min-height: 640px;
     }
 
-    /* Phone mockup — real iPhone 14 frame PNG over screenshot */
+    /* Phone mockup — pure CSS iPhone frame */
     .showcase-phone {
       width: 290px;
       flex-shrink: 0;
       position: relative;
       z-index: 2;
     }
-    /* The frame PNG defines the container size */
-    .phone-frame {
+    .phone-frame-css {
       width: 100%;
-      display: block;
-      position: relative;
-      z-index: 3;
-      pointer-events: none;
-      filter: drop-shadow(0 20px 50px rgba(0,0,0,0.15));
-    }
-    /* Screen area — clips the screenshot to the iPhone display region */
-    .phone-screen {
-      position: absolute;
-      top: 1.6%;
-      left: 5.6%;
-      width: 88.8%;
-      height: 96.8%;
-      border-radius: 32px;
+      aspect-ratio: 290 / 590;
+      border-radius: 36px;
+      border: 7px solid #1E293B;
       overflow: hidden;
-      z-index: 1;
+      position: relative;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.15), 0 0 0 1.5px #475569;
       background: #F5F5F0;
     }
-    /* Screenshot fills the screen area */
-    .phone-screenshot {
+    .phone-notch {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 28px;
+      background: #1E293B;
+      border-radius: 0 0 16px 16px;
+      z-index: 10;
+    }
+    .phone-screen-inner {
       width: 100%;
       height: 100%;
-      object-fit: cover;
-      object-position: center 8%;
-      display: block;
+      overflow: hidden;
+      font-family: 'IBM Plex Sans', system-ui, sans-serif;
+      font-size: 11px;
+      color: #1A1917;
     }
+
+    /* ─── Inline Dashboard Mockup ─── */
+    .dash-mock { padding: 38px 12px 12px; }
+    .dash-mock-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 10px;
+    }
+    .dash-mock-title { font-weight: 700; font-size: 13px; color: #0F172A; }
+    .dash-mock-dot { width: 7px; height: 7px; border-radius: 50%; background: #22C55E; }
+    .dash-mock-stats {
+      display: flex; gap: 6px; margin-bottom: 10px;
+    }
+    .dash-mock-stat {
+      flex: 1; background: #FFFFFF; border: 1px solid #E2E8F0;
+      border-radius: 8px; padding: 8px 6px; text-align: center;
+    }
+    .dash-mock-stat-val {
+      font-size: 18px; font-weight: 800; color: #0F172A; line-height: 1;
+    }
+    .dash-mock-stat-label {
+      font-size: 8px; color: #94A3B8; margin-top: 2px; font-weight: 500;
+    }
+    .dash-mock-current {
+      background: #ECFDF5; border: 1px solid #BBF7D0;
+      border-radius: 8px; padding: 8px 10px; margin-bottom: 8px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .dash-mock-current-dot {
+      width: 24px; height: 24px; border-radius: 50%; background: #22C55E;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 12px;
+    }
+    .dash-mock-current-name { font-weight: 700; font-size: 11px; }
+    .dash-mock-current-info { font-size: 9px; color: #64748B; }
+    .dash-mock-queue { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+    .dash-mock-row {
+      display: flex; align-items: center; gap: 8px;
+      background: #FFF; border: 1px solid #F1F5F9;
+      border-radius: 6px; padding: 6px 8px;
+    }
+    .dash-mock-row-num {
+      width: 18px; height: 18px; border-radius: 50%; background: #F1F5F9;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 9px; font-weight: 700; color: #64748B; flex-shrink: 0;
+    }
+    .dash-mock-row-name { font-size: 10px; font-weight: 600; flex: 1; }
+    .dash-mock-row-time { font-size: 9px; color: #94A3B8; }
+    .dash-mock-cta {
+      width: 100%; padding: 8px; border: none; border-radius: 8px;
+      background: #1A7A3A; color: #FFF; font-size: 11px; font-weight: 700;
+      font-family: inherit; cursor: default;
+      display: flex; align-items: center; justify-content: center; gap: 4px;
+    }
+    .dash-mock-cta .material-symbols-outlined { font-size: 14px; }
 
     /* Pulsing hotspot dots */
     .hotspot {
@@ -992,17 +1046,78 @@
     <div class="section-sub">Tout ce dont vous avez besoin, sur un seul écran. Zéro formation requise.</div>
 
     <div class="dashboard-showcase">
-      <!-- Phone mockup: real iPhone 14 frame + dashboard screenshot -->
+      <!-- Phone mockup: CSS frame + inline dashboard UI -->
       <div class="showcase-phone">
-        <img class="phone-frame" src="apple-iphone-14-max.png" alt="" />
-        <div class="phone-screen">
-          <img class="phone-screenshot" src="Dr_dashboard_screenshot.png" alt="Tableau de bord BleSaf — vue réelle du cabinet" />
+        <div class="phone-frame-css">
+          <div class="phone-notch"></div>
+          <div class="phone-screen-inner">
+            <div class="dash-mock">
+              <!-- Header -->
+              <div class="dash-mock-header">
+                <div class="dash-mock-title">Cabinet Dr Kamoun</div>
+                <div class="dash-mock-dot"></div>
+              </div>
+              <!-- Stats row -->
+              <div class="dash-mock-stats">
+                <div class="dash-mock-stat">
+                  <div class="dash-mock-stat-val">7</div>
+                  <div class="dash-mock-stat-label">En attente</div>
+                </div>
+                <div class="dash-mock-stat">
+                  <div class="dash-mock-stat-val">12</div>
+                  <div class="dash-mock-stat-label">Consultés</div>
+                </div>
+                <div class="dash-mock-stat">
+                  <div class="dash-mock-stat-val">~16h</div>
+                  <div class="dash-mock-stat-label">Fin estimée</div>
+                </div>
+              </div>
+              <!-- Current patient -->
+              <div class="dash-mock-current">
+                <div class="dash-mock-current-dot">
+                  <span class="material-symbols-outlined" style="font-size:14px">person</span>
+                </div>
+                <div>
+                  <div class="dash-mock-current-name">Mourad Ben Ali</div>
+                  <div class="dash-mock-current-info">Arrivé 10h15 · En consultation 8 min</div>
+                </div>
+              </div>
+              <!-- Queue list -->
+              <div class="dash-mock-queue">
+                <div class="dash-mock-row">
+                  <div class="dash-mock-row-num">1</div>
+                  <div class="dash-mock-row-name">Amira Trabelsi</div>
+                  <div class="dash-mock-row-time">10h22</div>
+                </div>
+                <div class="dash-mock-row">
+                  <div class="dash-mock-row-num">2</div>
+                  <div class="dash-mock-row-name">Youssef Gharbi</div>
+                  <div class="dash-mock-row-time">10h31</div>
+                </div>
+                <div class="dash-mock-row">
+                  <div class="dash-mock-row-num">3</div>
+                  <div class="dash-mock-row-name">Fatma Mejri</div>
+                  <div class="dash-mock-row-time">10h38</div>
+                </div>
+                <div class="dash-mock-row">
+                  <div class="dash-mock-row-num">4</div>
+                  <div class="dash-mock-row-name">Karim Bouazizi</div>
+                  <div class="dash-mock-row-time">10h45</div>
+                </div>
+              </div>
+              <!-- CTA button -->
+              <div class="dash-mock-cta">
+                <span class="material-symbols-outlined">notifications_active</span>
+                Appeler le suivant
+              </div>
+            </div>
+          </div>
         </div>
-        <!-- Pulsing hotspot dots (positioned over the screen area) -->
-        <div class="hotspot" id="hs-1" style="top: 16%; left: 35%"></div>
-        <div class="hotspot" id="hs-2" style="top: 38%; left: 55%"></div>
-        <div class="hotspot" id="hs-3" style="top: 62%; left: 40%"></div>
-        <div class="hotspot" id="hs-4" style="top: 85%; left: 50%"></div>
+        <!-- Pulsing hotspot dots (positioned over the phone frame) -->
+        <div class="hotspot" id="hs-1" style="top: 14%; left: 35%"></div>
+        <div class="hotspot" id="hs-2" style="top: 42%; left: 55%"></div>
+        <div class="hotspot" id="hs-3" style="top: 65%; left: 40%"></div>
+        <div class="hotspot" id="hs-4" style="top: 88%; left: 50%"></div>
       </div>
 
       <!-- SVG connector curves (desktop only) -->

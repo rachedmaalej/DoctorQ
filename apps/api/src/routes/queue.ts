@@ -10,7 +10,7 @@ import { prisma } from '../lib/prisma.js';
 import { authMiddleware } from '../lib/auth.js';
 import { subscriptionGate } from '../lib/subscriptionGate.js';
 import { AuthRequest } from '../types/index.js';
-import { QueueStatus, CheckInMethod } from '@prisma/client';
+import { QueueStatus, CheckInMethod, Priority } from '@prisma/client';
 import {
   addPatient,
   removePatient,
@@ -38,7 +38,8 @@ const addPatientSchema = z.object({
   checkInMethod: z.enum(['QR_CODE', 'MANUAL', 'WHATSAPP']).default('MANUAL'),
   appointmentTime: z.string().optional(),
   arrivedAt: z.string().optional(),
-  isEmergency: z.boolean().optional(),
+  doctorId: z.string().min(1).optional(),
+  isUrgent: z.boolean().optional(),
 });
 
 const updatePatientSchema = z.object({
@@ -80,7 +81,7 @@ router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {
 router.post('/', authMiddleware, subscriptionGate, async (req: AuthRequest, res: Response) => {
   try {
     const clinicId = req.clinic!.id;
-    const { patientPhone, patientName, checkInMethod, appointmentTime, arrivedAt, isEmergency } = addPatientSchema.parse(req.body);
+    const { patientPhone, patientName, checkInMethod, appointmentTime, arrivedAt, doctorId, isUrgent } = addPatientSchema.parse(req.body);
 
     // Parse appointment time if provided (converts local time to UTC using brand timezone)
     let appointmentDateTime: Date | undefined;
@@ -104,7 +105,8 @@ router.post('/', authMiddleware, subscriptionGate, async (req: AuthRequest, res:
       checkInMethod: checkInMethod as CheckInMethod,
       appointmentTime: appointmentDateTime,
       arrivedAt: arrivedAtDateTime,
-      isEmergency,
+      doctorId,
+      isUrgent,
     });
 
     if (result.isAlreadyCheckedIn) {
@@ -132,19 +134,33 @@ router.post('/', authMiddleware, subscriptionGate, async (req: AuthRequest, res:
 router.post('/next', authMiddleware, subscriptionGate, async (req: AuthRequest, res: Response) => {
   try {
     const clinicId = req.clinic!.id;
+    const doctorId = typeof req.query.doctorId === 'string' ? req.query.doctorId : undefined;
 
     // Guard: doctor must be present to call next patient
-    const clinic = await prisma.clinic.findUnique({
-      where: { id: clinicId },
-      select: { isDoctorPresent: true },
-    });
-    if (!clinic?.isDoctorPresent) {
-      return res.status(400).json({
-        error: { code: 'DOCTOR_NOT_PRESENT', message: 'Cannot call next patient while consultations are paused' },
+    if (doctorId) {
+      // Multi-doctor mode: check the specific doctor's state
+      const doctor = await prisma.doctor.findFirst({
+        where: { id: doctorId, clinicId },
+        select: { state: true },
       });
+      if (!doctor || doctor.state === 'inactive' || doctor.state === 'absent_today') {
+        return res.status(400).json({
+          error: { code: 'DOCTOR_NOT_PRESENT', message: 'Cannot call next patient while consultations are paused' },
+        });
+      }
+    } else {
+      // Single-doctor (BleSaf) mode: check clinic-level presence
+      const clinic = await prisma.clinic.findUnique({
+        where: { id: clinicId },
+        select: { isDoctorPresent: true },
+      });
+      if (!clinic?.isDoctorPresent) {
+        return res.status(400).json({
+          error: { code: 'DOCTOR_NOT_PRESENT', message: 'Cannot call next patient while consultations are paused' },
+        });
+      }
     }
-
-    const newInConsultation = await callNextPatient(clinicId);
+    const newInConsultation = await callNextPatient(clinicId, doctorId);
 
     if (!newInConsultation) {
       return res.status(404).json({
@@ -157,6 +173,43 @@ router.post('/next', authMiddleware, subscriptionGate, async (req: AuthRequest, 
     logger.error({ err: error }, "Call next error");
     res.status(500).json({
       error: { code: 'SERVER_ERROR', message: 'Failed to call next patient' },
+    });
+  }
+});
+
+// POST /api/queue/:id/urgent - Toggle patient urgency
+router.post('/:id/urgent', authMiddleware, subscriptionGate, async (req: AuthRequest, res: Response) => {
+  try {
+    const clinicId = req.clinic!.id;
+    const entryId = req.params.id;
+
+    const entry = await prisma.queueEntry.findFirst({
+      where: { id: entryId, clinicId },
+    });
+
+    if (!entry) {
+      return res.status(404).json({
+        error: { code: 'NOT_FOUND', message: 'Queue entry not found' },
+      });
+    }
+
+    const newPriority = entry.priority === Priority.urgent ? Priority.normal : Priority.urgent;
+
+    await prisma.queueEntry.update({
+      where: { id: entryId },
+      data: { priority: newPriority },
+    });
+
+    // Recalculate positions after priority change
+    await recalculatePositionsAndStatuses(clinicId);
+    emitQueueUpdate(clinicId).catch(() => {});
+    emitAllPatientUpdates(clinicId).catch(() => {});
+
+    res.json({ data: { id: entryId, priority: newPriority } });
+  } catch (error) {
+    logger.error({ err: error }, "Toggle urgent error");
+    res.status(500).json({
+      error: { code: 'SERVER_ERROR', message: 'Failed to toggle urgency' },
     });
   }
 });
@@ -407,7 +460,7 @@ router.post('/reorder', authMiddleware, subscriptionGate, async (req: AuthReques
   }
 });
 
-// POST /api/queue/:id/emergency - Toggle emergency flag on a patient
+// POST /api/queue/:id/emergency - Toggle urgent priority on a patient
 router.post('/:id/emergency', authMiddleware, subscriptionGate, async (req: AuthRequest, res: Response) => {
   try {
     const clinicId = req.clinic!.id;
@@ -428,13 +481,14 @@ router.post('/:id/emergency', authMiddleware, subscriptionGate, async (req: Auth
       });
     }
 
-    // Toggle emergency flag
+    // Toggle priority between urgent and normal
+    const newPriority = entry.priority === 'urgent' ? 'normal' : 'urgent';
     const updated = await prisma.queueEntry.update({
       where: { id },
-      data: { isEmergency: !entry.isEmergency },
+      data: { priority: newPriority },
     });
 
-    // Recalculate positions (emergency patients jump to #2)
+    // Recalculate positions (urgent patients jump to top)
     await recalculatePositionsAndStatuses(clinicId);
 
     // Emit socket updates
@@ -444,9 +498,9 @@ router.post('/:id/emergency', authMiddleware, subscriptionGate, async (req: Auth
 
     res.json({ data: updated });
   } catch (error) {
-    logger.error({ err: error }, 'Toggle emergency error');
+    logger.error({ err: error }, 'Toggle urgent error');
     res.status(500).json({
-      error: { code: 'SERVER_ERROR', message: 'Failed to toggle emergency' },
+      error: { code: 'SERVER_ERROR', message: 'Failed to toggle urgent' },
     });
   }
 });
@@ -532,7 +586,7 @@ router.post('/reset-stats', authMiddleware, subscriptionGate, async (req: AuthRe
 router.post('/checkin/:clinicId', async (req, res: Response) => {
   try {
     const { clinicId } = req.params;
-    const { patientPhone, patientName, arrivedAt } = addPatientSchema.parse({
+    const { patientPhone, patientName, arrivedAt, doctorId } = addPatientSchema.parse({
       ...req.body,
       checkInMethod: 'QR_CODE',
     });
@@ -567,6 +621,7 @@ router.post('/checkin/:clinicId', async (req, res: Response) => {
       patientName,
       checkInMethod: CheckInMethod.QR_CODE,
       arrivedAt: arrivedAtDateTime,
+      doctorId,
     });
 
     if (result.isAlreadyCheckedIn) {

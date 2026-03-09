@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/authStore';
 import { useQueueStore } from '@/stores/queueStore';
@@ -7,7 +7,8 @@ import { api } from '@/lib/api';
 import { logger } from '@/lib/logger';
 import { playDoorbellSound } from '@/lib/sounds';
 import { QueueStatus } from '@/types';
-import type { AddPatientData } from '@/types';
+import type { AddPatientData, Doctor } from '@/types';
+import { formatDoctorName } from '@/components/ausuivant/utils';
 import type { ToastType } from '@/components/ui/Toast';
 
 // Helper to create today's date with specific time (HH:MM)
@@ -71,6 +72,9 @@ export function useDashboard() {
   const [isAnnouncementModalOpen, setIsAnnouncementModalOpen] = useState(false);
   const [isSendingAnnouncement, setIsSendingAnnouncement] = useState(false);
 
+  // Doctors state (for multi-doctor support)
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
+
   // Toast state for reorder feedback
   const [toast, setToast] = useState<{ isVisible: boolean; message: string; type: ToastType }>({
     isVisible: false,
@@ -92,8 +96,25 @@ export function useDashboard() {
   // Derived state
   const waitingCount = queue.filter(p => p.status === 'WAITING' || p.status === 'NOTIFIED').length;
 
+  // Derive doctor consultation state from queue (source of truth)
+  const effectiveDoctors = useMemo(() => {
+    if (doctors.length === 0) return doctors;
+    return doctors.map(d => {
+      const hasInConsultation = queue.some(
+        e => e.doctorId === d.id && e.status === QueueStatus.IN_CONSULTATION
+      );
+      if (hasInConsultation && d.state === 'free') {
+        return { ...d, state: 'consulting' as const };
+      }
+      if (!hasInConsultation && d.state === 'consulting') {
+        return { ...d, state: 'free' as const };
+      }
+      return d;
+    });
+  }, [doctors, queue]);
+
   // Socket.io connection for real-time updates
-  const { joinClinicRoom } = useSocket({
+  const { joinClinicRoom, connected: socketConnected } = useSocket({
     onQueueUpdated: (data) => {
       logger.log('Dashboard received queue:updated event, refreshing queue');
 
@@ -128,6 +149,10 @@ export function useDashboard() {
         setAnnouncement(data.announcement);
       }
     },
+    onDoctorsUpdated: (data) => {
+      logger.log('[Doctors] Socket event received, updating doctors list');
+      setDoctors(data.doctors);
+    },
   });
 
   // Fetch initial queue data
@@ -141,15 +166,14 @@ export function useDashboard() {
     });
   }, []);
 
-  // Polling fallback for cross-device sync when Socket.io doesn't work
-  // Polls every 5 seconds to ensure dashboards stay in sync
+  // Polling fallback — only active when socket is disconnected
   useEffect(() => {
+    if (socketConnected) return;
     const interval = setInterval(() => {
       fetchQueue();
-    }, 5000);
-
+    }, 10000);
     return () => clearInterval(interval);
-  }, [fetchQueue]);
+  }, [socketConnected, fetchQueue]);
 
   // Sync doctor presence from clinic data when it changes (e.g., after login or page refresh)
   // This ensures we use the persisted value from the database
@@ -173,6 +197,46 @@ export function useDashboard() {
       }
     }
   }, [clinic?.id, joinClinicRoom]);
+
+  // Fetch doctors for multi-doctor support
+  useEffect(() => {
+    if (clinic?.multiDoctorEnabled) {
+      api.getDoctors().then(setDoctors).catch(() => {});
+    }
+  }, [clinic?.multiDoctorEnabled]);
+
+  // Mark patient as urgent
+  const handleMarkUrgent = useCallback(async (id: string) => {
+    const patient = queue.find(p => p.id === id);
+    const patientName = patient?.patientName || t('queue.patientName');
+
+    try {
+      await api.toggleUrgent(id);
+      showToast(`${patientName} — Urgent`, 'emergency');
+      await fetchQueue();
+    } catch (error) {
+      logger.error('Failed to toggle urgency:', error);
+      showToast(t('common.error'), 'error');
+    }
+  }, [queue, fetchQueue, showToast, t]);
+
+  // Call next patient for a specific doctor
+  const handleCallNextForDoctor = useCallback(async (doctorId: string) => {
+    if (isCallingNext) return;
+    setIsCallingNext(true);
+    try {
+      await callNext(doctorId);
+      const doctor = doctors.find(d => d.id === doctorId);
+      if (doctor) {
+        showToast(`Patient appelé — ${formatDoctorName(doctor.name)}`, 'call');
+      }
+    } catch (error) {
+      logger.error('Failed to call next for doctor:', error);
+      fetchQueue();
+    } finally {
+      setIsCallingNext(false);
+    }
+  }, [isCallingNext, callNext, doctors, fetchQueue, showToast]);
 
   // Call next patient handler with optimistic updates
   const handleCallNext = useCallback(async () => {
@@ -462,8 +526,13 @@ export function useDashboard() {
     isSendingAnnouncement,
     handleSetAnnouncement,
 
+    // Doctors (with state derived from queue)
+    doctors: effectiveDoctors,
+
     // Actions
     handleCallNext,
+    handleCallNextForDoctor,
+    handleMarkUrgent,
     handleRemovePatient,
     confirmRemovePatient,
     cancelRemovePatient,

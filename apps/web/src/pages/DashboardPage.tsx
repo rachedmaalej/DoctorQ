@@ -7,6 +7,7 @@ import { webBrand } from '@/lib/brand';
 import { api } from '@/lib/api';
 import ReceptionistDashboard from '@/components/receptionist/ReceptionistDashboard';
 import AuSuivantDashboard from '@/components/ausuivant/AuSuivantDashboard';
+import ASDesktopLayout from '@/components/ausuivant/ASDesktopLayout';
 import DesktopDashboard from '@/components/dashboard/DesktopDashboard';
 import AddPatientModal from '@/components/queue/AddPatientModal';
 import ConfirmModal from '@/components/ui/ConfirmModal';
@@ -76,8 +77,13 @@ export default function DashboardPage() {
     isSendingAnnouncement,
     handleSetAnnouncement,
 
+    // Doctors
+    doctors,
+
     // Actions
     handleCallNext,
+    handleCallNextForDoctor,
+    handleMarkUrgent,
     handleRemovePatient,
     confirmRemovePatient,
     cancelRemovePatient,
@@ -137,14 +143,15 @@ export default function DashboardPage() {
       ) : (
       <>
       <div className="lg:hidden">
-        {webBrand.theme.dashboard.variant === 'compact' ? (
+        {webBrand.theme.dashboard.variant === 'schedule' ? (
           <AuSuivantDashboard
             queue={queue}
             stats={stats}
+            doctors={doctors}
             onCallNext={handleCallNext}
+            onCallNextForDoctor={handleCallNextForDoctor}
             onRemovePatient={handleRemovePatient}
-            onReorder={handleReorderPatient}
-            onEmergency={(id) => handleReorderPatient(id, 1)}
+            onMarkUrgent={handleMarkUrgent}
             isCallingNext={isCallingNext}
             isDoctorPresent={isDoctorPresent}
             onToggleDoctorPresent={handleToggleDoctorPresent}
@@ -171,26 +178,42 @@ export default function DashboardPage() {
 
       {/* Desktop Dashboard - hidden on mobile */}
       <div className="hidden lg:block">
-        <DesktopDashboard
-          clinic={clinic}
-          queue={queue}
-          stats={stats}
-          waitingCount={waitingCount}
-          isDoctorPresent={isDoctorPresent}
-          isCallingNext={isCallingNext}
-          isTogglingPresence={isTogglingPresence}
-          exitingPatientId={exitingPatientId}
-          announcement={announcement}
-          subscriptionExpired={subscriptionExpired}
-          onCallNext={handleCallNext}
-          onRemovePatient={handleRemovePatient}
-          onReorderPatient={handleReorderPatient}
-          onEmergency={(id) => handleReorderPatient(id, 1)}
-          onCompleteConsultation={handleCompleteConsultation}
-          onToggleDoctorPresent={handleToggleDoctorPresent}
-          onOpenAddModal={() => setIsAddModalOpen(true)}
-          onOpenAnnouncementModal={() => setIsAnnouncementModalOpen(true)}
-        />
+        {webBrand.theme.dashboard.variant === 'schedule' ? (
+          <ASDesktopLayout
+            queue={queue}
+            stats={stats}
+            doctors={doctors}
+            onCallNext={handleCallNext}
+            onCallNextForDoctor={handleCallNextForDoctor}
+            onRemovePatient={handleRemovePatient}
+            onMarkUrgent={handleMarkUrgent}
+            isCallingNext={isCallingNext}
+            isDoctorPresent={isDoctorPresent}
+            onToggleDoctorPresent={handleToggleDoctorPresent}
+            isTogglingPresence={isTogglingPresence}
+          />
+        ) : (
+          <DesktopDashboard
+            clinic={clinic}
+            queue={queue}
+            stats={stats}
+            waitingCount={waitingCount}
+            isDoctorPresent={isDoctorPresent}
+            isCallingNext={isCallingNext}
+            isTogglingPresence={isTogglingPresence}
+            exitingPatientId={exitingPatientId}
+            announcement={announcement}
+            subscriptionExpired={subscriptionExpired}
+            onCallNext={handleCallNext}
+            onRemovePatient={handleRemovePatient}
+            onReorderPatient={handleReorderPatient}
+            onEmergency={(id) => handleReorderPatient(id, 1)}
+            onCompleteConsultation={handleCompleteConsultation}
+            onToggleDoctorPresent={handleToggleDoctorPresent}
+            onOpenAddModal={() => setIsAddModalOpen(true)}
+            onOpenAnnouncementModal={() => setIsAnnouncementModalOpen(true)}
+          />
+        )}
       </div>
       </>
       )}

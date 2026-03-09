@@ -4,10 +4,10 @@
  */
 
 import { prisma } from '../lib/prisma.js';
-import { QueueStatus, CheckInMethod, QueueEntry } from '@prisma/client';
+import { QueueStatus, CheckInMethod, Priority, QueueEntry } from '@prisma/client';
 import { recalculatePositionsAndStatuses, getNextPosition } from './positionService.js';
 import { emitQueueUpdate, emitPatientUpdate, emitAllPatientUpdates } from './notificationService.js';
-import { emitToRoom } from '../lib/socket.js';
+import { emitToRoom, emitDoctorState } from '../lib/socket.js';
 import { getQueueStats, getStartOfToday, computeSmartWaitEstimate, invalidateStatsCache } from './statsService.js';
 import { buildDailySnapshot, buildHourlySnapshots, buildDoctorSnapshots, type SnapshotEntry } from './metricsService.js';
 import { brand } from '../lib/brand.js';
@@ -20,7 +20,8 @@ export interface AddPatientInput {
   checkInMethod?: CheckInMethod;
   appointmentTime?: Date;
   arrivedAt?: Date;
-  isEmergency?: boolean;
+  doctorId?: string;
+  isUrgent?: boolean;
 }
 
 export interface AddPatientResult {
@@ -52,7 +53,8 @@ export async function addPatient(input: AddPatientInput): Promise<AddPatientResu
     checkInMethod = CheckInMethod.MANUAL,
     appointmentTime,
     arrivedAt,
-    isEmergency = false,
+    doctorId,
+    isUrgent = false,
   } = input;
 
   const formattedPhone = patientPhone ? formatPhoneNumber(patientPhone) : '';
@@ -104,7 +106,8 @@ export async function addPatient(input: AddPatientInput): Promise<AddPatientResu
         status: QueueStatus.WAITING,
         checkInMethod,
         appointmentTime,
-        isEmergency,
+        priority: isUrgent ? Priority.urgent : Priority.normal,
+        ...(doctorId && { doctorId }),
         ...(arrivedAt && { arrivedAt }),
       },
     });
@@ -210,14 +213,15 @@ export async function removePatient(clinicId: string, entryId: string): Promise<
  * Call the next patient (complete current, advance queue)
  * Uses a transaction to ensure atomicity of complete + advance operations
  */
-export async function callNextPatient(clinicId: string): Promise<QueueEntry | null> {
+export async function callNextPatient(clinicId: string, doctorId?: string): Promise<QueueEntry | null> {
   // Use transaction to ensure atomicity
-  const hasRemainingPatients = await prisma.$transaction(async (tx) => {
-    // Complete the current IN_CONSULTATION patient
+  const promotedId = await prisma.$transaction(async (tx) => {
+    // Complete the current IN_CONSULTATION patient (scoped to doctor if provided)
     const currentInConsultation = await tx.queueEntry.findFirst({
       where: {
         clinicId,
         status: QueueStatus.IN_CONSULTATION,
+        ...(doctorId && { doctorId }),
       },
     });
 
@@ -278,38 +282,66 @@ export async function callNextPatient(clinicId: string): Promise<QueueEntry | nu
       }
     }
 
-    // Check if there are remaining patients
-    const remainingCount = await tx.queueEntry.count({
+    // Find next patient to promote (scoped to doctor if provided)
+    // When doctorId is given, also include unassigned patients (doctorId: null)
+    const nextPatient = await tx.queueEntry.findFirst({
       where: {
         clinicId,
+        ...(doctorId && { OR: [{ doctorId }, { doctorId: null }] }),
         status: {
           in: [QueueStatus.WAITING, QueueStatus.NOTIFIED],
         },
+        isSteppedOut: false,
+      },
+      orderBy: { position: 'asc' },
+    });
+
+    if (!nextPatient) return null;
+
+    // Directly promote to IN_CONSULTATION (bypasses global recalculation
+    // which depends on clinic.isDoctorPresent — unreliable in multi-doctor mode)
+    await tx.queueEntry.update({
+      where: { id: nextPatient.id },
+      data: {
+        status: QueueStatus.IN_CONSULTATION,
+        calledAt: new Date(),
+        // Assign the calling doctor if the patient was unassigned
+        ...(doctorId && !nextPatient.doctorId && { doctorId }),
       },
     });
 
-    return remainingCount > 0;
+    // Set the doctor to 'consulting' state (they were 'free' after previous Terminer)
+    if (doctorId) {
+      await tx.doctor.update({
+        where: { id: doctorId },
+        data: { state: 'consulting', stateUpdatedAt: new Date() },
+      });
+    }
+
+    return nextPatient.id;
   });
 
   // Invalidate stats cache so next fetch gets fresh seen count
   invalidateStatsCache(clinicId);
 
-  if (!hasRemainingPatients) {
+  if (!promotedId) {
     // Fire-and-forget: don't block the response on socket emissions
     emitQueueUpdate(clinicId).catch(() => {});
     return null;
   }
 
-  // Recalculate positions and statuses (uses its own transaction)
+  // Recalculate positions and notifications for the rest of the queue
   await recalculatePositionsAndStatuses(clinicId);
 
-  // Return the new IN_CONSULTATION patient immediately
+  // Return the promoted patient
   const calledPatient = await prisma.queueEntry.findFirst({
-    where: {
-      clinicId,
-      status: QueueStatus.IN_CONSULTATION,
-    },
+    where: { id: promotedId },
   });
+
+  // Emit doctor state change if applicable
+  if (doctorId) {
+    emitDoctorState(clinicId, doctorId, 'consulting');
+  }
 
   // Fire-and-forget: emit socket updates in background (don't block HTTP response)
   emitQueueUpdate(clinicId).catch(() => {});
@@ -430,7 +462,7 @@ export async function archiveAndClearQueue(clinicId: string): Promise<{ archived
     select: {
       arrivedAt: true, calledAt: true, completedAt: true,
       status: true, checkInMethod: true, appointmentTime: true,
-      isEmergency: true, doctorId: true,
+      priority: true, doctorId: true,
     },
   }) as SnapshotEntry[];
 
@@ -693,6 +725,21 @@ export async function updatePatientStatus(
 
   if (!updated) {
     return null;
+  }
+
+  // When a patient is completed/no-show, set their doctor to 'free' state
+  // This prevents auto-promotion of the next patient until the receptionist clicks "Suivant"
+  if ((status === QueueStatus.COMPLETED || status === QueueStatus.NO_SHOW) && updated.doctorId) {
+    const doctor = await prisma.doctor.findFirst({
+      where: { id: updated.doctorId, clinicId, state: 'consulting' },
+    });
+    if (doctor) {
+      await prisma.doctor.update({
+        where: { id: updated.doctorId },
+        data: { state: 'free', stateUpdatedAt: new Date() },
+      });
+      emitDoctorState(clinicId, updated.doctorId, 'free');
+    }
   }
 
   // Recalculate positions if status changed (outside transaction for notifications)

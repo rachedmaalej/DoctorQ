@@ -9,7 +9,7 @@ interface QueueState {
   error: string | null;
   fetchQueue: () => Promise<void>;
   addPatient: (data: AddPatientData) => Promise<QueueEntry>;
-  callNext: () => Promise<void>;
+  callNext: (doctorId?: string) => Promise<void>;
   updatePatientStatus: (id: string, data: UpdateStatusData) => Promise<void>;
   removePatient: (id: string) => Promise<void>;
   reorderPatient: (id: string, newPosition: number) => Promise<void>;
@@ -22,7 +22,7 @@ interface QueueState {
 // Each fetchQueue call increments this; only the latest request's response is applied.
 let fetchGeneration = 0;
 
-export const useQueueStore = create<QueueState>((set, get) => ({
+export const useQueueStore = create<QueueState>((set) => ({
   queue: [],
   stats: null,
   isLoading: false,
@@ -56,8 +56,6 @@ export const useQueueStore = create<QueueState>((set, get) => ({
     try {
       const entry = await api.addPatient(data);
       set({ isLoading: false });
-      // Always fetch to ensure sync across devices (Socket.io is backup)
-      get().fetchQueue();
       return entry;
     } catch (error: any) {
       set({
@@ -68,13 +66,11 @@ export const useQueueStore = create<QueueState>((set, get) => ({
     }
   },
 
-  callNext: async () => {
+  callNext: async (doctorId?: string) => {
     set({ isLoading: true, error: null });
     try {
-      await api.callNext();
+      await api.callNext(doctorId);
       set({ isLoading: false });
-      // Always fetch to ensure sync across devices (Socket.io is backup)
-      get().fetchQueue();
     } catch (error: any) {
       set({
         error: error.message || 'Failed to call next patient',
@@ -89,8 +85,6 @@ export const useQueueStore = create<QueueState>((set, get) => ({
     try {
       await api.updatePatientStatus(id, data);
       set({ isLoading: false });
-      // Always fetch to ensure sync across devices (Socket.io is backup)
-      get().fetchQueue();
     } catch (error: any) {
       set({
         error: error.message || 'Failed to update patient status',
@@ -105,8 +99,6 @@ export const useQueueStore = create<QueueState>((set, get) => ({
     try {
       await api.removePatient(id);
       set({ isLoading: false });
-      // Always fetch to ensure sync across devices (Socket.io is backup)
-      get().fetchQueue();
     } catch (error: any) {
       set({
         error: error.message || 'Failed to remove patient',
@@ -121,8 +113,6 @@ export const useQueueStore = create<QueueState>((set, get) => ({
     try {
       await api.reorderQueue(id, newPosition);
       set({ isLoading: false });
-      // Always fetch to ensure sync across devices (Socket.io is backup)
-      get().fetchQueue();
     } catch (error: any) {
       set({
         error: error.message || 'Failed to reorder patient',
@@ -137,8 +127,6 @@ export const useQueueStore = create<QueueState>((set, get) => ({
     try {
       await api.clearQueue();
       set({ isLoading: false });
-      // Always fetch to ensure sync across devices (Socket.io is backup)
-      get().fetchQueue();
     } catch (error: any) {
       set({
         error: error.message || 'Failed to clear queue',
@@ -153,8 +141,6 @@ export const useQueueStore = create<QueueState>((set, get) => ({
     try {
       await api.resetStats();
       set({ isLoading: false });
-      // Always fetch to ensure sync across devices (Socket.io is backup)
-      get().fetchQueue();
     } catch (error: any) {
       set({
         error: error.message || 'Failed to reset statistics',

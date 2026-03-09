@@ -23,7 +23,7 @@ export interface QueueEntry {
   status: QueueStatus;
   checkInMethod: CheckInMethod;
   appointmentTime: string | null;  // v0.3: Scheduled appointment time
-  isEmergency?: boolean;
+  priority?: 'normal' | 'urgent';
   isSteppedOut?: boolean;
   stepOutCount?: number;
   steppedOutAt?: string | null;
@@ -116,6 +116,8 @@ export interface Clinic {
   multiDoctorEnabled?: boolean;
 }
 
+export type DoctorState = 'consulting' | 'free' | 'pause' | 'absent_today' | 'home_visit' | 'inactive';
+
 export interface Doctor {
   id: string;
   clinicId: string;
@@ -123,6 +125,37 @@ export interface Doctor {
   specialty: string | null;
   isActive: boolean;
   avgConsultationMins: number;
+  state: DoctorState;
+  stateUpdatedAt: string | null;
+  homeVisitETA: string | null;
+  colorToken: string;
+}
+
+// ─── Phase 2: Schedule ───
+
+export type SlotType = 'named' | 'regulation' | 'unplanned';
+
+export interface ScheduleSlot {
+  id: string;
+  clinicId: string;
+  doctorId: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  slotType: SlotType;
+  patientName: string | null;
+  doctoLibId: string | null;
+  doctor: { id: string; name: string };
+  queueEntry: {
+    id: string;
+    patientName: string | null;
+    status: string;
+    arrivedAt: string;
+    calledAt: string | null;
+    completedAt: string | null;
+  } | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface LoginCredentials {
@@ -140,7 +173,8 @@ export interface AddPatientData {
   patientName?: string;
   appointmentTime?: string;  // v0.3: HH:MM format
   arrivedAt?: string;        // ISO string for demo/testing - defaults to now() if not provided
-  isEmergency?: boolean;
+  doctorId?: string;         // Assign patient to a specific doctor
+  isUrgent?: boolean;        // Priority flag — floats to top of doctor's sub-queue
 }
 
 export interface PatientSuggestion {

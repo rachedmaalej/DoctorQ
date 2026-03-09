@@ -10,7 +10,7 @@ import AusuivantDarkTopBar from '../ausuivant/components/AusuivantDarkTopBar';
 const ClinicsPage = lazy(() => import('../ClinicsPage'));
 const AusuivantClinicsDirectory = lazy(() => import('./ausuivant/AusuivantClinicsDirectory'));
 
-const isFrance = webBrand.theme.dashboard.variant === 'compact';
+const isFrance = webBrand.theme.dashboard.variant === 'schedule';
 
 export default function ClinicsDirectoryPage() {
   const navigate = useNavigate();

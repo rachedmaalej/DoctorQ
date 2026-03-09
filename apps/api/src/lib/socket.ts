@@ -24,3 +24,16 @@ export function emitToRoom(room: string, event: string, data: any) {
     logger.warn({ event }, 'Socket.io not initialized, cannot emit');
   }
 }
+
+// Phase 3: Doctor state change events
+export function emitDoctorState(clinicId: string, doctorId: string, state: string, eta?: string) {
+  emitToRoom(`clinic:${clinicId}`, 'doctor:state', { doctorId, state, eta });
+}
+
+export function emitPatientTransferred(clinicId: string, patientId: string, fromDoctorId: string, toDoctorId: string) {
+  emitToRoom(`clinic:${clinicId}`, 'patient:transferred', { patientId, fromDoctorId, toDoctorId });
+}
+
+export function emitDelayNotified(clinicId: string, doctorId: string, delayMinutes: number) {
+  emitToRoom(`clinic:${clinicId}`, 'delay:notified', { doctorId, delayMinutes });
+}

@@ -29,6 +29,7 @@ import type {
   ClinicDetailEnriched,
   YesterdayStats,
   PatientSuggestion,
+  ScheduleSlot,
 } from '@/types';
 import { logger } from './logger';
 import { webBrand } from './brand';
@@ -237,6 +238,23 @@ class ApiClient {
     return this.request('/api/clinic/doctors');
   }
 
+  async getScheduleToday(): Promise<ScheduleSlot[]> {
+    return this.request('/api/clinic/schedule/today');
+  }
+
+  async createScheduleSlotsBatch(slots: Array<{
+    doctorId: string;
+    startTime: string;
+    endTime: string;
+    slotType?: string;
+    patientName?: string;
+  }>): Promise<ScheduleSlot[]> {
+    return this.request('/api/clinic/schedule/slots/batch', {
+      method: 'POST',
+      body: JSON.stringify({ slots }),
+    });
+  }
+
   async createDoctor(data: { name: string; specialty?: string; avgConsultationMins?: number }): Promise<Doctor> {
     return this.request('/api/clinic/doctors', {
       method: 'POST',
@@ -254,6 +272,34 @@ class ApiClient {
   async deleteDoctor(doctorId: string): Promise<{ message: string }> {
     return this.request(`/api/clinic/doctors/${doctorId}`, {
       method: 'DELETE',
+    });
+  }
+
+  async updateDoctorState(doctorId: string, state: string, homeVisitETA?: string): Promise<Doctor> {
+    return this.request(`/api/clinic/doctors/${doctorId}/state`, {
+      method: 'POST',
+      body: JSON.stringify({ state, homeVisitETA }),
+    });
+  }
+
+  async handleDoctorAbsence(doctorId: string, option: 'close' | 'reassign' | 'keep'): Promise<{ action: string; reassigned: number }> {
+    return this.request(`/api/clinic/doctors/${doctorId}/absence`, {
+      method: 'POST',
+      body: JSON.stringify({ option }),
+    });
+  }
+
+  async transferPatient(doctorId: string, patientId: string, targetDoctorId: string): Promise<any> {
+    return this.request(`/api/clinic/doctors/${doctorId}/transfer/${patientId}`, {
+      method: 'POST',
+      body: JSON.stringify({ targetDoctorId }),
+    });
+  }
+
+  async notifyDelay(doctorId: string, delayMinutes?: number): Promise<{ notified: boolean }> {
+    return this.request('/api/clinic/doctors/notify-delay', {
+      method: 'POST',
+      body: JSON.stringify({ doctorId, delayMinutes }),
     });
   }
 
@@ -315,8 +361,15 @@ class ApiClient {
     );
   }
 
-  async callNext(): Promise<{ called: QueueEntry; notified: QueueEntry[] }> {
-    return this.request('/api/queue/next', {
+  async callNext(doctorId?: string): Promise<{ called: QueueEntry; notified: QueueEntry[] }> {
+    const url = doctorId ? `/api/queue/next?doctorId=${doctorId}` : '/api/queue/next';
+    return this.request(url, {
+      method: 'POST',
+    });
+  }
+
+  async toggleUrgent(id: string): Promise<{ id: string; priority: 'normal' | 'urgent' }> {
+    return this.request(`/api/queue/${id}/urgent`, {
       method: 'POST',
     });
   }
@@ -361,13 +414,6 @@ class ApiClient {
     });
   }
 
-  // Toggle emergency flag on a patient
-  async toggleEmergency(entryId: string): Promise<QueueEntry> {
-    return this.request(`/api/queue/${entryId}/emergency`, {
-      method: 'POST',
-    });
-  }
-
   // Toggle stepped-out flag on a patient
   async toggleSteppedOut(entryId: string): Promise<QueueEntry> {
     return this.request(`/api/queue/${entryId}/stepped-out`, {
@@ -407,7 +453,7 @@ class ApiClient {
     });
   }
 
-  async checkIn(clinicId: string, data: { patientPhone: string; patientName?: string }): Promise<QueueEntry & { clinicName: string; estimatedWaitMins: number }> {
+  async checkIn(clinicId: string, data: { patientPhone: string; patientName?: string; doctorId?: string }): Promise<QueueEntry & { clinicName: string; estimatedWaitMins: number }> {
     return this.request(`/api/queue/checkin/${clinicId}`, {
       method: 'POST',
       body: JSON.stringify(data),
@@ -415,7 +461,7 @@ class ApiClient {
   }
 
   // Public clinic info (for check-in page)
-  async getClinicInfo(clinicId: string): Promise<{ name: string; waitingCount: number; avgConsultationMins: number; isDoctorPresent: boolean; doctorName: string | null; doctorGender: string | null; specialty: string | null }> {
+  async getClinicInfo(clinicId: string): Promise<{ name: string; waitingCount: number; avgConsultationMins: number; isDoctorPresent: boolean; doctorName: string | null; doctorGender: string | null; specialty: string | null; multiDoctorEnabled: boolean; doctors: Array<{ id: string; name: string; specialty: string | null; colorToken: string }> }> {
     return this.request(`/api/clinic/${clinicId}/info`);
   }
 

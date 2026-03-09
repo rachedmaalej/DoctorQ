@@ -186,7 +186,7 @@ export default function BSAddPatientSheet({
         patientName: name.trim(),
         patientPhone,
         appointmentTime: visitType === 'appointment' && rdvTime ? rdvTime : undefined,
-        isEmergency: priority,
+        isUrgent: priority,
       });
 
       setAddedEntry(entry);
