@@ -57,6 +57,7 @@
     "trustCompliant": "Conforme"
   },
   "queue": {
+    "patients": "patients",
     "title": "File d'Attente",
     "addPatient": "Ajouter un Patient",
     "callNext": "Appeler Suivant",

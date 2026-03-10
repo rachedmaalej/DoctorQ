@@ -57,6 +57,7 @@
     "trustCompliant": "متوافق"
   },
   "queue": {
+    "patients": "مرضى",
     "title": "قائمة الانتظار",
     "addPatient": "إضافة مريض",
     "callNext": {
