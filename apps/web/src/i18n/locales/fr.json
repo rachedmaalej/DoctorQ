@@ -119,7 +119,82 @@
     "nextEstimate": "Prochain",
     "endEstimate": "Fin estimée",
     "priority": "Priorité",
-    "remove": "Retirer"
+    "remove": "Retirer",
+    "patientsRemaining": "{{count}} patients restants",
+    "stats": {
+      "waiting": "En attente",
+      "maxWait": "Attente max",
+      "notified": "Notifiés",
+      "noPhone": "Sans téléphone"
+    },
+    "alert": {
+      "longWait": "{{count}} patient attend depuis +40 min"
+    },
+    "legend": {
+      "label": "Urgence attente :",
+      "ok": "< 20 min",
+      "high": "20–40 min",
+      "critical": "> 40 min — action requise"
+    },
+    "filter": {
+      "all": "Tous",
+      "waiting": "En attente",
+      "notified": "Notifiés",
+      "noPhone": "Sans tél."
+    },
+    "search": {
+      "placeholder": "Rechercher un patient…"
+    },
+    "col": {
+      "patient": "Patient",
+      "arrival": "Arrivée",
+      "wait": "Attente",
+      "eta": "Sera vu dans",
+      "contact": "Contact",
+      "status": "Statut",
+      "notif": "Notif.",
+      "actions": "Actions"
+    },
+    "row": {
+      "withAppointment": "Avec rendez-vous",
+      "walkIn": "Sans RDV",
+      "justArrived": "Vient d'arriver",
+      "urgent": "Urgence",
+      "noPhone": "Sans tél.",
+      "next": "Prochain",
+      "actionsLabel": "Actions pour ce patient"
+    },
+    "status": {
+      "waiting": "En attente",
+      "notified": "Notifié(e)",
+      "inConsultation": "En consultation"
+    },
+    "menu": {
+      "contact": "Contact",
+      "call": "Appeler",
+      "callDesc": "Composer le numéro directement",
+      "whatsapp": "Envoyer sur WhatsApp",
+      "whatsappDesc": "Ouvrir la conversation WhatsApp",
+      "queueSection": "File d'attente",
+      "copyLink": "Copier lien de position",
+      "copyLinkDesc": "Lien de suivi à partager",
+      "emergency": "Passer en urgence",
+      "emergencyDesc": "Place le patient en position #2",
+      "remove": "Retirer de la file",
+      "removeDesc": "Supprime définitivement"
+    },
+    "callNext": {
+      "label": "Prochain ·",
+      "button": "Appeler suivant"
+    },
+    "toast": {
+      "linkCopied": "Lien copié dans le presse-papier",
+      "emergency": "Patient passé en urgence"
+    },
+    "confirm": {
+      "remove": "Retirer {{name}} de la file d'attente ?"
+    },
+    "empty": "Aucun patient dans la file d'attente"
   },
   "patient": {
     "hello": "Bonjour",
@@ -263,7 +338,101 @@
   "dashboard": {
     "title": "Tableau de Bord",
     "overview": "Vue d'ensemble",
-    "todayStats": "Statistiques du jour"
+    "todayStats": "Statistiques du jour",
+    "header": {
+      "queueOpen": "File ouverte",
+      "queueClosed": "File fermée",
+      "present": "Présent",
+      "absent": "Absent",
+      "settings": "Paramètres"
+    },
+    "statsBar": {
+      "waiting": "En attente",
+      "seenToday": "Vus aujourd'hui",
+      "maxWait": "Min attente max"
+    },
+    "addPatient": {
+      "label": "AJOUTER UN PATIENT",
+      "placeholder": "Nom du patient...",
+      "addButton": "Ajouter",
+      "phonePlaceholder": "Téléphone (optionnel)",
+      "phoneHint": "8 chiffres, ex : 55 123 456",
+      "walkIn": "Sans RDV",
+      "withRdv": "Avec RDV",
+      "rdvTime": "Heure du RDV",
+      "submit": "Ajouter",
+      "submitting": "Ajout...",
+      "cancel": "Annuler"
+    },
+    "consultation": {
+      "label": "EN CONSULTATION",
+      "currentPatient": "Patient actuel",
+      "noConsultation": "Aucune consultation en cours",
+      "min": "min",
+      "endButton": "Terminer",
+      "callButton": "Appeler",
+      "arrivedAt": "Arrivé à {{time}}"
+    },
+    "callNext": {
+      "button": "Appeler suivant",
+      "confirmed": "{{name}} appelé(e)",
+      "next": "Prochain",
+      "noQueue": "File vide",
+      "pos": "pos."
+    },
+    "qr": {
+      "label": "PARTAGER QR CODE",
+      "copy": "Copier",
+      "copied": "Copié !",
+      "whatsapp": "WhatsApp",
+      "display": "Afficher QR",
+      "modalTitle": "QR D'ENREGISTREMENT",
+      "close": "Fermer",
+      "download": "Télécharger",
+      "waMessage": "Voici le lien pour rejoindre la file d'attente du cabinet : {{url}}"
+    },
+    "queue": {
+      "title": "File d'attente",
+      "remaining": "patients restants",
+      "filters": {
+        "all": "Tous",
+        "waiting": "En attente",
+        "notified": "Notifiés",
+        "noPhone": "Sans tél."
+      },
+      "columns": {
+        "position": "#",
+        "patient": "PATIENT",
+        "arrival": "ARRIVÉE",
+        "wait": "ATTENTE",
+        "status": "STATUT",
+        "actions": "ACTIONS"
+      },
+      "empty": "Aucun patient en attente",
+      "statuses": {
+        "notified": "Notifié(e)",
+        "waiting": "En attente",
+        "noPhone": "Sans tél."
+      },
+      "rowActions": {
+        "call": "Appeler le patient",
+        "urgent": "Marquer urgent",
+        "menu": "Options",
+        "remove": "Retirer de la file",
+        "copyUrl": "Copier URL position",
+        "emergency": "Urgence"
+      }
+    },
+    "statsPanel": {
+      "label": "STATISTIQUES",
+      "waiting": "EN ATTENTE",
+      "seen": "VUS",
+      "avgWait": "MOY. ATTENTE (MIN)",
+      "consultMin": "EN COURS (MIN)"
+    },
+    "waitTimes": {
+      "label": "TEMPS D'ATTENTE"
+    }
   },
   "funFact": {
     "didYouKnow": "Le saviez-vous ?"
@@ -1070,6 +1239,8 @@
     },
     "addPatient": {
       "title": "Nouveau patient",
+      "subtitle": "Position estimée #{{position}} · ~{{wait}} min d'attente",
+      "patientName": "Nom du patient",
       "nameLabel": "Nom du patient",
       "namePlaceholder": "Prénom et nom…",
       "nameRequired": "Le nom du patient est requis",
@@ -1081,6 +1252,7 @@
       "phoneLabel": "Numéro de téléphone",
       "phoneOptional": "(optionnel)",
       "phoneHelp": "8 chiffres après +216, ex : 55 123 456",
+      "phoneHint": "Pour les notifications WhatsApp de suivi",
       "phoneWhatsappHint": "Pour suivi WhatsApp",
       "priorityLabel": "Priorité médicale",
       "prioritySub": "Passe en position #2",
@@ -1096,7 +1268,9 @@
       "whatsappTitle": "Envoyer le lien à {{name}}",
       "whatsappSub": "Suivi de position par WhatsApp",
       "addAnother": "Ajouter un autre patient",
-      "done": "Terminé — Retour à la file"
+      "done": "Terminé — Retour à la file",
+      "qrFallbackTitle": "QR code indisponible ?",
+      "qrFallbackDesc": "Ajoutez le patient manuellement ci-dessus."
     }
   },
   "confirmation": {
@@ -1487,5 +1661,35 @@
     "footer": {
       "version": "BleSaf v{{version}} · © {{year}} BleSaf SARL"
     }
+  },
+  "desktop_menu": {
+    "settings_button": "Paramètres",
+    "section_qr": "Code QR",
+    "qr_display": "Afficher",
+    "qr_copy": "Copier",
+    "qr_whatsapp": "WhatsApp",
+    "section_controls": "Contrôles",
+    "control_language": "Langue",
+    "control_doctor": "Médecin",
+    "control_doctor_present": "Présent",
+    "control_doctor_absent": "Absent",
+    "control_queue": "File d'attente",
+    "control_queue_open": "Ouverte",
+    "control_queue_closed": "Fermée",
+    "section_cabinet": "Mon cabinet",
+    "item_profile": "Profil du cabinet",
+    "item_profile_sub": "Nom, médecin, coordonnées",
+    "item_duration": "Consultation",
+    "item_duration_sub": "Estime l'attente patient",
+    "section_subscription": "Abonnement",
+    "item_subscription": "Abonnement",
+    "item_subscription_sub": "Plan, facturation, paiements",
+    "account_support": "Aide & support",
+    "account_logout": "Déconnexion",
+    "logout_subtitle": "Quitter la session",
+    "trial_label": "Essai gratuit · {{days}} jours restants",
+    "active_label": "Abonnement actif",
+    "aria_dropdown_label": "Paramètres du cabinet",
+    "aria_close_dropdown": "Fermer le menu paramètres"
   }
 }

@@ -59,12 +59,19 @@
   "queue": {
     "title": "قائمة الانتظار",
     "addPatient": "إضافة مريض",
-    "callNext": "التالي",
+    "callNext": {
+      "label": "التالي ·",
+      "button": "نادِ التالي"
+    },
     "call": "نادِ",
     "position": "الموقع",
     "patientName": "اسم المريض",
     "patientPhone": "الهاتف",
-    "status": "الحالة",
+    "status": {
+      "waiting": "في الانتظار",
+      "notified": "تم الإخطار",
+      "inConsultation": "في الفحص"
+    },
     "arrivedAt": "الوصول",
     "actions": "إجراءات",
     "waiting": "في الانتظار",
@@ -118,7 +125,73 @@
     "priority": "أولوية",
     "remove": "إزالة",
     "fillQueue": "ملء (عرض)",
-    "fillingQueue": "جاري الملء..."
+    "fillingQueue": "جاري الملء...",
+    "patientsRemaining": "{{count}} مرضى متبقين",
+    "stats": {
+      "waiting": "في الانتظار",
+      "maxWait": "أقصى انتظار",
+      "notified": "تم إخطارهم",
+      "noPhone": "بدون هاتف"
+    },
+    "alert": {
+      "longWait": "{{count}} مريض ينتظر أكثر من 40 دقيقة"
+    },
+    "legend": {
+      "label": "درجة الانتظار:",
+      "ok": "< 20 دقيقة",
+      "high": "20–40 دقيقة",
+      "critical": "> 40 دقيقة — تدخل مطلوب"
+    },
+    "filter": {
+      "all": "الكل",
+      "waiting": "في الانتظار",
+      "notified": "تم إخطارهم",
+      "noPhone": "بدون هاتف"
+    },
+    "search": {
+      "placeholder": "البحث عن مريض…"
+    },
+    "col": {
+      "patient": "المريض",
+      "arrival": "الوصول",
+      "wait": "الانتظار",
+      "eta": "سيُعاين خلال",
+      "contact": "الاتصال",
+      "status": "الحالة",
+      "notif": "إشعار",
+      "actions": "إجراءات"
+    },
+    "row": {
+      "withAppointment": "مع موعد",
+      "walkIn": "بدون موعد",
+      "justArrived": "وصل للتو",
+      "urgent": "طوارئ",
+      "noPhone": "بدون هاتف",
+      "next": "التالي",
+      "actionsLabel": "إجراءات لهذا المريض"
+    },
+    "menu": {
+      "contact": "الاتصال",
+      "call": "اتصل",
+      "callDesc": "الاتصال بالرقم مباشرة",
+      "whatsapp": "إرسال عبر واتساب",
+      "whatsappDesc": "فتح محادثة واتساب",
+      "queueSection": "قائمة الانتظار",
+      "copyLink": "نسخ رابط الموقع",
+      "copyLinkDesc": "رابط متابعة للمشاركة",
+      "emergency": "تحويل لحالة طوارئ",
+      "emergencyDesc": "ينقل المريض إلى الموقع #2",
+      "remove": "إزالة من القائمة",
+      "removeDesc": "حذف نهائي"
+    },
+    "toast": {
+      "linkCopied": "تم نسخ الرابط",
+      "emergency": "تم تحويل المريض لحالة طوارئ"
+    },
+    "confirm": {
+      "remove": "إزالة {{name}} من قائمة الانتظار؟"
+    },
+    "empty": "لا يوجد مرضى في قائمة الانتظار"
   },
   "patient": {
     "hello": "مرحباً",
@@ -262,7 +335,101 @@
   "dashboard": {
     "title": "لوحة التحكم",
     "overview": "نظرة عامة",
-    "todayStats": "إحصائيات اليوم"
+    "todayStats": "إحصائيات اليوم",
+    "header": {
+      "queueOpen": "الطابور مفتوح",
+      "queueClosed": "الطابور مغلق",
+      "present": "حاضر",
+      "absent": "غائب",
+      "settings": "الإعدادات"
+    },
+    "statsBar": {
+      "waiting": "في الانتظار",
+      "seenToday": "تمت معاينتهم اليوم",
+      "maxWait": "أقصى انتظار (دقيقة)"
+    },
+    "addPatient": {
+      "label": "إضافة مريض",
+      "placeholder": "اسم المريض...",
+      "addButton": "إضافة",
+      "phonePlaceholder": "الهاتف (اختياري)",
+      "phoneHint": "8 أرقام، مثال: 55 123 456",
+      "walkIn": "بدون موعد",
+      "withRdv": "مع موعد",
+      "rdvTime": "وقت الموعد",
+      "submit": "إضافة",
+      "submitting": "جاري الإضافة...",
+      "cancel": "إلغاء"
+    },
+    "consultation": {
+      "label": "في الاستشارة",
+      "currentPatient": "المريض الحالي",
+      "noConsultation": "لا توجد استشارة حالياً",
+      "min": "دقيقة",
+      "endButton": "إنهاء",
+      "callButton": "اتصال",
+      "arrivedAt": "وصل في {{time}}"
+    },
+    "callNext": {
+      "button": "استدعاء التالي",
+      "confirmed": "تم استدعاء {{name}}",
+      "next": "التالي",
+      "noQueue": "الطابور فارغ",
+      "pos": "الموقع"
+    },
+    "qr": {
+      "label": "مشاركة رمز QR",
+      "copy": "نسخ",
+      "copied": "تم النسخ!",
+      "whatsapp": "واتساب",
+      "display": "عرض QR",
+      "modalTitle": "رمز QR للتسجيل",
+      "close": "إغلاق",
+      "download": "تحميل",
+      "waMessage": "إليك رابط الانضمام إلى طابور العيادة: {{url}}"
+    },
+    "queue": {
+      "title": "طابور الانتظار",
+      "remaining": "مرضى متبقين",
+      "filters": {
+        "all": "الكل",
+        "waiting": "في الانتظار",
+        "notified": "تم إخطارهم",
+        "noPhone": "بدون هاتف"
+      },
+      "columns": {
+        "position": "#",
+        "patient": "المريض",
+        "arrival": "الوصول",
+        "wait": "الانتظار",
+        "status": "الحالة",
+        "actions": "الإجراءات"
+      },
+      "empty": "لا يوجد مرضى في الانتظار",
+      "statuses": {
+        "notified": "تم إخطاره",
+        "waiting": "في الانتظار",
+        "noPhone": "بدون هاتف"
+      },
+      "rowActions": {
+        "call": "اتصل بالمريض",
+        "urgent": "علامة طارئ",
+        "menu": "خيارات",
+        "remove": "إزالة من الطابور",
+        "copyUrl": "نسخ رابط الموقع",
+        "emergency": "طوارئ"
+      }
+    },
+    "statsPanel": {
+      "label": "الإحصائيات",
+      "waiting": "في الانتظار",
+      "seen": "تمت معاينتهم",
+      "avgWait": "متوسط الانتظار (د)",
+      "consultMin": "جارية (د)"
+    },
+    "waitTimes": {
+      "label": "أوقات الانتظار"
+    }
   },
   "funFact": {
     "didYouKnow": "هل تعلم؟"
@@ -1069,6 +1236,8 @@
     },
     "addPatient": {
       "title": "مريض جديد",
+      "subtitle": "الموقع المقدر #{{position}} · ~{{wait}} دقيقة انتظار",
+      "patientName": "اسم المريض",
       "nameLabel": "اسم المريض",
       "namePlaceholder": "الاسم الأول واللقب…",
       "nameRequired": "اسم المريض مطلوب",
@@ -1080,6 +1249,7 @@
       "phoneLabel": "رقم الهاتف",
       "phoneOptional": "(اختياري)",
       "phoneHelp": "8 أرقام بعد 216+، مثال: 55 123 456",
+      "phoneHint": "لإشعارات متابعة واتساب",
       "phoneWhatsappHint": "لمتابعة واتساب",
       "priorityLabel": "أولوية طبية",
       "prioritySub": "ينتقل إلى الموقع #2",
@@ -1095,7 +1265,9 @@
       "whatsappTitle": "إرسال الرابط إلى {{name}}",
       "whatsappSub": "متابعة الموقع عبر واتساب",
       "addAnother": "إضافة مريض آخر",
-      "done": "تم — العودة إلى الطابور"
+      "done": "تم — العودة إلى الطابور",
+      "qrFallbackTitle": "رمز QR غير متاح؟",
+      "qrFallbackDesc": "أضف المريض يدوياً أعلاه."
     }
   },
   "confirmation": {
@@ -1486,5 +1658,35 @@
     "footer": {
       "version": "بليساف v{{version}} · © {{year}} BleSaf SARL"
     }
+  },
+  "desktop_menu": {
+    "settings_button": "الإعدادات",
+    "section_qr": "رمز QR",
+    "qr_display": "عرض",
+    "qr_copy": "نسخ",
+    "qr_whatsapp": "واتساب",
+    "section_controls": "التحكم",
+    "control_language": "اللغة",
+    "control_doctor": "الطبيب",
+    "control_doctor_present": "حاضر",
+    "control_doctor_absent": "غائب",
+    "control_queue": "قائمة الانتظار",
+    "control_queue_open": "مفتوحة",
+    "control_queue_closed": "مغلقة",
+    "account_support": "المساعدة والدعم",
+    "account_logout": "تسجيل الخروج",
+    "logout_subtitle": "الخروج من الجلسة",
+    "trial_label": "تجربة مجانية · {{days}} أيام متبقية",
+    "active_label": "اشتراك نشط",
+    "aria_dropdown_label": "إعدادات العيادة",
+    "aria_close_dropdown": "إغلاق قائمة الإعدادات",
+    "section_cabinet": "عيادتي",
+    "item_profile": "ملف العيادة",
+    "item_profile_sub": "الاسم، الطبيب، بيانات الاتصال",
+    "item_duration": "الاستشارة",
+    "item_duration_sub": "تقدير وقت انتظار المريض",
+    "section_subscription": "الاشتراك",
+    "item_subscription": "الاشتراك",
+    "item_subscription_sub": "الخطة، الفوترة، المدفوعات"
   }
 }

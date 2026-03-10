@@ -29,11 +29,14 @@ const body = "'DM Sans', sans-serif";
 
 type SettingsPane = 'profil' | 'acces' | 'abonnement' | 'duree' | 'langue';
 
+export type { SettingsPane };
+
 interface DesktopSettingsDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   clinic: Clinic | null;
   onClinicUpdated: () => Promise<void>;
+  initialPane?: SettingsPane;
 }
 
 // ─── Nav Config ───────────────────────────────────────────────────────────────
@@ -92,7 +95,7 @@ const saveBtn = (saving: boolean, success?: boolean): React.CSSProperties => ({
 
 // ─── Profil Pane ─────────────────────────────────────────────────────────────
 
-function ProfilPane({ clinic, onSaved }: { clinic: Clinic | null; onSaved: () => Promise<void> }) {
+export function ProfilPane({ clinic, onSaved }: { clinic: Clinic | null; onSaved: () => Promise<void> }) {
   const [form, setForm] = useState({
     name: clinic?.name ?? '',
     doctorName: clinic?.doctorName ?? '',
@@ -189,7 +192,7 @@ function ProfilPane({ clinic, onSaved }: { clinic: Clinic | null; onSaved: () =>
                 />
               </div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12 }}>
               <div>
                 <label style={fieldLabel}>Téléphone</label>
                 <input style={inp} type="tel" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} />
@@ -227,7 +230,7 @@ function ProfilPane({ clinic, onSaved }: { clinic: Clinic | null; onSaved: () =>
                 required
               />
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12 }}>
               <div>
                 <label style={fieldLabel}>Nouveau mot de passe</label>
                 <input
@@ -342,7 +345,7 @@ type SubInfo = {
   subscriptionEndsAt: string | null;
 };
 
-function AbonnementPane() {
+export function AbonnementPane() {
   const navigate = useNavigate();
   const [sub, setSub] = useState<SubInfo | null>(null);
   const [loading, setLoading] = useState(true);
@@ -420,7 +423,7 @@ function AbonnementPane() {
           <div style={{ ...cardTitle, marginBottom: 12 }}>
             {isExpired ? 'Renouveler votre abonnement' : 'Passer à un plan payant'}
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 10, marginBottom: 16 }}>
             {[
               { label: 'Mensuel', price: '50', period: '/mois', plan: 'MONTHLY' },
               { label: 'Annuel', price: '500', period: '/an', plan: 'YEARLY', tag: '−100 TND' },
@@ -495,7 +498,7 @@ function AbonnementPane() {
 
 // ─── Durée Pane ───────────────────────────────────────────────────────────────
 
-function DureePane({ clinic, onSaved }: { clinic: Clinic | null; onSaved: () => Promise<void> }) {
+export function DureePane({ clinic, onSaved }: { clinic: Clinic | null; onSaved: () => Promise<void> }) {
   const [mins, setMins] = useState(clinic?.avgConsultationMins ?? 10);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -698,8 +701,13 @@ function LanguePane({ currentLang, onChange }: { currentLang: string; onChange: 
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export default function DesktopSettingsDrawer({ isOpen, onClose, clinic, onClinicUpdated }: DesktopSettingsDrawerProps) {
-  const [activePane, setActivePane] = useState<SettingsPane>('profil');
+export default function DesktopSettingsDrawer({ isOpen, onClose, clinic, onClinicUpdated, initialPane }: DesktopSettingsDrawerProps) {
+  const [activePane, setActivePane] = useState<SettingsPane>(initialPane ?? 'profil');
+
+  // Sync activePane when initialPane changes (opening to a specific pane)
+  useEffect(() => {
+    if (initialPane && isOpen) setActivePane(initialPane);
+  }, [initialPane, isOpen]);
   const { logout } = useAuthStore();
   const navigate = useNavigate();
   const { i18n } = useTranslation();

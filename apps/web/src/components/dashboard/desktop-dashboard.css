@@ -1,0 +1,1084 @@
+/* ─── Desktop Dashboard — Efficiency Engine 4A ──────────── */
+
+.desktop-dashboard {
+  font-family: 'IBM Plex Sans', sans-serif;
+  color: var(--db-text-primary);
+  background: var(--db-bg);
+  min-height: 100vh;
+}
+
+/* ─── Header ─────────────────────────────────────────────── */
+.db-header {
+  height: 50px;
+  background: var(--db-header-bg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+}
+
+.db-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.db-header-brand {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.01em;
+}
+
+.db-header-brand-accent {
+  color: #4A7C5C;
+  font-style: normal;
+}
+
+.db-header-sep {
+  border-left: 1px solid rgba(255,255,255,0.20);
+  height: 16px;
+  margin: 0 12px;
+}
+
+.db-header-clinic {
+  font-size: 12px;
+  color: rgba(255,255,255,0.65);
+}
+
+.db-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.db-clock {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: rgba(255,255,255,0.60);
+}
+
+.db-chip {
+  border-radius: 4px;
+  padding: 5px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.15s;
+}
+
+.db-chip:hover { opacity: 0.85; }
+
+.db-chip-closed {
+  background: rgba(230,170,50,0.10);
+  border: 1px solid rgba(230,170,50,0.18);
+  color: #C4922A;
+  cursor: default;
+}
+
+.db-chip-present {
+  background: rgba(74,124,92,0.15);
+  border: 1px solid rgba(74,124,92,0.25);
+  color: #4A7C5C;
+}
+
+.db-chip-absent {
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.50);
+}
+
+.db-chip-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.db-settings-btn {
+  width: 30px;
+  height: 30px;
+  border: 1px solid rgba(255,255,255,0.20);
+  border-radius: 4px;
+  background: transparent;
+  color: rgba(255,255,255,0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.db-settings-btn:hover {
+  background: rgba(255,255,255,0.10);
+}
+
+/* ─── Stats Sub-Bar ──────────────────────────────────────── */
+.db-stats-bar {
+  height: 38px;
+  background: var(--db-surface);
+  border-bottom: 1px solid var(--db-border);
+  padding: 0 28px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.db-stats-bar-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.db-stats-bar-value {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--db-text-primary);
+}
+
+.db-stats-bar-label {
+  font-size: 11px;
+  color: var(--db-text-secondary);
+}
+
+.db-stats-bar-divider {
+  width: 1px;
+  height: 18px;
+  background: var(--db-border);
+}
+
+/* ─── Layout Grid ────────────────────────────────────────── */
+.db-layout {
+  display: grid;
+  grid-template-columns: 268px 1fr 252px;
+  height: calc(100vh - 50px);
+}
+
+[dir="rtl"] .db-layout {
+  direction: rtl;
+}
+
+/* ─── Section Shared ─────────────────────────────────────── */
+.db-section {
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--db-border-light);
+}
+
+.db-section:last-child {
+  border-bottom: none;
+}
+
+.db-section-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--db-text-muted);
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+/* ─── Left Panel ─────────────────────────────────────────── */
+.db-left {
+  background: var(--db-surface);
+  border-inline-end: 1px solid var(--db-border);
+  overflow-y: auto;
+}
+
+/* ── Add Patient ─── */
+.db-add-input-wrap {
+  border: 1.5px solid var(--db-border);
+  border-radius: 7px;
+  padding: 9px 12px;
+  background: var(--db-bg);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.db-add-input-wrap:focus-within {
+  border-color: var(--db-accent);
+  background: #fff;
+}
+
+.db-add-input {
+  flex: 1;
+  font-size: 13px;
+  border: none;
+  background: transparent;
+  font-family: 'IBM Plex Sans', sans-serif;
+  color: var(--db-text-primary);
+  outline: none;
+}
+
+.db-add-input::placeholder {
+  color: var(--db-text-muted);
+}
+
+.db-add-btn {
+  width: 28px;
+  height: 28px;
+  background: var(--db-accent);
+  border-radius: 5px;
+  color: #fff;
+  font-size: 17px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+
+.db-add-btn:hover {
+  background: var(--db-accent-dark);
+}
+
+.db-add-btn:disabled {
+  background: var(--db-border);
+  color: var(--db-text-muted);
+  cursor: not-allowed;
+}
+
+/* ── Expanded Add Patient Form ─── */
+.db-add-expanded {
+  animation: db-expand-in 0.2s ease-out;
+}
+
+@keyframes db-expand-in {
+  from { opacity: 0.6; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.db-add-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.db-add-field {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1.5px solid var(--db-border);
+  border-radius: 7px;
+  background: var(--db-bg);
+  font-size: 13px;
+  font-family: 'IBM Plex Sans', sans-serif;
+  color: var(--db-text-primary);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.db-add-field:focus {
+  border-color: var(--db-accent);
+  background: #fff;
+}
+
+.db-add-field::placeholder {
+  color: var(--db-text-muted);
+}
+
+.db-add-hint {
+  font-size: 10px;
+  color: var(--db-text-muted);
+  margin-top: -4px;
+  padding-inline-start: 2px;
+}
+
+.db-add-visit-toggle {
+  display: flex;
+  border: 1.5px solid var(--db-border);
+  border-radius: 7px;
+  overflow: hidden;
+}
+
+.db-add-visit-opt {
+  flex: 1;
+  padding: 7px 0;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: 'IBM Plex Sans', sans-serif;
+  text-align: center;
+  border: none;
+  background: var(--db-bg);
+  color: var(--db-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.db-add-visit-opt:first-child {
+  border-inline-end: 1px solid var(--db-border);
+}
+
+.db-add-visit-opt.db-add-visit-active {
+  background: var(--db-accent);
+  color: #fff;
+}
+
+.db-add-rdv-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.db-add-rdv-label {
+  font-size: 11px;
+  color: var(--db-text-secondary);
+  white-space: nowrap;
+}
+
+.db-add-rdv-sep {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--db-text-secondary);
+}
+
+.db-add-select {
+  flex: 1;
+  padding: 7px 8px;
+  border: 1.5px solid var(--db-border);
+  border-radius: 6px;
+  background: var(--db-bg);
+  font-size: 12px;
+  font-family: 'IBM Plex Mono', monospace;
+  color: var(--db-text-primary);
+  cursor: pointer;
+  outline: none;
+}
+
+.db-add-select:focus {
+  border-color: var(--db-accent);
+}
+
+.db-add-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.db-add-cancel {
+  flex: 1;
+  padding: 9px;
+  border: 1.5px solid var(--db-border);
+  border-radius: 7px;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--db-text-secondary);
+  cursor: pointer;
+  font-family: 'IBM Plex Sans', sans-serif;
+  transition: background 0.15s;
+}
+
+.db-add-cancel:hover {
+  background: var(--db-bg);
+}
+
+.db-add-submit {
+  flex: 1;
+  padding: 9px;
+  border: none;
+  border-radius: 7px;
+  background: var(--db-accent);
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  font-family: 'IBM Plex Sans', sans-serif;
+  transition: background 0.15s;
+}
+
+.db-add-submit:hover {
+  background: var(--db-accent-dark);
+}
+
+.db-add-submit:disabled {
+  background: var(--db-border);
+  color: var(--db-text-muted);
+  cursor: not-allowed;
+}
+
+/* ── Consultation Card ─── */
+.db-consult-card {
+  background: var(--db-header-bg);
+  border-radius: 9px;
+  padding: 11px 13px;
+}
+
+.db-consult-tag {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: rgba(255,255,255,0.60);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.db-consult-pulse {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #7FD4A0;
+  box-shadow: 0 0 6px #7FD4A0;
+  animation: db-pulse 2s ease-in-out infinite;
+}
+
+.db-consult-body {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.db-consult-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.db-consult-meta {
+  font-size: 10px;
+  color: rgba(255,255,255,0.55);
+  margin-top: 1px;
+}
+
+.db-timer-row {
+  text-align: right;
+}
+
+.db-tv {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 26px;
+  font-weight: 600;
+  color: #7FD4A0;
+  line-height: 1;
+}
+
+.db-tu {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: rgba(255,255,255,0.55);
+  display: block;
+}
+
+.db-consult-actions {
+  margin-top: 10px;
+  display: flex;
+  gap: 7px;
+}
+
+.db-consult-end-btn {
+  flex: 1;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.85);
+  border-radius: 6px;
+  padding: 7px;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+  font-family: 'IBM Plex Sans', sans-serif;
+}
+
+.db-consult-end-btn:hover {
+  background: rgba(255,255,255,0.12);
+}
+
+.db-consult-phone-btn {
+  background: rgba(74,124,92,0.15);
+  border: 1px solid rgba(74,124,92,0.22);
+  color: #4A7C5C;
+  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+
+.db-consult-phone-btn:hover {
+  background: rgba(74,124,92,0.25);
+}
+
+.db-consult-phone-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.db-no-consult {
+  font-size: 12px;
+  color: var(--db-text-muted);
+  text-align: center;
+  padding: 8px 0;
+}
+
+/* ── Call Next Button ─── */
+.db-call-next-wrap {
+  padding: 0 20px 14px;
+}
+
+.db-call-next-btn {
+  width: 100%;
+  background: var(--db-accent);
+  border: none;
+  border-radius: 7px;
+  padding: 11px 16px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-family: 'IBM Plex Sans', sans-serif;
+}
+
+.db-call-next-btn:hover {
+  background: var(--db-accent-dark);
+}
+
+.db-call-next-btn:disabled {
+  background: var(--db-border);
+  color: var(--db-text-muted);
+  cursor: not-allowed;
+}
+
+.db-call-next-btn.db-call-confirmed {
+  background: var(--db-accent-dark);
+}
+
+.db-call-next-sub {
+  text-align: center;
+  font-size: 10px;
+  color: var(--db-text-muted);
+  margin-top: 7px;
+}
+
+.db-call-next-sub strong {
+  color: var(--db-text-secondary);
+  font-weight: 600;
+}
+
+/* ── QR Share Section ─── */
+.db-qr-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.db-qr-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  padding: 11px 6px 10px;
+  background: var(--db-bg);
+  border: 1.5px solid var(--db-border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  font-family: 'IBM Plex Sans', sans-serif;
+  text-decoration: none;
+}
+
+.db-qr-btn:hover {
+  border-color: var(--db-accent);
+  background: var(--db-accent-light);
+}
+
+.db-qr-btn.db-qr-btn-copied {
+  border-color: #2D5A3D;
+  background: rgba(45,90,61,0.07);
+}
+
+.db-qr-icon {
+  font-size: 18px;
+}
+
+.db-qr-btn-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--db-text-secondary);
+  white-space: nowrap;
+}
+
+/* ─── Center Panel ───────────────────────────────────────── */
+.db-center {
+  background: var(--db-bg);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.db-queue-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--db-surface);
+  border-bottom: 1px solid var(--db-border);
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.db-queue-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--db-text-primary);
+}
+
+.db-filter-chips {
+  display: flex;
+  gap: 5px;
+}
+
+.db-filter-chip {
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--db-border);
+  background: transparent;
+  color: var(--db-text-secondary);
+  font-size: 10px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: 'IBM Plex Sans', sans-serif;
+}
+
+.db-filter-chip:hover {
+  border-color: var(--db-accent);
+}
+
+.db-filter-chip[aria-pressed="true"] {
+  background: var(--db-accent-light);
+  border-color: rgba(45,90,61,0.3);
+  color: var(--db-accent);
+  font-weight: 600;
+}
+
+/* ── Queue Table ─── */
+.db-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.db-table thead {
+  background: var(--db-surface);
+  border-bottom: 2px solid var(--db-border);
+  position: sticky;
+  top: 49px;
+  z-index: 9;
+}
+
+.db-table thead th {
+  padding: 10px 14px;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.13em;
+  color: var(--db-text-muted);
+  text-align: start;
+  font-weight: 600;
+}
+
+.db-table tbody tr {
+  background: var(--db-surface);
+  border-bottom: 1px solid var(--db-border-light);
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.db-table tbody tr:hover {
+  background: #F9F8F6;
+}
+
+.db-table tbody td {
+  padding: 13px 14px;
+  font-size: 12px;
+  vertical-align: middle;
+}
+
+/* Position number */
+.db-pos {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--db-text-muted);
+}
+
+/* Avatar chip */
+.db-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* Patient name */
+.db-patient-name {
+  font-weight: 500;
+  color: var(--db-text-primary);
+}
+
+/* Arrival time */
+.db-arrival {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--db-text-muted);
+}
+
+/* Wait bar */
+.db-wait-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.db-wait-value {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--db-text-primary);
+  width: 38px;
+}
+
+.db-wait-track {
+  flex: 1;
+  height: 4px;
+  background: var(--db-border);
+  border-radius: 2px;
+  max-width: 70px;
+  overflow: hidden;
+}
+
+.db-wait-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+/* Status badges */
+.db-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.db-badge-notified {
+  background: var(--db-badge-notif-bg);
+  color: var(--db-badge-notif-fg);
+}
+
+.db-badge-waiting {
+  background: var(--db-badge-wait-bg);
+  color: var(--db-badge-wait-fg);
+}
+
+.db-badge-no-phone {
+  background: var(--db-badge-warn-bg);
+  color: var(--db-badge-warn-fg);
+}
+
+/* Row action buttons */
+.db-row-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.db-row-action {
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--db-border);
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+  color: var(--db-text-muted);
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.db-row-action:hover {
+  border-color: var(--db-accent);
+  color: var(--db-accent);
+}
+
+.db-row-action:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.db-row-action:disabled:hover {
+  border-color: var(--db-border);
+  color: var(--db-text-muted);
+}
+
+.db-row-action-urgent {
+  color: #E8A838;
+  border-color: #E8A838;
+}
+
+/* Queue empty state */
+.db-queue-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  color: var(--db-text-muted);
+}
+
+.db-queue-empty-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+  opacity: 0.4;
+}
+
+.db-queue-empty-text {
+  font-size: 13px;
+}
+
+/* ─── Right Panel ────────────────────────────────────────── */
+.db-right {
+  background: var(--db-surface);
+  border-inline-start: 1px solid var(--db-border);
+  overflow-y: auto;
+}
+
+.db-r-section {
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--db-border-light);
+}
+
+.db-r-section:last-child {
+  border-bottom: none;
+}
+
+/* Stats Grid */
+.db-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.db-stat-card {
+  background: var(--db-bg);
+  border-radius: 7px;
+  padding: 12px 14px;
+}
+
+.db-stat-card-accent {
+  background: var(--db-accent-light);
+}
+
+.db-stat-value {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--db-text-primary);
+  line-height: 1;
+}
+
+.db-stat-card-accent .db-stat-value {
+  color: var(--db-accent);
+}
+
+.db-stat-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--db-text-muted);
+  margin-top: 5px;
+}
+
+/* Wait Time Bars */
+.db-wait-row {
+  margin-bottom: 11px;
+}
+
+.db-wait-row:last-child {
+  margin-bottom: 0;
+}
+
+.db-wait-row-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+.db-wait-row-name {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--db-text-primary);
+}
+
+.db-wait-row-value {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--db-text-secondary);
+}
+
+.db-wait-row-track {
+  height: 5px;
+  background: var(--db-border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.db-wait-row-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--db-accent), var(--db-accent-mid));
+  transition: width 0.3s ease;
+}
+
+/* ─── QR Modal ───────────────────────────────────────────── */
+.db-qr-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.60);
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.db-qr-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 32px;
+  text-align: center;
+  max-width: 300px;
+  width: 90%;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.25);
+}
+
+.db-qr-modal-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--db-text-muted);
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.db-qr-code-wrap {
+  width: 180px;
+  height: 180px;
+  margin: 0 auto 16px;
+  background: var(--db-bg);
+  border-radius: 12px;
+  border: 1px solid var(--db-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.db-qr-url-pill {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--db-accent);
+  background: var(--db-accent-light);
+  padding: 6px 12px;
+  border-radius: 6px;
+  display: inline-block;
+  margin-bottom: 20px;
+}
+
+.db-qr-modal-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.db-qr-modal-close {
+  flex: 1;
+  padding: 10px;
+  border: 1.5px solid var(--db-border);
+  border-radius: 7px;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--db-text-secondary);
+  cursor: pointer;
+  font-family: 'IBM Plex Sans', sans-serif;
+}
+
+.db-qr-modal-download {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 7px;
+  background: var(--db-accent);
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  font-family: 'IBM Plex Sans', sans-serif;
+}
+
+.db-qr-modal-download:hover {
+  background: var(--db-accent-dark);
+}
+
+/* ─── Row Context Menu ───────────────────────────────────── */
+.db-context-menu {
+  position: absolute;
+  z-index: 100;
+  background: var(--db-surface);
+  border: 1px solid var(--db-border);
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+  min-width: 180px;
+  padding: 4px 0;
+}
+
+.db-context-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 14px;
+  font-size: 12px;
+  color: var(--db-text-primary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: start;
+  font-family: 'IBM Plex Sans', sans-serif;
+}
+
+.db-context-menu-item:hover {
+  background: var(--db-accent-light);
+}
+
+.db-context-menu-item-danger {
+  color: #DC4A4A;
+}
+
+.db-context-menu-item-danger:hover {
+  background: #FEE8E8;
+}

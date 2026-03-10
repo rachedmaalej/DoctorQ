@@ -1,96 +1,24 @@
-import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '@/stores/authStore';
-import { useUILabels } from '@/hooks/useUILabels';
-import { webBrand } from '@/lib/brand';
-import { api } from '@/lib/api';
-import { formatTime } from '@/lib/time';
+import { QRCodeSVG } from 'qrcode.react';
 import type { QueueEntry, QueueStats as QueueStatsType, Clinic } from '@/types';
 import { QueueStatus } from '@/types';
-import { getConsultationMinutes } from '@/components/shared/utils';
-import '@/components/shared/shared.css';
-import '@/components/receptionist/receptionist.css';
-import { useQueueLifecycle } from '@/components/receptionist/useQueueLifecycle';
-import {
-  toCurrentPatient,
-  toQueuePatient,
-  toClosingStatsData,
-  toDaySummaryBrief,
-  toSummaryData,
-  getNextPatientPreview,
-} from '@/components/receptionist/adapters';
-import type { QueuePatient } from '@/components/receptionist/types';
-import WelcomeScreenDesktop from '@/components/queue/WelcomeScreenDesktop';
-import DesktopSettingsDrawer from './DesktopSettingsDrawer';
-import AllDoneCard from '@/components/receptionist/AllDoneCard';
-import SummaryCard from '@/components/receptionist/SummaryCard';
-import TimelineBar from '@/components/receptionist/TimelineBar';
-import SummaryActionBar from '@/components/receptionist/SummaryActionBar';
-import ClosingBanner from '@/components/receptionist/ClosingBanner';
-import PatientContextSheet from '@/components/receptionist/PatientContextSheet';
+import { api } from '@/lib/api';
+import { formatTime, getWaitingMinutes } from '@/lib/time';
 import { useQueueStore } from '@/stores/queueStore';
-import { logger } from '@/lib/logger';
-import BSWhatsAppSheet from '@/components/shared/BSWhatsAppSheet';
+import { useAuthStore } from '@/stores/authStore';
+import { useQueueFilter } from '@/hooks/useQueueFilter';
+import { useToast } from '@/hooks/useToast';
+import QueueTableHeader from '@/components/desktop/QueueTableHeader';
+import QueueTableRowNew from '@/components/desktop/QueueTableRow';
+import PatientContextMenu from '@/components/desktop/PatientContextMenu';
+import CallNextBar from '@/components/desktop/CallNextBar';
+import DesktopTopBar from '@/components/DesktopTopBar';
+import DesktopSettingsDrawer, { type SettingsPane } from './DesktopSettingsDrawer';
+import './desktop-dashboard.css';
 
-// ─── Design Tokens ────────────────────────────────────────────────────────────
-
-const C = {
-  green800: '#1B3A2D',
-  green700: '#1E5038',
-  green600: '#27654A',
-  green500: '#2D9F5D',
-  green100: '#E6F4EC',
-  teal: '#0F7B6C',
-  tealLight: '#E8F5F1',
-  tealMid: '#C5E3DE',
-  creamBg: '#F5F0E8',
-  cream100: '#FAF7F2',
-  amber600: '#D4920B',
-  amber500: '#E8A838',
-  amber100: '#FEF7E6',
-  red600: '#C0392B',
-  red500: '#DC3545',
-  red100: '#FDE8E8',
-  textPrimary: '#1A1A1A',
-  textSecondary: '#6B6960',
-  textMuted: '#9E9B90',
-  borderLight: '#E8E6DF',
-  borderSubtle: '#F0EDE6',
-  white: '#FFFFFF',
-  surface2: '#F0EFEA',
-  blue: '#3B7DD9',
-  blue50: '#EDF3FC',
-};
-
-const body = "'DM Sans', sans-serif";
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function getWaitDotColor(minutes: number): string {
-  if (minutes <= 20) return '#2D8B4E';
-  if (minutes <= 45) return '#D4920B';
-  return '#C0392B';
-}
-
-function formatWaitMinutes(minutes: number): string {
-  if (minutes < 60) return `${minutes} min`;
-  const h = Math.floor(minutes / 60);
-  const m = minutes % 60;
-  return `${h}h${String(m).padStart(2, '0')}`;
-}
-
-function getAvatarStyle(isNotified: boolean): React.CSSProperties {
-  return {
-    width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    fontWeight: 700, fontSize: 14,
-    background: isNotified ? C.amber100 : C.surface2,
-    color: isNotified ? C.amber600 : C.textSecondary,
-  };
-}
-
-// ─── Types ────────────────────────────────────────────────────────────────────
+// ─── Props ───────────────────────────────────────────────────────────────────
 
 interface DesktopDashboardProps {
   clinic: Clinic | null;
@@ -113,1262 +41,868 @@ interface DesktopDashboardProps {
   onOpenAnnouncementModal: () => void;
 }
 
-// ─── Presence Dropdown ────────────────────────────────────────────────────────
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function PresenceDropdown({ isDoctorPresent, isTogglingPresence, onToggle }: {
-  isDoctorPresent: boolean;
-  isTogglingPresence: boolean;
-  onToggle: () => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+// ─── ConsultationTimer ───────────────────────────────────────────────────────
+
+function ConsultationTimer({ startedAt }: { startedAt: string }) {
+  const [minutes, setMinutes] = useState(() =>
+    Math.max(0, Math.floor((Date.now() - new Date(startedAt).getTime()) / 60000))
+  );
 
   useEffect(() => {
-    if (!open) return;
-    const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [open]);
-
-  const pillStyle: React.CSSProperties = {
-    display: 'inline-flex', alignItems: 'center', gap: 7,
-    padding: '5px 13px', borderRadius: 999, fontSize: 13, fontWeight: 600,
-    background: isDoctorPresent ? 'rgba(78,201,122,0.15)' : 'rgba(217,79,59,0.15)',
-    color: isDoctorPresent ? '#4EC97A' : '#F4706A',
-    border: isDoctorPresent ? '1px solid rgba(78,201,122,0.25)' : '1px solid rgba(217,79,59,0.25)',
-    cursor: isTogglingPresence ? 'wait' : 'pointer', fontFamily: body,
-  };
+    const id = setInterval(() => {
+      setMinutes(Math.max(0, Math.floor((Date.now() - new Date(startedAt).getTime()) / 60000)));
+    }, 10000);
+    return () => clearInterval(id);
+  }, [startedAt]);
 
   return (
-    <div ref={ref} style={{ position: 'relative' }}>
-      <button onClick={() => setOpen(!open)} disabled={isTogglingPresence} style={pillStyle}>
-        <div style={{ width: 7, height: 7, borderRadius: '50%', background: 'currentColor' }} />
-        {isDoctorPresent ? 'Présent' : 'Absent'}
-        <span className="material-symbols-rounded" style={{ fontSize: 16, transition: 'transform 0.2s', transform: open ? 'rotate(180deg)' : 'none' }}>
-          expand_more
-        </span>
-      </button>
-      {open && (
-        <div style={{
-          position: 'absolute', top: 'calc(100% + 6px)', right: 0,
-          background: C.white, border: `1px solid ${C.borderLight}`,
-          borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
-          minWidth: 160, zIndex: 60, overflow: 'hidden',
-        }}>
-          {[
-            { label: 'Présent', active: isDoctorPresent, dotColor: '#4EC97A', textColor: '#2D8B4E', bg: '#EDF7F0', border: `1px solid ${C.borderSubtle}` },
-            { label: 'Absent',  active: !isDoctorPresent, dotColor: '#D94F3B', textColor: '#D94F3B', bg: '#FDF0ED', border: 'none' },
-          ].map(opt => (
+    <div className="db-timer-row">
+      <span className="db-tv" aria-live="polite" aria-atomic="true">{minutes}</span>
+      <span className="db-tu">min</span>
+    </div>
+  );
+}
+
+
+// ─── AddPatientSection ───────────────────────────────────────────────────────
+
+type VisitType = 'walk-in' | 'rdv';
+
+function AddPatientSection() {
+  const { t } = useTranslation();
+  const { addPatient } = useQueueStore();
+  const phoneRef = useRef<HTMLInputElement>(null);
+
+  const [name, setName] = useState('');
+  const [expanded, setExpanded] = useState(false);
+  const [phone, setPhone] = useState('');
+  const [visitType, setVisitType] = useState<VisitType>('walk-in');
+  const [rdvHour, setRdvHour] = useState('');
+  const [rdvMinute, setRdvMinute] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const rdvHours = Array.from({ length: 13 }, (_, i) => (i + 7).toString().padStart(2, '0'));
+  const rdvMinutes = ['00', '15', '30', '45'];
+
+  const resetForm = () => {
+    setName('');
+    setPhone('');
+    setVisitType('walk-in');
+    setRdvHour('');
+    setRdvMinute('');
+    setExpanded(false);
+  };
+
+  const handleNameSubmit = (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (!name.trim()) return;
+    setExpanded(true);
+    setTimeout(() => phoneRef.current?.focus(), 80);
+  };
+
+  const handleFullSubmit = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (!name.trim() || isSubmitting) return;
+
+    const phoneDigits = phone.replace(/\D/g, '');
+    const appointmentTime =
+      visitType === 'rdv' && rdvHour && rdvMinute ? `${rdvHour}:${rdvMinute}` : undefined;
+
+    setIsSubmitting(true);
+    try {
+      await addPatient({
+        patientName: name.trim(),
+        patientPhone: phoneDigits,
+        appointmentTime,
+      });
+      resetForm();
+    } catch {
+      // Error handled by store
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleCancel = () => resetForm();
+
+  // Format phone with spaces: XX XXX XXX
+  const handlePhoneChange = (raw: string) => {
+    const digits = raw.replace(/\D/g, '').slice(0, 8);
+    if (digits.length <= 2) setPhone(digits);
+    else if (digits.length <= 5) setPhone(`${digits.slice(0, 2)} ${digits.slice(2)}`);
+    else setPhone(`${digits.slice(0, 2)} ${digits.slice(2, 5)} ${digits.slice(5)}`);
+  };
+
+  if (!expanded) {
+    return (
+      <div className="db-section">
+        <div className="db-section-label">{t('dashboard.addPatient.label')}</div>
+        <form onSubmit={handleNameSubmit}>
+          <div className="db-add-input-wrap">
+            <input
+              className="db-add-input"
+              type="text"
+              placeholder={t('dashboard.addPatient.placeholder')}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              aria-label={t('dashboard.addPatient.placeholder')}
+            />
             <button
-              key={opt.label}
-              onClick={() => { if (!opt.active && !isTogglingPresence) onToggle(); setOpen(false); }}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 8, width: '100%',
-                padding: '10px 14px', fontSize: 13, fontWeight: opt.active ? 600 : 400,
-                color: opt.textColor, background: opt.active ? opt.bg : 'transparent',
-                border: 'none', borderBottom: opt.border, cursor: 'pointer',
-                textAlign: 'left', fontFamily: body,
-              }}
+              type="submit"
+              className="db-add-btn"
+              disabled={!name.trim()}
+              aria-label={t('dashboard.addPatient.addButton')}
             >
-              <div style={{ width: 8, height: 8, borderRadius: '50%', background: opt.dotColor, flexShrink: 0 }} />
-              {opt.label}
-              {opt.active && <span className="material-symbols-rounded" style={{ fontSize: 16, marginLeft: 'auto' }}>check</span>}
+              +
             </button>
-          ))}
+          </div>
+        </form>
+      </div>
+    );
+  }
+
+  return (
+    <div className="db-section db-add-expanded">
+      <div className="db-section-label">{t('dashboard.addPatient.label')}</div>
+      <form onSubmit={handleFullSubmit} className="db-add-form">
+        {/* Name (pre-filled, editable) */}
+        <input
+          className="db-add-field"
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder={t('dashboard.addPatient.placeholder')}
+        />
+
+        {/* Phone */}
+        <input
+          ref={phoneRef}
+          className="db-add-field"
+          type="tel"
+          inputMode="numeric"
+          value={phone}
+          onChange={(e) => handlePhoneChange(e.target.value)}
+          placeholder={t('dashboard.addPatient.phonePlaceholder')}
+        />
+        {phone.length > 0 && phone.replace(/\D/g, '').length < 8 && (
+          <span className="db-add-hint">{t('dashboard.addPatient.phoneHint')}</span>
+        )}
+
+        {/* Visit type toggle */}
+        <div className="db-add-visit-toggle">
+          <button
+            type="button"
+            className={`db-add-visit-opt ${visitType === 'walk-in' ? 'db-add-visit-active' : ''}`}
+            onClick={() => setVisitType('walk-in')}
+          >
+            {t('dashboard.addPatient.walkIn')}
+          </button>
+          <button
+            type="button"
+            className={`db-add-visit-opt ${visitType === 'rdv' ? 'db-add-visit-active' : ''}`}
+            onClick={() => setVisitType('rdv')}
+          >
+            {t('dashboard.addPatient.withRdv')}
+          </button>
+        </div>
+
+        {/* RDV time selectors */}
+        {visitType === 'rdv' && (
+          <div className="db-add-rdv-row">
+            <span className="db-add-rdv-label">{t('dashboard.addPatient.rdvTime')}</span>
+            <select
+              className="db-add-select"
+              value={rdvHour}
+              onChange={(e) => setRdvHour(e.target.value)}
+            >
+              <option value="">--</option>
+              {rdvHours.map(h => <option key={h} value={h}>{h}</option>)}
+            </select>
+            <span className="db-add-rdv-sep">:</span>
+            <select
+              className="db-add-select"
+              value={rdvMinute}
+              onChange={(e) => setRdvMinute(e.target.value)}
+            >
+              <option value="">--</option>
+              {rdvMinutes.map(m => <option key={m} value={m}>{m}</option>)}
+            </select>
+          </div>
+        )}
+
+        {/* Actions */}
+        <div className="db-add-actions">
+          <button
+            type="button"
+            className="db-add-cancel"
+            onClick={handleCancel}
+          >
+            {t('dashboard.addPatient.cancel')}
+          </button>
+          <button
+            type="submit"
+            className="db-add-submit"
+            disabled={!name.trim() || isSubmitting}
+          >
+            {isSubmitting
+              ? t('dashboard.addPatient.submitting')
+              : t('dashboard.addPatient.submit')}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+// ─── ConsultationCard ────────────────────────────────────────────────────────
+
+function ConsultationCard({
+  currentPatient,
+  onEnd,
+}: {
+  currentPatient: QueueEntry | null;
+  onEnd: () => void;
+}) {
+  const { t } = useTranslation();
+
+  if (!currentPatient) {
+    return (
+      <div className="db-section">
+        <div className="db-section-label">{t('dashboard.consultation.label')}</div>
+        <div className="db-no-consult">{t('dashboard.consultation.noConsultation')}</div>
+      </div>
+    );
+  }
+
+  const arrivalTime = formatTime(currentPatient.arrivedAt);
+  const consultStarted = currentPatient.calledAt || currentPatient.arrivedAt;
+
+  return (
+    <div className="db-section">
+      <div className="db-section-label">{t('dashboard.consultation.label')}</div>
+      <div className="db-consult-card">
+        <div className="db-consult-tag">
+          <span className="db-consult-pulse" />
+          {t('dashboard.consultation.currentPatient')}
+        </div>
+
+        <div className="db-consult-body">
+          <div>
+            <div className="db-consult-name">{currentPatient.patientName || '—'}</div>
+            <div className="db-consult-meta">
+              {t('dashboard.consultation.arrivedAt', { time: arrivalTime })}
+            </div>
+          </div>
+          <ConsultationTimer startedAt={consultStarted} />
+        </div>
+
+        <div className="db-consult-actions">
+          <button className="db-consult-end-btn" onClick={onEnd}>
+            {t('dashboard.consultation.endButton')}
+          </button>
+          <button
+            className="db-consult-phone-btn"
+            disabled={!currentPatient.patientPhone}
+            onClick={() => currentPatient.patientPhone && window.open(`tel:${currentPatient.patientPhone}`)}
+            aria-label={t('dashboard.consultation.callButton')}
+          >
+            <span className="material-symbols-rounded" style={{ fontSize: 18 }}>call</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── CallNextButton ──────────────────────────────────────────────────────────
+
+function CallNextButton({
+  nextPatient,
+  waitingCount,
+  isCallingNext,
+  onCallNext,
+}: {
+  nextPatient: QueueEntry | null;
+  waitingCount: number;
+  isCallingNext: boolean;
+  onCallNext: () => void;
+}) {
+  const { t } = useTranslation();
+  const [calledState, setCalledState] = useState<string | null>(null);
+
+  const handleClick = () => {
+    if (!nextPatient || isCallingNext) return;
+    onCallNext();
+    const firstName = (nextPatient.patientName || '').split(' ')[0];
+    setCalledState(firstName);
+    setTimeout(() => setCalledState(null), 2200);
+  };
+
+  const disabled = waitingCount === 0 || isCallingNext;
+
+  return (
+    <div className="db-call-next-wrap">
+      <button
+        className={`db-call-next-btn ${calledState ? 'db-call-confirmed' : ''}`}
+        disabled={disabled}
+        onClick={handleClick}
+      >
+        {calledState ? (
+          <>&#10003; {t('dashboard.callNext.confirmed', { name: calledState })}</>
+        ) : (
+          <>
+            <span className="material-symbols-rounded" style={{ fontSize: 16 }}>arrow_forward</span>
+            {t('dashboard.callNext.button')}
+          </>
+        )}
+      </button>
+      {nextPatient && !calledState && (
+        <div className="db-call-next-sub">
+          {t('dashboard.callNext.next')} :{' '}
+          <strong>{nextPatient.patientName || '—'}</strong>
+          {' · '}{t('dashboard.callNext.pos')} {nextPatient.position}
+          {' · '}{getWaitingMinutes(nextPatient.arrivedAt)} min
         </div>
       )}
     </div>
   );
 }
 
-// ─── Topbar Icon Button ────────────────────────────────────────────────────────
+// ─── QrShareSection ──────────────────────────────────────────────────────────
 
-function TopbarIconBtn({ icon, onClick, label }: { icon: string; onClick: () => void; label: string }) {
+function QrShareSection({ clinicQrUrl, qrFullUrl }: { clinicQrUrl: string; qrFullUrl: string }) {
+  const { t } = useTranslation();
+  const [copied, setCopied] = useState(false);
+  const [qrModalOpen, setQrModalOpen] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(qrFullUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch { /* clipboard unavailable */ }
+  };
+
+  const waLink = `https://wa.me/?text=${encodeURIComponent(
+    t('dashboard.qr.waMessage', { url: qrFullUrl })
+  )}`;
+
   return (
-    <button
-      onClick={onClick}
-      aria-label={label}
-      title={label}
-      style={{
-        width: 32, height: 32, borderRadius: 8,
-        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-        background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)',
-        color: 'rgba(255,255,255,0.5)', cursor: 'pointer', padding: 0,
-      }}
-    >
-      <span className="material-symbols-rounded" style={{ fontSize: 17 }}>{icon}</span>
-    </button>
+    <div className="db-section">
+      <div className="db-section-label">{t('dashboard.qr.label')}</div>
+      <div className="db-qr-buttons">
+        {/* Copy */}
+        <button
+          className={`db-qr-btn ${copied ? 'db-qr-btn-copied' : ''}`}
+          onClick={handleCopy}
+          aria-label={t('dashboard.qr.copy')}
+        >
+          <span className="material-symbols-rounded db-qr-icon" style={{ color: 'var(--db-accent)' }}>
+            content_copy
+          </span>
+          <span className="db-qr-btn-label">{copied ? t('dashboard.qr.copied') : t('dashboard.qr.copy')}</span>
+        </button>
+
+        {/* WhatsApp */}
+        <a
+          className="db-qr-btn"
+          href={waLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          role="button"
+          aria-label={t('dashboard.qr.whatsapp')}
+        >
+          <svg className="db-qr-icon" width="18" height="18" viewBox="0 0 24 24" fill="#1A7A3C">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+          </svg>
+          <span className="db-qr-btn-label">{t('dashboard.qr.whatsapp')}</span>
+        </a>
+
+        {/* Display QR */}
+        <button
+          className="db-qr-btn"
+          onClick={() => setQrModalOpen(true)}
+          aria-label={t('dashboard.qr.display')}
+        >
+          <span className="material-symbols-rounded db-qr-icon" style={{ color: 'var(--db-accent)' }}>
+            qr_code_2
+          </span>
+          <span className="db-qr-btn-label">{t('dashboard.qr.display')}</span>
+        </button>
+      </div>
+
+      {qrModalOpen && (
+        <QrModal
+          clinicQrUrl={clinicQrUrl}
+          qrFullUrl={qrFullUrl}
+          onClose={() => setQrModalOpen(false)}
+        />
+      )}
+    </div>
   );
 }
 
-// ─── Left Panel Stat Card ─────────────────────────────────────────────────────
+// ─── QrModal ─────────────────────────────────────────────────────────────────
 
-function LeftStatCard({ value, label, highlighted, small }: {
-  value: number | string;
-  label: string;
-  highlighted?: boolean;
-  small?: boolean;
+function QrModal({
+  clinicQrUrl,
+  qrFullUrl,
+  onClose,
+}: {
+  clinicQrUrl: string;
+  qrFullUrl: string;
+  onClose: () => void;
 }) {
+  const { t } = useTranslation();
+  const qrRef = useRef<HTMLDivElement>(null);
+
+  const handleDownload = () => {
+    const svg = qrRef.current?.querySelector('svg');
+    if (!svg) return;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = 400;
+    canvas.height = 400;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const svgData = new XMLSerializer().serializeToString(svg);
+    const img = new Image();
+    img.onload = () => {
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, 400, 400);
+      ctx.drawImage(img, 0, 0, 400, 400);
+      const a = document.createElement('a');
+      a.download = `qr-blesaf.png`;
+      a.href = canvas.toDataURL('image/png');
+      a.click();
+    };
+    img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+  };
+
   return (
-    <div style={{
-      background: highlighted ? C.tealLight : C.white,
-      border: `1px solid ${highlighted ? C.tealMid : C.borderLight}`,
-      borderRadius: 12, padding: '12px 10px', textAlign: 'center',
-    }}>
-      <div style={{
-        fontSize: small ? 16 : 22, fontWeight: 800, letterSpacing: '-0.04em', lineHeight: 1,
-        color: highlighted ? C.teal : C.textPrimary,
-      }}>
-        {value}
-      </div>
-      <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: C.textMuted, marginTop: 4 }}>
-        {label}
+    <div className="db-qr-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <div className="db-qr-card" role="dialog" aria-modal="true" aria-label={t('dashboard.qr.modalTitle')}>
+        <div className="db-qr-modal-title">{t('dashboard.qr.modalTitle')}</div>
+        <div className="db-qr-code-wrap" ref={qrRef}>
+          <QRCodeSVG value={qrFullUrl} size={148} fgColor="#2D5A3D" />
+        </div>
+        <div className="db-qr-url-pill">{clinicQrUrl}</div>
+        <div className="db-qr-modal-buttons">
+          <button className="db-qr-modal-close" onClick={onClose}>
+            {t('dashboard.qr.close')}
+          </button>
+          <button className="db-qr-modal-download" onClick={handleDownload}>
+            {t('dashboard.qr.download')}
+          </button>
+        </div>
       </div>
     </div>
   );
 }
 
-// ─── Queue Badge ──────────────────────────────────────────────────────────────
+// Old QueueFilterBar, QueueTableRow, QueueTable removed — replaced by desktop/ components
 
-function QueueBadge({ badge }: { badge: 'priority' | 'emergency' | 'stepped-out' | 'no-phone' }) {
-  const styles: Record<string, { bg: string; color: string; label: string }> = {
-    emergency:     { bg: '#FEE2E2', color: '#DC2626', label: 'Urgence' },
-    priority:      { bg: C.amber100, color: C.amber600, label: 'Prioritaire' },
-    'stepped-out': { bg: C.blue50, color: C.blue, label: 'Sorti' },
-    'no-phone':    { bg: C.surface2, color: C.textMuted, label: 'Sans tél.' },
-  };
-  const s = styles[badge];
+// ─── StatsGrid ───────────────────────────────────────────────────────────────
+
+function StatsGrid({
+  waitingCount,
+  seenToday,
+  avgWait,
+  consultMinutes,
+}: {
+  waitingCount: number;
+  seenToday: number;
+  avgWait: number;
+  consultMinutes: number;
+}) {
+  const { t } = useTranslation();
+
   return (
-    <span style={{
-      flexShrink: 0, borderRadius: 999, padding: '2px 8px',
-      fontSize: 11, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase',
-      background: s.bg, color: s.color,
-    }}>
-      {s.label}
-    </span>
+    <div className="db-r-section">
+      <div className="db-section-label">{t('dashboard.statsPanel.label')}</div>
+      <div className="db-stats-grid">
+        <div className="db-stat-card db-stat-card-accent">
+          <div className="db-stat-value">{waitingCount}</div>
+          <div className="db-stat-label">{t('dashboard.statsPanel.waiting')}</div>
+        </div>
+        <div className="db-stat-card">
+          <div className="db-stat-value">{seenToday}</div>
+          <div className="db-stat-label">{t('dashboard.statsPanel.seen')}</div>
+        </div>
+        <div className="db-stat-card">
+          <div className="db-stat-value">{avgWait}</div>
+          <div className="db-stat-label">{t('dashboard.statsPanel.avgWait')}</div>
+        </div>
+        <div className="db-stat-card">
+          <div className="db-stat-value">{consultMinutes}</div>
+          <div className="db-stat-label">{t('dashboard.statsPanel.consultMin')}</div>
+        </div>
+      </div>
+    </div>
   );
 }
 
-// ─── Row Action Button ────────────────────────────────────────────────────────
+// ─── WaitTimeBars ────────────────────────────────────────────────────────────
 
-function RowBtn({ icon, label, onClick }: { icon: string; label: string; onClick: () => void }) {
-  const [hovered, setHovered] = useState(false);
+function WaitTimeBars({ entries }: { entries: QueueEntry[] }) {
+  const { t } = useTranslation();
+
+  const waitingEntries = useMemo(() =>
+    entries
+      .filter(e => e.status === QueueStatus.WAITING || e.status === QueueStatus.NOTIFIED)
+      .map(e => ({ ...e, waitMins: getWaitingMinutes(e.arrivedAt) }))
+      .sort((a, b) => b.waitMins - a.waitMins)
+      .slice(0, 8),
+    [entries]
+  );
+
+  const maxWait = waitingEntries.length > 0 ? Math.max(...waitingEntries.map(e => e.waitMins)) : 0;
+
+  if (waitingEntries.length === 0) return null;
+
   return (
-    <button
-      onClick={onClick}
-      aria-label={label}
-      title={label}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        width: 30, height: 30, borderRadius: 8,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        border: `1px solid ${C.borderLight}`,
-        background: hovered ? C.surface2 : C.white,
-        color: C.textSecondary, cursor: 'pointer', transition: 'all 120ms', padding: 0,
-      }}
-    >
-      <span className="material-symbols-rounded" style={{ fontSize: 16 }}>{icon}</span>
-    </button>
+    <div className="db-r-section">
+      <div className="db-section-label">{t('dashboard.waitTimes.label')}</div>
+      {waitingEntries.map(entry => {
+        const pct = maxWait > 0 ? Math.max(2, (entry.waitMins / maxWait) * 100) : 2;
+        return (
+          <div key={entry.id} className="db-wait-row">
+            <div className="db-wait-row-header">
+              <span className="db-wait-row-name">{entry.patientName || '—'}</span>
+              <span className="db-wait-row-value">{entry.waitMins} min</span>
+            </div>
+            <div className="db-wait-row-track">
+              <div className="db-wait-row-fill" style={{ width: `${pct}%` }} />
+            </div>
+          </div>
+        );
+      })}
+    </div>
   );
 }
 
-// ─── Main Component ───────────────────────────────────────────────────────────
+// ─── RightPanel ──────────────────────────────────────────────────────────────
+
+function RightPanel({
+  waitingCount,
+  seenToday,
+  avgWait,
+  consultMinutes,
+  entries,
+}: {
+  waitingCount: number;
+  seenToday: number;
+  avgWait: number;
+  consultMinutes: number;
+  entries: QueueEntry[];
+}) {
+  return (
+    <div className="db-right">
+      <StatsGrid
+        waitingCount={waitingCount}
+        seenToday={seenToday}
+        avgWait={avgWait}
+        consultMinutes={consultMinutes}
+      />
+      <WaitTimeBars entries={entries} />
+    </div>
+  );
+}
+
+// ─── Main DesktopDashboard ───────────────────────────────────────────────────
 
 export default function DesktopDashboard({
-  clinic, queue, stats, waitingCount, isDoctorPresent, isCallingNext, isTogglingPresence,
-  exitingPatientId, announcement, subscriptionExpired,
-  onCallNext, onRemovePatient, onCompleteConsultation,
-  onToggleDoctorPresent, onOpenAnnouncementModal,
+  clinic,
+  queue,
+  stats,
+  waitingCount,
+  isDoctorPresent,
+  isCallingNext,
+  isTogglingPresence: _isTogglingPresence,
+  exitingPatientId,
+  announcement: _announcement,
+  subscriptionExpired,
+  onCallNext,
+  onRemovePatient,
+  onReorderPatient: _onReorderPatient,
+  onEmergency,
+  onCompleteConsultation,
+  onToggleDoctorPresent,
+  onOpenAddModal: _onOpenAddModal,
+  onOpenAnnouncementModal: _onOpenAnnouncementModal,
 }: DesktopDashboardProps) {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-  const { logout, checkAuth } = useAuthStore();
-  const { isMedical } = useUILabels();
+  const { checkAuth, logout } = useAuthStore();
+  const toast = useToast();
 
-  // QR code
+  // QR code data
   const [qrData, setQrData] = useState<{ url: string; qrCode: string } | null>(null);
   useEffect(() => { api.getQRCode().then(setQrData).catch(() => {}); }, []);
 
   // Settings drawer
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [settingsMounted, setSettingsMounted] = useState(false);
-  const openSettings = () => { setSettingsMounted(true); setIsSettingsOpen(true); };
+  const [settingsPane, setSettingsPane] = useState<SettingsPane>('profil');
+  const openSettingsPane = useCallback((pane: string) => {
+    setSettingsPane(pane as SettingsPane);
+    setSettingsMounted(true);
+    setIsSettingsOpen(true);
+  }, []);
   const closeSettings = () => { setIsSettingsOpen(false); setTimeout(() => setSettingsMounted(false), 300); };
 
-  // Add patient drawer
-  const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
-  const [drawerMounted, setDrawerMounted] = useState(false);
-  const [quickName, setQuickName] = useState('');
-  const [drawerPrefill, setDrawerPrefill] = useState('');
+  // Derived data
+  const currentPatient = useMemo(() =>
+    queue.find(e => e.status === QueueStatus.IN_CONSULTATION) ?? null,
+    [queue]
+  );
 
-  const openAddDrawer = (name: string) => {
-    setDrawerPrefill(name);
-    setQuickName('');
-    setDrawerMounted(true);
-    setIsAddDrawerOpen(true);
-  };
+  const nextPatient = useMemo(() =>
+    queue
+      .filter(e => e.status === QueueStatus.WAITING || e.status === QueueStatus.NOTIFIED)
+      .sort((a, b) => a.position - b.position)[0] ?? null,
+    [queue]
+  );
 
-  const closeAddDrawer = () => {
-    setIsAddDrawerOpen(false);
-    setTimeout(() => setDrawerMounted(false), 300);
-  };
 
-  // WhatsApp sheet
-  const [isWhatsAppSheetOpen, setIsWhatsAppSheetOpen] = useState(false);
-  const [whatsappSentIds, setWhatsappSentIds] = useState<Set<string>>(new Set());
-  const handleWhatsAppSent = useCallback((id: string) => {
-    setWhatsappSentIds(prev => new Set(prev).add(id));
+  const consultMinutes = useMemo(() => {
+    if (!currentPatient?.calledAt) return 0;
+    return Math.max(0, Math.floor((Date.now() - new Date(currentPatient.calledAt).getTime()) / 60000));
+  }, [currentPatient]);
+
+  const seenToday = stats?.seen ?? 0;
+  const avgWait = stats?.avgWait ?? 0;
+
+  // QR URL derivation
+  const clinicQrUrl = qrData?.url
+    ? qrData.url.replace(/^https?:\/\//, '')
+    : '';
+  const qrFullUrl = qrData?.url || '';
+
+  // Subscription status for top bar (derived from the prop)
+  const subscriptionStatus: 'trial' | 'active' | 'expired' = subscriptionExpired ? 'expired' : 'active';
+
+  // Top bar QR action handlers
+  const [qrModalOpen, setQrModalOpen] = useState(false);
+
+  const handleQrDisplay = useCallback(() => setQrModalOpen(true), []);
+  const handleQrCopy = useCallback(async () => {
+    if (!qrFullUrl) return;
+    try {
+      await navigator.clipboard.writeText(qrFullUrl);
+      toast.show(t('dashboard.qr.copied'), 'teal');
+    } catch { /* clipboard unavailable */ }
+  }, [qrFullUrl, t, toast]);
+
+  const handleQrWhatsApp = useCallback(() => {
+    if (!qrFullUrl) return;
+    const waLink = `https://wa.me/?text=${encodeURIComponent(t('dashboard.qr.waMessage', { url: qrFullUrl }))}`;
+    window.open(waLink, '_blank', 'noopener,noreferrer');
+  }, [qrFullUrl, t]);
+
+  const handleToggleLanguage = useCallback(() => {
+    const newLang = i18n.language === 'fr' ? 'ar' : 'fr';
+    i18n.changeLanguage(newLang);
+  }, [i18n]);
+
+  const handleLogout = useCallback(() => {
+    logout();
+    navigate('/login');
+  }, [logout, navigate]);
+
+  // Queue filter hook
+  const { filtered, counts, activeFilter, setActiveFilter, searchQuery, setSearchQuery } = useQueueFilter(queue);
+
+  // Context menu state (single shared instance)
+  const [menuState, setMenuState] = useState<{
+    open: boolean;
+    entry: QueueEntry | null;
+    anchorRect: DOMRect | null;
+  }>({ open: false, entry: null, anchorRect: null });
+
+  const handleKebabClick = useCallback((e: React.MouseEvent, entry: QueueEntry) => {
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    setMenuState(prev =>
+      prev.open && prev.entry?.id === entry.id
+        ? { open: false, entry: null, anchorRect: null }
+        : { open: true, entry, anchorRect: rect }
+    );
   }, []);
 
-  // Patient context sheet
-  const [contextPatient, setContextPatient] = useState<QueuePatient | null>(null);
-  // Queue lifecycle
-  const avgConsultMins = clinic?.avgConsultationMins ?? 10;
-  const { queueStatus, isAllDone, closedSummary, openQueue, closeQueue, reopenQueue, endDay, newDay } =
-    useQueueLifecycle(clinic?.id, queue, stats, isDoctorPresent);
+  const closeMenu = useCallback(() => {
+    setMenuState({ open: false, entry: null, anchorRect: null });
+  }, []);
 
-  const showPreOpen = queueStatus === 'PRE_OPEN';
-  const showOpen    = queueStatus === 'OPEN';
-  const showClosing = queueStatus === 'CLOSING' && !isAllDone;
-  const showAllDone = queueStatus === 'CLOSING' && isAllDone;
-  const showClosed  = queueStatus === 'CLOSED';
+  // Action handlers
+  const handleCall = useCallback((entry: QueueEntry) => {
+    if (!entry.patientPhone) return;
+    window.open(`tel:${entry.patientPhone}`, '_blank');
+  }, []);
 
-  // Derived data
-  const inConsultEntry  = queue.find(e => e.status === QueueStatus.IN_CONSULTATION);
-  const waitingEntries  = queue.filter(e => e.status === QueueStatus.WAITING || e.status === QueueStatus.NOTIFIED);
-  const queuePatients   = useMemo(
-    () => waitingEntries.map(toQueuePatient),
-    [waitingEntries],
-  );
-  const patientById = useMemo(() => {
-    const map = new Map<string, QueuePatient>();
-    queuePatients.forEach(p => map.set(p.id, p));
-    return map;
-  }, [queuePatients]);
+  const handleWhatsApp = useCallback((entry: QueueEntry) => {
+    if (!entry.patientPhone) return;
+    const phone = entry.patientPhone.replace(/\D/g, '');
+    window.open(`https://wa.me/${phone}`, '_blank');
+  }, []);
 
-  const currentPatient = inConsultEntry ? toCurrentPatient(inConsultEntry) : null;
-  const elapsed        = inConsultEntry?.calledAt ? getConsultationMinutes(inConsultEntry.calledAt) : 0;
-  const maxWait        = stats?.maxWait ?? null;
-  const seenCount      = stats?.seen ?? 0;
-  const nextPreview    = getNextPatientPreview(queue);
+  const handleCopyLink = useCallback((entry: QueueEntry) => {
+    const url = `${window.location.origin}/patient/${entry.id}`;
+    navigator.clipboard.writeText(url).catch(() => {});
+    toast.show(t('queue.toast.linkCopied'), 'teal');
+  }, [t, toast]);
 
-  const closingStats   = stats ? toClosingStatsData(stats) : null;
-  const summaryBrief   = stats
-    ? toDaySummaryBrief(stats)
-    : { totalPatients: 0, avgWaitMinutes: 0, avgConsultMinutes: 0 };
-  const summaryData    = toSummaryData(clinic, closedSummary);
+  const handleEmergency = useCallback((entry: QueueEntry) => {
+    onEmergency(entry.id);
+    toast.show(t('queue.toast.emergency'), 'orange');
+  }, [onEmergency, t, toast]);
 
-  // Estimated position/wait for new patient
-  const estPosition = waitingEntries.length + 1 + (inConsultEntry ? 1 : 0);
-  const estWaitMins = estPosition * avgConsultMins;
-  const estWait = estWaitMins >= 60
-    ? `${Math.floor(estWaitMins / 60)}h${String(estWaitMins % 60).padStart(2, '0')}`
-    : `${estWaitMins} min`;
-
-
-  const handleShare = useCallback(async () => {
-    if (navigator.share) {
-      try { await navigator.share({ title: 'Résumé de journée', text: `${summaryData.totalPatientsSeen} patients vus.` }); }
-      catch { /* cancelled */ }
-    }
-  }, [summaryData.totalPatientsSeen]);
-
-  const handleLogout = async () => { await logout(); navigate('/login'); };
-  const toggleLanguage = () => { i18n.changeLanguage(i18n.language === 'fr' ? 'ar' : 'fr'); };
-
-  const callNextDisabled = waitingCount === 0 || isCallingNext || !isDoctorPresent || subscriptionExpired;
-
-  // ─── RENDER ───────────────────────────────────────────────────────────────
+  const handleRemove = useCallback((entry: QueueEntry) => {
+    if (!window.confirm(t('queue.confirm.remove', { name: entry.patientName || '—' }))) return;
+    onRemovePatient(entry.id);
+  }, [onRemovePatient, t]);
 
   return (
-    <div style={{ background: C.creamBg, height: '100vh', fontFamily: body, display: 'flex', flexDirection: 'column', overflow: 'hidden', position: 'relative' }}>
-
-      {/* ── Slim Topbar ─────────────────────────────────────────────── */}
-      <header style={{
-        background: C.green800, height: 52, padding: '0 24px',
-        display: 'flex', alignItems: 'center', gap: 14, flexShrink: 0,
-      }}>
-        {/* Logo */}
-        <div style={{ fontWeight: 800, fontSize: 18, letterSpacing: '-0.04em', color: C.white }}>
-          BleSaf
-        </div>
-
-        {/* Separator */}
-        <div style={{ width: 1, height: 18, background: 'rgba(255,255,255,0.12)', flexShrink: 0 }} />
-
-        {/* Clinic */}
-        {clinic && (
-          <div>
-            {isMedical && (
-              <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.35)', lineHeight: 1.2 }}>
-                Cabinet
-              </div>
-            )}
-            <div style={{ fontSize: 14, fontWeight: 700, color: C.white, letterSpacing: '-0.02em', lineHeight: 1.2 }}>
-              {clinic.doctorName || clinic.name}
-            </div>
-          </div>
-        )}
-
-        <div style={{ flex: 1 }} />
-
-        {/* Lifecycle status pill */}
-        {showPreOpen && <TopbarStatusPill variant="closed" label="File fermée" />}
-        {showOpen && !isDoctorPresent && <TopbarStatusPill variant="red" label="Docteur absent" />}
-        {showClosing && <TopbarStatusPill variant="amber" label="En fermeture" />}
-        {showAllDone && <TopbarStatusPill variant="open" label="File vide" />}
-        {showClosed && <TopbarStatusPill variant="closed" label="Journée terminée" />}
-
-        {/* PRE_OPEN: open queue CTA */}
-        {showPreOpen && (
-          <button onClick={openQueue} style={{
-            background: C.white, color: C.green800, border: 'none',
-            borderRadius: 10, padding: '7px 16px', fontSize: 13, fontWeight: 700,
-            cursor: 'pointer', fontFamily: body, display: 'flex', alignItems: 'center', gap: 6,
-          }}>
-            <span className="material-symbols-rounded" style={{ fontSize: 16 }}>play_arrow</span>
-            Ouvrir la file
-          </button>
-        )}
-
-        {/* CLOSED: new day */}
-        {showClosed && (
-          <button onClick={newDay} style={{
-            background: C.white, color: C.green800, border: 'none',
-            borderRadius: 10, padding: '7px 16px', fontSize: 13, fontWeight: 700,
-            cursor: 'pointer', fontFamily: body,
-          }}>
-            Nouvelle journée
-          </button>
-        )}
-
-        {/* Queue open status dot */}
-        {showOpen && isDoctorPresent && (
-          <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#4EC97A', flexShrink: 0 }} />
-        )}
-        <TopbarIconBtn icon="settings" label="Paramètres" onClick={openSettings} />
-      </header>
-
-      {/* ═══ PRE_OPEN ════════════════════════════════════════════════ */}
-      {showPreOpen && (
-        <div style={{ flex: 1, overflow: 'hidden' }}>
-          <WelcomeScreenDesktop
-            doctorName={clinic?.doctorName ?? clinic?.name ?? ''}
-            clinicName={clinic?.name ?? ''}
-            onOpenQueue={openQueue}
-            isOpening={false}
-          />
-        </div>
-      )}
-
-      {/* ═══ ALL_DONE ════════════════════════════════════════════════ */}
-      {showAllDone && (
-        <div style={{ flex: 1, overflowY: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 20px' }}>
-          <div style={{ maxWidth: 640, width: '100%' }}>
-            <AllDoneCard summary={summaryBrief} onEndDay={endDay} onReopen={reopenQueue} />
-          </div>
-        </div>
-      )}
-
-      {/* ═══ CLOSED ══════════════════════════════════════════════════ */}
-      {showClosed && (
-        <div style={{ flex: 1, overflowY: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 20px' }}>
-          <div style={{ maxWidth: 640, width: '100%' }}>
-            <SummaryCard summary={summaryData} onShare={handleShare} />
-            <TimelineBar summary={summaryData} />
-            <SummaryActionBar onNewDay={newDay} />
-          </div>
-        </div>
-      )}
-
-      {/* ═══ OPEN / CLOSING — Split Focus ════════════════════════════ */}
-      {(showOpen || showClosing) && (
-        <>
-          {showClosing && <ClosingBanner />}
-
-          <div style={{ display: 'grid', gridTemplateColumns: '390px 1fr', flex: 1, overflow: 'hidden' }}>
-
-            {/* ── LEFT: Control Hub ─────────────────────────────── */}
-            <div style={{
-              background: C.creamBg, borderRight: `1px solid ${C.borderLight}`,
-              display: 'flex', flexDirection: 'column', overflow: 'hidden',
-            }}>
-
-              {/* Body */}
-              <div style={{ flex: 1, overflow: 'hidden', padding: '12px 20px', display: 'flex', flexDirection: 'column' }}>
-
-              {/* Consultation card */}
-              {currentPatient ? (
-                <div style={{ background: C.teal, borderRadius: 16, padding: '16px 18px', marginBottom: 10, flexShrink: 0 }}>
-                  <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.5)', marginBottom: 6 }}>
-                    En consultation
-                  </div>
-                  <div style={{ fontSize: 24, fontWeight: 800, color: C.white, letterSpacing: '-0.03em', lineHeight: 1, marginBottom: 4 }}>
-                    {currentPatient.name}
-                  </div>
-                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', marginBottom: 10 }}>
-                    Arrivé à {currentPatient.arrivedAt} · {currentPatient.consultingSinceMinutes} min
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 12 }}>
-                    <div style={{ fontSize: 42, fontWeight: 800, color: C.white, letterSpacing: '-0.05em', lineHeight: 1 }}>
-                      {elapsed}
-                    </div>
-                    <div>
-                      <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)' }}>min</div>
-                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>en salle</div>
-                    </div>
-                  </div>
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    <button
-                      onClick={onCompleteConsultation}
-                      style={{
-                        flex: 1, background: C.white, color: C.teal, border: 'none',
-                        borderRadius: 999, padding: '10px 16px', fontSize: 13, fontWeight: 700,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                        cursor: 'pointer', fontFamily: body,
-                      }}
-                    >
-                      <span className="material-symbols-rounded" style={{ fontSize: 16, fontVariationSettings: "'FILL' 1" }}>check_circle</span>
-                      Terminer la consultation
-                    </button>
-                    {currentPatient.phone && (
-                      <button
-                        onClick={() => window.open(`tel:${currentPatient.phone}`)}
-                        style={{
-                          background: 'rgba(255,255,255,0.15)', color: C.white,
-                          border: '1.5px solid rgba(255,255,255,0.3)', borderRadius: 999,
-                          padding: '10px 14px', display: 'flex', alignItems: 'center',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        <span className="material-symbols-rounded" style={{ fontSize: 18 }}>phone</span>
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                <div style={{
-                  background: C.surface2, borderRadius: 16, padding: '16px 20px',
-                  marginBottom: 10, textAlign: 'center', flexShrink: 0,
-                }}>
-                  <span className="material-symbols-rounded" style={{ fontSize: 32, color: C.textMuted, display: 'block', marginBottom: 8 }}>
-                    person_outline
-                  </span>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: C.textSecondary }}>
-                    Aucun patient en consultation
-                  </div>
-                  <div style={{ fontSize: 12, color: C.textMuted, marginTop: 4 }}>
-                    Appelez le prochain pour commencer
-                  </div>
-                </div>
-              )}
-
-              {/* Stats grid */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 10 }}>
-                <LeftStatCard
-                  value={showClosing ? (closingStats?.remainingCount ?? 0) : waitingCount}
-                  label={showClosing ? 'Restants' : 'Attente'}
-                  highlighted
-                />
-                <LeftStatCard value={seenCount} label="Vus" />
-                <LeftStatCard
-                  value={maxWait != null ? (maxWait >= 60 ? `${Math.floor(maxWait / 60)}h${String(maxWait % 60).padStart(2, '0')}` : `${maxWait} min`) : '--'}
-                  label="Attente max"
-                  small
-                />
-              </div>
-
-              {/* Primary CTA */}
-              <button
-                onClick={onCallNext}
-                disabled={callNextDisabled}
-                style={{
-                  width: '100%', background: C.teal, color: C.white, border: 'none',
-                  borderRadius: 13, padding: 14, fontSize: 16, fontWeight: 800,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                  letterSpacing: '-0.02em', marginBottom: 4, cursor: callNextDisabled ? 'not-allowed' : 'pointer',
-                  opacity: callNextDisabled ? 0.5 : 1, transition: 'opacity 150ms', fontFamily: body,
-                }}
-              >
-                {isCallingNext
-                  ? <span className="material-symbols-rounded animate-spin" style={{ fontSize: 20 }}>progress_activity</span>
-                  : <span className="material-symbols-rounded" style={{ fontSize: 20 }}>arrow_forward</span>
-                }
-                Appeler Suivant
-              </button>
-
-              {/* Next hint */}
-              <div style={{ textAlign: 'center', fontSize: 12, color: C.textMuted, marginBottom: 10 }}>
-                {nextPreview
-                  ? <>Prochain : <strong style={{ color: C.textPrimary, fontWeight: 700 }}>{nextPreview}</strong></>
-                  : 'Aucun patient en attente'
-                }
-              </div>
-
-              {/* Divider + Outils section header */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: C.textMuted, whiteSpace: 'nowrap' }}>
-                  Outils
-                </div>
-                <div style={{ flex: 1, height: 1, background: C.borderLight }} />
-              </div>
-
-              {/* QR card */}
-              {qrData && (
-                <div style={{
-                  background: C.white, border: `1px solid ${C.borderLight}`,
-                  borderRadius: 12, padding: '12px 14px',
-                  display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8,
-                }}>
-                  <div style={{
-                    width: 36, height: 36, background: C.surface2, borderRadius: 8,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                  }}>
-                    <span className="material-symbols-rounded" style={{ fontSize: 20, color: C.textMuted }}>qr_code_2</span>
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: C.textPrimary }}>QR d'enregistrement</div>
-                    <div style={{ fontSize: 11, color: C.textMuted }}>Lien pour les patients</div>
-                  </div>
-                  <button
-                    onClick={() => window.open(qrData.url, '_blank')}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: 3,
-                      background: 'none', border: `1px solid ${C.borderLight}`,
-                      borderRadius: 8, padding: '5px 10px', fontSize: 12,
-                      color: C.textSecondary, cursor: 'pointer', fontFamily: body, whiteSpace: 'nowrap',
-                    }}
-                  >
-                    <span className="material-symbols-rounded" style={{ fontSize: 14 }}>open_in_new</span>
-                    Voir
-                  </button>
-                  <button
-                    onClick={async () => { try { await navigator.clipboard.writeText(qrData.url); } catch { /* clipboard unavailable */ } }}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: 3,
-                      background: 'none', border: `1px solid ${C.borderLight}`,
-                      borderRadius: 8, padding: '5px 10px', fontSize: 12,
-                      color: C.textSecondary, cursor: 'pointer', fontFamily: body, whiteSpace: 'nowrap',
-                    }}
-                  >
-                    <span className="material-symbols-rounded" style={{ fontSize: 14 }}>content_copy</span>
-                    Copier
-                  </button>
-                </div>
-              )}
-
-              {/* Tools row: Annonce + Language toggle */}
-              <div style={{ display: 'flex', gap: 8, marginBottom: 6 }}>
-                <button
-                  onClick={onOpenAnnouncementModal}
-                  style={{
-                    flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                    background: announcement ? C.blue50 : C.white,
-                    color: announcement ? C.blue : C.textSecondary,
-                    border: `1px solid ${announcement ? 'rgba(59,125,217,0.3)' : C.borderLight}`,
-                    borderRadius: 12, padding: '8px 12px', fontSize: 12, fontWeight: 600,
-                    cursor: 'pointer', fontFamily: body, position: 'relative',
-                  }}
-                >
-                  <span className="material-symbols-rounded" style={{ fontSize: 16 }}>campaign</span>
-                  Annonce
-                  {announcement && (
-                    <span style={{
-                      position: 'absolute', top: -4, right: -4,
-                      width: 10, height: 10, borderRadius: '50%',
-                      background: '#3B82F6', border: `2px solid ${C.white}`,
-                    }} />
-                  )}
-                </button>
-                {webBrand.supportedLanguages.length > 1 && (
-                  <button
-                    onClick={toggleLanguage}
-                    style={{
-                      flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                      background: C.white, color: C.textSecondary,
-                      border: `1px solid ${C.borderLight}`,
-                      borderRadius: 12, padding: '8px 12px', fontSize: 12, fontWeight: 600,
-                      cursor: 'pointer', fontFamily: body,
-                    }}
-                  >
-                    <span className="material-symbols-rounded" style={{ fontSize: 16 }}>language</span>
-                    {i18n.language === 'fr' ? 'عربي' : 'Français'}
-                  </button>
-                )}
-              </div>
-
-              {/* Divider */}
-              <div style={{ height: 1, background: C.borderLight, margin: '6px 0 8px' }} />
-
-              {/* Lifecycle action */}
-              {showOpen && (
-                <button
-                  onClick={closeQueue}
-                  style={{
-                    width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                    background: C.amber100, color: C.amber600,
-                    border: '1px solid rgba(212,146,11,0.2)', borderRadius: 12,
-                    padding: '9px 14px', fontSize: 12, fontWeight: 600,
-                    cursor: 'pointer', fontFamily: body,
-                  }}
-                >
-                  <span className="material-symbols-rounded" style={{ fontSize: 16 }}>block</span>
-                  Fermer la file
-                </button>
-              )}
-              {showClosing && (
-                <button
-                  onClick={reopenQueue}
-                  style={{
-                    width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                    background: C.green100, color: C.green700,
-                    border: '1px solid rgba(45,139,78,0.2)', borderRadius: 12,
-                    padding: '9px 14px', fontSize: 12, fontWeight: 600,
-                    cursor: 'pointer', fontFamily: body,
-                  }}
-                >
-                  <span className="material-symbols-rounded" style={{ fontSize: 16 }}>refresh</span>
-                  Reprendre
-                </button>
-              )}
-
-              {/* Déconnexion */}
-              <button
-                onClick={handleLogout}
-                style={{
-                  width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                  background: C.red100, color: C.red600,
-                  border: '1px solid rgba(192,57,43,0.2)', borderRadius: 12,
-                  padding: '9px 14px', fontSize: 12, fontWeight: 600, marginTop: 6,
-                  cursor: 'pointer', fontFamily: body,
-                }}
-              >
-                <span className="material-symbols-rounded" style={{ fontSize: 16 }}>logout</span>
-                Déconnexion
-              </button>
-
-              </div>{/* /scrollable body */}
-
-              {/* Footer: Presence */}
-              <div style={{
-                padding: '10px 20px', borderTop: `1px solid ${C.borderLight}`,
-                flexShrink: 0, display: 'flex', alignItems: 'center',
-              }}>
-                <PresenceDropdown
-                  isDoctorPresent={isDoctorPresent}
-                  isTogglingPresence={isTogglingPresence}
-                  onToggle={onToggleDoctorPresent}
-                />
-              </div>
-
-            </div>{/* /left panel */}
-
-            {/* ── RIGHT: Queue List ─────────────────────────────── */}
-            <div style={{ background: C.white, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
-
-              {/* Controls bar */}
-              {showOpen && (
-                <div style={{
-                  padding: '14px 22px', borderBottom: `1px solid ${C.borderLight}`,
-                  display: 'flex', gap: 10, alignItems: 'center', flexShrink: 0,
-                }}>
-                  <input
-                    type="text"
-                    placeholder="Nom du patient…"
-                    value={quickName}
-                    onChange={e => setQuickName(e.target.value)}
-                    onKeyDown={e => {
-                      if (e.key === 'Enter' && !subscriptionExpired) {
-                        openAddDrawer(quickName);
-                      }
-                    }}
-                    style={{
-                      flex: 1, height: 38,
-                      border: `1px solid ${C.borderLight}`, borderRadius: 12,
-                      background: C.white, padding: '0 14px',
-                      fontSize: 13, color: C.textPrimary, outline: 'none', fontFamily: body,
-                    }}
-                  />
-                  <button
-                    onClick={() => openAddDrawer(quickName)}
-                    disabled={subscriptionExpired}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: 6,
-                      background: C.teal, color: C.white, border: 'none',
-                      borderRadius: 12, padding: '8px 16px', fontSize: 13, fontWeight: 600,
-                      cursor: subscriptionExpired ? 'not-allowed' : 'pointer',
-                      fontFamily: body, whiteSpace: 'nowrap',
-                      opacity: subscriptionExpired ? 0.5 : 1,
-                    }}
-                  >
-                    <span className="material-symbols-rounded" style={{ fontSize: 16 }}>person_add</span>
-                    Ajouter
-                  </button>
-                </div>
-              )}
-
-              {/* Queue list */}
-              <div style={{ padding: '20px 22px', flex: 1 }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: C.textMuted }}>
-                    {showClosing ? 'Restants' : "File d'attente"}
-                  </div>
-                  <div style={{ fontSize: 13, color: C.textMuted }}>
-                    {waitingEntries.length} patient{waitingEntries.length !== 1 ? 's' : ''}
-                  </div>
-                </div>
-
-                {waitingEntries.length === 0 ? (
-                  <div style={{ textAlign: 'center', padding: '60px 20px' }}>
-                    <span className="material-symbols-rounded" style={{ fontSize: 48, color: C.textMuted, opacity: 0.4, display: 'block', marginBottom: 16 }}>
-                      group
-                    </span>
-                    <div style={{ fontWeight: 600, fontSize: 18, color: C.textSecondary, marginBottom: 8 }}>
-                      {showClosing ? 'Tous les patients ont été vus' : 'Aucun patient en attente'}
-                    </div>
-                    <div style={{ fontSize: 14, color: C.textMuted }}>
-                      {showClosing ? 'La journée touche à sa fin' : 'Les patients apparaîtront ici dès leur enregistrement'}
-                    </div>
-                  </div>
-                ) : (
-                  <ul role="list" aria-live="polite" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-                    {waitingEntries.map(entry => {
-                      const patient = patientById.get(entry.id);
-                      const isNotified = entry.status === QueueStatus.NOTIFIED;
-                      const waitMinutes = patient?.waitMinutes ?? 0;
-                      const initials = (entry.patientName || '?')[0].toUpperCase();
-
-                      return (
-                        <li
-                          key={entry.id}
-                          style={{
-                            display: 'flex', alignItems: 'center', gap: 12,
-                            padding: '13px 14px',
-                            background: isNotified ? '#FFFDF8' : C.white,
-                            border: `1px solid ${isNotified ? 'rgba(212,146,11,0.3)' : C.borderSubtle}`,
-                            borderRadius: 12, marginBottom: 8,
-                            opacity: entry.id === exitingPatientId ? 0 : 1,
-                            transform: entry.id === exitingPatientId ? 'translateX(-20px)' : 'none',
-                            transition: 'all 150ms ease',
-                          }}
-                        >
-                          {/* Position bubble */}
-                          <div style={{
-                            width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            fontWeight: 700, fontSize: 12,
-                            background: isNotified ? C.amber100 : C.surface2,
-                            color: isNotified ? C.amber600 : C.textSecondary,
-                          }}>
-                            {patient?.position ?? '—'}
-                          </div>
-
-                          {/* Avatar */}
-                          <div style={getAvatarStyle(isNotified)}>
-                            {initials}
-                          </div>
-
-                          {/* Patient info */}
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ fontSize: 14, fontWeight: 600, color: C.textPrimary, display: 'flex', alignItems: 'center', gap: 6 }}>
-                              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                {entry.patientName || t('queue.anonymous')}
-                              </span>
-                              {whatsappSentIds.has(entry.id) && (
-                                <span
-                                  className="material-symbols-rounded"
-                                  style={{ fontSize: 14, color: '#25D366', flexShrink: 0, fontVariationSettings: "'FILL' 1" }}
-                                  title="Lien WhatsApp envoyé"
-                                >
-                                  check_circle
-                                </span>
-                              )}
-                            </div>
-                            <div style={{ fontSize: 12, color: C.textMuted, marginTop: 1 }}>
-                              Arrivé à {formatTime(entry.arrivedAt)}
-                              {entry.appointmentTime ? ` · RDV ${formatTime(entry.appointmentTime)}` : ' · Sans RDV'}
-                            </div>
-                          </div>
-
-                          {/* Wait dot + time */}
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0 }}>
-                            <span style={{ width: 8, height: 8, borderRadius: '50%', background: getWaitDotColor(waitMinutes), display: 'inline-block' }} />
-                            <span style={{ fontSize: 12, fontWeight: 600, color: C.textSecondary }}>{formatWaitMinutes(waitMinutes)}</span>
-                          </div>
-
-                          {/* Notified badge */}
-                          {isNotified && (
-                            <span style={{
-                              borderRadius: 999, padding: '2px 8px', fontSize: 11, fontWeight: 700,
-                              background: C.amber100, color: C.amber600, whiteSpace: 'nowrap', flexShrink: 0,
-                            }}>
-                              Notifié
-                            </span>
-                          )}
-
-                          {/* Other badges */}
-                          {patient?.badge && <QueueBadge badge={patient.badge} />}
-
-                          {/* Actions */}
-                          <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
-                            {entry.patientPhone && (
-                              <RowBtn icon="phone" label="Appeler le patient" onClick={() => window.open(`tel:${entry.patientPhone}`)} />
-                            )}
-                            <RowBtn
-                              icon="more_vert"
-                              label="Plus d'options"
-                              onClick={() => patient && setContextPatient(patient)}
-                            />
-                          </div>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )}
-              </div>
-            </div>
-
-          </div>
-        </>
-      )}
-
-      {/* ── Overlays ─────────────────────────────────────────────────── */}
-      <PatientContextSheet
-        isOpen={contextPatient !== null}
-        patient={contextPatient}
-        onClose={() => setContextPatient(null)}
-        onRemove={onRemovePatient}
-        onPhoneUpdated={() => setContextPatient(null)}
+    <div className="desktop-dashboard">
+      <DesktopTopBar
+        clinicName={clinic?.name || ''}
+        isDoctorPresent={isDoctorPresent}
+        isQueueOpen={true}
+        currentLang={i18n.language as 'fr' | 'ar'}
+        waitingCount={waitingCount}
+        subscriptionStatus={subscriptionStatus}
+        avgConsultationMins={clinic?.avgConsultationMins}
+        clinic={clinic}
+        onClinicUpdated={checkAuth}
+        onToggleDoctorPresence={onToggleDoctorPresent}
+        onToggleQueue={() => {/* TODO: wire up queue toggle */}}
+        onToggleLanguage={handleToggleLanguage}
+        onOpenSettingsPane={openSettingsPane}
+        onNavigateToSupport={() => navigate('/settings')}
+        onLogout={handleLogout}
+        onQrDisplay={handleQrDisplay}
+        onQrCopy={handleQrCopy}
+        onQrWhatsApp={handleQrWhatsApp}
       />
+
+      <div className="db-layout">
+        {/* Left Panel */}
+        <div className="db-left">
+          <AddPatientSection />
+          <ConsultationCard
+            currentPatient={currentPatient}
+            onEnd={onCompleteConsultation}
+          />
+          <CallNextButton
+            nextPatient={nextPatient}
+            waitingCount={waitingCount}
+            isCallingNext={isCallingNext}
+            onCallNext={onCallNext}
+          />
+          {clinicQrUrl && (
+            <QrShareSection clinicQrUrl={clinicQrUrl} qrFullUrl={qrFullUrl} />
+          )}
+        </div>
+
+        {/* Center — Redesigned Queue Table */}
+        <div className="db-center" style={{ padding: "16px 16px 0" }}>
+          <div className="db-section-label">{t('queue.title')}</div>
+          <QueueTableHeader
+            activeFilter={activeFilter}
+            onFilterChange={setActiveFilter}
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            counts={counts}
+          />
+
+          <div className="bg-white border border-[#DDE2DC] rounded-[14px] shadow-sm overflow-x-auto">
+            <table className="w-full border-collapse" style={{ minWidth: 580 }}>
+              <thead>
+                <tr className="bg-[#F4F5F1] border-b-[1.5px] border-[#DDE2DC]">
+                  <th className="text-[9px] font-semibold tracking-[0.6px] uppercase text-[#94A49A] px-3 py-2.5 text-left w-[44px]">#</th>
+                  <th className="text-[9px] font-semibold tracking-[0.6px] uppercase text-[#94A49A] px-3 py-2.5 text-left">{t('queue.col.patient')}</th>
+                  <th className="text-[9px] font-semibold tracking-[0.6px] uppercase text-[#94A49A] px-3 py-2.5 text-left">{t('queue.col.arrival')}</th>
+                  <th className="text-[9px] font-semibold tracking-[0.6px] uppercase text-[#94A49A] px-3 py-2.5 text-left">{t('queue.col.wait')}</th>
+                  <th className="text-[9px] font-semibold tracking-[0.6px] uppercase text-[#94A49A] px-3 py-2.5 text-left">{t('queue.col.eta')}</th>
+                  <th className="text-[9px] font-semibold tracking-[0.6px] uppercase text-[#94A49A] px-3 py-2.5 text-left">{t('queue.col.contact')}</th>
+                  <th className="w-[44px]" />
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map(entry => (
+                  <QueueTableRowNew
+                    key={entry.id}
+                    entry={entry}
+                    isMenuOpen={menuState.entry?.id === entry.id && menuState.open}
+                    isExiting={entry.id === exitingPatientId}
+                    onKebabClick={handleKebabClick}
+                  />
+                ))}
+                {filtered.length === 0 && (
+                  <tr>
+                    <td colSpan={7} className="text-center py-12 text-[#94A49A] text-[14px]">
+                      {t('queue.empty')}
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Right Panel */}
+        <RightPanel
+          waitingCount={waitingCount}
+          seenToday={seenToday}
+          avgWait={avgWait}
+          consultMinutes={consultMinutes}
+          entries={queue}
+        />
+      </div>
+
+      {/* Floating call-next bar */}
+      {waitingCount > 0 && (
+        <CallNextBar
+          nextPatientName={nextPatient?.patientName ?? null}
+          onCallNext={onCallNext}
+          disabled={waitingCount === 0 || isCallingNext}
+        />
+      )}
+
+      {/* Context menu (single shared instance) */}
+      <PatientContextMenu
+        open={menuState.open}
+        anchorRect={menuState.anchorRect}
+        entry={menuState.entry}
+        onClose={closeMenu}
+        onCall={() => { if (menuState.entry) handleCall(menuState.entry); closeMenu(); }}
+        onWhatsApp={() => { if (menuState.entry) handleWhatsApp(menuState.entry); closeMenu(); }}
+        onCopyLink={() => { if (menuState.entry) handleCopyLink(menuState.entry); closeMenu(); }}
+        onEmergency={() => { if (menuState.entry) handleEmergency(menuState.entry); closeMenu(); }}
+        onRemove={() => { if (menuState.entry) handleRemove(menuState.entry); closeMenu(); }}
+      />
+
+      {/* QR Modal (from top bar dropdown) */}
+      {qrModalOpen && clinicQrUrl && (
+        <QrModal
+          clinicQrUrl={clinicQrUrl}
+          qrFullUrl={qrFullUrl}
+          onClose={() => setQrModalOpen(false)}
+        />
+      )}
+
+      {/* Settings Drawer */}
       {settingsMounted && (
         <DesktopSettingsDrawer
           isOpen={isSettingsOpen}
           onClose={closeSettings}
           clinic={clinic}
           onClinicUpdated={checkAuth}
+          initialPane={settingsPane}
         />
       )}
-      {drawerMounted && <DesktopAddDrawer
-        isOpen={isAddDrawerOpen}
-        onClose={closeAddDrawer}
-        prefilledName={drawerPrefill}
-        estimatedPosition={estPosition}
-        estimatedWait={estWait}
-        clinicName={clinic?.name ?? ''}
-        onWhatsAppSent={handleWhatsAppSent}
-      />}
-      <BSWhatsAppSheet
-        isOpen={isWhatsAppSheetOpen}
-        onClose={() => setIsWhatsAppSheetOpen(false)}
-        patients={queuePatients}
-        clinicName={clinic?.name ?? ''}
-        whatsappSentIds={whatsappSentIds}
-        onWhatsAppSent={handleWhatsAppSent}
-      />
     </div>
-  );
-}
-
-// ─── Topbar Status Pill ───────────────────────────────────────────────────────
-
-function TopbarStatusPill({ variant, label }: { variant: 'open' | 'closed' | 'amber' | 'red'; label: string }) {
-  const styles = {
-    open:   { bg: 'rgba(45,139,78,0.18)',   color: '#4EC97A', border: '1px solid rgba(45,139,78,0.25)' },
-    closed: { bg: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.4)', border: 'none' },
-    amber:  { bg: 'rgba(212,146,11,0.2)',   color: '#EFA825', border: '1px solid rgba(212,146,11,0.25)' },
-    red:    { bg: 'rgba(217,79,59,0.2)',    color: '#F4706A', border: '1px solid rgba(217,79,59,0.25)' },
-  }[variant];
-
-  return (
-    <span style={{
-      display: 'inline-flex', alignItems: 'center', gap: 6,
-      padding: '5px 12px', borderRadius: 999, fontSize: 12, fontWeight: 600,
-      background: styles.bg, color: styles.color, border: styles.border,
-    }}>
-      <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'currentColor' }} />
-      {label}
-    </span>
-  );
-}
-
-// ─── Desktop Add Patient Drawer ───────────────────────────────────────────────
-
-interface DesktopAddDrawerProps {
-  isOpen: boolean;
-  onClose: () => void;
-  prefilledName: string;
-  estimatedPosition: number;
-  estimatedWait: string;
-  clinicName: string;
-  onWhatsAppSent?: (id: string) => void;
-}
-
-function DesktopAddDrawer({
-  isOpen, onClose, prefilledName, estimatedPosition, estimatedWait, clinicName, onWhatsAppSent,
-}: DesktopAddDrawerProps) {
-  const { t } = useTranslation();
-  const { addPatient } = useQueueStore();
-
-  const [step, setStep] = useState<'form' | 'confirm'>('form');
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [isRdv, setIsRdv] = useState(false);
-  const [rdvHour, setRdvHour] = useState('');
-  const [rdvMinute, setRdvMinute] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [addedName, setAddedName] = useState('');
-  const [addedPosition, setAddedPosition] = useState(0);
-  const [addedHasPhone, setAddedHasPhone] = useState(false);
-  const [addedEntryId, setAddedEntryId] = useState<string | null>(null);
-  const [addedPhone, setAddedPhone] = useState('');
-
-  const rdvHours = Array.from({ length: 13 }, (_, i) => (i + 7).toString().padStart(2, '0'));
-  const rdvMinutes = ['00', '15', '30', '45'];
-  const rdvTime = rdvHour && rdvMinute ? `${rdvHour}:${rdvMinute}` : '';
-
-  useEffect(() => {
-    if (isOpen) {
-      setStep('form');
-      setName(prefilledName);
-      setPhone('');
-      setIsRdv(false);
-      setRdvHour('');
-      setRdvMinute('');
-      setError(null);
-    }
-  }, [isOpen, prefilledName]);
-
-  useEffect(() => {
-    if (step === 'confirm' && isOpen) {
-      const timer = setTimeout(handleClose, 4000);
-      return () => clearTimeout(timer);
-    }
-  }, [step, isOpen]);
-
-  const handleClose = () => {
-    onClose();
-    setTimeout(() => {
-      setStep('form');
-      setName('');
-      setPhone('');
-      setIsRdv(false);
-      setRdvHour('');
-      setRdvMinute('');
-      setError(null);
-      setAddedEntryId(null);
-    }, 300);
-  };
-
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const raw = e.target.value.replace(/\D/g, '');
-    setPhone(raw.slice(0, webBrand.phone.localDigits));
-  };
-
-  const phoneDisplay = phone.length > 0
-    ? phone.replace(/(\d{2})(\d{3})?(\d{3})?/, (_, a, b, c) => [a, b, c].filter(Boolean).join(' '))
-    : '';
-
-  const handleSubmit = async () => {
-    if (!name.trim()) { setError(t('blesaf.addPatient.nameRequired')); return; }
-    setError(null);
-    setIsSubmitting(true);
-    try {
-      const patientPhone = phone.length > 0 ? `${webBrand.phone.countryCode}${phone}` : '';
-      const entry = await addPatient({
-        patientName: name.trim(),
-        patientPhone,
-        appointmentTime: isRdv && rdvTime ? rdvTime : undefined,
-      });
-      setAddedName(name.trim());
-      setAddedPosition(estimatedPosition);
-      setAddedHasPhone(phone.length > 0);
-      setAddedEntryId(entry.id);
-      setAddedPhone(patientPhone);
-      setStep('confirm');
-    } catch (err: any) {
-      logger.error('DesktopAddDrawer submit error:', err);
-      setError(err.code === 'ALREADY_CHECKED_IN' ? t('queue.patientAlreadyInQueue') : err.message || t('blesaf.addPatient.addError'));
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const inp: React.CSSProperties = {
-    width: '100%', padding: '10px 14px', fontSize: 14, fontFamily: body,
-    border: `1px solid ${C.borderLight}`, borderRadius: 10, outline: 'none',
-    background: C.surface2, color: C.textPrimary,
-  };
-  const label: React.CSSProperties = {
-    display: 'flex', alignItems: 'center', gap: 6,
-    fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em',
-    color: C.textMuted, marginBottom: 6,
-  };
-
-  return (
-    <>
-      {/* Backdrop */}
-      <div
-        onClick={handleClose}
-        style={{
-          position: 'absolute', inset: 0, zIndex: 99,
-          background: 'rgba(0,0,0,0.25)',
-          opacity: isOpen ? 1 : 0,
-          pointerEvents: isOpen ? 'auto' : 'none',
-          transition: 'opacity 250ms',
-        }}
-      />
-
-      {/* Drawer panel */}
-      <div style={{
-        position: 'absolute', top: 0, right: 0, bottom: 0, zIndex: 100,
-        width: 420, background: C.white,
-        boxShadow: '-8px 0 40px rgba(0,0,0,0.14)',
-        display: 'flex', flexDirection: 'column',
-        transform: isOpen ? 'translateX(0)' : 'translateX(100%)',
-        transition: 'transform 280ms cubic-bezier(0.32,0,0.15,1)',
-      }}>
-
-        {/* Header */}
-        <div style={{
-          padding: '20px 24px 16px', borderBottom: `1px solid ${C.borderLight}`,
-          display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexShrink: 0,
-        }}>
-          <div>
-            <div style={{ fontWeight: 800, fontSize: 18, color: C.textPrimary, letterSpacing: '-0.02em' }}>
-              {t('blesaf.addPatient.title')}
-            </div>
-            {step === 'form' && (
-              <div style={{ fontSize: 12, color: C.textMuted, marginTop: 3 }}>
-                {t('blesaf.addPatient.subtitle', { position: estimatedPosition, wait: estimatedWait })}
-              </div>
-            )}
-          </div>
-          <button
-            onClick={handleClose}
-            style={{
-              width: 32, height: 32, borderRadius: 8, border: `1px solid ${C.borderLight}`,
-              background: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center',
-              cursor: 'pointer', color: C.textMuted, flexShrink: 0,
-            }}
-          >
-            <span className="material-symbols-rounded" style={{ fontSize: 18 }}>close</span>
-          </button>
-        </div>
-
-        {/* Scrollable body */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '20px 24px' }}>
-
-          {step === 'form' ? (
-            <>
-              {error && (
-                <div style={{
-                  background: C.red100, color: C.red600, borderRadius: 10,
-                  padding: '10px 14px', fontSize: 13, marginBottom: 16,
-                }}>
-                  {error}
-                </div>
-              )}
-
-              {/* RDV toggle */}
-              <div style={{
-                display: 'grid', gridTemplateColumns: '1fr 1fr',
-                background: C.surface2, borderRadius: 12, padding: 4,
-                marginBottom: 20,
-              }}>
-                {[
-                  { key: false, icon: 'queue', label: t('blesaf.addPatient.walkIn') },
-                  { key: true,  icon: 'calendar_today', label: t('blesaf.addPatient.withAppointment') },
-                ].map(opt => (
-                  <button
-                    key={String(opt.key)}
-                    onClick={() => setIsRdv(opt.key)}
-                    style={{
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                      padding: '9px 12px', borderRadius: 9, fontSize: 13, fontWeight: 600,
-                      border: 'none', cursor: 'pointer', fontFamily: body, transition: 'all 150ms',
-                      background: isRdv === opt.key ? C.white : 'transparent',
-                      color: isRdv === opt.key ? C.textPrimary : C.textMuted,
-                      boxShadow: isRdv === opt.key ? '0 1px 4px rgba(0,0,0,0.10)' : 'none',
-                    }}
-                  >
-                    <span className="material-symbols-rounded" style={{ fontSize: 15 }}>{opt.icon}</span>
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
-
-              {/* Name */}
-              <div style={{ marginBottom: 16 }}>
-                <div style={label}>
-                  <span className="material-symbols-rounded" style={{ fontSize: 14 }}>person</span>
-                  {t('blesaf.addPatient.patientName')}
-                </div>
-                <input
-                  type="text"
-                  autoFocus={!prefilledName}
-                  value={name}
-                  onChange={e => setName(e.target.value)}
-                  onKeyDown={e => { if (e.key === 'Enter') handleSubmit(); }}
-                  placeholder={t('blesaf.addPatient.patientName')}
-                  style={inp}
-                />
-              </div>
-
-              {/* Appointment time */}
-              {isRdv && (
-                <div style={{ marginBottom: 16 }}>
-                  <div style={label}>
-                    <span className="material-symbols-rounded" style={{ fontSize: 14 }}>schedule</span>
-                    {t('blesaf.addPatient.appointmentTime')}
-                  </div>
-                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                    <select value={rdvHour} onChange={e => setRdvHour(e.target.value)} style={{ ...inp, flex: 1 }}>
-                      <option value="">HH</option>
-                      {rdvHours.map(h => <option key={h} value={h}>{h}</option>)}
-                    </select>
-                    <span style={{ fontSize: 18, fontWeight: 700, color: C.textMuted }}>:</span>
-                    <select value={rdvMinute} onChange={e => setRdvMinute(e.target.value)} style={{ ...inp, flex: 1 }}>
-                      <option value="">MM</option>
-                      {rdvMinutes.map(m => <option key={m} value={m}>{m}</option>)}
-                    </select>
-                  </div>
-                </div>
-              )}
-
-              {/* Phone */}
-              <div style={{ marginBottom: 16 }}>
-                <div style={label}>
-                  <span className="material-symbols-rounded" style={{ fontSize: 14 }}>phone</span>
-                  {t('blesaf.addPatient.phone')}
-                  <span style={{ fontSize: 10, color: C.textMuted, fontWeight: 400, textTransform: 'none', letterSpacing: 0, marginLeft: 4 }}>
-                    {t('blesaf.addPatient.phoneOptional')}
-                  </span>
-                </div>
-                <div style={{ display: 'flex', borderRadius: 10, overflow: 'hidden', border: `1px solid ${C.borderLight}` }}>
-                  <div style={{
-                    padding: '10px 12px', fontSize: 14, fontWeight: 600, color: C.textMuted,
-                    background: C.white, borderRight: `1px solid ${C.borderLight}`, flexShrink: 0,
-                  }}>
-                    {webBrand.phone.countryCode}
-                  </div>
-                  <input
-                    type="tel" inputMode="numeric"
-                    placeholder={webBrand.phone.placeholder.replace(webBrand.phone.countryCode + ' ', '')}
-                    value={phoneDisplay}
-                    onChange={handlePhoneChange}
-                    style={{ flex: 1, padding: '10px 14px', fontSize: 14, border: 'none', outline: 'none', background: C.surface2, fontFamily: body, color: C.textPrimary }}
-                  />
-                </div>
-                <div style={{ fontSize: 12, color: C.textMuted, marginTop: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <span className="material-symbols-rounded" style={{ fontSize: 14 }}>info</span>
-                  {t('blesaf.addPatient.phoneHint')}
-                </div>
-              </div>
-
-              {/* QR fallback hint */}
-              <div style={{
-                background: C.tealLight, borderRadius: 12, padding: '12px 14px',
-                display: 'flex', alignItems: 'flex-start', gap: 10,
-              }}>
-                <div style={{
-                  width: 36, height: 36, background: C.teal, borderRadius: 8, flexShrink: 0,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>
-                  <span className="material-symbols-rounded" style={{ fontSize: 20, color: C.white }}>qr_code_2</span>
-                </div>
-                <div style={{ fontSize: 13, color: C.teal, lineHeight: 1.4 }}>
-                  <strong>{t('blesaf.addPatient.qrFallbackTitle')}</strong>{' '}
-                  {t('blesaf.addPatient.qrFallbackDesc')}
-                </div>
-              </div>
-            </>
-          ) : (
-            /* Confirmation step */
-            <>
-              <div style={{ textAlign: 'center', padding: '24px 0 20px' }}>
-                <span className="material-symbols-rounded" style={{ fontSize: 52, color: C.teal, fontVariationSettings: "'FILL' 1", display: 'block', marginBottom: 12 }}>
-                  check_circle
-                </span>
-                <div style={{ fontWeight: 800, fontSize: 22, color: C.textPrimary, letterSpacing: '-0.02em', marginBottom: 4 }}>
-                  {addedName}
-                </div>
-                <div style={{ fontSize: 14, color: C.textMuted }}>
-                  {t('blesaf.addPatient.confirmPosition', { position: addedPosition, wait: estimatedWait })}
-                </div>
-              </div>
-
-              {addedHasPhone && addedEntryId && (
-                <button
-                  onClick={() => {
-                    const statusUrl = `${window.location.origin}/patient/${addedEntryId}`;
-                    const msg = `${clinicName} - Suivez votre position dans la file d'attente: ${statusUrl}`;
-                    window.open(`https://wa.me/${addedPhone.replace('+', '')}?text=${encodeURIComponent(msg)}`, '_blank');
-                    onWhatsAppSent?.(addedEntryId);
-                  }}
-                  style={{
-                    width: '100%', display: 'flex', alignItems: 'center', gap: 12,
-                    background: '#E8F5E8', border: '1px solid rgba(18,140,126,0.2)',
-                    borderRadius: 12, padding: '14px 16px', cursor: 'pointer',
-                    marginBottom: 12, textAlign: 'left',
-                  }}
-                >
-                  <div style={{ width: 36, height: 36, background: '#25D366', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <span className="material-symbols-rounded" style={{ fontSize: 20, color: C.white }}>chat</span>
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 600, fontSize: 14, color: C.textPrimary }}>{t('blesaf.addPatient.sendWhatsApp')}</div>
-                    <div style={{ fontSize: 12, color: C.textMuted }}>{t('blesaf.addPatient.sendWhatsAppDesc')}</div>
-                  </div>
-                  <span className="material-symbols-rounded" style={{ fontSize: 18, color: C.textMuted }}>chevron_right</span>
-                </button>
-              )}
-            </>
-          )}
-        </div>
-
-        {/* Footer CTA */}
-        <div style={{ padding: '16px 24px', borderTop: `1px solid ${C.borderLight}`, flexShrink: 0 }}>
-          {step === 'form' ? (
-            <button
-              onClick={handleSubmit}
-              disabled={isSubmitting || !name.trim()}
-              style={{
-                width: '100%', background: isSubmitting || !name.trim() ? C.borderLight : C.teal,
-                color: isSubmitting || !name.trim() ? C.textMuted : C.white,
-                border: 'none', borderRadius: 12, padding: '13px 20px',
-                fontSize: 15, fontWeight: 700, cursor: isSubmitting || !name.trim() ? 'not-allowed' : 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                fontFamily: body, transition: 'all 150ms',
-              }}
-            >
-              <span className="material-symbols-rounded" style={{ fontSize: 18 }}>check</span>
-              {isSubmitting ? t('blesaf.addPatient.submitting') : t('blesaf.addPatient.submit')}
-            </button>
-          ) : (
-            <button
-              onClick={handleClose}
-              style={{
-                width: '100%', background: C.surface2, color: C.textPrimary,
-                border: `1px solid ${C.borderLight}`, borderRadius: 12, padding: '13px 20px',
-                fontSize: 15, fontWeight: 600, cursor: 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontFamily: body, position: 'relative', overflow: 'hidden',
-              }}
-            >
-              {t('blesaf.addPatient.done')}
-              <span style={{
-                position: 'absolute', bottom: 0, left: 0, height: 3,
-                background: C.teal, borderRadius: '0 0 12px 12px',
-                animation: 'bs-confirm-progress 4s linear forwards',
-              }} />
-            </button>
-          )}
-        </div>
-      </div>
-    </>
   );
 }

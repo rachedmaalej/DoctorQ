@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 
 /* Ensure icon font renders correctly (filled style, no text wrapping) */
 .material-symbols-rounded {
@@ -59,6 +59,30 @@
   --info:          #2980B9;
   --info-pale:     #EAF4FB;
   --mono: 'DM Mono', monospace;
+
+  /* ─── Desktop Dashboard Design Tokens (matches mobile palette) ── */
+  --db-bg:           #F8F7F5;
+  --db-surface:      #FFFFFF;
+  --db-header-bg:    #2D5A3D;
+
+  --db-border:       #E5E7EB;
+  --db-border-light: #F3F4F6;
+
+  --db-text-primary:   #1A1A1A;
+  --db-text-secondary: #6B7280;
+  --db-text-muted:     #9CA3AF;
+
+  --db-accent:       #2D5A3D;
+  --db-accent-dark:  #1E4A30;
+  --db-accent-mid:   #4A7C5C;
+  --db-accent-light: #ECF5EF;
+
+  --db-badge-notif-bg: #DCF2E3;
+  --db-badge-notif-fg: #1D5E32;
+  --db-badge-wait-bg:  #F3F4F6;
+  --db-badge-wait-fg:  #4A7060;
+  --db-badge-warn-bg:  #FEF3E2;
+  --db-badge-warn-fg:  #9A5A1A;
 }
 
 [dir="rtl"] {
@@ -325,6 +349,12 @@ section[id] {
 @keyframes timeline-pulse {
   0%, 100% { box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.3); }
   50% { box-shadow: 0 0 0 8px rgba(14, 165, 233, 0); }
+}
+
+/* ─── Desktop Dashboard Pulse Animation ──────────────────── */
+@keyframes db-pulse {
+  0%, 100% { box-shadow: 0 0 5px #7FD4A0; }
+  50%       { box-shadow: 0 0 10px #7FD4A0, 0 0 0 3px rgba(127,212,160,0.25); }
 }
 
 /* ─── Admin Dashboard Animations ─────────────────────────── */
