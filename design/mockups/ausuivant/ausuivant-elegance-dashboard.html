@@ -1,0 +1,1440 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>AuSuivant — Dashboard · 01 · Élégance Parisienne</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Lato:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400&family=Syne:wght@600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<style>
+
+/* ═══════════════════════════════════════════════════════════
+   DESIGN TOKENS — 01 · ÉLÉGANCE PARISIENNE
+   Palette : Ivoire #FAF8F5 · Marine #1C2B4A · Or #B5945A
+   Typo    : Cormorant Garamond (titres, chiffres, noms)
+             Lato (corps, labels, UI)
+   Mood    : Éditorial. Plat. Haussmannien. Jamais arrondi.
+═══════════════════════════════════════════════════════════ */
+:root {
+  /* surfaces */
+  --bg:        #FAF8F5;
+  --surface:   #FFFFFF;
+  --ink:       #1C2B4A;
+  --ink-soft:  #5A4F43;
+  --muted:     #9A8F82;
+  --border:    #E8E2DA;
+  --border-lt: #F0EAE0;
+
+  /* gold accent */
+  --gold:      #B5945A;
+  --gold-dim:  rgba(181,148,90,0.12);
+  --gold-bd:   rgba(181,148,90,0.28);
+  --gold-lt:   rgba(181,148,90,0.07);
+  --gold-mid:  #A07840;
+  --gold-tx:   #7A5820;
+
+  /* RDV blue */
+  --rdv-bg:    rgba(28,43,74,0.07);
+  --rdv-tx:    #1C2B4A;
+  --rdv-bd:    rgba(28,43,74,0.2);
+
+  /* sans-rdv sage */
+  --sans-bg:   rgba(107,123,95,0.1);
+  --sans-tx:   #4A5C3C;
+
+  /* urgent */
+  --danger:    #A83030;
+  --danger-bg: rgba(168,48,48,0.08);
+
+  /* warn */
+  --warn:      #B87030;
+  --warn-bg:   rgba(184,112,48,0.1);
+
+  /* radius — razor sharp, C01 signature */
+  --r-sm: 3px;
+  --r-md: 4px;
+  --r-lg: 6px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESET & PAGE
+═══════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; }
+body {
+  background: #0B0907;
+  font-family: 'Lato', sans-serif;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  color: #fff;
+}
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 24;
+  font-size: 20px; vertical-align: middle; line-height: 1; user-select: none;
+}
+input, button { font-family: inherit; }
+button { cursor: pointer; border: none; background: none; }
+
+/* ═══════════════════════════════════════════════════════════
+   OUTER NAV
+═══════════════════════════════════════════════════════════ */
+.page-header {
+  padding: 32px 40px 24px;
+  border-bottom: 1px solid rgba(181,148,90,0.12);
+}
+.page-header-top { display: flex; align-items: baseline; gap: 16px; margin-bottom: 8px; }
+.page-logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px; font-weight: 600; font-style: italic;
+  color: #fff; letter-spacing: 0.01em;
+}
+.page-logo em { font-style: normal; color: var(--gold); }
+.page-subtitle {
+  font-family: 'Lato', sans-serif;
+  font-size: 10px; color: rgba(255,255,255,0.22); letter-spacing: 0.14em;
+  text-transform: uppercase; font-weight: 700;
+}
+.page-desc {
+  font-size: 13px; color: rgba(255,255,255,0.35); font-weight: 300;
+  max-width: 580px; line-height: 1.7;
+}
+.page-desc strong { color: rgba(255,255,255,0.6); font-weight: 700; }
+
+/* ─── tabs ─── */
+.tabs {
+  display: flex; border-bottom: 1px solid rgba(181,148,90,0.1);
+  padding: 0 40px;
+}
+.tab {
+  padding: 14px 20px; font-size: 11px; font-weight: 700;
+  color: rgba(255,255,255,0.24); letter-spacing: 0.1em; text-transform: uppercase;
+  border-bottom: 1.5px solid transparent; cursor: pointer;
+  transition: color 0.2s, border-color 0.2s; white-space: nowrap;
+}
+.tab:hover { color: rgba(181,148,90,0.7); }
+.tab.on { color: var(--gold); border-bottom-color: var(--gold); }
+
+/* ═══════════════════════════════════════════════════════════
+   PANELS
+═══════════════════════════════════════════════════════════ */
+.panel { display: none; }
+.panel.on { display: block; }
+
+/* ═══════════════════════════════════════════════════════════
+   STAGE — phone left, annotations right
+═══════════════════════════════════════════════════════════ */
+.stage {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 48px;
+  padding: 48px 40px 80px;
+  align-items: start;
+  max-width: 1280px; margin: 0 auto;
+}
+@media (min-width: 960px) {
+  .stage { grid-template-columns: 320px 1fr; gap: 72px; align-items: center; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PHONE SHELL
+═══════════════════════════════════════════════════════════ */
+.phone-shell {
+  width: 320px;
+  border-radius: 40px;
+  box-shadow:
+    0 0 0 1px rgba(181,148,90,0.15),
+    0 0 0 8px rgba(181,148,90,0.03),
+    0 60px 100px rgba(0,0,0,0.75),
+    0 10px 28px rgba(0,0,0,0.45);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.phone-screen {
+  height: 680px; position: relative; overflow: hidden;
+  background: var(--bg);
+  font-family: 'Lato', sans-serif;
+  display: flex; flex-direction: column;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ANNOTATIONS
+═══════════════════════════════════════════════════════════ */
+.annotations { display: flex; flex-direction: column; gap: 12px; }
+.ann {
+  display: flex; gap: 16px; align-items: flex-start;
+  padding: 16px 18px; border-left: 2px solid rgba(181,148,90,0.1);
+  transition: border-color 0.2s;
+}
+.ann:hover { border-left-color: var(--gold); }
+.ann-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px; font-weight: 300; font-style: italic;
+  color: var(--gold); flex-shrink: 0; width: 20px; text-align: center; margin-top: 1px;
+  opacity: 0.7;
+}
+.ann-num.warn { color: #D0A060; }
+.ann-num.diff { color: #7090B8; }
+.ann-title {
+  font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.78);
+  margin-bottom: 4px; letter-spacing: 0.01em;
+  font-family: 'Lato', sans-serif;
+}
+.ann-desc {
+  font-size: 12px; color: rgba(255,255,255,0.3); line-height: 1.7; font-weight: 300;
+}
+.ann-desc strong { color: rgba(255,255,255,0.55); font-weight: 700; }
+.ann-tag {
+  display: inline-flex; align-items: center; margin-top: 8px;
+  padding: 2px 8px; font-size: 9px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  border: 1px solid;
+}
+.tag-new     { color: var(--gold);   border-color: rgba(181,148,90,0.35); }
+.tag-changed { color: #C0A060;       border-color: rgba(192,160,96,0.3); }
+.tag-key     { color: #7090B8;       border-color: rgba(112,144,184,0.3); }
+
+/* ═══════════════════════════════════════════════════════════
+   ██ UI COMPONENTS — ÉLÉGANCE PARISIENNE
+═══════════════════════════════════════════════════════════ */
+
+/* 1 — French tricolor hairline */
+.ui-tribar {
+  height: 2px;
+  background: linear-gradient(90deg, #002395 33.33%, #D0C8BE 33.33% 66.66%, #ED2939 66.66%);
+  flex-shrink: 0;
+}
+
+/* 2 — Topbar */
+.ui-top {
+  background: var(--surface);
+  padding: 12px 20px 10px;
+  display: flex; align-items: flex-start; justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.ui-top-left {}
+.ui-cname {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px; font-weight: 600; color: var(--ink);
+  letter-spacing: 0.01em; line-height: 1.15;
+}
+.ui-top-meta {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 10px; color: var(--muted); margin-top: 2px;
+  letter-spacing: 0.04em;
+}
+.ui-pdot {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--gold);
+  flex-shrink: 0;
+}
+.ui-top-r { display: flex; align-items: center; gap: 10px; margin-top: 2px; }
+.ui-hb {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 5px;
+  cursor: pointer; padding: 4px 0; background: none; border: none;
+}
+.ui-hb span { display: block; height: 1.5px; background: var(--gold); border-radius: 0; }
+.ui-hb span:nth-child(1) { width: 20px; }
+.ui-hb span:nth-child(2) {
+  width: 13px;
+  background: linear-gradient(90deg, #002395 33%, #C8B8A8 33% 66%, #ED2939 66%);
+}
+.ui-hb span:nth-child(3) { width: 20px; }
+
+/* 3 — Stats bande horizontale */
+.ui-stats-strip {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: stretch; flex-shrink: 0;
+}
+.ui-stat-s {
+  flex: 1; padding: 10px 16px;
+  border-right: 1px solid var(--border);
+}
+.ui-stat-s:last-child { border-right: none; }
+.ui-stat-lbl {
+  font-size: 8px; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 3px;
+}
+.ui-stat-val {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 32px; font-weight: 300; color: var(--ink);
+  line-height: 1; letter-spacing: -0.5px;
+}
+.ui-stat-s.hi .ui-stat-val { color: var(--ink); font-weight: 600; }
+.ui-stat-sub {
+  font-size: 10px; color: var(--muted); margin-top: 2px;
+}
+.ui-stat-live { display: flex; align-items: center; gap: 5px; margin-top: 2px; }
+.ui-live { width: 5px; height: 5px; border-radius: 50%; background: var(--gold); }
+
+/* 4 — Queue type tabs */
+.ui-qtabs {
+  display: flex; background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 20px; flex-shrink: 0;
+}
+.ui-qtab {
+  padding: 8px 12px; font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--muted);
+  border-bottom: 1.5px solid transparent; cursor: pointer;
+  display: flex; align-items: center; gap: 5px; white-space: nowrap;
+}
+.ui-qtab.on { color: var(--ink); border-bottom-color: var(--gold); }
+.ui-qtab-count {
+  background: var(--gold-lt); color: var(--gold-tx); border: 1px solid var(--gold-bd);
+  font-size: 9px; font-weight: 700; padding: 1px 6px;
+  border-radius: var(--r-sm);
+}
+.ui-qtab.on .ui-qtab-count { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+/* 5 — Scroll zone */
+.ui-scroll {
+  flex: 1; overflow-y: auto; padding: 14px 20px;
+  display: flex; flex-direction: column; gap: 10px;
+  padding-bottom: 70px;
+}
+.ui-scroll::-webkit-scrollbar { display: none; }
+
+/* 6 — Search */
+.ui-search-row {
+  display: flex; align-items: center; gap: 0;
+  border: 1px solid var(--border); border-radius: var(--r-md);
+  background: var(--surface); padding: 9px 14px;
+}
+.ui-search {
+  flex: 1; border: none; outline: none; background: transparent;
+  font-family: 'Lato', sans-serif; font-size: 13px; color: var(--muted);
+}
+.ui-search::placeholder { color: var(--border); }
+.ui-add {
+  color: var(--gold); cursor: pointer; flex-shrink: 0;
+  display: flex; align-items: center;
+  padding-left: 10px; border-left: 1px solid var(--border);
+  margin-left: 10px;
+}
+
+/* Section label */
+.ui-section-lbl {
+  font-size: 8px; font-weight: 700; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--muted);
+  display: flex; align-items: center; gap: 10px;
+}
+.ui-section-lbl::after {
+  content: ''; flex: 1; height: 1px; background: var(--border-lt);
+}
+
+/* 7 — Current patient card */
+/* 7 — Current patient card — Option C: ivory surface, segmented progress */
+.ui-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--gold);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+.ui-card-header {
+  padding: 10px 16px 0;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.ui-card-tag {
+  font-size: 8px; font-weight: 700; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--muted);
+}
+/* Dark timer pill — high contrast against ivory card */
+.ui-card-timer {
+  display: flex; align-items: center; gap: 5px;
+  background: var(--ink); padding: 4px 10px; border-radius: var(--r-sm);
+}
+.ui-card-timer-val {
+  font-family: 'Lato', sans-serif; font-size: 14px; font-weight: 900;
+  color: var(--gold); line-height: 1;
+}
+.ui-card-timer-lbl {
+  font-size: 8px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: rgba(255,255,255,0.35);
+}
+.ui-card-timer.over .ui-card-timer-val { color: #D4904A; }
+
+.ui-card-body { padding: 6px 16px 14px; }
+.ui-card-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px; font-weight: 600; font-style: italic;
+  color: var(--ink); letter-spacing: 0.01em; line-height: 1.05; margin-bottom: 3px;
+}
+.ui-card-meta { font-size: 11px; color: var(--muted); margin-bottom: 10px; }
+
+/* Segmented progress track */
+.ui-seg-track { display: flex; gap: 3px; margin-bottom: 5px; }
+.ui-seg {
+  flex: 1; height: 4px; border-radius: 0; background: var(--border);
+  transition: background 0.3s;
+}
+.ui-seg.done { background: var(--gold); }
+.ui-seg.over { background: var(--warn); }
+.ui-seg-labels {
+  display: flex; justify-content: space-between;
+  margin-bottom: 13px;
+}
+.ui-seg-labels span { font-size: 9px; color: var(--muted); }
+.ui-seg-labels em { font-style: normal; color: var(--warn); font-weight: 700; }
+
+.ui-card-btns { display: flex; gap: 8px; }
+.ui-btn-end {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--ink); color: var(--bg); border: none;
+  padding: 8px 18px; border-radius: var(--r-sm);
+  font-family: 'Lato', sans-serif; font-size: 10px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer;
+}
+.ui-btn-call {
+  display: flex; align-items: center; justify-content: center;
+  padding: 8px 12px; border-radius: var(--r-sm);
+  border: 1px solid var(--border); background: transparent;
+  cursor: pointer; color: var(--muted);
+}
+
+/* 8 — Queue items — flat rows, hairline separators */
+.ui-queue { display: flex; flex-direction: column; }
+.ui-q-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 0; border-bottom: 1px solid var(--border-lt);
+}
+.ui-q-item:last-child { border-bottom: none; }
+.ui-q-item.rdv { border-left: 2px solid rgba(28,43,74,0.2); padding-left: 10px; margin-left: -12px; }
+.ui-q-pos {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px; font-weight: 300; color: #C8BFAF;
+  width: 18px; text-align: center; flex-shrink: 0; line-height: 1;
+}
+.ui-q-pos.urgent {
+  font-family: 'Lato', sans-serif;
+  font-size: 12px; font-weight: 900; color: var(--danger);
+}
+.ui-q-info { flex: 1; min-width: 0; }
+.ui-q-name-row { display: flex; align-items: baseline; gap: 7px; margin-bottom: 2px; }
+.ui-q-name { font-size: 14px; color: var(--ink); font-weight: 400; }
+.ui-q-badge {
+  font-size: 8px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 2px 6px; border-radius: var(--r-sm); flex-shrink: 0;
+}
+.q-rdv  { background: var(--rdv-bg); color: var(--rdv-tx); }
+.q-sans { background: var(--sans-bg); color: var(--sans-tx); }
+.q-urgent { background: var(--danger-bg); color: var(--danger); }
+.ui-q-meta-row { display: flex; align-items: center; gap: 8px; }
+.ui-q-meta { font-size: 11px; color: var(--muted); }
+.ui-q-checkin {
+  display: flex; align-items: center; gap: 3px;
+  font-size: 10px; color: var(--muted);
+}
+.ui-q-checkin .material-symbols-outlined { font-size: 11px; color: var(--border); }
+.ui-q-actions { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+.ui-q-btn {
+  width: 28px; height: 28px; border-radius: var(--r-sm); border: none;
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+}
+.q-btn-call { background: var(--gold-lt); color: var(--gold); border: 1px solid var(--gold-bd); }
+.q-btn-more { background: transparent; color: var(--border); }
+
+/* 9 — QR adoption prompt */
+.ui-qr-prompt {
+  display: flex; flex-direction: column; align-items: flex-start;
+  padding: 14px 16px;
+  border: 1px solid var(--gold-bd);
+  border-left: 2px solid var(--gold);
+  background: var(--gold-lt);
+}
+.ui-qr-header { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+.ui-qr-ico { color: var(--gold); flex-shrink: 0; }
+.ui-qr-txt { font-size: 12px; font-weight: 700; color: var(--ink); letter-spacing: 0.02em; }
+.ui-qr-sub { font-size: 11px; color: var(--muted); line-height: 1.55; margin-bottom: 10px; }
+.ui-qr-btn {
+  background: var(--ink); color: var(--bg);
+  padding: 7px 14px; border-radius: var(--r-sm); border: none; cursor: pointer;
+  font-family: 'Lato', sans-serif; font-size: 10px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+}
+
+/* 10 — CTA bar */
+.ui-cta {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: var(--ink); padding: 12px 20px;
+  display: flex; align-items: center; gap: 12px; z-index: 10;
+}
+.ui-cta-divider { width: 1px; height: 28px; background: rgba(181,148,90,0.2); flex-shrink: 0; }
+.ui-cta-body { flex: 1; min-width: 0; }
+.ui-cta-label {
+  font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: rgba(255,255,255,0.3); margin-bottom: 1px; font-weight: 700;
+}
+.ui-cta-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 17px; font-weight: 600; font-style: italic;
+  color: var(--gold); letter-spacing: 0.01em;
+}
+.ui-cta-meta { font-size: 10px; color: rgba(255,255,255,0.3); margin-top: 1px; }
+.ui-cta-btn {
+  background: var(--gold); color: var(--ink); border: none;
+  width: 34px; height: 34px; border-radius: var(--r-sm);
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   OVERLAYS
+═══════════════════════════════════════════════════════════ */
+.scrim {
+  position: absolute; inset: 0; z-index: 30;
+  background: rgba(0,0,0,0.45); opacity: 0; pointer-events: none;
+  transition: opacity 0.25s;
+}
+.scrim.on { opacity: 1; pointer-events: all; }
+
+/* Bottom drawer */
+.bdrawer {
+  position: absolute; bottom: 0; left: 0; right: 0; z-index: 40;
+  background: var(--bg);
+  border-top: 1px solid var(--gold-bd);
+  padding: 0 22px 28px;
+  transform: translateY(110%);
+  transition: transform 0.32s cubic-bezier(0.32,0.72,0,1);
+}
+.bdrawer.on { transform: translateY(0); }
+.dr-pill {
+  width: 36px; height: 3px; border-radius: 0;
+  background: var(--gold-bd); margin: 13px auto 18px;
+}
+.dr-topline {
+  height: 1px; margin: 0 -22px 18px;
+  background: linear-gradient(90deg, transparent, var(--gold) 40%, transparent);
+}
+.dr-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px; font-weight: 600; color: var(--ink); margin-bottom: 18px;
+  letter-spacing: 0.01em;
+}
+.dr-lbl {
+  font-size: 8px; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 6px;
+}
+.dr-input {
+  width: 100%; background: transparent;
+  border: none; border-bottom: 1px solid var(--gold-bd);
+  padding: 8px 0 8px 2px;
+  font-family: 'Lato', sans-serif; font-size: 14px; color: var(--ink);
+  outline: none; margin-bottom: 14px;
+}
+.dr-input:focus { border-bottom-color: var(--gold); }
+.dr-chips { display: flex; gap: 8px; margin-bottom: 14px; }
+.dr-chip {
+  flex: 1; padding: 8px 10px; border-radius: var(--r-sm);
+  font-size: 11px; font-weight: 700; cursor: pointer; text-align: center;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  background: transparent; border: 1px solid var(--border); color: var(--muted);
+  transition: all 0.15s; font-family: 'Lato', sans-serif;
+}
+.dr-chip.on { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+
+/* Priority row */
+.dr-priority {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 12px; border: 1px solid var(--border);
+  margin-bottom: 14px;
+}
+.dr-priority-label { font-size: 12px; font-weight: 700; color: var(--ink); }
+.dr-priority-sub { font-size: 10px; color: var(--muted); margin-top: 1px; }
+.dr-toggle {
+  width: 38px; height: 20px;
+  background: var(--border); position: relative; cursor: pointer;
+  transition: background 0.2s; flex-shrink: 0; border-radius: var(--r-sm);
+}
+.dr-toggle::after {
+  content: ''; position: absolute; left: 3px; top: 3px;
+  width: 14px; height: 14px; background: #fff;
+  transition: transform 0.2s; border-radius: var(--r-sm);
+}
+.dr-toggle.on { background: var(--danger); }
+.dr-toggle.on::after { transform: translateX(18px); }
+
+.dr-phone { display: flex; gap: 10px; margin-bottom: 14px; }
+.dr-phone .dr-input { margin-bottom: 0; }
+.dr-phone .dr-input:first-child { width: 58px; flex-shrink: 0; text-align: center; font-weight: 700; }
+.dr-phone .dr-input:last-child { flex: 1; }
+.dr-submit {
+  width: 100%; background: var(--ink); border: none; color: var(--bg);
+  padding: 12px; border-radius: var(--r-sm);
+  font-family: 'Lato', sans-serif; font-size: 11px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer;
+}
+
+/* Side drawer */
+.sdrawer {
+  position: absolute; top: 0; right: 0; bottom: 0; z-index: 50;
+  width: 84%; background: var(--bg);
+  box-shadow: -10px 0 40px rgba(0,0,0,0.25);
+  transform: translateX(105%);
+  transition: transform 0.3s cubic-bezier(0.32,0.72,0,1);
+  display: flex; flex-direction: column; overflow: hidden;
+  border-left: 1px solid var(--gold-bd);
+}
+.sdrawer.on { transform: translateX(0); }
+.sdr-topline {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold) 40%, transparent);
+  flex-shrink: 0;
+}
+.sdr-hdr {
+  padding: 16px 18px 13px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid rgba(181,148,90,0.15);
+}
+.sdr-cname {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px; font-weight: 600; color: var(--ink); letter-spacing: 0.01em;
+}
+.sdr-x { color: var(--muted); cursor: pointer; }
+.sdr-profile {
+  padding: 13px 18px; display: flex; align-items: center; gap: 11px;
+  border-bottom: 1px solid rgba(181,148,90,0.1);
+}
+.sdr-avatar {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: #EDE8E0; border: 1px solid var(--gold-bd);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Lato', sans-serif; font-size: 10px; font-weight: 700;
+  color: var(--gold); letter-spacing: 0.06em; flex-shrink: 0;
+}
+.sdr-name { font-size: 13px; font-weight: 700; color: var(--ink); }
+.sdr-role { font-size: 10px; color: var(--muted); margin-top: 1px; }
+.sdr-status {
+  margin-left: auto;
+  display: flex; align-items: center; gap: 5px;
+  font-size: 9px; color: #4A5C3C; font-weight: 700;
+  letter-spacing: 0.06em; text-transform: uppercase; flex-shrink: 0;
+}
+.sdr-sdot { width: 6px; height: 6px; border-radius: 50%; background: #6B7B5F; }
+.sdr-nav { flex: 1; overflow-y: auto; padding: 6px 0; }
+.sdr-item {
+  display: flex; align-items: center; gap: 11px; padding: 10px 18px;
+  font-size: 13px; color: var(--ink-soft); cursor: pointer; position: relative;
+}
+.sdr-item.on { color: var(--ink); background: var(--gold-lt); }
+.sdr-item.on::before {
+  content: ''; position: absolute; left: 0; top: 8px; bottom: 8px;
+  width: 2px; background: var(--gold);
+}
+.sdr-ico { font-size: 17px; color: #C8BFAF; }
+.sdr-item.on .sdr-ico { color: var(--gold); }
+.sdr-badge {
+  margin-left: auto; background: var(--gold); color: var(--bg);
+  font-size: 9px; font-weight: 700; padding: 2px 8px; border-radius: 10px;
+}
+.sdr-div { height: 1px; background: rgba(181,148,90,0.12); margin: 5px 18px; }
+.sdr-footer {
+  padding: 12px 18px 14px;
+  border-top: 1px solid rgba(181,148,90,0.15);
+}
+.sdr-trial {
+  font-size: 9px; color: #C8BFAF; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px;
+  display: flex; align-items: center; gap: 5px;
+}
+.sdr-logout {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12px; color: var(--muted); cursor: pointer;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   COMPARISON PANEL
+═══════════════════════════════════════════════════════════ */
+.compare-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 48px;
+  padding: 48px 40px 80px; max-width: 1200px; margin: 0 auto; align-items: start;
+}
+@media (max-width: 780px) { .compare-grid { grid-template-columns: 1fr; } }
+.compare-label {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+  color: rgba(255,255,255,0.2); margin-bottom: 20px;
+  display: flex; align-items: center; gap: 10px;
+}
+.compare-label::after { content: ''; flex: 1; height: 1px; background: rgba(181,148,90,0.1); }
+.before-tag { background: rgba(168,48,48,0.1); color: #D07070; padding: 2px 8px; font-size: 9px; font-weight: 700; letter-spacing: 0.1em; }
+.after-tag  { background: rgba(181,148,90,0.1); color: var(--gold); padding: 2px 8px; font-size: 9px; font-weight: 700; letter-spacing: 0.1em; }
+.diff-list { display: flex; flex-direction: column; gap: 0; margin-top: 24px; }
+.diff-item {
+  display: flex; gap: 14px; padding: 12px 0;
+  border-bottom: 1px solid rgba(181,148,90,0.08);
+}
+.diff-sign { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 300; flex-shrink: 0; margin-top: -2px; opacity: 0.8; }
+.diff-sign.plus  { color: var(--gold); }
+.diff-sign.minus { color: #C06060; }
+.diff-body { font-size: 12px; color: rgba(255,255,255,0.3); line-height: 1.65; font-weight: 300; }
+.diff-body strong { color: rgba(255,255,255,0.6); font-weight: 700; }
+
+/* Old BleSaf phone (Tunisia) */
+.old-phone {
+  width: 280px; border-radius: 40px; overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 40px 70px rgba(0,0,0,0.6);
+  opacity: 0.65;
+}
+.old-screen {
+  height: 600px; background: #FAF8F5;
+  font-family: 'Lato', sans-serif; display: flex; flex-direction: column; overflow: hidden;
+}
+.o-top { background: #fff; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #E8E2DA; }
+.o-cname { font-family: 'Cormorant Garamond', serif; font-size: 14px; font-weight: 600; color: #1C2B4A; }
+.o-stats { margin: 14px 16px; display: grid; grid-template-columns: 1fr 1px 1fr; border: 1px solid #E8E2DA; padding: 12px 14px; }
+.o-stat-d { background: #E8E2DA; }
+.o-stat { padding: 0 10px; }
+.o-stat:first-child { padding-left: 0; }
+.o-stat-lbl { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: #9A8F82; margin-bottom: 3px; }
+.o-stat-val { font-family: 'Cormorant Garamond', serif; font-size: 30px; font-weight: 300; color: #1C2B4A; line-height: 1; }
+.o-stat-sub { font-size: 10px; color: #9A8F82; }
+.o-search { margin: 0 16px 10px; display: flex; align-items: center; gap: 10px; border: 1px solid #E0D9CF; padding: 9px 12px; background: #fff; }
+.o-search input { border: none; outline: none; background: transparent; font-family: 'Lato', sans-serif; font-size: 13px; color: #9A8F82; flex: 1; }
+.o-lbl { padding: 0 16px; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: #9A8F82; margin-bottom: 6px; }
+.o-card { margin: 0 16px 12px; background: #1C2B4A; padding: 13px 15px; }
+.o-card-tag { font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: #B5945A; margin-bottom: 5px; }
+.o-card-name { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; font-style: italic; color: #fff; margin-bottom: 3px; }
+.o-card-meta { font-size: 11px; color: rgba(255,255,255,0.38); margin-bottom: 10px; }
+.o-card-btns { display: flex; gap: 8px; }
+.o-btn-end { background: #B5945A; color: #fff; padding: 7px 14px; font-family: 'Lato', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; display: flex; align-items: center; gap: 4px; }
+.o-btn-call { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.14); padding: 7px 10px; color: rgba(255,255,255,0.5); display: flex; align-items: center; }
+.o-queue { padding: 0 16px; }
+.o-qi { display: flex; align-items: center; gap: 11px; padding: 10px 0; border-bottom: 1px solid #F0EAE0; }
+.o-qpos { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 300; color: #C8BFAF; width: 18px; text-align: center; flex-shrink: 0; }
+.o-qname { font-size: 14px; color: #1C2B4A; flex: 1; }
+.o-qmeta { font-size: 11px; color: #9A8F82; }
+.o-cta { position: absolute; bottom: 0; left: 0; right: 0; background: #1C2B4A; padding: 13px 16px; display: flex; align-items: center; gap: 8px; }
+.o-cta-txt { font-size: 13px; color: rgba(255,255,255,0.75); flex: 1; }
+.o-cta-name { font-family: 'Cormorant Garamond', serif; color: #B5945A; font-style: italic; }
+
+/* ═══════════════════════════════════════════════════════════
+   RATIONALE PANEL
+═══════════════════════════════════════════════════════════ */
+.rationale { padding: 48px 40px 80px; max-width: 880px; margin: 0 auto; }
+.rationale-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 40px; font-weight: 300; font-style: italic; color: #fff;
+  margin-bottom: 4px; letter-spacing: 0.01em;
+}
+.rationale-subtitle {
+  font-size: 10px; color: rgba(255,255,255,0.25); letter-spacing: 0.14em;
+  text-transform: uppercase; font-weight: 700; margin-bottom: 40px;
+}
+.r-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+@media (max-width: 680px) { .r-grid { grid-template-columns: 1fr; } }
+.r-card {
+  padding: 22px; border: 1px solid rgba(181,148,90,0.08);
+  margin: -1px 0 0 -1px;
+}
+.r-card:hover { background: rgba(181,148,90,0.03); }
+.r-card-head { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 10px; }
+.r-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 32px; font-weight: 300; font-style: italic;
+  color: var(--gold); opacity: 0.5; line-height: 0.9; flex-shrink: 0; margin-top: -2px;
+}
+.r-title { font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.75); letter-spacing: 0.01em; margin-top: 2px; }
+.r-desc { font-size: 12px; color: rgba(255,255,255,0.28); line-height: 1.75; font-weight: 300; }
+.r-desc strong { color: rgba(255,255,255,0.55); font-weight: 700; }
+.r-desc ul { padding-left: 16px; margin-top: 6px; display: flex; flex-direction: column; gap: 4px; }
+
+</style>
+</head>
+<body>
+
+<!-- ═══════════ HEADER ═══════════ -->
+<header class="page-header">
+  <div class="page-header-top">
+    <div class="page-logo">Au<em>Suivant</em></div>
+    <div class="page-subtitle">01 · Élégance Parisienne · Dashboard médecin</div>
+  </div>
+  <p class="page-desc">
+    Même architecture que la version Forêt — <strong>8 changements structurels identiques</strong>.
+    Habillage : <strong>Ivoire #FAF8F5 · Marine #1C2B4A · Or #B5945A</strong> —
+    Cormorant Garamond pour les noms, chiffres, titres. Lato pour le corps UI.
+    Éditorial, plat, haussmannien. Border-radius&nbsp;:&nbsp;3–6px maximum.
+  </p>
+</header>
+
+<nav class="tabs">
+  <div class="tab on" onclick="showPanel('new',this)">Nouveau dashboard</div>
+  <div class="tab" onclick="showPanel('compare',this)">Avant / Après</div>
+  <div class="tab" onclick="showPanel('rationale',this)">Choix esthétiques</div>
+</nav>
+
+
+<!-- ════════════════════════════════
+     PANEL 1 — DASHBOARD
+════════════════════════════════ -->
+<div class="panel on" id="p-new">
+<div class="stage">
+
+  <!-- PHONE -->
+  <div>
+    <div style="font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(181,148,90,0.3);text-align:center;margin-bottom:14px;">☰ menu · + nouveau patient</div>
+    <div class="phone-shell">
+      <div class="phone-screen" id="screen-main">
+
+        <!-- Tricolor hairline -->
+        <div class="ui-tribar"></div>
+
+        <!-- Topbar -->
+        <div class="ui-top">
+          <div class="ui-top-left">
+            <div class="ui-cname">Cabinet Dr A. Martin</div>
+            <div class="ui-top-meta">
+              <div class="ui-pdot"></div>Médecin présent · Paris 8<sup>e</sup>
+            </div>
+          </div>
+          <div class="ui-top-r">
+            <button class="ui-hb" onclick="openSdr('main')">
+              <span></span><span></span><span></span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Stats strip -->
+        <div class="ui-stats-strip">
+          <div class="ui-stat-s hi">
+            <div class="ui-stat-lbl">En attente</div>
+            <div class="ui-stat-val">4</div>
+            <div class="ui-stat-live"><div class="ui-live"></div><span class="ui-stat-sub" style="font-size:9px;">live</span></div>
+          </div>
+          <div class="ui-stat-s">
+            <div class="ui-stat-lbl">Vus auj.</div>
+            <div class="ui-stat-val">9</div>
+            <div class="ui-stat-sub">patients</div>
+          </div>
+          <div class="ui-stat-s">
+            <div class="ui-stat-lbl">Attente max</div>
+            <div class="ui-stat-val">18</div>
+            <div class="ui-stat-sub">min</div>
+          </div>
+        </div>
+
+        <!-- Queue type tabs -->
+        <div class="ui-qtabs">
+          <div class="ui-qtab on">
+            File <span class="ui-qtab-count">4</span>
+          </div>
+          <div class="ui-qtab">
+            Rendez-vous <span class="ui-qtab-count">2</span>
+          </div>
+          <div class="ui-qtab" onclick="openDr('main')">
+            + Ajouter
+          </div>
+        </div>
+
+        <!-- Scroll -->
+        <div class="ui-scroll">
+
+          <!-- Search -->
+          <div class="ui-search-row">
+            <input class="ui-search" placeholder="Rechercher un patient…"/>
+            <div class="ui-add" onclick="openDr('main')">
+              <span class="material-symbols-outlined" style="font-size:18px;">person_add</span>
+            </div>
+          </div>
+
+          <!-- Current patient -->
+          <div class="ui-section-lbl">En consultation</div>
+          <div class="ui-card">
+            <div class="ui-card-header">
+              <div class="ui-card-tag">Patient actuel</div>
+              <div class="ui-card-timer over">
+                <span class="material-symbols-outlined" style="font-size:12px;color:rgba(255,255,255,0.3);">timer</span>
+                <span class="ui-card-timer-val">18</span>
+                <span class="ui-card-timer-lbl">min</span>
+              </div>
+            </div>
+            <div class="ui-card-body">
+              <div class="ui-card-name">Mme Claire Dubois</div>
+              <div class="ui-card-meta">Arrivée 09h32 · RDV 09h30 · Sans retard</div>
+              <div class="ui-seg-track">
+                <div class="ui-seg done"></div><div class="ui-seg done"></div><div class="ui-seg done"></div>
+                <div class="ui-seg done"></div><div class="ui-seg done"></div><div class="ui-seg done"></div>
+                <div class="ui-seg done"></div><div class="ui-seg done"></div><div class="ui-seg done"></div>
+                <div class="ui-seg done"></div><div class="ui-seg done"></div><div class="ui-seg done"></div>
+                <div class="ui-seg done"></div><div class="ui-seg done"></div><div class="ui-seg done"></div>
+                <div class="ui-seg over"></div><div class="ui-seg over"></div><div class="ui-seg over"></div>
+                <div class="ui-seg"></div><div class="ui-seg"></div>
+              </div>
+              <div class="ui-seg-labels">
+                <span>0 min</span>
+                <span><em>+3 min dépassé</em></span>
+                <span>20 min</span>
+              </div>
+              <div class="ui-card-btns">
+                <button class="ui-btn-end">
+                  <span class="material-symbols-outlined" style="font-size:13px;">check_circle</span>
+                  Terminer
+                </button>
+                <button class="ui-btn-call">
+                  <span class="material-symbols-outlined" style="font-size:16px;">call</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Queue -->
+          <div class="ui-section-lbl">File d'attente</div>
+          <div class="ui-queue">
+
+            <div class="ui-q-item rdv">
+              <div class="ui-q-pos">2</div>
+              <div class="ui-q-info">
+                <div class="ui-q-name-row">
+                  <div class="ui-q-name">M. Pierre Laurent</div>
+                  <span class="ui-q-badge q-rdv">RDV 09h45</span>
+                </div>
+                <div class="ui-q-meta-row">
+                  <span class="ui-q-meta">38 min d'attente</span>
+                  <span class="ui-q-checkin">
+                    <span class="material-symbols-outlined">qr_code_scanner</span>Auto
+                  </span>
+                </div>
+              </div>
+              <div class="ui-q-actions">
+                <button class="ui-q-btn q-btn-call"><span class="material-symbols-outlined" style="font-size:14px;">call</span></button>
+                <button class="ui-q-btn q-btn-more"><span class="material-symbols-outlined" style="font-size:17px;">more_vert</span></button>
+              </div>
+            </div>
+
+            <div class="ui-q-item">
+              <div class="ui-q-pos">3</div>
+              <div class="ui-q-info">
+                <div class="ui-q-name-row">
+                  <div class="ui-q-name">Mme Sophie Bernard</div>
+                  <span class="ui-q-badge q-sans">Sans RDV</span>
+                </div>
+                <div class="ui-q-meta-row">
+                  <span class="ui-q-meta">31 min d'attente</span>
+                  <span class="ui-q-checkin">
+                    <span class="material-symbols-outlined">phone_iphone</span>WhatsApp
+                  </span>
+                </div>
+              </div>
+              <div class="ui-q-actions">
+                <button class="ui-q-btn q-btn-call"><span class="material-symbols-outlined" style="font-size:14px;">call</span></button>
+                <button class="ui-q-btn q-btn-more"><span class="material-symbols-outlined" style="font-size:17px;">more_vert</span></button>
+              </div>
+            </div>
+
+            <div class="ui-q-item">
+              <div class="ui-q-pos urgent">!</div>
+              <div class="ui-q-info">
+                <div class="ui-q-name-row">
+                  <div class="ui-q-name">M. Jean-Paul Moreau</div>
+                  <span class="ui-q-badge q-urgent">Urgent</span>
+                </div>
+                <div class="ui-q-meta-row">
+                  <span class="ui-q-meta">4 min d'attente</span>
+                  <span class="ui-q-checkin">
+                    <span class="material-symbols-outlined">person</span>Réceptionniste
+                  </span>
+                </div>
+              </div>
+              <div class="ui-q-actions">
+                <button class="ui-q-btn q-btn-call"><span class="material-symbols-outlined" style="font-size:14px;">call</span></button>
+                <button class="ui-q-btn q-btn-more"><span class="material-symbols-outlined" style="font-size:17px;">more_vert</span></button>
+              </div>
+            </div>
+
+            <div class="ui-q-item rdv">
+              <div class="ui-q-pos">4</div>
+              <div class="ui-q-info">
+                <div class="ui-q-name-row">
+                  <div class="ui-q-name">Mme Anne Petit</div>
+                  <span class="ui-q-badge q-rdv">RDV 10h15</span>
+                </div>
+                <div class="ui-q-meta-row">
+                  <span class="ui-q-meta">24 min d'attente</span>
+                  <span class="ui-q-checkin">
+                    <span class="material-symbols-outlined">qr_code_scanner</span>Auto
+                  </span>
+                </div>
+              </div>
+              <div class="ui-q-actions">
+                <button class="ui-q-btn q-btn-call"><span class="material-symbols-outlined" style="font-size:14px;">call</span></button>
+                <button class="ui-q-btn q-btn-more"><span class="material-symbols-outlined" style="font-size:17px;">more_vert</span></button>
+              </div>
+            </div>
+
+          </div><!-- end queue -->
+
+          <!-- QR adoption prompt -->
+          <div class="ui-qr-prompt">
+            <div class="ui-qr-header">
+              <span class="material-symbols-outlined ui-qr-ico" style="font-size:16px;">qr_code_2</span>
+              <div class="ui-qr-txt">2 check-ins manuels aujourd'hui</div>
+            </div>
+            <div class="ui-qr-sub">Affichez le QR code en salle d'attente — les patients s'enregistrent seuls.</div>
+            <button class="ui-qr-btn">Afficher le QR code</button>
+          </div>
+
+        </div><!-- end scroll -->
+
+        <!-- CTA bar -->
+        <div class="ui-cta">
+          <span class="material-symbols-outlined" style="font-size:14px;color:var(--gold);">arrow_forward</span>
+          <div class="ui-cta-divider"></div>
+          <div class="ui-cta-body">
+            <div class="ui-cta-label">Appeler suivant</div>
+            <div class="ui-cta-name">M. Pierre Laurent</div>
+            <div class="ui-cta-meta">RDV 09h45 · 38 min d'attente</div>
+          </div>
+          <button class="ui-cta-btn">
+            <span class="material-symbols-outlined" style="font-size:18px;color:var(--ink);">chevron_right</span>
+          </button>
+        </div>
+
+        <!-- OVERLAYS -->
+        <div class="scrim" id="scrim-main" onclick="closeAll('main')"></div>
+
+        <!-- BOTTOM DRAWER -->
+        <div class="bdrawer" id="dr-main">
+          <div class="dr-pill"></div>
+          <div class="dr-topline"></div>
+          <div class="dr-title">Nouveau patient</div>
+          <div class="dr-lbl">Nom du patient</div>
+          <input class="dr-input" type="text" placeholder="Mme Dupont…"/>
+          <div class="dr-lbl">Type de visite</div>
+          <div class="dr-chips">
+            <div class="dr-chip on" onclick="chip(this)">Sans RDV</div>
+            <div class="dr-chip" onclick="chip(this)">Avec RDV</div>
+          </div>
+          <div class="dr-priority">
+            <div>
+              <div class="dr-priority-label">Priorité médicale</div>
+              <div class="dr-priority-sub">Insère en position 2</div>
+            </div>
+            <div class="dr-toggle" id="toggle-main" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="dr-lbl">Téléphone (optionnel)</div>
+          <div class="dr-phone">
+            <input class="dr-input" value="+33" readonly/>
+            <input class="dr-input" placeholder="06 XX XX XX XX"/>
+          </div>
+          <button class="dr-submit" onclick="closeAll('main')">→ Ajouter à la file</button>
+        </div>
+
+        <!-- SIDE DRAWER -->
+        <div class="sdrawer" id="sdr-main">
+          <div class="sdr-topline"></div>
+          <div class="sdr-hdr">
+            <div class="sdr-cname">Cabinet Dr A. Martin</div>
+            <span class="material-symbols-outlined sdr-x" onclick="closeAll('main')">close</span>
+          </div>
+          <div class="sdr-profile">
+            <div class="sdr-avatar">AM</div>
+            <div>
+              <div class="sdr-name">Dr. Antoine Martin</div>
+              <div class="sdr-role">Médecin généraliste · Paris 8<sup>e</sup></div>
+            </div>
+            <div class="sdr-status"><div class="sdr-sdot"></div>Présent</div>
+          </div>
+          <nav class="sdr-nav">
+            <div class="sdr-item on">
+              <span class="material-symbols-outlined sdr-ico">queue</span>
+              File d'attente <span class="sdr-badge">4</span>
+            </div>
+            <div class="sdr-item" onclick="closeAll('main');openDr('main')">
+              <span class="material-symbols-outlined sdr-ico">person_add</span>Nouveau patient
+            </div>
+            <div class="sdr-item">
+              <span class="material-symbols-outlined sdr-ico">calendar_month</span>Rendez-vous du jour
+            </div>
+            <div class="sdr-item">
+              <span class="material-symbols-outlined sdr-ico">bar_chart</span>Statistiques
+            </div>
+            <div class="sdr-item">
+              <span class="material-symbols-outlined sdr-ico">qr_code_2</span>QR Code d'accueil
+            </div>
+            <div class="sdr-div"></div>
+            <div class="sdr-item">
+              <span class="material-symbols-outlined sdr-ico">settings</span>Paramètres
+            </div>
+            <div class="sdr-item">
+              <span class="material-symbols-outlined sdr-ico">help_outline</span>Aide & Support
+            </div>
+          </nav>
+          <div class="sdr-footer">
+            <div class="sdr-trial">
+              <span class="material-symbols-outlined" style="font-size:12px;">timer</span>
+              Essai gratuit · 7 jours restants
+            </div>
+            <div class="sdr-logout">
+              <span class="material-symbols-outlined" style="font-size:12px;">logout</span>
+              Déconnexion
+            </div>
+          </div>
+        </div>
+
+      </div><!-- phone-screen -->
+    </div><!-- phone-shell -->
+  </div>
+
+  <!-- ANNOTATIONS -->
+  <div class="annotations">
+
+    <div class="ann">
+      <div class="ann-num">1</div>
+      <div>
+        <div class="ann-title">Tricolor en filet de 2px — plus discret qu'en Forêt</div>
+        <div class="ann-desc">La version Forêt utilisait 3px. Ici 2px, cohérent avec l'esthétique C01 qui préfère les hairlines aux bandes épaisses. Le blanc central est remplacé par un beige chaud <strong>#D0C8BE</strong> qui s'intègre à la palette ivoire sans contraste violent.</div>
+        <span class="ann-tag tag-changed">Adapté C01</span>
+      </div>
+    </div>
+
+    <div class="ann">
+      <div class="ann-num">2</div>
+      <div>
+        <div class="ann-title">Cormorant Garamond 300 pour les chiffres stats</div>
+        <div class="ann-desc">Là où Forêt utilise Albert Sans 800 (gras, compact), C01 affiche les statistiques en <strong>Cormorant 300 — léger, allongé, éditorial</strong>. Le chiffre 4 en attente a l'autorité d'un titre de presse. La lisibilité est identique, la personnalité radicalement différente.</div>
+        <span class="ann-tag tag-key">Signature C01</span>
+      </div>
+    </div>
+
+    <div class="ann">
+      <div class="ann-num">3</div>
+      <div>
+        <div class="ann-title">Onglets en capitales espacées, indicateur or</div>
+        <div class="ann-desc">Les onglets C01 n'utilisent pas de couleur de fond — le tab actif est signalé par le <strong>soulignement or et la couleur encre marine</strong>. Même structure que Forêt (File / RDV / Ajouter), typographie resserrée et uppercase <strong>letter-spacing: 0.08em</strong>.</div>
+        <span class="ann-tag tag-changed">Adapté C01</span>
+      </div>
+    </div>
+
+    <div class="ann">
+      <div class="ann-num">4</div>
+      <div>
+        <div class="ann-title">Nom du patient en Cormorant italique</div>
+        <div class="ann-desc">La carte patient actuel est la pièce maîtresse de l'écran. En C01, le nom du patient s'affiche en <strong>Cormorant 24px italique</strong> — la même typographie que les en-têtes d'ordonnances médicales françaises. Crée une dignité immédiate. La barre de timer reste identique à Forêt.</div>
+        <span class="ann-tag tag-key">Signature C01</span>
+      </div>
+    </div>
+
+    <div class="ann">
+      <div class="ann-num">5</div>
+      <div>
+        <div class="ann-title">Queue : séparateurs hairline, pas de cartes</div>
+        <div class="ann-desc">Forêt utilisait des cartes blanches flottantes avec shadow. C01 revient à des <strong>rangées séparées par un filet #F0EAE0</strong> — comme une liste de maison de couture ou un menu gastronomique. Plus dense, plus lisible en lecture rapide. Le numéro de position est en Cormorant 300.</div>
+        <span class="ann-tag tag-key">Signature C01</span>
+      </div>
+    </div>
+
+    <div class="ann">
+      <div class="ann-num warn">6</div>
+      <div>
+        <div class="ann-title">QR prompt : bordure latérale or, pas de carte arrondie</div>
+        <div class="ann-desc">En Forêt, le QR prompt était une carte arrondie en vert pâle. En C01, c'est un <strong>encadré avec bordure gauche or de 2px</strong> — le signal visuel classique des encadrés éditoriaux (Le Monde, Le Figaro). Même message, registre radicalement différent.</div>
+        <span class="ann-tag tag-changed">Adapté C01</span>
+      </div>
+    </div>
+
+    <div class="ann">
+      <div class="ann-num">7</div>
+      <div>
+        <div class="ann-title">CTA bar : nom du patient suivant en Cormorant italique or</div>
+        <div class="ann-desc">Le nom du prochain patient s'affiche en <strong>Cormorant 600 italique couleur or</strong> dans la barre fixe — l'élément le plus regardé par la secrétaire. Le séparateur vertical or entre la flèche et le texte est hérité directement du style C01. Même structure informationnelle que Forêt.</div>
+        <span class="ann-tag tag-key">Signature C01</span>
+      </div>
+    </div>
+
+    <div class="ann">
+      <div class="ann-num diff">8</div>
+      <div>
+        <div class="ann-title">Menu latéral : avatar circulaire, or sur encre</div>
+        <div class="ann-desc">C01 utilise un <strong>avatar circulaire avec bordure or</strong> — hérité des cartes de visite médicales françaises. L'item actif a une <strong>baguette or de 2px à gauche</strong> au lieu du fond de couleur de Forêt. Le filet horizontal dégradé en haut du drawer est la signature la plus reconnaissable du concept C01.</div>
+        <span class="ann-tag tag-key">Signature C01</span>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+</div><!-- panel new -->
+
+
+<!-- ════════════════════════════════
+     PANEL 2 — AVANT / APRÈS
+════════════════════════════════ -->
+<div class="panel" id="p-compare">
+<div class="compare-grid">
+
+  <div>
+    <div class="compare-label"><span class="before-tag">BleSaf Tunisie</span></div>
+    <div style="display:flex;justify-content:center;">
+      <div class="old-phone">
+        <div class="old-screen">
+          <div class="o-top">
+            <div class="o-cname">Cabinet Dr Skander Kamo…</div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:10px;color:#9A8F82;border:1px solid #E8E2DA;padding:3px 7px;">عربي</span>
+              <span class="material-symbols-outlined" style="font-size:18px;color:#B5945A;">more_horiz</span>
+            </div>
+          </div>
+          <div class="o-stats">
+            <div class="o-stat">
+              <div class="o-stat-lbl">En attente</div>
+              <div class="o-stat-val">3</div>
+            </div>
+            <div class="o-stat-d"></div>
+            <div class="o-stat" style="padding-left:14px;">
+              <div class="o-stat-lbl">Vus · Max</div>
+              <div class="o-stat-val">1</div>
+              <div class="o-stat-sub">1 min</div>
+            </div>
+          </div>
+          <div class="o-search">
+            <input placeholder="Nom du patient…" readonly/>
+            <span class="material-symbols-outlined" style="font-size:18px;color:#B5945A;">person_add</span>
+          </div>
+          <div class="o-lbl">En consultation</div>
+          <div class="o-card">
+            <div class="o-card-tag">Patient actuel</div>
+            <div class="o-card-name">Rahma</div>
+            <div class="o-card-meta">Arrivé à 14h56 · Depuis 3 min</div>
+            <div class="o-card-btns">
+              <div class="o-btn-end"><span class="material-symbols-outlined" style="font-size:12px;">check_circle</span>Terminer</div>
+              <div class="o-btn-call"><span class="material-symbols-outlined" style="font-size:15px;">call</span></div>
+            </div>
+          </div>
+          <div class="o-lbl">File d'attente</div>
+          <div class="o-queue">
+            <div class="o-qi"><div class="o-qpos">2</div><div style="flex:1"><div class="o-qname">Skander</div><div class="o-qmeta">4 min</div></div><span class="material-symbols-outlined" style="font-size:15px;color:#C8BFAF;">call</span></div>
+            <div class="o-qi"><div class="o-qpos">3</div><div style="flex:1"><div class="o-qname">Mourad</div><div class="o-qmeta">4 min</div></div><span class="material-symbols-outlined" style="font-size:15px;color:#C8BFAF;">call</span></div>
+            <div class="o-qi"><div class="o-qpos">4</div><div style="flex:1"><div class="o-qname">Emna</div><div class="o-qmeta">3 min</div></div><span class="material-symbols-outlined" style="font-size:15px;color:#C8BFAF;">call</span></div>
+          </div>
+          <div class="o-cta">
+            <div class="o-cta-txt">→ Appeler Suivant · <span class="o-cta-name">Skander</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="diff-list" style="margin-top:28px;">
+      <div class="diff-item"><div class="diff-sign minus">−</div><div class="diff-body"><strong>Pas de distinction RDV / sans RDV</strong> — invisible dans la file</div></div>
+      <div class="diff-item"><div class="diff-sign minus">−</div><div class="diff-body"><strong>Cartes stats trop hautes</strong> — 28% de hauteur pour 2 chiffres</div></div>
+      <div class="diff-item"><div class="diff-sign minus">−</div><div class="diff-body"><strong>Aucun indicateur de méthode check-in</strong></div></div>
+      <div class="diff-item"><div class="diff-sign minus">−</div><div class="diff-body"><strong>CTA minimal</strong> — nom seul, pas de contexte</div></div>
+      <div class="diff-item"><div class="diff-sign minus">−</div><div class="diff-body"><strong>Pas de timer consultation</strong></div></div>
+    </div>
+  </div>
+
+  <div>
+    <div class="compare-label"><span class="after-tag">AuSuivant · C01</span></div>
+    <div style="display:flex;justify-content:center;">
+      <div class="phone-shell" style="width:280px;">
+        <div class="phone-screen" id="screen-cmp" style="height:600px;">
+          <div class="ui-tribar"></div>
+          <div class="ui-top" style="padding:10px 16px 8px;">
+            <div class="ui-top-left">
+              <div class="ui-cname" style="font-size:14px;">Cabinet Dr A. Martin</div>
+              <div class="ui-top-meta" style="font-size:9px;"><div class="ui-pdot"></div>Présent · Paris 8e</div>
+            </div>
+            <div class="ui-top-r"><button class="ui-hb" onclick="openSdr('cmp')"><span></span><span></span><span></span></button></div>
+          </div>
+          <div class="ui-stats-strip">
+            <div class="ui-stat-s hi"><div class="ui-stat-lbl">Attente</div><div class="ui-stat-val" style="font-size:26px;">4</div><div class="ui-stat-live"><div class="ui-live"></div><span class="ui-stat-sub" style="font-size:9px;">live</span></div></div>
+            <div class="ui-stat-s"><div class="ui-stat-lbl">Vus auj.</div><div class="ui-stat-val" style="font-size:26px;">9</div></div>
+            <div class="ui-stat-s"><div class="ui-stat-lbl">Max</div><div class="ui-stat-val" style="font-size:26px;">18</div><div class="ui-stat-sub" style="font-size:9px;">min</div></div>
+          </div>
+          <div class="ui-qtabs" style="padding:0 16px;">
+            <div class="ui-qtab on" style="font-size:9px;padding:7px 10px;">File <span class="ui-qtab-count">4</span></div>
+            <div class="ui-qtab" style="font-size:9px;padding:7px 10px;">RDV <span class="ui-qtab-count">2</span></div>
+            <div class="ui-qtab" style="font-size:9px;padding:7px 10px;" onclick="openDr('cmp')">+ Ajouter</div>
+          </div>
+          <div class="ui-scroll" style="padding:10px 14px;gap:8px;padding-bottom:60px;">
+            <div class="ui-section-lbl" style="font-size:8px;">En consultation</div>
+            <div class="ui-card" style="margin-bottom:0;">
+              <div class="ui-card-header" style="padding:8px 12px 0;">
+                <div class="ui-card-tag" style="font-size:7.5px;">Patient actuel</div>
+                <div class="ui-card-timer over" style="padding:3px 8px;">
+                  <span class="material-symbols-outlined" style="font-size:11px;color:rgba(255,255,255,0.3);">timer</span>
+                  <span class="ui-card-timer-val" style="font-size:12px;">18</span>
+                  <span class="ui-card-timer-lbl" style="font-size:7px;">min</span>
+                </div>
+              </div>
+              <div class="ui-card-body" style="padding:5px 12px 12px;">
+                <div class="ui-card-name" style="font-size:21px;">Mme Claire D.</div>
+                <div class="ui-card-meta" style="font-size:10px;margin-bottom:8px;">09h32 · RDV 09h30</div>
+                <div class="ui-seg-track" style="gap:2px;margin-bottom:4px;">
+                  <div class="ui-seg done"></div><div class="ui-seg done"></div><div class="ui-seg done"></div>
+                  <div class="ui-seg done"></div><div class="ui-seg done"></div><div class="ui-seg done"></div>
+                  <div class="ui-seg done"></div><div class="ui-seg done"></div><div class="ui-seg done"></div>
+                  <div class="ui-seg done"></div><div class="ui-seg done"></div><div class="ui-seg done"></div>
+                  <div class="ui-seg done"></div><div class="ui-seg done"></div><div class="ui-seg done"></div>
+                  <div class="ui-seg over"></div><div class="ui-seg over"></div><div class="ui-seg over"></div>
+                  <div class="ui-seg"></div><div class="ui-seg"></div>
+                </div>
+                <div class="ui-seg-labels" style="margin-bottom:10px;">
+                  <span style="font-size:8px;">0 min</span>
+                  <span style="font-size:8px;"><em>+3 min</em></span>
+                  <span style="font-size:8px;">20 min</span>
+                </div>
+                <div class="ui-card-btns">
+                  <button class="ui-btn-end" style="font-size:10px;padding:7px 12px;"><span class="material-symbols-outlined" style="font-size:12px;">check_circle</span>Terminer</button>
+                  <button class="ui-btn-call" style="padding:7px 10px;"><span class="material-symbols-outlined" style="font-size:15px;">call</span></button>
+                </div>
+              </div>
+            </div>
+            <div class="ui-section-lbl" style="font-size:8px;">File d'attente</div>
+            <div class="ui-queue">
+              <div class="ui-q-item rdv"><div class="ui-q-pos" style="font-size:16px;">2</div><div class="ui-q-info"><div class="ui-q-name-row"><div class="ui-q-name" style="font-size:13px;">M. Pierre L.</div><span class="ui-q-badge q-rdv" style="font-size:7.5px;">RDV</span></div><div class="ui-q-meta-row"><span class="ui-q-meta" style="font-size:10px;">38 min</span><span class="ui-q-checkin" style="font-size:9px;"><span class="material-symbols-outlined" style="font-size:10px;">qr_code_scanner</span>Auto</span></div></div><button class="ui-q-btn q-btn-call" style="width:26px;height:26px;"><span class="material-symbols-outlined" style="font-size:13px;">call</span></button></div>
+              <div class="ui-q-item"><div class="ui-q-pos urgent" style="font-size:11px;">!</div><div class="ui-q-info"><div class="ui-q-name-row"><div class="ui-q-name" style="font-size:13px;">M. Jean-Paul M.</div><span class="ui-q-badge q-urgent" style="font-size:7.5px;">Urgent</span></div><div class="ui-q-meta-row"><span class="ui-q-meta" style="font-size:10px;">4 min</span><span class="ui-q-checkin" style="font-size:9px;"><span class="material-symbols-outlined" style="font-size:10px;">person</span>Manuel</span></div></div><button class="ui-q-btn q-btn-call" style="width:26px;height:26px;"><span class="material-symbols-outlined" style="font-size:13px;">call</span></button></div>
+              <div class="ui-q-item"><div class="ui-q-pos" style="font-size:16px;">3</div><div class="ui-q-info"><div class="ui-q-name-row"><div class="ui-q-name" style="font-size:13px;">Mme Sophie B.</div><span class="ui-q-badge q-sans" style="font-size:7.5px;">Sans RDV</span></div><div class="ui-q-meta-row"><span class="ui-q-meta" style="font-size:10px;">31 min</span><span class="ui-q-checkin" style="font-size:9px;"><span class="material-symbols-outlined" style="font-size:10px;">phone_iphone</span>WA</span></div></div><button class="ui-q-btn q-btn-call" style="width:26px;height:26px;"><span class="material-symbols-outlined" style="font-size:13px;">call</span></button></div>
+            </div>
+          </div>
+          <div class="ui-cta" style="padding:10px 14px;">
+            <span class="material-symbols-outlined" style="font-size:13px;color:var(--gold);">arrow_forward</span>
+            <div class="ui-cta-divider" style="height:22px;"></div>
+            <div class="ui-cta-body"><div class="ui-cta-label" style="font-size:8px;">Appeler suivant</div><div class="ui-cta-name" style="font-size:15px;">M. Pierre Laurent</div><div class="ui-cta-meta" style="font-size:9px;">RDV 09h45 · 38 min</div></div>
+            <button class="ui-cta-btn" style="width:30px;height:30px;"><span class="material-symbols-outlined" style="font-size:16px;color:var(--ink);">chevron_right</span></button>
+          </div>
+          <div class="scrim" id="scrim-cmp" onclick="closeAll('cmp')"></div>
+          <div class="bdrawer" id="dr-cmp">
+            <div class="dr-pill"></div>
+            <div class="dr-topline"></div>
+            <div class="dr-title" style="font-size:20px;">Nouveau patient</div>
+            <div class="dr-lbl">Nom</div>
+            <input class="dr-input" style="font-size:13px;" placeholder="Mme Dupont…"/>
+            <div class="dr-lbl">Type</div>
+            <div class="dr-chips" style="margin-bottom:12px;">
+              <div class="dr-chip on" onclick="chip(this)">Sans RDV</div>
+              <div class="dr-chip" onclick="chip(this)">Avec RDV</div>
+            </div>
+            <div class="dr-priority" style="margin-bottom:12px;">
+              <div><div class="dr-priority-label" style="font-size:12px;">Priorité médicale</div><div class="dr-priority-sub" style="font-size:10px;">Passe en pos. 2</div></div>
+              <div class="dr-toggle" id="toggle-cmp" onclick="this.classList.toggle('on')"></div>
+            </div>
+            <button class="dr-submit" style="font-size:11px;padding:11px;" onclick="closeAll('cmp')">→ Ajouter à la file</button>
+          </div>
+          <div class="sdrawer" id="sdr-cmp">
+            <div class="sdr-topline"></div>
+            <div class="sdr-hdr" style="padding:13px 16px 11px;"><div class="sdr-cname" style="font-size:14px;">Cabinet Dr A. Martin</div><span class="material-symbols-outlined sdr-x" style="font-size:18px;" onclick="closeAll('cmp')">close</span></div>
+            <div class="sdr-profile" style="padding:11px 14px;">
+              <div class="sdr-avatar" style="width:34px;height:34px;font-size:10px;">AM</div>
+              <div><div class="sdr-name" style="font-size:12px;">Dr. Antoine Martin</div><div class="sdr-role" style="font-size:10px;">Généraliste · Paris 8e</div></div>
+            </div>
+            <nav class="sdr-nav">
+              <div class="sdr-item on" style="font-size:12px;padding:9px 14px;"><span class="material-symbols-outlined sdr-ico" style="font-size:16px;">queue</span>File d'attente<span class="sdr-badge">4</span></div>
+              <div class="sdr-item" style="font-size:12px;padding:9px 14px;"><span class="material-symbols-outlined sdr-ico" style="font-size:16px;">calendar_month</span>Rendez-vous</div>
+              <div class="sdr-item" style="font-size:12px;padding:9px 14px;"><span class="material-symbols-outlined sdr-ico" style="font-size:16px;">qr_code_2</span>QR Code</div>
+              <div class="sdr-div"></div>
+              <div class="sdr-item" style="font-size:12px;padding:9px 14px;"><span class="material-symbols-outlined sdr-ico" style="font-size:16px;">settings</span>Paramètres</div>
+            </nav>
+            <div class="sdr-footer"><div class="sdr-trial" style="font-size:9px;"><span class="material-symbols-outlined" style="font-size:11px;">timer</span>Essai · 7 jours restants</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="diff-list" style="margin-top:28px;">
+      <div class="diff-item"><div class="diff-sign plus">+</div><div class="diff-body"><strong>Badges RDV / Urgent / Sans RDV</strong> avec bordure latérale marine</div></div>
+      <div class="diff-item"><div class="diff-sign plus">+</div><div class="diff-body"><strong>Chiffres en Cormorant 300</strong> — lecture éditoriale des statistiques</div></div>
+      <div class="diff-item"><div class="diff-sign plus">+</div><div class="diff-body"><strong>Méthode check-in visible</strong> sur chaque patient de la file</div></div>
+      <div class="diff-item"><div class="diff-sign plus">+</div><div class="diff-body"><strong>CTA enrichi</strong> avec nom en italique or + type + durée</div></div>
+      <div class="diff-item"><div class="diff-sign plus">+</div><div class="diff-body"><strong>Timer or</strong> sur la carte patient actuel</div></div>
+    </div>
+  </div>
+
+</div>
+</div><!-- panel compare -->
+
+
+<!-- ════════════════════════════════
+     PANEL 3 — CHOIX ESTHÉTIQUES
+════════════════════════════════ -->
+<div class="panel" id="p-rationale">
+<div class="rationale">
+  <div class="rationale-title">Pourquoi C01 ?</div>
+  <div class="rationale-subtitle">Ce que le concept Élégance Parisienne dit au médecin français</div>
+  <div class="r-grid">
+
+    <div class="r-card">
+      <div class="r-card-head">
+        <div class="r-num">I</div>
+        <div class="r-title">Cormorant Garamond — la typographie des ordonnances</div>
+      </div>
+      <div class="r-desc">La police médicale française de référence est le Times / Garamond — les ordonnances, les diplômes, les cartes de visite de spécialistes utilisent tous un <strong>serif élégant</strong>. Cormorant Garamond crée une continuité inconsciente entre le papier et l'écran. Le médecin reconnaît le registre sans pouvoir l'expliquer.</div>
+    </div>
+
+    <div class="r-card">
+      <div class="r-card-head">
+        <div class="r-num">II</div>
+        <div class="r-title">Or #B5945A — ni médical, ni générique</div>
+      </div>
+      <div class="r-desc">Le vert de Doctolib est omniprésent. Le bleu des apps médicales est cliché. L'or de C01 évite les deux registres tout en restant professionnel. C'est la couleur des <strong>plaques médicales en laiton</strong> que l'on trouve sur les immeubles haussmanniens des 8e et 16e. Signal de durabilité et de réputation établie.</div>
+    </div>
+
+    <div class="r-card">
+      <div class="r-card-head">
+        <div class="r-num">III</div>
+        <div class="r-title">Border-radius 3–6px — le refus du bulle</div>
+      </div>
+      <div class="r-desc">Les apps consumer (Doctolib, Alan, Livi) utilisent des angles arrondis à 12–20px — le langage visuel du grand public. C01 avec ses <strong>angles quasi-droits</strong> signale immédiatement un outil professionnel, sérieux, construit pour un contexte médical et non pour une marketplace. La secrétaire médicale de 45 ans fait confiance à ce registre.</div>
+    </div>
+
+    <div class="r-card">
+      <div class="r-card-head">
+        <div class="r-num">IV</div>
+        <div class="r-title">Hairlines vs cards — densité sans surcharge</div>
+      </div>
+      <div class="r-desc">La file d'attente en C01 utilise des séparateurs de 1px au lieu de cartes flottantes. Le résultat : <strong>4 patients visibles simultanément</strong> dans le même espace où Forêt en affiche 3. Pour une secrétaire qui gère 20 patients par jour, cette densité supplémentaire a une valeur opérationnelle réelle.</div>
+    </div>
+
+    <div class="r-card">
+      <div class="r-card-head">
+        <div class="r-num">V</div>
+        <div class="r-title">Filet dégradé or dans le menu latéral</div>
+      </div>
+      <div class="r-desc">Le filet horizontal en dégradé <strong>transparent → or → transparent</strong> en haut du menu latéral est l'élément le plus reconnaissable du concept C01. Il évoque les filets d'en-tête des papiers à lettres médicaux. Un détail invisible à l'usage, mais mémorable à la démonstration — exactement le bon endroit pour un "wow moment" subtil.</div>
+    </div>
+
+    <div class="r-card">
+      <div class="r-card-head">
+        <div class="r-num">VI</div>
+        <div class="r-title">C01 vs Forêt — qui choisir ?</div>
+      </div>
+      <div class="r-desc">
+        <strong>Forêt</strong> : plus moderne, plus large spectre, évoque Doctolib+ sans le copier. Idéal pour les généralistes et cabinets de groupe. Conversion plus facile pour les médecins jeunes.
+        <br><br>
+        <strong>Élégance Parisienne</strong> : plus distinctif, plus mémorable, cible les spécialistes et les médecins établis des grandes villes. La différenciation est plus forte — mais l'adoption plus selective.
+        <br><br>
+        <strong>Recommandation</strong> : Forêt comme défaut, C01 en option "Classique" dans les paramètres de thème.
+      </div>
+    </div>
+
+  </div>
+</div>
+</div><!-- panel rationale -->
+
+<script>
+function showPanel(id, tab) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+  document.getElementById('p-' + id).classList.add('on');
+  tab.classList.add('on');
+}
+function openDr(v) {
+  document.getElementById('dr-' + v).classList.add('on');
+  document.getElementById('scrim-' + v).classList.add('on');
+}
+function openSdr(v) {
+  document.getElementById('sdr-' + v).classList.add('on');
+  document.getElementById('scrim-' + v).classList.add('on');
+}
+function closeAll(v) {
+  document.getElementById('dr-' + v).classList.remove('on');
+  document.getElementById('sdr-' + v).classList.remove('on');
+  document.getElementById('scrim-' + v).classList.remove('on');
+}
+function chip(el) {
+  el.closest('.dr-chips').querySelectorAll('.dr-chip').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+}
+</script>
+</body>
+</html>

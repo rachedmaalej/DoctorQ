@@ -1,0 +1,1980 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AuSuivant — Azur Médical Design Preview</title>
+
+  <!-- Google Fonts: Outfit (display) + DM Sans (body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- Material Symbols Outlined (MD3) -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ═══════════════════════════════════════════════════
+       AZUR MÉDICAL DESIGN TOKENS
+       ═══════════════════════════════════════════════════ */
+    :root {
+      /* Primary — Deep Cobalt */
+      --color-primary:          #1A3C8F;
+      --color-primary-dark:     #122B6B;
+      --color-primary-light:    #E8EEF9;
+      --color-primary-subtle:   #F2F5FB;
+
+      /* Accent — Warm Amber */
+      --color-accent:           #E8712A;
+      --color-accent-dark:      #C45B1A;
+      --color-accent-soft:      #FEF0E6;
+
+      /* Surfaces */
+      --color-bg:               #F2F5FB;
+      --color-surface:          #FFFFFF;
+
+      /* Text */
+      --color-text-primary:     #0D1B3E;
+      --color-text-secondary:   #3D5080;
+      --color-text-muted:       #6B7A99;
+      --color-text-disabled:    #B0B9CC;
+      --color-text-on-primary:  #FFFFFF;
+      --color-text-on-accent:   #FFFFFF;
+
+      /* Borders */
+      --color-border:           #DDE3F0;
+      --color-border-strong:    #B0BDD8;
+      --color-border-subtle:    #EDF0F7;
+
+      /* Status — Patient states */
+      --color-status-waiting:   #E8712A;
+      --color-status-notified:  #2D5FBF;
+      --color-status-in-consult:#1A7A4A;
+      --color-status-urgent:    #C0392B;
+      --color-status-done:      #6B7A99;
+
+      /* Status backgrounds */
+      --color-status-waiting-bg:   #FEF0E6;
+      --color-status-notified-bg:  #EAF0FC;
+      --color-status-in-consult-bg:#E8F5EE;
+      --color-status-urgent-bg:    #FDECEA;
+      --color-status-done-bg:      #F2F3F5;
+
+      /* Feedback */
+      --color-success:          #1A7A4A;
+      --color-success-bg:       #E8F5EE;
+      --color-warning:          #B87A00;
+      --color-warning-bg:       #FFF8E1;
+      --color-error:            #C0392B;
+      --color-error-bg:         #FDECEA;
+      --color-info:             #1A3C8F;
+      --color-info-bg:          #E8EEF9;
+
+      /* Doctor presence */
+      --color-doctor-present:   #1A7A4A;
+      --color-doctor-absent:    #C0392B;
+
+      /* Shadows — cobalt-based */
+      --shadow-card:            0 1px 3px rgba(13,27,62,0.06), 0 1px 2px rgba(13,27,62,0.04);
+      --shadow-dropdown:        0 4px 16px rgba(13,27,62,0.12), 0 2px 6px rgba(13,27,62,0.06);
+      --shadow-modal:           0 20px 60px rgba(13,27,62,0.18), 0 4px 16px rgba(13,27,62,0.08);
+      --shadow-navbar:          0 1px 0 rgba(13,27,62,0.10);
+
+      /* Border Radius */
+      --radius-sm:   6px;
+      --radius:      8px;
+      --radius-md:   10px;
+      --radius-lg:   12px;
+      --radius-xl:   16px;
+      --radius-2xl:  20px;
+      --radius-pill: 100px;
+
+      /* Doctor Color Tokens */
+      --doc-a-fg: #1A3C8F;   /* Cobalt — Dr. Martin */
+      --doc-a-bg: #E8EEF9;
+      --doc-b-fg: #1A7A4A;   /* Green — Dr. Lebrun */
+      --doc-b-bg: #E8F5EE;
+    }
+
+    /* ═══ RESET & BASE ═══ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background: var(--color-bg);
+      color: var(--color-text-primary);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* Material Symbols helper */
+    .icon {
+      font-family: 'Material Symbols Outlined';
+      font-weight: normal;
+      font-style: normal;
+      font-size: 20px;
+      line-height: 1;
+      letter-spacing: normal;
+      text-transform: none;
+      display: inline-block;
+      white-space: nowrap;
+      word-wrap: normal;
+      direction: ltr;
+      -webkit-font-feature-settings: 'liga';
+      font-feature-settings: 'liga';
+      -webkit-font-smoothing: antialiased;
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      vertical-align: middle;
+    }
+    .icon-filled {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .icon-sm { font-size: 16px; font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 20; }
+    .icon-lg { font-size: 24px; }
+    .icon-xl { font-size: 32px; }
+
+    /* ═══ LAYOUT WRAPPER ═══ */
+    .preview-container {
+      display: flex;
+      gap: 48px;
+      padding: 32px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .phone-frame {
+      width: 390px;
+      min-height: 844px;
+      background: var(--color-bg);
+      border-radius: 40px;
+      overflow: hidden;
+      box-shadow: 0 0 0 8px #0D1B3E, 0 0 0 10px #3D5080, 0 20px 60px rgba(13,27,62,0.3);
+      position: relative;
+    }
+
+    .desktop-frame {
+      width: 960px;
+      min-height: 700px;
+      background: var(--color-bg);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 0 0 2px var(--color-border), 0 20px 60px rgba(13,27,62,0.15);
+    }
+
+    h2.section-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--color-primary);
+      margin-bottom: 16px;
+      text-align: center;
+      letter-spacing: -0.01em;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       MOBILE VIEW
+       ═══════════════════════════════════════════════════ */
+
+    /* Navbar (primary cobalt background) */
+    .as-navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 18px;
+      background: var(--color-primary);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow-navbar);
+    }
+    .as-navbar .brand {
+      font-family: 'Outfit', sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--color-text-on-primary);
+      letter-spacing: -0.01em;
+    }
+    .as-navbar .right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .present-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.15);
+      padding: 5px 12px;
+      border-radius: var(--radius-pill);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--color-text-on-primary);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .present-badge:hover {
+      background: rgba(255,255,255,0.25);
+    }
+    .present-badge .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #4ADE80;
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    .menu-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius);
+      background: rgba(255,255,255,0.15);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-text-on-primary);
+      transition: background 0.15s;
+    }
+    .menu-btn:hover {
+      background: rgba(255,255,255,0.25);
+    }
+
+    /* Progress bar */
+    .progress-bar {
+      height: 3px;
+      display: flex;
+    }
+    .progress-bar .seg-done {
+      flex: 7;
+      background: var(--color-primary-dark);
+    }
+    .progress-bar .seg-pending {
+      flex: 3;
+      background: var(--color-accent);
+    }
+
+    /* View Tabs (Salle / Agenda) — pill style */
+    .as-tabs {
+      padding: 12px 18px;
+    }
+    .as-tabs-inner {
+      display: flex;
+      gap: 4px;
+      padding: 3px;
+      border-radius: var(--radius-pill);
+      background: var(--color-border-subtle);
+    }
+    .as-tab {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 10px;
+      border-radius: var(--radius-pill);
+      border: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .as-tab.active {
+      background: var(--color-primary);
+      color: var(--color-text-on-primary);
+    }
+    .as-tab.inactive {
+      background: transparent;
+      color: var(--color-text-secondary);
+    }
+    .as-tab.inactive:hover {
+      background: var(--color-primary-light);
+    }
+    .as-tab .badge {
+      background: rgba(255,255,255,0.25);
+      color: var(--color-text-on-primary);
+      font-size: 10px;
+      font-weight: 600;
+      padding: 1px 7px;
+      border-radius: var(--radius-pill);
+      min-width: 18px;
+      text-align: center;
+    }
+    .as-tab.inactive .badge {
+      background: var(--color-primary);
+      color: var(--color-text-on-primary);
+    }
+
+    /* ─── Stats Bar (2 cells) ─── */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      padding: 0 18px 12px;
+    }
+    .stat-card {
+      background: var(--color-surface);
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--color-border);
+      box-shadow: var(--shadow-card);
+      padding: 12px;
+    }
+    .stat-label {
+      font-family: 'Outfit', sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.10em;
+      color: var(--color-text-muted);
+      margin-bottom: 4px;
+    }
+    .stat-value {
+      font-family: 'Outfit', sans-serif;
+      font-size: 30px;
+      font-weight: 700;
+      color: var(--color-text-primary);
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+    .stat-sub {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      color: var(--color-text-muted);
+      margin-top: 4px;
+    }
+
+    /* ─── Section Labels ─── */
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 18px;
+      margin-bottom: 8px;
+    }
+    .section-label h3 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.10em;
+      color: var(--color-text-secondary);
+    }
+    .section-label .count-dot {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--color-primary);
+      color: var(--color-text-on-primary);
+      font-family: 'Outfit', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ─── Doctor Card ─── */
+    .doctor-card {
+      background: var(--color-surface);
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--color-border);
+      border-left: 3px solid var(--color-primary);
+      box-shadow: var(--shadow-card);
+      padding: 14px 16px;
+      margin: 0 18px 8px;
+      transition: box-shadow 0.15s;
+    }
+    .doctor-card:hover {
+      box-shadow: var(--shadow-dropdown);
+    }
+    .doctor-card[data-doctor="a"] { border-left-color: var(--doc-a-fg); }
+    .doctor-card[data-doctor="b"] { border-left-color: var(--doc-b-fg); }
+    .doctor-card .name-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 2px;
+    }
+    .doctor-card .name {
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+    }
+    .doctor-card .specialty {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 10px;
+      font-weight: 500;
+      padding: 1px 8px;
+      border-radius: var(--radius-pill);
+      background: var(--color-border);
+      color: var(--color-text-muted);
+    }
+    .doctor-card .stats-row {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      color: var(--color-text-muted);
+      margin-bottom: 10px;
+    }
+
+    /* Inline consultation inside doctor card */
+    .consult-inline {
+      border-radius: var(--radius-lg);
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .consult-inline .patient-details {
+      flex: 1;
+      min-width: 0;
+    }
+    .consult-inline .patient-name {
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+    }
+    .consult-inline .consult-meta {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 2px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      color: var(--color-text-muted);
+    }
+    .consult-inline .pulse-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--color-accent);
+      flex-shrink: 0;
+      animation: pulse-dot 1.5s ease-in-out infinite;
+    }
+
+    /* Terminer button — accent (warm amber) */
+    .terminer-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 12px;
+      border-radius: var(--radius-lg);
+      border: none;
+      background: var(--color-accent);
+      color: var(--color-text-on-accent);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: background 0.1s, transform 0.1s;
+    }
+    .terminer-btn:hover {
+      background: var(--color-accent-dark);
+    }
+    .terminer-btn:active {
+      transform: scale(0.98);
+    }
+
+    /* Suivant button — secondary outline */
+    .suivant-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 7px 14px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--color-primary);
+      background: transparent;
+      color: var(--color-primary);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s;
+      width: 100%;
+    }
+    .suivant-btn:hover {
+      background: var(--color-primary-light);
+    }
+
+    /* Libre zone (when no patient in consultation) */
+    .libre-zone {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 0;
+      margin-bottom: 10px;
+    }
+    .libre-zone .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      opacity: 0.5;
+    }
+    .libre-zone span:last-child {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      color: var(--color-text-muted);
+      font-weight: 500;
+    }
+
+    /* ─── Queue Entry Row ─── */
+    .patient-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      background: var(--color-surface);
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--color-border);
+      box-shadow: var(--shadow-card);
+      margin: 0 18px 8px;
+      min-height: 52px;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      cursor: default;
+    }
+    .patient-row:hover {
+      border-color: var(--color-border-strong);
+      box-shadow: var(--shadow-dropdown);
+    }
+    .patient-row.urgent {
+      background: var(--color-status-urgent-bg);
+      border-color: rgba(192, 57, 43, 0.2);
+    }
+    .patient-row .pos-badge {
+      width: 28px;
+      height: 28px;
+      border-radius: var(--radius-lg);
+      background: var(--color-primary-subtle);
+      border: 1px solid var(--color-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      font-variant-numeric: tabular-nums;
+      flex-shrink: 0;
+    }
+    .patient-row .doctor-initial {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+    .patient-row .patient-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .patient-row .patient-name {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--color-text-primary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 2px;
+    }
+    .patient-row .tag {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: var(--radius-pill);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      flex-shrink: 0;
+    }
+    .tag-rdv {
+      background: var(--color-status-in-consult-bg);
+      color: var(--color-status-in-consult);
+    }
+    .tag-sans-rdv {
+      background: var(--color-border);
+      color: var(--color-text-muted);
+    }
+    .tag-urgent {
+      background: var(--color-status-urgent-bg);
+      color: var(--color-status-urgent);
+      font-weight: 600;
+    }
+    .tag-notified {
+      background: var(--color-status-notified-bg);
+      color: var(--color-status-notified);
+      font-weight: 600;
+    }
+    .patient-row .meta {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      color: var(--color-text-muted);
+    }
+    .patient-row .wait-est {
+      text-align: right;
+      min-width: 36px;
+      flex-shrink: 0;
+    }
+    .patient-row .wait-est .num {
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: var(--color-text-muted);
+    }
+    .patient-row .wait-est .unit {
+      font-family: 'Outfit', sans-serif;
+      font-size: 10px;
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+      letter-spacing: 0.04em;
+    }
+    .patient-row .more-btn {
+      width: 24px;
+      height: 24px;
+      border-radius: var(--radius);
+      border: none;
+      background: transparent;
+      color: var(--color-text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.15s, color 0.15s;
+    }
+    .patient-row .more-btn:hover {
+      background: var(--color-primary-light);
+      color: var(--color-text-primary);
+    }
+
+    /* ─── Bottom CTA Bar (mobile, fixed) ─── */
+    .bottom-cta {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 18px;
+      padding-bottom: 28px;
+      background: var(--color-primary);
+      z-index: 30;
+      box-shadow: var(--shadow-modal);
+    }
+    .bottom-cta .next-hint {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: rgba(255,255,255,0.7);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+    }
+    .bottom-cta .call-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 20px;
+      border-radius: var(--radius-xl);
+      border: none;
+      background: var(--color-surface);
+      color: var(--color-primary);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+    .bottom-cta .call-btn:hover {
+      background: rgba(255,255,255,0.9);
+    }
+
+    /* Agenda bar */
+    .agenda-bar {
+      margin: 0 18px 8px;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .agenda-bar:hover {
+      border-color: var(--color-border-strong);
+      box-shadow: var(--shadow-card);
+    }
+    .agenda-bar .left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .agenda-bar .label-text {
+      font-family: 'Outfit', sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.10em;
+      color: var(--color-text-secondary);
+    }
+    .agenda-bar .slots-text {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      color: var(--color-text-muted);
+    }
+
+    /* ═══════════════════════════════════════════════════
+       DESKTOP VIEW — Command Center
+       ═══════════════════════════════════════════════════ */
+
+    .desktop-navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      height: 52px;
+      background: var(--color-primary);
+      box-shadow: var(--shadow-navbar);
+    }
+    .desktop-navbar .brand {
+      font-family: 'Outfit', sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--color-text-on-primary);
+      letter-spacing: -0.01em;
+    }
+    .desktop-navbar .center {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+      justify-content: flex-end;
+      margin-left: 24px;
+      margin-right: 12px;
+    }
+    .search-input {
+      position: relative;
+      max-width: 280px;
+      flex: 1;
+    }
+    .search-input .icon {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--color-text-muted);
+      pointer-events: none;
+      font-size: 16px;
+    }
+    .search-input input {
+      width: 100%;
+      padding: 7px 10px 7px 32px;
+      font-size: 13px;
+      font-family: 'DM Sans', sans-serif;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      background: var(--color-surface);
+      color: var(--color-text-primary);
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .search-input input:focus {
+      border-color: var(--color-border-strong);
+      box-shadow: 0 0 0 3px rgba(26, 60, 143, 0.12);
+    }
+    .search-input input::placeholder {
+      color: var(--color-text-muted);
+    }
+    .desktop-add-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      border-radius: var(--radius-lg);
+      border: none;
+      background: var(--color-primary-light);
+      color: var(--color-primary);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+    .desktop-add-btn:hover {
+      background: var(--color-primary);
+      color: var(--color-text-on-primary);
+    }
+
+    /* Desktop doctor grid */
+    .doctor-grid {
+      display: grid;
+      gap: 12px;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 16px 24px 0;
+    }
+    .doctor-grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .doctor-grid-2 { grid-template-columns: repeat(2, 1fr); }
+
+    .desktop-doctor-card {
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--color-border);
+      overflow: hidden;
+      background: var(--color-surface);
+      transition: box-shadow 0.15s;
+      position: relative;
+      box-shadow: var(--shadow-card);
+    }
+    .desktop-doctor-card[data-doctor="a"] { border-left: 3px solid var(--doc-a-fg); }
+    .desktop-doctor-card[data-doctor="b"] { border-left: 3px solid var(--doc-b-fg); }
+    .desktop-doctor-card:hover {
+      box-shadow: var(--shadow-dropdown);
+    }
+    .desktop-doctor-card .card-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 16px;
+      cursor: pointer;
+    }
+    .desktop-doctor-card .consult-zone {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      border-top: 1px solid var(--color-border-subtle);
+    }
+    .desktop-doctor-card .libre-zone {
+      padding: 10px 16px;
+      border-top: 1px solid var(--color-border-subtle);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .desktop-doctor-card .card-footer {
+      display: flex;
+      padding: 10px 16px;
+      border-top: 1px solid var(--color-border-subtle);
+    }
+
+    /* Desktop agenda strip */
+    .desktop-agenda {
+      max-width: 960px;
+      margin: 12px auto 0;
+      padding: 0 24px;
+    }
+    .desktop-agenda .strip-inner {
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--color-border);
+      background: var(--color-surface);
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+    }
+    .desktop-agenda .strip-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      width: 100%;
+      font-family: 'Outfit', sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.10em;
+      color: var(--color-text-secondary);
+      transition: background 0.15s;
+    }
+    .desktop-agenda .strip-header:hover {
+      background: var(--color-primary-subtle);
+    }
+
+    /* Desktop queue section */
+    .desktop-queue {
+      max-width: 960px;
+      margin: 12px auto 24px;
+      padding: 0 24px;
+    }
+    .desktop-queue-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .desktop-queue-header .left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .desktop-queue-header .label {
+      font-family: 'Outfit', sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.10em;
+      color: var(--color-text-secondary);
+    }
+    .desktop-queue-header .queue-count {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--color-primary);
+      color: var(--color-text-on-primary);
+      font-family: 'Outfit', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .desktop-suivant-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: var(--radius-lg);
+      border: none;
+      background: var(--color-primary);
+      color: var(--color-text-on-primary);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+    .desktop-suivant-btn:hover {
+      background: var(--color-primary-dark);
+    }
+    .desktop-suivant-btn .count-pill {
+      background: rgba(255,255,255,0.2);
+      padding: 1px 7px;
+      border-radius: var(--radius-pill);
+      font-size: 10px;
+    }
+
+    /* Desktop patient rows (inside desktop-queue) */
+    .desktop-queue .patient-row {
+      margin: 0 0 8px;
+    }
+
+    /* ═══ SPECIMEN SECTIONS ═══ */
+
+    .page-header {
+      text-align: center;
+      padding: 40px 24px 32px;
+    }
+    .page-header h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--color-primary);
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+    .page-header p {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      color: var(--color-text-muted);
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* Color palette swatches */
+    .palette-section {
+      max-width: 960px;
+      margin: 0 auto 48px;
+      padding: 0 24px;
+    }
+    .palette-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    .swatch {
+      width: 72px;
+      height: 48px;
+      border-radius: var(--radius-lg);
+      display: flex;
+      align-items: flex-end;
+      padding: 4px 6px;
+      font-size: 9px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      color: white;
+      box-shadow: var(--shadow-card);
+    }
+    .swatch.light-text { color: var(--color-text-primary); }
+    .palette-label {
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-text-secondary);
+      margin-bottom: 6px;
+    }
+
+    /* Type specimen */
+    .type-section {
+      max-width: 960px;
+      margin: 0 auto 48px;
+      padding: 0 24px;
+    }
+    .type-sample {
+      margin-bottom: 20px;
+      padding: 20px;
+      background: var(--color-surface);
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--color-border);
+    }
+    .type-sample .font-name {
+      font-family: 'Outfit', sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.10em;
+      margin-bottom: 10px;
+    }
+
+    /* Status badge specimens */
+    .badge-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .status-badge {
+      padding: 3px 10px;
+      border-radius: var(--radius-pill);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .badge-waiting   { background: var(--color-status-waiting-bg); color: var(--color-status-waiting); }
+    .badge-notified  { background: var(--color-status-notified-bg); color: var(--color-status-notified); }
+    .badge-in-consult { background: var(--color-status-in-consult-bg); color: var(--color-status-in-consult); }
+    .badge-urgent    { background: var(--color-status-urgent-bg); color: var(--color-status-urgent); }
+    .badge-done      { background: var(--color-status-done-bg); color: var(--color-status-done); }
+
+    /* Button specimens */
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .btn {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      font-size: 14px;
+      padding: 10px 20px;
+      border-radius: var(--radius-lg);
+      cursor: pointer;
+      transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary {
+      background: var(--color-primary);
+      color: var(--color-text-on-primary);
+      border: none;
+    }
+    .btn-primary:hover {
+      background: var(--color-primary-dark);
+    }
+    .btn-accent {
+      background: var(--color-accent);
+      color: var(--color-text-on-accent);
+      border: none;
+    }
+    .btn-accent:hover {
+      background: var(--color-accent-dark);
+    }
+    .btn-secondary {
+      background: transparent;
+      color: var(--color-primary);
+      border: 1px solid var(--color-primary);
+    }
+    .btn-secondary:hover {
+      background: var(--color-primary-light);
+    }
+    .btn-ghost {
+      background: transparent;
+      color: var(--color-text-muted);
+      border: none;
+      padding: 8px;
+    }
+    .btn-ghost:hover {
+      background: var(--color-primary-light);
+      color: var(--color-text-primary);
+    }
+
+    /* Separator */
+    .section-sep {
+      height: 1px;
+      background: var(--color-border);
+      margin: 32px auto;
+      max-width: 960px;
+    }
+
+    /* ═══ ANIMATIONS ═══ */
+    @keyframes slide-up {
+      0% { transform: translateY(16px); opacity: 0; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+    @keyframes scale-in {
+      0% { transform: scale(0.95); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════
+       PAGE HEADER
+       ═══════════════════════════════════════════════════ -->
+  <div class="page-header">
+    <h1>AuSuivant &mdash; Azur M&eacute;dical</h1>
+    <p>Outfit + DM Sans typography, deep cobalt &amp; warm amber palette, Material Design 3 icons. Same layout &amp; elements as the current codebase.</p>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       1. COLOR PALETTE
+       ═══════════════════════════════════════════════════ -->
+  <div class="palette-section">
+    <h2 class="section-title">Color System &mdash; Azur M&eacute;dical</h2>
+
+    <div class="palette-label">Primary &mdash; Deep Cobalt</div>
+    <div class="palette-row">
+      <div class="swatch" style="background: #1A3C8F;">Primary</div>
+      <div class="swatch" style="background: #122B6B;">Dark</div>
+      <div class="swatch light-text" style="background: #E8EEF9;">Light</div>
+      <div class="swatch light-text" style="background: #F2F5FB;">Subtle</div>
+    </div>
+
+    <div class="palette-label">Accent &mdash; Warm Amber</div>
+    <div class="palette-row">
+      <div class="swatch" style="background: #E8712A;">Accent</div>
+      <div class="swatch" style="background: #C45B1A;">Dark</div>
+      <div class="swatch light-text" style="background: #FEF0E6;">Soft</div>
+    </div>
+
+    <div class="palette-label">Text Hierarchy</div>
+    <div class="palette-row">
+      <div class="swatch" style="background: #0D1B3E;">Primary</div>
+      <div class="swatch" style="background: #3D5080;">Secondary</div>
+      <div class="swatch" style="background: #6B7A99;">Muted</div>
+      <div class="swatch light-text" style="background: #B0B9CC;">Disabled</div>
+    </div>
+
+    <div class="palette-label">Status &mdash; Patient States</div>
+    <div class="palette-row">
+      <div class="swatch" style="background: #E8712A;">Waiting</div>
+      <div class="swatch" style="background: #2D5FBF;">Notified</div>
+      <div class="swatch" style="background: #1A7A4A;">In Consult</div>
+      <div class="swatch" style="background: #C0392B;">Urgent</div>
+      <div class="swatch" style="background: #6B7A99;">Done</div>
+    </div>
+
+    <div class="palette-label">Borders &amp; Surfaces</div>
+    <div class="palette-row">
+      <div class="swatch light-text" style="background: #DDE3F0;">Border</div>
+      <div class="swatch light-text" style="background: #B0BDD8;">Strong</div>
+      <div class="swatch light-text" style="background: #EDF0F7;">Subtle</div>
+      <div class="swatch light-text" style="background: #FFFFFF; border: 1px solid #DDE3F0;">Surface</div>
+      <div class="swatch light-text" style="background: #F2F5FB;">BG</div>
+    </div>
+
+    <div class="palette-label">Feedback</div>
+    <div class="palette-row">
+      <div class="swatch" style="background: #1A7A4A;">Success</div>
+      <div class="swatch" style="background: #B87A00;">Warning</div>
+      <div class="swatch" style="background: #C0392B;">Error</div>
+      <div class="swatch" style="background: #1A3C8F;">Info</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       2. TYPOGRAPHY
+       ═══════════════════════════════════════════════════ -->
+  <div class="type-section">
+    <h2 class="section-title">Typography</h2>
+
+    <div class="type-sample">
+      <div class="font-name">Outfit &mdash; Display / Headings / Stat Numbers</div>
+      <div style="font-family: 'Outfit', sans-serif; font-size: 30px; font-weight: 700; color: var(--color-text-primary); letter-spacing: -0.02em; line-height: 1.2;">Azur M&eacute;dical</div>
+      <div style="font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 600; color: var(--color-text-secondary); margin-top: 6px; letter-spacing: -0.01em;">File d'attente &middot; 12 patients</div>
+      <div style="font-family: 'Outfit', sans-serif; font-size: 10px; font-weight: 600; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.10em; margin-top: 10px;">EN ATTENTE &nbsp;&nbsp; ATTENTE MAX &nbsp;&nbsp; VUS AUJOURD'HUI</div>
+    </div>
+
+    <div class="type-sample">
+      <div class="font-name">DM Sans &mdash; Body / UI / Metadata</div>
+      <div style="font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--color-text-primary); font-weight: 400; line-height: 1.6;">
+        La file d'attente est bien organis&eacute;e. Le prochain patient sera appel&eacute; dans quelques instants.
+      </div>
+      <div style="font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--color-text-muted); font-weight: 400; margin-top: 8px;">
+        Arriv&eacute;e 09:15 &middot; 12 min d'attente &middot; Dr. Martin
+      </div>
+      <div style="font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--color-text-primary); font-weight: 500; margin-top: 8px;">
+        Button labels use DM Sans 500
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       3. COMPONENT SPECIMENS
+       ═══════════════════════════════════════════════════ -->
+  <div class="type-section">
+    <h2 class="section-title">Status Badges</h2>
+    <div class="badge-row">
+      <span class="status-badge badge-waiting">En attente</span>
+      <span class="status-badge badge-notified">Notifi&eacute;</span>
+      <span class="status-badge badge-in-consult">En consultation</span>
+      <span class="status-badge badge-urgent">Urgent</span>
+      <span class="status-badge badge-done">Termin&eacute;</span>
+    </div>
+
+    <h2 class="section-title">Buttons</h2>
+    <div class="btn-row">
+      <button class="btn btn-primary"><span class="icon icon-sm">arrow_forward</span> Suivant</button>
+      <button class="btn btn-accent"><span class="icon icon-sm icon-filled">check_circle</span> Terminer</button>
+      <button class="btn btn-secondary"><span class="icon icon-sm">person_add</span> Patient</button>
+      <button class="btn btn-ghost"><span class="icon icon-sm">more_vert</span></button>
+    </div>
+
+    <h2 class="section-title">Material Design 3 Icons</h2>
+    <div style="display: flex; gap: 24px; flex-wrap: wrap; padding: 20px; background: var(--color-surface); border-radius: var(--radius-xl); border: 1px solid var(--color-border);">
+      <div style="text-align: center; width: 60px;">
+        <span class="icon icon-lg" style="color: var(--color-primary);">person_add</span>
+        <div style="font-size: 9px; font-family: 'DM Sans', sans-serif; color: var(--color-text-muted); margin-top: 4px;">person_add</div>
+      </div>
+      <div style="text-align: center; width: 60px;">
+        <span class="icon icon-lg" style="color: var(--color-primary);">search</span>
+        <div style="font-size: 9px; font-family: 'DM Sans', sans-serif; color: var(--color-text-muted); margin-top: 4px;">search</div>
+      </div>
+      <div style="text-align: center; width: 60px;">
+        <span class="icon icon-lg" style="color: var(--color-text-muted);">more_vert</span>
+        <div style="font-size: 9px; font-family: 'DM Sans', sans-serif; color: var(--color-text-muted); margin-top: 4px;">more_vert</div>
+      </div>
+      <div style="text-align: center; width: 60px;">
+        <span class="icon icon-lg" style="color: var(--color-text-muted);">call</span>
+        <div style="font-size: 9px; font-family: 'DM Sans', sans-serif; color: var(--color-text-muted); margin-top: 4px;">call</div>
+      </div>
+      <div style="text-align: center; width: 60px;">
+        <span class="icon icon-lg icon-filled" style="color: var(--color-success);">check_circle</span>
+        <div style="font-size: 9px; font-family: 'DM Sans', sans-serif; color: var(--color-text-muted); margin-top: 4px;">check_circle</div>
+      </div>
+      <div style="text-align: center; width: 60px;">
+        <span class="icon icon-lg" style="color: var(--color-text-muted);">calendar_month</span>
+        <div style="font-size: 9px; font-family: 'DM Sans', sans-serif; color: var(--color-text-muted); margin-top: 4px;">calendar_month</div>
+      </div>
+      <div style="text-align: center; width: 60px;">
+        <span class="icon icon-lg" style="color: var(--color-accent);">emergency</span>
+        <div style="font-size: 9px; font-family: 'DM Sans', sans-serif; color: var(--color-text-muted); margin-top: 4px;">emergency</div>
+      </div>
+      <div style="text-align: center; width: 60px;">
+        <span class="icon icon-lg" style="color: var(--color-primary);">content_copy</span>
+        <div style="font-size: 9px; font-family: 'DM Sans', sans-serif; color: var(--color-text-muted); margin-top: 4px;">content_copy</div>
+      </div>
+      <div style="text-align: center; width: 60px;">
+        <span class="icon icon-lg" style="color: var(--color-error);">person_remove</span>
+        <div style="font-size: 9px; font-family: 'DM Sans', sans-serif; color: var(--color-text-muted); margin-top: 4px;">person_remove</div>
+      </div>
+      <div style="text-align: center; width: 60px;">
+        <span class="icon icon-lg" style="color: var(--color-text-on-primary); background: var(--color-primary); border-radius: 6px; padding: 2px;">menu</span>
+        <div style="font-size: 9px; font-family: 'DM Sans', sans-serif; color: var(--color-text-muted); margin-top: 4px;">menu</div>
+      </div>
+      <div style="text-align: center; width: 60px;">
+        <span class="icon icon-lg" style="color: var(--color-text-muted);">close</span>
+        <div style="font-size: 9px; font-family: 'DM Sans', sans-serif; color: var(--color-text-muted); margin-top: 4px;">close</div>
+      </div>
+      <div style="text-align: center; width: 60px;">
+        <span class="icon icon-lg" style="color: var(--color-text-muted);">chevron_right</span>
+        <div style="font-size: 9px; font-family: 'DM Sans', sans-serif; color: var(--color-text-muted); margin-top: 4px;">chevron_right</div>
+      </div>
+      <div style="text-align: center; width: 60px;">
+        <span class="icon icon-lg" style="color: var(--color-text-on-primary); background: var(--color-primary); border-radius: 6px; padding: 2px;">arrow_forward</span>
+        <div style="font-size: 9px; font-family: 'DM Sans', sans-serif; color: var(--color-text-muted); margin-top: 4px;">arrow_forward</div>
+      </div>
+      <div style="text-align: center; width: 60px;">
+        <span class="icon icon-lg icon-filled" style="color: var(--color-doctor-present);">circle</span>
+        <div style="font-size: 9px; font-family: 'DM Sans', sans-serif; color: var(--color-text-muted); margin-top: 4px;">circle (present)</div>
+      </div>
+      <div style="text-align: center; width: 60px;">
+        <span class="icon icon-lg" style="color: rgba(255,255,255,0.7); background: var(--color-text-primary); border-radius: 6px; padding: 2px;">undo</span>
+        <div style="font-size: 9px; font-family: 'DM Sans', sans-serif; color: var(--color-text-muted); margin-top: 4px;">undo</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-sep"></div>
+
+  <!-- ═══════════════════════════════════════════════════
+       4. MOBILE MOCKUP — Receptionist Dashboard
+       ═══════════════════════════════════════════════════ -->
+  <div style="text-align: center; margin-bottom: 24px;">
+    <h2 class="section-title">Mobile View &mdash; Receptionist Dashboard</h2>
+    <p style="font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--color-text-muted); margin-bottom: 24px;">Same layout, Azur M&eacute;dical design system applied</p>
+  </div>
+
+  <div style="display: flex; justify-content: center; margin-bottom: 64px;">
+    <div class="phone-frame">
+
+      <!-- Navbar (cobalt) -->
+      <div class="as-navbar">
+        <span class="brand">AuSuivant</span>
+        <div class="right">
+          <div class="present-badge">
+            <span class="dot"></span>
+            Pr&eacute;sent
+          </div>
+          <button class="menu-btn">
+            <span class="icon" style="font-size: 20px;">menu</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Progress bar -->
+      <div class="progress-bar">
+        <div class="seg-done"></div>
+        <div class="seg-pending"></div>
+      </div>
+
+      <!-- View Tabs (Pill style) -->
+      <div class="as-tabs">
+        <div class="as-tabs-inner">
+          <button class="as-tab active">
+            <span class="icon icon-sm">format_list_numbered</span>
+            Salle
+            <span class="badge">4</span>
+          </button>
+          <button class="as-tab inactive">
+            <span class="icon icon-sm">calendar_month</span>
+            Agenda
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats Bar -->
+      <div class="stats-bar">
+        <div class="stat-card">
+          <div class="stat-label">En attente</div>
+          <div class="stat-value">4</div>
+          <div class="stat-sub" style="display: flex; align-items: center; gap: 4px;">
+            <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--color-status-in-consult);"></span>
+            File active
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Vus aujourd'hui</div>
+          <div class="stat-value">11</div>
+          <div class="stat-sub">18 min attente max</div>
+        </div>
+      </div>
+
+      <!-- ─── MÉDECINS section ─── -->
+      <div class="section-label">
+        <h3>M&eacute;decins</h3>
+        <span class="count-dot">2</span>
+      </div>
+
+      <!-- Doctor A: Dr. Martin (consulting) — Cobalt -->
+      <div class="doctor-card" data-doctor="a">
+        <div class="name-row">
+          <span class="name">Dr. Martin</span>
+          <span class="specialty">Cardio</span>
+        </div>
+        <div class="stats-row">3 att. &middot; 7 vus &middot; 12m moy.</div>
+
+        <!-- Inline consultation -->
+        <div class="consult-inline" style="background: color-mix(in srgb, var(--doc-a-fg) 8%, white);">
+          <div class="patient-details">
+            <div class="patient-name">Dupont J.</div>
+            <div class="consult-meta">
+              <span class="pulse-dot"></span>
+              En consultation &middot; 8 min
+            </div>
+          </div>
+          <button class="terminer-btn">
+            <span class="icon icon-sm icon-filled">check_circle</span>
+            Terminer
+          </button>
+        </div>
+
+        <button class="suivant-btn">
+          <span class="icon icon-sm">arrow_forward</span>
+          Suivant
+        </button>
+      </div>
+
+      <!-- Doctor B: Dr. Lebrun (free) — Green -->
+      <div class="doctor-card" data-doctor="b">
+        <div class="name-row">
+          <span class="name">Dr. Lebrun</span>
+          <span class="specialty">G&eacute;n&eacute;ral</span>
+        </div>
+        <div class="stats-row">1 att. &middot; 4 vus</div>
+
+        <div class="libre-zone">
+          <span class="dot" style="background: var(--doc-b-fg);"></span>
+          <span>Libre</span>
+        </div>
+
+        <button class="suivant-btn">
+          <span class="icon icon-sm">arrow_forward</span>
+          Suivant
+        </button>
+      </div>
+
+      <!-- Agenda bar -->
+      <div class="agenda-bar">
+        <div class="left">
+          <span class="icon icon-sm" style="color: var(--color-text-muted);">calendar_month</span>
+          <span class="label-text">Agenda du jour</span>
+          <span class="slots-text">&middot; 8 cr&eacute;neaux</span>
+        </div>
+        <span class="icon icon-sm" style="color: var(--color-text-muted);">chevron_right</span>
+      </div>
+
+      <!-- ─── FILE D'ATTENTE section ─── -->
+      <div class="section-label">
+        <h3>File d'attente</h3>
+        <span class="count-dot">4</span>
+      </div>
+
+      <!-- Patient Row 1 — Dr. Martin -->
+      <div class="patient-row">
+        <div style="display: flex; align-items: center; gap: 10px; flex-shrink: 0;">
+          <div class="pos-badge">1</div>
+          <div class="doctor-initial" style="background: color-mix(in srgb, var(--doc-a-fg) 15%, white); color: var(--doc-a-fg);">M</div>
+        </div>
+        <div class="patient-info">
+          <div class="patient-name">
+            Bernard M.
+            <span class="tag tag-rdv">RDV 10:45</span>
+          </div>
+          <div class="meta">Arriv&eacute;e 10:32 &middot; 12 min</div>
+        </div>
+        <div class="wait-est">
+          <div class="num">~0</div>
+          <div class="unit">min est.</div>
+        </div>
+        <button class="more-btn"><span class="icon icon-sm">more_vert</span></button>
+      </div>
+
+      <!-- Patient Row 2 — Dr. Lebrun, Urgent -->
+      <div class="patient-row urgent">
+        <div style="display: flex; align-items: center; gap: 10px; flex-shrink: 0;">
+          <div class="pos-badge">2</div>
+          <div class="doctor-initial" style="background: color-mix(in srgb, var(--doc-b-fg) 15%, white); color: var(--doc-b-fg);">L</div>
+        </div>
+        <div class="patient-info">
+          <div class="patient-name">
+            Moreau A.
+            <span class="tag tag-urgent">Urgent</span>
+            <span class="tag tag-sans-rdv">Sans RDV</span>
+          </div>
+          <div class="meta">Arriv&eacute;e 10:40 &middot; 4 min</div>
+        </div>
+        <div class="wait-est">
+          <div class="num">~15</div>
+          <div class="unit">min est.</div>
+        </div>
+        <button class="more-btn"><span class="icon icon-sm">more_vert</span></button>
+      </div>
+
+      <!-- Patient Row 3 — Dr. Martin, Notified -->
+      <div class="patient-row">
+        <div style="display: flex; align-items: center; gap: 10px; flex-shrink: 0;">
+          <div class="pos-badge">3</div>
+          <div class="doctor-initial" style="background: color-mix(in srgb, var(--doc-a-fg) 15%, white); color: var(--doc-a-fg);">M</div>
+        </div>
+        <div class="patient-info">
+          <div class="patient-name">
+            Petit L.
+            <span class="tag tag-rdv">RDV 11:00</span>
+            <span class="tag tag-notified">NOTIFI&Eacute;</span>
+          </div>
+          <div class="meta">Arriv&eacute;e 10:50 &middot; 2 min</div>
+        </div>
+        <div class="wait-est">
+          <div class="num">~30</div>
+          <div class="unit">min est.</div>
+        </div>
+        <button class="more-btn"><span class="icon icon-sm">more_vert</span></button>
+      </div>
+
+      <!-- Patient Row 4 — Dr. Lebrun, Walk-in -->
+      <div class="patient-row">
+        <div style="display: flex; align-items: center; gap: 10px; flex-shrink: 0;">
+          <div class="pos-badge">4</div>
+          <div class="doctor-initial" style="background: color-mix(in srgb, var(--doc-b-fg) 15%, white); color: var(--doc-b-fg);">L</div>
+        </div>
+        <div class="patient-info">
+          <div class="patient-name">
+            Garcia S.
+            <span class="tag tag-sans-rdv">Sans RDV</span>
+          </div>
+          <div class="meta">Arriv&eacute;e 10:55 &middot; 1 min</div>
+        </div>
+        <div class="wait-est">
+          <div class="num">~45</div>
+          <div class="unit">min est.</div>
+        </div>
+        <button class="more-btn"><span class="icon icon-sm">more_vert</span></button>
+      </div>
+
+      <!-- Bottom CTA Bar -->
+      <div class="bottom-cta">
+        <div class="next-hint">
+          <span class="icon icon-sm">person</span>
+          Au suivant &middot; Bernard M.
+        </div>
+        <button class="call-btn">
+          <span class="icon icon-sm">arrow_forward</span>
+          Appeler Suivant
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="section-sep"></div>
+
+  <!-- ═══════════════════════════════════════════════════
+       5. DESKTOP MOCKUP — Command Center
+       ═══════════════════════════════════════════════════ -->
+  <div style="text-align: center; margin-bottom: 24px;">
+    <h2 class="section-title">Desktop View &mdash; Command Center</h2>
+    <p style="font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--color-text-muted); margin-bottom: 24px;">Same layout, Azur M&eacute;dical design system applied</p>
+  </div>
+
+  <div style="display: flex; justify-content: center; margin-bottom: 64px; padding: 0 24px;">
+    <div class="desktop-frame">
+
+      <!-- Desktop Navbar (cobalt) -->
+      <div class="desktop-navbar">
+        <span class="brand">AuSuivant</span>
+        <div class="center">
+          <div class="search-input">
+            <span class="icon icon-sm">search</span>
+            <input type="text" placeholder="Rechercher un patient..." />
+          </div>
+          <button class="desktop-add-btn">
+            <span class="icon icon-sm">person_add</span>
+            + Patient
+          </button>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <div class="present-badge">
+            <span class="dot"></span>
+            Pr&eacute;sent
+          </div>
+          <button class="menu-btn">
+            <span class="icon" style="font-size: 20px;">menu</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Progress bar -->
+      <div class="progress-bar">
+        <div class="seg-done"></div>
+        <div class="seg-pending"></div>
+      </div>
+
+      <!-- Stats row (desktop inline) -->
+      <div style="max-width: 960px; margin: 0 auto; padding: 16px 24px 0;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="stat-card">
+            <div class="stat-label">En attente</div>
+            <div class="stat-value">4</div>
+            <div class="stat-sub" style="display: flex; align-items: center; gap: 4px;">
+              <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--color-status-in-consult);"></span>
+              File active
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Vus aujourd'hui</div>
+            <div class="stat-value">11</div>
+            <div class="stat-sub">18 min attente max</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section label: Médecins -->
+      <div style="max-width: 960px; margin: 16px auto 0; padding: 0 24px;">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+          <h3 style="font-family: 'Outfit', sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.10em; color: var(--color-text-secondary);">M&eacute;decins</h3>
+          <span style="width: 20px; height: 20px; border-radius: 50%; background: var(--color-primary); color: white; font-family: 'Outfit', sans-serif; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center;">2</span>
+        </div>
+      </div>
+
+      <!-- Doctor Cards Grid -->
+      <div class="doctor-grid doctor-grid-2">
+        <!-- Doctor 1: Dr. Martin (consulting) -->
+        <div class="desktop-doctor-card" data-doctor="a">
+          <div class="card-header">
+            <div style="flex: 1; min-width: 0;">
+              <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                <span style="font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600; color: var(--color-text-primary);">Dr. Martin</span>
+                <span style="font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 500; padding: 1px 8px; border-radius: 100px; background: var(--color-border); color: var(--color-text-muted);">Cardio</span>
+              </div>
+              <div style="font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--color-text-muted);">
+                <strong style="color: var(--doc-a-fg);">3</strong> att.
+                &middot;
+                <strong style="color: var(--color-text-primary);">7</strong> vus
+                &middot;
+                <strong style="color: var(--color-text-primary);">12m</strong> moy.
+              </div>
+            </div>
+          </div>
+          <div class="consult-zone" style="background: color-mix(in srgb, var(--doc-a-fg) 8%, white);">
+            <div style="width: 32px; height: 32px; border-radius: 50%; background: color-mix(in srgb, var(--doc-a-fg) 15%, white); color: var(--doc-a-fg); display: flex; align-items: center; justify-content: center; font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 12px; flex-shrink: 0;">M</div>
+            <div style="flex: 1; min-width: 0;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 600; color: var(--color-text-primary);">Dupont J.</span>
+                <span style="font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--color-text-muted);">10:30</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 5px; margin-top: 2px;">
+                <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--color-accent); display: inline-block; animation: pulse-dot 1.5s ease-in-out infinite;"></span>
+                <span style="font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--color-text-muted);">En consultation &middot; 8 min</span>
+              </div>
+            </div>
+            <button class="terminer-btn">
+              <span class="icon icon-sm icon-filled">check_circle</span>
+              Terminer
+            </button>
+          </div>
+          <div class="card-footer">
+            <button class="suivant-btn" style="border-color: var(--doc-a-fg); color: var(--doc-a-fg);">
+              <span class="icon icon-sm">arrow_forward</span>
+              Suivant
+            </button>
+          </div>
+        </div>
+
+        <!-- Doctor 2: Dr. Lebrun (free) -->
+        <div class="desktop-doctor-card" data-doctor="b">
+          <div class="card-header">
+            <div style="flex: 1; min-width: 0;">
+              <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                <span style="font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600; color: var(--color-text-primary);">Dr. Lebrun</span>
+                <span style="font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 500; padding: 1px 8px; border-radius: 100px; background: var(--color-border); color: var(--color-text-muted);">G&eacute;n&eacute;ral</span>
+              </div>
+              <div style="font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--color-text-muted);">
+                <strong style="color: var(--doc-b-fg);">1</strong> att.
+                &middot;
+                <strong style="color: var(--color-text-primary);">4</strong> vus
+              </div>
+            </div>
+          </div>
+          <div class="libre-zone" style="padding: 10px 16px; border-top: 1px solid var(--color-border-subtle);">
+            <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--doc-b-fg); display: inline-block; opacity: 0.5;"></span>
+            <span style="font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--color-text-muted); font-weight: 500;">Libre</span>
+          </div>
+          <div class="card-footer">
+            <button class="suivant-btn" style="border-color: var(--doc-b-fg); color: var(--doc-b-fg);">
+              <span class="icon icon-sm">arrow_forward</span>
+              Suivant
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Agenda Strip -->
+      <div class="desktop-agenda">
+        <div class="strip-inner">
+          <button class="strip-header">
+            <span class="icon icon-sm" style="color: var(--color-text-muted);">calendar_month</span>
+            Agenda du jour &middot; 8 cr&eacute;neaux
+            <span class="icon icon-sm" style="margin-left: auto; color: var(--color-text-muted);">chevron_right</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Queue Section -->
+      <div class="desktop-queue">
+        <div class="desktop-queue-header">
+          <div class="left">
+            <span class="label">File d'attente</span>
+            <span class="queue-count">4</span>
+          </div>
+          <button class="desktop-suivant-btn">
+            <span class="icon icon-sm">arrow_forward</span>
+            Suivant
+            <span class="count-pill">4</span>
+          </button>
+        </div>
+
+        <!-- Patient rows (desktop) -->
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <!-- Row 1 -->
+          <div class="patient-row">
+            <div style="display: flex; align-items: center; gap: 10px; flex-shrink: 0;">
+              <div class="pos-badge">1</div>
+              <div class="doctor-initial" style="background: color-mix(in srgb, var(--doc-a-fg) 15%, white); color: var(--doc-a-fg);">M</div>
+            </div>
+            <div class="patient-info">
+              <div class="patient-name">
+                Bernard M.
+                <span class="tag tag-rdv">RDV 10:45</span>
+              </div>
+              <div class="meta">Arriv&eacute;e 10:32 &middot; 12 min</div>
+            </div>
+            <div class="wait-est">
+              <div class="num">~0</div>
+              <div class="unit">min est.</div>
+            </div>
+            <button class="more-btn"><span class="icon icon-sm">more_vert</span></button>
+          </div>
+
+          <!-- Row 2 (urgent) -->
+          <div class="patient-row urgent">
+            <div style="display: flex; align-items: center; gap: 10px; flex-shrink: 0;">
+              <div class="pos-badge">2</div>
+              <div class="doctor-initial" style="background: color-mix(in srgb, var(--doc-b-fg) 15%, white); color: var(--doc-b-fg);">L</div>
+            </div>
+            <div class="patient-info">
+              <div class="patient-name">
+                Moreau A.
+                <span class="tag tag-urgent">Urgent</span>
+                <span class="tag tag-sans-rdv">Sans RDV</span>
+              </div>
+              <div class="meta">Arriv&eacute;e 10:40 &middot; 4 min</div>
+            </div>
+            <div class="wait-est">
+              <div class="num">~15</div>
+              <div class="unit">min est.</div>
+            </div>
+            <button class="more-btn"><span class="icon icon-sm">more_vert</span></button>
+          </div>
+
+          <!-- Row 3 -->
+          <div class="patient-row">
+            <div style="display: flex; align-items: center; gap: 10px; flex-shrink: 0;">
+              <div class="pos-badge">3</div>
+              <div class="doctor-initial" style="background: color-mix(in srgb, var(--doc-a-fg) 15%, white); color: var(--doc-a-fg);">M</div>
+            </div>
+            <div class="patient-info">
+              <div class="patient-name">
+                Petit L.
+                <span class="tag tag-rdv">RDV 11:00</span>
+                <span class="tag tag-notified">NOTIFI&Eacute;</span>
+              </div>
+              <div class="meta">Arriv&eacute;e 10:50 &middot; 2 min</div>
+            </div>
+            <div class="wait-est">
+              <div class="num">~30</div>
+              <div class="unit">min est.</div>
+            </div>
+            <button class="more-btn"><span class="icon icon-sm">more_vert</span></button>
+          </div>
+
+          <!-- Row 4 -->
+          <div class="patient-row">
+            <div style="display: flex; align-items: center; gap: 10px; flex-shrink: 0;">
+              <div class="pos-badge">4</div>
+              <div class="doctor-initial" style="background: color-mix(in srgb, var(--doc-b-fg) 15%, white); color: var(--doc-b-fg);">L</div>
+            </div>
+            <div class="patient-info">
+              <div class="patient-name">
+                Garcia S.
+                <span class="tag tag-sans-rdv">Sans RDV</span>
+              </div>
+              <div class="meta">Arriv&eacute;e 10:55 &middot; 1 min</div>
+            </div>
+            <div class="wait-est">
+              <div class="num">~45</div>
+              <div class="unit">min est.</div>
+            </div>
+            <button class="more-btn"><span class="icon icon-sm">more_vert</span></button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="section-sep"></div>
+
+  <!-- ═══════════════════════════════════════════════════
+       6. SUCCESS TOAST SPECIMEN
+       ═══════════════════════════════════════════════════ -->
+  <div style="text-align: center; margin-bottom: 24px;">
+    <h2 class="section-title">Success Toast</h2>
+    <p style="font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--color-text-muted); margin-bottom: 24px;">Replaces confetti. Slides up from bottom, auto-dismiss after 4s.</p>
+  </div>
+
+  <div style="display: flex; justify-content: center; margin-bottom: 64px;">
+    <div style="width: 380px; background: var(--color-text-primary); border-radius: var(--radius-xl); box-shadow: var(--shadow-modal); display: flex; align-items: center; gap: 12px; padding: 14px 16px;">
+      <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(26,122,74,0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+        <span class="icon icon-sm icon-filled" style="color: var(--color-success);">check_circle</span>
+      </div>
+      <div style="flex: 1; min-width: 0;">
+        <div style="font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 600; color: white;">Bernard M.</div>
+        <div style="font-family: 'DM Sans', sans-serif; font-size: 12px; color: rgba(255,255,255,0.6);">Ajout&eacute;e &middot; Sans RDV &middot; Pos. 5</div>
+      </div>
+      <div style="display: flex; gap: 6px; flex-shrink: 0;">
+        <div style="width: 32px; height: 32px; border-radius: var(--radius-lg); background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; cursor: pointer;">
+          <span class="icon icon-sm" style="color: rgba(255,255,255,0.7);">undo</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-sep"></div>
+
+  <!-- ═══════════════════════════════════════════════════
+       7. BOTTOM SHEET SPECIMEN (Action Drawer)
+       ═══════════════════════════════════════════════════ -->
+  <div style="text-align: center; margin-bottom: 24px;">
+    <h2 class="section-title">Action Sheet &mdash; Mobile</h2>
+    <p style="font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--color-text-muted); margin-bottom: 24px;">Slides up from bottom on tap of &lsquo;&vellip;&rsquo; menu on queue entry</p>
+  </div>
+
+  <div style="display: flex; justify-content: center; margin-bottom: 64px;">
+    <div style="width: 390px; background: var(--color-surface); border-radius: 20px 20px 0 0; box-shadow: var(--shadow-modal); overflow: hidden;">
+      <!-- Drag handle -->
+      <div style="display: flex; justify-content: center; padding-top: 12px; padding-bottom: 4px;">
+        <div style="width: 40px; height: 4px; border-radius: 2px; background: var(--color-border);"></div>
+      </div>
+      <!-- Patient header -->
+      <div style="padding: 12px 20px; border-bottom: 1px solid var(--color-border-subtle);">
+        <div style="font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700; color: var(--color-text-primary);">Bernard M.</div>
+        <div style="font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--color-text-muted);">Position #1 &middot; 12 min d'attente</div>
+      </div>
+      <!-- Action rows -->
+      <div style="padding: 4px 0;">
+        <div style="display: flex; align-items: center; gap: 16px; padding: 14px 20px; cursor: pointer;">
+          <div style="width: 40px; height: 40px; border-radius: var(--radius-xl); background: var(--color-accent-soft); display: flex; align-items: center; justify-content: center;">
+            <span class="icon" style="font-size: 20px; color: var(--color-accent);">emergency</span>
+          </div>
+          <div style="flex: 1;">
+            <div style="font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; color: var(--color-text-primary);">Urgence</div>
+            <div style="font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--color-text-muted);">Passe en priorit&eacute; absolue</div>
+          </div>
+          <span class="icon icon-sm" style="color: var(--color-text-muted);">chevron_right</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 16px; padding: 14px 20px; cursor: pointer;">
+          <div style="width: 40px; height: 40px; border-radius: var(--radius-xl); background: var(--color-primary-light); display: flex; align-items: center; justify-content: center;">
+            <span class="icon" style="font-size: 20px; color: var(--color-primary);">content_copy</span>
+          </div>
+          <div style="flex: 1;">
+            <div style="font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; color: var(--color-text-primary);">Copier le lien de suivi</div>
+            <div style="font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--color-text-muted);">Partager par SMS ou WhatsApp</div>
+          </div>
+          <span class="icon icon-sm" style="color: var(--color-text-muted);">chevron_right</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 16px; padding: 14px 20px; cursor: pointer;">
+          <div style="width: 40px; height: 40px; border-radius: var(--radius-xl); background: var(--color-error-bg); display: flex; align-items: center; justify-content: center;">
+            <span class="icon" style="font-size: 20px; color: var(--color-error);">person_remove</span>
+          </div>
+          <div style="flex: 1;">
+            <div style="font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; color: var(--color-text-primary);">Retirer de la file</div>
+            <div style="font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--color-text-muted);">Annulable pendant 10 secondes</div>
+          </div>
+          <span class="icon icon-sm" style="color: var(--color-text-muted);">chevron_right</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-sep"></div>
+
+  <!-- ═══════════════════════════════════════════════════
+       8. ADD PATIENT MODAL SPECIMEN
+       ═══════════════════════════════════════════════════ -->
+  <div style="text-align: center; margin-bottom: 24px;">
+    <h2 class="section-title">Add Patient Modal</h2>
+  </div>
+
+  <div style="display: flex; justify-content: center; margin-bottom: 64px;">
+    <div style="width: 380px; background: var(--color-surface); border-radius: var(--radius-2xl); box-shadow: var(--shadow-modal); padding: 24px;">
+      <!-- Title -->
+      <div style="font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 700; color: var(--color-text-primary); margin-bottom: 20px;">Nouveau patient</div>
+
+      <!-- Name field -->
+      <div style="margin-bottom: 16px;">
+        <label style="font-family: 'Outfit', sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.10em; color: var(--color-text-secondary); display: block; margin-bottom: 6px;">Nom du patient</label>
+        <div style="position: relative;">
+          <span class="icon icon-sm" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--color-text-muted);">person</span>
+          <input type="text" value="Bernard M." style="width: 100%; padding: 10px 10px 10px 34px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--color-text-primary); border: 1px solid var(--color-border); border-radius: var(--radius-lg); outline: none; background: var(--color-surface);" />
+        </div>
+      </div>
+
+      <!-- RDV toggle -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px;">
+        <button style="border-radius: var(--radius-lg); padding: 10px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; background: var(--color-primary); color: white; border: 1px solid var(--color-primary); cursor: pointer;">Sans rendez-vous</button>
+        <button style="border-radius: var(--radius-lg); padding: 10px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; background: transparent; color: var(--color-text-secondary); border: 1px solid var(--color-border); cursor: pointer;">Avec rendez-vous</button>
+      </div>
+
+      <!-- Phone field -->
+      <div style="margin-bottom: 16px;">
+        <label style="font-family: 'Outfit', sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.10em; color: var(--color-text-secondary); display: block; margin-bottom: 6px;">
+          Num&eacute;ro de t&eacute;l&eacute;phone
+          <span style="text-transform: none; font-family: 'DM Sans', sans-serif; font-weight: 400; color: var(--color-text-muted); margin-left: 4px;">(optionnel)</span>
+        </label>
+        <div style="display: flex; gap: 8px;">
+          <div style="display: flex; align-items: center; gap: 4px; background: color-mix(in srgb, var(--color-border) 50%, white); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 0 12px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; color: var(--color-text-secondary); flex-shrink: 0;">+216</div>
+          <div style="position: relative; flex: 1;">
+            <input type="text" placeholder="XX XXX XXX" style="width: 100%; padding: 10px 40px 10px 12px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--color-text-primary); border: 1px solid var(--color-border); border-radius: var(--radius-lg); outline: none; background: var(--color-surface);" />
+            <span style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--color-text-muted);">0/8</span>
+          </div>
+        </div>
+        <div style="font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--color-text-muted); margin-top: 6px;">8 chiffres apr&egrave;s +216, ex : 55 123 456</div>
+      </div>
+
+      <!-- Priority toggle -->
+      <div style="display: flex; align-items: center; justify-content: space-between; border-radius: var(--radius-xl); background: var(--color-accent-soft); border: 1px solid rgba(232,113,42,0.2); padding: 12px 16px; margin-bottom: 20px;">
+        <div>
+          <div style="font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; color: var(--color-text-primary);">Priorit&eacute; m&eacute;dicale</div>
+          <div style="font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--color-text-muted);">Passe en position #2</div>
+        </div>
+        <div style="width: 40px; height: 22px; border-radius: 11px; background: var(--color-border); position: relative; cursor: pointer;">
+          <div style="width: 18px; height: 18px; border-radius: 50%; background: white; position: absolute; top: 2px; left: 2px; box-shadow: 0 1px 3px rgba(0,0,0,0.15);"></div>
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <button style="width: 100%; padding: 14px; border-radius: var(--radius-xl); border: none; background: var(--color-primary); color: white; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background 0.15s;">
+        <span class="icon icon-sm">arrow_forward</span>
+        Ajouter &agrave; la file
+      </button>
+    </div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AuSuivant – Desktop Layout Alternatives</title>
+<style>
+  /* ═══════════════════════════════════════════════════════════════
+     DESIGN TOKENS (shared across all options)
+     ═══════════════════════════════════════════════════════════════ */
+  :root {
+    --accent: #549F3A;
+    --accent-light: #EBF5E6;
+    --forest: #357D23;
+    --warm: #E15720;
+    --warm-bg: #FFF6E8;
+    --warm-border: #F5DFC0;
+    --doctor-blue: #4A8EBF;
+    --doctor-blue-bg: #EAF2F9;
+    --doctor-teal: #3A8F7A;
+    --doctor-teal-bg: #E6F5F0;
+    --doctor-amber: #B8860B;
+    --doctor-amber-bg: #FFF8E7;
+    --ink: #1A2E1A;
+    --text-secondary: #4A6A4A;
+    --text-tertiary: #8A9E8A;
+    --surface: #FFFFFF;
+    --surface-alt: #F8FAF6;
+    --border: #D4DDD0;
+    --border-light: #E8EDE5;
+    --waiting-bg: #F2F9E8;
+    --waiting-border: #D4E8C0;
+    --radius: 14px;
+    --radius-sm: 10px;
+    --radius-lg: 18px;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+    --shadow-md: 0 2px 8px rgba(0,0,0,0.08);
+    --tricolor-blue: #002395;
+    --tricolor-red: #ED2939;
+    --font: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: var(--font);
+    background: #F0F2ED;
+    color: var(--ink);
+    line-height: 1.4;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     TAB SWITCHER (meta-navigation between the 3 options)
+     ═══════════════════════════════════════════════════════════════ */
+  .meta-nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+    display: flex; align-items: center; gap: 0;
+    background: #1A2E1A; color: white;
+    padding: 0 24px; height: 44px;
+    font-size: 13px; font-weight: 500;
+  }
+  .meta-nav .label {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 1px;
+    opacity: 0.5; margin-right: 16px;
+  }
+  .meta-tab {
+    padding: 10px 20px; cursor: pointer;
+    border: none; background: none; color: rgba(255,255,255,0.6);
+    font-family: var(--font); font-size: 13px; font-weight: 500;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  .meta-tab:hover { color: rgba(255,255,255,0.9); }
+  .meta-tab.active {
+    color: white; border-bottom-color: var(--accent);
+    background: rgba(255,255,255,0.08);
+  }
+  .meta-tab .badge {
+    display: inline-block; padding: 1px 6px; border-radius: 8px;
+    font-size: 9px; font-weight: 700; margin-left: 6px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+
+  .layout-option { display: none; margin-top: 44px; min-height: calc(100vh - 44px); }
+  .layout-option.active { display: block; }
+
+  /* ═══════════════════════════════════════════════════════════════
+     SHARED: Tricolor bar
+     ═══════════════════════════════════════════════════════════════ */
+  .tricolor {
+    height: 4px;
+    background: linear-gradient(to right,
+      var(--tricolor-blue) 0%, var(--tricolor-blue) 33.33%,
+      white 33.33%, white 66.66%,
+      var(--tricolor-red) 66.66%, var(--tricolor-red) 100%);
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     SHARED: Topbar (unified across all options)
+     ═══════════════════════════════════════════════════════════════ */
+  .topbar {
+    display: flex; align-items: center;
+    padding: 0 24px; height: 52px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border-light);
+  }
+  .topbar-brand {
+    font-size: 17px; font-weight: 700; color: var(--forest);
+    margin-right: auto;
+  }
+  .topbar-search {
+    position: relative; margin-right: 12px;
+  }
+  .topbar-search input {
+    width: 260px; padding: 7px 12px 7px 32px;
+    border: 1px solid var(--border-light); border-radius: var(--radius-sm);
+    background: var(--surface-alt); font-family: var(--font);
+    font-size: 13px; outline: none;
+  }
+  .topbar-search input:focus { border-color: var(--accent); }
+  .topbar-search svg {
+    position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+    color: var(--text-tertiary); pointer-events: none;
+  }
+  .btn {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 7px 14px; border-radius: var(--radius-sm);
+    border: none; font-family: var(--font); font-size: 12px;
+    font-weight: 600; cursor: pointer; white-space: nowrap;
+    transition: filter 0.15s;
+  }
+  .btn:hover { filter: brightness(0.95); }
+  .btn-accent { background: var(--accent); color: white; }
+  .btn-forest { background: var(--forest); color: white; }
+  .btn-warm { background: var(--warm); color: white; font-size: 10px; padding: 4px 10px; }
+  .btn-outline {
+    background: white; color: var(--text-secondary);
+    border: 1px solid var(--border);
+  }
+  .btn-disabled { background: var(--border); color: var(--text-tertiary); cursor: default; pointer-events: none; }
+  .btn .count {
+    background: rgba(255,255,255,0.2); padding: 1px 6px;
+    border-radius: 8px; font-size: 10px;
+  }
+  .topbar-actions { display: flex; gap: 8px; align-items: center; }
+
+  /* Settings icon */
+  .settings-btn {
+    width: 36px; height: 36px; border-radius: var(--radius-sm);
+    border: 1px solid var(--border-light); background: white;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: var(--text-tertiary); font-size: 16px;
+  }
+
+  /* Specialty badge */
+  .spec-badge {
+    display: inline-block; padding: 1px 7px; border-radius: 6px;
+    font-size: 9px; font-weight: 600; background: var(--border-light);
+    color: var(--text-secondary);
+  }
+
+  /* Doctor color dot */
+  .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+  .dot-consulting { background: var(--warm); animation: pulse-dot 1.5s ease-in-out infinite; }
+  .dot-free { background: var(--accent); }
+  .dot-absent { background: var(--border); }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.3); }
+  }
+
+  /* Patient type badge */
+  .type-badge {
+    display: inline-block; padding: 1px 6px; border-radius: 4px;
+    font-size: 9px; font-weight: 600;
+  }
+  .type-rdv { background: #E8F0FE; color: #3A6EA5; }
+  .type-sans-rdv { background: #FFF3E0; color: #B8860B; }
+  .type-notified { background: #E8F5E9; color: var(--accent); }
+
+  /* Section headers */
+  .section-header {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 16px; font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     Critique annotation boxes
+     ═══════════════════════════════════════════════════════════════ */
+  .critique-box {
+    margin: 0 24px 16px; padding: 16px 20px;
+    background: #FFFDE7; border: 1px solid #FFE082; border-radius: var(--radius);
+    font-size: 13px; line-height: 1.6;
+  }
+  .critique-box h3 { font-size: 14px; margin-bottom: 8px; color: #5D4037; }
+  .critique-box ul { padding-left: 18px; }
+  .critique-box li { margin-bottom: 4px; }
+  .critique-box .fix { color: var(--forest); font-weight: 600; }
+  .critique-box .problem { color: var(--warm); font-weight: 600; }
+
+  /* ═══════════════════════════════════════════════════════════════
+     OPTION A: Command Center — Single Column Flow
+     ═══════════════════════════════════════════════════════════════ */
+  .opt-a-container {
+    max-width: 960px; margin: 0 auto;
+    background: var(--surface);
+    min-height: calc(100vh - 44px);
+  }
+
+  .opt-a-doctors {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 12px; padding: 16px 24px;
+  }
+  .opt-a-doc-card {
+    border: 1px solid var(--border-light); border-radius: var(--radius);
+    overflow: hidden; background: white;
+    transition: box-shadow 0.2s;
+  }
+  .opt-a-doc-card:hover { box-shadow: var(--shadow-md); }
+  .opt-a-doc-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px; border-bottom: 1px solid var(--border-light);
+  }
+  .opt-a-doc-color { width: 4px; height: 40px; border-radius: 2px; flex-shrink: 0; }
+  .opt-a-doc-name { font-size: 14px; font-weight: 600; }
+  .opt-a-doc-state { font-size: 11px; display: flex; align-items: center; gap: 5px; }
+  .opt-a-doc-kpis {
+    display: flex; gap: 12px; margin-left: auto;
+    font-size: 10px; color: var(--text-tertiary);
+  }
+  .opt-a-doc-kpis strong { color: var(--ink); }
+
+  .opt-a-consult-zone {
+    padding: 10px 14px; min-height: 48px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .opt-a-consult-active {
+    background: var(--warm-bg); border-bottom: 1px solid var(--warm-border);
+  }
+  .opt-a-consult-free {
+    background: var(--surface-alt);
+    border-bottom: 1px dashed var(--border-light);
+  }
+  .opt-a-consult-patient {
+    font-size: 13px; font-weight: 600;
+  }
+  .opt-a-consult-duration {
+    font-size: 11px; color: var(--text-tertiary);
+  }
+  .opt-a-consult-placeholder {
+    font-size: 12px; color: var(--text-tertiary); font-style: italic;
+  }
+
+  .opt-a-doc-actions {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 14px; justify-content: flex-end;
+  }
+
+  /* Agenda strip (collapsed) */
+  .opt-a-agenda-strip {
+    margin: 0 24px; padding: 10px 16px;
+    background: var(--surface-alt); border-radius: var(--radius-sm);
+    border: 1px solid var(--border-light);
+    font-size: 11px; color: var(--text-tertiary);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .opt-a-agenda-strip .icon { font-size: 14px; }
+
+  /* Queue section */
+  .opt-a-queue {
+    margin: 16px 24px 80px;
+  }
+  .opt-a-queue-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 0; border-bottom: 1px solid var(--border-light);
+  }
+  .opt-a-queue-title {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--accent);
+  }
+  .opt-a-queue-title .dot { width: 8px; height: 8px; background: var(--accent); }
+
+  .patient-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px; border-bottom: 1px solid var(--border-light);
+    transition: background 0.15s;
+    cursor: pointer;
+  }
+  .patient-row:hover { background: var(--surface-alt); }
+  .patient-pos {
+    width: 28px; height: 28px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: var(--text-tertiary);
+    background: var(--surface-alt); flex-shrink: 0;
+  }
+  .patient-avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: white; flex-shrink: 0;
+  }
+  .patient-info { flex: 1; min-width: 0; }
+  .patient-name { font-size: 13px; font-weight: 600; }
+  .patient-meta { font-size: 11px; color: var(--text-tertiary); margin-top: 1px; }
+  .patient-wait {
+    text-align: right; flex-shrink: 0;
+  }
+  .patient-wait-value { font-size: 14px; font-weight: 700; color: var(--ink); }
+  .patient-wait-label { font-size: 9px; color: var(--text-tertiary); text-transform: uppercase; }
+  .patient-actions-btn {
+    width: 28px; height: 28px; border-radius: 6px; border: none;
+    background: none; cursor: pointer; color: var(--text-tertiary);
+    font-size: 16px; display: flex; align-items: center; justify-content: center;
+  }
+  .patient-actions-btn:hover { background: var(--surface-alt); }
+
+  /* ═══════════════════════════════════════════════════════════════
+     OPTION B: Kanban Board — Per-Doctor Columns
+     ═══════════════════════════════════════════════════════════════ */
+  .opt-b-container {
+    display: flex; flex-direction: column;
+    min-height: calc(100vh - 44px);
+    background: var(--surface);
+  }
+  .opt-b-board {
+    display: flex; flex: 1; overflow-x: auto;
+  }
+  .opt-b-column {
+    min-width: 340px; flex: 1;
+    border-right: 1px solid var(--border-light);
+    display: flex; flex-direction: column;
+    overflow-y: auto;
+  }
+  .opt-b-column:last-child { border-right: none; }
+  .opt-b-column.unassigned {
+    min-width: 240px; max-width: 300px; flex: 0.6;
+    background: var(--surface-alt);
+  }
+
+  .opt-b-col-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-light);
+    position: sticky; top: 0; z-index: 2;
+  }
+  .opt-b-col-header-top {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 6px;
+  }
+  .opt-b-col-header .doc-name { font-size: 14px; font-weight: 700; }
+  .opt-b-col-header-kpis {
+    display: flex; gap: 10px; font-size: 10px; color: var(--text-tertiary);
+  }
+  .opt-b-col-header-kpis strong { color: var(--ink); }
+  .opt-b-col-actions {
+    display: flex; gap: 6px; margin-top: 8px;
+  }
+
+  .opt-b-consult-zone {
+    padding: 12px 16px; min-height: 80px;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .opt-b-consult-card {
+    padding: 12px; border-radius: var(--radius-sm);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .opt-b-consult-active {
+    background: var(--warm-bg); border: 1px solid var(--warm-border);
+  }
+  .opt-b-consult-free {
+    border: 2px dashed var(--border);
+    display: flex; align-items: center; justify-content: center;
+    min-height: 56px; color: var(--text-tertiary); font-size: 12px;
+  }
+
+  .opt-b-queue-section {
+    flex: 1; padding: 0 0 16px;
+  }
+  .opt-b-queue-label {
+    padding: 10px 16px 6px; font-size: 10px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-tertiary);
+  }
+  .opt-b-patient {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 16px; border-bottom: 1px solid var(--border-light);
+    cursor: pointer; transition: background 0.15s;
+  }
+  .opt-b-patient:hover { background: rgba(0,0,0,0.02); }
+
+  /* ═══════════════════════════════════════════════════════════════
+     OPTION C: Dashboard Cockpit — Horizontal Lanes
+     ═══════════════════════════════════════════════════════════════ */
+  .opt-c-container {
+    display: flex; flex-direction: column;
+    min-height: calc(100vh - 44px);
+    background: var(--surface);
+  }
+  .opt-c-lanes {
+    padding: 12px 24px; display: flex; flex-direction: column; gap: 6px;
+  }
+  .opt-c-lane {
+    display: flex; align-items: center;
+    border: 1px solid var(--border-light); border-radius: var(--radius);
+    background: white; height: 56px; overflow: hidden;
+    transition: box-shadow 0.2s;
+  }
+  .opt-c-lane:hover { box-shadow: var(--shadow-sm); }
+  .opt-c-lane-color { width: 4px; height: 100%; flex-shrink: 0; }
+  .opt-c-lane-identity {
+    width: 160px; flex-shrink: 0; padding: 0 14px;
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .opt-c-lane-identity .name { font-size: 13px; font-weight: 700; }
+  .opt-c-lane-identity .spec { font-size: 10px; color: var(--text-tertiary); }
+
+  .opt-c-lane-status {
+    width: 240px; flex-shrink: 0; padding: 0 14px;
+    display: flex; align-items: center; gap: 8px;
+    border-left: 1px solid var(--border-light);
+    border-right: 1px solid var(--border-light);
+    height: 100%;
+  }
+  .opt-c-lane-status.consulting { background: var(--warm-bg); }
+
+  .opt-c-lane-preview {
+    flex: 1; padding: 0 12px;
+    display: flex; align-items: center; gap: 6px;
+    overflow: hidden;
+  }
+  .opt-c-chip {
+    display: inline-flex; align-items: center;
+    padding: 4px 10px; border-radius: 8px;
+    font-size: 11px; font-weight: 500; white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .opt-c-overflow {
+    font-size: 10px; color: var(--text-tertiary); font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .opt-c-lane-action {
+    width: 110px; flex-shrink: 0; padding: 0 12px;
+    display: flex; justify-content: flex-end;
+  }
+
+  /* KPI ticker */
+  .opt-c-ticker {
+    display: flex; align-items: center; gap: 24px;
+    padding: 0 24px; height: 36px;
+    background: var(--surface-alt);
+    border-top: 1px solid var(--border-light);
+    border-bottom: 1px solid var(--border-light);
+    font-size: 12px; color: var(--text-secondary); font-weight: 500;
+  }
+  .opt-c-ticker strong { color: var(--ink); margin: 0 2px; }
+
+  /* Queue table */
+  .opt-c-table {
+    flex: 1; padding: 0 24px 80px;
+  }
+  .opt-c-table-header {
+    display: grid;
+    grid-template-columns: 40px 48px 1fr 100px 80px 80px 80px 40px;
+    align-items: center; height: 36px;
+    font-size: 10px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.5px; color: var(--text-tertiary);
+    border-bottom: 2px solid var(--border-light);
+    padding: 0 8px;
+  }
+  .opt-c-table-row {
+    display: grid;
+    grid-template-columns: 40px 48px 1fr 100px 80px 80px 80px 40px;
+    align-items: center; height: 52px;
+    border-bottom: 1px solid var(--border-light);
+    padding: 0 8px;
+    cursor: pointer; transition: background 0.15s;
+    font-size: 13px;
+  }
+  .opt-c-table-row:hover { background: var(--surface-alt); }
+  .opt-c-table-row .pos { font-weight: 700; color: var(--text-tertiary); font-size: 12px; }
+  .opt-c-table-row .doc-badge {
+    width: 28px; height: 28px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700; color: white;
+  }
+  .opt-c-table-row .name { font-weight: 600; }
+  .opt-c-table-row .time { font-size: 12px; color: var(--text-secondary); }
+  .opt-c-table-row .wait { font-weight: 600; }
+  .opt-c-table-row .est { font-weight: 700; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     META NAVIGATION — Switch between the 3 options
+     ═══════════════════════════════════════════════════════════════ -->
+<nav class="meta-nav">
+  <span class="label">Layout</span>
+  <button class="meta-tab active" onclick="showOption('a')">
+    A: Command Center
+    <span class="badge" style="background:#549F3A">Single col</span>
+  </button>
+  <button class="meta-tab" onclick="showOption('b')">
+    B: Kanban Board
+    <span class="badge" style="background:#4A8EBF">Per-doctor cols</span>
+  </button>
+  <button class="meta-tab" onclick="showOption('c')">
+    C: Dashboard Cockpit
+    <span class="badge" style="background:#E15720">Lanes + table</span>
+  </button>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     OPTION A: COMMAND CENTER
+     ═══════════════════════════════════════════════════════════════ -->
+<div id="option-a" class="layout-option active">
+  <div class="opt-a-container">
+    <!-- Tricolor -->
+    <div class="tricolor"></div>
+
+    <!-- Topbar — Search + Add Patient integrated -->
+    <div class="topbar">
+      <div class="topbar-brand">AuSuivant</div>
+      <div class="topbar-search">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" placeholder="Rechercher un patient...">
+      </div>
+      <div class="topbar-actions">
+        <button class="btn btn-accent">+ Patient</button>
+        <div class="settings-btn">☰</div>
+      </div>
+    </div>
+
+    <!-- Critique annotation -->
+    <div class="critique-box">
+      <h3>Option A: Command Center — Single Column Flow</h3>
+      <ul>
+        <li><span class="fix">FIX:</span> No more "Session active" button — doctor state shown directly in cards</li>
+        <li><span class="fix">FIX:</span> Search + Add moved to topbar — always accessible</li>
+        <li><span class="fix">FIX:</span> Each doctor card shows current patient inline — no separate "En consultation" section</li>
+        <li><span class="fix">FIX:</span> Agenda collapsed to a 40px strip — was wasting 360px × full height</li>
+        <li><strong>Eye flow:</strong> Top → Doctor cards (who sees who) → Queue (who is waiting). 2 zones, linear scan.</li>
+        <li><strong>Best for:</strong> 2–3 doctors. Simple, familiar, low learning curve.</li>
+      </ul>
+    </div>
+
+    <!-- Doctor Cards (consultation status integrated) -->
+    <div class="opt-a-doctors">
+      <!-- Dr. Lefèvre — currently consulting -->
+      <div class="opt-a-doc-card">
+        <div class="opt-a-doc-header">
+          <div class="opt-a-doc-color" style="background: var(--doctor-blue)"></div>
+          <div>
+            <div class="opt-a-doc-name">Dr. Lefèvre <span class="spec-badge">Pédiatre</span></div>
+            <div class="opt-a-doc-state">
+              <span class="dot dot-consulting"></span>
+              <span style="color: var(--warm); font-weight: 500;">En consultation</span>
+            </div>
+          </div>
+          <div class="opt-a-doc-kpis">
+            <span><strong>3</strong> att.</span>
+            <span><strong>5</strong> vus</span>
+            <span><strong>8m</strong> moy.</span>
+          </div>
+        </div>
+        <div class="opt-a-consult-zone opt-a-consult-active">
+          <div class="patient-avatar" style="background: var(--doctor-blue)">MD</div>
+          <div style="flex:1">
+            <div class="opt-a-consult-patient">Martine D. <span class="type-badge type-rdv">13H00</span></div>
+            <div class="opt-a-consult-duration">En consultation · 12 min</div>
+          </div>
+          <button class="btn btn-warm">Terminer</button>
+        </div>
+        <div class="opt-a-doc-actions">
+          <button class="btn btn-forest">Suivant <span class="count">3</span></button>
+        </div>
+      </div>
+
+      <!-- Dr. Perrin — consulting Giorgio -->
+      <div class="opt-a-doc-card">
+        <div class="opt-a-doc-header">
+          <div class="opt-a-doc-color" style="background: var(--doctor-teal)"></div>
+          <div>
+            <div class="opt-a-doc-name">Dr. Perrin <span class="spec-badge">Généraliste</span></div>
+            <div class="opt-a-doc-state">
+              <span class="dot dot-consulting"></span>
+              <span style="color: var(--warm); font-weight: 500;">En consultation</span>
+            </div>
+          </div>
+          <div class="opt-a-doc-kpis">
+            <span><strong>1</strong> att.</span>
+            <span><strong>1</strong> vus</span>
+            <span><strong>24m</strong> moy.</span>
+          </div>
+        </div>
+        <div class="opt-a-consult-zone opt-a-consult-active">
+          <div class="patient-avatar" style="background: var(--doctor-teal)">G</div>
+          <div style="flex:1">
+            <div class="opt-a-consult-patient">Giorgio <span class="type-badge type-rdv">9H00</span></div>
+            <div class="opt-a-consult-duration">En consultation · 1 min</div>
+          </div>
+          <button class="btn btn-warm">Terminer</button>
+        </div>
+        <div class="opt-a-doc-actions">
+          <button class="btn btn-forest">Suivant <span class="count">1</span></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Agenda strip (collapsed) -->
+    <div class="opt-a-agenda-strip">
+      <span class="icon">📅</span>
+      <span>Agenda du jour · <em>Aucun rendez-vous importé</em></span>
+      <span style="margin-left:auto; font-size:10px; color:var(--doctor-blue); cursor:pointer; font-weight:600;">Importer</span>
+    </div>
+
+    <!-- Queue -->
+    <div class="opt-a-queue">
+      <div class="opt-a-queue-header">
+        <div class="opt-a-queue-title">
+          <span class="dot dot-free"></span>
+          File d'attente
+          <span style="font-size: 13px; font-weight: 700; color: var(--ink);">4</span>
+        </div>
+        <button class="btn btn-forest">Suivant <span class="count">4</span></button>
+      </div>
+
+      <!-- Patient rows -->
+      <div class="patient-row">
+        <div class="patient-pos">1</div>
+        <div class="patient-avatar" style="background: var(--doctor-blue)">M</div>
+        <div class="patient-info">
+          <div class="patient-name">Marcel S. <span class="type-badge type-sans-rdv">SANS RDV</span></div>
+          <div class="patient-meta">Arrivée 15h20 · 45 min d'attente</div>
+        </div>
+        <div class="patient-wait">
+          <div class="patient-wait-value">~0</div>
+          <div class="patient-wait-label">min est.</div>
+        </div>
+        <button class="patient-actions-btn">⋮</button>
+      </div>
+
+      <div class="patient-row">
+        <div class="patient-pos">2</div>
+        <div class="patient-avatar" style="background: var(--doctor-teal)">C</div>
+        <div class="patient-info">
+          <div class="patient-name">Cyril <span class="type-badge type-sans-rdv">SANS RDV</span> <span class="type-badge type-notified">NOTIFIÉ</span></div>
+          <div class="patient-meta">Arrivée 15h28 · 37 min d'attente</div>
+        </div>
+        <div class="patient-wait">
+          <div class="patient-wait-value">~8</div>
+          <div class="patient-wait-label">min est.</div>
+        </div>
+        <button class="patient-actions-btn">⋮</button>
+      </div>
+
+      <div class="patient-row">
+        <div class="patient-pos">3</div>
+        <div class="patient-avatar" style="background: #9E9E9E">J</div>
+        <div class="patient-info">
+          <div class="patient-name">Jacqueline <span class="type-badge type-sans-rdv">SANS RDV</span> <span class="type-badge type-notified">NOTIFIÉ</span></div>
+          <div class="patient-meta">Arrivée 15h35 · 30 min d'attente</div>
+        </div>
+        <div class="patient-wait">
+          <div class="patient-wait-value">~24</div>
+          <div class="patient-wait-label">min est.</div>
+        </div>
+        <button class="patient-actions-btn">⋮</button>
+      </div>
+
+      <div class="patient-row">
+        <div class="patient-pos">4</div>
+        <div class="patient-avatar" style="background: var(--doctor-blue)">A</div>
+        <div class="patient-info">
+          <div class="patient-name">Ahmed B. <span class="type-badge type-rdv">16H00</span></div>
+          <div class="patient-meta">Arrivée 15h50 · 15 min d'attente</div>
+        </div>
+        <div class="patient-wait">
+          <div class="patient-wait-value">~32</div>
+          <div class="patient-wait-label">min est.</div>
+        </div>
+        <button class="patient-actions-btn">⋮</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     OPTION B: KANBAN BOARD
+     ═══════════════════════════════════════════════════════════════ -->
+<div id="option-b" class="layout-option">
+  <div class="opt-b-container">
+    <div class="tricolor"></div>
+
+    <div class="topbar">
+      <div class="topbar-brand">AuSuivant</div>
+      <div class="topbar-search">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" placeholder="Rechercher un patient...">
+      </div>
+      <div class="topbar-actions">
+        <button class="btn btn-accent">+ Patient</button>
+        <div class="settings-btn">☰</div>
+      </div>
+    </div>
+
+    <!-- Critique -->
+    <div class="critique-box">
+      <h3>Option B: Kanban Board — Per-Doctor Columns</h3>
+      <ul>
+        <li><span class="fix">FIX:</span> Each doctor is a column — consultation + waiting queue are vertically connected</li>
+        <li><span class="fix">FIX:</span> No session toggle, no empty agenda column</li>
+        <li><span class="fix">FIX:</span> "Who sees who" is structural — patients live inside their doctor's column</li>
+        <li><strong>Eye flow:</strong> Scan headers left→right (overview), dive vertically (detail). Like Trello for patients.</li>
+        <li><strong>Best for:</strong> 2–4 doctors. Excellent for comparing doctor workloads at a glance.</li>
+        <li><strong>Trade-off:</strong> At 5 doctors on a 1366px screen, columns are narrow (273px). Works best on wide monitors.</li>
+      </ul>
+    </div>
+
+    <!-- Kanban Board -->
+    <div class="opt-b-board">
+      <!-- Dr. Lefèvre column -->
+      <div class="opt-b-column">
+        <div class="opt-b-col-header" style="background: var(--doctor-blue-bg);">
+          <div class="opt-b-col-header-top">
+            <div class="opt-a-doc-color" style="background: var(--doctor-blue); height: 24px;"></div>
+            <span class="doc-name">Dr. Lefèvre</span>
+            <span class="spec-badge">Pédiatre</span>
+            <span class="dot dot-consulting" style="margin-left:auto"></span>
+          </div>
+          <div class="opt-b-col-header-kpis">
+            <span><strong>3</strong> en attente</span>
+            <span>·</span>
+            <span><strong>5</strong> vus</span>
+            <span>·</span>
+            <span><strong>8m</strong> moy.</span>
+          </div>
+          <div class="opt-b-col-actions">
+            <button class="btn btn-forest" style="font-size:11px; padding: 5px 12px;">Suivant ›</button>
+            <button class="btn btn-outline" style="font-size:10px; padding: 4px 10px;">⋯</button>
+          </div>
+        </div>
+
+        <!-- Consultation zone -->
+        <div class="opt-b-consult-zone">
+          <div class="section-header" style="color: var(--warm); padding: 0 0 8px;">
+            <span class="dot dot-consulting"></span>
+            En consultation
+          </div>
+          <div class="opt-b-consult-card opt-b-consult-active">
+            <div class="patient-avatar" style="background: var(--doctor-blue); width:28px; height:28px; font-size:10px;">MD</div>
+            <div style="flex:1">
+              <div style="font-size:13px; font-weight:600;">Martine D.</div>
+              <div style="font-size:10px; color:var(--text-tertiary)">RDV 13h00 · 12 min</div>
+            </div>
+            <button class="btn btn-warm">Terminer</button>
+          </div>
+        </div>
+
+        <!-- Queue -->
+        <div class="opt-b-queue-section">
+          <div class="opt-b-queue-label">File d'attente (3)</div>
+          <div class="opt-b-patient">
+            <div class="patient-pos" style="width:24px; height:24px; font-size:10px;">1</div>
+            <div style="flex:1">
+              <div style="font-size:12px; font-weight:600;">Marcel S. <span class="type-badge type-sans-rdv">SANS RDV</span></div>
+              <div style="font-size:10px; color:var(--text-tertiary)">15h20 · 45 min</div>
+            </div>
+            <div style="font-size:12px; font-weight:700; color:var(--ink)">~0m</div>
+          </div>
+          <div class="opt-b-patient">
+            <div class="patient-pos" style="width:24px; height:24px; font-size:10px;">2</div>
+            <div style="flex:1">
+              <div style="font-size:12px; font-weight:600;">Jacqueline <span class="type-badge type-sans-rdv">SANS RDV</span></div>
+              <div style="font-size:10px; color:var(--text-tertiary)">15h35 · 30 min</div>
+            </div>
+            <div style="font-size:12px; font-weight:700; color:var(--ink)">~8m</div>
+          </div>
+          <div class="opt-b-patient">
+            <div class="patient-pos" style="width:24px; height:24px; font-size:10px;">3</div>
+            <div style="flex:1">
+              <div style="font-size:12px; font-weight:600;">Ahmed B. <span class="type-badge type-rdv">16H00</span></div>
+              <div style="font-size:10px; color:var(--text-tertiary)">15h50 · 15 min</div>
+            </div>
+            <div style="font-size:12px; font-weight:700; color:var(--ink)">~16m</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dr. Perrin column -->
+      <div class="opt-b-column">
+        <div class="opt-b-col-header" style="background: var(--doctor-teal-bg);">
+          <div class="opt-b-col-header-top">
+            <div class="opt-a-doc-color" style="background: var(--doctor-teal); height: 24px;"></div>
+            <span class="doc-name">Dr. Perrin</span>
+            <span class="spec-badge">Généraliste</span>
+            <span class="dot dot-consulting" style="margin-left:auto"></span>
+          </div>
+          <div class="opt-b-col-header-kpis">
+            <span><strong>1</strong> en attente</span>
+            <span>·</span>
+            <span><strong>1</strong> vus</span>
+            <span>·</span>
+            <span><strong>24m</strong> moy.</span>
+          </div>
+          <div class="opt-b-col-actions">
+            <button class="btn btn-forest" style="font-size:11px; padding: 5px 12px;">Suivant ›</button>
+            <button class="btn btn-outline" style="font-size:10px; padding: 4px 10px;">⋯</button>
+          </div>
+        </div>
+
+        <div class="opt-b-consult-zone">
+          <div class="section-header" style="color: var(--warm); padding: 0 0 8px;">
+            <span class="dot dot-consulting"></span>
+            En consultation
+          </div>
+          <div class="opt-b-consult-card opt-b-consult-active">
+            <div class="patient-avatar" style="background: var(--doctor-teal); width:28px; height:28px; font-size:10px;">G</div>
+            <div style="flex:1">
+              <div style="font-size:13px; font-weight:600;">Giorgio</div>
+              <div style="font-size:10px; color:var(--text-tertiary)">RDV 9h00 · 1 min</div>
+            </div>
+            <button class="btn btn-warm">Terminer</button>
+          </div>
+        </div>
+
+        <div class="opt-b-queue-section">
+          <div class="opt-b-queue-label">File d'attente (1)</div>
+          <div class="opt-b-patient">
+            <div class="patient-pos" style="width:24px; height:24px; font-size:10px;">1</div>
+            <div style="flex:1">
+              <div style="font-size:12px; font-weight:600;">Cyril <span class="type-badge type-sans-rdv">SANS RDV</span></div>
+              <div style="font-size:10px; color:var(--text-tertiary)">15h28 · 37 min</div>
+            </div>
+            <div style="font-size:12px; font-weight:700; color:var(--ink)">~0m</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Unassigned column -->
+      <div class="opt-b-column unassigned">
+        <div class="opt-b-col-header" style="background: var(--surface-alt);">
+          <div class="opt-b-col-header-top">
+            <span class="doc-name" style="color: var(--text-tertiary);">Non assignés</span>
+          </div>
+          <div class="opt-b-col-header-kpis">
+            <span><strong>0</strong> patients</span>
+          </div>
+        </div>
+        <div style="flex:1; display:flex; align-items:center; justify-content:center; padding:24px; text-align:center;">
+          <div>
+            <div style="font-size:24px; margin-bottom:8px; opacity:0.4;">✓</div>
+            <div style="font-size:12px; color:var(--text-tertiary);">Tous les patients sont assignés</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     OPTION C: DASHBOARD COCKPIT
+     ═══════════════════════════════════════════════════════════════ -->
+<div id="option-c" class="layout-option">
+  <div class="opt-c-container">
+    <div class="tricolor"></div>
+
+    <div class="topbar">
+      <div class="topbar-brand">AuSuivant</div>
+      <div class="topbar-search">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" placeholder="Rechercher un patient...">
+      </div>
+      <div class="topbar-actions">
+        <button class="btn btn-accent">+ Patient</button>
+        <div class="settings-btn">☰</div>
+      </div>
+    </div>
+
+    <!-- Critique -->
+    <div class="critique-box">
+      <h3>Option C: Dashboard Cockpit — Horizontal Lanes + Table</h3>
+      <ul>
+        <li><span class="fix">FIX:</span> Doctor lanes show current patient + next-up preview chips in one horizontal scan</li>
+        <li><span class="fix">FIX:</span> No session toggle, no empty agenda column, no "En consultation" section</li>
+        <li><span class="fix">FIX:</span> KPI ticker gives aggregate stats in a single line</li>
+        <li><span class="fix">FIX:</span> Table-style queue is more compact than cards (48px rows vs 72px cards)</li>
+        <li><strong>Eye flow:</strong> Lanes (2 rows = entire clinical situation) → Ticker (day summary) → Table (details). Most information-dense.</li>
+        <li><strong>Best for:</strong> 2–5 doctors. Scales well. Experienced receptionists who want max data at a glance.</li>
+        <li><strong>Trade-off:</strong> Table format is less "warm" than cards. Steeper learning curve.</li>
+      </ul>
+    </div>
+
+    <!-- Doctor Lanes -->
+    <div class="opt-c-lanes">
+      <!-- Dr. Lefèvre — consulting -->
+      <div class="opt-c-lane">
+        <div class="opt-c-lane-color" style="background: var(--doctor-blue)"></div>
+        <div class="opt-c-lane-identity">
+          <div class="name">Dr. Lefèvre</div>
+          <div class="spec">Pédiatre · <strong style="color:var(--ink)">5</strong> vus · <strong style="color:var(--ink)">8m</strong> moy.</div>
+        </div>
+        <div class="opt-c-lane-status consulting">
+          <span class="dot dot-consulting"></span>
+          <div>
+            <div style="font-size:13px; font-weight:600;">Martine D.</div>
+            <div style="font-size:10px; color:var(--text-tertiary);">12 min</div>
+          </div>
+          <button class="btn btn-warm" style="margin-left:auto;">Terminer</button>
+        </div>
+        <div class="opt-c-lane-preview">
+          <div class="opt-c-chip" style="background: var(--doctor-blue-bg); color: var(--doctor-blue);">Marcel S.</div>
+          <div class="opt-c-chip" style="background: var(--doctor-blue-bg); color: var(--doctor-blue);">Jacqueline</div>
+          <div class="opt-c-chip" style="background: var(--doctor-blue-bg); color: var(--doctor-blue);">Ahmed B.</div>
+        </div>
+        <div class="opt-c-lane-action">
+          <button class="btn btn-forest">Suivant <span class="count">3</span></button>
+        </div>
+      </div>
+
+      <!-- Dr. Perrin — consulting -->
+      <div class="opt-c-lane">
+        <div class="opt-c-lane-color" style="background: var(--doctor-teal)"></div>
+        <div class="opt-c-lane-identity">
+          <div class="name">Dr. Perrin</div>
+          <div class="spec">Généraliste · <strong style="color:var(--ink)">1</strong> vus · <strong style="color:var(--ink)">24m</strong> moy.</div>
+        </div>
+        <div class="opt-c-lane-status consulting">
+          <span class="dot dot-consulting"></span>
+          <div>
+            <div style="font-size:13px; font-weight:600;">Giorgio</div>
+            <div style="font-size:10px; color:var(--text-tertiary);">1 min</div>
+          </div>
+          <button class="btn btn-warm" style="margin-left:auto;">Terminer</button>
+        </div>
+        <div class="opt-c-lane-preview">
+          <div class="opt-c-chip" style="background: var(--doctor-teal-bg); color: var(--doctor-teal);">Cyril</div>
+        </div>
+        <div class="opt-c-lane-action">
+          <button class="btn btn-forest">Suivant <span class="count">1</span></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI Ticker -->
+    <div class="opt-c-ticker">
+      <span><strong>4</strong> en attente</span>
+      <span><strong>6</strong> vus aujourd'hui</span>
+      <span>Attente moy. <strong>12 min</strong></span>
+      <span>Fin estimée <strong>~17h15</strong></span>
+    </div>
+
+    <!-- Queue Table -->
+    <div class="opt-c-table">
+      <div class="opt-c-table-header">
+        <div>#</div>
+        <div>Méd.</div>
+        <div>Patient</div>
+        <div>Type</div>
+        <div>Arrivée</div>
+        <div>Attente</div>
+        <div>Est.</div>
+        <div></div>
+      </div>
+
+      <div class="opt-c-table-row">
+        <div class="pos">1</div>
+        <div><div class="doc-badge" style="background: var(--doctor-blue)">L</div></div>
+        <div class="name">Marcel S.</div>
+        <div><span class="type-badge type-sans-rdv">SANS RDV</span></div>
+        <div class="time">15h20</div>
+        <div class="wait">45 min</div>
+        <div class="est" style="color: var(--accent)">~0 min</div>
+        <div><button class="patient-actions-btn">⋮</button></div>
+      </div>
+
+      <div class="opt-c-table-row">
+        <div class="pos">2</div>
+        <div><div class="doc-badge" style="background: var(--doctor-teal)">P</div></div>
+        <div class="name">Cyril <span class="type-badge type-notified" style="margin-left:6px">NOTIFIÉ</span></div>
+        <div><span class="type-badge type-sans-rdv">SANS RDV</span></div>
+        <div class="time">15h28</div>
+        <div class="wait">37 min</div>
+        <div class="est" style="color: var(--accent)">~8 min</div>
+        <div><button class="patient-actions-btn">⋮</button></div>
+      </div>
+
+      <div class="opt-c-table-row">
+        <div class="pos">3</div>
+        <div><div class="doc-badge" style="background: var(--doctor-blue)">L</div></div>
+        <div class="name">Jacqueline <span class="type-badge type-notified" style="margin-left:6px">NOTIFIÉ</span></div>
+        <div><span class="type-badge type-sans-rdv">SANS RDV</span></div>
+        <div class="time">15h35</div>
+        <div class="wait">30 min</div>
+        <div class="est">~24 min</div>
+        <div><button class="patient-actions-btn">⋮</button></div>
+      </div>
+
+      <div class="opt-c-table-row">
+        <div class="pos">4</div>
+        <div><div class="doc-badge" style="background: var(--doctor-blue)">L</div></div>
+        <div class="name">Ahmed B.</div>
+        <div><span class="type-badge type-rdv">16H00</span></div>
+        <div class="time">15h50</div>
+        <div class="wait">15 min</div>
+        <div class="est">~32 min</div>
+        <div><button class="patient-actions-btn">⋮</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+function showOption(id) {
+  document.querySelectorAll('.layout-option').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.meta-tab').forEach(el => el.classList.remove('active'));
+  document.getElementById('option-' + id).classList.add('active');
+  event.target.closest('.meta-tab')?.classList.add('active');
+  // If clicked the nav label area, find the right tab
+  if (!event.target.closest('.meta-tab')) {
+    document.querySelectorAll('.meta-tab').forEach(tab => {
+      if (tab.textContent.includes(id.toUpperCase() + ':')) tab.classList.add('active');
+    });
+  }
+}
+</script>
+
+</body>
+</html>

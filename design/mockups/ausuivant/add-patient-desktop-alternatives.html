@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Add Patient — Desktop Form Alternatives</title>
+<link href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ── AuSuivant Design Tokens ── */
+  :root {
+    --bg: #F7F8FA;
+    --surface: #FFFFFF;
+    --surface-alt: #F0F3F1;
+    --border: #D5DDD8;
+    --border-light: #E8ECE9;
+    --ink: #1C2B25;
+    --text-primary: #1C2B25;
+    --text-secondary: #4A6058;
+    --text-tertiary: #8A9B92;
+    --accent: #549F3A;
+    --accent-light: #F2F9E8;
+    --accent-hover: #468A30;
+    --forest: #2C4A3E;
+    --forest-light: rgba(44, 74, 62, 0.06);
+    --section-waiting-accent: #549F3A;
+    --section-waiting-text: #357D23;
+    --section-consult-accent: #E15720;
+    --section-consult-bg: #FFF6E8;
+    --section-consult-border: #FFCD80;
+    --section-consult-text: #9D3A22;
+    --section-doctors-accent: #4A8EBF;
+    --warning: #E15720;
+    --danger: #9D3A22;
+    --shadow-sm: 0 1px 3px rgba(28, 43, 37, 0.04);
+    --shadow-md: 0 2px 8px rgba(28, 43, 37, 0.07);
+    --shadow-lg: 0 4px 20px rgba(28, 43, 37, 0.1);
+    --radius: 14px;
+    --radius-sm: 10px;
+    --radius-lg: 18px;
+    --radius-xl: 22px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Albert Sans', -apple-system, sans-serif;
+    background: #1C2B25;
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* ── Page navigation ── */
+  .page-nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+    background: var(--forest);
+    display: flex; align-items: center; gap: 0;
+    border-bottom: 3px solid var(--accent);
+  }
+  .page-nav button {
+    flex: 1; padding: 16px 12px; border: none; background: transparent;
+    color: rgba(255,255,255,0.5); font-family: inherit; font-size: 13px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s;
+    border-bottom: 3px solid transparent; margin-bottom: -3px;
+  }
+  .page-nav button:hover { color: rgba(255,255,255,0.8); }
+  .page-nav button.active {
+    color: white; border-bottom-color: var(--accent);
+    background: rgba(84,159,58,0.08);
+  }
+  .page-nav button .tag {
+    display: inline-block; font-size: 9px; padding: 2px 6px;
+    border-radius: 6px; margin-left: 6px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .tag-recommended { background: var(--accent); color: white; }
+  .tag-minimal { background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.7); }
+  .tag-modern { background: var(--section-doctors-accent); color: white; }
+
+  /* ── Sections ── */
+  .alt-section {
+    display: none; min-height: 100vh; padding-top: 60px;
+  }
+  .alt-section.active { display: block; }
+
+  /* ── Shared mockup frame ── */
+  .mockup-frame {
+    background: var(--bg); min-height: calc(100vh - 60px);
+    position: relative;
+  }
+
+  /* ── Topbar (shared) ── */
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border-light);
+    display: flex; align-items: center; padding: 0 24px; height: 52px;
+  }
+  .topbar-brand { font-size: 15px; font-weight: 700; color: var(--forest); }
+  .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+  .topbar-search {
+    padding: 7px 12px 7px 30px; font-size: 13px; border: 1px solid var(--border-light);
+    border-radius: var(--radius-sm); background: var(--surface-alt); width: 240px;
+    font-family: inherit; outline: none; color: var(--text-primary);
+  }
+  .topbar-search:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(84,159,58,0.1); }
+  .topbar-btn {
+    padding: 7px 14px; border-radius: var(--radius-sm); border: none;
+    background: var(--accent); color: white; font-size: 12px; font-weight: 600;
+    cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 5px;
+  }
+  .topbar-btn:hover { background: var(--accent-hover); }
+  .topbar-presence {
+    padding: 6px 12px; border-radius: 20px; border: 1.5px solid var(--accent);
+    background: var(--accent-light); font-size: 11px; font-weight: 600;
+    color: var(--accent); display: flex; align-items: center; gap: 5px;
+  }
+  .presence-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+
+  /* ── Doctor cards row (shared bg) ── */
+  .doctor-cards {
+    max-width: 960px; margin: 0 auto; padding: 14px 24px 0;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  }
+  .doctor-card {
+    border-radius: var(--radius); border: 1px solid var(--border-light);
+    background: white; overflow: hidden;
+  }
+  .doctor-card-header {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 12px; border-bottom: 1px solid var(--border-light);
+  }
+  .doctor-bar { width: 4px; height: 36px; border-radius: 2px; flex-shrink: 0; }
+  .doctor-name { font-size: 13px; font-weight: 700; color: var(--ink); }
+  .doctor-tag {
+    font-size: 8px; padding: 1px 5px; border-radius: 5px; font-weight: 600;
+  }
+  .doctor-kpi { font-size: 10px; color: var(--text-tertiary); margin-top: 2px; }
+  .doctor-kpi strong { color: var(--ink); }
+  .consult-zone {
+    display: flex; align-items: center; gap: 8px; padding: 8px 12px;
+    background: var(--section-consult-bg); border-bottom: 1px solid var(--section-consult-border);
+  }
+  .consult-badge {
+    width: 28px; height: 28px; border-radius: 8px; display: flex;
+    align-items: center; justify-content: center; color: white;
+    font-weight: 700; font-size: 11px; flex-shrink: 0;
+  }
+  .consult-name { font-size: 13px; font-weight: 600; color: var(--ink); }
+  .consult-meta { font-size: 10px; color: var(--section-consult-text); }
+  .btn-terminer {
+    padding: 5px 10px; border-radius: 8px; border: none;
+    background: var(--section-consult-accent); color: white;
+    font-size: 10px; font-weight: 700; cursor: pointer;
+    font-family: inherit; white-space: nowrap; flex-shrink: 0;
+  }
+  .libre-zone {
+    padding: 10px 12px; background: var(--surface-alt);
+    border-bottom: 1px dashed var(--border-light);
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; color: var(--text-tertiary); font-weight: 500;
+  }
+  .libre-dot { width: 5px; height: 5px; border-radius: 3px; opacity: 0.5; }
+  .card-footer {
+    display: flex; justify-content: flex-end; padding: 6px 10px;
+  }
+  .btn-suivant-sm {
+    padding: 5px 12px; border-radius: 8px; border: none;
+    font-size: 10px; font-weight: 700; cursor: pointer;
+    font-family: inherit; white-space: nowrap; text-transform: uppercase;
+    letter-spacing: 0.03em; display: flex; align-items: center; gap: 3px;
+  }
+
+  /* ── Queue section (shared bg) ── */
+  .queue-section {
+    max-width: 960px; margin: 12px auto 0; padding: 0 24px 100px;
+  }
+  .queue-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 0; margin-bottom: 4px;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .queue-label {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.5px; color: var(--section-waiting-text);
+  }
+  .queue-dot { width: 8px; height: 8px; border-radius: 4px; background: var(--section-waiting-accent); }
+  .btn-suivant {
+    padding: 7px 14px; border-radius: var(--radius-sm); border: none;
+    background: var(--forest); color: white; font-size: 12px; font-weight: 600;
+    cursor: pointer; font-family: inherit;
+  }
+  .patient-row {
+    display: flex; align-items: center; padding: 10px 0;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .patient-pos {
+    width: 28px; height: 28px; border-radius: 8px; background: var(--surface-alt);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: var(--text-secondary); margin-right: 10px;
+  }
+  .patient-name { font-size: 14px; font-weight: 600; color: var(--ink); }
+  .patient-meta { font-size: 11px; color: var(--text-tertiary); margin-top: 1px; }
+  .patient-tag {
+    font-size: 8px; padding: 1px 5px; border-radius: 4px; font-weight: 600;
+    background: var(--surface-alt); color: var(--text-tertiary); margin-left: 6px;
+  }
+  .patient-wait { margin-left: auto; text-align: right; }
+  .patient-wait-time { font-size: 14px; font-weight: 700; color: var(--accent); }
+  .patient-wait-label { font-size: 8px; color: var(--text-tertiary); text-transform: uppercase; font-weight: 600; }
+
+  /* ── Overlay / backdrop ── */
+  .overlay {
+    position: fixed; inset: 0; background: rgba(44,74,62,0.35);
+    z-index: 500; backdrop-filter: blur(2px);
+    animation: fadeIn 0.2s ease both;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  /* ── Shared form elements ── */
+  .form-label {
+    display: block; font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.8px;
+    color: var(--text-tertiary); margin-bottom: 6px;
+  }
+  .form-input {
+    width: 100%; padding: 11px 14px; font-size: 14px; font-family: inherit;
+    border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    background: var(--surface); color: var(--text-primary);
+    outline: none; transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .form-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(84,159,58,0.12);
+  }
+  .form-input::placeholder { color: var(--text-tertiary); }
+  .form-hint { font-size: 11px; color: var(--text-tertiary); margin-top: 4px; }
+  .form-select {
+    width: 100%; padding: 11px 14px; font-size: 14px; font-family: inherit;
+    border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    background: var(--surface); color: var(--text-primary); outline: none;
+    cursor: pointer; appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238A9B92' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 12px center;
+  }
+  .form-select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(84,159,58,0.12);
+  }
+  .form-textarea {
+    width: 100%; padding: 11px 14px; font-size: 14px; font-family: inherit;
+    border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    background: var(--surface); color: var(--text-primary);
+    outline: none; resize: vertical; min-height: 56px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .form-textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(84,159,58,0.12);
+  }
+  .form-row { display: flex; gap: 10px; }
+  .form-group { margin-bottom: 16px; }
+  .form-group.flex-1 { flex: 1; }
+  .btn-primary {
+    width: 100%; padding: 13px; border: none; border-radius: var(--radius-sm);
+    background: var(--accent); color: white; font-size: 14px; font-weight: 600;
+    cursor: pointer; font-family: inherit; transition: background 0.15s;
+    box-shadow: 0 2px 10px rgba(84,159,58,0.2);
+  }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-secondary {
+    padding: 13px; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    background: var(--surface); color: var(--text-secondary); font-size: 14px;
+    font-weight: 600; cursor: pointer; font-family: inherit;
+  }
+  .btn-secondary:hover { background: var(--surface-alt); }
+  .type-toggle {
+    display: flex; background: var(--surface-alt); border-radius: var(--radius-sm);
+    padding: 3px; margin-bottom: 20px;
+  }
+  .type-toggle button {
+    flex: 1; padding: 9px 12px; border: none; border-radius: var(--radius-sm);
+    font-family: inherit; font-size: 13px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+    transition: all 0.15s;
+  }
+  .type-toggle button.active {
+    background: var(--surface); box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    font-weight: 600; color: var(--text-primary);
+  }
+  .type-toggle button:not(.active) {
+    background: transparent; font-weight: 500; color: var(--text-tertiary);
+  }
+  .doctor-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 12px; border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border); background: var(--surface);
+    font-size: 13px; font-weight: 500; color: var(--text-secondary);
+    cursor: pointer; transition: all 0.15s;
+  }
+  .doctor-chip:hover { border-color: var(--accent); }
+  .doctor-chip.selected {
+    border-color: var(--section-doctors-accent);
+    background: rgba(74,142,191,0.06);
+    color: var(--section-doctors-accent); font-weight: 600;
+  }
+  .doctor-chip-dot { width: 8px; height: 8px; border-radius: 4px; }
+  .phone-prefix {
+    width: 60px; padding: 11px 8px; text-align: center;
+    font-size: 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    background: var(--surface-alt); color: var(--text-secondary); flex-shrink: 0;
+    font-family: inherit;
+  }
+  .kbd {
+    display: inline-block; padding: 2px 6px; border-radius: 4px;
+    background: var(--surface-alt); border: 1px solid var(--border);
+    font-size: 10px; font-weight: 600; color: var(--text-tertiary);
+    font-family: inherit; line-height: 1.4;
+  }
+
+  /* ───────────────────────────────────────────
+     OPTION A — Right-Side Drawer (Recommended)
+     ─────────────────────────────────────────── */
+  .drawer-a {
+    position: fixed; top: 60px; right: 0; bottom: 0; width: 460px;
+    background: var(--surface); z-index: 510;
+    border-left: 1px solid var(--border-light);
+    box-shadow: -8px 0 30px rgba(28,43,37,0.08);
+    animation: slideInRight 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+    display: flex; flex-direction: column;
+  }
+  @keyframes slideInRight {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+  }
+  .drawer-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 24px 16px; border-bottom: 1px solid var(--border-light);
+  }
+  .drawer-title { font-size: 17px; font-weight: 700; color: var(--ink); }
+  .drawer-subtitle { font-size: 12px; color: var(--text-tertiary); margin-top: 2px; }
+  .drawer-close {
+    width: 32px; height: 32px; border-radius: var(--radius-sm); border: none;
+    background: var(--surface-alt); cursor: pointer; color: var(--text-secondary);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; transition: background 0.15s;
+  }
+  .drawer-close:hover { background: var(--border-light); }
+  .drawer-body { flex: 1; overflow-y: auto; padding: 20px 24px; }
+  .drawer-footer {
+    padding: 16px 24px; border-top: 1px solid var(--border-light);
+    background: var(--surface);
+  }
+  .drawer-footer-row { display: flex; gap: 10px; }
+  .drawer-footer-row .btn-secondary { flex: 0 0 auto; }
+  .drawer-footer-row .btn-primary { flex: 1; }
+  .shortcut-hint {
+    text-align: center; margin-top: 8px;
+    font-size: 10px; color: var(--text-tertiary);
+  }
+
+  /* ───────────────────────────────────
+     OPTION B — Centered Compact Modal
+     ─────────────────────────────────── */
+  .modal-b {
+    position: fixed; z-index: 510;
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 520px; max-height: calc(100vh - 120px);
+    background: var(--surface); border-radius: var(--radius-xl);
+    box-shadow: 0 20px 60px rgba(28,43,37,0.15), 0 0 0 1px var(--border-light);
+    animation: modalPop 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+    overflow: hidden; display: flex; flex-direction: column;
+  }
+  @keyframes modalPop {
+    from { opacity: 0; transform: translate(-50%, -48%) scale(0.97); }
+    to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  }
+  .modal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 24px 0;
+  }
+  .modal-title { font-size: 17px; font-weight: 700; color: var(--ink); }
+  .modal-close {
+    width: 28px; height: 28px; border-radius: 8px; border: none;
+    background: transparent; cursor: pointer; color: var(--text-tertiary);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; transition: background 0.15s;
+  }
+  .modal-close:hover { background: var(--surface-alt); }
+  .modal-body { padding: 20px 24px; overflow-y: auto; }
+  .modal-footer {
+    padding: 16px 24px; border-top: 1px solid var(--border-light);
+  }
+
+  /* Two-column form grid for modal */
+  .form-grid-2col {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  }
+  .form-grid-2col .span-2 { grid-column: span 2; }
+
+  /* Infield top-aligned label pattern */
+  .infield-group {
+    position: relative; margin-bottom: 0;
+  }
+  .infield-label {
+    position: absolute; top: 8px; left: 14px;
+    font-size: 9px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.8px; color: var(--text-tertiary);
+    pointer-events: none; z-index: 1;
+  }
+  .infield-input {
+    width: 100%; padding: 26px 14px 8px; font-size: 14px; font-family: inherit;
+    border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    background: var(--surface); color: var(--text-primary);
+    outline: none; transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .infield-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(84,159,58,0.12);
+  }
+  .infield-input::placeholder { color: var(--border); }
+  .infield-select {
+    width: 100%; padding: 26px 14px 8px; font-size: 14px; font-family: inherit;
+    border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    background: var(--surface); color: var(--text-primary); outline: none;
+    cursor: pointer; appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238A9B92' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 12px center;
+  }
+  .infield-select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(84,159,58,0.12);
+  }
+
+  /* ────────────────────────────────────
+     OPTION C — Inline Expansion Card
+     ──────────────────────────────────── */
+  .inline-form-card {
+    max-width: 960px; margin: 0 auto; padding: 0 24px;
+  }
+  .inline-card {
+    border: 2px solid var(--accent);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    overflow: hidden;
+    animation: expandDown 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+    box-shadow: 0 4px 20px rgba(84,159,58,0.1);
+  }
+  @keyframes expandDown {
+    from { opacity: 0; max-height: 0; transform: translateY(-8px); }
+    to { opacity: 1; max-height: 600px; transform: translateY(0); }
+  }
+  .inline-card-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 20px; background: var(--accent-light);
+    border-bottom: 1px solid rgba(84,159,58,0.15);
+  }
+  .inline-card-title {
+    font-size: 14px; font-weight: 700; color: var(--section-waiting-text);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .inline-card-title-icon {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: var(--accent); color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+  .inline-card-body {
+    padding: 20px;
+  }
+  .inline-form-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;
+    align-items: start;
+  }
+  .inline-form-grid .span-full { grid-column: 1 / -1; }
+  .inline-card-footer {
+    display: flex; align-items: center; justify-content: flex-end;
+    gap: 10px; padding: 12px 20px;
+    border-top: 1px solid var(--border-light); background: var(--surface-alt);
+  }
+  .inline-card-footer .btn-primary { width: auto; padding: 10px 24px; }
+  .btn-ghost {
+    padding: 10px 16px; border: none; background: transparent;
+    color: var(--text-tertiary); font-size: 13px; font-weight: 500;
+    cursor: pointer; font-family: inherit; border-radius: var(--radius-sm);
+  }
+  .btn-ghost:hover { background: var(--surface); color: var(--text-secondary); }
+
+  /* ── Annotations ── */
+  .annotation-bar {
+    max-width: 960px; margin: 0 auto; padding: 20px 24px 12px;
+  }
+  .annotation-card {
+    background: white; border-radius: var(--radius); padding: 20px;
+    border: 1px solid var(--border-light); box-shadow: var(--shadow-sm);
+  }
+  .annotation-title {
+    font-size: 16px; font-weight: 700; color: var(--ink); margin-bottom: 4px;
+  }
+  .annotation-subtitle { font-size: 12px; color: var(--text-tertiary); margin-bottom: 16px; }
+  .pros-cons { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .pros h4, .cons h4 { font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.5px; margin-bottom: 8px; }
+  .pros h4 { color: var(--accent); }
+  .cons h4 { color: var(--warning); }
+  .pros li, .cons li {
+    font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;
+    list-style: none; padding-left: 14px; position: relative;
+  }
+  .pros li::before { content: '+'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .cons li::before { content: '−'; position: absolute; left: 0; color: var(--warning); font-weight: 700; }
+  .best-for {
+    margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-light);
+    font-size: 12px; color: var(--text-secondary);
+  }
+  .best-for strong { color: var(--section-doctors-accent); }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════ NAVIGATION ══════════════════ -->
+<nav class="page-nav">
+  <button class="active" onclick="showAlt('a')">
+    A — Side Drawer <span class="tag tag-recommended">Recommended</span>
+  </button>
+  <button onclick="showAlt('b')">
+    B — Compact Modal <span class="tag tag-modern">Modern</span>
+  </button>
+  <button onclick="showAlt('c')">
+    C — Inline Expansion <span class="tag tag-minimal">Minimal</span>
+  </button>
+</nav>
+
+
+<!-- ══════════════════════════════════════════════════
+     OPTION A — RIGHT-SIDE DRAWER (Recommended)
+     Linear / Stripe / PatternFly pattern.
+     Form slides in from the right, page stays visible.
+     ══════════════════════════════════════════════════ -->
+<section id="alt-a" class="alt-section active">
+  <div class="mockup-frame">
+    <!-- Topbar -->
+    <div class="topbar">
+      <div class="topbar-brand">AuSuivant</div>
+      <div class="topbar-right">
+        <div style="position:relative">
+          <svg style="position:absolute;left:10px;top:50%;transform:translateY(-50%);pointer-events:none" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8A9B92" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="topbar-search" placeholder="Rechercher un patient...">
+        </div>
+        <button class="topbar-btn">+ Patient</button>
+        <div class="topbar-presence"><span class="presence-dot"></span> Présent</div>
+      </div>
+    </div>
+
+    <!-- Doctor cards -->
+    <div class="doctor-cards">
+      <div class="doctor-card">
+        <div class="doctor-card-header">
+          <div class="doctor-bar" style="background:#4A8EBF"></div>
+          <div style="flex:1">
+            <div style="display:flex;align-items:center;gap:5px">
+              <span class="doctor-name">Dr. Lefèvre</span>
+              <span class="doctor-tag" style="background:#DBECF4;color:#34659F">Pédiatre</span>
+            </div>
+            <div class="doctor-kpi"><strong style="color:#4A8EBF">3</strong> att. · <strong>1</strong> vus · <strong>7m</strong> moy.</div>
+          </div>
+        </div>
+        <div class="consult-zone">
+          <div class="consult-badge" style="background:#4A8EBF">L</div>
+          <div style="flex:1">
+            <div style="display:flex;align-items:center;gap:5px">
+              <span class="consult-name">Marcel S.</span>
+              <span style="font-size:8px;padding:1px 5px;border-radius:4px;font-weight:600;background:var(--surface-alt);color:var(--text-tertiary)">SANS RDV</span>
+            </div>
+            <div class="consult-meta">● En consultation · 8 min</div>
+          </div>
+          <button class="btn-terminer">✓ Terminer</button>
+        </div>
+        <div class="card-footer">
+          <button class="btn-suivant-sm" style="background:#DBECF4;color:#4A8EBF">▸ Suivant</button>
+        </div>
+      </div>
+      <div class="doctor-card">
+        <div class="doctor-card-header">
+          <div class="doctor-bar" style="background:#549F3A"></div>
+          <div style="flex:1">
+            <div style="display:flex;align-items:center;gap:5px">
+              <span class="doctor-name">Dr. Perrin</span>
+              <span class="doctor-tag" style="background:#F2F9E8;color:#357D23">Généraliste</span>
+            </div>
+            <div class="doctor-kpi"><strong style="color:#549F3A">3</strong> att. · <strong>0</strong> vus</div>
+          </div>
+        </div>
+        <div class="libre-zone">
+          <span class="libre-dot" style="background:#549F3A"></span> Libre
+        </div>
+        <div class="card-footer">
+          <button class="btn-suivant-sm" style="background:#F2F9E8;color:#549F3A">▸ Suivant</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Queue -->
+    <div class="queue-section">
+      <div class="queue-header">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="queue-dot"></span>
+          <span class="queue-label">File d'attente</span>
+          <span style="font-size:13px;font-weight:700;color:var(--ink)">3</span>
+        </div>
+        <button class="btn-suivant">Suivant <span style="background:rgba(255,255,255,0.2);padding:1px 6px;border-radius:8px;font-size:10px;margin-left:4px">3</span></button>
+      </div>
+      <div class="patient-row">
+        <div class="patient-pos">1</div>
+        <div><div class="patient-name">Fred G. <span class="patient-tag">SANS RDV</span></div><div class="patient-meta">Arrivée 16h29 · 10 min</div></div>
+        <div class="patient-wait"><div class="patient-wait-time">~0</div><div class="patient-wait-label">MIN EST.</div></div>
+      </div>
+      <div class="patient-row">
+        <div class="patient-pos">2</div>
+        <div><div class="patient-name">Fabienne <span class="patient-tag">SANS RDV</span></div><div class="patient-meta">Arrivée 16h32 · 7 min</div></div>
+        <div class="patient-wait"><div class="patient-wait-time">~18</div><div class="patient-wait-label">MIN EST.</div></div>
+      </div>
+      <div class="patient-row" style="opacity:0.4">
+        <div class="patient-pos">3</div>
+        <div><div class="patient-name">Georges <span class="patient-tag">SANS RDV</span></div><div class="patient-meta">Arrivée 16h32 · 7 min</div></div>
+        <div class="patient-wait"><div class="patient-wait-time">~36</div><div class="patient-wait-label">MIN EST.</div></div>
+      </div>
+    </div>
+
+    <!-- ── THE DRAWER ── -->
+    <div class="overlay"></div>
+    <div class="drawer-a">
+      <div class="drawer-header">
+        <div>
+          <div class="drawer-title">Ajouter un patient</div>
+          <div class="drawer-subtitle">Nouveau patient dans la file d'attente</div>
+        </div>
+        <button class="drawer-close">✕</button>
+      </div>
+      <div class="drawer-body">
+        <!-- Type toggle -->
+        <div class="type-toggle">
+          <button class="active">📅 Avec rendez-vous</button>
+          <button>🚶 Sans rendez-vous</button>
+        </div>
+
+        <!-- Name row -->
+        <div class="form-row" style="margin-bottom:16px">
+          <div class="form-group flex-1" style="margin-bottom:0">
+            <label class="form-label">Prénom</label>
+            <input class="form-input" placeholder="Marie" value="">
+          </div>
+          <div class="form-group flex-1" style="margin-bottom:0">
+            <label class="form-label">Nom</label>
+            <input class="form-input" placeholder="Dupont">
+          </div>
+        </div>
+
+        <!-- Doctor -->
+        <div class="form-group">
+          <label class="form-label">Médecin</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <div class="doctor-chip">
+              <span class="doctor-chip-dot" style="background:#4A8EBF"></span>
+              Dr. Lefèvre
+              <span style="font-size:9px;color:var(--text-tertiary)">Pédiatre</span>
+            </div>
+            <div class="doctor-chip selected" style="border-color:#549F3A;background:rgba(84,159,58,0.06);color:#357D23">
+              <span class="doctor-chip-dot" style="background:#549F3A"></span>
+              Dr. Perrin
+              <span style="font-size:9px;color:#549F3A">Généraliste</span>
+            </div>
+          </div>
+          <div class="form-hint">Optionnel — sinon assigné au premier médecin disponible</div>
+        </div>
+
+        <!-- Phone -->
+        <div class="form-group">
+          <label class="form-label">Téléphone</label>
+          <div style="display:flex;gap:8px">
+            <div class="phone-prefix">+33</div>
+            <input class="form-input" placeholder="6 12 34 56 78" style="flex:1">
+          </div>
+          <div class="form-hint">9 chiffres · Utilisé pour les notifications</div>
+        </div>
+
+        <!-- Time -->
+        <div class="form-group">
+          <label class="form-label">Heure du rendez-vous</label>
+          <div style="display:flex;gap:8px;align-items:center">
+            <select class="form-select" style="flex:1;font-variant-numeric:tabular-nums">
+              <option>09</option><option>10</option><option>11</option><option>12</option>
+            </select>
+            <span style="font-size:18px;font-weight:700;color:var(--text-tertiary)">:</span>
+            <select class="form-select" style="flex:1;font-variant-numeric:tabular-nums">
+              <option>00</option><option selected>15</option><option>30</option><option>45</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Notes -->
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label">Notes <span style="text-transform:none;font-weight:400;letter-spacing:0">— optionnel</span></label>
+          <textarea class="form-textarea" placeholder="Ex : patient prioritaire, personne âgée…"></textarea>
+        </div>
+      </div>
+
+      <div class="drawer-footer">
+        <div class="drawer-footer-row">
+          <button class="btn-secondary" style="flex:0 0 auto;width:auto">Annuler</button>
+          <button class="btn-primary" style="flex:1">Ajouter à la file d'attente</button>
+        </div>
+        <div class="shortcut-hint"><kbd class="kbd">⌘</kbd> + <kbd class="kbd">Enter</kbd> pour valider · <kbd class="kbd">Esc</kbd> pour fermer</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Annotation -->
+  <div class="annotation-bar">
+    <div class="annotation-card">
+      <div class="annotation-title">A — Right-Side Drawer</div>
+      <div class="annotation-subtitle">Inspired by Linear, Stripe, PatternFly, Adobe Commerce</div>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>Strengths</h4>
+          <ul>
+            <li>Page context stays visible — receptionist sees queue while adding</li>
+            <li>Natural scanning: queue on left, form on right</li>
+            <li>460px width gives fields room without feeling cramped</li>
+            <li>Sticky footer with submit + keyboard hints</li>
+            <li>Standard SaaS pattern — zero learning curve</li>
+            <li>Scales well: add more fields without redesigning</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>Trade-offs</h4>
+          <ul>
+            <li>Partially obscures queue rows on narrow screens (&lt;1200px)</li>
+            <li>Doctor cards not fully visible when drawer is open</li>
+            <li>More animation/transition logic to implement</li>
+          </ul>
+        </div>
+      </div>
+      <div class="best-for"><strong>Best for:</strong> Reception desks using 1280px+ screens. The dominant pattern for "add entity" forms in modern SaaS.</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════
+     OPTION B — CENTERED COMPACT MODAL
+     Cal.com / Notion / Figma pattern.
+     Focused overlay with 2-column infield-label form.
+     ══════════════════════════════════════════════════ -->
+<section id="alt-b" class="alt-section">
+  <div class="mockup-frame">
+    <!-- Topbar -->
+    <div class="topbar">
+      <div class="topbar-brand">AuSuivant</div>
+      <div class="topbar-right">
+        <div style="position:relative">
+          <svg style="position:absolute;left:10px;top:50%;transform:translateY(-50%);pointer-events:none" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8A9B92" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="topbar-search" placeholder="Rechercher un patient...">
+        </div>
+        <button class="topbar-btn">+ Patient</button>
+        <div class="topbar-presence"><span class="presence-dot"></span> Présent</div>
+      </div>
+    </div>
+
+    <!-- Doctor cards -->
+    <div class="doctor-cards">
+      <div class="doctor-card" style="opacity:0.5">
+        <div class="doctor-card-header">
+          <div class="doctor-bar" style="background:#4A8EBF"></div>
+          <div style="flex:1">
+            <div style="display:flex;align-items:center;gap:5px">
+              <span class="doctor-name">Dr. Lefèvre</span>
+              <span class="doctor-tag" style="background:#DBECF4;color:#34659F">Pédiatre</span>
+            </div>
+            <div class="doctor-kpi"><strong style="color:#4A8EBF">3</strong> att. · <strong>1</strong> vus</div>
+          </div>
+        </div>
+      </div>
+      <div class="doctor-card" style="opacity:0.5">
+        <div class="doctor-card-header">
+          <div class="doctor-bar" style="background:#549F3A"></div>
+          <div style="flex:1">
+            <div style="display:flex;align-items:center;gap:5px">
+              <span class="doctor-name">Dr. Perrin</span>
+              <span class="doctor-tag" style="background:#F2F9E8;color:#357D23">Généraliste</span>
+            </div>
+            <div class="doctor-kpi"><strong style="color:#549F3A">3</strong> att. · <strong>0</strong> vus</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Queue (dimmed) -->
+    <div class="queue-section" style="opacity:0.3">
+      <div class="queue-header">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="queue-dot"></span><span class="queue-label">File d'attente</span>
+          <span style="font-size:13px;font-weight:700">3</span>
+        </div>
+      </div>
+      <div class="patient-row"><div class="patient-pos">1</div><div><div class="patient-name">Fred G.</div></div></div>
+      <div class="patient-row"><div class="patient-pos">2</div><div><div class="patient-name">Fabienne</div></div></div>
+      <div class="patient-row"><div class="patient-pos">3</div><div><div class="patient-name">Georges</div></div></div>
+    </div>
+
+    <!-- ── THE MODAL ── -->
+    <div class="overlay"></div>
+    <div class="modal-b">
+      <div class="modal-header">
+        <div class="modal-title">Ajouter un patient</div>
+        <button class="modal-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <!-- Type toggle -->
+        <div class="type-toggle" style="margin-bottom:16px">
+          <button class="active">📅 RDV</button>
+          <button>🚶 Sans RDV</button>
+        </div>
+
+        <!-- 2-column grid with infield labels -->
+        <div class="form-grid-2col">
+          <div class="infield-group">
+            <span class="infield-label">Prénom</span>
+            <input class="infield-input" placeholder="Marie">
+          </div>
+          <div class="infield-group">
+            <span class="infield-label">Nom</span>
+            <input class="infield-input" placeholder="Dupont">
+          </div>
+          <div class="infield-group span-2">
+            <span class="infield-label">Téléphone</span>
+            <div style="display:flex;gap:0">
+              <div style="width:52px;padding:26px 0 8px 14px;font-size:14px;border:1.5px solid var(--border);border-right:none;border-radius:var(--radius-sm) 0 0 var(--radius-sm);background:var(--surface-alt);color:var(--text-tertiary)">+33</div>
+              <input class="infield-input" placeholder="6 12 34 56 78" style="border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding-top:26px">
+            </div>
+          </div>
+          <div class="infield-group">
+            <span class="infield-label">Heure</span>
+            <select class="infield-select">
+              <option>09</option><option selected>10</option><option>11</option>
+            </select>
+          </div>
+          <div class="infield-group">
+            <span class="infield-label">Minutes</span>
+            <select class="infield-select">
+              <option>00</option><option selected>15</option><option>30</option><option>45</option>
+            </select>
+          </div>
+          <div class="span-2">
+            <label class="form-label">Médecin</label>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <div class="doctor-chip" style="padding:6px 10px;font-size:12px">
+                <span class="doctor-chip-dot" style="background:#4A8EBF;width:6px;height:6px"></span>
+                Lefèvre
+              </div>
+              <div class="doctor-chip selected" style="padding:6px 10px;font-size:12px;border-color:#549F3A;background:rgba(84,159,58,0.06);color:#357D23">
+                <span class="doctor-chip-dot" style="background:#549F3A;width:6px;height:6px"></span>
+                Perrin
+              </div>
+            </div>
+          </div>
+          <div class="span-2" style="margin-top:4px">
+            <textarea class="form-textarea" placeholder="Notes (optionnel) — ex : patient prioritaire, personne âgée…" style="min-height:48px;font-size:13px"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <div style="display:flex;gap:10px">
+          <button class="btn-secondary" style="flex:0 0 auto">Annuler</button>
+          <button class="btn-primary" style="flex:1">Ajouter à la file</button>
+        </div>
+        <div class="shortcut-hint" style="margin-top:6px"><kbd class="kbd">⌘↵</kbd> valider · <kbd class="kbd">Esc</kbd> fermer</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Annotation -->
+  <div class="annotation-bar">
+    <div class="annotation-card">
+      <div class="annotation-title">B — Centered Compact Modal</div>
+      <div class="annotation-subtitle">Inspired by Cal.com, Notion, Figma. Uses infield top-aligned labels.</div>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>Strengths</h4>
+          <ul>
+            <li>Maximum focus — blocks distractions, forces completion</li>
+            <li>Compact 2-column grid fits everything without scrolling</li>
+            <li>Infield labels save vertical space while staying visible</li>
+            <li>Works equally well on 1024px and 1920px screens</li>
+            <li>Simpler implementation (no drawer animation/resize logic)</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>Trade-offs</h4>
+          <ul>
+            <li>Fully blocks the queue view — can't glance at waiting patients</li>
+            <li>Infield labels slightly less accessible than top-aligned</li>
+            <li>Feels more "interrupting" than a drawer</li>
+            <li>Less room to grow if more fields are added later</li>
+          </ul>
+        </div>
+      </div>
+      <div class="best-for"><strong>Best for:</strong> Quick one-off additions where speed matters more than context. Good for clinics with a single receptionist.</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════
+     OPTION C — INLINE EXPANSION
+     Doctolib / Google Calendar pattern.
+     Form expands inline between doctor cards and queue.
+     ══════════════════════════════════════════════════ -->
+<section id="alt-c" class="alt-section">
+  <div class="mockup-frame">
+    <!-- Topbar -->
+    <div class="topbar">
+      <div class="topbar-brand">AuSuivant</div>
+      <div class="topbar-right">
+        <div style="position:relative">
+          <svg style="position:absolute;left:10px;top:50%;transform:translateY(-50%);pointer-events:none" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8A9B92" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="topbar-search" placeholder="Rechercher un patient...">
+        </div>
+        <button class="topbar-btn" style="background:var(--forest)">+ Patient</button>
+        <div class="topbar-presence"><span class="presence-dot"></span> Présent</div>
+      </div>
+    </div>
+
+    <!-- Doctor cards -->
+    <div class="doctor-cards">
+      <div class="doctor-card">
+        <div class="doctor-card-header">
+          <div class="doctor-bar" style="background:#4A8EBF"></div>
+          <div style="flex:1">
+            <div style="display:flex;align-items:center;gap:5px">
+              <span class="doctor-name">Dr. Lefèvre</span>
+              <span class="doctor-tag" style="background:#DBECF4;color:#34659F">Pédiatre</span>
+            </div>
+            <div class="doctor-kpi"><strong style="color:#4A8EBF">3</strong> att. · <strong>1</strong> vus · <strong>7m</strong> moy.</div>
+          </div>
+        </div>
+        <div class="consult-zone">
+          <div class="consult-badge" style="background:#4A8EBF">L</div>
+          <div style="flex:1">
+            <span class="consult-name">Marcel S.</span>
+            <div class="consult-meta">● En consultation · 8 min</div>
+          </div>
+          <button class="btn-terminer">✓ Terminer</button>
+        </div>
+        <div class="card-footer">
+          <button class="btn-suivant-sm" style="background:#DBECF4;color:#4A8EBF">▸ Suivant</button>
+        </div>
+      </div>
+      <div class="doctor-card">
+        <div class="doctor-card-header">
+          <div class="doctor-bar" style="background:#549F3A"></div>
+          <div style="flex:1">
+            <div style="display:flex;align-items:center;gap:5px">
+              <span class="doctor-name">Dr. Perrin</span>
+              <span class="doctor-tag" style="background:#F2F9E8;color:#357D23">Généraliste</span>
+            </div>
+            <div class="doctor-kpi"><strong style="color:#549F3A">3</strong> att. · <strong>0</strong> vus</div>
+          </div>
+        </div>
+        <div class="libre-zone">
+          <span class="libre-dot" style="background:#549F3A"></span> Libre
+        </div>
+        <div class="card-footer">
+          <button class="btn-suivant-sm" style="background:#F2F9E8;color:#549F3A">▸ Suivant</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── INLINE FORM CARD (expands in-place) ── -->
+    <div class="inline-form-card" style="margin-top:12px">
+      <div class="inline-card">
+        <div class="inline-card-header">
+          <div class="inline-card-title">
+            <span class="inline-card-title-icon">+</span>
+            Nouveau patient
+          </div>
+          <div style="display:flex;gap:4px">
+            <div class="type-toggle" style="margin:0;padding:2px;background:rgba(84,159,58,0.08)">
+              <button class="active" style="padding:5px 10px;font-size:11px">📅 RDV</button>
+              <button style="padding:5px 10px;font-size:11px">🚶 Walk-in</button>
+            </div>
+          </div>
+        </div>
+        <div class="inline-card-body">
+          <div class="inline-form-grid">
+            <!-- Row 1: Name + Phone -->
+            <div class="form-group" style="margin-bottom:0">
+              <label class="form-label">Prénom</label>
+              <input class="form-input" placeholder="Marie" style="padding:9px 12px;font-size:13px">
+            </div>
+            <div class="form-group" style="margin-bottom:0">
+              <label class="form-label">Nom</label>
+              <input class="form-input" placeholder="Dupont" style="padding:9px 12px;font-size:13px">
+            </div>
+            <div class="form-group" style="margin-bottom:0">
+              <label class="form-label">Téléphone</label>
+              <div style="display:flex;gap:0">
+                <div style="width:42px;padding:9px 4px;text-align:center;font-size:13px;border:1.5px solid var(--border);border-right:none;border-radius:var(--radius-sm) 0 0 var(--radius-sm);background:var(--surface-alt);color:var(--text-tertiary)">+33</div>
+                <input class="form-input" placeholder="6 12 34 56 78" style="border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:9px 10px;font-size:13px">
+              </div>
+            </div>
+
+            <!-- Row 2: Time + Doctor + Notes -->
+            <div class="form-group" style="margin-bottom:0">
+              <label class="form-label">Heure RDV</label>
+              <div style="display:flex;gap:4px;align-items:center">
+                <select class="form-select" style="flex:1;padding:9px 10px;font-size:13px"><option>09</option><option selected>10</option></select>
+                <span style="font-weight:700;color:var(--text-tertiary)">:</span>
+                <select class="form-select" style="flex:1;padding:9px 10px;font-size:13px"><option>00</option><option selected>15</option><option>30</option></select>
+              </div>
+            </div>
+            <div class="form-group" style="margin-bottom:0">
+              <label class="form-label">Médecin</label>
+              <div style="display:flex;gap:6px">
+                <div class="doctor-chip" style="padding:5px 9px;font-size:11px">
+                  <span class="doctor-chip-dot" style="background:#4A8EBF;width:6px;height:6px"></span>
+                  Lefèvre
+                </div>
+                <div class="doctor-chip selected" style="padding:5px 9px;font-size:11px;border-color:#549F3A;background:rgba(84,159,58,0.06);color:#357D23">
+                  <span class="doctor-chip-dot" style="background:#549F3A;width:6px;height:6px"></span>
+                  Perrin
+                </div>
+              </div>
+            </div>
+            <div class="form-group" style="margin-bottom:0">
+              <label class="form-label">Notes <span style="font-weight:400;text-transform:none;letter-spacing:0">(opt.)</span></label>
+              <input class="form-input" placeholder="Ex : prioritaire…" style="padding:9px 12px;font-size:13px">
+            </div>
+          </div>
+        </div>
+        <div class="inline-card-footer">
+          <button class="btn-ghost">Annuler</button>
+          <button class="btn-primary" style="width:auto;padding:9px 20px;font-size:13px">Ajouter à la file</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Queue -->
+    <div class="queue-section" style="margin-top:12px">
+      <div class="queue-header">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="queue-dot"></span>
+          <span class="queue-label">File d'attente</span>
+          <span style="font-size:13px;font-weight:700;color:var(--ink)">3</span>
+        </div>
+        <button class="btn-suivant">Suivant <span style="background:rgba(255,255,255,0.2);padding:1px 6px;border-radius:8px;font-size:10px;margin-left:4px">3</span></button>
+      </div>
+      <div class="patient-row">
+        <div class="patient-pos">1</div>
+        <div><div class="patient-name">Fred G. <span class="patient-tag">SANS RDV</span></div><div class="patient-meta">Arrivée 16h29 · 10 min</div></div>
+        <div class="patient-wait"><div class="patient-wait-time">~0</div><div class="patient-wait-label">MIN EST.</div></div>
+      </div>
+      <div class="patient-row">
+        <div class="patient-pos">2</div>
+        <div><div class="patient-name">Fabienne <span class="patient-tag">SANS RDV</span></div><div class="patient-meta">Arrivée 16h32 · 7 min</div></div>
+        <div class="patient-wait"><div class="patient-wait-time">~18</div><div class="patient-wait-label">MIN EST.</div></div>
+      </div>
+      <div class="patient-row">
+        <div class="patient-pos">3</div>
+        <div><div class="patient-name">Georges <span class="patient-tag">SANS RDV</span></div><div class="patient-meta">Arrivée 16h32 · 7 min</div></div>
+        <div class="patient-wait"><div class="patient-wait-time">~36</div><div class="patient-wait-label">MIN EST.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Annotation -->
+  <div class="annotation-bar">
+    <div class="annotation-card">
+      <div class="annotation-title">C — Inline Expansion Card</div>
+      <div class="annotation-subtitle">Inspired by Doctolib, Google Calendar. Form expands in-page between sections.</div>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>Strengths</h4>
+          <ul>
+            <li>No overlay — full page context preserved at all times</li>
+            <li>3-column grid puts everything on one row pair — ultra-compact</li>
+            <li>Feels like filling a card, not opening a dialog</li>
+            <li>Queue stays visible below — receptionist sees impact immediately</li>
+            <li>Fastest flow: focus field → type → tab → submit</li>
+            <li>No z-index/overlay complexity to manage</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>Trade-offs</h4>
+          <ul>
+            <li>Pushes queue down — may require scrolling on smaller screens</li>
+            <li>Compact layout can feel cramped with long names / many doctors</li>
+            <li>Notes field reduced to single-line (less room for details)</li>
+            <li>Doesn't scale well beyond 6-7 fields</li>
+            <li>Less conventional — some users may not recognize it as a form</li>
+          </ul>
+        </div>
+      </div>
+      <div class="best-for"><strong>Best for:</strong> High-throughput clinics where speed is critical and patients rarely need notes. Great for single-doctor practices.</div>
+    </div>
+  </div>
+</section>
+
+
+<script>
+function showAlt(id) {
+  document.querySelectorAll('.alt-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.page-nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('alt-' + id).classList.add('active');
+  document.querySelectorAll('.page-nav button')[{a:0,b:1,c:2}[id]].classList.add('active');
+  window.scrollTo(0, 0);
+}
+</script>
+</body>
+</html>

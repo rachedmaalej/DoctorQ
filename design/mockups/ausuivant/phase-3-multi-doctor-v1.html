@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AuSuivant — Phase 3: Multi-Doctor v1 (Maison)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Lato:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<style>
+
+/* ═══════════════════════════════════════════════════════════
+   DESIGN TOKENS — 09 · MAISON
+   L'elegance d'un atelier parisien.
+   Palette : Ecru #F7F3EE · Cognac #A0714F · Or pale #C9B99A · Chocolat #3A2E24
+   Typo    : Cormorant Garamond (noms, chiffres — italique)
+             Lato (corps, labels, UI — capitales espacees)
+   Mood    : Mode de luxe. Silences genereux. Filets 1px ultrafins.
+═══════════════════════════════════════════════════════════ */
+:root {
+  /* surfaces */
+  --bg:         #F7F3EE;
+  --surface:    #FEFCF9;
+  --ink:        #3A2E24;
+  --ink-soft:   #6A5C4E;
+  --muted:      #8A7968;
+  --muted-lt:   #C9B99A;
+  --border:     rgba(160,113,79,0.12);
+  --border-lt:  rgba(160,113,79,0.08);
+
+  /* cognac accent */
+  --cognac:     #A0714F;
+  --cognac-dim: rgba(160,113,79,0.1);
+  --cognac-bd:  rgba(160,113,79,0.25);
+  --cognac-lt:  rgba(160,113,79,0.05);
+
+  /* doctor colors */
+  --doc-blue:   #4A6E8F;
+  --doc-teal:   #60B8AA;
+  --doc-amber:  #E15720;
+  --doc-plum:   #8E618F;
+
+  /* status */
+  --danger:     #A83030;
+  --danger-bg:  rgba(168,48,48,0.06);
+  --warning:    #C8863A;
+  --warning-bg: rgba(200,134,58,0.08);
+
+  /* radius — near zero, Maison signature */
+  --r-sm: 3px;
+  --r-md: 4px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESET & PAGE
+═══════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; }
+body {
+  font-family: 'Lato', sans-serif;
+  background: #D1D1D1; color: var(--ink);
+  min-height: 100vh; -webkit-font-smoothing: antialiased;
+}
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 24;
+  font-size: 20px; vertical-align: middle; line-height: 1; user-select: none;
+}
+input, button { font-family: inherit; }
+button { cursor: pointer; border: none; background: none; }
+
+/* Phase Banner */
+.phase-banner {
+  background: var(--ink); color: var(--cognac);
+  padding: 12px 24px; text-align: center;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+}
+.phase-banner span { opacity: 0.4; font-weight: 400; color: #fff; text-transform: none; letter-spacing: 0; }
+
+/* View Toggle */
+.view-toggle { display: flex; justify-content: center; gap: 8px; padding: 16px; background: #D1D1D1; }
+.view-toggle button {
+  padding: 8px 24px; border-radius: var(--r-sm); border: 1px solid var(--cognac-bd);
+  background: var(--surface); color: var(--muted);
+  font-family: 'Lato', sans-serif; font-size: 10px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: all 0.15s;
+}
+.view-toggle button.active { background: var(--ink); color: var(--cognac); border-color: var(--ink); }
+
+/* Views */
+.desktop-view, .mobile-view { display: none; }
+.desktop-view.active, .mobile-view.active { display: block; }
+
+/* Desktop View */
+.desktop-view { max-width: 800px; margin: 0 auto; padding: 24px; }
+.desktop-frame { background: var(--bg); overflow: hidden; box-shadow: 0 2px 20px rgba(58,46,36,0.08); }
+
+/* Mobile View */
+.mobile-view { display: flex; justify-content: center; padding: 24px; flex-wrap: wrap; gap: 32px; }
+.phone-frame {
+  width: 390px; height: 844px; background: #111; border-radius: 48px; padding: 12px;
+  position: relative; overflow: hidden;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+}
+.phone-frame::before {
+  content: ''; position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+  width: 120px; height: 28px; background: #111; border-radius: 14px; z-index: 20;
+}
+.phone-screen {
+  width: 100%; height: 100%; background: var(--bg); border-radius: 38px;
+  overflow-y: auto; overflow-x: hidden; position: relative;
+  display: flex; flex-direction: column;
+}
+.phone-screen::-webkit-scrollbar { display: none; }
+
+/* Status Bar */
+.status-bar {
+  height: 48px; display: flex; align-items: flex-end; justify-content: space-between;
+  padding: 0 24px 6px; font-size: 12px; font-weight: 600; color: var(--ink);
+  background: var(--bg); position: sticky; top: 0; z-index: 10; flex-shrink: 0;
+}
+.status-bar-right { display: flex; gap: 6px; align-items: center; font-size: 11px; }
+
+/* ═══════════════════════════════════════════════════════════
+   Topbar
+═══════════════════════════════════════════════════════════ */
+.topbar {
+  background: var(--surface); padding: 16px 20px 14px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.topbar-cname {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px; font-weight: 400; font-style: italic;
+  color: var(--ink); letter-spacing: 0.02em;
+}
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+.lang-badge {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--muted); padding: 4px 10px;
+  border: 1px solid var(--cognac-bd); border-radius: var(--r-sm);
+}
+.hb-btn {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 5px;
+  cursor: pointer; padding: 4px 2px; background: transparent; border: none;
+}
+.hb-btn span { display: block; height: 1px; background: var(--cognac); }
+.hb-btn span:nth-child(1) { width: 22px; }
+.hb-btn span:nth-child(2) { width: 14px; }
+.hb-btn span:nth-child(3) { width: 22px; }
+
+/* ═══════════════════════════════════════════════════════════
+   Stats — deux colonnes ivoire, filet cognac
+═══════════════════════════════════════════════════════════ */
+.stats-card {
+  background: var(--surface); padding: 18px 20px 16px;
+  display: grid; grid-template-columns: 1fr 1px 1fr; gap: 0;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.stat-divider { background: rgba(160,113,79,0.2); }
+.stat-item { padding: 0 16px; }
+.stat-item:first-child { padding-left: 0; }
+.stat-item:last-child { padding-right: 0; }
+.stat-lbl {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--muted-lt); margin-bottom: 5px;
+}
+.stat-val {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 40px; font-weight: 300; color: var(--ink);
+  line-height: 1; letter-spacing: -1px;
+}
+.stat-sub { font-size: 10px; color: var(--muted); margin-top: 3px; }
+
+/* ═══════════════════════════════════════════════════════════
+   Doctor Status Bar (Phase 3 feature)
+═══════════════════════════════════════════════════════════ */
+.doctor-status-bar {
+  display: flex; gap: 6px; padding: 10px 20px;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  overflow-x: auto; flex-shrink: 0;
+}
+.doctor-status-bar::-webkit-scrollbar { display: none; }
+.doc-pill {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 10px; font-size: 11px; font-weight: 400;
+  letter-spacing: 0.04em; white-space: nowrap; flex-shrink: 0;
+  cursor: pointer; border: none; font-family: 'Lato', sans-serif;
+  background: transparent; color: var(--muted);
+  border-bottom: 1px solid transparent;
+}
+.doc-pill .pill-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.doc-pill .pill-arrow { font-size: 12px; opacity: 0.4; margin-left: 2px; color: var(--cognac); }
+.doc-pill.consulting { color: var(--ink); font-weight: 700; border-bottom-color: var(--cognac); }
+.doc-pill.consulting .pill-dot { background: var(--cognac); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.doc-pill.free { color: var(--doc-teal); }
+.doc-pill.free .pill-dot { background: var(--doc-teal); }
+.doc-pill.pause { color: var(--muted-lt); }
+.doc-pill.pause .pill-dot { background: var(--muted-lt); }
+.doc-pill.absent { color: var(--muted-lt); text-decoration: line-through; }
+.doc-pill.absent .pill-dot { background: var(--danger); }
+.pill-delay {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.06em;
+  color: var(--warning); margin-left: 2px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Tab bar
+═══════════════════════════════════════════════════════════ */
+.tab-bar {
+  display: flex; background: var(--surface);
+  border-bottom: 1px solid var(--border); flex-shrink: 0;
+}
+.tab-bar button {
+  flex: 1; padding: 10px 16px; font-family: 'Lato', sans-serif;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  border: none; background: none; cursor: pointer; color: var(--muted-lt);
+  position: relative; transition: color 0.15s;
+}
+.tab-bar button.active { color: var(--ink); }
+.tab-bar button.active::after {
+  content: ''; position: absolute; bottom: 0; left: 16px; right: 16px;
+  height: 1px; background: var(--cognac);
+}
+.tab-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 16px; height: 16px; padding: 0 5px; border-radius: 2px;
+  background: var(--cognac); color: var(--surface); font-size: 9px; font-weight: 700;
+  margin-left: 6px;
+}
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* ═══════════════════════════════════════════════════════════
+   No-show banner
+═══════════════════════════════════════════════════════════ */
+.noshow-banner {
+  display: flex; align-items: center; gap: 10px;
+  margin: 12px 20px 4px; padding: 10px 14px;
+  background: var(--warning-bg); border-left: 2px solid var(--warning);
+}
+.noshow-icon {
+  font-size: 14px; font-weight: 700; color: var(--warning); flex-shrink: 0;
+}
+.noshow-info { flex: 1; min-width: 0; }
+.noshow-name { font-size: 12px; font-weight: 700; color: var(--ink); letter-spacing: 0.02em; }
+.noshow-detail { font-size: 10px; color: var(--warning); letter-spacing: 0.04em; }
+.noshow-action {
+  padding: 5px 10px; border-radius: var(--r-sm); border: 1px solid var(--warning);
+  background: transparent; color: var(--warning);
+  font-family: inherit; font-size: 9px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; white-space: nowrap;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Search bar
+═══════════════════════════════════════════════════════════ */
+.search-row { padding: 14px 20px 10px; display: flex; gap: 10px; }
+.search-input {
+  flex: 1; background: var(--surface); border: none;
+  border-bottom: 1px solid var(--cognac-bd);
+  padding: 10px 4px; font-family: 'Lato', sans-serif;
+  font-size: 13px; color: var(--ink); outline: none; border-radius: 0;
+}
+.search-input::placeholder { color: var(--muted-lt); font-style: italic; }
+.add-btn {
+  width: 38px; height: 38px; background: transparent;
+  border: 1px solid var(--cognac-bd); border-radius: var(--r-md);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--cognac); flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Section label
+═══════════════════════════════════════════════════════════ */
+.section-lbl {
+  padding: 0 20px; font-size: 9px; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--muted-lt); margin-bottom: 10px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Consultation card — ivoire, filet gauche cognac
+═══════════════════════════════════════════════════════════ */
+.consult-card {
+  margin: 0 20px 16px; background: var(--surface);
+  padding: 14px 16px 14px 20px;
+  border-left: 2px solid var(--cognac);
+  position: relative;
+}
+.consult-tag {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--cognac); margin-bottom: 6px;
+}
+.consult-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px; font-weight: 400; color: var(--ink); margin-bottom: 4px;
+  letter-spacing: 0.01em;
+}
+.consult-meta { font-size: 11px; color: var(--muted); margin-bottom: 12px; }
+.consult-btns { display: flex; gap: 8px; }
+.btn-end {
+  background: var(--cognac); color: var(--surface); border: none;
+  padding: 9px 18px; border-radius: var(--r-sm);
+  font-family: 'Lato', sans-serif; font-size: 11px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer;
+  display: flex; align-items: center; gap: 5px;
+}
+.btn-call-outline {
+  width: 36px; background: transparent; border: 1px solid var(--cognac-bd);
+  border-radius: var(--r-sm); display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--cognac);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Queue — lignes epurees, filets ultrafins
+═══════════════════════════════════════════════════════════ */
+.queue-list { padding: 0 20px; padding-bottom: 80px; }
+.q-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 0; border-bottom: 1px solid var(--border-lt);
+}
+.q-item:last-child { border-bottom: none; }
+.q-item.urgent { background: var(--danger-bg); margin: 0 -20px; padding: 10px 20px; }
+.q-pos {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px; font-weight: 300; color: var(--muted-lt);
+  width: 20px; flex-shrink: 0; text-align: center;
+}
+.q-pos.urgent-pos {
+  font-family: 'Lato', sans-serif;
+  font-size: 12px; font-weight: 900; color: var(--danger);
+}
+.doctor-badge {
+  width: 20px; height: 20px; border-radius: var(--r-sm);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 9px; color: white; flex-shrink: 0;
+}
+.q-info { flex: 1; min-width: 0; }
+.q-name-line { display: flex; align-items: baseline; gap: 6px; margin-bottom: 1px; }
+.q-name { font-size: 13px; font-weight: 400; color: var(--ink); letter-spacing: 0.01em; }
+.q-tag {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 1px 6px; border-radius: 2px; flex-shrink: 0;
+}
+.q-tag-notified { color: var(--warning); border: 1px solid rgba(200,134,58,0.3); }
+.q-tag-urgent { color: var(--danger); border: 1px solid rgba(168,48,48,0.3); }
+.q-tag-sans { color: var(--muted-lt); border: 1px solid rgba(201,185,154,0.4); }
+.q-meta { font-size: 11px; color: var(--muted); }
+.q-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.q-wait { text-align: right; min-width: 36px; }
+.q-wait-val { font-size: 12px; font-weight: 400; font-variant-numeric: tabular-nums; color: var(--ink); }
+.q-wait-lbl { font-size: 8px; text-transform: uppercase; color: var(--muted-lt); letter-spacing: 0.1em; }
+.q-call { color: var(--muted-lt); flex-shrink: 0; }
+
+/* ═══════════════════════════════════════════════════════════
+   CTA bar
+═══════════════════════════════════════════════════════════ */
+.cta-bar {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: var(--ink); padding: 14px 20px;
+  display: flex; align-items: center; gap: 10px; z-index: 10; flex-shrink: 0;
+}
+.cta-line { width: 16px; height: 1px; background: var(--cognac); flex-shrink: 0; }
+.cta-txt {
+  font-size: 12px; font-weight: 400; letter-spacing: 0.06em;
+  color: var(--muted-lt); flex: 1; text-transform: uppercase;
+}
+.cta-name { color: var(--surface); }
+.desktop-frame .cta-bar { position: static; }
+
+/* ═══════════════════════════════════════════════════════════
+   Overlay panels (Phase 3 sheets)
+═══════════════════════════════════════════════════════════ */
+.overlay-section { margin-top: 32px; padding: 0 24px; }
+.overlay-section h3 {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 16px;
+}
+.overlay-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 24px; }
+
+/* Action Panel */
+.action-panel { background: var(--surface); box-shadow: 0 2px 20px rgba(58,46,36,0.08); max-width: 390px; }
+.action-panel-hdr {
+  display: flex; align-items: center; gap: 12px; padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.action-panel-hdr .doc-avatar {
+  width: 36px; height: 36px; border-radius: var(--r-sm);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Cormorant Garamond', serif; font-size: 14px; font-style: italic;
+  color: white; font-weight: 400;
+}
+.action-panel-hdr .doc-info { flex: 1; }
+.action-panel-hdr .doc-name { font-weight: 700; font-size: 13px; color: var(--ink); }
+.action-panel-hdr .doc-state { font-size: 11px; color: var(--muted); }
+.action-panel-close { color: var(--muted-lt); }
+.action-panel-body { padding: 10px 20px 20px; display: flex; flex-direction: column; gap: 4px; }
+.action-btn {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  padding: 10px 12px; border: none; border-bottom: 1px solid var(--border-lt);
+  background: transparent; cursor: pointer; font-family: inherit;
+  text-align: left; font-size: 12px; font-weight: 400; color: var(--ink);
+  letter-spacing: 0.04em;
+}
+.action-btn:last-child { border-bottom: none; }
+.action-btn .action-ico { font-size: 16px; color: var(--muted-lt); width: 20px; text-align: center; }
+.action-btn .action-ico.green { color: var(--doc-teal); }
+.action-btn .action-ico.amber { color: var(--warning); }
+.action-btn .action-ico.red { color: var(--danger); }
+.action-btn .action-ico.blue { color: var(--doc-blue); }
+
+/* Transfer Sheet */
+.transfer-sheet { background: var(--surface); box-shadow: 0 2px 20px rgba(58,46,36,0.08); max-width: 390px; }
+.transfer-hdr { padding: 16px 20px 8px; }
+.transfer-hdr h4 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px; font-weight: 400; color: var(--ink);
+}
+.transfer-hdr p { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.transfer-patient {
+  display: flex; align-items: center; gap: 8px; margin: 8px 20px;
+  padding: 8px 12px; border-left: 2px solid var(--cognac);
+  font-size: 12px; background: var(--cognac-lt);
+}
+.transfer-patient .tp-name { font-weight: 700; color: var(--ink); }
+.transfer-patient .tp-from { color: var(--muted); }
+.transfer-docs { padding: 8px 20px 20px; display: flex; flex-direction: column; gap: 6px; }
+.transfer-doc-btn {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  padding: 10px 12px; border: none; border-bottom: 1px solid var(--border-lt);
+  background: transparent; cursor: pointer; font-family: inherit;
+}
+.transfer-doc-btn .td-init {
+  width: 28px; height: 28px; border-radius: var(--r-sm);
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-weight: 700; font-size: 12px;
+}
+.transfer-doc-btn .td-info { flex: 1; }
+.transfer-doc-btn .td-name { font-weight: 700; font-size: 12px; color: var(--ink); }
+.transfer-doc-btn .td-queue { font-size: 10px; color: var(--muted); }
+.transfer-doc-btn .td-arrow { font-size: 14px; color: var(--cognac); }
+
+/* Patient Detail */
+.patient-detail { background: var(--surface); box-shadow: 0 2px 20px rgba(58,46,36,0.08); max-width: 390px; }
+.pd-hdr {
+  display: flex; align-items: center; gap: 12px; padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.pd-avatar {
+  width: 36px; height: 36px; border-radius: var(--r-sm);
+  background: var(--cognac-dim); display: flex; align-items: center; justify-content: center;
+  font-family: 'Cormorant Garamond', serif; font-size: 14px; font-style: italic;
+  color: var(--cognac); font-weight: 400;
+}
+.pd-info { flex: 1; }
+.pd-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px; font-weight: 400; color: var(--ink);
+}
+.pd-sub { font-size: 10px; color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; }
+.pd-close { color: var(--muted-lt); }
+.pd-fields { padding: 12px 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.pd-field { display: flex; flex-direction: column; gap: 1px; }
+.pd-field-lbl { font-size: 8px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--muted-lt); }
+.pd-field-val { font-size: 12px; font-weight: 700; color: var(--ink); }
+.pd-actions { padding: 8px 20px 20px; display: flex; flex-wrap: wrap; gap: 6px; }
+.pd-btn {
+  padding: 7px 14px; border-radius: var(--r-sm);
+  border: 1px solid var(--border); background: transparent;
+  font-family: inherit; font-size: 10px; font-weight: 700;
+  letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer;
+  color: var(--ink);
+}
+.pd-btn.primary { background: var(--cognac); color: var(--surface); border-color: var(--cognac); }
+.pd-btn.danger { color: var(--danger); border-color: rgba(168,48,48,0.2); }
+
+/* ═══════════════════════════════════════════════════════════
+   Side drawer
+═══════════════════════════════════════════════════════════ */
+.scrim {
+  position: absolute; inset: 0; z-index: 30;
+  background: rgba(0,0,0,0.35); opacity: 0; pointer-events: none;
+  transition: opacity 0.25s;
+}
+.scrim.on { opacity: 1; pointer-events: all; }
+
+.sdrawer {
+  position: absolute; top: 0; right: 0; bottom: 0; z-index: 50;
+  width: 84%; background: var(--surface);
+  box-shadow: -4px 0 32px rgba(58,46,36,0.1);
+  transform: translateX(105%);
+  transition: transform 0.3s cubic-bezier(0.32,0.72,0,1);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.sdrawer.on { transform: translateX(0); }
+.sdr-hdr {
+  background: var(--bg); padding: 18px 20px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+}
+.sdr-cname {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 15px; font-style: italic; font-weight: 400; color: var(--ink);
+}
+.sdr-x { color: var(--muted-lt); cursor: pointer; }
+.sdr-profile {
+  padding: 16px 20px; display: flex; align-items: center; gap: 12px;
+  border-bottom: 1px solid var(--border-lt);
+}
+.sdr-avatar {
+  width: 38px; height: 38px; border-radius: var(--r-sm); background: var(--cognac);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Cormorant Garamond', serif; font-size: 14px; font-style: italic;
+  color: var(--surface); flex-shrink: 0;
+}
+.sdr-name { font-size: 13px; font-weight: 700; color: var(--ink); }
+.sdr-role { font-size: 11px; color: var(--muted); }
+.sdr-status {
+  margin-left: auto; font-size: 9px; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--cognac); font-weight: 700;
+  display: flex; align-items: center; gap: 5px; flex-shrink: 0;
+}
+.sdr-sdot { width: 5px; height: 5px; border-radius: 50%; background: var(--cognac); }
+.sdr-nav { flex: 1; padding: 12px 14px; overflow-y: auto; }
+.sdr-item {
+  display: flex; align-items: center; gap: 12px; padding: 11px 10px;
+  font-size: 12px; font-weight: 400; letter-spacing: 0.04em;
+  color: var(--muted); cursor: pointer; border-bottom: 1px solid transparent;
+}
+.sdr-item.on { color: var(--ink); font-weight: 700; }
+.sdr-ico { font-size: 17px; color: var(--muted-lt); }
+.sdr-item.on .sdr-ico { color: var(--cognac); }
+.sdr-badge {
+  margin-left: auto; background: var(--cognac); color: var(--surface);
+  font-size: 10px; font-weight: 700; padding: 1px 8px; border-radius: 2px;
+}
+.sdr-div { height: 1px; background: var(--border-lt); margin: 4px 0; }
+.sdr-footer { padding: 12px 16px 16px; border-top: 1px solid var(--border); }
+.sdr-trial {
+  font-size: 10px; color: var(--cognac); font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase; margin-bottom: 10px;
+  display: flex; align-items: center; gap: 6px;
+}
+.sdr-logout {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 11px; color: var(--muted); cursor: pointer; letter-spacing: 0.04em;
+}
+
+</style>
+</head>
+<body>
+
+<div class="phase-banner">Phase 3 — Multi-Doctor v1 · Maison <span>| Ecru · Cognac · Cormorant Garamond · Filets ultrafins · Capitales espacees</span></div>
+
+<div class="view-toggle">
+  <button class="active" onclick="switchView('desktop')">Desktop</button>
+  <button onclick="switchView('mobile')">Mobile</button>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     DESKTOP VIEW
+═══════════════════════════════════════════════════════════ -->
+<div class="desktop-view active" id="desktop-view">
+  <div class="desktop-frame">
+
+    <!-- Topbar -->
+    <div class="topbar">
+      <div class="topbar-cname">Cabinet Dr. Fontaine</div>
+      <div class="topbar-right">
+        <div class="lang-badge">FR</div>
+        <button class="hb-btn" onclick="openSdr('desktop')">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-card">
+      <div class="stat-item">
+        <div class="stat-lbl">En attente</div>
+        <div class="stat-val">4</div>
+        <div class="stat-sub">patients</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <div class="stat-lbl">Vus · Max</div>
+        <div class="stat-val">8</div>
+        <div class="stat-sub">18 min</div>
+      </div>
+    </div>
+
+    <!-- Doctor Status Bar -->
+    <div class="doctor-status-bar">
+      <button class="doc-pill consulting">
+        <span class="pill-dot"></span>
+        Dr. Martin · En consult
+        <span class="pill-delay">+15</span>
+        <span class="pill-arrow">&#8250;</span>
+      </button>
+      <button class="doc-pill free">
+        <span class="pill-dot"></span>
+        Dr. Leroy · Libre
+        <span class="pill-arrow">&#8250;</span>
+      </button>
+      <button class="doc-pill pause">
+        <span class="pill-dot"></span>
+        Dr. Ngo · Pause
+      </button>
+      <button class="doc-pill absent">
+        <span class="pill-dot"></span>
+        Dr. Bernard · Absent
+      </button>
+    </div>
+
+    <!-- Tab bar -->
+    <div class="tab-bar">
+      <button class="active" onclick="switchTab(this, 'salle', 'desktop')">Salle d'attente <span class="tab-badge">4</span></button>
+      <button onclick="switchTab(this, 'agenda', 'desktop')">Agenda</button>
+    </div>
+
+    <!-- Salle tab -->
+    <div class="tab-content active" id="desktop-salle">
+
+      <div class="noshow-banner">
+        <div class="noshow-icon">!</div>
+        <div class="noshow-info">
+          <div class="noshow-name">Bernard L. (10h00)</div>
+          <div class="noshow-detail">Absent depuis 15 min</div>
+        </div>
+        <button class="noshow-action">Marquer absent</button>
+      </div>
+
+      <div class="search-row">
+        <input class="search-input" placeholder="Nom du patient..."/>
+        <button class="add-btn"><span class="material-symbols-outlined" style="font-size:18px;color:var(--cognac);">person_add</span></button>
+      </div>
+
+      <!-- EN CONSULTATION -->
+      <div class="section-lbl">En consultation</div>
+      <div class="consult-card">
+        <div class="consult-tag">Patient actuel · Dr. Martin</div>
+        <div class="consult-name">Mme Sophie D.</div>
+        <div class="consult-meta">Arrivee 09h05 · Sans RDV · Consultation depuis 12 min</div>
+        <div class="consult-btns">
+          <button class="btn-end"><span class="material-symbols-outlined" style="font-size:13px;">check_circle</span>Terminer</button>
+          <button class="btn-call-outline"><span class="material-symbols-outlined" style="font-size:17px;">call</span></button>
+        </div>
+      </div>
+
+      <!-- FILE D'ATTENTE -->
+      <div class="section-lbl">File d'attente</div>
+      <div class="queue-list" style="padding-bottom:16px;">
+        <div class="q-item">
+          <div class="q-pos">1</div>
+          <div class="doctor-badge" style="background:var(--doc-teal);">L</div>
+          <div class="q-info">
+            <div class="q-name-line"><span class="q-name">Pierre M.</span> <span class="q-tag q-tag-notified">Notifie</span> <span class="q-tag q-tag-sans">Sans RDV</span></div>
+            <div class="q-meta">Arrivee 9h15 · Dr. Leroy</div>
+          </div>
+          <div class="q-right">
+            <div class="q-wait"><div class="q-wait-val">~15</div><div class="q-wait-lbl">min</div></div>
+            <span class="material-symbols-outlined q-call" style="font-size:16px;">call</span>
+          </div>
+        </div>
+        <div class="q-item urgent">
+          <div class="q-pos urgent-pos">!</div>
+          <div class="doctor-badge" style="background:var(--doc-blue);">M</div>
+          <div class="q-info">
+            <div class="q-name-line"><span class="q-name">J-C. Bernard</span> <span class="q-tag q-tag-urgent">Urgent</span></div>
+            <div class="q-meta">Arrivee 9h22 · Dr. Martin</div>
+          </div>
+          <div class="q-right">
+            <div class="q-wait"><div class="q-wait-val">~30</div><div class="q-wait-lbl">min</div></div>
+            <span class="material-symbols-outlined q-call" style="font-size:16px;">call</span>
+          </div>
+        </div>
+        <div class="q-item">
+          <div class="q-pos">3</div>
+          <div class="doctor-badge" style="background:var(--doc-teal);">L</div>
+          <div class="q-info">
+            <div class="q-name-line"><span class="q-name">Marie L.</span> <span class="q-tag q-tag-sans">Sans RDV</span></div>
+            <div class="q-meta">Arrivee 9h30 · Dr. Leroy</div>
+          </div>
+          <div class="q-right">
+            <div class="q-wait"><div class="q-wait-val">~45</div><div class="q-wait-lbl">min</div></div>
+            <span class="material-symbols-outlined q-call" style="font-size:16px;">call</span>
+          </div>
+        </div>
+        <div class="q-item">
+          <div class="q-pos">4</div>
+          <div class="doctor-badge" style="background:var(--doc-blue);">M</div>
+          <div class="q-info">
+            <div class="q-name-line"><span class="q-name">Fatima N.</span> <span class="q-tag q-tag-sans">Sans RDV</span></div>
+            <div class="q-meta">Arrivee 9h45 · Dr. Martin</div>
+          </div>
+          <div class="q-right">
+            <div class="q-wait"><div class="q-wait-val">~60</div><div class="q-wait-lbl">min</div></div>
+            <span class="material-symbols-outlined q-call" style="font-size:16px;">call</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-content" id="desktop-agenda">
+      <div style="padding:48px 20px;text-align:center;color:var(--muted-lt);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;">
+        Agenda (same as Phase 2 — schedule timeline)
+      </div>
+    </div>
+
+    <!-- CTA bar -->
+    <div class="cta-bar">
+      <div class="cta-line"></div>
+      <div class="cta-txt">Appeler suivant — <span class="cta-name">Pierre M.</span></div>
+    </div>
+  </div>
+
+  <!-- Overlay panels showcase -->
+  <div class="overlay-section">
+    <h3>Phase 3 Overlay Panels</h3>
+    <div class="overlay-grid">
+
+      <!-- Doctor Action Panel -->
+      <div class="action-panel">
+        <div class="action-panel-hdr">
+          <div class="doc-avatar" style="background:var(--doc-blue)">M</div>
+          <div class="doc-info">
+            <div class="doc-name">Dr. Martin</div>
+            <div class="doc-state">En consultation · +15 min de retard</div>
+          </div>
+          <span class="material-symbols-outlined action-panel-close">close</span>
+        </div>
+        <div class="action-panel-body">
+          <button class="action-btn"><span class="material-symbols-outlined action-ico green" style="font-size:16px;">check_circle</span> Marquer comme libre</button>
+          <button class="action-btn"><span class="material-symbols-outlined action-ico amber" style="font-size:16px;">schedule</span> Signaler un retard</button>
+          <button class="action-btn"><span class="material-symbols-outlined action-ico" style="font-size:16px;">pause_circle</span> Mettre en pause</button>
+          <button class="action-btn"><span class="material-symbols-outlined action-ico blue" style="font-size:16px;">swap_horiz</span> Transferer des patients</button>
+          <button class="action-btn"><span class="material-symbols-outlined action-ico red" style="font-size:16px;">cancel</span> Marquer absent</button>
+        </div>
+      </div>
+
+      <!-- Transfer Sheet -->
+      <div class="transfer-sheet">
+        <div class="transfer-hdr">
+          <h4>Transferer un patient</h4>
+          <p>Choisir le medecin de destination</p>
+        </div>
+        <div class="transfer-patient">
+          <span class="tp-name">J-C. Bernard</span>
+          <span class="tp-from">&#8592; Dr. Martin</span>
+        </div>
+        <div class="transfer-docs">
+          <button class="transfer-doc-btn">
+            <div class="td-init" style="background:var(--doc-teal)">L</div>
+            <div class="td-info"><div class="td-name">Dr. Leroy</div><div class="td-queue">1 en attente · Libre</div></div>
+            <span class="material-symbols-outlined td-arrow" style="font-size:16px;">chevron_right</span>
+          </button>
+          <button class="transfer-doc-btn">
+            <div class="td-init" style="background:var(--doc-amber)">N</div>
+            <div class="td-info"><div class="td-name">Dr. Ngo</div><div class="td-queue">0 en attente · Pause</div></div>
+            <span class="material-symbols-outlined td-arrow" style="font-size:16px;">chevron_right</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Patient Detail -->
+      <div class="patient-detail">
+        <div class="pd-hdr">
+          <div class="pd-avatar">JC</div>
+          <div class="pd-info">
+            <div class="pd-name">Jean-Claude B.</div>
+            <div class="pd-sub">Urgent · Sans RDV · Dr. Martin</div>
+          </div>
+          <span class="material-symbols-outlined pd-close">close</span>
+        </div>
+        <div class="pd-fields">
+          <div class="pd-field"><span class="pd-field-lbl">Position</span><span class="pd-field-val">#3 (prochain)</span></div>
+          <div class="pd-field"><span class="pd-field-lbl">Attente</span><span class="pd-field-val">22 min</span></div>
+          <div class="pd-field"><span class="pd-field-lbl">Arrivee</span><span class="pd-field-val">9h22</span></div>
+          <div class="pd-field"><span class="pd-field-lbl">Fin estimee</span><span class="pd-field-val">~10h00</span></div>
+          <div class="pd-field"><span class="pd-field-lbl">Telephone</span><span class="pd-field-val">06 12 34 56 78</span></div>
+          <div class="pd-field"><span class="pd-field-lbl">Check-in</span><span class="pd-field-val">Manuel</span></div>
+        </div>
+        <div class="pd-actions">
+          <button class="pd-btn primary">Appeler maintenant</button>
+          <button class="pd-btn">Transferer</button>
+          <button class="pd-btn">Notifier</button>
+          <button class="pd-btn danger">Retirer</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MOBILE VIEW
+═══════════════════════════════════════════════════════════ -->
+<div class="mobile-view" id="mobile-view">
+  <div class="phone-frame">
+    <div class="phone-screen" id="screen-mobile">
+
+      <div class="status-bar"><span>9:41</span><div class="status-bar-right">&#9679;&#9679;&#9679; WiFi &#128267;</div></div>
+
+      <!-- Topbar -->
+      <div class="topbar">
+        <div class="topbar-cname">Cabinet Dr. Fontaine</div>
+        <div class="topbar-right">
+          <div class="lang-badge">FR</div>
+          <button class="hb-btn" onclick="openSdr('mobile')">
+            <span></span><span></span><span></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-card">
+        <div class="stat-item">
+          <div class="stat-lbl">En attente</div>
+          <div class="stat-val">4</div>
+          <div class="stat-sub">patients</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-lbl">Vus · Max</div>
+          <div class="stat-val">8</div>
+          <div class="stat-sub">18 min</div>
+        </div>
+      </div>
+
+      <!-- Doctor Status Bar -->
+      <div class="doctor-status-bar">
+        <button class="doc-pill consulting">
+          <span class="pill-dot"></span>
+          Martin
+          <span class="pill-delay">+15</span>
+          <span class="pill-arrow">&#8250;</span>
+        </button>
+        <button class="doc-pill free">
+          <span class="pill-dot"></span>
+          Leroy · Libre
+          <span class="pill-arrow">&#8250;</span>
+        </button>
+        <button class="doc-pill pause">
+          <span class="pill-dot"></span>
+          Ngo
+        </button>
+        <button class="doc-pill absent">
+          <span class="pill-dot"></span>
+          Bernard
+        </button>
+      </div>
+
+      <!-- Tab bar -->
+      <div class="tab-bar">
+        <button class="active" onclick="switchTab(this, 'salle', 'mobile')">Salle <span class="tab-badge">4</span></button>
+        <button onclick="switchTab(this, 'agenda', 'mobile')">Agenda</button>
+      </div>
+
+      <!-- Salle tab -->
+      <div class="tab-content active" id="mobile-salle">
+
+        <div class="noshow-banner">
+          <div class="noshow-icon">!</div>
+          <div class="noshow-info">
+            <div class="noshow-name">Bernard L. (10h00)</div>
+            <div class="noshow-detail">Absent depuis 15 min</div>
+          </div>
+          <button class="noshow-action">Absent</button>
+        </div>
+
+        <div class="search-row">
+          <input class="search-input" placeholder="Nom du patient..."/>
+          <button class="add-btn"><span class="material-symbols-outlined" style="font-size:18px;color:var(--cognac);">person_add</span></button>
+        </div>
+
+        <!-- EN CONSULTATION -->
+        <div class="section-lbl">En consultation</div>
+        <div class="consult-card">
+          <div class="consult-tag">Patient actuel · Dr. Martin</div>
+          <div class="consult-name">Mme Sophie D.</div>
+          <div class="consult-meta">Arrivee 09h05 · Sans RDV · 12 min</div>
+          <div class="consult-btns">
+            <button class="btn-end"><span class="material-symbols-outlined" style="font-size:13px;">check_circle</span>Terminer</button>
+            <button class="btn-call-outline"><span class="material-symbols-outlined" style="font-size:17px;">call</span></button>
+          </div>
+        </div>
+
+        <!-- FILE D'ATTENTE -->
+        <div class="section-lbl">File d'attente</div>
+        <div class="queue-list">
+          <div class="q-item">
+            <div class="q-pos">1</div>
+            <div class="doctor-badge" style="background:var(--doc-teal);">L</div>
+            <div class="q-info">
+              <div class="q-name-line"><span class="q-name">Pierre M.</span> <span class="q-tag q-tag-notified">Notifie</span></div>
+              <div class="q-meta">9h15 · Dr. Leroy</div>
+            </div>
+            <div class="q-right">
+              <div class="q-wait"><div class="q-wait-val">~15</div><div class="q-wait-lbl">min</div></div>
+              <span class="material-symbols-outlined q-call" style="font-size:16px;">call</span>
+            </div>
+          </div>
+          <div class="q-item urgent">
+            <div class="q-pos urgent-pos">!</div>
+            <div class="doctor-badge" style="background:var(--doc-blue);">M</div>
+            <div class="q-info">
+              <div class="q-name-line"><span class="q-name">J-C. Bernard</span> <span class="q-tag q-tag-urgent">Urgent</span></div>
+              <div class="q-meta">9h22 · Dr. Martin</div>
+            </div>
+            <div class="q-right">
+              <div class="q-wait"><div class="q-wait-val">~30</div><div class="q-wait-lbl">min</div></div>
+              <span class="material-symbols-outlined q-call" style="font-size:16px;">call</span>
+            </div>
+          </div>
+          <div class="q-item">
+            <div class="q-pos">3</div>
+            <div class="doctor-badge" style="background:var(--doc-teal);">L</div>
+            <div class="q-info">
+              <div class="q-name-line"><span class="q-name">Marie L.</span></div>
+              <div class="q-meta">9h30 · Dr. Leroy</div>
+            </div>
+            <div class="q-right">
+              <div class="q-wait"><div class="q-wait-val">~45</div><div class="q-wait-lbl">min</div></div>
+              <span class="material-symbols-outlined q-call" style="font-size:16px;">call</span>
+            </div>
+          </div>
+          <div class="q-item">
+            <div class="q-pos">4</div>
+            <div class="doctor-badge" style="background:var(--doc-blue);">M</div>
+            <div class="q-info">
+              <div class="q-name-line"><span class="q-name">Fatima N.</span></div>
+              <div class="q-meta">9h45 · Dr. Martin</div>
+            </div>
+            <div class="q-right">
+              <div class="q-wait"><div class="q-wait-val">~60</div><div class="q-wait-lbl">min</div></div>
+              <span class="material-symbols-outlined q-call" style="font-size:16px;">call</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="mobile-agenda">
+        <div style="padding:48px 20px;text-align:center;color:var(--muted-lt);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;">
+          Agenda (Phase 2)
+        </div>
+      </div>
+
+      <!-- CTA bar -->
+      <div class="cta-bar">
+        <div class="cta-line"></div>
+        <div class="cta-txt">Appeler suivant — <span class="cta-name">Pierre M.</span></div>
+      </div>
+
+      <!-- OVERLAYS -->
+      <div class="scrim" id="scrim-mobile" onclick="closeAll('mobile')"></div>
+
+      <!-- SIDE DRAWER -->
+      <div class="sdrawer" id="sdr-mobile">
+        <div class="sdr-hdr">
+          <div class="sdr-cname">Cabinet Dr. Fontaine</div>
+          <span class="material-symbols-outlined sdr-x" onclick="closeAll('mobile')">close</span>
+        </div>
+        <div class="sdr-profile">
+          <div class="sdr-avatar">Dr</div>
+          <div>
+            <div class="sdr-name">Dr. A. Fontaine</div>
+            <div class="sdr-role">Medecin generaliste</div>
+          </div>
+          <div class="sdr-status"><div class="sdr-sdot"></div>Present</div>
+        </div>
+        <nav class="sdr-nav">
+          <div class="sdr-item on">
+            <span class="material-symbols-outlined sdr-ico">queue</span>
+            File d'attente <span class="sdr-badge">4</span>
+          </div>
+          <div class="sdr-item">
+            <span class="material-symbols-outlined sdr-ico">person_add</span>Nouveau patient
+          </div>
+          <div class="sdr-item">
+            <span class="material-symbols-outlined sdr-ico">bar_chart</span>Statistiques
+          </div>
+          <div class="sdr-item">
+            <span class="material-symbols-outlined sdr-ico">qr_code_2</span>QR Code d'accueil
+          </div>
+          <div class="sdr-div"></div>
+          <div class="sdr-item">
+            <span class="material-symbols-outlined sdr-ico">settings</span>Parametres
+          </div>
+          <div class="sdr-item">
+            <span class="material-symbols-outlined sdr-ico">help_outline</span>Aide & Support
+          </div>
+        </nav>
+        <div class="sdr-footer">
+          <div class="sdr-trial">
+            <span class="material-symbols-outlined" style="font-size:12px;">timer</span>
+            Essai gratuit · 7 jours restants
+          </div>
+          <div class="sdr-logout">
+            <span class="material-symbols-outlined" style="font-size:14px;">logout</span>Deconnexion
+          </div>
+        </div>
+      </div>
+
+    </div><!-- phone-screen -->
+  </div><!-- phone-frame -->
+</div>
+
+<script>
+function switchView(view) {
+  document.querySelectorAll('.view-toggle button').forEach(b => b.classList.remove('active'));
+  document.getElementById('desktop-view').classList.remove('active');
+  document.getElementById('mobile-view').classList.remove('active');
+  document.getElementById(view + '-view').classList.add('active');
+  event.target.classList.add('active');
+}
+function switchTab(btn, tab, ctx) {
+  const parent = btn.closest('.tab-bar');
+  parent.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const frame = ctx === 'mobile' ? btn.closest('.phone-screen') : btn.closest('.desktop-frame');
+  frame.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+  frame.querySelector('#' + ctx + '-' + tab).classList.add('active');
+}
+function openSdr(ctx) {
+  document.getElementById('scrim-' + ctx).classList.add('on');
+  document.getElementById('sdr-' + ctx).classList.add('on');
+}
+function closeAll(ctx) {
+  const scrim = document.getElementById('scrim-' + ctx);
+  const sdr = document.getElementById('sdr-' + ctx);
+  if (scrim) scrim.classList.remove('on');
+  if (sdr) sdr.classList.remove('on');
+}
+</script>
+</body>
+</html>

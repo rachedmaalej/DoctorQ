@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=430, initial-scale=1.0">
+<title>AuSuivant — KPI + Doctor Pills Redesign (3 Options)</title>
+<link href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F8F7F4;
+    --surface: #FFFFFF;
+    --surface-alt: #F0F4F1;
+    --border: #D5DDD8;
+    --border-light: #EAE7E0;
+    --ink: #1C2B25;
+    --text-secondary: #5A7A6A;
+    --text-tertiary: #9AAD9F;
+    --accent: #7EB5A0;
+    --accent-light: #EBF4EF;
+    --accent-hover: #6AA38E;
+    --forest: #2C4A3E;
+    --warning: #D4923A;
+    --warning-light: #F5E6CB;
+    --danger: #CE2826;
+    --danger-light: #FFD0DE;
+    --radius: 14px;
+    --radius-sm: 10px;
+    --radius-lg: 18px;
+    --shadow-sm: 0 1px 3px rgba(28, 43, 37, 0.04);
+    --shadow-md: 0 2px 8px rgba(28, 43, 37, 0.07);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Albert Sans', -apple-system, sans-serif;
+    background: #E8E6E3;
+    padding: 30px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 50px;
+  }
+
+  h1 {
+    font-size: 22px;
+    color: var(--ink);
+    text-align: center;
+    max-width: 600px;
+  }
+  h1 small { display: block; font-size: 13px; color: var(--text-secondary); font-weight: 400; margin-top: 6px; }
+
+  .option-label {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--forest);
+    margin-bottom: 4px;
+  }
+  .option-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 14px;
+    max-width: 430px;
+  }
+
+  .phone {
+    width: 430px;
+    background: var(--bg);
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 4px 30px rgba(0,0,0,0.12);
+  }
+
+  /* Topbar */
+  .topbar-accent { height: 4px; background: linear-gradient(90deg, #002395 33%, #F0F0F0 33% 66%, #ED2939 66%); }
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 18px;
+  }
+  .topbar .brand { font-size: 15px; font-weight: 700; color: var(--ink); }
+  .topbar .right { display: flex; align-items: center; gap: 8px; }
+  .present-badge {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--accent-light); border: 1px solid #C5DDD2;
+    padding: 5px 10px; border-radius: 8px;
+    font-size: 11px; font-weight: 600; color: #3A7A5E;
+  }
+  .pulse-dot {
+    width: 7px; height: 7px; border-radius: 50%; background: var(--accent);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 50% { opacity: 0.4; } }
+  .settings-btn {
+    width: 36px; height: 36px; border-radius: 12px;
+    background: var(--accent-light); border: none;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  }
+  .settings-btn .line1 { width: 16px; height: 2px; background: linear-gradient(90deg, #002395 33%, #ccc 33% 66%, #ED2939 66%); border-radius: 1px; }
+  .settings-btn .line2 { width: 16px; height: 2px; background: var(--accent); border-radius: 1px; }
+
+  /* Tabs */
+  .tabs {
+    display: flex; gap: 4px; padding: 3px;
+    border-radius: var(--radius-sm); background: var(--surface-alt);
+  }
+  .tab {
+    flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 7px 10px; border-radius: 8px; border: none;
+    font-family: inherit; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .tab.active { background: var(--surface); box-shadow: var(--shadow-sm); color: var(--ink); }
+  .tab.inactive { background: transparent; color: var(--text-tertiary); }
+  .tab .badge {
+    font-size: 10px; font-weight: 700; padding: 1px 6px;
+    border-radius: 10px; min-width: 18px; text-align: center; color: white;
+  }
+  .tab.active .badge { background: var(--accent); }
+  .tab.inactive .badge { background: var(--text-tertiary); }
+
+  /* Placeholder content */
+  .placeholder {
+    padding: 18px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .placeholder-bar {
+    height: 52px; border-radius: var(--radius);
+    border: 1px solid var(--border-light);
+    background: var(--surface); box-shadow: var(--shadow-sm);
+  }
+  .placeholder-bar.muted { opacity: 0.5; }
+
+  /* ─── Doctor pill base ─── */
+  .doc-pill {
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 10px; border-radius: var(--radius-sm);
+    cursor: pointer; transition: all 0.2s; flex-shrink: 0;
+    white-space: nowrap;
+  }
+  .doc-dot { width: 8px; height: 8px; border-radius: 4px; flex-shrink: 0; }
+  .doc-name { font-size: 11px; font-weight: 600; }
+  .doc-state { font-size: 10px; }
+  .consult-dot {
+    width: 6px; height: 6px; border-radius: 3px;
+    animation: pulseConsult 1.5s ease-in-out infinite;
+  }
+  @keyframes pulseConsult { 50% { opacity: 0.4; } }
+
+  .suivant-btn {
+    display: flex; align-items: center; gap: 2px;
+    margin-left: 2px; padding: 2px 6px; border-radius: 6px;
+    background: white; font-size: 10px; font-weight: 700;
+    cursor: pointer; font-family: inherit; white-space: nowrap;
+  }
+
+  /* ─── KPI mini values ─── */
+  .kpi-val { font-size: 20px; font-weight: 700; line-height: 1; letter-spacing: -0.5px; font-variant-numeric: tabular-nums; }
+  .kpi-label { font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-tertiary); }
+  .kpi-unit { font-size: 11px; font-weight: 500; color: var(--text-tertiary); }
+
+  /* ─── Separator ─── */
+  .v-sep { width: 1px; background: var(--border-light); align-self: stretch; margin: 2px 0; }
+  .h-sep { height: 1px; background: var(--border-light); margin: 0 18px; }
+
+  /* Current design reference */
+  .current-kpi-card {
+    background: var(--surface); border-radius: var(--radius-lg);
+    padding: 16px 18px; border: 1px solid var(--border-light);
+    display: grid; grid-template-columns: 1fr 1px 1fr;
+  }
+  .current-kpi-card .divider { background: var(--border-light); }
+  .stat-label { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 4px; }
+  .stat-value { font-size: 34px; font-weight: 700; line-height: 1; letter-spacing: -1px; color: var(--ink); display: flex; align-items: center; gap: 6px; }
+  .stat-value.accent { color: var(--accent); }
+  .stat-value.warn { color: var(--warning); }
+</style>
+</head>
+<body>
+
+<h1>
+  KPI + Doctor Pills — Redesign Options
+  <small>Reclaim vertical space, improve doctor pill accessibility, eliminate horizontal scrolling</small>
+</h1>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- CURRENT DESIGN (Reference)                     -->
+<!-- ═══════════════════════════════════════════════ -->
+<div>
+  <div class="option-label">📌 Current Design (Reference)</div>
+  <div class="option-desc">Large KPI card (4 stats at font-size 34px) + horizontally scrolling doctor pills below. Doctor pills overflow on small screens.</div>
+  <div class="phone">
+    <div class="topbar-accent"></div>
+    <div class="topbar">
+      <div class="brand">AuSuivant</div>
+      <div class="right">
+        <div class="present-badge"><div class="pulse-dot"></div> Présent</div>
+        <button class="settings-btn"><div class="line1"></div><div class="line2"></div></button>
+      </div>
+    </div>
+
+    <!-- Current KPI strip (BIG) -->
+    <div style="padding: 0 18px 14px;">
+      <div class="current-kpi-card">
+        <div style="padding-right: 14px;">
+          <div class="stat-label">En attente</div>
+          <div class="stat-value accent">2 <div class="pulse-dot"></div></div>
+          <div style="height: 10px;"></div>
+          <div class="stat-label">Vus aujourd'hui</div>
+          <div class="stat-value">7</div>
+        </div>
+        <div class="divider"></div>
+        <div style="padding-left: 14px;">
+          <div class="stat-label">Attente moy.</div>
+          <div class="stat-value">231 min</div>
+          <div style="height: 10px;"></div>
+          <div class="stat-label">Absents</div>
+          <div class="stat-value warn">1</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Current doctor pills (scrolling) -->
+    <div style="padding: 0 18px 10px; overflow-x: auto; white-space: nowrap; display: flex; gap: 8px;">
+      <div class="doc-pill" style="background: #D8ECF4; border: 1px solid rgba(74,110,143,0.12);">
+        <div class="doc-dot" style="background: #4A6E8F;"></div>
+        <div class="consult-dot" style="background: #4A6E8F;"></div>
+        <span class="doc-name" style="color: var(--ink);">Dr. Lefèvre</span>
+        <span class="doc-state" style="color: var(--text-secondary);">En consult +1min</span>
+        <button class="suivant-btn" style="border: 1px solid rgba(74,110,143,0.4); color: #4A6E8F;">› Suivant</button>
+      </div>
+      <div class="doc-pill" style="background: #D5F0EB; border: 1px solid rgba(96,184,170,0.12);">
+        <div class="doc-dot" style="background: #60B8AA;"></div>
+        <div class="consult-dot" style="background: #60B8AA;"></div>
+        <span class="doc-name" style="color: var(--ink);">Dr. Perrin</span>
+        <span class="doc-state" style="color: var(--text-secondary);">En consult</span>
+        <button class="suivant-btn" style="border: 1px solid rgba(96,184,170,0.4); color: #60B8AA;">› Suivant</button>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div style="padding: 0 18px 14px;">
+      <div class="tabs">
+        <button class="tab active">☰ Salle <span class="badge">2</span></button>
+        <button class="tab inactive">📅 Agenda</button>
+      </div>
+    </div>
+
+    <!-- Placeholder queue rows -->
+    <div class="placeholder">
+      <div class="placeholder-bar"></div>
+      <div class="placeholder-bar"></div>
+      <div class="placeholder-bar muted"></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- OPTION A: Integrated Doctor Cards with KPIs    -->
+<!-- ═══════════════════════════════════════════════ -->
+<div>
+  <div class="option-label">Option A — Doctor Cards with Inline KPIs</div>
+  <div class="option-desc">
+    Each doctor gets a dedicated card showing their status, waiting count, and a "Suivant" button.
+    Global KPIs (Vus, Attente moy., Absents) collapse into a compact single row above.
+    Doctor cards wrap naturally — no horizontal scroll.
+  </div>
+  <div class="phone">
+    <div class="topbar-accent"></div>
+    <div class="topbar">
+      <div class="brand">AuSuivant</div>
+      <div class="right">
+        <div class="present-badge"><div class="pulse-dot"></div> Présent</div>
+        <button class="settings-btn"><div class="line1"></div><div class="line2"></div></button>
+      </div>
+    </div>
+
+    <!-- Compact global KPI bar -->
+    <div style="padding: 0 18px 10px;">
+      <div style="display: flex; align-items: center; gap: 12px; padding: 8px 14px; background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border-light);">
+        <div style="display: flex; align-items: baseline; gap: 4px;">
+          <span class="kpi-val" style="color: var(--accent);">2</span>
+          <span class="kpi-label">en attente</span>
+          <div class="pulse-dot" style="margin-left: -2px;"></div>
+        </div>
+        <div class="v-sep" style="height: 22px;"></div>
+        <div style="display: flex; align-items: baseline; gap: 4px;">
+          <span class="kpi-val">7</span>
+          <span class="kpi-label">vus</span>
+        </div>
+        <div class="v-sep" style="height: 22px;"></div>
+        <div style="display: flex; align-items: baseline; gap: 4px;">
+          <span class="kpi-val">14</span>
+          <span class="kpi-unit">min</span>
+          <span class="kpi-label">moy.</span>
+        </div>
+        <div class="v-sep" style="height: 22px;"></div>
+        <div style="display: flex; align-items: baseline; gap: 4px;">
+          <span class="kpi-val" style="color: var(--warning);">1</span>
+          <span class="kpi-label">absent</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Doctor cards (2-col grid) -->
+    <div style="padding: 0 18px 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+      <!-- Dr. Lefèvre card -->
+      <div style="background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border-light); padding: 10px 12px; cursor: pointer;">
+        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+          <div style="width: 28px; height: 28px; border-radius: 10px; background: #D8ECF4; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #4A6E8F;">L</div>
+          <div>
+            <div style="font-size: 12px; font-weight: 700; color: var(--ink);">Dr. Lefèvre</div>
+            <div style="display: flex; align-items: center; gap: 4px;">
+              <div class="consult-dot" style="background: #4A6E8F;"></div>
+              <span style="font-size: 10px; color: #4A6E8F; font-weight: 500;">En consult +1min</span>
+            </div>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <div style="display: flex; align-items: baseline; gap: 3px;">
+            <span style="font-size: 16px; font-weight: 700; color: var(--ink);">1</span>
+            <span style="font-size: 9px; color: var(--text-tertiary); text-transform: uppercase; font-weight: 600;">en attente</span>
+          </div>
+          <button style="display: flex; align-items: center; gap: 3px; padding: 5px 10px; border-radius: 8px; border: 1.5px solid #4A6E8F; background: white; color: #4A6E8F; font-size: 11px; font-weight: 700; cursor: pointer; font-family: inherit;">
+            › Suivant
+          </button>
+        </div>
+      </div>
+
+      <!-- Dr. Perrin card -->
+      <div style="background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border-light); padding: 10px 12px; cursor: pointer;">
+        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+          <div style="width: 28px; height: 28px; border-radius: 10px; background: #D5F0EB; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #60B8AA;">P</div>
+          <div>
+            <div style="font-size: 12px; font-weight: 700; color: var(--ink);">Dr. Perrin</div>
+            <div style="display: flex; align-items: center; gap: 4px;">
+              <div class="consult-dot" style="background: #60B8AA;"></div>
+              <span style="font-size: 10px; color: #60B8AA; font-weight: 500;">En consult</span>
+            </div>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <div style="display: flex; align-items: baseline; gap: 3px;">
+            <span style="font-size: 16px; font-weight: 700; color: var(--ink);">1</span>
+            <span style="font-size: 9px; color: var(--text-tertiary); text-transform: uppercase; font-weight: 600;">en attente</span>
+          </div>
+          <button style="display: flex; align-items: center; gap: 3px; padding: 5px 10px; border-radius: 8px; border: 1.5px solid #60B8AA; background: white; color: #60B8AA; font-size: 11px; font-weight: 700; cursor: pointer; font-family: inherit;">
+            › Suivant
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div style="padding: 0 18px 14px;">
+      <div class="tabs">
+        <button class="tab active">☰ Salle <span class="badge">2</span></button>
+        <button class="tab inactive">📅 Agenda</button>
+      </div>
+    </div>
+
+    <div class="placeholder">
+      <div class="placeholder-bar"></div>
+      <div class="placeholder-bar"></div>
+      <div class="placeholder-bar muted"></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- OPTION B: Horizontal KPI bar + Full-width pills -->
+<!-- ═══════════════════════════════════════════════ -->
+<div>
+  <div class="option-label">Option B — Compact KPI Row + Stacked Doctor Rows</div>
+  <div class="option-desc">
+    KPIs shrink to a single compact row. Each doctor becomes a full-width row with status,
+    per-doctor waiting count, and "Suivant" — all visible, no scrolling needed. Tabs move inline with KPIs.
+  </div>
+  <div class="phone">
+    <div class="topbar-accent"></div>
+    <div class="topbar">
+      <div class="brand">AuSuivant</div>
+      <div class="right">
+        <div class="present-badge"><div class="pulse-dot"></div> Présent</div>
+        <button class="settings-btn"><div class="line1"></div><div class="line2"></div></button>
+      </div>
+    </div>
+
+    <!-- KPI row + Tab toggle combined -->
+    <div style="padding: 0 18px 10px; display: flex; align-items: center; gap: 10px;">
+      <!-- KPI chips -->
+      <div style="display: flex; align-items: center; gap: 6px; flex: 1; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: 8px; background: var(--accent-light);">
+          <span style="font-size: 15px; font-weight: 800; color: var(--accent);">2</span>
+          <span style="font-size: 9px; font-weight: 600; text-transform: uppercase; color: #3A7A5E;">attente</span>
+          <div class="pulse-dot" style="width: 5px; height: 5px;"></div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: 8px; background: var(--surface-alt);">
+          <span style="font-size: 15px; font-weight: 800; color: var(--ink);">7</span>
+          <span style="font-size: 9px; font-weight: 600; text-transform: uppercase; color: var(--text-tertiary);">vus</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: 8px; background: var(--surface-alt);">
+          <span style="font-size: 15px; font-weight: 800; color: var(--ink);">14</span>
+          <span style="font-size: 9px; font-weight: 600; text-transform: uppercase; color: var(--text-tertiary);">min</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: 8px; background: var(--warning-light);">
+          <span style="font-size: 15px; font-weight: 800; color: var(--warning);">1</span>
+          <span style="font-size: 9px; font-weight: 600; text-transform: uppercase; color: #A07030;">absent</span>
+        </div>
+      </div>
+      <!-- Compact tab toggle -->
+      <div style="display: flex; padding: 2px; border-radius: 8px; background: var(--surface-alt); flex-shrink: 0;">
+        <button style="padding: 5px 8px; border-radius: 6px; border: none; background: var(--surface); box-shadow: var(--shadow-sm); font-family: inherit; font-size: 11px; font-weight: 600; color: var(--ink); cursor: pointer;">☰</button>
+        <button style="padding: 5px 8px; border-radius: 6px; border: none; background: transparent; font-family: inherit; font-size: 11px; color: var(--text-tertiary); cursor: pointer;">📅</button>
+      </div>
+    </div>
+
+    <!-- Doctor rows (full width, no scroll) -->
+    <div style="padding: 0 18px 12px; display: flex; flex-direction: column; gap: 6px;">
+      <!-- Dr. Lefèvre row -->
+      <div style="display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: var(--surface); border-radius: var(--radius-sm); border: 1px solid var(--border-light); cursor: pointer;">
+        <div style="width: 4px; height: 32px; border-radius: 2px; background: #4A6E8F; flex-shrink: 0;"></div>
+        <div style="flex: 1; min-width: 0;">
+          <div style="display: flex; align-items: center; gap: 5px;">
+            <span style="font-size: 13px; font-weight: 700; color: var(--ink);">Dr. Lefèvre</span>
+            <div class="consult-dot" style="background: #4A6E8F;"></div>
+            <span style="font-size: 10px; color: #4A6E8F; font-weight: 500;">En consult +1min</span>
+          </div>
+          <div style="font-size: 10px; color: var(--text-tertiary); margin-top: 1px;">Pédiatre · 1 en attente</div>
+        </div>
+        <button style="display: flex; align-items: center; gap: 3px; padding: 6px 12px; border-radius: 8px; border: none; background: #D8ECF4; color: #4A6E8F; font-size: 11px; font-weight: 700; cursor: pointer; font-family: inherit;">
+          › Suivant
+        </button>
+      </div>
+
+      <!-- Dr. Perrin row -->
+      <div style="display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: var(--surface); border-radius: var(--radius-sm); border: 1px solid var(--border-light); cursor: pointer;">
+        <div style="width: 4px; height: 32px; border-radius: 2px; background: #60B8AA; flex-shrink: 0;"></div>
+        <div style="flex: 1; min-width: 0;">
+          <div style="display: flex; align-items: center; gap: 5px;">
+            <span style="font-size: 13px; font-weight: 700; color: var(--ink);">Dr. Perrin</span>
+            <div class="consult-dot" style="background: #60B8AA;"></div>
+            <span style="font-size: 10px; color: #60B8AA; font-weight: 500;">En consult</span>
+          </div>
+          <div style="font-size: 10px; color: var(--text-tertiary); margin-top: 1px;">Généraliste · 1 en attente</div>
+        </div>
+        <button style="display: flex; align-items: center; gap: 3px; padding: 6px 12px; border-radius: 8px; border: none; background: #D5F0EB; color: #60B8AA; font-size: 11px; font-weight: 700; cursor: pointer; font-family: inherit;">
+          › Suivant
+        </button>
+      </div>
+    </div>
+
+    <div class="placeholder">
+      <div class="placeholder-bar"></div>
+      <div class="placeholder-bar"></div>
+      <div class="placeholder-bar muted"></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- OPTION C: Unified Dashboard Header             -->
+<!-- ═══════════════════════════════════════════════ -->
+<div>
+  <div class="option-label">Option C — Unified Dashboard Header</div>
+  <div class="option-desc">
+    A single cohesive card merges KPIs and doctor pills.
+    KPIs become a slim top strip inside the card. Doctor sections below show per-doctor info
+    with clear separation. Most vertically compact option.
+  </div>
+  <div class="phone">
+    <div class="topbar-accent"></div>
+    <div class="topbar">
+      <div class="brand">AuSuivant</div>
+      <div class="right">
+        <div class="present-badge"><div class="pulse-dot"></div> Présent</div>
+        <button class="settings-btn"><div class="line1"></div><div class="line2"></div></button>
+      </div>
+    </div>
+
+    <!-- Unified card -->
+    <div style="padding: 0 18px 12px;">
+      <div style="background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border-light); overflow: hidden;">
+
+        <!-- KPI top strip -->
+        <div style="display: flex; align-items: center; padding: 10px 14px; gap: 0; border-bottom: 1px solid var(--border-light);">
+          <div style="flex: 1; display: flex; align-items: baseline; gap: 4px;">
+            <span style="font-size: 22px; font-weight: 800; color: var(--accent); line-height: 1; letter-spacing: -0.5px;">2</span>
+            <span class="kpi-label">attente</span>
+            <div class="pulse-dot" style="width: 5px; height: 5px; margin-left: -2px;"></div>
+          </div>
+          <div class="v-sep" style="height: 20px; margin: 0 8px;"></div>
+          <div style="flex: 1; display: flex; align-items: baseline; gap: 4px;">
+            <span style="font-size: 22px; font-weight: 800; color: var(--ink); line-height: 1; letter-spacing: -0.5px;">7</span>
+            <span class="kpi-label">vus</span>
+          </div>
+          <div class="v-sep" style="height: 20px; margin: 0 8px;"></div>
+          <div style="flex: 1; display: flex; align-items: baseline; gap: 4px;">
+            <span style="font-size: 22px; font-weight: 800; color: var(--ink); line-height: 1; letter-spacing: -0.5px;">14</span>
+            <span class="kpi-label">min moy.</span>
+          </div>
+          <div class="v-sep" style="height: 20px; margin: 0 8px;"></div>
+          <div style="flex: 0; display: flex; align-items: baseline; gap: 4px;">
+            <span style="font-size: 22px; font-weight: 800; color: var(--warning); line-height: 1; letter-spacing: -0.5px;">1</span>
+            <span class="kpi-label">abs.</span>
+          </div>
+        </div>
+
+        <!-- Doctor sections -->
+        <div style="display: flex;">
+          <!-- Dr. Lefèvre section -->
+          <div style="flex: 1; padding: 10px 14px; border-right: 1px solid var(--border-light);">
+            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
+              <div style="width: 6px; height: 6px; border-radius: 3px; background: #4A6E8F;"></div>
+              <span style="font-size: 12px; font-weight: 700; color: var(--ink);">Dr. Lefèvre</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 4px; margin-bottom: 8px;">
+              <div class="consult-dot" style="background: #4A6E8F;"></div>
+              <span style="font-size: 10px; color: #4A6E8F; font-weight: 500;">En consult +1min</span>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <span style="font-size: 10px; color: var(--text-tertiary); font-weight: 600;">1 EN ATTENTE</span>
+              <button style="display: flex; align-items: center; gap: 2px; padding: 4px 10px; border-radius: 7px; border: 1.5px solid #4A6E8F; background: white; color: #4A6E8F; font-size: 10px; font-weight: 700; cursor: pointer; font-family: inherit;">
+                › Suivant
+              </button>
+            </div>
+          </div>
+
+          <!-- Dr. Perrin section -->
+          <div style="flex: 1; padding: 10px 14px;">
+            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
+              <div style="width: 6px; height: 6px; border-radius: 3px; background: #60B8AA;"></div>
+              <span style="font-size: 12px; font-weight: 700; color: var(--ink);">Dr. Perrin</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 4px; margin-bottom: 8px;">
+              <div class="consult-dot" style="background: #60B8AA;"></div>
+              <span style="font-size: 10px; color: #60B8AA; font-weight: 500;">En consult</span>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <span style="font-size: 10px; color: var(--text-tertiary); font-weight: 600;">1 EN ATTENTE</span>
+              <button style="display: flex; align-items: center; gap: 2px; padding: 4px 10px; border-radius: 7px; border: 1.5px solid #60B8AA; background: white; color: #60B8AA; font-size: 10px; font-weight: 700; cursor: pointer; font-family: inherit;">
+                › Suivant
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div style="padding: 0 18px 14px;">
+      <div class="tabs">
+        <button class="tab active">☰ Salle <span class="badge">2</span></button>
+        <button class="tab inactive">📅 Agenda</button>
+      </div>
+    </div>
+
+    <div class="placeholder">
+      <div class="placeholder-bar"></div>
+      <div class="placeholder-bar"></div>
+      <div class="placeholder-bar muted"></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- COMPARISON SUMMARY                              -->
+<!-- ═══════════════════════════════════════════════ -->
+<div style="max-width: 600px; background: var(--surface); border-radius: var(--radius-lg); padding: 20px 24px; border: 1px solid var(--border-light);">
+  <div style="font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 12px;">Comparison</div>
+  <table style="width: 100%; font-size: 12px; border-collapse: collapse;">
+    <thead>
+      <tr style="border-bottom: 1px solid var(--border-light);">
+        <th style="text-align: left; padding: 6px 0; color: var(--text-tertiary); font-weight: 600;">Criteria</th>
+        <th style="text-align: center; padding: 6px 8px; color: var(--text-tertiary); font-weight: 600;">Current</th>
+        <th style="text-align: center; padding: 6px 8px; color: #4A6E8F; font-weight: 600;">A</th>
+        <th style="text-align: center; padding: 6px 8px; color: #60B8AA; font-weight: 600;">B</th>
+        <th style="text-align: center; padding: 6px 8px; color: var(--warning); font-weight: 600;">C</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr style="border-bottom: 1px solid var(--border-light);">
+        <td style="padding: 6px 0; color: var(--ink);">Vertical space (header → tabs)</td>
+        <td style="text-align: center; padding: 6px 8px;">~210px</td>
+        <td style="text-align: center; padding: 6px 8px;">~185px</td>
+        <td style="text-align: center; padding: 6px 8px;">~155px</td>
+        <td style="text-align: center; padding: 6px 8px; font-weight: 700; color: var(--accent);">~145px</td>
+      </tr>
+      <tr style="border-bottom: 1px solid var(--border-light);">
+        <td style="padding: 6px 0; color: var(--ink);">Doctor pill visibility</td>
+        <td style="text-align: center; padding: 6px 8px;">❌ Scroll</td>
+        <td style="text-align: center; padding: 6px 8px;">✅ Grid</td>
+        <td style="text-align: center; padding: 6px 8px;">✅ Full</td>
+        <td style="text-align: center; padding: 6px 8px;">✅ Inline</td>
+      </tr>
+      <tr style="border-bottom: 1px solid var(--border-light);">
+        <td style="padding: 6px 0; color: var(--ink);">Suivant button size</td>
+        <td style="text-align: center; padding: 6px 8px;">Tiny</td>
+        <td style="text-align: center; padding: 6px 8px; font-weight: 700; color: var(--accent);">Large</td>
+        <td style="text-align: center; padding: 6px 8px; font-weight: 700; color: var(--accent);">Large</td>
+        <td style="text-align: center; padding: 6px 8px;">Medium</td>
+      </tr>
+      <tr style="border-bottom: 1px solid var(--border-light);">
+        <td style="padding: 6px 0; color: var(--ink);">Per-doctor waiting count</td>
+        <td style="text-align: center; padding: 6px 8px;">❌ No</td>
+        <td style="text-align: center; padding: 6px 8px;">✅ Yes</td>
+        <td style="text-align: center; padding: 6px 8px;">✅ Yes</td>
+        <td style="text-align: center; padding: 6px 8px;">✅ Yes</td>
+      </tr>
+      <tr style="border-bottom: 1px solid var(--border-light);">
+        <td style="padding: 6px 0; color: var(--ink);">Scales to 3-4 doctors</td>
+        <td style="text-align: center; padding: 6px 8px;">❌ Scroll</td>
+        <td style="text-align: center; padding: 6px 8px;">⚠️ 2x2</td>
+        <td style="text-align: center; padding: 6px 8px; font-weight: 700; color: var(--accent);">✅ Stack</td>
+        <td style="text-align: center; padding: 6px 8px;">⚠️ Tight</td>
+      </tr>
+      <tr>
+        <td style="padding: 6px 0; color: var(--ink);">Visual cohesion</td>
+        <td style="text-align: center; padding: 6px 8px;">Low</td>
+        <td style="text-align: center; padding: 6px 8px;">Medium</td>
+        <td style="text-align: center; padding: 6px 8px;">Medium</td>
+        <td style="text-align: center; padding: 6px 8px; font-weight: 700; color: var(--accent);">High</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+</body>
+</html>

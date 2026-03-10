@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AuSuivant — Phase 5: Polish + Final</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F0F0F0; --surface: #FFFFFF; --surface-alt: #E8E8E8;
+  --border: #D1D1D1; --border-light: #E8E8E8;
+  --text-primary: #585858; --text-secondary: #7E7E7E; --text-tertiary: #A2A2A2;
+  --accent: #459B8A; --accent-light: #DAF5E0; --accent-hover: #267875;
+  --warning: #F48E40; --warning-light: #FFE9B1;
+  --danger: #CE2826; --danger-light: #FFD0DE;
+  --blue: #4A6E8F; --blue-light: #D8ECF4;
+  --doctor-blue: #4A6E8F; --doctor-teal: #60B8AA; --doctor-amber: #E15720;
+  --doctor-plum: #8E618F; --doctor-rose: #A12B98; --doctor-slate: #7E7E7E;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04); --shadow-md: 0 2px 8px rgba(0,0,0,0.06);
+  --shadow-lg: 0 4px 20px rgba(0,0,0,0.08);
+  --radius: 12px; --radius-sm: 8px; --radius-lg: 16px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', -apple-system, sans-serif; background: #D1D1D1; color: var(--text-primary); min-height: 100vh; }
+
+.phase-banner { background: linear-gradient(135deg, var(--accent), var(--doctor-teal)); color: white; padding: 12px 24px; text-align: center; font-size: 13px; font-weight: 600; letter-spacing: 0.3px; }
+.phase-banner span { opacity: 0.85; font-weight: 400; }
+
+.view-toggle { display: flex; justify-content: center; gap: 8px; padding: 16px; background: #D1D1D1; }
+.view-toggle button { padding: 8px 24px; border-radius: 20px; border: 1.5px solid var(--border); background: var(--surface); color: var(--text-secondary); font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+.view-toggle button.active { background: var(--text-primary); color: white; border-color: var(--text-primary); }
+
+.desktop-view, .mobile-view { display: none; }
+.desktop-view.active, .mobile-view.active { display: block; }
+
+/* Desktop 2-column (same as Phase 4 with polish) */
+.desktop-view { max-width: 1200px; margin: 0 auto; padding: 24px; }
+.desktop-frame { background: var(--bg); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow-lg); position: relative; }
+
+/* Version badge */
+.version-badge { position: absolute; top: 12px; right: 12px; z-index: 50; padding: 2px 8px; border-radius: 10px; background: var(--accent); color: white; font-size: 9px; font-weight: 700; letter-spacing: 0.5px; }
+
+/* Topbar */
+.topbar-desktop { display: flex; align-items: center; padding: 10px 20px; background: var(--surface); border-bottom: 1px solid var(--border-light); gap: 16px; }
+.topbar-left { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.topbar-logo { width: 28px; height: 28px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 12px; }
+.topbar-title { font-size: 15px; font-weight: 700; white-space: nowrap; }
+.topbar-pills { display: flex; gap: 6px; flex: 1; justify-content: flex-end; }
+.topbar-btn { width: 32px; height: 32px; border-radius: 50%; border: none; background: var(--surface-alt); color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; margin-left: 8px; }
+
+.doctor-pill { display: flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 16px; font-size: 11px; font-weight: 600; white-space: nowrap; flex-shrink: 0; cursor: pointer; border: none; font-family: inherit; position: relative; }
+.doctor-pill .pill-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.doctor-pill .pill-arrow { font-size: 12px; opacity: 0.6; }
+.doctor-pill.consulting { background: rgba(74,110,143,0.12); color: var(--doctor-blue); }
+.doctor-pill.consulting .pill-dot { background: var(--doctor-blue); animation: pulse 2s infinite; }
+.doctor-pill.free { background: rgba(96,184,170,0.12); color: var(--doctor-teal); }
+.doctor-pill.free .pill-dot { background: var(--doctor-teal); }
+.doctor-pill.pause { background: var(--surface-alt); color: var(--text-tertiary); }
+.doctor-pill.pause .pill-dot { background: var(--text-tertiary); }
+.doctor-pill.absent { background: var(--surface-alt); color: var(--text-tertiary); }
+.doctor-pill.absent .pill-dot { background: var(--danger); }
+.pill-delay { font-size: 9px; padding: 1px 4px; border-radius: 6px; background: rgba(244,142,64,0.15); color: var(--warning); font-weight: 700; }
+/* A11y: focus ring on first interactive */
+.doctor-pill.focus-ring { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* A11y tooltip */
+.doctor-pill[data-aria]::after { content: attr(data-aria); position: absolute; bottom: -22px; left: 50%; transform: translateX(-50%); padding: 2px 6px; background: var(--text-primary); color: white; font-size: 9px; border-radius: 4px; white-space: nowrap; opacity: 0.9; pointer-events: none; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+.kpi-strip { display: flex; align-items: center; justify-content: space-between; padding: 10px 20px; background: var(--surface); border-bottom: 1px solid var(--border-light); }
+.kpi-item { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0; }
+.kpi-value { font-weight: 700; font-size: 16px; color: var(--text-primary); font-variant-numeric: tabular-nums; line-height: 1.2; }
+.kpi-value.highlight { color: var(--accent); }
+.kpi-value.warn { color: var(--warning); }
+.kpi-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px; color: var(--text-tertiary); line-height: 1.2; }
+.kpi-sep { width: 1px; height: 24px; background: var(--border-light); flex-shrink: 0; }
+
+/* 2-Column */
+.two-col { display: grid; grid-template-columns: 360px 1fr; min-height: 480px; }
+
+.col-schedule { border-right: 1px solid var(--border-light); background: var(--surface); overflow-y: auto; max-height: 540px; }
+.col-schedule::-webkit-scrollbar { width: 4px; }
+.col-schedule::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+.col-header { padding: 12px 16px; font-size: 13px; font-weight: 700; border-bottom: 1px solid var(--border-light); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: var(--surface); z-index: 5; }
+.col-header .header-sub { font-size: 11px; font-weight: 500; color: var(--text-tertiary); }
+
+.schedule-slot { display: flex; align-items: stretch; gap: 8px; padding: 8px 12px; border-bottom: 1px solid var(--border-light); min-height: 48px; position: relative; }
+.schedule-slot .slot-border { position: absolute; left: 0; top: 8px; bottom: 8px; width: 3px; border-radius: 2px; }
+.slot-time { width: 38px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.slot-time-value { font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.slot-time-sub { font-size: 8px; color: var(--text-tertiary); text-transform: uppercase; }
+.slot-info { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 1px; }
+.slot-patient { font-size: 13px; font-weight: 600; }
+.slot-doctor { font-size: 10px; color: var(--text-tertiary); }
+.slot-right { display: flex; align-items: center; flex-shrink: 0; }
+.slot-status { font-size: 9px; font-weight: 600; padding: 2px 6px; border-radius: 8px; text-transform: uppercase; letter-spacing: 0.3px; white-space: nowrap; }
+.slot-status.arrived { background: var(--accent-light); color: var(--accent); }
+.slot-status.consulting { background: var(--blue-light); color: var(--blue); }
+.slot-status.expected { background: var(--surface-alt); color: var(--text-tertiary); }
+.slot-status.noshow { background: var(--danger-light); color: var(--danger); }
+.schedule-slot.regulation { background: var(--surface-alt); }
+.slot-empty-label { font-size: 12px; color: var(--text-tertiary); font-style: italic; }
+.slot-assign-btn { padding: 3px 8px; border-radius: 5px; border: 1px solid var(--accent); background: white; color: var(--accent); font-family: inherit; font-size: 10px; font-weight: 600; cursor: pointer; }
+.schedule-slot.noshow-row { background: #FFE8EE; }
+.sans-rdv-header-row { padding: 6px 12px; background: var(--surface-alt); font-size: 10px; font-weight: 600; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border-light); }
+
+.col-waiting { background: var(--bg); overflow-y: auto; max-height: 540px; }
+.col-waiting-header { display: flex; align-items: center; gap: 8px; padding: 10px 16px; background: var(--surface); border-bottom: 1px solid var(--border-light); position: sticky; top: 0; z-index: 5; }
+.search-bar { flex: 1; padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); background: var(--surface-alt); font-family: inherit; font-size: 13px; outline: none; }
+.add-btn-inline { padding: 8px 14px; border-radius: var(--radius-sm); border: 1.5px solid var(--accent); background: white; color: var(--accent); font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+
+.noshow-banner { display: flex; align-items: center; gap: 8px; margin: 8px 12px 0; padding: 8px 10px; background: var(--warning-light); border: 1px solid rgba(244,142,64,0.2); border-radius: var(--radius-sm); font-size: 12px; }
+.noshow-icon { width: 24px; height: 24px; border-radius: 50%; background: var(--warning); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; flex-shrink: 0; }
+.noshow-info { flex: 1; min-width: 0; }
+.noshow-name { font-weight: 600; font-size: 12px; }
+.noshow-detail { font-size: 10px; color: var(--warning); }
+.noshow-action { padding: 4px 10px; border-radius: 5px; border: 1px solid var(--warning); background: white; color: var(--warning); font-family: inherit; font-size: 10px; font-weight: 600; cursor: pointer; }
+
+/* Patient rows with staggered animation opacity */
+.waiting-list { padding: 8px 12px; display: flex; flex-direction: column; gap: 6px; }
+.patient-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--surface); border-radius: var(--radius-sm); border: 1px solid var(--border-light); box-shadow: var(--shadow-sm); min-height: 52px; cursor: pointer; transition: all 0.2s ease; }
+.patient-row:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.patient-row.urgent { background: #FFE8EE; border-color: #EFB9B8; }
+/* Staggered fade-up animation */
+@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.patient-row:nth-child(1) { animation: fadeUp 0.3s ease 0.0s both; }
+.patient-row:nth-child(2) { animation: fadeUp 0.3s ease 0.05s both; }
+.patient-row:nth-child(3) { animation: fadeUp 0.3s ease 0.1s both; }
+.patient-row:nth-child(4) { animation: fadeUp 0.3s ease 0.15s both; }
+.patient-row:nth-child(5) { animation: fadeUp 0.3s ease 0.2s both; }
+.row-left { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.position-badge { width: 26px; height: 26px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; font-variant-numeric: tabular-nums; }
+.position-badge.consulting { background: var(--accent); color: white; }
+.position-badge.notified { background: var(--warning-light); color: var(--warning); }
+.position-badge.waiting { background: var(--surface-alt); color: var(--text-secondary); }
+.doctor-badge { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 10px; color: white; }
+.row-info { flex: 1; min-width: 0; }
+.row-name-line { display: flex; align-items: center; gap: 4px; margin-bottom: 1px; flex-wrap: wrap; }
+.row-name { font-weight: 600; font-size: 13px; letter-spacing: -0.2px; }
+.tag { font-size: 9px; padding: 1px 6px; border-radius: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; flex-shrink: 0; white-space: nowrap; }
+.tag-urgent { background: #FFD0DE; color: #CE2826; font-weight: 700; }
+.tag-notified { background: var(--warning-light); color: var(--warning); }
+.tag-sans-rdv { background: var(--surface-alt); color: var(--text-tertiary); }
+.row-meta { font-size: 10px; color: var(--text-tertiary); }
+.row-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.est-wait { text-align: right; min-width: 36px; }
+.est-wait-value { font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--text-primary); }
+.est-wait-label { font-size: 8px; text-transform: uppercase; color: var(--text-tertiary); }
+
+.waiting-action-bar { display: flex; align-items: center; gap: 10px; padding: 10px 16px; background: var(--surface); border-top: 1px solid var(--border-light); }
+.btn-next-desktop { flex: 1; padding: 10px 16px; border-radius: var(--radius-sm); border: none; background: var(--accent); color: white; font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+
+.shortcut-bar { display: flex; align-items: center; justify-content: center; gap: 20px; padding: 8px 20px; background: var(--text-primary); color: rgba(255,255,255,0.7); font-size: 11px; font-weight: 500; }
+.shortcut-bar kbd { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 6px; background: rgba(255,255,255,0.15); border-radius: 4px; font-family: inherit; font-size: 11px; font-weight: 700; color: white; margin-right: 4px; }
+
+/* Deprecated components legend */
+.deprecated-legend { padding: 12px 20px; background: var(--surface-alt); border-top: 1px solid var(--border-light); font-size: 11px; color: var(--text-tertiary); display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.deprecated-legend .legend-label { font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-size: 10px; }
+.deprecated-item { text-decoration: line-through; opacity: 0.6; }
+
+/* MOBILE VIEW */
+.mobile-view { display: flex; justify-content: center; padding: 24px; flex-wrap: wrap; gap: 24px; align-items: flex-start; }
+
+/* Mini phone frames for empty states */
+.empty-states-grid { width: 100%; max-width: 900px; }
+.empty-states-grid h3 { font-size: 14px; font-weight: 600; color: var(--text-secondary); margin-bottom: 16px; text-align: center; }
+.empty-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.mini-phone { width: 100%; max-width: 200px; margin: 0 auto; background: #111; border-radius: 24px; padding: 6px; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+.mini-phone::before { content: ''; display: block; width: 50px; height: 12px; background: #111; border-radius: 6px; margin: 0 auto 0; position: relative; z-index: 2; }
+.mini-screen { background: var(--bg); border-radius: 20px; overflow: hidden; padding: 0; }
+.mini-topbar { display: flex; align-items: center; gap: 6px; padding: 8px 10px; background: var(--surface); border-bottom: 1px solid var(--border-light); }
+.mini-logo { width: 16px; height: 16px; background: var(--accent); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: white; font-size: 7px; font-weight: 700; }
+.mini-title { font-size: 9px; font-weight: 700; }
+.mini-kpi { display: flex; justify-content: space-around; padding: 6px 8px; background: var(--surface); border-bottom: 1px solid var(--border-light); font-size: 8px; color: var(--text-tertiary); }
+.mini-kpi span { font-weight: 700; color: var(--text-primary); font-size: 10px; display: block; text-align: center; }
+
+/* Empty state content */
+.empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px 12px; text-align: center; min-height: 140px; }
+.empty-icon { font-size: 28px; margin-bottom: 6px; }
+.empty-title { font-size: 11px; font-weight: 700; color: var(--text-primary); margin-bottom: 2px; }
+.empty-desc { font-size: 9px; color: var(--text-tertiary); line-height: 1.4; }
+.empty-label { font-size: 9px; font-weight: 600; color: var(--text-secondary); text-align: center; margin-top: 6px; }
+
+/* Main phone frame */
+.phone-frame { width: 390px; height: 844px; background: #111; border-radius: 48px; padding: 12px; position: relative; overflow: hidden; box-shadow: 0 8px 40px rgba(0,0,0,0.3); }
+.phone-frame::before { content: ''; position: absolute; top: 12px; left: 50%; transform: translateX(-50%); width: 120px; height: 28px; background: #111; border-radius: 14px; z-index: 20; }
+.phone-screen { width: 100%; height: 100%; background: var(--bg); border-radius: 38px; overflow-y: auto; overflow-x: hidden; position: relative; }
+.phone-screen::-webkit-scrollbar { display: none; }
+.status-bar { height: 48px; display: flex; align-items: flex-end; justify-content: space-between; padding: 0 24px 6px; font-size: 12px; font-weight: 600; background: var(--bg); position: sticky; top: 0; z-index: 10; }
+.status-bar-right { display: flex; gap: 6px; align-items: center; font-size: 11px; }
+.topbar-mobile { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; background: var(--surface); border-bottom: 1px solid var(--border-light); }
+.session-bar { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; background: var(--accent-light); border-bottom: 1px solid var(--border-light); }
+.session-status { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--accent); }
+.session-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
+.session-toggle { width: 40px; height: 22px; border-radius: 11px; background: var(--accent); border: none; cursor: pointer; position: relative; }
+.session-toggle::after { content: ''; position: absolute; top: 3px; right: 3px; width: 16px; height: 16px; border-radius: 50%; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.15); }
+.kpi-strip-m { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; background: var(--surface); border-bottom: 1px solid var(--border-light); }
+.doctor-status-bar-m { display: flex; gap: 8px; padding: 10px 16px; background: var(--surface); border-bottom: 1px solid var(--border-light); overflow-x: auto; }
+.doctor-status-bar-m::-webkit-scrollbar { display: none; }
+.tab-bar { display: flex; background: var(--surface); border-bottom: 1px solid var(--border-light); }
+.tab-bar button { flex: 1; padding: 10px 16px; font-family: inherit; font-size: 13px; font-weight: 600; border: none; background: none; cursor: pointer; color: var(--text-tertiary); position: relative; }
+.tab-bar button.active { color: var(--accent); }
+.tab-bar button.active::after { content: ''; position: absolute; bottom: 0; left: 16px; right: 16px; height: 2px; background: var(--accent); border-radius: 1px; }
+.tab-bar .tab-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--accent); color: white; font-size: 10px; font-weight: 700; margin-left: 6px; }
+.waiting-room-m { padding: 12px 16px; padding-bottom: 100px; display: flex; flex-direction: column; gap: 8px; }
+/* Mobile rows also get fade-up */
+.waiting-room-m .patient-row:nth-child(1) { animation: fadeUp 0.3s ease 0.0s both; }
+.waiting-room-m .patient-row:nth-child(2) { animation: fadeUp 0.3s ease 0.05s both; }
+.waiting-room-m .patient-row:nth-child(3) { animation: fadeUp 0.3s ease 0.1s both; }
+.waiting-room-m .patient-row:nth-child(4) { animation: fadeUp 0.3s ease 0.15s both; }
+.waiting-room-m .patient-row:nth-child(5) { animation: fadeUp 0.3s ease 0.2s both; }
+.quick-bar-m { position: absolute; bottom: 0; left: 0; right: 0; display: flex; align-items: center; gap: 12px; padding: 12px 16px; padding-bottom: max(12px, env(safe-area-inset-bottom)); background: var(--surface); border-top: 1px solid var(--border-light); box-shadow: 0 -2px 8px rgba(0,0,0,0.04); z-index: 30; }
+.quick-bar-m .btn { flex: 1; padding: 12px 16px; border-radius: var(--radius-sm); font-weight: 600; font-size: 14px; cursor: pointer; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.btn-add { border: 1.5px solid var(--border); background: var(--surface); color: var(--text-primary); }
+.btn-next { border: none; background: var(--accent); color: white; }
+.menu-btn { width: 28px; height: 28px; border-radius: 6px; border: none; background: transparent; color: var(--text-tertiary); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+
+/* Consultation Section */
+.consultation-section { padding: 12px 16px 0; }
+.consultation-section-desktop { padding: 8px 12px 0; }
+.consultation-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.consultation-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--blue); animation: pulse 2s infinite; flex-shrink: 0; }
+.consultation-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: var(--blue); }
+.consultation-card { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--blue-light); border-radius: var(--radius-sm); border: 1px solid rgba(74,110,143,0.12); box-shadow: var(--shadow-sm); min-height: 52px; position: relative; margin-bottom: 6px; animation: fadeUp 0.3s ease 0.0s both; }
+.consultation-card::before { content: ''; position: absolute; left: 0; top: 8px; bottom: 8px; width: 3px; border-radius: 2px; background: var(--doctor-border-color, var(--blue)); }
+.consultation-card-desktop::before { width: 4px; }
+.consultation-duration { font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--blue); white-space: nowrap; margin-left: auto; }
+.queue-separator { display: flex; align-items: center; gap: 10px; padding: 8px 16px; }
+.queue-separator-desktop { padding: 8px 12px; }
+.queue-separator-line { flex: 1; height: 1px; background: var(--border-light); }
+.queue-separator-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; color: var(--text-tertiary); white-space: nowrap; }
+</style>
+</head>
+<body>
+<div class="phase-banner">PHASE 5 — Polish + Final <span>| + Fade-up animations, all 4 empty states, a11y indicators, deprecated components legend</span></div>
+
+<div class="view-toggle">
+  <button class="active" onclick="switchView('desktop')">Desktop</button>
+  <button onclick="switchView('mobile')">Mobile</button>
+</div>
+
+<!-- DESKTOP VIEW -->
+<div class="desktop-view active" id="desktop-view">
+  <div class="desktop-frame">
+    <div class="version-badge">v5.0</div>
+
+    <div class="topbar-desktop">
+      <div class="topbar-left">
+        <div class="topbar-logo">AS</div>
+        <div class="topbar-title">Cabinet Dr. Martin</div>
+      </div>
+      <div class="topbar-pills">
+        <button class="doctor-pill consulting focus-ring" data-aria="En consultation depuis 25 min">
+          <span class="pill-dot"></span>Martin <span class="pill-delay">+15</span><span class="pill-arrow">&#8250;</span>
+        </button>
+        <button class="doctor-pill free" data-aria="Libre — pret a consulter">
+          <span class="pill-dot"></span>Leroy<span class="pill-arrow">&#8250;</span>
+        </button>
+        <button class="doctor-pill pause">
+          <span class="pill-dot"></span>Ngo
+        </button>
+        <button class="doctor-pill absent">
+          <span class="pill-dot"></span>Bernard
+        </button>
+      </div>
+      <button class="topbar-btn">&#9881;</button>
+    </div>
+
+    <div class="kpi-strip">
+      <div class="kpi-item"><span class="kpi-value highlight">4</span><span class="kpi-label">En attente</span></div>
+      <div class="kpi-sep"></div>
+      <div class="kpi-item"><span class="kpi-value">12</span><span class="kpi-label">Vus</span></div>
+      <div class="kpi-sep"></div>
+      <div class="kpi-item"><span class="kpi-value">18 min</span><span class="kpi-label">Attente moy.</span></div>
+      <div class="kpi-sep"></div>
+      <div class="kpi-item"><span class="kpi-value warn">1</span><span class="kpi-label">Absents</span></div>
+    </div>
+
+    <div class="two-col">
+      <!-- Schedule -->
+      <div class="col-schedule">
+        <div class="col-header"><span>Agenda du jour</span><span class="header-sub">7 creneaux</span></div>
+        <div class="schedule-slot">
+          <div class="slot-border" style="background: var(--doctor-blue)"></div>
+          <div class="slot-time"><span class="slot-time-value">09:00</span></div>
+          <div class="slot-info"><span class="slot-patient">Dupont S.</span><span class="slot-doctor">Dr. Martin</span></div>
+          <div class="slot-right"><span class="slot-status consulting">En consult</span></div>
+        </div>
+        <div class="schedule-slot">
+          <div class="slot-border" style="background: var(--doctor-blue)"></div>
+          <div class="slot-time"><span class="slot-time-value">09:15</span></div>
+          <div class="slot-info"><span class="slot-patient">Martin P.</span><span class="slot-doctor">Dr. Martin</span></div>
+          <div class="slot-right"><span class="slot-status arrived">Arrive</span></div>
+        </div>
+        <div class="schedule-slot regulation">
+          <div class="slot-border" style="background: var(--border)"></div>
+          <div class="slot-time"><span class="slot-time-value">09:30</span></div>
+          <div class="slot-info"><span class="slot-empty-label">Creneau libre</span><span class="slot-doctor">Dr. Martin</span></div>
+          <div class="slot-right"><button class="slot-assign-btn">Affecter</button></div>
+        </div>
+        <div class="schedule-slot">
+          <div class="slot-border" style="background: var(--doctor-teal)"></div>
+          <div class="slot-time"><span class="slot-time-value">09:45</span></div>
+          <div class="slot-info"><span class="slot-patient">Petit S.</span><span class="slot-doctor">Dr. Leroy</span></div>
+          <div class="slot-right"><span class="slot-status arrived">Arrive</span></div>
+        </div>
+        <div class="schedule-slot noshow-row">
+          <div class="slot-border" style="background: var(--danger)"></div>
+          <div class="slot-time"><span class="slot-time-value">10:00</span></div>
+          <div class="slot-info"><span class="slot-patient">Bernard L.</span><span class="slot-doctor">Dr. Martin</span></div>
+          <div class="slot-right"><span class="slot-status noshow">Absent</span></div>
+        </div>
+        <div class="schedule-slot regulation">
+          <div class="slot-border" style="background: var(--border)"></div>
+          <div class="slot-time"><span class="slot-time-value">10:15</span></div>
+          <div class="slot-info"><span class="slot-empty-label">Creneau libre</span><span class="slot-doctor">Dr. Leroy</span></div>
+          <div class="slot-right"><button class="slot-assign-btn">Affecter</button></div>
+        </div>
+        <div class="schedule-slot">
+          <div class="slot-border" style="background: var(--doctor-blue)"></div>
+          <div class="slot-time"><span class="slot-time-value">10:30</span></div>
+          <div class="slot-info"><span class="slot-patient">Rousseau M.</span><span class="slot-doctor">Dr. Martin</span></div>
+          <div class="slot-right"><span class="slot-status expected">Attendu</span></div>
+        </div>
+        <div class="sans-rdv-header-row">Sans rendez-vous (3)</div>
+        <div class="schedule-slot">
+          <div class="slot-border" style="background: var(--text-tertiary)"></div>
+          <div class="slot-time"><span class="slot-time-value">9h22</span><span class="slot-time-sub">arr.</span></div>
+          <div class="slot-info"><span class="slot-patient">J-C. Bernard</span><span class="slot-doctor">Dr. Martin</span></div>
+          <div class="slot-right"><span class="slot-status" style="background:#FFD0DE;color:#CE2826">Urgent</span></div>
+        </div>
+        <div class="schedule-slot">
+          <div class="slot-border" style="background: var(--text-tertiary)"></div>
+          <div class="slot-time"><span class="slot-time-value">9h30</span><span class="slot-time-sub">arr.</span></div>
+          <div class="slot-info"><span class="slot-patient">Marie L.</span><span class="slot-doctor">Dr. Leroy</span></div>
+          <div class="slot-right"><span class="slot-status expected">Attente</span></div>
+        </div>
+        <div class="schedule-slot">
+          <div class="slot-border" style="background: var(--text-tertiary)"></div>
+          <div class="slot-time"><span class="slot-time-value">9h45</span><span class="slot-time-sub">arr.</span></div>
+          <div class="slot-info"><span class="slot-patient">Fatima N.</span><span class="slot-doctor">Dr. Martin</span></div>
+          <div class="slot-right"><span class="slot-status expected">Attente</span></div>
+        </div>
+      </div>
+
+      <!-- Waiting Room -->
+      <div class="col-waiting">
+        <div class="col-waiting-header">
+          <input class="search-bar" placeholder="Rechercher un patient..." type="text">
+          <button class="add-btn-inline">+ Patient</button>
+        </div>
+        <div class="noshow-banner">
+          <div class="noshow-icon">!</div>
+          <div class="noshow-info"><div class="noshow-name">Bernard L. (10h00)</div><div class="noshow-detail">Absent 15 min</div></div>
+          <button class="noshow-action">Absent</button>
+        </div>
+        <!-- Consultation Section -->
+        <div class="consultation-section-desktop">
+          <div class="consultation-header">
+            <span class="consultation-dot"></span>
+            <span class="consultation-label">En consultation</span>
+          </div>
+          <div class="consultation-card consultation-card-desktop" style="--doctor-border-color: #4A6E8F">
+            <div class="row-left"><div class="position-badge consulting">1</div><div class="doctor-badge" style="background:#4A6E8F">M</div></div>
+            <div class="row-info"><div class="row-name-line"><span class="row-name">Sophie D.</span> <span class="tag tag-sans-rdv">Sans RDV</span></div><div class="row-meta">Dr. Martin &middot; 12 min</div></div>
+            <div class="consultation-duration">12 min</div>
+          </div>
+        </div>
+        <!-- Separator -->
+        <div class="queue-separator queue-separator-desktop">
+          <div class="queue-separator-line"></div>
+          <span class="queue-separator-label">File d'attente (4)</span>
+          <div class="queue-separator-line"></div>
+        </div>
+        <!-- Waiting Queue -->
+        <div class="waiting-list">
+          <div class="patient-row">
+            <div class="row-left"><div class="position-badge notified">1</div><div class="doctor-badge" style="background:#60B8AA">L</div></div>
+            <div class="row-info"><div class="row-name-line"><span class="row-name">Pierre M.</span> <span class="tag tag-notified">NOTIFIE</span></div><div class="row-meta">9h15 &middot; Dr. Leroy</div></div>
+            <div class="row-right"><div class="est-wait"><div class="est-wait-value">~15</div><div class="est-wait-label">min</div></div></div>
+          </div>
+          <div class="patient-row urgent">
+            <div class="row-left"><div class="position-badge waiting">2</div><div class="doctor-badge" style="background:#4A6E8F">M</div></div>
+            <div class="row-info"><div class="row-name-line"><span class="row-name">J-C. Bernard</span> <span class="tag tag-urgent">Urgent</span></div><div class="row-meta">9h22 &middot; Dr. Martin</div></div>
+            <div class="row-right"><div class="est-wait"><div class="est-wait-value">~30</div><div class="est-wait-label">min</div></div></div>
+          </div>
+          <div class="patient-row">
+            <div class="row-left"><div class="position-badge waiting">3</div><div class="doctor-badge" style="background:#60B8AA">L</div></div>
+            <div class="row-info"><div class="row-name-line"><span class="row-name">Marie L.</span></div><div class="row-meta">9h30 &middot; Dr. Leroy</div></div>
+            <div class="row-right"><div class="est-wait"><div class="est-wait-value">~45</div><div class="est-wait-label">min</div></div></div>
+          </div>
+          <div class="patient-row">
+            <div class="row-left"><div class="position-badge waiting">4</div><div class="doctor-badge" style="background:#4A6E8F">M</div></div>
+            <div class="row-info"><div class="row-name-line"><span class="row-name">Fatima N.</span></div><div class="row-meta">9h45 &middot; Dr. Martin</div></div>
+            <div class="row-right"><div class="est-wait"><div class="est-wait-value">~60</div><div class="est-wait-label">min</div></div></div>
+          </div>
+        </div>
+        <div class="waiting-action-bar">
+          <button class="btn-next-desktop">Appeler le suivant (4) &#8250;</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="shortcut-bar">
+      <span><kbd>N</kbd> Suivant</span>
+      <span><kbd>A</kbd> Patient</span>
+      <span><kbd>Esc</kbd> Fermer</span>
+      <span><kbd>U</kbd> Urgent</span>
+      <span><kbd>&uarr;&darr;</kbd> Naviguer</span>
+    </div>
+
+    <!-- Deprecated components legend -->
+    <div class="deprecated-legend">
+      <span class="legend-label">Composants retires :</span>
+      <span class="deprecated-item">QueueCard</span>
+      <span class="deprecated-item">QueueList</span>
+      <span class="deprecated-item">PatientStatusBadge</span>
+      <span class="deprecated-item">DoctorPresenceToggle</span>
+      <span class="deprecated-item">QuickStats</span>
+    </div>
+  </div>
+</div>
+
+<!-- MOBILE VIEW — 4 Empty States + Main View -->
+<div class="mobile-view" id="mobile-view">
+  <!-- Empty states grid -->
+  <div class="empty-states-grid">
+    <h3>4 Empty States (mobile)</h3>
+    <div class="empty-grid">
+      <!-- 1. No patients -->
+      <div>
+        <div class="mini-phone">
+          <div class="mini-screen">
+            <div class="mini-topbar"><div class="mini-logo">AS</div><div class="mini-title">Cabinet Dr. Martin</div></div>
+            <div class="mini-kpi">
+              <div><span>0</span>Attente</div>
+              <div><span>0</span>Vus</div>
+              <div><span>—</span>Moy.</div>
+            </div>
+            <div class="empty-state">
+              <div class="empty-icon">&#128522;</div>
+              <div class="empty-title">Aucun patient en attente</div>
+              <div class="empty-desc">La salle d'attente est vide. Les nouveaux patients apparaitront ici.</div>
+            </div>
+          </div>
+        </div>
+        <div class="empty-label">Aucun patient</div>
+      </div>
+
+      <!-- 2. No doctors -->
+      <div>
+        <div class="mini-phone">
+          <div class="mini-screen">
+            <div class="mini-topbar"><div class="mini-logo">AS</div><div class="mini-title">Mon Cabinet</div></div>
+            <div class="mini-kpi">
+              <div><span>—</span>Attente</div>
+              <div><span>—</span>Vus</div>
+              <div><span>—</span>Moy.</div>
+            </div>
+            <div class="empty-state">
+              <div class="empty-icon">&#9881;</div>
+              <div class="empty-title">Aucun medecin configure</div>
+              <div class="empty-desc">Configurez vos medecins dans les parametres pour commencer.</div>
+            </div>
+          </div>
+        </div>
+        <div class="empty-label">Aucun medecin</div>
+      </div>
+
+      <!-- 3. All done -->
+      <div>
+        <div class="mini-phone">
+          <div class="mini-screen">
+            <div class="mini-topbar"><div class="mini-logo">AS</div><div class="mini-title">Cabinet Dr. Martin</div></div>
+            <div class="mini-kpi">
+              <div><span>0</span>Attente</div>
+              <div><span>24</span>Vus</div>
+              <div><span>14</span>Moy.</div>
+            </div>
+            <div class="empty-state">
+              <div class="empty-icon">&#10003;</div>
+              <div class="empty-title">Tous les patients ont ete vus !</div>
+              <div class="empty-desc">Excellente journee. 24 patients consultes avec une attente moyenne de 14 min.</div>
+            </div>
+          </div>
+        </div>
+        <div class="empty-label">Journee terminee</div>
+      </div>
+
+      <!-- 4. No agenda -->
+      <div>
+        <div class="mini-phone">
+          <div class="mini-screen">
+            <div class="mini-topbar"><div class="mini-logo">AS</div><div class="mini-title">Cabinet Dr. Martin</div></div>
+            <div class="mini-kpi">
+              <div><span>3</span>Attente</div>
+              <div><span>5</span>Vus</div>
+              <div><span>12</span>Moy.</div>
+            </div>
+            <div class="empty-state">
+              <div class="empty-icon">&#128197;</div>
+              <div class="empty-title">Aucun agenda configure</div>
+              <div class="empty-desc">Importez votre agenda Doctolib ou ajoutez vos creneaux manuellement.</div>
+            </div>
+          </div>
+        </div>
+        <div class="empty-label">Pas d'agenda</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main phone with polished view -->
+  <div class="phone-frame">
+    <div class="phone-screen">
+      <div class="status-bar"><span>9:41</span><div class="status-bar-right">&#9679;&#9679;&#9679; WiFi &#128267;</div></div>
+      <div class="topbar-mobile">
+        <div class="topbar-left">
+          <div class="topbar-logo">AS</div>
+          <div class="topbar-title">Cabinet Dr. Martin</div>
+        </div>
+        <button class="topbar-btn">&#9881;</button>
+      </div>
+      <div class="session-bar">
+        <div class="session-status"><div class="session-dot"></div> Session active</div>
+        <button class="session-toggle"></button>
+      </div>
+      <div class="kpi-strip-m">
+        <div class="kpi-item"><span class="kpi-value highlight">4</span><span class="kpi-label">En attente</span></div>
+        <div class="kpi-sep"></div>
+        <div class="kpi-item"><span class="kpi-value">12</span><span class="kpi-label">Vus</span></div>
+        <div class="kpi-sep"></div>
+        <div class="kpi-item"><span class="kpi-value">18 min</span><span class="kpi-label">Attente moy.</span></div>
+        <div class="kpi-sep"></div>
+        <div class="kpi-item"><span class="kpi-value warn">1</span><span class="kpi-label">Absents</span></div>
+      </div>
+      <div class="doctor-status-bar-m">
+        <button class="doctor-pill consulting"><span class="pill-dot"></span>Martin <span class="pill-delay">+15</span><span class="pill-arrow">&#8250;</span></button>
+        <button class="doctor-pill free"><span class="pill-dot"></span>Leroy<span class="pill-arrow">&#8250;</span></button>
+        <button class="doctor-pill pause"><span class="pill-dot"></span>Ngo</button>
+        <button class="doctor-pill absent"><span class="pill-dot"></span>Bernard</button>
+      </div>
+      <div class="tab-bar">
+        <button class="active">Salle <span class="tab-badge">4</span></button>
+        <button>Agenda</button>
+      </div>
+      <!-- Consultation Section -->
+      <div class="consultation-section">
+        <div class="consultation-header">
+          <span class="consultation-dot"></span>
+          <span class="consultation-label">En consultation</span>
+        </div>
+        <div class="consultation-card" style="--doctor-border-color: #4A6E8F">
+          <div class="row-left"><div class="position-badge consulting">1</div><div class="doctor-badge" style="background:#4A6E8F">M</div></div>
+          <div class="row-info"><div class="row-name-line"><span class="row-name">Sophie D.</span></div><div class="row-meta">Dr. Martin &middot; 12 min</div></div>
+          <div class="consultation-duration">12 min</div>
+        </div>
+      </div>
+      <!-- Separator -->
+      <div class="queue-separator">
+        <div class="queue-separator-line"></div>
+        <span class="queue-separator-label">File d'attente (4)</span>
+        <div class="queue-separator-line"></div>
+      </div>
+      <!-- Waiting Queue -->
+      <div class="waiting-room-m">
+        <div class="patient-row">
+          <div class="row-left"><div class="position-badge notified">1</div><div class="doctor-badge" style="background:#60B8AA">L</div></div>
+          <div class="row-info"><div class="row-name-line"><span class="row-name">Pierre M.</span> <span class="tag tag-notified">NOTIFIE</span></div><div class="row-meta">9h15 &middot; Dr. Leroy</div></div>
+          <div class="row-right"><div class="est-wait"><div class="est-wait-value">~15</div><div class="est-wait-label">min</div></div><button class="menu-btn">&#8942;</button></div>
+        </div>
+        <div class="patient-row urgent">
+          <div class="row-left"><div class="position-badge waiting">2</div><div class="doctor-badge" style="background:#4A6E8F">M</div></div>
+          <div class="row-info"><div class="row-name-line"><span class="row-name">J-C. Bernard</span> <span class="tag tag-urgent">Urgent</span></div><div class="row-meta">9h22 &middot; Dr. Martin</div></div>
+          <div class="row-right"><div class="est-wait"><div class="est-wait-value">~30</div><div class="est-wait-label">min</div></div><button class="menu-btn">&#8942;</button></div>
+        </div>
+        <div class="patient-row">
+          <div class="row-left"><div class="position-badge waiting">3</div><div class="doctor-badge" style="background:#60B8AA">L</div></div>
+          <div class="row-info"><div class="row-name-line"><span class="row-name">Marie L.</span></div><div class="row-meta">9h30 &middot; Dr. Leroy</div></div>
+          <div class="row-right"><div class="est-wait"><div class="est-wait-value">~45</div><div class="est-wait-label">min</div></div><button class="menu-btn">&#8942;</button></div>
+        </div>
+        <div class="patient-row">
+          <div class="row-left"><div class="position-badge waiting">4</div><div class="doctor-badge" style="background:#4A6E8F">M</div></div>
+          <div class="row-info"><div class="row-name-line"><span class="row-name">Fatima N.</span></div><div class="row-meta">9h45 &middot; Dr. Martin</div></div>
+          <div class="row-right"><div class="est-wait"><div class="est-wait-value">~60</div><div class="est-wait-label">min</div></div><button class="menu-btn">&#8942;</button></div>
+        </div>
+      </div>
+      <div class="quick-bar-m">
+        <button class="btn btn-add">+ Patient</button>
+        <button class="btn btn-next">Suivant (4) &#8250;</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function switchView(view) {
+  document.querySelectorAll('.view-toggle button').forEach(b => b.classList.remove('active'));
+  document.getElementById('desktop-view').classList.remove('active');
+  document.getElementById('mobile-view').classList.remove('active');
+  document.getElementById(view + '-view').classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>

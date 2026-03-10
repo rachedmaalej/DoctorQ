@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BleSaf vs AuSuivant - Brand Comparison</title>
+<style>
+  :root {
+    --blesaf: #0D9488;
+    --blesaf-light: #E6F5F3;
+    --blesaf-surface: #F5F0E8;
+    --ausuivant: #1B6B4A;
+    --ausuivant-light: #E8F0EC;
+    --ausuivant-surface: #F7F6F3;
+    --done: #16a34a;
+    --partial: #d97706;
+    --missing: #dc2626;
+    --na: #9ca3af;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #f8f9fa;
+    color: #1a1a2e;
+    line-height: 1.6;
+  }
+
+  .header {
+    background: linear-gradient(135deg, var(--blesaf) 0%, var(--ausuivant) 100%);
+    color: white;
+    padding: 48px 24px;
+    text-align: center;
+  }
+  .header h1 { font-size: 2rem; font-weight: 700; margin-bottom: 8px; }
+  .header p { opacity: 0.85; font-size: 1.05rem; }
+  .header .date { opacity: 0.6; font-size: 0.85rem; margin-top: 12px; }
+
+  .container { max-width: 1200px; margin: 0 auto; padding: 32px 16px; }
+
+  /* Summary Cards */
+  .summary-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 40px;
+  }
+  .brand-card {
+    border-radius: 16px;
+    padding: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .brand-card.blesaf {
+    background: var(--blesaf-surface);
+    border: 2px solid var(--blesaf);
+  }
+  .brand-card.ausuivant {
+    background: var(--ausuivant-surface);
+    border: 2px solid var(--ausuivant);
+  }
+  .brand-card .logo {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+  .brand-card.blesaf .logo { color: var(--blesaf); }
+  .brand-card.ausuivant .logo { color: var(--ausuivant); }
+  .brand-card .subtitle { color: #666; font-size: 0.9rem; margin-bottom: 20px; }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .stat-box {
+    background: white;
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+  }
+  .stat-box .num { font-size: 1.6rem; font-weight: 700; }
+  .stat-box .label { font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
+  .brand-card.blesaf .stat-box .num { color: var(--blesaf); }
+  .brand-card.ausuivant .stat-box .num { color: var(--ausuivant); }
+
+  /* Progress bars */
+  .progress-section { margin-bottom: 40px; }
+  .progress-section h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 16px; }
+  .progress-row {
+    display: grid;
+    grid-template-columns: 160px 1fr 60px 1fr 60px;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+  }
+  .progress-row .label { font-weight: 600; text-align: right; }
+  .progress-bar {
+    height: 24px;
+    background: #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+  }
+  .progress-bar .fill {
+    height: 100%;
+    border-radius: 12px;
+    transition: width 0.6s ease;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 8px;
+    font-size: 0.7rem;
+    color: white;
+    font-weight: 600;
+  }
+  .progress-bar.blesaf .fill { background: var(--blesaf); }
+  .progress-bar.ausuivant .fill { background: var(--ausuivant); }
+  .progress-pct { font-weight: 700; font-size: 0.85rem; }
+  .progress-pct.blesaf { color: var(--blesaf); }
+  .progress-pct.ausuivant { color: var(--ausuivant); }
+
+  /* Feature table */
+  .section { margin-bottom: 40px; }
+  .section h2 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .section .section-desc {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 16px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  thead th {
+    padding: 14px 16px;
+    text-align: left;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #666;
+    border-bottom: 2px solid #eee;
+    background: #fafafa;
+  }
+  thead th:nth-child(2) { color: var(--blesaf); }
+  thead th:nth-child(3) { color: var(--ausuivant); }
+  tbody td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 0.9rem;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: #fafbfc; }
+  .feature-name { font-weight: 600; }
+  .feature-note { color: #888; font-size: 0.8rem; display: block; margin-top: 2px; }
+
+  /* Status badges */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+  .badge.done { background: #dcfce7; color: var(--done); }
+  .badge.partial { background: #fef3c7; color: var(--partial); }
+  .badge.missing { background: #fee2e2; color: var(--missing); }
+  .badge.na { background: #f3f4f6; color: var(--na); }
+
+  .badge::before { font-size: 0.7rem; }
+  .badge.done::before { content: "\u25CF"; }
+  .badge.partial::before { content: "\u25CF"; }
+  .badge.missing::before { content: "\u25CF"; }
+  .badge.na::before { content: "\u2014"; }
+
+  /* Issues */
+  .issues-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .issue-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    border-left: 4px solid;
+  }
+  .issue-card.critical { border-left-color: var(--missing); }
+  .issue-card.warning { border-left-color: var(--partial); }
+  .issue-card h4 { font-size: 0.95rem; margin-bottom: 4px; }
+  .issue-card p { color: #666; font-size: 0.85rem; }
+  .issue-card .tag {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+  .issue-card.critical .tag { background: #fee2e2; color: var(--missing); }
+  .issue-card.warning .tag { background: #fef3c7; color: var(--partial); }
+
+  /* Architecture diagram */
+  .arch-diagram {
+    background: white;
+    border-radius: 12px;
+    padding: 32px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    display: flex;
+    justify-content: center;
+    gap: 48px;
+    flex-wrap: wrap;
+  }
+  .arch-col { text-align: center; min-width: 200px; }
+  .arch-col h4 {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #888;
+    margin-bottom: 12px;
+  }
+  .arch-box {
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  .arch-box.shared { border-color: #a78bfa; background: #f5f3ff; color: #7c3aed; }
+  .arch-box.blesaf-only { border-color: var(--blesaf); background: var(--blesaf-light); color: var(--blesaf); }
+  .arch-box.ausuivant-only { border-color: var(--ausuivant); background: var(--ausuivant-light); color: var(--ausuivant); }
+
+  .legend {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    margin-top: 16px;
+    font-size: 0.8rem;
+    color: #666;
+  }
+  .legend span { display: flex; align-items: center; gap: 6px; }
+  .legend .dot {
+    width: 12px; height: 12px;
+    border-radius: 3px;
+    display: inline-block;
+  }
+  .legend .dot.shared { background: #a78bfa; }
+  .legend .dot.bl { background: var(--blesaf); }
+  .legend .dot.au { background: var(--ausuivant); }
+
+  /* File counts */
+  .file-counts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    margin-top: 16px;
+  }
+  .fc-item {
+    background: white;
+    border-radius: 10px;
+    padding: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .fc-item .fc-dir { font-size: 0.8rem; color: #888; font-family: monospace; }
+  .fc-item .fc-count { font-size: 1.4rem; font-weight: 700; }
+  .fc-item .fc-label { font-size: 0.85rem; color: #555; }
+
+  @media (max-width: 768px) {
+    .summary-row { grid-template-columns: 1fr; }
+    .progress-row { grid-template-columns: 1fr; gap: 4px; }
+    .progress-row .label { text-align: left; }
+    .issues-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>BleSaf vs AuSuivant</h1>
+  <p>Development Progress Comparison</p>
+  <div class="date">Generated: March 6, 2026 &middot; DoctorQ Monorepo Analysis</div>
+</div>
+
+<div class="container">
+
+  <!-- Brand Summary Cards -->
+  <div class="summary-row">
+    <div class="brand-card blesaf">
+      <div class="logo">BleSAF</div>
+      <div class="subtitle">Tunisia &middot; blesaf.tn &middot; TND &middot; Konnect</div>
+      <div class="stat-grid">
+        <div class="stat-box">
+          <div class="num">25</div>
+          <div class="label">Mobile Components</div>
+        </div>
+        <div class="stat-box">
+          <div class="num">15</div>
+          <div class="label">Landing Sections</div>
+        </div>
+        <div class="stat-box">
+          <div class="num">2</div>
+          <div class="label">Languages (FR+AR)</div>
+        </div>
+        <div class="stat-box">
+          <div class="num">~92%</div>
+          <div class="label">Feature Complete</div>
+        </div>
+      </div>
+    </div>
+    <div class="brand-card ausuivant">
+      <div class="logo">AuSUIVANT</div>
+      <div class="subtitle">France &middot; ausuivant.fr &middot; EUR &middot; Stripe</div>
+      <div class="stat-grid">
+        <div class="stat-box">
+          <div class="num">13</div>
+          <div class="label">Mobile Components</div>
+        </div>
+        <div class="stat-box">
+          <div class="num">10</div>
+          <div class="label">Landing Sections</div>
+        </div>
+        <div class="stat-box">
+          <div class="num">1</div>
+          <div class="label">Language (FR)</div>
+        </div>
+        <div class="stat-box">
+          <div class="num">~78%</div>
+          <div class="label">Feature Complete</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Progress Bars by Category -->
+  <div class="progress-section">
+    <h2>Progress by Category</h2>
+    <div style="background:white; border-radius:12px; padding:24px; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+
+      <div class="progress-row">
+        <div class="label">Core Backend</div>
+        <div class="progress-bar blesaf"><div class="fill" style="width:95%">95%</div></div>
+        <div class="progress-pct blesaf">95%</div>
+        <div class="progress-bar ausuivant"><div class="fill" style="width:95%">95%</div></div>
+        <div class="progress-pct ausuivant">95%</div>
+      </div>
+
+      <div class="progress-row">
+        <div class="label">Mobile Dashboard</div>
+        <div class="progress-bar blesaf"><div class="fill" style="width:95%">95%</div></div>
+        <div class="progress-pct blesaf">95%</div>
+        <div class="progress-bar ausuivant"><div class="fill" style="width:85%">85%</div></div>
+        <div class="progress-pct ausuivant">85%</div>
+      </div>
+
+      <div class="progress-row">
+        <div class="label">Desktop Dashboard</div>
+        <div class="progress-bar blesaf"><div class="fill" style="width:90%">90%</div></div>
+        <div class="progress-pct blesaf">90%</div>
+        <div class="progress-bar ausuivant"><div class="fill" style="width:90%">90%</div></div>
+        <div class="progress-pct ausuivant">90%</div>
+      </div>
+
+      <div class="progress-row">
+        <div class="label">Landing Page</div>
+        <div class="progress-bar blesaf"><div class="fill" style="width:95%">95%</div></div>
+        <div class="progress-pct blesaf">95%</div>
+        <div class="progress-bar ausuivant"><div class="fill" style="width:90%">90%</div></div>
+        <div class="progress-pct ausuivant">90%</div>
+      </div>
+
+      <div class="progress-row">
+        <div class="label">Payments</div>
+        <div class="progress-bar blesaf"><div class="fill" style="width:90%">90%</div></div>
+        <div class="progress-pct blesaf">90%</div>
+        <div class="progress-bar ausuivant"><div class="fill" style="width:70%">70%</div></div>
+        <div class="progress-pct ausuivant">70%</div>
+      </div>
+
+      <div class="progress-row">
+        <div class="label">Patient Check-in</div>
+        <div class="progress-bar blesaf"><div class="fill" style="width:90%">90%</div></div>
+        <div class="progress-pct blesaf">90%</div>
+        <div class="progress-bar ausuivant"><div class="fill" style="width:60%">60%</div></div>
+        <div class="progress-pct ausuivant">60%</div>
+      </div>
+
+      <div class="progress-row">
+        <div class="label">Admin Panel</div>
+        <div class="progress-bar blesaf"><div class="fill" style="width:90%">90%</div></div>
+        <div class="progress-pct blesaf">90%</div>
+        <div class="progress-bar ausuivant"><div class="fill" style="width:80%">80%</div></div>
+        <div class="progress-pct ausuivant">80%</div>
+      </div>
+
+      <div class="progress-row">
+        <div class="label">Translations</div>
+        <div class="progress-bar blesaf"><div class="fill" style="width:95%">95%</div></div>
+        <div class="progress-pct blesaf">95%</div>
+        <div class="progress-bar ausuivant"><div class="fill" style="width:75%">75%</div></div>
+        <div class="progress-pct ausuivant">75%</div>
+      </div>
+
+      <div class="progress-row">
+        <div class="label">Compliance</div>
+        <div class="progress-bar blesaf"><div class="fill" style="width:70%">70%</div></div>
+        <div class="progress-pct blesaf">70%</div>
+        <div class="progress-bar ausuivant"><div class="fill" style="width:80%">80%</div></div>
+        <div class="progress-pct ausuivant">80%</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Architecture Overview -->
+  <div class="section">
+    <h2>Component Architecture</h2>
+    <p class="section-desc">How code is organized between shared and brand-specific modules</p>
+    <div class="arch-diagram">
+      <div class="arch-col">
+        <h4>BleSaf Only</h4>
+        <div class="arch-box blesaf-only">receptionist/ (25 files)</div>
+        <div class="arch-box blesaf-only">landing/ (15 files)</div>
+        <div class="arch-box blesaf-only">admin/blesaf/ (4 files)</div>
+        <div class="arch-box blesaf-only">Konnect Gateway</div>
+        <div class="arch-box blesaf-only">ar.json (Arabic i18n)</div>
+      </div>
+      <div class="arch-col">
+        <h4>Shared</h4>
+        <div class="arch-box shared">shared/ (19 components)</div>
+        <div class="arch-box shared">dashboard/ (5 files)</div>
+        <div class="arch-box shared">patient-status/</div>
+        <div class="arch-box shared">Queue Service + Socket.io</div>
+        <div class="arch-box shared">Prisma Schema + API Routes</div>
+        <div class="arch-box shared">fr.json (Base French)</div>
+        <div class="arch-box shared">Auth + Subscription Logic</div>
+      </div>
+      <div class="arch-col">
+        <h4>AuSuivant Only</h4>
+        <div class="arch-box ausuivant-only">ausuivant/ (13 files)</div>
+        <div class="arch-box ausuivant-only">landing-fr/ (10 files)</div>
+        <div class="arch-box ausuivant-only">admin/ausuivant/ (4 files)</div>
+        <div class="arch-box ausuivant-only">Stripe Gateway</div>
+        <div class="arch-box ausuivant-only">fr-FR.json (France i18n)</div>
+      </div>
+    </div>
+    <div class="legend">
+      <span><span class="dot bl"></span> BleSaf exclusive</span>
+      <span><span class="dot shared"></span> Shared codebase</span>
+      <span><span class="dot au"></span> AuSuivant exclusive</span>
+    </div>
+
+    <div class="file-counts">
+      <div class="fc-item">
+        <div class="fc-dir">components/receptionist/</div>
+        <div class="fc-count" style="color:var(--blesaf)">25</div>
+        <div class="fc-label">BleSaf mobile dashboard files</div>
+      </div>
+      <div class="fc-item">
+        <div class="fc-dir">components/ausuivant/</div>
+        <div class="fc-count" style="color:var(--ausuivant)">13</div>
+        <div class="fc-label">AuSuivant mobile dashboard files</div>
+      </div>
+      <div class="fc-item">
+        <div class="fc-dir">components/shared/</div>
+        <div class="fc-count" style="color:#7c3aed">19</div>
+        <div class="fc-label">Shared components (both brands)</div>
+      </div>
+      <div class="fc-item">
+        <div class="fc-dir">i18n/locales/</div>
+        <div class="fc-count" style="color:#555">3</div>
+        <div class="fc-label">fr.json (66KB) + ar.json (74KB) + fr-FR.json (15KB)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detailed Feature Comparison -->
+  <div class="section">
+    <h2>Feature Comparison</h2>
+    <p class="section-desc">Detailed status of every feature across both brands</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width:35%">Feature</th>
+          <th style="width:30%">BleSaf (Tunisia)</th>
+          <th style="width:30%">AuSuivant (France)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Core -->
+        <tr>
+          <td colspan="3" style="background:#fafafa; font-weight:700; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.5px; color:#888; padding:10px 16px;">Core Platform</td>
+        </tr>
+        <tr>
+          <td class="feature-name">Queue Management<span class="feature-note">Add, call, complete, no-show, cancel</span></td>
+          <td><span class="badge done">Complete</span></td>
+          <td><span class="badge done">Complete</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">Queue Rules<span class="feature-note">RDV_PRIORITY, FIFO, RDV_ON_TIME</span></td>
+          <td><span class="badge done">Complete</span></td>
+          <td><span class="badge done">Complete</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">Emergency Flag<span class="feature-note">Move patient to position 1</span></td>
+          <td><span class="badge done">Complete</span></td>
+          <td><span class="badge done">Complete</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">Step-Out Feature<span class="feature-note">Patients temporarily leave queue</span></td>
+          <td><span class="badge done">Complete</span></td>
+          <td><span class="badge done">Complete</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">Multi-Doctor Support<span class="feature-note">Multiple doctors per clinic</span></td>
+          <td><span class="badge done">Complete</span></td>
+          <td><span class="badge done">Complete</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">Real-Time Updates<span class="feature-note">Socket.io for live queue changes</span></td>
+          <td><span class="badge done">Complete</span></td>
+          <td><span class="badge done">Complete</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">Daily Stats Archiving<span class="feature-note">Midnight cron job</span></td>
+          <td><span class="badge done">Complete</span></td>
+          <td><span class="badge done">Complete</span></td>
+        </tr>
+
+        <!-- UI/UX -->
+        <tr>
+          <td colspan="3" style="background:#fafafa; font-weight:700; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.5px; color:#888; padding:10px 16px;">UI / UX</td>
+        </tr>
+        <tr>
+          <td class="feature-name">Mobile Dashboard<span class="feature-note">Primary clinic interface</span></td>
+          <td><span class="badge done">Receptionist (25 files)</span></td>
+          <td><span class="badge done">Compact (13 files)</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">Desktop Dashboard<span class="feature-note">Shared DesktopDashboard component</span></td>
+          <td><span class="badge done">Complete</span></td>
+          <td><span class="badge done">Complete</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">Queue Lifecycle States<span class="feature-note">Morning / Open / Busy / Closing / Done</span></td>
+          <td><span class="badge done">Full state machine</span></td>
+          <td><span class="badge partial">Simplified</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">Session Controls<span class="feature-note">Doctor presence toggle</span></td>
+          <td><span class="badge done">Binary toggle</span></td>
+          <td><span class="badge done">Active / Pause dual</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">Landing Page<span class="feature-note">Marketing / signup page</span></td>
+          <td><span class="badge done">10 sections, 15 files</span></td>
+          <td><span class="badge done">10 sections, 10 files</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">Theme / Branding<span class="feature-note">Colors, fonts, logos</span></td>
+          <td><span class="badge done">Teal #0D9488</span></td>
+          <td><span class="badge done">Forest Green #1B6B4A</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">Settings Panel<span class="feature-note">Clinic configuration</span></td>
+          <td><span class="badge done">Shared BS* panels</span></td>
+          <td><span class="badge done">ASSettingsPanel wrapper</span></td>
+        </tr>
+
+        <!-- Auth & Onboarding -->
+        <tr>
+          <td colspan="3" style="background:#fafafa; font-weight:700; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.5px; color:#888; padding:10px 16px;">Authentication & Onboarding</td>
+        </tr>
+        <tr>
+          <td class="feature-name">Login / Signup<span class="feature-note">Clinic-level JWT auth</span></td>
+          <td><span class="badge done">Complete</span></td>
+          <td><span class="badge done">Complete</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">Onboarding Flow<span class="feature-note">Setup wizard after signup</span></td>
+          <td><span class="badge done">Complete</span></td>
+          <td><span class="badge done">Brand-aware</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">Email Verification<span class="feature-note">Resend integration</span></td>
+          <td><span class="badge done">Complete</span></td>
+          <td><span class="badge done">Complete</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">Password Reset</td>
+          <td><span class="badge done">Complete</span></td>
+          <td><span class="badge done">Complete</span></td>
+        </tr>
+
+        <!-- Patient Facing -->
+        <tr>
+          <td colspan="3" style="background:#fafafa; font-weight:700; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.5px; color:#888; padding:10px 16px;">Patient-Facing</td>
+        </tr>
+        <tr>
+          <td class="feature-name">QR Code Check-in<span class="feature-note">Scan to join queue</span></td>
+          <td><span class="badge done">Complete</span></td>
+          <td><span class="badge done">Complete</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">Phone Validation<span class="feature-note">Country-specific formatting</span></td>
+          <td><span class="badge done">+216 (8 digits)</span></td>
+          <td><span class="badge missing">Hardcoded TN format</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">Patient Status Page<span class="feature-note">Real-time position tracking</span></td>
+          <td><span class="badge done">Complete</span></td>
+          <td><span class="badge done">Complete</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">Manual Check-in<span class="feature-note">Receptionist adds patient</span></td>
+          <td><span class="badge done">Complete</span></td>
+          <td><span class="badge done">Complete</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">WhatsApp Check-in<span class="feature-note">Join via WhatsApp link</span></td>
+          <td><span class="badge partial">UI toggle only</span></td>
+          <td><span class="badge partial">UI toggle only</span></td>
+        </tr>
+
+        <!-- Payments -->
+        <tr>
+          <td colspan="3" style="background:#fafafa; font-weight:700; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.5px; color:#888; padding:10px 16px;">Payments & Subscription</td>
+        </tr>
+        <tr>
+          <td class="feature-name">Payment Gateway<span class="feature-note">Checkout session creation</span></td>
+          <td><span class="badge done">Konnect (TND)</span></td>
+          <td><span class="badge partial">Stripe (untested in prod)</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">Webhook Processing<span class="feature-note">Payment confirmation</span></td>
+          <td><span class="badge done">Complete</span></td>
+          <td><span class="badge partial">Implemented, unverified</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">Subscription Management<span class="feature-note">Trial / Active / Expired</span></td>
+          <td><span class="badge done">Complete</span></td>
+          <td><span class="badge done">Complete</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">Pricing Display<span class="feature-note">Monthly / Yearly plans</span></td>
+          <td><span class="badge done">65/650 TND</span></td>
+          <td><span class="badge done">49/490 EUR</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">Free Trial<span class="feature-note">30-day trial period</span></td>
+          <td><span class="badge done">30 days</span></td>
+          <td><span class="badge done">30 days</span></td>
+        </tr>
+
+        <!-- i18n -->
+        <tr>
+          <td colspan="3" style="background:#fafafa; font-weight:700; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.5px; color:#888; padding:10px 16px;">Internationalization</td>
+        </tr>
+        <tr>
+          <td class="feature-name">French<span class="feature-note">Primary language</span></td>
+          <td><span class="badge done">fr.json (66KB, 2000+ keys)</span></td>
+          <td><span class="badge done">fr.json + fr-FR.json override</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">Arabic (RTL)<span class="feature-note">Right-to-left support</span></td>
+          <td><span class="badge done">ar.json (74KB)</span></td>
+          <td><span class="badge na">N/A</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">Language Switcher<span class="feature-note">In-app language toggle</span></td>
+          <td><span class="badge done">FR / AR toggle</span></td>
+          <td><span class="badge na">N/A (French only)</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">France-Specific Translations<span class="feature-note">Localized examples, names, testimonials</span></td>
+          <td><span class="badge na">N/A</span></td>
+          <td><span class="badge partial">fr-FR.json (15KB, 150+ keys)</span></td>
+        </tr>
+
+        <!-- Compliance -->
+        <tr>
+          <td colspan="3" style="background:#fafafa; font-weight:700; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.5px; color:#888; padding:10px 16px;">Compliance & Privacy</td>
+        </tr>
+        <tr>
+          <td class="feature-name">RGPD Name Privacy<span class="feature-note">Display modes: full / initial / hidden</span></td>
+          <td><span class="badge na">Not required</span></td>
+          <td><span class="badge done">formatDisplayName()</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">Data Soft-Delete<span class="feature-note">deletedAt field on records</span></td>
+          <td><span class="badge done">Complete</span></td>
+          <td><span class="badge done">Complete</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">Terms & Privacy Pages</td>
+          <td><span class="badge done">Complete</span></td>
+          <td><span class="badge partial">Uses BleSaf content</span></td>
+        </tr>
+
+        <!-- Admin -->
+        <tr>
+          <td colspan="3" style="background:#fafafa; font-weight:700; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.5px; color:#888; padding:10px 16px;">Admin Panel</td>
+        </tr>
+        <tr>
+          <td class="feature-name">Admin Dashboard<span class="feature-note">Overview, KPIs, activity</span></td>
+          <td><span class="badge done">Redesigned (emerald cards)</span></td>
+          <td><span class="badge partial">Legacy (warm beige)</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">Financial Tab<span class="feature-note">Revenue, payments</span></td>
+          <td><span class="badge done">New FinancialPage</span></td>
+          <td><span class="badge partial">Legacy FinancialTab</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">Engagement Tab<span class="feature-note">User activity metrics</span></td>
+          <td><span class="badge done">New EngagementPage</span></td>
+          <td><span class="badge partial">Legacy EngagementTab</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">Clinic Management<span class="feature-note">Clinic list & detail pages</span></td>
+          <td><span class="badge done">Redesigned ClinicsPage</span></td>
+          <td><span class="badge partial">Legacy ClinicsDirectoryPage</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">Admin Impersonation<span class="feature-note">Login as clinic</span></td>
+          <td><span class="badge done">Complete</span></td>
+          <td><span class="badge done">Complete</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">Country Isolation<span class="feature-note">Admin sees only their country's clinics</span></td>
+          <td><span class="badge done">TN clinics only</span></td>
+          <td><span class="badge done">FR clinics only</span></td>
+        </tr>
+
+        <!-- Email -->
+        <tr>
+          <td colspan="3" style="background:#fafafa; font-weight:700; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.5px; color:#888; padding:10px 16px;">Email & Notifications</td>
+        </tr>
+        <tr>
+          <td class="feature-name">Email Templates<span class="feature-note">Verification, password reset</span></td>
+          <td><span class="badge done">Brand-aware</span></td>
+          <td><span class="badge partial">Wrong color (#059669)</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">Trial Expiration Emails<span class="feature-note">7-day and 3-day warnings</span></td>
+          <td><span class="badge done">Complete</span></td>
+          <td><span class="badge done">Complete</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">Socket.io Notifications<span class="feature-note">Real-time patient alerts</span></td>
+          <td><span class="badge done">Complete</span></td>
+          <td><span class="badge done">Complete</span></td>
+        </tr>
+
+        <!-- Deployment -->
+        <tr>
+          <td colspan="3" style="background:#fafafa; font-weight:700; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.5px; color:#888; padding:10px 16px;">Deployment & Infrastructure</td>
+        </tr>
+        <tr>
+          <td class="feature-name">API Hosting<span class="feature-note">Railway deployment</span></td>
+          <td><span class="badge done">deploy/blesaf branch</span></td>
+          <td><span class="badge done">deploy/ausuivant branch</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">Web Hosting<span class="feature-note">Vercel deployment</span></td>
+          <td><span class="badge done">blesaf.tn (Vercel)</span></td>
+          <td><span class="badge done">ausuivant.fr (Vercel)</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">Database<span class="feature-note">PostgreSQL via Supabase</span></td>
+          <td><span class="badge done">Railway internal PG</span></td>
+          <td><span class="badge done">Supabase eu-west-1</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">CI/CD<span class="feature-note">GitHub Actions matrix</span></td>
+          <td><span class="badge done">Both brands in matrix</span></td>
+          <td><span class="badge done">Both brands in matrix</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Critical Issues -->
+  <div class="section">
+    <h2>Issues to Fix Before France Launch</h2>
+    <p class="section-desc">Blocking and non-blocking issues specific to AuSuivant</p>
+    <div class="issues-grid">
+      <div class="issue-card critical">
+        <div class="tag">Critical</div>
+        <h4>CheckInPage Phone Validation</h4>
+        <p><code>CheckInPage.tsx</code> imports <code>formatTunisianPhone</code> &mdash; French patients can't enter +33 numbers. Must use brand-aware phone formatting.</p>
+      </div>
+      <div class="issue-card critical">
+        <div class="tag">Critical</div>
+        <h4>Stripe Production Testing</h4>
+        <p>Stripe gateway is implemented but never tested with real or test-mode payments on Railway. Webhook secret must be configured in production env vars.</p>
+      </div>
+      <div class="issue-card warning">
+        <div class="tag">Warning</div>
+        <h4>Email Template Colors</h4>
+        <p>Email templates use hardcoded emerald (#059669) instead of AuSuivant's forest green (#1B6B4A). Cosmetic but affects brand consistency.</p>
+      </div>
+      <div class="issue-card warning">
+        <div class="tag">Warning</div>
+        <h4>Admin Panel Uses Legacy Design</h4>
+        <p>BleSaf admin was redesigned with new Financial/Engagement/Clinics pages. AuSuivant still uses older tab-based layout.</p>
+      </div>
+      <div class="issue-card warning">
+        <div class="tag">Warning</div>
+        <h4>Terms & Privacy Pages</h4>
+        <p>Legal pages reference BleSaf/Tunisia. Need France-specific legal content for AuSuivant SAS / Paris jurisdiction.</p>
+      </div>
+      <div class="issue-card warning">
+        <div class="tag">Warning</div>
+        <h4>France i18n Coverage</h4>
+        <p><code>fr-FR.json</code> (15KB) overrides only ~150 keys. Base <code>fr.json</code> (66KB) may contain Tunisia-specific references that leak through.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Design Differences -->
+  <div class="section">
+    <h2>Design Language Comparison</h2>
+    <p class="section-desc">Visual identity and UX philosophy differences</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Aspect</th>
+          <th>BleSaf</th>
+          <th>AuSuivant</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="feature-name">Primary Color</td>
+          <td><span style="display:inline-block;width:16px;height:16px;border-radius:4px;background:#0D9488;vertical-align:middle;margin-right:6px;"></span>#0D9488 (Teal)</td>
+          <td><span style="display:inline-block;width:16px;height:16px;border-radius:4px;background:#1B6B4A;vertical-align:middle;margin-right:6px;"></span>#1B6B4A (Forest Green)</td>
+        </tr>
+        <tr>
+          <td class="feature-name">Surface Color</td>
+          <td><span style="display:inline-block;width:16px;height:16px;border-radius:4px;background:#F5F0E8;border:1px solid #ddd;vertical-align:middle;margin-right:6px;"></span>#F5F0E8 (Warm Beige)</td>
+          <td><span style="display:inline-block;width:16px;height:16px;border-radius:4px;background:#F7F6F3;border:1px solid #ddd;vertical-align:middle;margin-right:6px;"></span>#F7F6F3 (Neutral Beige)</td>
+        </tr>
+        <tr>
+          <td class="feature-name">Impersonation Color</td>
+          <td><span style="display:inline-block;width:16px;height:16px;border-radius:4px;background:#E70013;vertical-align:middle;margin-right:6px;"></span>#E70013 (Red)</td>
+          <td><span style="display:inline-block;width:16px;height:16px;border-radius:4px;background:#002395;vertical-align:middle;margin-right:6px;"></span>#002395 (French Blue)</td>
+        </tr>
+        <tr>
+          <td class="feature-name">Logo Font</td>
+          <td>Reem Kufi + Bebas Neue</td>
+          <td>IBM Plex Sans + Bebas Neue</td>
+        </tr>
+        <tr>
+          <td class="feature-name">Dashboard Philosophy</td>
+          <td>Mobile-first "receptionist" &mdash; Material 3, tap-heavy</td>
+          <td>Compact "editorial" &mdash; warm, serif accents, minimal</td>
+        </tr>
+        <tr>
+          <td class="feature-name">Landing Design</td>
+          <td>Direct, clinical, social proof focused</td>
+          <td>Editorial, lifestyle, trust-badge focused</td>
+        </tr>
+        <tr>
+          <td class="feature-name">Name Display</td>
+          <td>Full patient names</td>
+          <td>RGPD modes (first + last initial)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Summary -->
+  <div class="section" style="text-align:center; padding: 32px 0;">
+    <h2 style="margin-bottom:8px;">Overall Assessment</h2>
+    <p class="section-desc" style="max-width:640px; margin:0 auto 24px;">
+      BleSaf is the primary brand with ~92% feature completeness. AuSuivant shares the same robust backend but needs phone validation fixes, Stripe production testing, and admin panel parity before launch.
+    </p>
+    <div style="display:flex; justify-content:center; gap:32px; flex-wrap:wrap;">
+      <div style="text-align:center;">
+        <div style="font-size:3rem; font-weight:800; color:var(--blesaf);">92%</div>
+        <div style="font-size:0.9rem; color:#666;">BleSaf Ready</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:3rem; font-weight:800; color:var(--ausuivant);">78%</div>
+        <div style="font-size:0.9rem; color:#666;">AuSuivant Ready</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

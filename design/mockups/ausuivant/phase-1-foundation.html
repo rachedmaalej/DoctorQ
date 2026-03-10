@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AuSuivant — Phase 1: Foundation</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F0F0F0; --surface: #FFFFFF; --surface-alt: #E8E8E8;
+  --border: #D1D1D1; --border-light: #E8E8E8;
+  --text-primary: #585858; --text-secondary: #7E7E7E; --text-tertiary: #A2A2A2;
+  --accent: #459B8A; --accent-light: #DAF5E0; --accent-hover: #267875;
+  --warning: #F48E40; --warning-light: #FFE9B1;
+  --danger: #CE2826; --danger-light: #FFD0DE;
+  --blue: #4A6E8F; --blue-light: #D8ECF4;
+  --doctor-blue: #4A6E8F; --doctor-teal: #60B8AA; --doctor-amber: #E15720;
+  --doctor-plum: #8E618F; --doctor-rose: #A12B98; --doctor-slate: #7E7E7E;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04); --shadow-md: 0 2px 8px rgba(0,0,0,0.06);
+  --shadow-lg: 0 4px 20px rgba(0,0,0,0.08);
+  --radius: 12px; --radius-sm: 8px; --radius-lg: 16px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', -apple-system, sans-serif; background: #D1D1D1; color: var(--text-primary); min-height: 100vh; }
+
+/* Phase Banner */
+.phase-banner { background: var(--accent); color: white; padding: 12px 24px; text-align: center; font-size: 13px; font-weight: 600; letter-spacing: 0.3px; }
+.phase-banner span { opacity: 0.8; font-weight: 400; }
+
+/* View Toggle */
+.view-toggle { display: flex; justify-content: center; gap: 8px; padding: 16px; background: #D1D1D1; }
+.view-toggle button { padding: 8px 24px; border-radius: 20px; border: 1.5px solid var(--border); background: var(--surface); color: var(--text-secondary); font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+.view-toggle button.active { background: var(--text-primary); color: white; border-color: var(--text-primary); }
+
+/* Views */
+.desktop-view, .mobile-view { display: none; }
+.desktop-view.active, .mobile-view.active { display: block; }
+
+/* Desktop View */
+.desktop-view { max-width: 800px; margin: 0 auto; padding: 24px; }
+.desktop-frame { background: var(--bg); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow-lg); }
+
+/* Mobile View */
+.mobile-view { display: flex; justify-content: center; padding: 24px; }
+.phone-frame { width: 390px; height: 844px; background: #111; border-radius: 48px; padding: 12px; position: relative; overflow: hidden; box-shadow: 0 8px 40px rgba(0,0,0,0.3); }
+.phone-frame::before { content: ''; position: absolute; top: 12px; left: 50%; transform: translateX(-50%); width: 120px; height: 28px; background: #111; border-radius: 14px; z-index: 20; }
+.phone-screen { width: 100%; height: 100%; background: var(--bg); border-radius: 38px; overflow-y: auto; overflow-x: hidden; position: relative; }
+.phone-screen::-webkit-scrollbar { display: none; }
+
+/* Status Bar */
+.status-bar { height: 48px; display: flex; align-items: flex-end; justify-content: space-between; padding: 0 24px 6px; font-size: 12px; font-weight: 600; color: var(--text-primary); background: var(--bg); position: sticky; top: 0; z-index: 10; }
+.status-bar-right { display: flex; gap: 6px; align-items: center; font-size: 11px; }
+
+/* Topbar */
+.topbar { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; background: var(--surface); border-bottom: 1px solid var(--border-light); }
+.topbar-left { display: flex; align-items: center; gap: 10px; }
+.topbar-logo { width: 28px; height: 28px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 12px; }
+.topbar-title { font-size: 15px; font-weight: 700; }
+.topbar-btn { width: 32px; height: 32px; border-radius: 50%; border: none; background: var(--surface-alt); color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+
+/* Session Controls */
+.session-bar { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; background: var(--accent-light); border-bottom: 1px solid var(--border-light); }
+.session-status { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--accent); }
+.session-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.session-toggle { width: 40px; height: 22px; border-radius: 11px; background: var(--accent); border: none; cursor: pointer; position: relative; }
+.session-toggle::after { content: ''; position: absolute; top: 3px; right: 3px; width: 16px; height: 16px; border-radius: 50%; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.15); }
+
+/* KPI Strip */
+.kpi-strip { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; background: var(--surface); border-bottom: 1px solid var(--border-light); font-size: 12px; color: var(--text-secondary); }
+.kpi-item { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0; }
+.kpi-value { font-weight: 700; font-size: 16px; color: var(--text-primary); font-variant-numeric: tabular-nums; line-height: 1.2; }
+.kpi-value.highlight { color: var(--accent); }
+.kpi-value.warn { color: var(--warning); }
+.kpi-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px; color: var(--text-tertiary); line-height: 1.2; }
+.kpi-sep { width: 1px; height: 24px; background: var(--border-light); flex-shrink: 0; }
+
+/* Waiting Room */
+.waiting-room { padding: 12px 16px; padding-bottom: 100px; display: flex; flex-direction: column; gap: 8px; }
+
+/* Patient Row */
+.patient-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--surface); border-radius: var(--radius-sm); border: 1px solid var(--border-light); box-shadow: var(--shadow-sm); min-height: 56px; }
+.patient-row.urgent { background: #FFE8EE; border-color: #EFB9B8; }
+.row-left { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.position-badge { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; font-variant-numeric: tabular-nums; }
+.position-badge.consulting { background: var(--accent); color: white; }
+.position-badge.notified { background: var(--warning-light); color: var(--warning); }
+.position-badge.waiting { background: var(--surface-alt); color: var(--text-secondary); }
+.doctor-badge { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 11px; color: white; }
+.row-info { flex: 1; min-width: 0; }
+.row-name-line { display: flex; align-items: center; gap: 4px; margin-bottom: 1px; flex-wrap: wrap; }
+.row-name { font-weight: 600; font-size: 14px; letter-spacing: -0.2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tag { font-size: 9px; padding: 1px 6px; border-radius: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; flex-shrink: 0; white-space: nowrap; }
+.tag-urgent { background: #FFD0DE; color: #CE2826; font-weight: 700; }
+.tag-notified { background: var(--warning-light); color: var(--warning); }
+.tag-sans-rdv { background: var(--surface-alt); color: var(--text-tertiary); }
+.tag-rdv { background: var(--accent-light); color: var(--accent); }
+.row-meta { font-size: 11px; color: var(--text-tertiary); }
+.row-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.est-wait { text-align: right; min-width: 40px; }
+.est-wait-value { font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--text-primary); }
+.est-wait-label { font-size: 9px; text-transform: uppercase; color: var(--text-tertiary); letter-spacing: 0.3px; }
+.menu-btn { width: 28px; height: 28px; border-radius: 6px; border: none; background: transparent; color: var(--text-tertiary); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+
+/* Quick Action Bar */
+.quick-bar { position: absolute; bottom: 0; left: 0; right: 0; display: flex; align-items: center; gap: 12px; padding: 12px 16px; padding-bottom: max(12px, env(safe-area-inset-bottom)); background: var(--surface); border-top: 1px solid var(--border-light); box-shadow: 0 -2px 8px rgba(0,0,0,0.04); z-index: 30; }
+.quick-bar .btn { flex: 1; padding: 12px 16px; border-radius: var(--radius-sm); font-weight: 600; font-size: 14px; cursor: pointer; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.btn-add { border: 1.5px solid var(--border); background: var(--surface); color: var(--text-primary); }
+.btn-next { border: none; background: var(--accent); color: white; }
+/* Desktop quick bar is static */
+.desktop-frame .quick-bar { position: static; border-top: 1px solid var(--border-light); }
+
+/* Call Next Sheet (overlay) */
+.sheet-section { margin-top: 32px; padding: 0 24px; }
+.sheet-section h3 { font-size: 14px; font-weight: 600; color: var(--text-secondary); margin-bottom: 12px; }
+.sheet-mock { background: var(--surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); overflow: hidden; max-width: 390px; }
+.sheet-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 16px 8px; }
+.sheet-header h4 { font-size: 16px; font-weight: 700; }
+.sheet-header p { font-size: 12px; color: var(--text-tertiary); margin-top: 2px; }
+.sheet-close { width: 32px; height: 32px; border-radius: 50%; border: none; background: var(--surface-alt); color: var(--text-secondary); cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+.sheet-doctors { padding: 8px 16px 16px; display: flex; flex-direction: column; gap: 8px; }
+.sheet-doctor-btn { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px; border-radius: var(--radius-sm); border: 1.5px solid; cursor: pointer; font-family: inherit; text-align: left; }
+.sheet-doctor-btn .doc-initial { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 14px; flex-shrink: 0; }
+.sheet-doctor-btn .doc-info { flex: 1; }
+.sheet-doctor-btn .doc-name { font-weight: 600; font-size: 14px; }
+.sheet-doctor-btn .doc-count { font-size: 12px; color: var(--text-tertiary); }
+.sheet-doctor-btn .doc-arrow { font-size: 18px; flex-shrink: 0; }
+.sheet-doctor-btn.disabled { opacity: 0.5; cursor: default; }
+
+/* Consultation Section */
+.consultation-section { padding: 12px 16px 0; }
+.consultation-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.consultation-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--blue); animation: pulse 2s infinite; flex-shrink: 0; }
+.consultation-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: var(--blue); }
+.consultation-card { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--blue-light); border-radius: var(--radius-sm); border: 1px solid rgba(74,110,143,0.12); box-shadow: var(--shadow-sm); min-height: 52px; position: relative; margin-bottom: 6px; }
+.consultation-card::before { content: ''; position: absolute; left: 0; top: 8px; bottom: 8px; width: 3px; border-radius: 2px; background: var(--doctor-border-color, var(--blue)); }
+.consultation-duration { font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--blue); white-space: nowrap; margin-left: auto; }
+.queue-separator { display: flex; align-items: center; gap: 10px; padding: 8px 16px; }
+.queue-separator-line { flex: 1; height: 1px; background: var(--border-light); }
+.queue-separator-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; color: var(--text-tertiary); white-space: nowrap; }
+</style>
+</head>
+<body>
+<div class="phase-banner">PHASE 1 — Foundation: Full Room View <span>| KPI strip, patient rows with doctor badges + urgency, quick action bar, call-next sheet</span></div>
+
+<div class="view-toggle">
+  <button class="active" onclick="switchView('desktop')">Desktop</button>
+  <button onclick="switchView('mobile')">Mobile</button>
+</div>
+
+<!-- DESKTOP VIEW -->
+<div class="desktop-view active" id="desktop-view">
+  <div class="desktop-frame">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="topbar-logo">AS</div>
+        <div class="topbar-title">Cabinet Dr. Martin</div>
+      </div>
+      <button class="topbar-btn">&#9881;</button>
+    </div>
+    <div class="session-bar">
+      <div class="session-status"><div class="session-dot"></div> Session active</div>
+      <button class="session-toggle"></button>
+    </div>
+    <div class="kpi-strip">
+      <div class="kpi-item"><span class="kpi-value highlight">4</span><span class="kpi-label">En attente</span></div>
+      <div class="kpi-sep"></div>
+      <div class="kpi-item"><span class="kpi-value">12</span><span class="kpi-label">Vus</span></div>
+      <div class="kpi-sep"></div>
+      <div class="kpi-item"><span class="kpi-value">18 min</span><span class="kpi-label">Attente moy.</span></div>
+      <div class="kpi-sep"></div>
+      <div class="kpi-item"><span class="kpi-value warn">1</span><span class="kpi-label">Absents</span></div>
+    </div>
+    <!-- Consultation Section -->
+    <div class="consultation-section">
+      <div class="consultation-header">
+        <span class="consultation-dot"></span>
+        <span class="consultation-label">En consultation</span>
+      </div>
+      <div class="consultation-card" style="--doctor-border-color: #4A6E8F">
+        <div class="row-left">
+          <div class="position-badge consulting">1</div>
+          <div class="doctor-badge" style="background:#4A6E8F">M</div>
+        </div>
+        <div class="row-info">
+          <div class="row-name-line"><span class="row-name">Sophie D.</span> <span class="tag tag-sans-rdv">Sans RDV</span></div>
+          <div class="row-meta">Dr. Martin &middot; 12 min</div>
+        </div>
+        <div class="consultation-duration">12 min</div>
+      </div>
+    </div>
+    <!-- Separator -->
+    <div class="queue-separator">
+      <div class="queue-separator-line"></div>
+      <span class="queue-separator-label">File d'attente (4)</span>
+      <div class="queue-separator-line"></div>
+    </div>
+    <!-- Waiting Queue -->
+    <div class="waiting-room" style="padding-bottom: 16px;">
+      <!-- Patient 1: NOTIFIED -->
+      <div class="patient-row">
+        <div class="row-left">
+          <div class="position-badge notified">1</div>
+          <div class="doctor-badge" style="background:#60B8AA">L</div>
+        </div>
+        <div class="row-info">
+          <div class="row-name-line"><span class="row-name">Pierre M.</span> <span class="tag tag-notified">NOTIFIE</span> <span class="tag tag-sans-rdv">Sans RDV</span></div>
+          <div class="row-meta">Arrivee 9h15 &middot; 8 min</div>
+        </div>
+        <div class="row-right">
+          <div class="est-wait"><div class="est-wait-value">~15</div><div class="est-wait-label">min est.</div></div>
+          <button class="menu-btn">&#8942;</button>
+        </div>
+      </div>
+      <!-- Patient 2: URGENT -->
+      <div class="patient-row urgent">
+        <div class="row-left">
+          <div class="position-badge waiting">2</div>
+          <div class="doctor-badge" style="background:#4A6E8F">M</div>
+        </div>
+        <div class="row-info">
+          <div class="row-name-line"><span class="row-name">J-C. Bernard</span> <span class="tag tag-urgent">Urgent</span> <span class="tag tag-sans-rdv">Sans RDV</span></div>
+          <div class="row-meta">Arrivee 9h22 &middot; 22 min</div>
+        </div>
+        <div class="row-right">
+          <div class="est-wait"><div class="est-wait-value">~30</div><div class="est-wait-label">min est.</div></div>
+          <button class="menu-btn">&#8942;</button>
+        </div>
+      </div>
+      <!-- Patient 3 -->
+      <div class="patient-row">
+        <div class="row-left">
+          <div class="position-badge waiting">3</div>
+          <div class="doctor-badge" style="background:#60B8AA">L</div>
+        </div>
+        <div class="row-info">
+          <div class="row-name-line"><span class="row-name">Marie L.</span> <span class="tag tag-sans-rdv">Sans RDV</span></div>
+          <div class="row-meta">Arrivee 9h30 &middot; 14 min</div>
+        </div>
+        <div class="row-right">
+          <div class="est-wait"><div class="est-wait-value">~45</div><div class="est-wait-label">min est.</div></div>
+          <button class="menu-btn">&#8942;</button>
+        </div>
+      </div>
+      <!-- Patient 4 -->
+      <div class="patient-row">
+        <div class="row-left">
+          <div class="position-badge waiting">4</div>
+          <div class="doctor-badge" style="background:#4A6E8F">M</div>
+        </div>
+        <div class="row-info">
+          <div class="row-name-line"><span class="row-name">Fatima N.</span> <span class="tag tag-sans-rdv">Sans RDV</span></div>
+          <div class="row-meta">Arrivee 9h45 &middot; 3 min</div>
+        </div>
+        <div class="row-right">
+          <div class="est-wait"><div class="est-wait-value">~60</div><div class="est-wait-label">min est.</div></div>
+          <button class="menu-btn">&#8942;</button>
+        </div>
+      </div>
+    </div>
+    <div class="quick-bar">
+      <button class="btn btn-add">+ Patient</button>
+      <button class="btn btn-next">Suivant (4) &#8250;</button>
+    </div>
+  </div>
+
+  <!-- Call Next Sheet preview -->
+  <div class="sheet-section">
+    <h3>ASCallNextSheet (bottom sheet overlay)</h3>
+    <div class="sheet-mock">
+      <div class="sheet-header">
+        <div><h4>Appeler le suivant</h4><p>Pour quel medecin ?</p></div>
+        <button class="sheet-close">&times;</button>
+      </div>
+      <div class="sheet-doctors">
+        <button class="sheet-doctor-btn" style="border-color: rgba(74,110,143,0.2); background: #D8ECF4;">
+          <div class="doc-initial" style="background:#4A6E8F">M</div>
+          <div class="doc-info"><div class="doc-name">Dr. Martin</div><div class="doc-count">3 en attente</div></div>
+          <div class="doc-arrow" style="color:#4A6E8F">&#8250;</div>
+        </button>
+        <button class="sheet-doctor-btn" style="border-color: rgba(96,184,170,0.2); background: #DAF5E0;">
+          <div class="doc-initial" style="background:#60B8AA">L</div>
+          <div class="doc-info"><div class="doc-name">Dr. Leroy</div><div class="doc-count">1 en attente</div></div>
+          <div class="doc-arrow" style="color:#60B8AA">&#8250;</div>
+        </button>
+        <button class="sheet-doctor-btn disabled" style="border-color: var(--border-light); background: var(--surface-alt);">
+          <div class="doc-initial" style="background:#E15720">N</div>
+          <div class="doc-info"><div class="doc-name">Dr. Ngo</div><div class="doc-count">Aucun patient en attente</div></div>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MOBILE VIEW -->
+<div class="mobile-view" id="mobile-view">
+  <div class="phone-frame">
+    <div class="phone-screen">
+      <div class="status-bar"><span>9:41</span><div class="status-bar-right">&#9679;&#9679;&#9679; WiFi &#128267;</div></div>
+      <div class="topbar">
+        <div class="topbar-left">
+          <div class="topbar-logo">AS</div>
+          <div class="topbar-title">Cabinet Dr. Martin</div>
+        </div>
+        <button class="topbar-btn">&#9881;</button>
+      </div>
+      <div class="session-bar">
+        <div class="session-status"><div class="session-dot"></div> Session active</div>
+        <button class="session-toggle"></button>
+      </div>
+      <div class="kpi-strip">
+        <div class="kpi-item"><span class="kpi-value highlight">4</span><span class="kpi-label">En attente</span></div>
+        <div class="kpi-sep"></div>
+        <div class="kpi-item"><span class="kpi-value">12</span><span class="kpi-label">Vus</span></div>
+        <div class="kpi-sep"></div>
+        <div class="kpi-item"><span class="kpi-value">18 min</span><span class="kpi-label">Attente moy.</span></div>
+        <div class="kpi-sep"></div>
+        <div class="kpi-item"><span class="kpi-value warn">1</span><span class="kpi-label">Absents</span></div>
+      </div>
+      <!-- Consultation Section -->
+      <div class="consultation-section">
+        <div class="consultation-header">
+          <span class="consultation-dot"></span>
+          <span class="consultation-label">En consultation</span>
+        </div>
+        <div class="consultation-card" style="--doctor-border-color: #4A6E8F">
+          <div class="row-left"><div class="position-badge consulting">1</div><div class="doctor-badge" style="background:#4A6E8F">M</div></div>
+          <div class="row-info"><div class="row-name-line"><span class="row-name">Sophie D.</span> <span class="tag tag-sans-rdv">Sans RDV</span></div><div class="row-meta">Dr. Martin &middot; 12 min</div></div>
+          <div class="consultation-duration">12 min</div>
+        </div>
+      </div>
+      <!-- Separator -->
+      <div class="queue-separator">
+        <div class="queue-separator-line"></div>
+        <span class="queue-separator-label">File d'attente (4)</span>
+        <div class="queue-separator-line"></div>
+      </div>
+      <!-- Waiting Queue -->
+      <div class="waiting-room">
+        <div class="patient-row">
+          <div class="row-left"><div class="position-badge notified">1</div><div class="doctor-badge" style="background:#60B8AA">L</div></div>
+          <div class="row-info"><div class="row-name-line"><span class="row-name">Pierre M.</span> <span class="tag tag-notified">NOTIFIE</span> <span class="tag tag-sans-rdv">Sans RDV</span></div><div class="row-meta">Arrivee 9h15 &middot; 8 min</div></div>
+          <div class="row-right"><div class="est-wait"><div class="est-wait-value">~15</div><div class="est-wait-label">min est.</div></div><button class="menu-btn">&#8942;</button></div>
+        </div>
+        <div class="patient-row urgent">
+          <div class="row-left"><div class="position-badge waiting">2</div><div class="doctor-badge" style="background:#4A6E8F">M</div></div>
+          <div class="row-info"><div class="row-name-line"><span class="row-name">J-C. Bernard</span> <span class="tag tag-urgent">Urgent</span> <span class="tag tag-sans-rdv">Sans RDV</span></div><div class="row-meta">Arrivee 9h22 &middot; 22 min</div></div>
+          <div class="row-right"><div class="est-wait"><div class="est-wait-value">~30</div><div class="est-wait-label">min est.</div></div><button class="menu-btn">&#8942;</button></div>
+        </div>
+        <div class="patient-row">
+          <div class="row-left"><div class="position-badge waiting">3</div><div class="doctor-badge" style="background:#60B8AA">L</div></div>
+          <div class="row-info"><div class="row-name-line"><span class="row-name">Marie L.</span> <span class="tag tag-sans-rdv">Sans RDV</span></div><div class="row-meta">Arrivee 9h30 &middot; 14 min</div></div>
+          <div class="row-right"><div class="est-wait"><div class="est-wait-value">~45</div><div class="est-wait-label">min est.</div></div><button class="menu-btn">&#8942;</button></div>
+        </div>
+        <div class="patient-row">
+          <div class="row-left"><div class="position-badge waiting">4</div><div class="doctor-badge" style="background:#4A6E8F">M</div></div>
+          <div class="row-info"><div class="row-name-line"><span class="row-name">Fatima N.</span> <span class="tag tag-sans-rdv">Sans RDV</span></div><div class="row-meta">Arrivee 9h45 &middot; 3 min</div></div>
+          <div class="row-right"><div class="est-wait"><div class="est-wait-value">~60</div><div class="est-wait-label">min est.</div></div><button class="menu-btn">&#8942;</button></div>
+        </div>
+      </div>
+      <div class="quick-bar">
+        <button class="btn btn-add">+ Patient</button>
+        <button class="btn btn-next">Suivant (4) &#8250;</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function switchView(view) {
+  document.querySelectorAll('.view-toggle button').forEach(b => b.classList.remove('active'));
+  document.getElementById('desktop-view').classList.remove('active');
+  document.getElementById('mobile-view').classList.remove('active');
+  document.getElementById(view + '-view').classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>

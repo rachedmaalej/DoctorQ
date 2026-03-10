@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AuSuivant — Phase 2: Schedule v1 (Doux Confiance)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Albert+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<style>
+
+/* ═══════════════════════════════════════════════════════════
+   DESIGN TOKENS — 05 · DOUX CONFIANCE
+   Palette : Parchemin #F8F7F4 · Sauge #7EB5A0 · Foret #2C4A3E
+   Typo    : Albert Sans (familiale, chaleureuse, tres lisible)
+   Mood    : Calm room. Sage greens, warm whites, deep forest.
+             Rounded, soft, reassuring — care, not startup.
+═══════════════════════════════════════════════════════════ */
+:root {
+  /* surfaces */
+  --bg:         #F8F7F4;
+  --surface:    #FFFFFF;
+  --ink:        #1C2B25;
+  --ink-soft:   #4A6A5A;
+  --muted:      #9AAD9F;
+  --border:     #EAE7E0;
+  --border-lt:  #F0EDE6;
+
+  /* sauge accent */
+  --sage:       #7EB5A0;
+  --sage-light: #EBF4EF;
+  --sage-dark:  #3A7A5E;
+  --sage-muted: #C0D0C8;
+
+  /* foret */
+  --forest:     #2C4A3E;
+  --forest-lt:  rgba(44,74,62,0.06);
+
+  /* sable */
+  --sand:       #D4B896;
+
+  /* doctor colors */
+  --doctor-blue: #4A6E8F;
+  --doctor-teal: #60B8AA;
+  --doctor-amber: #E15720;
+
+  /* status colors */
+  --danger:     #CE2826;
+  --danger-bg:  #FFE8EE;
+  --danger-bd:  rgba(206,40,38,0.15);
+  --warning:    #E8963A;
+  --warning-bg: #FFF3E0;
+  --warning-bd: rgba(232,150,58,0.2);
+
+  /* radius — generous, soft */
+  --r-sm:  10px;
+  --r-md:  14px;
+  --r-lg:  18px;
+  --r-xl:  22px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESET & PAGE
+═══════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; }
+body {
+  font-family: 'Albert Sans', -apple-system, sans-serif;
+  background: #D1D1D1;
+  color: var(--ink);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;
+  font-size: 20px; vertical-align: middle; line-height: 1; user-select: none;
+}
+input, button { font-family: inherit; }
+button { cursor: pointer; border: none; background: none; }
+
+/* Phase Banner */
+.phase-banner {
+  background: var(--forest); color: var(--sage);
+  padding: 12px 24px; text-align: center;
+  font-size: 13px; font-weight: 700; letter-spacing: 0.3px;
+}
+.phase-banner span { opacity: 0.5; font-weight: 400; color: #fff; }
+
+/* View Toggle */
+.view-toggle { display: flex; justify-content: center; gap: 8px; padding: 16px; background: #D1D1D1; }
+.view-toggle button {
+  padding: 8px 24px; border-radius: var(--r-md); border: 1px solid var(--border);
+  background: var(--surface); color: var(--muted);
+  font-family: inherit; font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: all 0.15s;
+}
+.view-toggle button.active { background: var(--forest); color: #fff; border-color: var(--forest); }
+
+/* Views */
+.desktop-view, .mobile-view { display: none; }
+.desktop-view.active, .mobile-view.active { display: block; }
+
+/* Desktop View */
+.desktop-view { max-width: 800px; margin: 0 auto; padding: 24px; }
+.desktop-frame { background: var(--bg); border-radius: var(--r-xl); overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+
+/* Mobile View */
+.mobile-view { display: flex; justify-content: center; padding: 24px; }
+.phone-frame {
+  width: 390px; height: 844px; background: #111; border-radius: 48px; padding: 12px;
+  position: relative; overflow: hidden;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+}
+.phone-frame::before {
+  content: ''; position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+  width: 120px; height: 28px; background: #111; border-radius: 14px; z-index: 20;
+}
+.phone-screen {
+  width: 100%; height: 100%; background: var(--bg); border-radius: 38px;
+  overflow-y: auto; overflow-x: hidden; position: relative;
+  display: flex; flex-direction: column;
+}
+.phone-screen::-webkit-scrollbar { display: none; }
+
+/* Status Bar */
+.status-bar {
+  height: 48px; display: flex; align-items: flex-end; justify-content: space-between;
+  padding: 0 24px 6px; font-size: 12px; font-weight: 600; color: var(--ink);
+  background: var(--bg); position: sticky; top: 0; z-index: 10; flex-shrink: 0;
+}
+.status-bar-right { display: flex; gap: 6px; align-items: center; font-size: 11px; }
+
+/* ═══════════════════════════════════════════════════════════
+   Tricolor accent bar
+═══════════════════════════════════════════════════════════ */
+.accent-bar {
+  height: 4px; flex-shrink: 0;
+  background: linear-gradient(90deg, #002395 33%, #F0F0F0 33% 66%, #ED2939 66%);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Topbar
+═══════════════════════════════════════════════════════════ */
+.topbar {
+  padding: 14px 18px 12px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0;
+}
+.topbar-cname { font-size: 15px; font-weight: 700; color: var(--ink); }
+.topbar-right { display: flex; align-items: center; gap: 8px; }
+.present-badge {
+  display: flex; align-items: center; gap: 5px;
+  background: var(--sage-light); border: 1px solid #C5DDD2;
+  padding: 5px 10px; border-radius: 8px;
+  font-size: 11px; font-weight: 600; color: var(--sage-dark);
+}
+.present-dot { width: 7px; height: 7px; border-radius: 50%; background: #5BAE88; }
+.hb-btn {
+  width: 36px; height: 36px; background: var(--sage-light); border-radius: 12px;
+  cursor: pointer; border: none; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 5px;
+}
+.hb-btn span { display: block; height: 2px; border-radius: 3px; width: 18px; background: var(--sage); }
+.hb-btn span:nth-child(1) { background: linear-gradient(90deg, #002395 33%, #EDEDED 33% 66%, #ED2939 66%); }
+
+/* ═══════════════════════════════════════════════════════════
+   Stats card
+═══════════════════════════════════════════════════════════ */
+.stats-card {
+  margin: 0 18px 14px; background: #fff; border-radius: var(--r-lg);
+  padding: 16px 18px; display: grid; grid-template-columns: 1fr 1px 1fr;
+  border: 1px solid var(--border);
+}
+.stat-divider { background: var(--border); }
+.stat-item { padding: 0 14px; }
+.stat-item:first-child { padding-left: 0; }
+.stat-lbl {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 4px;
+}
+.stat-val {
+  font-size: 34px; font-weight: 700; color: var(--ink);
+  line-height: 1; letter-spacing: -1px;
+}
+.stat-sub { font-size: 11px; color: var(--muted); margin-top: 2px; display: flex; align-items: center; gap: 4px; }
+.live-dot { width: 7px; height: 7px; border-radius: 50%; background: #5BAE88; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+/* ═══════════════════════════════════════════════════════════
+   Tab bar
+═══════════════════════════════════════════════════════════ */
+.tab-bar {
+  display: flex; margin: 0 18px 12px; gap: 4px;
+  background: var(--sage-light); border-radius: var(--r-md); padding: 3px;
+}
+.tab-bar button {
+  flex: 1; padding: 9px 16px; border-radius: 11px; border: none;
+  background: transparent; font-family: inherit; font-size: 13px; font-weight: 600;
+  cursor: pointer; color: var(--ink-soft); transition: all 0.15s;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.tab-bar button.active { background: #fff; color: var(--forest); box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+.tab-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px;
+  background: var(--sage); color: white; font-size: 10px; font-weight: 700;
+}
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* ═══════════════════════════════════════════════════════════
+   No-show banner
+═══════════════════════════════════════════════════════════ */
+.noshow-banner {
+  display: flex; align-items: center; gap: 10px;
+  margin: 0 18px 10px; padding: 10px 14px;
+  background: var(--warning-bg); border: 1px solid var(--warning-bd);
+  border-radius: var(--r-md);
+}
+.noshow-icon {
+  width: 28px; height: 28px; border-radius: 10px;
+  background: var(--warning); color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 14px; flex-shrink: 0;
+}
+.noshow-info { flex: 1; min-width: 0; }
+.noshow-name { font-size: 13px; font-weight: 600; color: var(--ink); }
+.noshow-detail { font-size: 11px; color: var(--warning); }
+.noshow-action {
+  padding: 6px 12px; border-radius: var(--r-sm); border: 1px solid var(--warning);
+  background: white; color: var(--warning);
+  font-family: inherit; font-size: 11px; font-weight: 600; cursor: pointer; white-space: nowrap;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Search bar
+═══════════════════════════════════════════════════════════ */
+.search-row { padding: 0 18px; display: flex; gap: 8px; margin-bottom: 12px; }
+.search-input {
+  flex: 1; background: #fff; border: 1px solid var(--border);
+  border-radius: var(--r-md); padding: 12px 16px;
+  font-family: inherit; font-size: 13px; color: var(--ink); outline: none;
+}
+.search-input::placeholder { color: #C0C9C4; }
+.add-btn {
+  width: 44px; height: 44px; background: var(--sage); border-radius: var(--r-md);
+  border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  color: #fff; flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Section label
+═══════════════════════════════════════════════════════════ */
+.section-lbl {
+  padding: 0 18px; font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 8px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Consultation card (in-consultation patient)
+═══════════════════════════════════════════════════════════ */
+.consult-card {
+  margin: 0 18px 12px; background: var(--forest); border-radius: var(--r-lg);
+  padding: 14px 16px; position: relative; overflow: hidden;
+}
+.consult-card::after {
+  content: ''; position: absolute; bottom: -20px; right: -20px;
+  width: 80px; height: 80px; background: rgba(126,181,160,0.15); border-radius: 50%;
+}
+.consult-tag {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 5px;
+}
+.consult-name { font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 3px; }
+.consult-meta { font-size: 11px; color: rgba(255,255,255,0.4); margin-bottom: 12px; }
+.consult-btns { display: flex; gap: 8px; position: relative; z-index: 1; }
+.btn-end {
+  background: var(--sage); border: none; color: #fff;
+  padding: 9px 18px; border-radius: 12px;
+  font-family: inherit; font-size: 12px; font-weight: 700; cursor: pointer;
+  display: flex; align-items: center; gap: 5px;
+}
+.btn-call-light {
+  width: 38px; background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12); border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: rgba(255,255,255,0.5);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Queue items
+═══════════════════════════════════════════════════════════ */
+.queue-list { padding: 0 18px; padding-bottom: 80px; }
+.q-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 14px; background: #fff; border-radius: var(--r-md);
+  margin-bottom: 8px; border: 1px solid var(--border);
+}
+.q-item.urgent { background: var(--danger-bg); border-color: var(--danger-bd); }
+.q-pos {
+  width: 28px; height: 28px; background: var(--sage-light); border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: var(--sage-dark); flex-shrink: 0;
+}
+.q-pos.notified { background: var(--warning-bg); color: var(--warning); }
+.q-pos.urgent-pos { background: var(--danger-bg); color: var(--danger); font-size: 14px; }
+.q-info { flex: 1; min-width: 0; }
+.q-name-line { display: flex; align-items: center; gap: 5px; margin-bottom: 1px; flex-wrap: wrap; }
+.q-name { font-size: 14px; font-weight: 600; color: var(--ink); }
+.q-tag {
+  font-size: 9px; padding: 2px 7px; border-radius: 6px;
+  font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;
+  flex-shrink: 0; white-space: nowrap;
+}
+.q-tag-notified { background: var(--warning-bg); color: var(--warning); }
+.q-tag-urgent { background: #FFD0DE; color: var(--danger); font-weight: 700; }
+.q-tag-sans { background: #F0F4F1; color: var(--muted); }
+.q-tag-rdv { background: var(--sage-light); color: var(--sage-dark); }
+.q-meta { font-size: 11px; color: var(--muted); }
+.q-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.q-wait { text-align: right; min-width: 40px; }
+.q-wait-value { font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--ink); }
+.q-wait-label { font-size: 9px; text-transform: uppercase; color: var(--muted); letter-spacing: 0.3px; }
+.q-menu {
+  width: 28px; height: 28px; border-radius: 8px; border: none;
+  background: transparent; color: var(--sage-muted); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* Doctor badge (multi-doctor) */
+.doctor-badge {
+  width: 22px; height: 22px; border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 10px; color: white; flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Schedule timeline (Agenda tab)
+═══════════════════════════════════════════════════════════ */
+.schedule-list { padding: 0 18px; padding-bottom: 80px; display: flex; flex-direction: column; gap: 6px; }
+.sched-slot {
+  display: flex; align-items: stretch; gap: 10px;
+  padding: 10px 14px; background: #fff; border-radius: var(--r-md);
+  border: 1px solid var(--border); min-height: 52px; position: relative;
+}
+.sched-slot .slot-bar {
+  position: absolute; left: 0; top: 8px; bottom: 8px;
+  width: 3px; border-radius: 2px;
+}
+.slot-time { width: 42px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.slot-time-val { font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--ink); }
+.slot-time-sub { font-size: 9px; color: var(--muted); text-transform: uppercase; }
+.slot-info { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 1px; }
+.slot-patient { font-size: 14px; font-weight: 600; letter-spacing: -0.2px; color: var(--ink); }
+.slot-doctor { font-size: 11px; color: var(--muted); }
+.slot-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.slot-status {
+  font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 8px;
+  text-transform: uppercase; letter-spacing: 0.3px; white-space: nowrap;
+}
+.slot-arrived { background: var(--sage-light); color: var(--sage-dark); }
+.slot-consulting { background: rgba(74,110,143,0.1); color: var(--doctor-blue); }
+.slot-expected { background: #F0F4F1; color: var(--muted); }
+.slot-noshow { background: var(--danger-bg); color: var(--danger); }
+.slot-completed { background: #F0F4F1; color: var(--ink-soft); }
+.slot-urgent { background: #FFD0DE; color: var(--danger); }
+
+/* Regulation slot (empty) */
+.sched-slot.regulation { border-style: dashed; border-color: var(--border); background: #FAFAF8; }
+.slot-empty { font-size: 13px; color: var(--muted); font-style: italic; }
+.slot-assign {
+  padding: 5px 12px; border-radius: var(--r-sm); border: 1px solid var(--sage);
+  background: white; color: var(--sage);
+  font-family: inherit; font-size: 11px; font-weight: 600; cursor: pointer; white-space: nowrap;
+}
+
+/* No-show row in schedule */
+.sched-slot.noshow-row { background: var(--danger-bg); border-color: var(--danger-bd); }
+
+/* Sans RDV section in schedule */
+.sans-rdv-section { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border); }
+.sans-rdv-header {
+  font-size: 10px; font-weight: 700; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.08em; padding: 4px 0 8px;
+}
+
+/* Doctolib import banner */
+.doctolib-banner {
+  margin: 0 18px 10px; padding: 14px;
+  background: rgba(74,110,143,0.06); border: 1px solid rgba(74,110,143,0.12);
+  border-radius: var(--r-md);
+}
+.doctolib-title {
+  font-size: 13px; font-weight: 700; color: var(--doctor-blue);
+  margin-bottom: 4px; display: flex; align-items: center; gap: 6px;
+}
+.doctolib-desc { font-size: 11px; color: var(--ink-soft); margin-bottom: 10px; line-height: 1.4; }
+.doctolib-opts { display: flex; flex-direction: column; gap: 6px; }
+.doctolib-opt {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px; background: white; border-radius: var(--r-sm);
+  border: 1px solid var(--border); font-size: 12px; font-weight: 500;
+  color: var(--ink); cursor: pointer;
+}
+.doctolib-opt .opt-icon {
+  width: 24px; height: 24px; border-radius: 8px;
+  background: var(--doctor-blue); color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; flex-shrink: 0;
+}
+.doctolib-dismiss { margin-top: 8px; font-size: 11px; color: var(--muted); text-align: center; cursor: pointer; }
+
+/* ═══════════════════════════════════════════════════════════
+   CTA bar
+═══════════════════════════════════════════════════════════ */
+.cta-bar {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 14px 18px; background: var(--forest);
+  display: flex; align-items: center; gap: 10px; z-index: 10; flex-shrink: 0;
+}
+.cta-txt { font-size: 13px; color: #fff; flex: 1; }
+.cta-name { color: var(--sage); font-weight: 600; }
+/* Desktop CTA bar is static */
+.desktop-frame .cta-bar { position: static; }
+
+/* ═══════════════════════════════════════════════════════════
+   Overlays & drawers
+═══════════════════════════════════════════════════════════ */
+.scrim {
+  position: absolute; inset: 0; z-index: 30;
+  background: rgba(0,0,0,0.35); opacity: 0; pointer-events: none;
+  transition: opacity 0.25s;
+}
+.scrim.on { opacity: 1; pointer-events: all; }
+
+/* Bottom drawer */
+.bdrawer {
+  position: absolute; bottom: 0; left: 0; right: 0; z-index: 40;
+  background: #fff; border-radius: var(--r-xl) var(--r-xl) 0 0;
+  padding: 0 22px 28px;
+  transform: translateY(110%);
+  transition: transform 0.32s cubic-bezier(0.32,0.72,0,1);
+}
+.bdrawer.on { transform: translateY(0); }
+.dr-pill {
+  width: 36px; height: 4px; border-radius: 2px;
+  background: var(--border); margin: 13px auto 18px;
+}
+.dr-title { font-size: 20px; font-weight: 700; color: var(--ink); margin-bottom: 18px; }
+.dr-lbl {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 6px;
+}
+.dr-input {
+  width: 100%; background: var(--bg); border: 1px solid var(--border);
+  border-radius: var(--r-md); padding: 12px 16px;
+  font-family: inherit; font-size: 14px; color: var(--ink); outline: none; margin-bottom: 12px;
+}
+.dr-chips { display: flex; gap: 8px; margin-bottom: 14px; }
+.dr-chip {
+  padding: 8px 16px; border-radius: var(--r-sm); font-size: 12px; font-weight: 600;
+  cursor: pointer; background: #F0F4F1; border: 2px solid transparent; color: var(--muted);
+  transition: all 0.15s;
+}
+.dr-chip.on { border-color: var(--sage); color: var(--forest); background: var(--sage-light); }
+.dr-phone { display: flex; gap: 8px; margin-bottom: 14px; }
+.dr-phone .dr-input { margin-bottom: 0; }
+.dr-phone .dr-input:first-child { width: 72px; flex-shrink: 0; text-align: center; font-weight: 700; }
+.dr-phone .dr-input:last-child { flex: 1; }
+.dr-submit {
+  width: 100%; background: var(--sage); border: none; color: #fff;
+  padding: 14px; border-radius: var(--r-md);
+  font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer;
+}
+
+/* Side drawer */
+.sdrawer {
+  position: absolute; top: 0; right: 0; bottom: 0; z-index: 50;
+  width: 84%; background: #fff;
+  box-shadow: -10px 0 30px rgba(28,43,37,0.2);
+  border-radius: var(--r-lg) 0 0 var(--r-lg);
+  transform: translateX(105%);
+  transition: transform 0.3s cubic-bezier(0.32,0.72,0,1);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.sdrawer.on { transform: translateX(0); }
+.sdr-tribar {
+  height: 4px; flex-shrink: 0;
+  background: linear-gradient(90deg, #002395 33%, #F5F5F5 33% 66%, #ED2939 66%);
+}
+.sdr-hdr {
+  background: var(--bg); padding: 14px 16px 12px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+}
+.sdr-cname { font-size: 14px; font-weight: 700; color: var(--ink); }
+.sdr-x { color: #B0C0B8; cursor: pointer; }
+.sdr-profile {
+  padding: 13px 16px; display: flex; align-items: center; gap: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.sdr-avatar {
+  width: 38px; height: 38px; border-radius: 12px;
+  background: linear-gradient(135deg, var(--sage), var(--forest));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: #fff; flex-shrink: 0;
+}
+.sdr-name { font-size: 13px; font-weight: 700; color: var(--ink); }
+.sdr-role { font-size: 11px; color: var(--muted); }
+.sdr-status {
+  margin-left: auto; background: var(--sage-light); border-radius: 20px;
+  padding: 5px 9px; font-size: 10px; color: var(--forest); font-weight: 700;
+  display: flex; align-items: center; gap: 4px; flex-shrink: 0;
+}
+.sdr-sdot { width: 5px; height: 5px; border-radius: 50%; background: var(--sage); }
+.sdr-nav { flex: 1; padding: 10px; overflow-y: auto; }
+.sdr-item {
+  display: flex; align-items: center; gap: 11px; padding: 10px 14px;
+  border-radius: var(--r-md); margin-bottom: 2px;
+  font-size: 13px; font-weight: 500; color: var(--ink-soft); cursor: pointer;
+}
+.sdr-item.on { background: var(--sage-light); color: var(--forest); font-weight: 700; }
+.sdr-ico { font-size: 17px; color: var(--sage-muted); }
+.sdr-item.on .sdr-ico { color: var(--sage); }
+.sdr-badge {
+  margin-left: auto; background: var(--sage); color: #fff;
+  font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px;
+}
+.sdr-div { height: 1px; background: var(--border); margin: 4px 0; }
+.sdr-footer {
+  padding: 12px 16px 16px; border-top: 1px solid var(--border); background: var(--bg);
+}
+.sdr-trial {
+  font-size: 10px; color: var(--sage-muted); letter-spacing: 0.08em;
+  text-transform: uppercase; margin-bottom: 10px;
+}
+.sdr-logout { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--muted); cursor: pointer; }
+
+</style>
+</head>
+<body>
+
+<div class="phase-banner">PHASE 2 — Schedule v1 · Doux Confiance <span>| Parchemin · Sauge · Foret · Albert Sans · Arrondi genereux</span></div>
+
+<div class="view-toggle">
+  <button class="active" onclick="switchView('desktop')">Desktop</button>
+  <button onclick="switchView('mobile')">Mobile</button>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     DESKTOP VIEW
+═══════════════════════════════════════════════════════════ -->
+<div class="desktop-view active" id="desktop-view">
+  <div class="desktop-frame">
+
+    <!-- Tricolor accent bar -->
+    <div class="accent-bar"></div>
+
+    <!-- Topbar -->
+    <div class="topbar">
+      <div class="topbar-cname">Cabinet Dr. Fontaine</div>
+      <div class="topbar-right">
+        <div class="present-badge"><div class="present-dot"></div>Present</div>
+        <button class="hb-btn" onclick="openSdr('desktop')">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Stats card -->
+    <div class="stats-card">
+      <div class="stat-item">
+        <div class="stat-lbl">En attente</div>
+        <div class="stat-val">4</div>
+        <div class="stat-sub"><div class="live-dot"></div>En direct</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <div class="stat-lbl">Vus · Attente max</div>
+        <div class="stat-val">8</div>
+        <div class="stat-sub">18 min max</div>
+      </div>
+    </div>
+
+    <!-- Tab bar -->
+    <div class="tab-bar">
+      <button class="active" onclick="switchTab(this, 'salle', 'desktop')">Salle d'attente <span class="tab-badge">4</span></button>
+      <button onclick="switchTab(this, 'agenda', 'desktop')">Agenda</button>
+    </div>
+
+    <!-- ═══ Salle tab ═══ -->
+    <div class="tab-content active" id="desktop-salle">
+
+      <!-- No-show banner -->
+      <div class="noshow-banner">
+        <div class="noshow-icon">!</div>
+        <div class="noshow-info">
+          <div class="noshow-name">Bernard L. (10h00)</div>
+          <div class="noshow-detail">Absent depuis 15 min</div>
+        </div>
+        <button class="noshow-action">Marquer absent</button>
+      </div>
+
+      <!-- Search bar -->
+      <div class="search-row">
+        <input class="search-input" placeholder="Nom du patient..."/>
+        <button class="add-btn"><span class="material-symbols-outlined" style="color:#fff;">person_add</span></button>
+      </div>
+
+      <!-- EN CONSULTATION -->
+      <div class="section-lbl">En consultation</div>
+      <div class="consult-card">
+        <div class="consult-tag">Patient actuel · Dr. Martin</div>
+        <div class="consult-name">Mme Sophie D.</div>
+        <div class="consult-meta">Arrivee 09h05 · Sans RDV · Consultation depuis 12 min</div>
+        <div class="consult-btns">
+          <button class="btn-end">
+            <span class="material-symbols-outlined" style="font-size:14px;">check_circle</span>Terminer
+          </button>
+          <button class="btn-call-light">
+            <span class="material-symbols-outlined" style="font-size:16px;">call</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- FILE D'ATTENTE -->
+      <div class="section-lbl">File d'attente</div>
+      <div class="queue-list" style="padding-bottom:16px;">
+        <!-- Patient 1: NOTIFIED -->
+        <div class="q-item">
+          <div class="q-pos notified">1</div>
+          <div class="doctor-badge" style="background:#60B8AA;">L</div>
+          <div class="q-info">
+            <div class="q-name-line"><span class="q-name">Pierre M.</span> <span class="q-tag q-tag-notified">Notifie</span> <span class="q-tag q-tag-sans">Sans RDV</span></div>
+            <div class="q-meta">Arrivee 9h15 · 8 min</div>
+          </div>
+          <div class="q-right">
+            <div class="q-wait"><div class="q-wait-value">~15</div><div class="q-wait-label">min est.</div></div>
+            <button class="q-menu"><span class="material-symbols-outlined" style="font-size:17px;">more_vert</span></button>
+          </div>
+        </div>
+        <!-- Patient 2: URGENT -->
+        <div class="q-item urgent">
+          <div class="q-pos urgent-pos">!</div>
+          <div class="doctor-badge" style="background:#4A6E8F;">M</div>
+          <div class="q-info">
+            <div class="q-name-line"><span class="q-name">J-C. Bernard</span> <span class="q-tag q-tag-urgent">Urgent</span> <span class="q-tag q-tag-sans">Sans RDV</span></div>
+            <div class="q-meta">Arrivee 9h22 · 22 min</div>
+          </div>
+          <div class="q-right">
+            <div class="q-wait"><div class="q-wait-value">~30</div><div class="q-wait-label">min est.</div></div>
+            <button class="q-menu"><span class="material-symbols-outlined" style="font-size:17px;">more_vert</span></button>
+          </div>
+        </div>
+        <!-- Patient 3 -->
+        <div class="q-item">
+          <div class="q-pos">3</div>
+          <div class="doctor-badge" style="background:#60B8AA;">L</div>
+          <div class="q-info">
+            <div class="q-name-line"><span class="q-name">Marie L.</span> <span class="q-tag q-tag-sans">Sans RDV</span></div>
+            <div class="q-meta">Arrivee 9h30 · 14 min</div>
+          </div>
+          <div class="q-right">
+            <div class="q-wait"><div class="q-wait-value">~45</div><div class="q-wait-label">min est.</div></div>
+            <button class="q-menu"><span class="material-symbols-outlined" style="font-size:17px;">more_vert</span></button>
+          </div>
+        </div>
+        <!-- Patient 4 -->
+        <div class="q-item">
+          <div class="q-pos">4</div>
+          <div class="doctor-badge" style="background:#4A6E8F;">M</div>
+          <div class="q-info">
+            <div class="q-name-line"><span class="q-name">Fatima N.</span> <span class="q-tag q-tag-sans">Sans RDV</span></div>
+            <div class="q-meta">Arrivee 9h45 · 3 min</div>
+          </div>
+          <div class="q-right">
+            <div class="q-wait"><div class="q-wait-value">~60</div><div class="q-wait-label">min est.</div></div>
+            <button class="q-menu"><span class="material-symbols-outlined" style="font-size:17px;">more_vert</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ Agenda tab ═══ -->
+    <div class="tab-content" id="desktop-agenda">
+
+      <!-- Doctolib import banner -->
+      <div class="doctolib-banner">
+        <div class="doctolib-title">
+          <span class="material-symbols-outlined" style="font-size:16px;">calendar_month</span>
+          Importer vos rendez-vous
+        </div>
+        <div class="doctolib-desc">Synchronisez votre agenda Doctolib pour un suivi automatique des rendez-vous et no-shows.</div>
+        <div class="doctolib-opts">
+          <div class="doctolib-opt"><div class="opt-icon">1</div> Import CSV depuis Doctolib</div>
+          <div class="doctolib-opt"><div class="opt-icon">2</div> Synchronisation automatique (API)</div>
+          <div class="doctolib-opt"><div class="opt-icon">3</div> Saisie manuelle des creneaux</div>
+        </div>
+        <div class="doctolib-dismiss">Masquer · Ne plus afficher</div>
+      </div>
+
+      <div class="schedule-list" style="padding-bottom:16px;">
+        <!-- 09:00 -->
+        <div class="sched-slot">
+          <div class="slot-bar" style="background:#4A6E8F"></div>
+          <div class="slot-time"><span class="slot-time-val">09:00</span></div>
+          <div class="slot-info"><span class="slot-patient">Dupont S.</span><span class="slot-doctor">Dr. Martin</span></div>
+          <div class="slot-right"><span class="slot-status slot-arrived">Arrive</span></div>
+        </div>
+        <!-- 09:15 -->
+        <div class="sched-slot">
+          <div class="slot-bar" style="background:#4A6E8F"></div>
+          <div class="slot-time"><span class="slot-time-val">09:15</span></div>
+          <div class="slot-info"><span class="slot-patient">Martin P.</span><span class="slot-doctor">Dr. Martin</span></div>
+          <div class="slot-right"><span class="slot-status slot-arrived">Arrive</span></div>
+        </div>
+        <!-- 09:30 — regulation -->
+        <div class="sched-slot regulation">
+          <div class="slot-bar" style="background:var(--border)"></div>
+          <div class="slot-time"><span class="slot-time-val">09:30</span></div>
+          <div class="slot-info"><span class="slot-empty">Creneau libre</span><span class="slot-doctor">Dr. Martin</span></div>
+          <div class="slot-right"><button class="slot-assign">Affecter</button></div>
+        </div>
+        <!-- 09:45 -->
+        <div class="sched-slot">
+          <div class="slot-bar" style="background:#60B8AA"></div>
+          <div class="slot-time"><span class="slot-time-val">09:45</span></div>
+          <div class="slot-info"><span class="slot-patient">Petit S.</span><span class="slot-doctor">Dr. Leroy</span></div>
+          <div class="slot-right"><span class="slot-status slot-arrived">Arrive</span></div>
+        </div>
+        <!-- 10:00 — NO SHOW -->
+        <div class="sched-slot noshow-row">
+          <div class="slot-bar" style="background:var(--danger)"></div>
+          <div class="slot-time"><span class="slot-time-val">10:00</span></div>
+          <div class="slot-info"><span class="slot-patient">Bernard L.</span><span class="slot-doctor">Dr. Martin</span></div>
+          <div class="slot-right"><span class="slot-status slot-noshow">Absent</span></div>
+        </div>
+        <!-- 10:15 — regulation -->
+        <div class="sched-slot regulation">
+          <div class="slot-bar" style="background:var(--border)"></div>
+          <div class="slot-time"><span class="slot-time-val">10:15</span></div>
+          <div class="slot-info"><span class="slot-empty">Creneau libre</span><span class="slot-doctor">Dr. Leroy</span></div>
+          <div class="slot-right"><button class="slot-assign">Affecter</button></div>
+        </div>
+        <!-- 10:30 -->
+        <div class="sched-slot">
+          <div class="slot-bar" style="background:#4A6E8F"></div>
+          <div class="slot-time"><span class="slot-time-val">10:30</span></div>
+          <div class="slot-info"><span class="slot-patient">Rousseau M.</span><span class="slot-doctor">Dr. Martin</span></div>
+          <div class="slot-right"><span class="slot-status slot-expected">Attendu</span></div>
+        </div>
+
+        <!-- Sans RDV section -->
+        <div class="sans-rdv-section">
+          <div class="sans-rdv-header">Sans rendez-vous (3)</div>
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <div class="sched-slot">
+              <div class="slot-bar" style="background:var(--muted)"></div>
+              <div class="slot-time"><span class="slot-time-val">9h22</span><span class="slot-time-sub">arr.</span></div>
+              <div class="slot-info"><span class="slot-patient">J-C. Bernard</span><span class="slot-doctor">Dr. Martin · URGENT</span></div>
+              <div class="slot-right"><span class="slot-status slot-urgent">Urgent</span></div>
+            </div>
+            <div class="sched-slot">
+              <div class="slot-bar" style="background:var(--muted)"></div>
+              <div class="slot-time"><span class="slot-time-val">9h30</span><span class="slot-time-sub">arr.</span></div>
+              <div class="slot-info"><span class="slot-patient">Marie L.</span><span class="slot-doctor">Dr. Leroy</span></div>
+              <div class="slot-right"><span class="slot-status slot-expected">En attente</span></div>
+            </div>
+            <div class="sched-slot">
+              <div class="slot-bar" style="background:var(--muted)"></div>
+              <div class="slot-time"><span class="slot-time-val">9h45</span><span class="slot-time-sub">arr.</span></div>
+              <div class="slot-info"><span class="slot-patient">Fatima N.</span><span class="slot-doctor">Dr. Martin</span></div>
+              <div class="slot-right"><span class="slot-status slot-expected">En attente</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA bar -->
+    <div class="cta-bar">
+      <div class="cta-txt">&#8594; Appeler suivant · <span class="cta-name">Pierre M.</span></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MOBILE VIEW
+═══════════════════════════════════════════════════════════ -->
+<div class="mobile-view" id="mobile-view">
+  <div class="phone-frame">
+    <div class="phone-screen" id="screen-mobile">
+
+      <!-- Status bar -->
+      <div class="status-bar"><span>9:41</span><div class="status-bar-right">&#9679;&#9679;&#9679; WiFi &#128267;</div></div>
+
+      <!-- Tricolor accent bar -->
+      <div class="accent-bar"></div>
+
+      <!-- Topbar -->
+      <div class="topbar">
+        <div class="topbar-cname">Cabinet Dr. Fontaine</div>
+        <div class="topbar-right">
+          <div class="present-badge"><div class="present-dot"></div>Present</div>
+          <button class="hb-btn" onclick="openSdr('mobile')">
+            <span></span><span></span><span></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats card -->
+      <div class="stats-card">
+        <div class="stat-item">
+          <div class="stat-lbl">En attente</div>
+          <div class="stat-val">4</div>
+          <div class="stat-sub"><div class="live-dot"></div>En direct</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-lbl">Vus · Attente max</div>
+          <div class="stat-val">8</div>
+          <div class="stat-sub">18 min max</div>
+        </div>
+      </div>
+
+      <!-- Tab bar -->
+      <div class="tab-bar">
+        <button class="active" onclick="switchTab(this, 'salle', 'mobile')">Salle <span class="tab-badge">4</span></button>
+        <button onclick="switchTab(this, 'agenda', 'mobile')">Agenda</button>
+      </div>
+
+      <!-- ═══ Salle tab ═══ -->
+      <div class="tab-content active" id="mobile-salle">
+
+        <!-- No-show banner -->
+        <div class="noshow-banner">
+          <div class="noshow-icon">!</div>
+          <div class="noshow-info">
+            <div class="noshow-name">Bernard L. (10h00)</div>
+            <div class="noshow-detail">Absent depuis 15 min</div>
+          </div>
+          <button class="noshow-action">Marquer absent</button>
+        </div>
+
+        <!-- Search bar -->
+        <div class="search-row">
+          <input class="search-input" placeholder="Nom du patient..."/>
+          <button class="add-btn" onclick="openDrawer('mobile')"><span class="material-symbols-outlined" style="color:#fff;">person_add</span></button>
+        </div>
+
+        <!-- EN CONSULTATION -->
+        <div class="section-lbl">En consultation</div>
+        <div class="consult-card">
+          <div class="consult-tag">Patient actuel · Dr. Martin</div>
+          <div class="consult-name">Mme Sophie D.</div>
+          <div class="consult-meta">Arrivee 09h05 · Sans RDV · Consultation depuis 12 min</div>
+          <div class="consult-btns">
+            <button class="btn-end">
+              <span class="material-symbols-outlined" style="font-size:14px;">check_circle</span>Terminer
+            </button>
+            <button class="btn-call-light">
+              <span class="material-symbols-outlined" style="font-size:16px;">call</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- FILE D'ATTENTE -->
+        <div class="section-lbl">File d'attente</div>
+        <div class="queue-list">
+          <div class="q-item">
+            <div class="q-pos notified">1</div>
+            <div class="doctor-badge" style="background:#60B8AA;">L</div>
+            <div class="q-info">
+              <div class="q-name-line"><span class="q-name">Pierre M.</span> <span class="q-tag q-tag-notified">Notifie</span> <span class="q-tag q-tag-sans">Sans RDV</span></div>
+              <div class="q-meta">Arrivee 9h15 · 8 min</div>
+            </div>
+            <div class="q-right">
+              <div class="q-wait"><div class="q-wait-value">~15</div><div class="q-wait-label">min est.</div></div>
+              <button class="q-menu"><span class="material-symbols-outlined" style="font-size:17px;">more_vert</span></button>
+            </div>
+          </div>
+          <div class="q-item urgent">
+            <div class="q-pos urgent-pos">!</div>
+            <div class="doctor-badge" style="background:#4A6E8F;">M</div>
+            <div class="q-info">
+              <div class="q-name-line"><span class="q-name">J-C. Bernard</span> <span class="q-tag q-tag-urgent">Urgent</span> <span class="q-tag q-tag-sans">Sans RDV</span></div>
+              <div class="q-meta">Arrivee 9h22 · 22 min</div>
+            </div>
+            <div class="q-right">
+              <div class="q-wait"><div class="q-wait-value">~30</div><div class="q-wait-label">min est.</div></div>
+              <button class="q-menu"><span class="material-symbols-outlined" style="font-size:17px;">more_vert</span></button>
+            </div>
+          </div>
+          <div class="q-item">
+            <div class="q-pos">3</div>
+            <div class="doctor-badge" style="background:#60B8AA;">L</div>
+            <div class="q-info">
+              <div class="q-name-line"><span class="q-name">Marie L.</span> <span class="q-tag q-tag-sans">Sans RDV</span></div>
+              <div class="q-meta">Arrivee 9h30 · 14 min</div>
+            </div>
+            <div class="q-right">
+              <div class="q-wait"><div class="q-wait-value">~45</div><div class="q-wait-label">min est.</div></div>
+              <button class="q-menu"><span class="material-symbols-outlined" style="font-size:17px;">more_vert</span></button>
+            </div>
+          </div>
+          <div class="q-item">
+            <div class="q-pos">4</div>
+            <div class="doctor-badge" style="background:#4A6E8F;">M</div>
+            <div class="q-info">
+              <div class="q-name-line"><span class="q-name">Fatima N.</span> <span class="q-tag q-tag-sans">Sans RDV</span></div>
+              <div class="q-meta">Arrivee 9h45 · 3 min</div>
+            </div>
+            <div class="q-right">
+              <div class="q-wait"><div class="q-wait-value">~60</div><div class="q-wait-label">min est.</div></div>
+              <button class="q-menu"><span class="material-symbols-outlined" style="font-size:17px;">more_vert</span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ Agenda tab ═══ -->
+      <div class="tab-content" id="mobile-agenda">
+
+        <div class="doctolib-banner">
+          <div class="doctolib-title">
+            <span class="material-symbols-outlined" style="font-size:16px;">calendar_month</span>
+            Importer vos rendez-vous
+          </div>
+          <div class="doctolib-desc">Synchronisez votre agenda Doctolib pour un suivi automatique.</div>
+          <div class="doctolib-opts">
+            <div class="doctolib-opt"><div class="opt-icon">1</div> Import CSV</div>
+            <div class="doctolib-opt"><div class="opt-icon">2</div> Synchro API</div>
+            <div class="doctolib-opt"><div class="opt-icon">3</div> Saisie manuelle</div>
+          </div>
+          <div class="doctolib-dismiss">Masquer</div>
+        </div>
+
+        <div class="schedule-list">
+          <div class="sched-slot">
+            <div class="slot-bar" style="background:#4A6E8F"></div>
+            <div class="slot-time"><span class="slot-time-val">09:00</span></div>
+            <div class="slot-info"><span class="slot-patient">Dupont S.</span><span class="slot-doctor">Dr. Martin</span></div>
+            <div class="slot-right"><span class="slot-status slot-arrived">Arrive</span></div>
+          </div>
+          <div class="sched-slot">
+            <div class="slot-bar" style="background:#4A6E8F"></div>
+            <div class="slot-time"><span class="slot-time-val">09:15</span></div>
+            <div class="slot-info"><span class="slot-patient">Martin P.</span><span class="slot-doctor">Dr. Martin</span></div>
+            <div class="slot-right"><span class="slot-status slot-arrived">Arrive</span></div>
+          </div>
+          <div class="sched-slot regulation">
+            <div class="slot-bar" style="background:var(--border)"></div>
+            <div class="slot-time"><span class="slot-time-val">09:30</span></div>
+            <div class="slot-info"><span class="slot-empty">Creneau libre</span><span class="slot-doctor">Dr. Martin</span></div>
+            <div class="slot-right"><button class="slot-assign">Affecter</button></div>
+          </div>
+          <div class="sched-slot">
+            <div class="slot-bar" style="background:#60B8AA"></div>
+            <div class="slot-time"><span class="slot-time-val">09:45</span></div>
+            <div class="slot-info"><span class="slot-patient">Petit S.</span><span class="slot-doctor">Dr. Leroy</span></div>
+            <div class="slot-right"><span class="slot-status slot-arrived">Arrive</span></div>
+          </div>
+          <div class="sched-slot noshow-row">
+            <div class="slot-bar" style="background:var(--danger)"></div>
+            <div class="slot-time"><span class="slot-time-val">10:00</span></div>
+            <div class="slot-info"><span class="slot-patient">Bernard L.</span><span class="slot-doctor">Dr. Martin</span></div>
+            <div class="slot-right"><span class="slot-status slot-noshow">Absent</span></div>
+          </div>
+          <div class="sched-slot regulation">
+            <div class="slot-bar" style="background:var(--border)"></div>
+            <div class="slot-time"><span class="slot-time-val">10:15</span></div>
+            <div class="slot-info"><span class="slot-empty">Creneau libre</span><span class="slot-doctor">Dr. Leroy</span></div>
+            <div class="slot-right"><button class="slot-assign">Affecter</button></div>
+          </div>
+          <div class="sched-slot">
+            <div class="slot-bar" style="background:#4A6E8F"></div>
+            <div class="slot-time"><span class="slot-time-val">10:30</span></div>
+            <div class="slot-info"><span class="slot-patient">Rousseau M.</span><span class="slot-doctor">Dr. Martin</span></div>
+            <div class="slot-right"><span class="slot-status slot-expected">Attendu</span></div>
+          </div>
+
+          <div class="sans-rdv-section">
+            <div class="sans-rdv-header">Sans rendez-vous (3)</div>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <div class="sched-slot">
+                <div class="slot-bar" style="background:var(--muted)"></div>
+                <div class="slot-time"><span class="slot-time-val">9h22</span><span class="slot-time-sub">arr.</span></div>
+                <div class="slot-info"><span class="slot-patient">J-C. Bernard</span><span class="slot-doctor">Dr. Martin</span></div>
+                <div class="slot-right"><span class="slot-status slot-urgent">Urgent</span></div>
+              </div>
+              <div class="sched-slot">
+                <div class="slot-bar" style="background:var(--muted)"></div>
+                <div class="slot-time"><span class="slot-time-val">9h30</span><span class="slot-time-sub">arr.</span></div>
+                <div class="slot-info"><span class="slot-patient">Marie L.</span><span class="slot-doctor">Dr. Leroy</span></div>
+                <div class="slot-right"><span class="slot-status slot-expected">En attente</span></div>
+              </div>
+              <div class="sched-slot">
+                <div class="slot-bar" style="background:var(--muted)"></div>
+                <div class="slot-time"><span class="slot-time-val">9h45</span><span class="slot-time-sub">arr.</span></div>
+                <div class="slot-info"><span class="slot-patient">Fatima N.</span><span class="slot-doctor">Dr. Martin</span></div>
+                <div class="slot-right"><span class="slot-status slot-expected">En attente</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTA bar -->
+      <div class="cta-bar">
+        <div class="cta-txt">&#8594; Appeler suivant · <span class="cta-name">Pierre M.</span></div>
+      </div>
+
+      <!-- OVERLAYS -->
+      <div class="scrim" id="scrim-mobile" onclick="closeAll('mobile')"></div>
+
+      <!-- BOTTOM DRAWER — Nouveau patient -->
+      <div class="bdrawer" id="dr-mobile">
+        <div class="dr-pill"></div>
+        <div class="dr-title">Nouveau patient</div>
+        <div class="dr-lbl">Nom du patient</div>
+        <input class="dr-input" type="text" value="Mme Isabelle Morel"/>
+        <div class="dr-lbl">Type de visite</div>
+        <div class="dr-chips">
+          <div class="dr-chip on" onclick="toggleChip(this)">Sans rendez-vous</div>
+          <div class="dr-chip" onclick="toggleChip(this)">Avec rendez-vous</div>
+        </div>
+        <div class="dr-lbl">Telephone (optionnel)</div>
+        <div class="dr-phone">
+          <input class="dr-input" value="+33" readonly/>
+          <input class="dr-input" placeholder="06 XX XX XX XX"/>
+        </div>
+        <button class="dr-submit" onclick="closeAll('mobile')">&#8594; Ajouter a la file</button>
+      </div>
+
+      <!-- SIDE DRAWER -->
+      <div class="sdrawer" id="sdr-mobile">
+        <div class="sdr-tribar"></div>
+        <div class="sdr-hdr">
+          <div class="sdr-cname">Cabinet Dr. Fontaine</div>
+          <span class="material-symbols-outlined sdr-x" onclick="closeAll('mobile')">close</span>
+        </div>
+        <div class="sdr-profile">
+          <div class="sdr-avatar">DR</div>
+          <div>
+            <div class="sdr-name">Dr. A. Fontaine</div>
+            <div class="sdr-role">Medecin generaliste</div>
+          </div>
+          <div class="sdr-status"><div class="sdr-sdot"></div>Present</div>
+        </div>
+        <nav class="sdr-nav">
+          <div class="sdr-item on">
+            <span class="material-symbols-outlined sdr-ico">queue</span>
+            File d'attente <span class="sdr-badge">4</span>
+          </div>
+          <div class="sdr-item" onclick="closeAll('mobile');openDrawer('mobile')">
+            <span class="material-symbols-outlined sdr-ico">person_add</span>Nouveau patient
+          </div>
+          <div class="sdr-item">
+            <span class="material-symbols-outlined sdr-ico">bar_chart</span>Statistiques
+          </div>
+          <div class="sdr-item">
+            <span class="material-symbols-outlined sdr-ico">qr_code_2</span>QR Code d'accueil
+          </div>
+          <div class="sdr-div"></div>
+          <div class="sdr-item">
+            <span class="material-symbols-outlined sdr-ico">settings</span>Parametres
+          </div>
+          <div class="sdr-item">
+            <span class="material-symbols-outlined sdr-ico">help_outline</span>Aide & Support
+          </div>
+        </nav>
+        <div class="sdr-footer">
+          <div class="sdr-trial">Essai gratuit · 7 jours restants</div>
+          <div class="sdr-logout">
+            <span class="material-symbols-outlined" style="font-size:14px;">logout</span>Deconnexion
+          </div>
+        </div>
+      </div>
+
+    </div><!-- phone-screen -->
+  </div><!-- phone-frame -->
+</div>
+
+<script>
+function switchView(view) {
+  document.querySelectorAll('.view-toggle button').forEach(b => b.classList.remove('active'));
+  document.getElementById('desktop-view').classList.remove('active');
+  document.getElementById('mobile-view').classList.remove('active');
+  document.getElementById(view + '-view').classList.add('active');
+  event.target.classList.add('active');
+}
+function switchTab(btn, tab, ctx) {
+  const parent = btn.closest('.tab-bar');
+  parent.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const frame = ctx === 'mobile' ? btn.closest('.phone-screen') : btn.closest('.desktop-frame');
+  frame.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+  frame.querySelector('#' + ctx + '-' + tab).classList.add('active');
+}
+function openSdr(ctx) {
+  document.getElementById('scrim-' + ctx).classList.add('on');
+  document.getElementById('sdr-' + ctx).classList.add('on');
+}
+function openDrawer(ctx) {
+  document.getElementById('scrim-' + ctx).classList.add('on');
+  document.getElementById('dr-' + ctx).classList.add('on');
+}
+function closeAll(ctx) {
+  const scrim = document.getElementById('scrim-' + ctx);
+  const sdr = document.getElementById('sdr-' + ctx);
+  const dr = document.getElementById('dr-' + ctx);
+  if (scrim) scrim.classList.remove('on');
+  if (sdr) sdr.classList.remove('on');
+  if (dr) dr.classList.remove('on');
+}
+function toggleChip(el) {
+  el.parentElement.querySelectorAll('.dr-chip').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+}
+</script>
+</body>
+</html>
