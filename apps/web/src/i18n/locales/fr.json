@@ -1663,6 +1663,30 @@
       "version": "BleSaf v{{version}} · © {{year}} BleSaf SARL"
     }
   },
+  "tour": {
+    "welcome_title": "Bienvenue dans BleSaf !",
+    "welcome_body": "Voici votre tableau de bord. La file est vide pour l'instant. Laissez-nous vous montrer comment tout fonctionne — en moins de 2 minutes.",
+    "welcome_cta": "Commencer la visite guidée",
+    "fill_title": "Remplissons la file !",
+    "fill_body": "Je vais maintenant ajouter des patients imaginaires pour vous montrer l'interface en action.",
+    "done_title": "Visite terminée !",
+    "done_body": "Vous maîtrisez maintenant les 4 actions fondamentales de BleSaf.",
+    "done_replay": "Rejouer la visite",
+    "step_label": "Étape {{step}} / {{total}}",
+    "step_add_title": "Ajoutez votre premier patient",
+    "step_add_desc": "Appuyez sur ce bouton pour ouvrir le formulaire d'ajout. Entrez le nom et le numéro de téléphone du patient.",
+    "step_add_nudge": "Cliquez sur le bouton",
+    "step_presence_title": "Activez votre présence",
+    "step_presence_desc": "Vous êtes actuellement \"Absent\". Tapez sur ce bouton pour indiquer que vous êtes disponible et démarrer les consultations.",
+    "step_presence_nudge": "Cliquez sur le badge",
+    "step_share_title": "Partagez le lien de suivi",
+    "step_share_desc": "Tapez sur ⋮ à côté d'un patient pour accéder au menu et envoyer son lien WhatsApp.",
+    "step_share_nudge": "Tapez sur le menu",
+    "step_whatsapp_title": "Envoyez le lien via WhatsApp",
+    "step_whatsapp_desc": "En tapant ici, WhatsApp s'ouvre avec un message pré-rempli. Envoyez ce lien au patient sur un 2e téléphone — il pourra suivre sa position en temps réel sans revenir dans la salle d'attente.",
+    "skip": "Passer",
+    "finish": "Terminer la visite"
+  },
   "desktop_menu": {
     "settings_button": "Paramètres",
     "section_qr": "Code QR",

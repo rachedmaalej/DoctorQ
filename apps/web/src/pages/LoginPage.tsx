@@ -33,12 +33,12 @@ export default function LoginPage() {
 
     try {
       await login({ email, password });
-      // Redirect: admins → /admin, new clinics → /signup/setup, others → /dashboard
+      // Redirect: admins → /admin, new clinics → /onboarding, others → /dashboard
       const { clinic } = useAuthStore.getState();
       if (clinic?.isAdmin) {
         navigate('/admin');
       } else if (!clinic?.onboardingCompleted) {
-        navigate('/signup/setup');
+        navigate('/onboarding');
       } else {
         navigate('/dashboard');
       }
@@ -205,7 +205,7 @@ export default function LoginPage() {
           {/* Signup */}
           <div className="bs-login-signup">
             {t('auth.noAccountPrompt')}{' '}
-            <Link to="/signup">{t('auth.trialCta')}</Link>
+            <Link to="/onboarding">{t('auth.trialCta')}</Link>
           </div>
 
           {/* Trust signals */}

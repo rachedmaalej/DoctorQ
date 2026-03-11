@@ -18,8 +18,18 @@ interface PatientContextSheetProps {
 const actions = [
   { key: 'emergency', icon: 'emergency', iconBg: '#FDF0ED', iconColor: '#D94F3B' },
   { key: 'copy-url', icon: 'link', iconBg: '#EDF3FC', iconColor: '#3B7DD9' },
+  { key: 'whatsapp', icon: 'whatsapp', iconBg: '#E8F7EE', iconColor: '#25D366' },
   { key: 'remove', icon: 'person_remove', iconBg: '#FDF0ED', iconColor: '#D94F3B' },
 ] as const;
+
+function WhatsAppIcon({ color }: { color: string }) {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill={color} aria-hidden="true">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
+      <path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.553 4.122 1.523 5.857L.057 23.882a.5.5 0 0 0 .613.613l6.101-1.459A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.885 0-3.65-.52-5.16-1.426l-.37-.22-3.827.916.933-3.74-.242-.386A9.944 9.944 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z" />
+    </svg>
+  );
+}
 
 export default function PatientContextSheet({
   isOpen,
@@ -34,6 +44,7 @@ export default function PatientContextSheet({
   const actionLabels: Record<string, { label: string; desc: string }> = {
     emergency: { label: t('receptionist.patientContext.emergency', 'Urgence'), desc: t('receptionist.patientContext.emergencyDesc', 'Passe en priorité absolue') },
     'copy-url': { label: t('receptionist.patientContext.copyUrl', 'Copier URL'), desc: t('receptionist.patientContext.copyUrlDesc', 'Lien de suivi de la position') },
+    whatsapp: { label: t('receptionist.patientContext.whatsapp', 'Envoyer via WhatsApp'), desc: t('receptionist.patientContext.whatsappDesc', 'Partager le lien de suivi') },
     remove: { label: t('receptionist.patientContext.removePatient'), desc: t('receptionist.patientContext.removePatientDesc') },
   };
 
@@ -90,6 +101,12 @@ export default function PatientContextSheet({
           setTimeout(() => { setCopied(false); onClose(); }, 800);
         }).catch(() => onClose());
         return; // don't close immediately — show feedback first
+      }
+      case 'whatsapp': {
+        const statusUrl = `${window.location.origin}/patient/${patient.id}`;
+        const text = encodeURIComponent(`Voici le lien pour suivre votre position en file d'attente : ${statusUrl}`);
+        window.open(`https://wa.me/?text=${text}`, '_blank', 'noopener,noreferrer');
+        break;
       }
       case 'add-phone':
         setShowPhoneInput(true);
@@ -160,12 +177,16 @@ export default function PatientContextSheet({
                     backgroundColor: action.iconBg,
                   }}
                 >
-                  <span
-                    className="material-symbols-rounded"
-                    style={{ fontSize: 20, color: action.iconColor }}
-                  >
-                    {action.icon}
-                  </span>
+                  {action.key === 'whatsapp' ? (
+                    <WhatsAppIcon color={action.iconColor} />
+                  ) : (
+                    <span
+                      className="material-symbols-rounded"
+                      style={{ fontSize: 20, color: action.iconColor }}
+                    >
+                      {action.icon}
+                    </span>
+                  )}
                 </div>
 
                 {/* Label + description */}

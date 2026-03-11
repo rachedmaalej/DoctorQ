@@ -5,9 +5,7 @@ import { webBrand } from './lib/brand';
 
 // Lazy load pages for code splitting - reduces initial bundle by ~40%
 const LoginPage = lazy(() => import('./pages/LoginPage'));
-const SignupPage = lazy(() => import('./pages/SignupPage'));
-const SetupPage = lazy(() => import('./pages/SetupPage'));
-const WelcomePage = lazy(() => import('./pages/WelcomePage'));
+const OnboardingFlow = lazy(() => import('./features/onboarding/OnboardingFlow'));
 const DashboardPage = lazy(() => import('./pages/DashboardPage'));
 const PatientStatusPage = lazy(() => import('./pages/PatientStatusPage'));
 const CheckInPage = lazy(() => import('./pages/CheckInPage'));
@@ -63,31 +61,19 @@ function App() {
     <Suspense fallback={<PageLoader />}>
       <Routes>
         {/* Root redirects to dashboard (if logged in) or landing */}
-        <Route path="/" element={isAuthenticated ? <Navigate to={needsOnboarding ? '/signup/setup' : '/dashboard'} /> : (webBrand.theme.dashboard.variant === 'schedule' ? <LandingPageFr /> : <LandingPage />)} />
+        <Route path="/" element={isAuthenticated ? <Navigate to={needsOnboarding ? '/onboarding' : '/dashboard'} /> : (webBrand.theme.dashboard.variant === 'schedule' ? <LandingPageFr /> : <LandingPage />)} />
 
-        {/* Signup flow (3 steps) */}
-        <Route path="/signup" element={
-          isAuthenticated
-            ? <Navigate to={needsOnboarding ? '/signup/setup' : '/dashboard'} />
-            : <SignupPage />
-        } />
-        <Route path="/signup/setup" element={
-          isAuthenticated
-            ? (clinic?.onboardingCompleted ? <Navigate to="/dashboard" /> : <SetupPage />)
-            : <Navigate to="/signup" />
-        } />
-        <Route path="/welcome" element={
-          isAuthenticated
-            ? (clinic?.onboardingCompleted ? <Navigate to="/dashboard" /> : <WelcomePage />)
-            : <Navigate to="/signup" />
-        } />
-
-        {/* Legacy /onboarding → redirect to new flow */}
+        {/* Onboarding flow (Turbo Wizard) — accessible without auth (signup happens at step 3) */}
         <Route path="/onboarding" element={
-          isAuthenticated
-            ? <Navigate to={needsOnboarding ? '/signup/setup' : '/dashboard'} replace />
-            : <Navigate to="/login" />
+          isAuthenticated && clinic?.onboardingCompleted
+            ? <Navigate to="/dashboard" replace />
+            : <OnboardingFlow />
         } />
+
+        {/* Legacy signup routes → redirect to new onboarding */}
+        <Route path="/signup" element={<Navigate to="/onboarding" replace />} />
+        <Route path="/signup/setup" element={<Navigate to="/onboarding" replace />} />
+        <Route path="/welcome" element={<Navigate to="/onboarding" replace />} />
 
         {/* Public auth routes */}
         <Route path="/login" element={!isAuthenticated ? <LoginPage /> : <Navigate to="/dashboard" />} />
@@ -107,7 +93,7 @@ function App() {
           path="/dashboard"
           element={
             isAuthenticated
-              ? (needsOnboarding ? <Navigate to="/signup/setup" /> : <DashboardPage />)
+              ? (needsOnboarding ? <Navigate to="/onboarding" /> : <DashboardPage />)
               : <Navigate to="/login" />
           }
         />

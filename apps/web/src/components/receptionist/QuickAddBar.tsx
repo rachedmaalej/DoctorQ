@@ -1,13 +1,17 @@
-import { useState } from 'react';
+import { useState, type RefObject } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useTourStore } from '@/features/tour/tourStore';
 
 interface QuickAddBarProps {
   onSubmit?: (name: string) => void;
+  /** Ref forwarded from ReceptionistDashboard for the tour spotlight */
+  tourAddBtnRef?: RefObject<HTMLButtonElement>;
 }
 
-export default function QuickAddBar({ onSubmit }: QuickAddBarProps) {
+export default function QuickAddBar({ onSubmit, tourAddBtnRef }: QuickAddBarProps) {
   const { t } = useTranslation();
   const [name, setName] = useState('');
+  const tourState = useTourStore(s => s.state);
 
   const handleSubmit = () => {
     if (name.trim() && onSubmit) {
@@ -17,6 +21,11 @@ export default function QuickAddBar({ onSubmit }: QuickAddBarProps) {
   };
 
   const handleButtonClick = () => {
+    // Tour intercept: delegate to store action (guards state internally)
+    if (tourState === 'SPOTLIGHT_ADD') {
+      useTourStore.getState().onAddClick();
+      return;
+    }
     if (onSubmit) {
       onSubmit(name.trim());
       setName('');
@@ -35,6 +44,7 @@ export default function QuickAddBar({ onSubmit }: QuickAddBarProps) {
         style={{ fontSize: 15, border: '1.5px solid #E8E6DF', fontFamily: 'inherit' }}
       />
       <button
+        ref={tourAddBtnRef}
         onClick={handleButtonClick}
         className="w-12 h-12 rounded-bs text-white flex items-center justify-center shrink-0 transition-all duration-150 active:scale-[0.94]"
         style={{ backgroundColor: '#0F7B6C' }}

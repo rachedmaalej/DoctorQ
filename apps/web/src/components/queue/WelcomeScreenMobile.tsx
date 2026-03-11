@@ -25,6 +25,77 @@ export default function WelcomeScreenMobile({
       .finally(() => setLoading(false));
   }, []);
 
+  // Show full bilan only once there are ≥7 days of historical data
+  // (server returns trends.patients.vs7d only when enough DailyStat rows exist)
+  const has7DaysData =
+    !loading &&
+    stats?.trends?.patients?.vs7d !== null &&
+    stats?.trends?.patients?.vs7d !== undefined;
+
+  // ── Shared CTA button ──────────────────────────────────
+  const ctaButton = (
+    <div className="px-[10px] pt-[8px] pb-[16px]">
+      <button
+        onClick={onOpenQueue}
+        disabled={isOpening}
+        className="group w-full flex flex-col justify-between gap-[10px]
+                   p-[14px] rounded-[14px] bg-[#3c6c5e] shadow-md
+                   hover:bg-[#2d5547] hover:shadow-lg
+                   disabled:opacity-60 disabled:cursor-not-allowed
+                   relative overflow-hidden
+                   transition-all duration-200 cursor-pointer text-left"
+      >
+        <div className="absolute -top-[24px] -right-[24px] w-[80px] h-[80px]
+                        rounded-full bg-white/[0.07] pointer-events-none" />
+        <div className="relative z-10 flex items-center gap-[6px]">
+          <span className="w-[5px] h-[5px] rounded-full bg-white/35 flex-shrink-0" />
+          <span className="text-[10px] font-medium text-white/50">
+            {isOpening
+              ? t('welcome.opening', 'Ouverture en cours…')
+              : t('welcome.fileFermee', 'File actuellement fermée')}
+          </span>
+        </div>
+        <p className="relative z-10 text-[16px] font-bold text-white
+                      tracking-[-0.2px] leading-[1.2] whitespace-pre-line">
+          {t('welcome.ouvrirLaFile', "Ouvrir la file\nd'attente")}
+        </p>
+        <span className="relative z-10 text-[22px] text-white/70 leading-none
+                         self-end transition-transform duration-200
+                         group-hover:translate-x-[3px]">
+          {i18n.language === 'ar' ? '←' : '→'}
+        </span>
+      </button>
+    </div>
+  );
+
+  // ── Empty state (< 7 days of data): doctor illustration + CTA ──
+  if (!has7DaysData) {
+    return (
+      <div className="flex flex-col h-full bg-[#edeae3]">
+        {/* Greeting */}
+        <div className="flex items-baseline gap-[7px] px-[14px] pt-[10px] pb-[2px]">
+          <span className="text-[13px] text-[#8a9a90]">{getTimeGreeting()},</span>
+          <span className="text-[17px] font-bold text-[#1a1a1a] tracking-[-0.3px]">
+            {doctorName}
+          </span>
+        </div>
+
+        {/* Doctor illustration */}
+        <div className="flex-1 flex items-center justify-center px-[24px] py-[16px] min-h-0">
+          <img
+            src="/images/onboarding/welcome2.png"
+            alt="Doctor"
+            className="w-full max-w-[260px] h-auto object-contain"
+            style={{ maxHeight: '100%' }}
+          />
+        </div>
+
+        {ctaButton}
+      </div>
+    );
+  }
+
+  // ── Full bilan (≥ 7 days of data) ──────────────────────
   return (
     <div className="flex flex-col h-full bg-[#edeae3]">
 
@@ -58,9 +129,7 @@ export default function WelcomeScreenMobile({
           {t('welcome.patientsVus', 'Patients vus')}
         </p>
 
-        {loading ? (
-          <HeroSkeleton />
-        ) : stats?.yesterday ? (
+        {stats?.yesterday ? (
           <>
             {/* Giant number */}
             <p className="relative z-10 text-[72px] font-bold text-[#3c6c5e]
@@ -99,7 +168,7 @@ export default function WelcomeScreenMobile({
       </div>
 
       {/* ── 4. Secondary KPI card (attente moyenne) ── */}
-      {!loading && stats?.yesterday?.avgWaitMins !== null &&
+      {stats?.yesterday?.avgWaitMins !== null &&
        stats?.yesterday?.avgWaitMins !== undefined && (
         <div className="bg-white rounded-[14px] shadow-sm mx-[10px] mt-[7px]
                         px-[14px] py-[13px] flex items-center gap-[14px]">
@@ -142,46 +211,7 @@ export default function WelcomeScreenMobile({
       {/* ── 5. Flex spacer ── */}
       <div className="flex-1 min-h-[6px]" />
 
-      {/* ── 6. CTA — Carte Teal ── */}
-      <div className="px-[10px] pt-[8px] pb-[16px]">
-        <button
-          onClick={onOpenQueue}
-          disabled={isOpening}
-          className="group w-full flex flex-col justify-between gap-[10px]
-                     p-[14px] rounded-[14px] bg-[#3c6c5e] shadow-md
-                     hover:bg-[#2d5547] hover:shadow-lg
-                     disabled:opacity-60 disabled:cursor-not-allowed
-                     relative overflow-hidden
-                     transition-all duration-200 cursor-pointer text-left"
-        >
-          {/* Decorative orb — top-right */}
-          <div className="absolute -top-[24px] -right-[24px] w-[80px] h-[80px]
-                          rounded-full bg-white/[0.07] pointer-events-none" />
-
-          {/* Status row */}
-          <div className="relative z-10 flex items-center gap-[6px]">
-            <span className="w-[5px] h-[5px] rounded-full bg-white/35 flex-shrink-0" />
-            <span className="text-[10px] font-medium text-white/50">
-              {isOpening
-                ? t('welcome.opening', 'Ouverture en cours…')
-                : t('welcome.fileFermee', 'File actuellement fermée')}
-            </span>
-          </div>
-
-          {/* CTA label */}
-          <p className="relative z-10 text-[16px] font-bold text-white
-                        tracking-[-0.2px] leading-[1.2] whitespace-pre-line">
-            {t('welcome.ouvrirLaFile', "Ouvrir la file\nd'attente")}
-          </p>
-
-          {/* Arrow — translates on hover */}
-          <span className="relative z-10 text-[22px] text-white/70 leading-none
-                           self-end transition-transform duration-200
-                           group-hover:translate-x-[3px]">
-            {i18n.language === 'ar' ? '←' : '→'}
-          </span>
-        </button>
-      </div>
+      {ctaButton}
 
     </div>
   );

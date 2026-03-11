@@ -1,6 +1,7 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, type RefObject } from 'react';
 import { useTranslation } from 'react-i18next';
 import { webBrand } from '@/lib/brand';
+import { useTourStore } from '@/features/tour/tourStore';
 import type { QueueScreenStatus } from './types';
 
 interface HeaderProps {
@@ -11,6 +12,8 @@ interface HeaderProps {
   isTogglingPresence?: boolean;
   className?: string;
   onOpenDrawer?: () => void;
+  /** Ref forwarded from ReceptionistDashboard for the tour spotlight */
+  tourPresencePillRef?: RefObject<HTMLButtonElement>;
 }
 
 export default function Header({
@@ -21,10 +24,12 @@ export default function Header({
   isTogglingPresence = false,
   className,
   onOpenDrawer,
+  tourPresencePillRef,
 }: HeaderProps) {
   const { t, i18n } = useTranslation();
   const [presenceMenuOpen, setPresenceMenuOpen] = useState(false);
   const presenceRef = useRef<HTMLDivElement>(null);
+  const tourState = useTourStore(s => s.state);
 
   const showPresence = status === 'OPEN' || status === 'CLOSING';
   const showMenuBtn = status === 'OPEN' || status === 'CLOSING' || status === 'PRE_OPEN';
@@ -78,7 +83,15 @@ export default function Header({
           {showPresence && isDoctorPresent !== undefined && (
             <div ref={presenceRef} style={{ position: 'relative' }}>
               <button
-                onClick={() => setPresenceMenuOpen(v => !v)}
+                ref={tourPresencePillRef}
+                onClick={() => {
+                  // Tour intercept: delegate to store action (guards state internally)
+                  if (tourState === 'SPOTLIGHT_PRESENCE') {
+                    useTourStore.getState().onPresenceClick();
+                    return;
+                  }
+                  setPresenceMenuOpen(v => !v);
+                }}
                 disabled={isTogglingPresence}
                 className="flex items-center gap-1 rounded-full"
                 style={{

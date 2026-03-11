@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { QueueStatus } from '@/types';
 import { api } from '@/lib/api';
@@ -36,6 +36,8 @@ import TimelineBar from './TimelineBar';
 import SummaryActionBar from './SummaryActionBar';
 import BSAddPatientSheet from '@/components/shared/BSAddPatientSheet';
 import BSWhatsAppSheet from '@/components/shared/BSWhatsAppSheet';
+import GuidedTour from '@/features/tour/GuidedTour';
+import { useTourStore } from '@/features/tour/tourStore';
 
 export default function ReceptionistDashboard({
   queue,
@@ -52,6 +54,12 @@ export default function ReceptionistDashboard({
 }: ReceptionistDashboardProps) {
   const { t } = useTranslation();
   const drawerControls = useDrawer();
+
+  // ── Tour refs ──────────────────────────────────────────────────────────────
+  const tourScreenRef    = useRef<HTMLDivElement>(null);
+  const tourAddBtnRef    = useRef<HTMLButtonElement>(null);
+  const tourPresenceRef  = useRef<HTMLButtonElement>(null);
+  const tourState        = useTourStore(s => s.state);
 
   // Close drawer when triggered from parent (e.g. settings backdrop dismiss)
   useEffect(() => {
@@ -112,8 +120,13 @@ export default function ReceptionistDashboard({
   const summaryData = toSummaryData(clinic, closedSummary);
 
   // ── Screen derivation ─────────────────────────────────────
-  const showPreOpen = queueStatus === 'PRE_OPEN';
-  const showOpen = queueStatus === 'OPEN';
+  // When the tour has ever run (active or just finished), bypass PRE_OPEN.
+  // This ensures the user lands on the open dashboard after tour completion,
+  // not the welcome screen (which would show because the real API queue is still PRE_OPEN).
+  const tourActive = tourState !== 'IDLE' && tourState !== 'DONE';
+  const tourHasRun = tourState !== 'IDLE'; // includes DONE
+  const showPreOpen = queueStatus === 'PRE_OPEN' && !tourHasRun;
+  const showOpen = queueStatus === 'OPEN' || (tourHasRun && queueStatus === 'PRE_OPEN');
   const showClosing = queueStatus === 'CLOSING' && !isAllDone;
   const showAllDone = queueStatus === 'CLOSING' && isAllDone;
   const showClosed = queueStatus === 'CLOSED';
@@ -154,6 +167,7 @@ export default function ReceptionistDashboard({
 
   return (
     <div
+      ref={tourScreenRef}
       className="bs-dashboard relative w-full max-w-[375px] mx-auto overflow-hidden"
       style={{
         background: '#F6F5F0',
@@ -165,12 +179,13 @@ export default function ReceptionistDashboard({
         {/* ═══ Header (all screens) ═══ */}
         <Header
           clinicName={clinic?.name ?? ''}
-          status={queueStatus}
+          status={showOpen && queueStatus === 'PRE_OPEN' ? 'OPEN' : queueStatus}
           isDoctorPresent={isDoctorPresent}
           onToggleDoctorPresent={onToggleDoctorPresent}
           isTogglingPresence={isTogglingPresence}
           className={showPreOpen ? 'animate-bs-slide-in bs-anim-d1 mb-3' : 'mb-3'}
           onOpenDrawer={drawerControls.open}
+          tourPresencePillRef={tourPresenceRef}
         />
 
         {/* ═══ KPI Strip (OPEN + CLOSING) ═══ */}
@@ -195,7 +210,7 @@ export default function ReceptionistDashboard({
         {/* ═══ OPEN Screen ═══ */}
         {showOpen && (
           <>
-            <QuickAddBar onSubmit={handleQuickAdd} />
+            <QuickAddBar onSubmit={handleQuickAdd} tourAddBtnRef={tourAddBtnRef} />
             {currentPatient && (
               <>
                 <SectionHeader title={t('receptionist.sections.inConsultation')} />
@@ -319,6 +334,16 @@ export default function ReceptionistDashboard({
         onOpenQueue={openQueue}
         onReopenQueue={reopenQueue}
       />
+
+      {/* ═══ Guided Onboarding Tour ═══ */}
+      {tourState !== 'IDLE' && (
+        <GuidedTour
+          screenRef={tourScreenRef}
+          addBtnRef={tourAddBtnRef}
+          presencePillRef={tourPresenceRef}
+          onOpenQueue={openQueue}
+        />
+      )}
     </div>
   );
 }
