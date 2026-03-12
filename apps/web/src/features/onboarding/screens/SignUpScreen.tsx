@@ -81,7 +81,7 @@ export default function SignUpScreen({ step, specialty, onAdvance }: SignUpScree
   return (
     <div
       className="flex flex-col h-full"
-      style={{ '--ob-illustration-h': showEmailForm ? '28dvh' : '55dvh', '--ob-card-pad': '16px 20px 20px' } as React.CSSProperties}
+      style={{ '--ob-illustration-h': showEmailForm ? '44dvh' : '55dvh', '--ob-card-pad': '16px 20px 20px' } as React.CSSProperties}
     >
       <div className="relative flex-shrink-0">
         <ProgressBar step={step} />
