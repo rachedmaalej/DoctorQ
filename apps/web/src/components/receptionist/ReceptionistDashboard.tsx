@@ -123,7 +123,6 @@ export default function ReceptionistDashboard({
   // When the tour has ever run (active or just finished), bypass PRE_OPEN.
   // This ensures the user lands on the open dashboard after tour completion,
   // not the welcome screen (which would show because the real API queue is still PRE_OPEN).
-  const tourActive = tourState !== 'IDLE' && tourState !== 'DONE';
   const tourHasRun = tourState !== 'IDLE'; // includes DONE
   const showPreOpen = queueStatus === 'PRE_OPEN' && !tourHasRun;
   const showOpen = queueStatus === 'OPEN' || (tourHasRun && queueStatus === 'PRE_OPEN');

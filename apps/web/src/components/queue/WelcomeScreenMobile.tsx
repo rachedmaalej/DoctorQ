@@ -263,18 +263,6 @@ function WaitTrendRow({ delta, label }: { delta: number; label: string }) {
   );
 }
 
-function HeroSkeleton() {
-  return (
-    <div className="animate-pulse relative z-10">
-      <div className="h-[72px] w-28 bg-gray-100 rounded-xl mb-1" />
-      <div className="h-3 w-44 bg-gray-100 rounded mb-2.5" />
-      <div className="flex gap-1.5">
-        <div className="h-5 w-28 bg-gray-100 rounded-[6px]" />
-        <div className="h-5 w-28 bg-gray-100 rounded-[6px]" />
-      </div>
-    </div>
-  );
-}
 
 function NoDataHero() {
   const { t } = useTranslation();
