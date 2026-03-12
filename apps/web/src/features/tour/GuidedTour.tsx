@@ -133,6 +133,9 @@ export default function GuidedTour({
   const [showFill, setShowFill]  = useState(false);
   const [fillGo, setFillGo]      = useState(false);
 
+  // true once Mohamed appears — unlocks showDemoQueue during MODAL_GHOST tail
+  const [queueRevealPhase, setQueueRevealPhase] = useState(false);
+
   // presence
   const [showPresDD, setShowPresDD]           = useState(false);
   const [presentSelected, setPresentSelected] = useState(false);
@@ -466,8 +469,9 @@ export default function GuidedTour({
       setDemoPatients([{ name: 'Mohamed', wait: '0 min', visible: false }]);
       await delay(60);
       setDemoPatients([{ name: 'Mohamed', wait: '0 min', visible: true }]);
+      setQueueRevealPhase(true); // let the queue show during this pause
 
-      await delay(3000);
+      await delay(4500); // let user watch Mohamed in the queue
       if (seqVersion.current !== ver) return;
       setState('FILLING');
     };
@@ -479,8 +483,8 @@ export default function GuidedTour({
   useEffect(() => {
     if (tourState !== 'FILLING') return;
     const ver = seqVersion.current;
-    const t0 = setTimeout(() => setShowFill(true), 600);
-    const t1 = setTimeout(() => setFillGo(true), 800);
+    const t0 = setTimeout(() => setShowFill(true), 1800);
+    const t1 = setTimeout(() => setFillGo(true), 2000);
     const t2 = setTimeout(async () => {
       if (seqVersion.current !== ver) return;
       setShowFill(false);
@@ -608,7 +612,8 @@ export default function GuidedTour({
   // ── Derived display flags ────────────────────────────────────────────────
 
   const showDemoQueue = demoPatients.length > 0 &&
-    tourState !== 'IDLE' && tourState !== 'WELCOME' && tourState !== 'MODAL_GHOST';
+    tourState !== 'IDLE' && tourState !== 'WELCOME' &&
+    (tourState !== 'MODAL_GHOST' || queueRevealPhase);
 
   const showConsult = consultingName !== null &&
     (tourState === 'SPOTLIGHT_SHARE' || tourState === 'CTX_MENU' ||
