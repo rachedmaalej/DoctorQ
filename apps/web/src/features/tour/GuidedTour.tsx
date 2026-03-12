@@ -92,6 +92,7 @@ export default function GuidedTour({
 
   // ── Refs to elements inside the tour overlay ──────────────────────────────
   const firstKebabRef    = useRef<HTMLButtonElement>(null);
+  const lastKebabRef     = useRef<HTMLButtonElement>(null); // Olfa — spotlight target
   const whatsappItemRef  = useRef<HTMLDivElement>(null);
   const fakeNameInputRef = useRef<HTMLDivElement>(null);
   const fakePhoneInputRef= useRef<HTMLDivElement>(null);
@@ -566,7 +567,7 @@ export default function GuidedTour({
   useEffect(() => {
     if (tourState !== 'SPOTLIGHT_SHARE') return;
     const timer = setTimeout(() => {
-      const el = firstKebabRef.current;
+      const el = lastKebabRef.current;
       if (!el) return;
       showSpotlightOn(el, 5, 8, {
         title: t('tour.step_share_title'),
@@ -583,13 +584,13 @@ export default function GuidedTour({
   useEffect(() => {
     if (tourState !== 'CTX_MENU') return;
     const ver = seqVersion.current;
-    const firstPatient = demoPatients[0];
-    if (!firstPatient) return;
+    const lastPatient = demoPatients[demoPatients.length - 1]; // Olfa — last in queue
+    if (!lastPatient) return;
 
     disableSpotlight();
     setCtxPatient({
-      name: firstPatient.name,
-      sub:  `Position #2 · ${firstPatient.wait} d'attente`,
+      name: lastPatient.name,
+      sub:  `Position #${demoPatients.length} · ${lastPatient.wait} d'attente`,
     });
     setShowCtx(true);
 
@@ -788,7 +789,7 @@ export default function GuidedTour({
                         </div>
                         {/* Kebab — only first row is tappable during SPOTLIGHT_SHARE */}
                         <button
-                          ref={i === 0 ? firstKebabRef : undefined}
+                          ref={i === 0 ? firstKebabRef : i === 3 ? lastKebabRef : undefined}
                           onClick={() => {
                             useTourStore.getState().onKebabClick(i);
                           }}
@@ -797,7 +798,7 @@ export default function GuidedTour({
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                             color: '#9E9B90', background: 'none', border: 'none',
                             cursor: 'pointer',
-                            pointerEvents: tourState === 'SPOTLIGHT_SHARE' ? 'auto' : 'none',
+                            pointerEvents: (tourState === 'SPOTLIGHT_SHARE' && i === 3) ? 'auto' : 'none',
                           }}
                         >
                           <span className="material-symbols-rounded" style={{ fontSize: 20 }}>more_vert</span>
@@ -846,10 +847,22 @@ export default function GuidedTour({
                 </div>
                 <span className="material-symbols-rounded" style={{ fontSize: 18, color: '#9E9B90' }}>chevron_right</span>
               </div>
-              {/* WhatsApp — spotlight target */}
-              <div
+              {/* WhatsApp — spotlight target, real link */}
+              <button
                 ref={whatsappItemRef}
-                style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid #F5F4F0' }}
+                type="button"
+                onClick={() => {
+                  const statusUrl = `${window.location.origin}/patient/tour-demo`;
+                  const text = encodeURIComponent(`Voici le lien pour suivre votre position en file d'attente : ${statusUrl}`);
+                  window.open(`https://wa.me/?text=${text}`, '_blank', 'noopener,noreferrer');
+                }}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 12,
+                  padding: '12px 16px', borderBottom: '1px solid #F5F4F0',
+                  width: '100%', background: 'none', border: 'none',
+                  cursor: 'pointer', textAlign: 'left',
+                  pointerEvents: 'auto',
+                }}
               >
                 <div style={{ width: 40, height: 40, borderRadius: 10, background: '#E8F7EE', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="#25D366">
@@ -862,7 +875,7 @@ export default function GuidedTour({
                   <div style={{ fontSize: 12, color: '#9E9B90', marginTop: 1 }}>Partager le lien de suivi</div>
                 </div>
                 <span className="material-symbols-rounded" style={{ fontSize: 18, color: '#9E9B90' }}>chevron_right</span>
-              </div>
+              </button>
               {/* Remove */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px' }}>
                 <div style={{ width: 40, height: 40, borderRadius: 10, background: '#FDF0ED', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
