@@ -177,7 +177,7 @@ export default function SignUpScreen({ step, specialty, onAdvance }: SignUpScree
       step={step}
       illustrationSrc={ILLUSTRATION_PATHS.signup}
       illustrationAlt="Admin creating account"
-      illustrationHeight={showEmailForm ? '44dvh' : '55dvh'}
+      illustrationHeight={showEmailForm ? '35dvh' : '42dvh'}
     >
       <div className="flex flex-col overflow-y-auto" style={{ maxHeight: showEmailForm ? '65vh' : undefined }}>
         {/* Desktop step label */}

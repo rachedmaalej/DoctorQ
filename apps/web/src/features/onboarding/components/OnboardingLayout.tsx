@@ -26,7 +26,7 @@ export default function OnboardingLayout({
   illustrationAlt,
   children,
   headerRight,
-  illustrationHeight = '48dvh',
+  illustrationHeight = '42dvh',
 }: OnboardingLayoutProps) {
   return (
     <div className="flex flex-col h-full md:flex-row">
@@ -70,7 +70,7 @@ export default function OnboardingLayout({
       {/* ── Mobile: overlapping white card ── */}
       <div className="md:hidden relative z-10 flex-1 flex flex-col justify-center"
         style={{
-          marginTop: '-20px',
+          marginTop: '0px',
           backgroundColor: 'var(--ob-card-bg)',
           borderRadius: 'var(--ob-card-radius) var(--ob-card-radius) 0 0',
           padding: 'var(--ob-card-pad)',
