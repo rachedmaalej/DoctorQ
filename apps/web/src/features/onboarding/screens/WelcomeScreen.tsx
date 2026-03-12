@@ -20,7 +20,7 @@ export default function WelcomeScreen({ step, onAdvance }: WelcomeScreenProps) {
   return (
     <div
       className="flex flex-col h-full"
-      style={{ '--ob-illustration-h': '62vh' } as React.CSSProperties}
+      style={{ '--ob-illustration-h': '55dvh' } as React.CSSProperties}
     >
       <div className="relative">
         <ProgressBar step={step} />

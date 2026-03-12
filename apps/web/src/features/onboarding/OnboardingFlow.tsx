@@ -146,7 +146,7 @@ export default function OnboardingFlow() {
   }
 
   return (
-    <div className="fixed inset-0 bg-white overflow-hidden" style={{ fontFamily: 'var(--ob-font)' }}>
+    <div className="fixed top-0 left-0 right-0 bg-white overflow-hidden" style={{ height: '100dvh', fontFamily: 'var(--ob-font)' }}>
       <AnimatePresence initial={false} custom={direction} mode="wait">
         <motion.div
           key={currentStep}

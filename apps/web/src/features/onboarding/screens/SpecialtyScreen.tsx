@@ -49,7 +49,7 @@ export default function SpecialtyScreen({
   return (
     <div
       className="flex flex-col h-full relative"
-      style={{ '--ob-illustration-h': '62vh', '--ob-card-pad': '16px 20px 20px' } as React.CSSProperties}
+      style={{ '--ob-illustration-h': '55dvh', '--ob-card-pad': '16px 20px 20px' } as React.CSSProperties}
     >
       <div className="relative">
         <ProgressBar step={step} />
