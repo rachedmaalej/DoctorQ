@@ -93,7 +93,7 @@ export default function GuidedTour({
   // ── Refs to elements inside the tour overlay ──────────────────────────────
   const firstKebabRef    = useRef<HTMLButtonElement>(null);
   const lastKebabRef     = useRef<HTMLButtonElement>(null); // Olfa — spotlight target
-  const whatsappItemRef  = useRef<HTMLDivElement>(null);
+  const whatsappItemRef  = useRef<HTMLButtonElement>(null);
   const fakeNameInputRef = useRef<HTMLDivElement>(null);
   const fakePhoneInputRef= useRef<HTMLDivElement>(null);
   const fakeAddBtnRef    = useRef<HTMLDivElement>(null);
