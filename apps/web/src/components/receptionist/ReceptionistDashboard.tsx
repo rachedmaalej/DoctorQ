@@ -59,7 +59,8 @@ export default function ReceptionistDashboard({
   const tourScreenRef    = useRef<HTMLDivElement>(null);
   const tourAddBtnRef    = useRef<HTMLButtonElement>(null);
   const tourPresenceRef  = useRef<HTMLButtonElement>(null);
-  const tourState        = useTourStore(s => s.state);
+  const tourState          = useTourStore(s => s.state);
+  const hasCompletedTour   = useTourStore(s => s.hasCompletedTour);
 
   // Close drawer when triggered from parent (e.g. settings backdrop dismiss)
   useEffect(() => {
@@ -123,7 +124,7 @@ export default function ReceptionistDashboard({
   // When the tour has ever run (active or just finished), bypass PRE_OPEN.
   // This ensures the user lands on the open dashboard after tour completion,
   // not the welcome screen (which would show because the real API queue is still PRE_OPEN).
-  const tourHasRun = tourState !== 'IDLE'; // includes DONE
+  const tourHasRun = tourState !== 'IDLE' || hasCompletedTour;
   const showPreOpen = queueStatus === 'PRE_OPEN' && !tourHasRun;
   const showOpen = queueStatus === 'OPEN' || (tourHasRun && queueStatus === 'PRE_OPEN');
   const showClosing = queueStatus === 'CLOSING' && !isAllDone;
