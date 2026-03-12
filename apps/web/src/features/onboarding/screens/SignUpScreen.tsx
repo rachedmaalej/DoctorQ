@@ -81,9 +81,9 @@ export default function SignUpScreen({ step, specialty, onAdvance }: SignUpScree
   return (
     <div
       className="flex flex-col h-full"
-      style={{ '--ob-illustration-h': '62vh', '--ob-card-pad': '16px 20px 20px' } as React.CSSProperties}
+      style={{ '--ob-illustration-h': showEmailForm ? '30vh' : '62vh', '--ob-card-pad': '16px 20px 20px' } as React.CSSProperties}
     >
-      <div className="relative">
+      <div className="relative flex-shrink-0">
         <ProgressBar step={step} />
         <IllustrationPanel
           src={ILLUSTRATION_PATHS.signup}
@@ -92,7 +92,7 @@ export default function SignUpScreen({ step, specialty, onAdvance }: SignUpScree
       </div>
 
       <ContentCard>
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col overflow-y-auto" style={{ maxHeight: showEmailForm ? '65vh' : undefined }}>
           <h1
             className="text-[20px] font-bold leading-tight mb-[3px]"
             style={{ fontFamily: 'var(--ob-font)', color: 'var(--ob-brand-text)' }}
