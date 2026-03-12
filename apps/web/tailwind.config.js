@@ -165,6 +165,22 @@ export default {
           from: { opacity: '0', transform: 'translateY(-8px) scale(0.98)' },
           to:   { opacity: '1', transform: 'translateY(0) scale(1)' },
         },
+        'ob-card-in': {
+          from: { opacity: '0', transform: 'translateY(18px) scale(0.98)' },
+          to:   { opacity: '1', transform: 'translateY(0) scale(1)' },
+        },
+        'ob-pulse-dot': {
+          '0%, 100%': { opacity: '1', transform: 'scale(1)', boxShadow: '0 0 0 0 rgba(27,107,69,0.4)' },
+          '50%':      { opacity: '0.6', transform: 'scale(1.25)', boxShadow: '0 0 0 5px rgba(27,107,69,0)' },
+        },
+        'ob-toast-pop': {
+          from: { opacity: '0', transform: 'scale(0.7) translateY(-6px)' },
+          to:   { opacity: '1', transform: 'scale(1) translateY(0)' },
+        },
+        'ob-screen-in': {
+          from: { opacity: '0', transform: 'translateY(20px) scale(0.97)' },
+          to:   { opacity: '1', transform: 'translateY(0) scale(1)' },
+        },
       },
       animation: {
         'fade-in-up': 'fadeInUp 300ms ease-out both',
@@ -175,6 +191,10 @@ export default {
         'pulse-ring': 'pulse-ring 2s ease-in-out infinite',
         'menu-pop': 'menu-pop 0.12s cubic-bezier(0.22, 1, 0.36, 1)',
         'dropdown-in': 'dropdown-in 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        'ob-card-in': 'ob-card-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both',
+        'ob-pulse-dot': 'ob-pulse-dot 1.9s ease infinite',
+        'ob-toast-pop': 'ob-toast-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both',
+        'ob-screen-in': 'ob-screen-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both',
       },
     },
   },

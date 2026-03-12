@@ -56,7 +56,7 @@ export default function PSContextCard({
 
   // ─── Relax Phase (States 1-2: position ≥ 4) ───
   if (phase === 'relax') {
-    const avgDisplay = avgConsultMins ? `~${avgConsultMins} min` : '~20 min';
+    const avgDisplay = avgConsultMins != null && avgConsultMins > 0 ? `~${avgConsultMins} min` : '~10 min';
 
     // Contextual tip varies by position
     const tipIcon = peopleAhead >= 5 ? 'coffee' : 'schedule';

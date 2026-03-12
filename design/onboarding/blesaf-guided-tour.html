@@ -1,0 +1,1682 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BleSaf · Guided Onboarding Tour</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+
+/* ═══════════════════════════════════════════════════════
+   DESIGN TOKENS
+═══════════════════════════════════════════════════════ */
+:root {
+  --sage:    #EAE8E3;
+  --teal:    #356B58;
+  --teal-l:  #3E7E68;
+  --forest:  #1B2D25;
+  --ivory:   #F7F5F0;
+  --amber:   #E8A44A;
+  --red:     #D95F4B;
+  --muted:   #8C9490;
+  --border:  #D8D4CC;
+  --white:   #FFFFFF;
+  --green:   #52B788;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--forest);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  min-height: 100vh;
+}
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 70%, rgba(53,107,88,.15) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 70% at 85% 15%, rgba(53,107,88,.08) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+/* ─── PAGE CHROME ─────────────────────────────────────── */
+.page-top {
+  position: fixed; top: 0; left: 0; right: 0;
+  padding: 18px 30px;
+  display: flex; align-items: center; justify-content: space-between; z-index: 20;
+}
+.brand { display: flex; align-items: center; gap: 10px; }
+.brand-pill {
+  background: var(--teal); color: #fff;
+  font-family: 'Syne', sans-serif; font-weight: 800; font-size: 13px;
+  padding: 4px 11px; border-radius: 5px;
+}
+.brand-lbl { font-size: 11.5px; color: rgba(247,245,240,.35); }
+.step-track { display: flex; align-items: center; gap: 10px; }
+.step-dots  { display: flex; gap: 5px; }
+.sd {
+  height: 5px; width: 5px; border-radius: 3px;
+  background: rgba(247,245,240,.18);
+  transition: all .4s cubic-bezier(.4,0,.2,1);
+}
+.sd.done   { background: rgba(53,107,88,.6); }
+.sd.active { background: var(--teal); width: 16px; box-shadow: 0 0 8px rgba(53,107,88,.7); }
+.step-lbl  { font-size: 11px; color: rgba(247,245,240,.32); min-width: 120px; text-align: right; transition: opacity .3s; }
+
+/* ─── PHONE ───────────────────────────────────────────── */
+.phone-stage { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+.phone {
+  width: 272px;
+  border-radius: 36px;
+  background: var(--sage);
+  box-shadow:
+    0 0 0 8px #121E17,
+    0 0 0 11px #0C1710,
+    0 48px 100px rgba(0,0,0,.65),
+    0 12px 28px rgba(0,0,0,.35);
+  overflow: hidden; position: relative;
+}
+.notch { height: 26px; background: #0C1710; display: flex; align-items: center; justify-content: center; }
+.notch-i { width: 72px; height: 9px; background: #070E09; border-radius: 9px; }
+
+/* ═══════════════════════════════════════════════════════
+   SCREEN  — 272 × 560 px — coordinate reference space
+═══════════════════════════════════════════════════════ */
+.screen {
+  width: 272px; height: 560px;
+  background: var(--sage);
+  position: relative; overflow: hidden;
+  display: flex; flex-direction: column;
+}
+
+/* ─── UI TOPBAR  (y=0–38) ─────────────────────────────── */
+.ui-topbar {
+  height: 38px; flex-shrink: 0;
+  background: var(--ivory); border-bottom: 1px solid var(--border);
+  padding: 0 13px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.ui-tb-name { font-size: 13px; font-weight: 600; color: var(--forest); }
+.ui-tb-right { display: flex; align-items: center; gap: 8px; }
+.ui-lang { font-size: 11px; color: var(--muted); }
+/* presence pill — target for Step 5 */
+.presence-pill {
+  display: flex; align-items: center; gap: 5px;
+  background: var(--ivory); border: 1px solid var(--border);
+  border-radius: 20px; padding: 3px 8px 3px 6px;
+  cursor: pointer; transition: background .2s;
+}
+.presence-pill:hover { background: var(--sage); }
+.pres-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--red); transition: background .4s; }
+.pres-dot.on { background: var(--green); }
+.pres-chev { font-size: 9px; color: var(--muted); }
+.ui-hamburger { font-size: 15px; color: var(--muted); cursor: pointer; }
+
+/* ─── UI STATS  (y=38–88) ────────────────────────────── */
+.ui-stats {
+  height: 50px; flex-shrink: 0;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 1px; background: var(--border);
+}
+.ui-stat { background: var(--ivory); padding: 8px 12px; display: flex; flex-direction: column; justify-content: center; }
+.ui-sl { font-size: 7.5px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--muted); margin-bottom: 1px; }
+.ui-sv { font-size: 20px; font-weight: 700; color: var(--forest); line-height: 1; }
+.ui-ss { font-size: 7.5px; color: var(--muted); margin-top: 1px; }
+
+/* ─── SEARCH ROW  (y=88–138) ─────────────────────────── */
+.ui-search-row {
+  height: 50px; flex-shrink: 0;
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px;
+  background: var(--ivory); border-bottom: 1px solid var(--border);
+}
+.ui-search-f {
+  flex: 1; height: 34px;
+  background: var(--sage); border: 1px solid var(--border);
+  border-radius: 10px; padding: 0 11px;
+  font-size: 11.5px; color: var(--muted); font-family: 'DM Sans', sans-serif;
+  display: flex; align-items: center;
+}
+/* ADD BUTTON — target for Step 1 */
+#add-btn {
+  width: 36px; height: 36px; flex-shrink: 0;
+  background: var(--teal); border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: transform .12s, background .15s;
+  color: #fff; font-size: 11px; font-weight: 600; gap: 1px;
+}
+#add-btn:hover { background: var(--teal-l); transform: scale(1.05); }
+#add-btn svg { width: 18px; height: 18px; }
+
+/* ─── DYNAMIC AREA ────────────────────────────────────── */
+.dynamic-area { flex: 1; overflow: hidden; position: relative; display: flex; flex-direction: column; }
+
+.sec-lbl {
+  height: 24px; flex-shrink: 0;
+  font-size: 7.5px; font-weight: 700; letter-spacing: .9px;
+  text-transform: uppercase; color: var(--muted);
+  padding: 0 13px; background: var(--ivory);
+  display: flex; align-items: flex-end; padding-bottom: 3px;
+}
+
+/* Consultation card */
+.consult-section { flex-shrink: 0; }
+.cur-card {
+  background: var(--teal); margin: 0 10px 6px;
+  border-radius: 11px; padding: 11px 13px; color: #fff;
+  flex-shrink: 0;
+}
+.cur-lbl { font-size: 7.5px; font-weight: 700; letter-spacing: .9px; text-transform: uppercase; opacity: .6; margin-bottom: 3px; }
+.cur-name { font-size: 17px; font-weight: 700; margin-bottom: 1px; }
+.cur-sub  { font-size: 9px; opacity: .6; margin-bottom: 9px; }
+.cur-acts { display: flex; gap: 7px; }
+.btn-done {
+  background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.25);
+  color: #fff; padding: 5px 12px; border-radius: 7px;
+  font-size: 10px; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer;
+  display: flex; align-items: center; gap: 4px;
+}
+.btn-tel {
+  width: 27px; height: 27px;
+  background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.25);
+  border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 12px;
+}
+
+/* Queue items */
+.queue-section { flex-shrink: 0; }
+.queue-list { flex-shrink: 0; }
+.qi {
+  height: 44px; flex-shrink: 0;
+  display: flex; align-items: center; gap: 8px;
+  padding: 0 12px; background: var(--ivory);
+  border-bottom: 1px solid var(--border);
+  opacity: 0; transform: translateX(-10px);
+  transition: opacity .35s ease, transform .35s ease;
+}
+.qi.visible { opacity: 1; transform: translateX(0); }
+.qn {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--sage); border: 1.5px solid var(--border);
+  font-size: 9px; font-weight: 700; color: var(--muted);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.qi-info { flex: 1; overflow: hidden; }
+.qi-name { font-size: 11.5px; font-weight: 600; color: var(--forest); }
+.qi-sub  { font-size: 9px; color: var(--muted); display: flex; align-items: center; gap: 3px; margin-top: 1px; }
+.dot { width: 5px; height: 5px; border-radius: 50%; display: inline-block; }
+.dg { background: #52B788; } .da { background: var(--amber); }
+.qi-acts { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+.q-ico {
+  width: 24px; height: 24px; border-radius: 6px;
+  background: var(--sage); display: flex; align-items: center; justify-content: center;
+  font-size: 11px; cursor: pointer; color: var(--muted);
+  border: 1px solid transparent; transition: border-color .15s;
+}
+
+/* ─── BOTTOM BUTTON  (absolute, always at bottom) ─────── */
+.bot-area { position: absolute; bottom: 12px; left: 12px; right: 12px; }
+.bot-btn {
+  background: var(--teal); border-radius: 14px; height: 48px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 12.5px; font-weight: 700;
+  cursor: pointer; gap: 8px;
+  transition: background .15s, opacity .3s;
+  box-shadow: 0 4px 16px rgba(53,107,88,.35);
+}
+.bot-btn:hover { background: var(--teal-l); }
+.bot-btn.dimmed { opacity: .4; pointer-events: none; }
+.bot-name { opacity: .65; font-weight: 400; font-size: 11.5px; }
+
+/* ═══════════════════════════════════════════════════════
+   PRESENCE DROPDOWN  (z=50)
+═══════════════════════════════════════════════════════ */
+.pres-dropdown {
+  position: absolute; top: 34px; right: 12px;
+  width: 160px;
+  background: var(--white);
+  border-radius: 12px;
+  box-shadow: 0 8px 28px rgba(0,0,0,.18), 0 0 0 1px var(--border);
+  z-index: 50; overflow: hidden;
+  opacity: 0; transform: scale(.9) translateY(-6px);
+  transform-origin: top right;
+  transition: opacity .22s ease, transform .22s cubic-bezier(.34,1.56,.64,1);
+  pointer-events: none;
+}
+.pres-dropdown.show { opacity: 1; transform: scale(1) translateY(0); pointer-events: all; }
+.pres-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 14px; font-size: 12.5px; font-weight: 500;
+  color: var(--forest); cursor: pointer;
+  transition: background .15s;
+  border-bottom: 1px solid var(--border);
+}
+.pres-item:last-child { border: none; }
+.pres-item:hover { background: var(--sage); }
+.pres-item .item-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.pres-item .item-check { margin-left: auto; font-size: 11px; color: var(--teal); }
+.pres-item.selected { background: #E8F5F022; }
+
+/* ═══════════════════════════════════════════════════════
+   MODAL  (z=60)
+═══════════════════════════════════════════════════════ */
+.modal-backdrop {
+  position: absolute; inset: 0; z-index: 60;
+  background: rgba(10,20,14,.55);
+  opacity: 0; pointer-events: none;
+  transition: opacity .3s ease;
+}
+.modal-backdrop.show { opacity: 1; pointer-events: all; }
+
+.modal-sheet {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: var(--white); border-radius: 20px 20px 0 0;
+  padding: 0 0 16px;
+  transform: translateY(100%);
+  transition: transform .4s cubic-bezier(.4,0,.2,1);
+  box-shadow: 0 -8px 40px rgba(0,0,0,.2);
+}
+.modal-sheet.open { transform: translateY(0); }
+
+.modal-handle {
+  width: 36px; height: 4px; background: var(--border);
+  border-radius: 2px; margin: 12px auto 14px;
+}
+.modal-title { font-size: 18px; font-weight: 700; color: var(--forest); padding: 0 16px 14px; }
+.modal-field-lbl {
+  font-size: 9px; font-weight: 700; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--muted);
+  padding: 0 16px 6px;
+  display: flex; align-items: center; gap: 5px;
+}
+.modal-input {
+  margin: 0 12px 12px;
+  background: var(--sage); border: 1.5px solid var(--border);
+  border-radius: 10px; height: 40px;
+  padding: 0 36px 0 12px; position: relative;
+  display: flex; align-items: center;
+  transition: border-color .2s, box-shadow .2s;
+}
+.modal-input.focused {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px rgba(53,107,88,.1);
+  background: var(--white);
+}
+.modal-input-text { font-size: 12px; font-family: 'DM Sans', sans-serif; color: var(--forest); flex: 1; }
+.modal-input-ph   { font-size: 12px; color: var(--muted); }
+.modal-input-icon { position: absolute; right: 10px; font-size: 12px; color: var(--muted); }
+.modal-type-row {
+  display: flex; gap: 6px; padding: 0 12px 12px;
+}
+.modal-type-btn {
+  flex: 1; height: 36px; border-radius: 9px;
+  border: 1.5px solid var(--border); background: var(--sage);
+  font-size: 11px; font-weight: 500; color: var(--muted);
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+  font-family: 'DM Sans', sans-serif; cursor: pointer;
+  transition: all .15s;
+}
+.modal-type-btn.selected {
+  background: var(--ivory); border-color: var(--teal); color: var(--forest); font-weight: 600;
+}
+.phone-row { display: flex; gap: 6px; margin: 0 12px 4px; }
+.phone-prefix {
+  width: 52px; height: 40px;
+  background: var(--sage); border: 1.5px solid var(--border);
+  border-radius: 10px; display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 600; color: var(--forest); flex-shrink: 0;
+}
+.phone-digits {
+  flex: 1; height: 40px;
+  background: var(--sage); border: 1.5px solid var(--border);
+  border-radius: 10px; padding: 0 36px 0 12px;
+  display: flex; align-items: center; position: relative;
+  transition: border-color .2s, box-shadow .2s;
+}
+.phone-digits.focused {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px rgba(53,107,88,.1);
+  background: var(--white);
+}
+.phone-digits-text { font-size: 12px; font-family: 'DM Sans', sans-serif; color: var(--forest); flex: 1; }
+.phone-digits-ph   { font-size: 12px; color: var(--muted); }
+.phone-counter { position: absolute; right: 10px; font-size: 9px; color: var(--muted); }
+.phone-hint { font-size: 9.5px; color: var(--muted); padding: 0 12px 10px; display: flex; align-items: center; gap: 4px; }
+.priority-row {
+  margin: 0 12px 12px; background: #FFF8EC;
+  border: 1px solid #F3D89A; border-radius: 10px;
+  padding: 9px 12px;
+  display: flex; align-items: center; gap: 10px;
+}
+.priority-icon { color: var(--amber); font-size: 13px; flex-shrink: 0; }
+.priority-text { flex: 1; }
+.priority-t { font-size: 11.5px; font-weight: 600; color: #7D5500; }
+.priority-s { font-size: 9.5px; color: #A07020; margin-top: 1px; }
+.priority-toggle {
+  width: 34px; height: 19px; border-radius: 10px; background: var(--border);
+  position: relative; flex-shrink: 0;
+}
+.modal-add-btn {
+  margin: 4px 12px 0;
+  background: var(--teal); border-radius: 11px; height: 44px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 13px; font-weight: 700; gap: 8px;
+  cursor: pointer; font-family: 'DM Sans', sans-serif;
+  border: none; width: calc(100% - 24px);
+  transition: background .15s, transform .12s;
+}
+.modal-add-btn:hover { background: var(--teal-l); }
+.modal-add-btn.pressed { transform: scale(.97); }
+
+/* typing cursor blink */
+.blink { animation: blink-cur .6s ease-in-out infinite; }
+@keyframes blink-cur { 0%,100% { opacity:1; } 50% { opacity:0; } }
+
+/* ═══════════════════════════════════════════════════════
+   CONTEXT MENU SHEET  (z=65)
+═══════════════════════════════════════════════════════ */
+.ctx-backdrop {
+  position: absolute; inset: 0; z-index: 65;
+  background: rgba(10,20,14,.45);
+  opacity: 0; pointer-events: none;
+  transition: opacity .25s;
+}
+.ctx-backdrop.show { opacity: 1; pointer-events: all; }
+.ctx-sheet {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: var(--white); border-radius: 20px 20px 0 0;
+  transform: translateY(100%);
+  transition: transform .38s cubic-bezier(.4,0,.2,1);
+}
+.ctx-sheet.open { transform: translateY(0); }
+.ctx-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 12px auto; }
+.ctx-header { padding: 0 16px 12px; border-bottom: 1px solid var(--border); }
+.ctx-name { font-size: 16px; font-weight: 700; color: var(--forest); }
+.ctx-sub  { font-size: 10.5px; color: var(--muted); margin-top: 2px; }
+.ctx-item {
+  display: flex; align-items: center; gap: 13px;
+  padding: 13px 16px; border-bottom: 1px solid var(--border);
+  cursor: pointer; transition: background .15s;
+}
+.ctx-item:last-child { border: none; }
+.ctx-item:hover { background: var(--sage); }
+.ctx-ico {
+  width: 34px; height: 34px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; flex-shrink: 0;
+}
+.ico-red    { background: #FEE9E7; }
+.ico-blue   { background: #E8F0FE; }
+.ico-green  { background: #E8F5EC; }
+.ico-salmon { background: #FEE9E7; }
+.ctx-item-text { flex: 1; }
+.ctx-item-t { font-size: 12.5px; font-weight: 600; color: var(--forest); }
+.ctx-item-s { font-size: 10.5px; color: var(--muted); margin-top: 1px; }
+.ctx-arrow  { font-size: 11px; color: var(--muted); }
+
+/* ═══════════════════════════════════════════════════════
+   GHOST CURSOR  (z=70)
+═══════════════════════════════════════════════════════ */
+.ghost-cursor {
+  position: absolute; z-index: 70;
+  width: 22px; height: 22px;
+  pointer-events: none;
+  display: none;
+  transition: left .5s cubic-bezier(.4,0,.2,1), top .5s cubic-bezier(.4,0,.2,1);
+  will-change: left, top;
+}
+.ghost-cursor svg { width: 22px; height: 22px; filter: drop-shadow(0 2px 5px rgba(0,0,0,.5)); }
+.cursor-ripple {
+  position: absolute; inset: -5px; border-radius: 50%;
+  border: 2px solid rgba(53,107,88,.7); opacity: 0;
+}
+.cursor-ripple.go { animation: cr-go .4s ease forwards; }
+@keyframes cr-go {
+  0%   { opacity:.9; transform:scale(1); }
+  100% { opacity:0;  transform:scale(2.6); }
+}
+
+/* ═══════════════════════════════════════════════════════
+   SPOTLIGHT SYSTEM  (z=100–103)
+═══════════════════════════════════════════════════════ */
+.sp-sys { position: absolute; inset: 0; z-index: 100; pointer-events: none; }
+.sp-svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.sp-border {
+  position: absolute; pointer-events: none; z-index: 102;
+  border: 2px solid var(--teal); opacity: 0; border-radius: 14px;
+  box-shadow: 0 0 0 4px rgba(53,107,88,.12), 0 0 20px rgba(53,107,88,.55), 0 0 44px rgba(53,107,88,.2);
+  transition: opacity .25s;
+  will-change: left, top, width, height;
+}
+.sp-border.on { opacity: 1; }
+@keyframes sp-breathe {
+  0%,100% { box-shadow: 0 0 0 3px rgba(53,107,88,.1), 0 0 16px rgba(53,107,88,.5), 0 0 36px rgba(53,107,88,.18); }
+  50%      { box-shadow: 0 0 0 5px rgba(53,107,88,.2), 0 0 28px rgba(53,107,88,.78), 0 0 56px rgba(53,107,88,.28); }
+}
+.sp-border.breathe { animation: sp-breathe 2.2s ease-in-out infinite; }
+
+/* ─── Tooltip ─────────────────────────────────────────── */
+.sp-tooltip {
+  position: absolute; width: 220px;
+  background: var(--forest); border-radius: 14px;
+  padding: 15px 17px; pointer-events: all; z-index: 103;
+  opacity: 0; transform: translateY(12px) scale(.93); filter: blur(4px);
+  box-shadow: 0 24px 60px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,.07);
+}
+.sp-tooltip[data-arrow="up"]::before {
+  content: ''; position: absolute;
+  bottom: 100%; left: 50%; transform: translateX(-50%);
+  border: 7px solid transparent; border-bottom-color: var(--forest);
+}
+.sp-tooltip[data-arrow="down"]::before {
+  content: ''; position: absolute;
+  top: 100%; left: 50%; transform: translateX(-50%);
+  border: 7px solid transparent; border-top-color: var(--forest);
+}
+.sp-tooltip[data-arrow="down-right"]::before {
+  content: ''; position: absolute;
+  top: 100%; right: 20px;
+  border: 7px solid transparent; border-top-color: var(--forest);
+}
+@keyframes tip-in  { from { opacity:0; transform:translateY(12px) scale(.93); filter:blur(4px); } to { opacity:1; transform:none; filter:none; } }
+@keyframes tip-out { from { opacity:1; transform:none; filter:none; } to { opacity:0; transform:translateY(-8px) scale(.96); filter:blur(3px); } }
+.sp-tooltip.entering { animation: tip-in  .5s cubic-bezier(.34,1.56,.64,1) forwards; }
+.sp-tooltip.exiting  { animation: tip-out .22s ease forwards; }
+
+.tip-meta { font-size: 9.5px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--teal); display: flex; align-items: center; justify-content: space-between; margin-bottom: 7px; }
+.tip-dots { display: flex; gap: 4px; }
+.tip-d { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,.18); transition: background .25s, width .25s, border-radius .25s; }
+.tip-d.on { background: var(--teal); width: 13px; border-radius: 3px; box-shadow: 0 0 6px rgba(53,107,88,.8); }
+.tip-title { font-size: 13.5px; font-weight: 700; color: #fff; margin-bottom: 6px; line-height: 1.3; }
+.tip-desc  { font-size: 11.5px; line-height: 1.58; color: rgba(247,245,240,.58); margin-bottom: 14px; }
+.tip-actions { display: flex; align-items: center; justify-content: space-between; }
+.tip-skip { font-size: 11px; color: rgba(255,255,255,.28); cursor: pointer; border: none; background: none; font-family: 'DM Sans', sans-serif; transition: color .15s; }
+.tip-skip:hover { color: rgba(255,255,255,.55); }
+.tip-next {
+  background: var(--teal); color: #fff; border: none;
+  padding: 7px 15px; border-radius: 8px; font-size: 11.5px; font-weight: 600;
+  font-family: 'DM Sans', sans-serif; cursor: pointer;
+  display: flex; align-items: center; gap: 5px;
+  transition: background .15s, transform .12s; box-shadow: 0 3px 10px rgba(53,107,88,.4);
+}
+.tip-next:hover { background: var(--teal-l); transform: translateY(-1px); }
+/* "click the button" variant — no action button, just a nudge indicator */
+.tip-nudge {
+  background: rgba(53,107,88,.18); border: 1px solid rgba(53,107,88,.35);
+  border-radius: 8px; padding: 7px 12px; font-size: 11px; color: rgba(247,245,240,.65);
+  display: flex; align-items: center; gap: 6px;
+}
+.nudge-arrow { animation: nudge-bob .9s ease-in-out infinite; display: inline-block; }
+@keyframes nudge-bob { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-3px); } }
+
+/* ═══════════════════════════════════════════════════════
+   WELCOME OVERLAY  (z=150)
+═══════════════════════════════════════════════════════ */
+.welcome-overlay {
+  position: absolute; inset: 0; z-index: 150;
+  background: rgba(7,14,9,.82);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  opacity: 0; pointer-events: none;
+  transition: opacity .5s ease;
+}
+.welcome-overlay.show { opacity: 1; pointer-events: all; }
+.welcome-card {
+  background: var(--forest); border-radius: 18px;
+  padding: 24px 22px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,.07);
+  text-align: center;
+  transform: scale(.93); opacity: 0;
+  transition: transform .4s cubic-bezier(.34,1.56,.64,1) .1s, opacity .4s ease .1s;
+}
+.welcome-overlay.show .welcome-card { transform: scale(1); opacity: 1; }
+.welcome-ico {
+  width: 52px; height: 52px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--teal), var(--green));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; margin: 0 auto 14px;
+  box-shadow: 0 8px 24px rgba(53,107,88,.4);
+}
+.welcome-card h3 {
+  font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 800;
+  color: #fff; margin-bottom: 9px; line-height: 1.2;
+}
+.welcome-card p {
+  font-size: 12px; line-height: 1.6;
+  color: rgba(247,245,240,.58); margin-bottom: 18px;
+}
+.welcome-btn {
+  background: var(--teal); color: #fff; border: none;
+  padding: 10px 22px; border-radius: 10px;
+  font-size: 12.5px; font-weight: 700; font-family: 'DM Sans', sans-serif;
+  cursor: pointer; width: 100%;
+  transition: background .15s, transform .12s;
+  box-shadow: 0 4px 14px rgba(53,107,88,.4);
+}
+.welcome-btn:hover { background: var(--teal-l); transform: translateY(-1px); }
+
+/* ═══════════════════════════════════════════════════════
+   FILL MESSAGE OVERLAY  (z=150)
+═══════════════════════════════════════════════════════ */
+.fill-overlay {
+  position: absolute; inset: 0; z-index: 150;
+  background: rgba(7,14,9,.82);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  opacity: 0; pointer-events: none;
+  transition: opacity .4s ease;
+}
+.fill-overlay.show { opacity: 1; }
+.fill-card {
+  background: var(--forest); border-radius: 18px;
+  padding: 22px 20px; text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,.07);
+}
+.fill-card-ico { font-size: 28px; margin-bottom: 12px; }
+.fill-card h4 { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 800; color: #fff; margin-bottom: 8px; }
+.fill-card p  { font-size: 11.5px; line-height: 1.6; color: rgba(247,245,240,.55); }
+.fill-progress {
+  margin-top: 16px; height: 3px; background: rgba(255,255,255,.1); border-radius: 2px; overflow: hidden;
+}
+.fill-bar {
+  height: 100%; background: var(--teal); border-radius: 2px; width: 0%;
+  transition: width 2.4s linear;
+}
+.fill-bar.go { width: 100%; }
+
+/* ═══════════════════════════════════════════════════════
+   DONE SCREEN  (z=200)
+═══════════════════════════════════════════════════════ */
+.done-screen {
+  position: absolute; inset: 0; z-index: 200;
+  background: var(--ivory);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 28px; text-align: center;
+  opacity: 0; transform: scale(.96); pointer-events: none;
+  transition: opacity .4s ease, transform .4s cubic-bezier(.34,1.56,.64,1);
+}
+.done-screen.on { opacity: 1; transform: scale(1); pointer-events: all; }
+.done-ico {
+  width: 60px; height: 60px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--teal), var(--green));
+  display: flex; align-items: center; justify-content: center; font-size: 26px;
+  margin: 0 auto 16px;
+  box-shadow: 0 8px 28px rgba(53,107,88,.38);
+  animation: ico-pop .5s cubic-bezier(.34,1.56,.64,1) .1s both;
+}
+@keyframes ico-pop { from { transform:scale(0); } to { transform:scale(1); } }
+.done-screen h3 { font-family: 'Syne', sans-serif; font-size: 19px; font-weight: 800; color: var(--forest); margin-bottom: 8px; }
+.done-screen p  { font-size: 12px; color: var(--muted); line-height: 1.6; margin-bottom: 22px; }
+.done-btn {
+  background: var(--forest); color: #fff; border: none;
+  padding: 11px 24px; border-radius: 11px;
+  font-size: 13px; font-weight: 700; font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+}
+.done-btn:hover { background: #243D31; }
+
+/* ─── MISC ────────────────────────────────────────────── */
+.replay-btn {
+  background: rgba(53,107,88,.14); border: 1px solid rgba(53,107,88,.28);
+  color: rgba(247,245,240,.48); padding: 7px 18px; border-radius: 20px;
+  font-size: 11.5px; font-weight: 500; font-family: 'DM Sans', sans-serif;
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+  transition: all .2s; opacity: 0; pointer-events: none;
+}
+.replay-btn.on { opacity: 1; pointer-events: all; }
+.replay-btn:hover { background: rgba(53,107,88,.28); color: rgba(247,245,240,.8); }
+.status-line { font-size: 11px; color: rgba(247,245,240,.28); min-height: 16px; font-style: italic; }
+
+/* Row appear animation for auto-fill */
+@keyframes row-in { from { opacity:0; transform:translateX(-12px); } to { opacity:1; transform:none; } }
+.row-appear { animation: row-in .35s cubic-bezier(.34,1.56,.64,1) forwards; }
+
+</style>
+</head>
+<body>
+
+<!-- ─── PAGE CHROME ──────────────────────────────────────── -->
+<div class="page-top">
+  <div class="brand">
+    <span class="brand-pill">BleSaf</span>
+    <span class="brand-lbl">Visite guidée · Tableau de bord</span>
+  </div>
+  <div class="step-track">
+    <div class="step-dots">
+      <div class="sd" id="sd-0"></div>
+      <div class="sd" id="sd-1"></div>
+      <div class="sd" id="sd-2"></div>
+      <div class="sd" id="sd-3"></div>
+      <div class="sd" id="sd-4"></div>
+    </div>
+    <span class="step-lbl" id="step-lbl">Démarrage…</span>
+  </div>
+</div>
+
+<!-- ─── PHONE ──────────────────────────────────────────────── -->
+<div class="phone-stage">
+<div class="phone">
+  <div class="notch"><div class="notch-i"></div></div>
+
+  <!-- ═══════════════════════════════════════════════════
+       SCREEN  272 × 560
+  ═══════════════════════════════════════════════════ -->
+  <div class="screen" id="screen">
+
+    <!-- TOPBAR  y=0-38 -->
+    <div class="ui-topbar">
+      <span class="ui-tb-name">Clinique Sfax</span>
+      <div class="ui-tb-right">
+        <span class="ui-lang">عربي</span>
+        <div class="presence-pill" id="presence-pill" onclick="Tour.onPresenceClick()">
+          <div class="pres-dot" id="pres-dot"></div>
+          <span class="pres-chev">▾</span>
+        </div>
+        <span class="ui-hamburger">☰</span>
+      </div>
+    </div>
+
+    <!-- STATS  y=38-88 -->
+    <div class="ui-stats">
+      <div class="ui-stat">
+        <div class="ui-sl">En attente</div>
+        <div class="ui-sv" id="stat-waiting">0</div>
+        <div class="ui-ss" style="width:8px;height:8px;border-radius:50%;background:#52B788;display:inline-block;margin-top:3px;"></div>
+      </div>
+      <div class="ui-stat">
+        <div class="ui-sl">Vus</div>
+        <div class="ui-sv" style="font-size:16px" id="stat-seen">0</div>
+        <div class="ui-ss" id="stat-wait-max">ATTENTE MAX  —</div>
+      </div>
+    </div>
+
+    <!-- SEARCH ROW  y=88-138 -->
+    <div class="ui-search-row">
+      <div class="ui-search-f">Nom du patient…</div>
+      <div id="add-btn" onclick="Tour.onAddClick()">
+        <!-- person-add icon -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <line x1="19" y1="8" x2="19" y2="14"/>
+          <line x1="22" y1="11" x2="16" y2="11"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- DYNAMIC AREA  y=138+ -->
+    <div class="dynamic-area">
+
+      <!-- Consultation section (hidden until called) -->
+      <div class="consult-section" id="consult-section" style="display:none;">
+        <div class="sec-lbl">En Consultation</div>
+        <div class="cur-card">
+          <div class="cur-lbl">Patient Actuel</div>
+          <div class="cur-name" id="cur-name">Mohamed</div>
+          <div class="cur-sub">Arrivé à 09:14 · Consultation depuis 1 min</div>
+          <div class="cur-acts">
+            <button class="btn-done">✓ Terminer</button>
+            <div class="btn-tel">📞</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Queue section -->
+      <div class="queue-section" id="queue-section" style="display:none;">
+        <div class="sec-lbl">File d'Attente</div>
+        <div class="queue-list" id="queue-list">
+          <!-- rows injected by JS -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- BOTTOM BUTTON -->
+    <div class="bot-area">
+      <div class="bot-btn dimmed" id="bot-btn">
+        <span>→</span>
+        <span>Appeler Suivant</span>
+        <span class="bot-name" id="bot-name"></span>
+      </div>
+    </div>
+
+    <!-- PRESENCE DROPDOWN  z=50 -->
+    <div class="pres-dropdown" id="pres-dropdown">
+      <div class="pres-item" id="pres-present-item">
+        <div class="item-dot" style="background:var(--green)"></div>
+        <span>Présent</span>
+        <span class="item-check" id="pres-check-present"></span>
+      </div>
+      <div class="pres-item selected" id="pres-absent-item">
+        <div class="item-dot" style="background:var(--red)"></div>
+        <span>Absent</span>
+        <span class="item-check">✓</span>
+      </div>
+    </div>
+
+    <!-- MODAL  z=60 -->
+    <div class="modal-backdrop" id="modal-backdrop">
+      <div class="modal-sheet" id="modal-sheet">
+        <div class="modal-handle"></div>
+        <div class="modal-title">Nouveau patient</div>
+
+        <div class="modal-field-lbl">👤 Nom du patient</div>
+        <div class="modal-input" id="modal-name-input">
+          <span class="modal-input-ph" id="modal-name-ph">Prénom et nom…</span>
+          <span class="modal-input-text" id="modal-name-text" style="display:none"></span>
+          <span class="modal-input-icon">🔍</span>
+        </div>
+
+        <div class="modal-type-row">
+          <div class="modal-type-btn selected">🚶 Sans rendez-vous</div>
+          <div class="modal-type-btn">📅 Avec rendez-vous</div>
+        </div>
+
+        <div class="modal-field-lbl" style="margin-top:4px;">📞 Numéro de téléphone <span style="opacity:.5;font-size:8.5px;font-weight:400;text-transform:none;letter-spacing:0;">(OPTIONNEL)</span></div>
+        <div class="phone-row">
+          <div class="phone-prefix">+216</div>
+          <div class="phone-digits" id="modal-phone-input">
+            <span class="phone-digits-ph" id="modal-phone-ph">XX XXX XXX</span>
+            <span class="phone-digits-text" id="modal-phone-text" style="display:none"></span>
+            <span class="phone-counter" id="phone-counter">0 / 8</span>
+          </div>
+        </div>
+        <div class="phone-hint">ℹ️ 8 chiffres après +216, ex : 55 123 456</div>
+
+        <div class="priority-row">
+          <span class="priority-icon">⚠️</span>
+          <div class="priority-text">
+            <div class="priority-t">Priorité médicale</div>
+            <div class="priority-s">Passe en position #2</div>
+          </div>
+          <div class="priority-toggle"></div>
+        </div>
+
+        <button class="modal-add-btn" id="modal-add-btn">
+          → Ajouter à la file
+        </button>
+      </div>
+    </div>
+
+    <!-- CONTEXT MENU SHEET  z=65 -->
+    <div class="ctx-backdrop" id="ctx-backdrop">
+      <div class="ctx-sheet" id="ctx-sheet">
+        <div class="ctx-handle"></div>
+        <div class="ctx-header">
+          <div class="ctx-name" id="ctx-patient-name">Lilia</div>
+          <div class="ctx-sub" id="ctx-patient-sub">Position #2 · 4 min d'attente</div>
+        </div>
+        <div class="ctx-item">
+          <div class="ctx-ico ico-red">⭐</div>
+          <div class="ctx-item-text">
+            <div class="ctx-item-t">Urgence</div>
+            <div class="ctx-item-s">Passe en priorité absolue</div>
+          </div>
+          <span class="ctx-arrow">›</span>
+        </div>
+        <div class="ctx-item">
+          <div class="ctx-ico ico-blue">🔗</div>
+          <div class="ctx-item-text">
+            <div class="ctx-item-t">Copier URL</div>
+            <div class="ctx-item-s">Lien de suivi de la position</div>
+          </div>
+          <span class="ctx-arrow">›</span>
+        </div>
+        <!-- WhatsApp item — spotlight target -->
+        <div class="ctx-item" id="ctx-whatsapp-item">
+          <div class="ctx-ico ico-green">💬</div>
+          <div class="ctx-item-text">
+            <div class="ctx-item-t">Envoyer via WhatsApp</div>
+            <div class="ctx-item-s">Partager le lien de suivi</div>
+          </div>
+          <span class="ctx-arrow">›</span>
+        </div>
+        <div class="ctx-item">
+          <div class="ctx-ico ico-salmon">🚫</div>
+          <div class="ctx-item-text">
+            <div class="ctx-item-t">Retirer de la file</div>
+            <div class="ctx-item-s">Supprimer définitivement</div>
+          </div>
+          <span class="ctx-arrow">›</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- GHOST CURSOR  z=70 -->
+    <div class="ghost-cursor" id="ghost-cursor">
+      <svg viewBox="0 0 18 22" fill="none">
+        <path d="M2 2l12 7-6 1.5L5.5 17 2 2z" fill="white" stroke="#1B2D25" stroke-width="1.2" stroke-linejoin="round"/>
+      </svg>
+      <div class="cursor-ripple" id="cursor-ripple"></div>
+    </div>
+
+    <!-- SPOTLIGHT SYSTEM  z=100 -->
+    <div class="sp-sys" id="sp-sys">
+      <svg class="sp-svg" id="sp-svg" viewBox="0 0 272 560" preserveAspectRatio="none">
+        <defs>
+          <mask id="sp-mask">
+            <rect x="0" y="0" width="272" height="560" fill="white"/>
+            <rect id="sp-hole" x="4" y="4" width="264" height="552" rx="24" ry="24" fill="black"/>
+          </mask>
+        </defs>
+        <rect id="sp-rect" x="0" y="0" width="272" height="560"
+          fill="rgba(7,14,9,0.88)" mask="url(#sp-mask)" opacity="0"/>
+      </svg>
+      <div class="sp-border" id="sp-border"></div>
+      <div class="sp-tooltip" id="sp-tooltip" data-arrow="up">
+        <div class="tip-meta">
+          <span id="tip-step">Étape 1 / 5</span>
+          <div class="tip-dots">
+            <div class="tip-d" id="td-0"></div>
+            <div class="tip-d" id="td-1"></div>
+            <div class="tip-d" id="td-2"></div>
+            <div class="tip-d" id="td-3"></div>
+            <div class="tip-d" id="td-4"></div>
+          </div>
+        </div>
+        <div class="tip-title" id="tip-title">Titre</div>
+        <div class="tip-desc"  id="tip-desc">Description</div>
+        <div class="tip-actions" id="tip-actions">
+          <button class="tip-skip" onclick="Tour.skip()">Passer</button>
+          <button class="tip-next" id="tip-next" onclick="Tour.next()">Continuer →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- WELCOME OVERLAY  z=150 -->
+    <div class="welcome-overlay show" id="welcome-overlay">
+      <div class="welcome-card">
+        <div class="welcome-ico">👋</div>
+        <h3>Bienvenue dans<br>BleSaf !</h3>
+        <p>Voici votre tableau de bord. La file est vide pour l'instant. Laissez-nous vous montrer comment tout fonctionne — en moins de 2 minutes.</p>
+        <button class="welcome-btn" onclick="Tour.startTour()">Commencer la visite guidée →</button>
+      </div>
+    </div>
+
+    <!-- FILL MESSAGE OVERLAY  z=150 -->
+    <div class="fill-overlay" id="fill-overlay">
+      <div class="fill-card">
+        <div class="fill-card-ico">🪄</div>
+        <h4>Remplissons la file !</h4>
+        <p>Je vais maintenant ajouter des patients imaginaires pour vous montrer l'interface en action.</p>
+        <div class="fill-progress"><div class="fill-bar" id="fill-bar"></div></div>
+      </div>
+    </div>
+
+    <!-- DONE SCREEN  z=200 -->
+    <div class="done-screen" id="done-screen">
+      <div class="done-ico">🚀</div>
+      <h3>Visite terminée !</h3>
+      <p>Vous maîtrisez maintenant les 4 actions fondamentales de BleSaf. Votre cabinet ne sera plus jamais la même salle d'attente.</p>
+      <button class="done-btn" onclick="Tour.replay()">↺ Rejouer la visite</button>
+    </div>
+
+  </div><!-- /screen -->
+</div><!-- /phone -->
+
+<div style="display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:4px;">
+  <span class="status-line" id="status-line"></span>
+  <button class="replay-btn" id="replay-btn" onclick="Tour.replay()">↺ Rejouer</button>
+</div>
+</div><!-- /phone-stage -->
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     TOUR ENGINE
+═══════════════════════════════════════════════════════════ -->
+<script>
+'use strict';
+
+/* ─────────────────────────────────────────────────────────
+   EASINGS
+───────────────────────────────────────────────────────── */
+const Ease = {
+  outQuint:    t => 1 - Math.pow(1-t, 5),
+  outBack:     t => { const s=1.35; return 1+(s+1)*Math.pow(t-1,3)+s*Math.pow(t-1,2); },
+  inOutCubic:  t => t<.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2,
+  linear:      t => t,
+  outCubic:    t => 1 - Math.pow(1-t, 3),
+};
+
+function lerp(a,b,t){ return a+(b-a)*t; }
+
+/* ─────────────────────────────────────────────────────────
+   DOM
+───────────────────────────────────────────────────────── */
+const $ = id => document.getElementById(id);
+
+const DOM = {
+  screen:         $('screen'),
+  spRect:         $('sp-rect'),
+  spHole:         $('sp-hole'),
+  spBorder:       $('sp-border'),
+  spTooltip:      $('sp-tooltip'),
+  tipStep:        $('tip-step'),
+  tipTitle:       $('tip-title'),
+  tipDesc:        $('tip-desc'),
+  tipActions:     $('tip-actions'),
+  tipNext:        $('tip-next'),
+  welcomeOverlay: $('welcome-overlay'),
+  fillOverlay:    $('fill-overlay'),
+  fillBar:        $('fill-bar'),
+  doneScreen:     $('done-screen'),
+  statusLine:     $('status-line'),
+  replayBtn:      $('replay-btn'),
+  ghost:          $('ghost-cursor'),
+  ripple:         $('cursor-ripple'),
+  modalBackdrop:  $('modal-backdrop'),
+  modalSheet:     $('modal-sheet'),
+  modalNameInput: $('modal-name-input'),
+  modalNamePh:    $('modal-name-ph'),
+  modalNameText:  $('modal-name-text'),
+  modalPhoneInput:$('modal-phone-input'),
+  modalPhonePh:   $('modal-phone-ph'),
+  modalPhoneText: $('modal-phone-text'),
+  phoneCounter:   $('phone-counter'),
+  modalAddBtn:    $('modal-add-btn'),
+  ctxBackdrop:    $('ctx-backdrop'),
+  ctxSheet:       $('ctx-sheet'),
+  ctxName:        $('ctx-patient-name'),
+  ctxSub:         $('ctx-patient-sub'),
+  presDropdown:   $('pres-dropdown'),
+  presDot:        $('pres-dot'),
+  queueSection:   $('queue-section'),
+  queueList:      $('queue-list'),
+  consultSection: $('consult-section'),
+  curName:        $('cur-name'),
+  statWaiting:    $('stat-waiting'),
+  statSeen:       $('stat-seen'),
+  statWaitMax:    $('stat-wait-max'),
+  botBtn:         $('bot-btn'),
+  botName:        $('bot-name'),
+  addBtn:         $('add-btn'),
+  presencePill:   $('presence-pill'),
+};
+
+/* ─────────────────────────────────────────────────────────
+   PATIENTS DATA
+───────────────────────────────────────────────────────── */
+const ALL_PATIENTS = [
+  { name: 'Mohamed',  wait: '0 min' },
+  { name: 'Lilia',    wait: '3 min' },
+  { name: 'Fadi',     wait: '5 min' },
+  { name: 'Ali',      wait: '8 min' },
+  { name: 'Olfa',     wait: '11 min'},
+];
+
+let queuePatients = [];   // currently in queue
+let consultingPatient = null;
+
+/* ─────────────────────────────────────────────────────────
+   HOLE MORPHING ENGINE
+───────────────────────────────────────────────────────── */
+const FULL_HOLE = { x:4, y:4, w:264, h:552, rx:24 };
+let   currentHole = { ...FULL_HOLE };
+let   morphRAF = null;
+
+function renderHole(h) {
+  DOM.spHole.setAttribute('x',      h.x);
+  DOM.spHole.setAttribute('y',      h.y);
+  DOM.spHole.setAttribute('width',  h.w);
+  DOM.spHole.setAttribute('height', h.h);
+  DOM.spHole.setAttribute('rx',     h.rx);
+  DOM.spHole.setAttribute('ry',     h.rx);
+  const pad = 3;
+  DOM.spBorder.style.left         = (h.x - pad) + 'px';
+  DOM.spBorder.style.top          = (h.y - pad) + 'px';
+  DOM.spBorder.style.width        = (h.w + pad*2) + 'px';
+  DOM.spBorder.style.height       = (h.h + pad*2) + 'px';
+  DOM.spBorder.style.borderRadius = (h.rx + pad) + 'px';
+  currentHole = { ...h };
+}
+
+function morphHole(from, to, dur, easeFn, cb) {
+  cancelAnimationFrame(morphRAF);
+  const t0 = performance.now();
+  function tick(now) {
+    const t = Math.min((now-t0)/dur, 1);
+    const e = easeFn(t);
+    renderHole({
+      x:  lerp(from.x,  to.x,  e),
+      y:  lerp(from.y,  to.y,  e),
+      w:  lerp(from.w,  to.w,  e),
+      h:  lerp(from.h,  to.h,  e),
+      rx: lerp(from.rx, to.rx, e),
+    });
+    if (t<1) morphRAF = requestAnimationFrame(tick);
+    else { renderHole(to); cb?.(); }
+  }
+  morphRAF = requestAnimationFrame(tick);
+}
+
+let fadeRAF = null;
+function fadeOverlay(from, to, dur, cb) {
+  cancelAnimationFrame(fadeRAF);
+  const t0 = performance.now();
+  function tick(now) {
+    const t = Math.min((now-t0)/dur, 1);
+    DOM.spRect.setAttribute('opacity', lerp(from, to, t).toFixed(3));
+    if (t<1) fadeRAF = requestAnimationFrame(tick);
+    else cb?.();
+  }
+  fadeRAF = requestAnimationFrame(tick);
+}
+
+/* ─────────────────────────────────────────────────────────
+   MEASURE  — element → SVG coords (272×560)
+───────────────────────────────────────────────────────── */
+function measure(elementId, pad=0) {
+  const sr = DOM.screen.getBoundingClientRect();
+  const er = document.getElementById(elementId).getBoundingClientRect();
+  const sx = 272 / sr.width;
+  const sy = 560 / sr.height;
+  return {
+    x:  (er.left - sr.left) * sx - pad,
+    y:  (er.top  - sr.top)  * sy - pad,
+    w:  er.width  * sx + pad*2,
+    h:  er.height * sy + pad*2,
+  };
+}
+
+/* ─────────────────────────────────────────────────────────
+   TOOLTIP HELPERS
+───────────────────────────────────────────────────────── */
+function showTooltip({ step, totalSteps, title, desc, topFn, left=12, arrow='up', showNext=true, nudgeText=null }) {
+  DOM.tipStep.textContent = `Étape ${step} / ${totalSteps}`;
+  DOM.tipTitle.textContent = title;
+  DOM.tipDesc.textContent  = desc;
+  DOM.spTooltip.setAttribute('data-arrow', arrow);
+
+  // dots
+  for (let i=0; i<5; i++) {
+    const d = $('td-'+i);
+    d.className = 'tip-d' + (i < step ? ' on' : '');
+  }
+
+  // action area
+  if (nudgeText) {
+    DOM.tipActions.innerHTML = `
+      <button class="tip-skip" onclick="Tour.skip()">Passer</button>
+      <div class="tip-nudge"><span class="nudge-arrow">☝️</span>${nudgeText}</div>`;
+  } else if (showNext) {
+    DOM.tipActions.innerHTML = `
+      <button class="tip-skip" onclick="Tour.skip()">Passer</button>
+      <button class="tip-next" onclick="Tour.next()">Continuer →</button>`;
+  } else {
+    DOM.tipActions.innerHTML = `<button class="tip-skip" onclick="Tour.skip()">Terminer la visite</button>`;
+  }
+
+  // position
+  const holeForPos = currentHole;
+  const rawTop = topFn ? topFn(holeForPos) : holeForPos.y + holeForPos.h + 14;
+  const clampedTop = Math.max(6, Math.min(rawTop, 400));
+  DOM.spTooltip.style.left = left + 'px';
+  DOM.spTooltip.style.top  = clampedTop + 'px';
+
+  DOM.spTooltip.className = 'sp-tooltip entering';
+  setTimeout(() => {
+    DOM.spTooltip.style.cssText += ';opacity:1;transform:none;filter:none';
+  }, 520);
+}
+
+function hideTooltip(cb) {
+  DOM.spTooltip.className = 'sp-tooltip exiting';
+  setTimeout(() => { DOM.spTooltip.style.opacity = '0'; cb?.(); }, 240);
+}
+
+function setStatus(txt) { DOM.statusLine.textContent = txt; }
+function updateStepDots(active) {
+  for (let i=0; i<5; i++) {
+    const d = $('sd-'+i);
+    d.className = 'sd' + (i < active ? ' done' : '') + (i === active ? ' active' : '');
+  }
+  const LABELS = ['Bienvenue','Ajouter un patient','Présence','Partager','Fin'];
+  $('step-lbl').textContent = LABELS[active] ?? '';
+}
+
+/* ─────────────────────────────────────────────────────────
+   QUEUE RENDERING
+───────────────────────────────────────────────────────── */
+function renderQueue(animate=false) {
+  DOM.queueList.innerHTML = '';
+  queuePatients.forEach((p, idx) => {
+    const row = document.createElement('div');
+    row.className = 'qi' + (animate ? '' : ' visible');
+    row.id = 'qrow-' + idx;
+    const isFirst = idx === 0;
+    row.innerHTML = `
+      <div class="qn">${idx+1}</div>
+      <div class="qi-info">
+        <div class="qi-name">${p.name}</div>
+        <div class="qi-sub"><span class="dot dg"></span>${p.wait}</div>
+      </div>
+      <div class="qi-acts">
+        <div class="q-ico">📞</div>
+        <div class="q-ico" id="kebab-${idx}" onclick="Tour.onKebabClick(${idx})" style="cursor:pointer;">⋮</div>
+      </div>`;
+    DOM.queueList.appendChild(row);
+    if (animate) {
+      setTimeout(() => row.classList.add('visible'), 30);
+    }
+  });
+
+  DOM.queueSection.style.display = queuePatients.length > 0 ? 'block' : 'none';
+  DOM.statWaiting.textContent = queuePatients.length;
+  DOM.statWaitMax.textContent = queuePatients.length > 0 ? 'ATTENTE MAX  ' + queuePatients[queuePatients.length-1].wait : 'ATTENTE MAX  —';
+
+  // update bottom button
+  if (queuePatients.length > 0) {
+    DOM.botBtn.classList.remove('dimmed');
+    DOM.botName.textContent = '· ' + queuePatients[0].name;
+  } else {
+    DOM.botBtn.classList.add('dimmed');
+    DOM.botName.textContent = '';
+  }
+}
+
+/* ─────────────────────────────────────────────────────────
+   GHOST CURSOR ENGINE
+───────────────────────────────────────────────────────── */
+const Ghost = {
+  show() { DOM.ghost.style.display = 'block'; },
+  hide() { DOM.ghost.style.display = 'none'; },
+  moveTo(x, y, dur=500) {
+    return new Promise(res => {
+      DOM.ghost.style.transition = `left ${dur}ms cubic-bezier(.4,0,.2,1), top ${dur}ms cubic-bezier(.4,0,.2,1)`;
+      DOM.ghost.style.left = x + 'px';
+      DOM.ghost.style.top  = y + 'px';
+      setTimeout(res, dur + 40);
+    });
+  },
+  click() {
+    return new Promise(res => {
+      DOM.ripple.className = 'cursor-ripple go';
+      setTimeout(() => { DOM.ripple.className = 'cursor-ripple'; res(); }, 450);
+    });
+  },
+  typeInto(targetId, textId, phId, text, opts={}) {
+    return new Promise(res => {
+      const textEl = document.getElementById(textId);
+      const phEl   = document.getElementById(phId);
+      const target = document.getElementById(targetId);
+
+      phEl.style.display   = 'none';
+      textEl.style.display = 'inline';
+      textEl.textContent   = '';
+      if (target) target.classList.add('focused');
+
+      let i = 0;
+      const spd = opts.speed || 90;
+      const iv = setInterval(() => {
+        textEl.textContent += text[i++];
+        if (opts.counterFn) opts.counterFn(i);
+        if (i >= text.length) {
+          clearInterval(iv);
+          setTimeout(res, 200);
+        }
+      }, spd);
+    });
+  },
+  async sequence(steps) {
+    for (const step of steps) await step();
+  }
+};
+
+/* ─────────────────────────────────────────────────────────
+   TOUR STATE MACHINE
+───────────────────────────────────────────────────────── */
+const Tour = {
+  state: 'IDLE',
+
+  /* ── helpers ── */
+  _enableSpotlight() { DOM.spRect.setAttribute('opacity', '0'); },
+  _disableSpotlight() {
+    cancelAnimationFrame(morphRAF);
+    cancelAnimationFrame(fadeRAF);
+    DOM.spRect.setAttribute('opacity', '0');
+    DOM.spBorder.classList.remove('on','breathe');
+    DOM.spTooltip.className = 'sp-tooltip';
+    DOM.spTooltip.style.opacity = '0';
+  },
+
+  _activateSpotlight(targetId, pad, rx, tooltipCfg, onBorderReady) {
+    const m = measure(targetId, pad);
+    const hole = { ...m, rx };
+
+    // Phase 1: fade in with FULL hole
+    renderHole(FULL_HOLE);
+    fadeOverlay(0, 1, 360, () => {
+      // Phase 2: iris closes to target with spring overshoot
+      morphHole(FULL_HOLE, hole, 950, Ease.outBack, () => {
+        // Phase 3: border + tooltip
+        DOM.spBorder.classList.add('on');
+        setTimeout(() => DOM.spBorder.classList.add('breathe'), 80);
+        setTimeout(() => {
+          showTooltip({ ...tooltipCfg,
+            topFn: () => {
+              const m2 = measure(targetId, pad);
+              if (tooltipCfg.topFn) return tooltipCfg.topFn(m2);
+              return m2.y + m2.h + 14;
+            }
+          });
+          onBorderReady?.();
+        }, 180);
+      });
+    });
+  },
+
+  _transitionTo(targetId, pad, rx, tooltipCfg, cb) {
+    hideTooltip(() => {
+      DOM.spBorder.classList.remove('breathe');
+      const target = { ...measure(targetId, pad), rx };
+      morphHole(currentHole, target, 750, Ease.inOutCubic, () => {
+        DOM.spBorder.classList.add('breathe');
+        setTimeout(() => {
+          showTooltip({ ...tooltipCfg,
+            topFn: () => {
+              if (tooltipCfg.topFn) return tooltipCfg.topFn(measure(targetId, pad));
+              const m = measure(targetId, pad);
+              return m.y + m.h + 14;
+            }
+          });
+          cb?.();
+        }, 160);
+      });
+    });
+  },
+
+  /* ──────────────────────────────────────────────────────
+     STATE: WELCOME → SPOTLIGHT_ADD
+  ────────────────────────────────────────────────────── */
+  startTour() {
+    this.state = 'SPOTLIGHT_ADD';
+    DOM.welcomeOverlay.classList.remove('show');
+    updateStepDots(1);
+    setStatus('');
+
+    setTimeout(() => {
+      this._activateSpotlight('add-btn', 5, 10, {
+        step: 1, totalSteps: 5,
+        title: 'Ajoutez votre premier patient',
+        desc:  'Appuyez sur ce bouton pour ouvrir le formulaire d\'ajout. Entrez le nom et le numéro de téléphone du patient.',
+        nudgeText: 'Cliquez sur le bouton ☝️',
+      });
+    }, 300);
+  },
+
+  onAddClick() {
+    if (this.state !== 'SPOTLIGHT_ADD') return;
+    this.state = 'MODAL_GHOST';
+
+    // Dismiss spotlight
+    this._disableSpotlight();
+    updateStepDots(1);
+    setStatus('Regardez comment ajouter un patient…');
+
+    // Open modal
+    setTimeout(() => this._runModalGhost(), 200);
+  },
+
+  /* ──────────────────────────────────────────────────────
+     MODAL GHOST SEQUENCE
+  ────────────────────────────────────────────────────── */
+  async _runModalGhost() {
+    // Open modal
+    DOM.modalBackdrop.classList.add('show');
+    setTimeout(() => DOM.modalSheet.classList.add('open'), 30);
+
+    await delay(500);
+
+    // Show ghost cursor at add-btn position, then move to modal
+    const sr = DOM.screen.getBoundingClientRect();
+    const ab = $('add-btn').getBoundingClientRect();
+    Ghost.show();
+    DOM.ghost.style.left = (ab.left - sr.left + 8) + 'px';
+    DOM.ghost.style.top  = (ab.top  - sr.top  + 8) + 'px';
+    DOM.ghost.style.transition = 'none';
+
+    await delay(150);
+
+    // Move to name field
+    const ni = $('modal-name-input').getBoundingClientRect();
+    await Ghost.moveTo(ni.left - sr.left + 60, ni.top - sr.top + 12, 550);
+    await Ghost.click();
+
+    // Type patient name
+    await Ghost.typeInto('modal-name-input', 'modal-name-text', 'modal-name-ph', 'Mohamed', { speed: 100 });
+
+    await delay(300);
+
+    // Move to phone field
+    const pi = $('modal-phone-input').getBoundingClientRect();
+    await Ghost.moveTo(pi.left - sr.left + 60, pi.top - sr.top + 12, 500);
+    await Ghost.click();
+
+    // Type phone number (8 digits)
+    const digits = '55123456';
+    await Ghost.typeInto('modal-phone-input', 'modal-phone-text', 'modal-phone-ph', '55 123 456', {
+      speed: 95,
+      counterFn: (i) => {
+        const counted = Math.min(i, 8);
+        $('phone-counter').textContent = counted + ' / 8';
+      }
+    });
+
+    await delay(400);
+
+    // Move to Add button
+    const ab2 = $('modal-add-btn').getBoundingClientRect();
+    await Ghost.moveTo(ab2.left - sr.left + ab2.width/2, ab2.top - sr.top + 10, 500);
+    await Ghost.click();
+
+    // Button press visual
+    $('modal-add-btn').classList.add('pressed');
+    await delay(200);
+    $('modal-add-btn').classList.remove('pressed');
+
+    // Close modal
+    DOM.modalSheet.classList.remove('open');
+    setTimeout(() => DOM.modalBackdrop.classList.remove('show'), 380);
+
+    Ghost.hide();
+
+    // Add Mohamed to queue
+    await delay(500);
+    queuePatients = [{ name: 'Mohamed', wait: '0 min' }];
+    renderQueue(true);
+    DOM.queueSection.style.display = 'block';
+
+    setStatus('Mohamed ajouté à la file !');
+    await delay(1200);
+
+    this._showFillMessage();
+  },
+
+  /* ──────────────────────────────────────────────────────
+     FILL MESSAGE + FILL QUEUE
+  ────────────────────────────────────────────────────── */
+  _showFillMessage() {
+    this.state = 'FILLING';
+    setStatus('');
+    DOM.fillOverlay.classList.add('show');
+
+    setTimeout(() => {
+      DOM.fillBar.classList.add('go');
+    }, 200);
+
+    // After 2.8s, hide message and fill queue
+    setTimeout(() => {
+      DOM.fillOverlay.classList.remove('show');
+      setTimeout(() => this._fillQueue(), 400);
+    }, 3000);
+  },
+
+  async _fillQueue() {
+    const toAdd = ALL_PATIENTS.slice(1); // Lilia, Fadi, Ali, Olfa
+    for (const p of toAdd) {
+      queuePatients.push({ name: p.name, wait: p.wait });
+      renderQueue(false);
+      // animate last row in
+      const lastRow = $('qrow-' + (queuePatients.length-1));
+      if (lastRow) {
+        lastRow.style.opacity = '0';
+        lastRow.style.transform = 'translateX(-10px)';
+        await delay(80);
+        lastRow.style.transition = 'opacity .35s ease, transform .35s ease';
+        lastRow.classList.add('visible');
+      }
+      await delay(450);
+    }
+
+    await delay(600);
+    setStatus('5 patients dans la file — super !');
+    await delay(1000);
+    setStatus('');
+
+    this._startPresenceStep();
+  },
+
+  /* ──────────────────────────────────────────────────────
+     STATE: SPOTLIGHT PRESENCE
+  ────────────────────────────────────────────────────── */
+  _startPresenceStep() {
+    this.state = 'SPOTLIGHT_PRESENCE';
+    updateStepDots(2);
+
+    setTimeout(() => {
+      this._activateSpotlight('presence-pill', 5, 14, {
+        step: 2, totalSteps: 5,
+        title: 'Activez votre présence',
+        desc:  'Vous êtes actuellement "Absent". Tapez sur ce bouton pour indiquer que vous êtes disponible et démarrer les consultations.',
+        nudgeText: 'Cliquez sur le badge ☝️',
+        topFn: (hole) => hole.y + hole.h + 12,
+      });
+    }, 300);
+  },
+
+  onPresenceClick() {
+    if (this.state !== 'SPOTLIGHT_PRESENCE') return;
+    this.state = 'DEMO_PRESENCE';
+
+    this._disableSpotlight();
+    setStatus('Activation de votre présence…');
+
+    // Show dropdown
+    DOM.presDropdown.classList.add('show');
+
+    setTimeout(() => {
+      // Highlight "Présent"
+      $('pres-present-item').classList.add('selected');
+      $('pres-absent-item').classList.remove('selected');
+      $('pres-check-present').textContent = '✓';
+
+      setTimeout(() => {
+        DOM.presDropdown.classList.remove('show');
+
+        // Switch dot to green
+        DOM.presDot.classList.add('on');
+        setStatus('Vous êtes maintenant Présent ✓');
+
+        setTimeout(() => this._callFirstPatient(), 1200);
+      }, 900);
+    }, 700);
+  },
+
+  async _callFirstPatient() {
+    setStatus('Appel du premier patient…');
+
+    const firstPatient = queuePatients[0];
+    consultingPatient = firstPatient;
+    queuePatients = queuePatients.slice(1);
+
+    // Update stats
+    DOM.statSeen.textContent = '1';
+    renderQueue(false);
+
+    // Show consultation card
+    DOM.curName.textContent = firstPatient.name;
+    DOM.consultSection.style.display = 'block';
+
+    await delay(500);
+    setStatus(firstPatient.name + ' est maintenant en consultation');
+    await delay(1400);
+    setStatus('');
+
+    this._startShareStep();
+  },
+
+  /* ──────────────────────────────────────────────────────
+     STATE: SPOTLIGHT SHARE (⋮ button)
+  ────────────────────────────────────────────────────── */
+  _startShareStep() {
+    this.state = 'SPOTLIGHT_SHARE';
+    updateStepDots(3);
+
+    setTimeout(() => {
+      // Target the kebab of first queue patient (Lilia, idx=0)
+      this._activateSpotlight('kebab-0', 5, 8, {
+        step: 3, totalSteps: 5,
+        title: 'Partagez le lien de suivi',
+        desc:  'Tapez sur les 3 points (⋮) à côté d\'un patient pour accéder au menu et envoyer son lien WhatsApp.',
+        nudgeText: 'Tapez sur ⋮ ☝️',
+        topFn: (hole) => hole.y + hole.h + 12,
+      });
+    }, 300);
+  },
+
+  onKebabClick(idx) {
+    if (this.state !== 'SPOTLIGHT_SHARE') return;
+    this.state = 'CTX_MENU';
+
+    this._disableSpotlight();
+
+    const p = queuePatients[idx];
+    DOM.ctxName.textContent = p.name;
+    DOM.ctxSub.textContent  = `Position #${idx+2} · ${p.wait} d'attente`;
+
+    // Open context menu
+    DOM.ctxBackdrop.classList.add('show');
+    setTimeout(() => DOM.ctxSheet.classList.add('open'), 30);
+
+    // After menu is fully open, show spotlight on WhatsApp item
+    setTimeout(() => this._spotlightWhatsApp(), 500);
+  },
+
+  _spotlightWhatsApp() {
+    updateStepDots(4);
+    setStatus('');
+
+    // Measure the WhatsApp item
+    this._activateSpotlight('ctx-whatsapp-item', 4, 10, {
+      step: 4, totalSteps: 5,
+      title: 'Envoyez le lien via WhatsApp',
+      desc:  'En tapant ici, WhatsApp s\'ouvre avec un message pré-rempli. Envoyez ce lien au patient sur un 2e téléphone — il pourra suivre sa position en temps réel sans revenir dans la salle d\'attente.',
+      showNext: false,
+      topFn: (hole) => hole.y - 148,
+      arrow: 'down',
+    });
+
+    // Rewrite action area with final button
+    setTimeout(() => {
+      DOM.tipActions.innerHTML = `
+        <button class="tip-skip" onclick="Tour.skip()">Passer</button>
+        <button class="tip-next" onclick="Tour.finish()">Terminer la visite →</button>`;
+    }, 600);
+  },
+
+  /* ──────────────────────────────────────────────────────
+     PUBLIC API
+  ────────────────────────────────────────────────────── */
+  next() {
+    // "Continuer" is only used in flows that need it (handled inline above)
+    // This is a fallback
+  },
+
+  skip() {
+    this.finish();
+  },
+
+  finish() {
+    this.state = 'DONE';
+    this._disableSpotlight();
+    cancelAnimationFrame(morphRAF);
+    cancelAnimationFrame(fadeRAF);
+
+    DOM.ctxBackdrop.classList.remove('show');
+    DOM.ctxSheet.classList.remove('open');
+
+    fadeOverlay(parseFloat(DOM.spRect.getAttribute('opacity')||0), 0, 250, () => {
+      updateStepDots(5);
+      $('step-lbl').textContent = 'Terminé !';
+      DOM.doneScreen.classList.add('on');
+      DOM.replayBtn.classList.add('on');
+      setStatus('');
+    });
+  },
+
+  replay() {
+    // Reset all state
+    this.state = 'IDLE';
+    cancelAnimationFrame(morphRAF);
+    cancelAnimationFrame(fadeRAF);
+    Ghost.hide();
+
+    // Reset UI
+    queuePatients = [];
+    consultingPatient = null;
+    renderQueue();
+    DOM.consultSection.style.display = 'none';
+    DOM.queueSection.style.display = 'none';
+    DOM.statSeen.textContent = '0';
+    DOM.statWaiting.textContent = '0';
+
+    // Reset modal
+    DOM.modalBackdrop.classList.remove('show');
+    DOM.modalSheet.classList.remove('open');
+    DOM.modalNamePh.style.display = '';
+    DOM.modalNameText.style.display = 'none';
+    DOM.modalNameText.textContent = '';
+    DOM.modalPhonePh.style.display = '';
+    DOM.modalPhoneText.style.display = 'none';
+    DOM.modalPhoneText.textContent = '';
+    $('phone-counter').textContent = '0 / 8';
+    $('modal-name-input').classList.remove('focused');
+    $('modal-phone-input').classList.remove('focused');
+
+    // Reset presence
+    DOM.presDot.classList.remove('on');
+    DOM.presDropdown.classList.remove('show');
+    $('pres-present-item').classList.remove('selected');
+    $('pres-absent-item').classList.add('selected');
+    $('pres-check-present').textContent = '';
+
+    // Reset context menu
+    DOM.ctxBackdrop.classList.remove('show');
+    DOM.ctxSheet.classList.remove('open');
+
+    // Reset spotlight
+    this._disableSpotlight();
+    DOM.spRect.setAttribute('opacity', '0');
+    renderHole(FULL_HOLE);
+
+    // Reset fill overlay
+    DOM.fillOverlay.classList.remove('show');
+    DOM.fillBar.classList.remove('go');
+    DOM.fillBar.style.transition = 'none';
+    setTimeout(() => { DOM.fillBar.style.transition = 'width 2.4s linear'; }, 50);
+
+    // Reset overlays
+    DOM.doneScreen.classList.remove('on');
+    DOM.replayBtn.classList.remove('on');
+    DOM.botBtn.classList.add('dimmed');
+    DOM.botName.textContent = '';
+
+    // Reset step track
+    for(let i=0;i<5;i++) $('sd-'+i).className='sd';
+    $('step-lbl').textContent = 'Redémarrage…';
+    setStatus('');
+
+    // Show welcome
+    setTimeout(() => {
+      DOM.welcomeOverlay.classList.add('show');
+    }, 400);
+  }
+};
+
+/* ─────────────────────────────────────────────────────────
+   UTILITY
+───────────────────────────────────────────────────────── */
+function delay(ms) { return new Promise(res => setTimeout(res, ms)); }
+
+/* ─────────────────────────────────────────────────────────
+   BOOT
+───────────────────────────────────────────────────────── */
+window.addEventListener('load', () => {
+  renderHole(FULL_HOLE);
+  setStatus('');
+});
+</script>
+</body>
+</html>

@@ -397,7 +397,8 @@ export async function computeSmartWaitEstimate(
   doctorId?: string | null
 ): Promise<SmartWaitEstimate> {
   const avgResult = await getEffectiveConsultationAvgDetailed(clinicId, doctorId);
-  const effectiveAvgMins = avgResult.avgMins;
+  // Floor at 1 min to prevent 0 × N = 0 estimates when avg is missing/zero
+  const effectiveAvgMins = Math.max(1, avgResult.avgMins);
 
   // Check doctor presence
   const clinic = await prisma.clinic.findUnique({

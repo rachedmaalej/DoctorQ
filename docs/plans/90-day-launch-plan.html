@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>90-Day Launch Plan — BleSaf & AuSuivant</title>
+<style>
+  :root {
+    --bg: #f8f9fb;
+    --surface: #ffffff;
+    --surface2: #f1f3f7;
+    --border: #e2e5ed;
+    --text: #1a1d27;
+    --text-dim: #5f6578;
+    --tn-primary: #0d9488;
+    --tn-light: #0a7a70;
+    --tn-bg: rgba(13,148,136,0.08);
+    --fr-primary: #1a3c8f;
+    --fr-light: #2952b3;
+    --fr-bg: rgba(26,60,143,0.08);
+    --dev: #7c5cbf;
+    --dev-bg: rgba(124,92,191,0.08);
+    --campaign: #d97706;
+    --campaign-bg: rgba(217,119,6,0.08);
+    --milestone: #dc2626;
+    --milestone-bg: rgba(220,38,38,0.08);
+    --decision: #ea580c;
+    --shared: #6b7280;
+    --shared-bg: rgba(107,114,128,0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    padding: 40px 32px;
+  }
+
+  .container { max-width: 1400px; margin: 0 auto; }
+
+  h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    letter-spacing: -0.5px;
+  }
+
+  .subtitle {
+    color: var(--text-dim);
+    font-size: 15px;
+    margin-bottom: 32px;
+  }
+
+  .brand-badges {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .brand-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .brand-badge.tn { background: var(--tn-bg); color: var(--tn-light); border: 1px solid rgba(13,148,136,0.25); }
+  .brand-badge.fr { background: var(--fr-bg); color: var(--fr-light); border: 1px solid rgba(26,60,143,0.25); }
+
+  .brand-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  .brand-dot.tn { background: var(--tn-primary); }
+  .brand-dot.fr { background: var(--fr-primary); }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 28px;
+    padding: 14px 18px;
+    background: var(--surface);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+
+  .legend-bar {
+    width: 20px;
+    height: 10px;
+    border-radius: 3px;
+  }
+
+  .legend-diamond {
+    width: 10px;
+    height: 10px;
+    transform: rotate(45deg);
+    border-radius: 2px;
+  }
+
+  /* Gantt Container */
+  .gantt-section {
+    margin-bottom: 40px;
+  }
+
+  .gantt-section h2 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .phase-tag {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .gantt-wrapper {
+    background: var(--surface);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    overflow-x: auto;
+    padding: 0;
+  }
+
+  .gantt {
+    display: grid;
+    min-width: 1100px;
+    position: relative;
+  }
+
+  /* Header row with week numbers */
+  .gantt-header {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--surface2);
+  }
+
+  .gantt-header-label {
+    padding: 10px 16px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-dim);
+    border-right: 1px solid var(--border);
+  }
+
+  .gantt-header-weeks {
+    display: grid;
+    grid-template-columns: repeat(13, 1fr);
+  }
+
+  .gantt-week-cell {
+    padding: 6px 4px;
+    text-align: center;
+    font-size: 10px;
+    color: var(--text-dim);
+    border-right: 1px solid var(--border);
+    line-height: 1.3;
+  }
+
+  .gantt-week-cell:last-child { border-right: none; }
+
+  .gantt-week-cell .wk-num {
+    font-weight: 700;
+    font-size: 11px;
+    color: var(--text);
+    display: block;
+  }
+
+  /* Month labels */
+  .gantt-months {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .gantt-months-spacer {
+    border-right: 1px solid var(--border);
+  }
+
+  .gantt-months-row {
+    display: grid;
+    grid-template-columns: repeat(13, 1fr);
+  }
+
+  .month-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text);
+    padding: 4px 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-right: 1px solid var(--border);
+  }
+
+  .month-label:last-child { border-right: none; }
+
+  /* Gantt rows */
+  .gantt-row {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    border-bottom: 1px solid var(--border);
+    min-height: 40px;
+    transition: background 0.15s;
+  }
+
+  .gantt-row:hover { background: rgba(0,0,0,0.02); }
+  .gantt-row:last-child { border-bottom: none; }
+
+  .gantt-row.phase-divider {
+    background: var(--surface2);
+    min-height: 32px;
+  }
+
+  .gantt-row-label {
+    padding: 8px 16px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    border-right: 1px solid var(--border);
+    gap: 8px;
+  }
+
+  .gantt-row-label .label-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .gantt-row-label .market-icon {
+    flex-shrink: 0;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+
+  .gantt-bars {
+    display: grid;
+    grid-template-columns: repeat(91, 1fr);
+    align-items: center;
+    padding: 4px 0;
+    position: relative;
+  }
+
+  .gantt-bar {
+    height: 24px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    position: relative;
+    cursor: default;
+    transition: filter 0.15s;
+  }
+
+  .gantt-bar:hover {
+    filter: brightness(1.2);
+  }
+
+  .gantt-bar.tn { background: var(--tn-primary); color: #fff; }
+  .gantt-bar.fr { background: var(--fr-primary); color: #fff; }
+  .gantt-bar.dev { background: var(--dev); color: #fff; }
+  .gantt-bar.campaign { background: var(--campaign); color: #fff; }
+  .gantt-bar.shared { background: var(--shared); color: #fff; }
+  .gantt-bar.tn-light { background: rgba(13,148,136,0.15); color: var(--tn-light); border: 1px solid rgba(13,148,136,0.35); }
+  .gantt-bar.fr-light { background: rgba(26,60,143,0.1); color: var(--fr-light); border: 1px solid rgba(26,60,143,0.3); }
+  .gantt-bar.milestone { background: var(--milestone); color: #fff; }
+
+  /* Milestone diamonds */
+  .gantt-milestone {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    transform: rotate(45deg);
+    border-radius: 2px;
+    top: calc(50% - 7px);
+    z-index: 5;
+  }
+
+  .gantt-milestone.decision { background: var(--decision); }
+  .gantt-milestone.launch { background: var(--milestone); }
+
+  /* Today marker */
+  .today-marker {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: rgba(239,68,68,0.6);
+    z-index: 4;
+    pointer-events: none;
+  }
+
+  .today-marker::before {
+    content: 'TODAY';
+    position: absolute;
+    top: -18px;
+    left: -16px;
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--milestone);
+    letter-spacing: 0.5px;
+  }
+
+  /* Eid overlay */
+  .eid-overlay {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 4px,
+      rgba(217,119,6,0.08) 4px,
+      rgba(217,119,6,0.08) 8px
+    );
+    z-index: 1;
+    pointer-events: none;
+    border-left: 1px dashed rgba(217,119,6,0.4);
+    border-right: 1px dashed rgba(217,119,6,0.4);
+  }
+
+  /* Tooltip */
+  .gantt-bar[data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 6px 10px;
+    background: #1a1d27;
+    border: 1px solid #333;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 400;
+    white-space: nowrap;
+    z-index: 20;
+    color: #e4e6ef;
+    pointer-events: none;
+  }
+
+  /* Summary cards */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+
+  .summary-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+
+  .summary-card h3 {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+  }
+
+  .summary-card .metric {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .summary-card .metric.tn { color: var(--tn-light); }
+  .summary-card .metric.fr { color: var(--fr-light); }
+  .summary-card .metric.dev { color: var(--dev); }
+
+  .summary-card .detail {
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+
+  /* Decision points table */
+  .decisions-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .decisions-table th {
+    text-align: left;
+    padding: 10px 14px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-dim);
+    border-bottom: 2px solid var(--border);
+  }
+
+  .decisions-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+
+  .decisions-table tr:last-child td { border-bottom: none; }
+
+  .date-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 12px;
+    background: var(--milestone-bg);
+    color: var(--milestone);
+    white-space: nowrap;
+  }
+
+  /* 4P grid */
+  .four-p-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .four-p-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+
+  .four-p-card h4 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .four-p-card p {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  .p-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+
+  .p-icon.tn { background: var(--tn-bg); color: var(--tn-light); }
+  .p-icon.fr { background: var(--fr-bg); color: var(--fr-light); }
+
+  /* Section divider */
+  .section-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 40px 0;
+  }
+
+  /* Metrics table */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 16px;
+  }
+
+  .metrics-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .metrics-table th {
+    text-align: left;
+    padding: 8px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-dim);
+    border-bottom: 2px solid var(--border);
+  }
+
+  .metrics-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .metrics-table tr:last-child td { border-bottom: none; }
+
+  @media (max-width: 900px) {
+    body { padding: 20px 16px; }
+    .four-p-grid { grid-template-columns: 1fr; }
+    .metrics-grid { grid-template-columns: 1fr; }
+    .summary-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Header -->
+  <h1>90-Day Launch Plan</h1>
+  <p class="subtitle">March 10 - June 15, 2026 &middot; BleSaf (Tunisia) + AuSuivant (France)</p>
+
+  <div class="brand-badges">
+    <span class="brand-badge tn"><span class="brand-dot tn"></span>BleSaf &mdash; Tunisia</span>
+    <span class="brand-badge fr"><span class="brand-dot fr"></span>AuSuivant &mdash; France</span>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="summary-grid">
+    <div class="summary-card">
+      <h3>Tunisia Campaign Launch</h3>
+      <div class="metric tn">April 7</div>
+      <div class="detail">3-beat teaser campaign &middot; Target: 10-20 founding clinics</div>
+    </div>
+    <div class="summary-card">
+      <h3>France Pilot Start</h3>
+      <div class="metric fr">May 11</div>
+      <div class="detail">Digital-first &middot; Cold email + LinkedIn &middot; Target: 5-10 clinics</div>
+    </div>
+    <div class="summary-card">
+      <h3>Tunisia Public Launch</h3>
+      <div class="metric" style="color: var(--milestone)">June 15</div>
+      <div class="detail">Official launch with testimonials, ads & press</div>
+    </div>
+    <div class="summary-card">
+      <h3>Development Status</h3>
+      <div class="metric dev">~90%</div>
+      <div class="detail">Security fixes + interactive demo + desktop dashboard (FR)</div>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="legend-item"><div class="legend-bar" style="background:var(--dev)"></div> Development</div>
+    <div class="legend-item"><div class="legend-bar" style="background:var(--tn-primary)"></div> Tunisia</div>
+    <div class="legend-item"><div class="legend-bar" style="background:rgba(13,148,136,0.15); border: 1px solid rgba(13,148,136,0.35)"></div> Tunisia (support)</div>
+    <div class="legend-item"><div class="legend-bar" style="background:var(--fr-primary)"></div> France</div>
+    <div class="legend-item"><div class="legend-bar" style="background:rgba(26,60,143,0.1); border: 1px solid rgba(26,60,143,0.3)"></div> France (prep)</div>
+    <div class="legend-item"><div class="legend-bar" style="background:var(--campaign)"></div> Campaign</div>
+    <div class="legend-item"><div class="legend-bar" style="background:var(--shared)"></div> Shared / Break</div>
+    <div class="legend-item"><div class="legend-diamond" style="background:var(--decision)"></div> Decision Point</div>
+    <div class="legend-item"><div class="legend-diamond" style="background:var(--milestone)"></div> Milestone</div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- MAIN GANTT CHART                            -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="gantt-section">
+    <h2>Master Timeline</h2>
+
+    <div class="gantt-wrapper">
+      <!-- Month headers -->
+      <div class="gantt-months">
+        <div class="gantt-months-spacer"></div>
+        <div class="gantt-months-row">
+          <div class="month-label" style="grid-column: 1 / 4">March</div>
+          <div class="month-label" style="grid-column: 4 / 8">April</div>
+          <div class="month-label" style="grid-column: 8 / 13">May</div>
+          <div class="month-label" style="grid-column: 13 / 14">Jun</div>
+        </div>
+      </div>
+
+      <!-- Week headers -->
+      <div class="gantt-header">
+        <div class="gantt-header-label">Task</div>
+        <div class="gantt-header-weeks">
+          <div class="gantt-week-cell"><span class="wk-num">W1</span>Mar 10</div>
+          <div class="gantt-week-cell"><span class="wk-num">W2</span>Mar 17</div>
+          <div class="gantt-week-cell"><span class="wk-num">W3</span>Mar 24</div>
+          <div class="gantt-week-cell"><span class="wk-num">W4</span>Mar 31</div>
+          <div class="gantt-week-cell"><span class="wk-num">W5</span>Apr 7</div>
+          <div class="gantt-week-cell"><span class="wk-num">W6</span>Apr 14</div>
+          <div class="gantt-week-cell"><span class="wk-num">W7</span>Apr 21</div>
+          <div class="gantt-week-cell"><span class="wk-num">W8</span>Apr 28</div>
+          <div class="gantt-week-cell"><span class="wk-num">W9</span>May 5</div>
+          <div class="gantt-week-cell"><span class="wk-num">W10</span>May 12</div>
+          <div class="gantt-week-cell"><span class="wk-num">W11</span>May 19</div>
+          <div class="gantt-week-cell"><span class="wk-num">W12</span>May 26</div>
+          <div class="gantt-week-cell"><span class="wk-num">W13</span>Jun 2</div>
+        </div>
+      </div>
+
+      <!-- PHASE 1: HARDENING -->
+      <div class="gantt-row phase-divider">
+        <div class="gantt-row-label" style="font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:0.5px; color:var(--dev);">
+          <span class="phase-tag" style="background:var(--dev-bg); color:var(--dev);">Phase 1</span> Hardening
+        </div>
+        <div class="gantt-bars"></div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-row-label"><span class="label-text">Security fixes & cleanup</span></div>
+        <div class="gantt-bars">
+          <div class="gantt-bar dev" style="grid-column: 1 / 4;" data-tooltip="Remove DEV_CREDS, SAMPLE_PATIENTS, re-enable email banner">FIX</div>
+        </div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-row-label"><span class="label-text">Interactive landing demo</span></div>
+        <div class="gantt-bars">
+          <div class="gantt-bar dev" style="grid-column: 3 / 17;" data-tooltip="5-8 step embedded walkthrough component (~2 days)">BUILD</div>
+        </div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-row-label"><span class="label-text">Landing pages polish</span></div>
+        <div class="gantt-bars">
+          <div class="gantt-bar tn" style="grid-column: 5 / 10;" data-tooltip="Integrate demo, verify 65 TND pricing">TN</div>
+          <div class="gantt-bar fr" style="grid-column: 5 / 10;" data-tooltip="Polish 10 sections, receptionist copy" style="margin-top:2px">FR</div>
+        </div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-row-label"><span class="label-text">Stripe webhook hardening</span></div>
+        <div class="gantt-bars">
+          <div class="gantt-bar dev" style="grid-column: 3 / 5;" data-tooltip="Signature verification for production">STRIPE</div>
+        </div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-row-label"><span class="label-text">E2E testing + deploy</span></div>
+        <div class="gantt-bars">
+          <div class="gantt-bar dev" style="grid-column: 7 / 11;" data-tooltip="Full flow test: landing -> signup -> dashboard -> patient">TEST & DEPLOY</div>
+        </div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-row-label"><span class="label-text">Eid break + light prep</span></div>
+        <div class="gantt-bars">
+          <div class="eid-overlay" style="grid-column: 11 / 15;"></div>
+          <div class="gantt-bar shared" style="grid-column: 11 / 15;" data-tooltip="Mar 20-24: Eid break, WhatsApp scripts, target list">EID</div>
+        </div>
+      </div>
+
+      <!-- PHASE 2: TUNISIA PILOT -->
+      <div class="gantt-row phase-divider">
+        <div class="gantt-row-label" style="font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:0.5px; color:var(--tn-light);">
+          <span class="phase-tag" style="background:var(--tn-bg); color:var(--tn-light);">Phase 2</span> Tunisia Pilot
+        </div>
+        <div class="gantt-bars"></div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-row-label"><span class="market-icon" style="background:var(--tn-primary)"></span><span class="label-text">Cold testing (3 people)</span></div>
+        <div class="gantt-bars">
+          <div class="gantt-bar tn" style="grid-column: 16 / 22;" data-tooltip="Mar 25-31: Test with friend, doctor, non-tech person">TEST</div>
+        </div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-row-label"><span class="market-icon" style="background:var(--tn-primary)"></span><span class="label-text">Campaign material production</span></div>
+        <div class="gantt-bars">
+          <div class="gantt-bar tn" style="grid-column: 18 / 28;" data-tooltip="Mystery cards, WhatsApp scripts, QR teaser page, 60s video">PRODUCE</div>
+        </div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-row-label"><span class="market-icon" style="background:var(--campaign)"></span><span class="label-text">Beat 1: Mystery cards</span></div>
+        <div class="gantt-bars">
+          <div class="gantt-bar campaign" style="grid-column: 29 / 32;" data-tooltip="Apr 7-9: Hand-deliver to 30-50 clinics">MYSTERY</div>
+        </div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-row-label"><span class="market-icon" style="background:var(--campaign)"></span><span class="label-text">Beat 2: WhatsApp reveal</span></div>
+        <div class="gantt-bars">
+          <div class="gantt-bar campaign" style="grid-column: 31 / 36;" data-tooltip="Apr 10-14: WhatsApp follow-up with demo link">REVEAL</div>
+        </div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-row-label"><span class="market-icon" style="background:var(--campaign)"></span><span class="label-text">Beat 3: Founding signups</span></div>
+        <div class="gantt-bars">
+          <div class="gantt-bar campaign" style="grid-column: 36 / 42;" data-tooltip="Apr 14-20: 'Clinique Fondatrice' program opens. Target: 10-20">FOUNDING</div>
+        </div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-row-label"><span class="market-icon" style="background:var(--tn-primary)"></span><span class="label-text">Pilot support & onboarding</span></div>
+        <div class="gantt-bars">
+          <div class="gantt-bar tn" style="grid-column: 36 / 49;" data-tooltip="Apr 14-28: Daily monitoring, WhatsApp support, first-morning help">SUPPORT</div>
+        </div>
+      </div>
+
+      <!-- PHASE 3: ITERATION + FRANCE PREP -->
+      <div class="gantt-row phase-divider">
+        <div class="gantt-row-label" style="font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:0.5px; color:var(--text);">
+          <span class="phase-tag" style="background:var(--shared-bg); color:var(--text);">Phase 3</span> Iterate + France Prep
+        </div>
+        <div class="gantt-bars"></div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-row-label"><span class="market-icon" style="background:var(--tn-primary)"></span><span class="label-text">TN: Bug fixes & iteration</span></div>
+        <div class="gantt-bars">
+          <div class="gantt-bar tn-light" style="grid-column: 43 / 63;" data-tooltip="Apr 21 - May 10: Fix top 3 bugs, top feature requests">ITERATE</div>
+        </div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-row-label"><span class="market-icon" style="background:var(--tn-primary)"></span><span class="label-text">TN: Testimonials & social proof</span></div>
+        <div class="gantt-bars">
+          <div class="gantt-bar tn-light" style="grid-column: 50 / 63;" data-tooltip="Collect screenshots, doctor quotes, update landing page">PROOF</div>
+        </div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-row-label"><span class="market-icon" style="background:var(--fr-primary)"></span><span class="label-text">FR: Legal entity registration</span></div>
+        <div class="gantt-bars">
+          <div class="gantt-bar fr" style="grid-column: 43 / 63;" data-tooltip="CRITICAL PATH: Start Apr 21. Micro-entreprise 1-2 wks, SAS 3-4 wks">LEGAL ENTITY</div>
+        </div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-row-label"><span class="market-icon" style="background:var(--fr-primary)"></span><span class="label-text">FR: Desktop dashboard</span></div>
+        <div class="gantt-bars">
+          <div class="gantt-bar fr-light" style="grid-column: 43 / 49;" data-tooltip="3 days: Extend shared desktop layout for receptionists">DESKTOP</div>
+        </div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-row-label"><span class="market-icon" style="background:var(--fr-primary)"></span><span class="label-text">FR: Marketing + Stripe + Legal pages</span></div>
+        <div class="gantt-bars">
+          <div class="gantt-bar fr-light" style="grid-column: 50 / 60;" data-tooltip="Positioning, persona, RGPD pages, Stripe setup, domain">PREP</div>
+        </div>
+      </div>
+
+      <!-- PHASE 4: FRANCE PILOT -->
+      <div class="gantt-row phase-divider">
+        <div class="gantt-row-label" style="font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:0.5px; color:var(--fr-light);">
+          <span class="phase-tag" style="background:var(--fr-bg); color:var(--fr-light);">Phase 4</span> France Pilot
+        </div>
+        <div class="gantt-bars"></div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-row-label"><span class="market-icon" style="background:var(--fr-primary)"></span><span class="label-text">FR: Website launch + LinkedIn</span></div>
+        <div class="gantt-bars">
+          <div class="gantt-bar fr" style="grid-column: 63 / 70;" data-tooltip="May 11-17: filosoin.fr live, LinkedIn content starts">LAUNCH</div>
+        </div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-row-label"><span class="market-icon" style="background:var(--fr-primary)"></span><span class="label-text">FR: Cold email campaigns</span></div>
+        <div class="gantt-bars">
+          <div class="gantt-bar fr" style="grid-column: 63 / 84;" data-tooltip="May 11-31: 2 batches of 50-100 clinics each">EMAIL OUTREACH</div>
+        </div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-row-label"><span class="market-icon" style="background:var(--fr-primary)"></span><span class="label-text">FR: Pilot onboarding & support</span></div>
+        <div class="gantt-bars">
+          <div class="gantt-bar fr-light" style="grid-column: 70 / 91;" data-tooltip="May 18 - Jun 8: Video calls, email support, feedback collection">ONBOARD</div>
+        </div>
+      </div>
+
+      <!-- PHASE 5: TN PUBLIC LAUNCH PREP -->
+      <div class="gantt-row phase-divider">
+        <div class="gantt-row-label" style="font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:0.5px; color:var(--milestone);">
+          <span class="phase-tag" style="background:var(--milestone-bg); color:var(--milestone);">Phase 5</span> Tunisia Public Launch
+        </div>
+        <div class="gantt-bars"></div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-row-label"><span class="market-icon" style="background:var(--tn-primary)"></span><span class="label-text">TN: Ongoing pilot support</span></div>
+        <div class="gantt-bars">
+          <div class="gantt-bar tn-light" style="grid-column: 63 / 91;" data-tooltip="May 11 - Jun 8: Convert pilots to paid, expand to 20+">SUPPORT</div>
+        </div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-row-label"><span class="market-icon" style="background:var(--tn-primary)"></span><span class="label-text">TN: Case studies & landing v2</span></div>
+        <div class="gantt-bars">
+          <div class="gantt-bar tn" style="grid-column: 67 / 78;" data-tooltip="May 15-25: Founding clinic success stories, redesign with real data">CASE STUDIES</div>
+        </div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-row-label"><span class="market-icon" style="background:var(--campaign)"></span><span class="label-text">TN: Paid ads + press outreach</span></div>
+        <div class="gantt-bars">
+          <div class="gantt-bar campaign" style="grid-column: 78 / 91;" data-tooltip="May 25 - Jun 8: Facebook/Instagram ads (10-20 TND/day), tech press">ADS & PR</div>
+        </div>
+      </div>
+
+      <!-- Milestones row -->
+      <div class="gantt-row" style="min-height:48px;">
+        <div class="gantt-row-label" style="font-weight:600; color:var(--text-dim); font-size:12px;">
+          <span class="label-text">Milestones & Decisions</span>
+        </div>
+        <div class="gantt-bars" style="position:relative;">
+          <!-- Today marker: day 1 = Mar 10, so Mar 11 = day 2 -->
+          <div class="today-marker" style="grid-column: 2 / 3;"></div>
+          <!-- Eid: Mar 20-22 = days 11-13 -->
+          <div class="eid-overlay" style="grid-column: 11 / 14;"></div>
+          <!-- TN Campaign Launch: Apr 7 = day 29 -->
+          <div class="gantt-milestone launch" style="grid-column: 29; left: calc(50% - 7px);" title="Apr 7: Tunisia campaign launch"></div>
+          <!-- Decision: Apr 25 = day 47 -->
+          <div class="gantt-milestone decision" style="grid-column: 47; left: calc(50% - 7px);" title="Apr 25: Is TN campaign working?"></div>
+          <!-- Decision: May 10 = day 62 -->
+          <div class="gantt-milestone decision" style="grid-column: 62; left: calc(50% - 7px);" title="May 10: Ready for France?"></div>
+          <!-- FR Launch: May 11 = day 63 -->
+          <div class="gantt-milestone launch" style="grid-column: 63; left: calc(50% - 7px);" title="May 11: France pilot launch"></div>
+          <!-- Decision: May 31 = day 83 -->
+          <div class="gantt-milestone decision" style="grid-column: 83; left: calc(50% - 7px);" title="May 31: France approach working?"></div>
+          <!-- Decision: Jun 8 = day 91 -->
+          <div class="gantt-milestone launch" style="grid-column: 91; left: calc(50% - 7px);" title="Jun 8: Tunisia public launch go/no-go"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- MARKETING 4P                                -->
+  <!-- ═══════════════════════════════════════════ -->
+  <h2 style="font-size:20px; margin-bottom:20px;">Marketing Strategy (4P)</h2>
+
+  <h3 style="font-size:15px; margin-bottom:12px; color:var(--tn-light);">BleSaf &mdash; Tunisia</h3>
+  <div class="four-p-grid">
+    <div class="four-p-card">
+      <h4><span class="p-icon tn">P</span> Product</h4>
+      <p>Digital queue: QR check-in, real-time tracking, multi-doctor, Arabic+French. No app install. Web-based for both doctors and patients.</p>
+    </div>
+    <div class="four-p-card">
+      <h4><span class="p-icon tn">P</span> Price</h4>
+      <p><strong>65 TND/month</strong> or <strong>650 TND/year</strong> (2 months free). 30-day free trial. "Less than a coffee per day." ROI: prevents ~150 patient losses/year = 4,500-7,500 TND saved.</p>
+    </div>
+    <div class="four-p-card">
+      <h4><span class="p-icon tn">P</span> Place</h4>
+      <p>Physical + digital hybrid. blesaf.tn. WhatsApp doctor groups, physical card delivery, Facebook/Instagram ads. Target: Tunis clinic-dense areas (Les Berges du Lac, Ennasr, Menzah).</p>
+    </div>
+    <div class="four-p-card">
+      <h4><span class="p-icon tn">P</span> Promotion</h4>
+      <p>3-beat teaser campaign (Mystery &rarr; Reveal &rarr; Founding Clinic). WhatsApp-first follow-up. Facebook retargeting ads (Week 8+). Founding clinic quarterly dinner. Testimonial-driven word-of-mouth.</p>
+    </div>
+  </div>
+
+  <h3 style="font-size:15px; margin-bottom:12px; color:var(--fr-light);">AuSuivant &mdash; France</h3>
+  <div class="four-p-grid">
+    <div class="four-p-card">
+      <h4><span class="p-icon fr">P</span> Product</h4>
+      <p>Same core product. RGPD-compliant (name anonymization). Receptionist-focused UX. Complementary to Doctolib (queue management &ne; appointment booking).</p>
+    </div>
+    <div class="four-p-card">
+      <h4><span class="p-icon fr">P</span> Price</h4>
+      <p><strong>49 EUR/month</strong> or <strong>490 EUR/year</strong> (2 months free). 30-day free trial. Positioned as affordable vs Doctolib (100-130 EUR/month for appointments alone).</p>
+    </div>
+    <div class="four-p-card">
+      <h4><span class="p-icon fr">P</span> Place</h4>
+      <p>Digital-only. filosoin.fr. LinkedIn, medical secretary Facebook groups, cold email to multi-doctor practices, Google Ads ("gestion file attente cabinet medical").</p>
+    </div>
+    <div class="four-p-card">
+      <h4><span class="p-icon fr">P</span> Promotion</h4>
+      <p>LinkedIn content (2-3 posts/week). Cold email (200 clinics in Paris/Lyon/Marseille). Google Ads (5-10 EUR/day). Free webinar: "5 ways to improve your waiting room."</p>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- DECISION POINTS                             -->
+  <!-- ═══════════════════════════════════════════ -->
+  <h2 style="font-size:20px; margin-bottom:16px;">Key Decision Points</h2>
+
+  <div class="gantt-wrapper" style="padding:0;">
+    <table class="decisions-table">
+      <thead>
+        <tr>
+          <th style="width:100px;">Date</th>
+          <th style="width:200px;">Decision</th>
+          <th>Go Criteria</th>
+          <th>No-Go Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="date-badge">Apr 25</span></td>
+          <td>Is TN campaign working?</td>
+          <td>3+ founding clinic signups</td>
+          <td>Pivot to direct outreach (personal clinic visits)</td>
+        </tr>
+        <tr>
+          <td><span class="date-badge">May 10</span></td>
+          <td>Ready for France?</td>
+          <td>Tunisia stable (5+ active clinics, no critical bugs)</td>
+          <td>Delay France 2 weeks, stabilize Tunisia</td>
+        </tr>
+        <tr>
+          <td><span class="date-badge">May 31</span></td>
+          <td>France approach working?</td>
+          <td>3+ French trial signups</td>
+          <td>Pivot to Google Ads + webinar only</td>
+        </tr>
+        <tr>
+          <td><span class="date-badge">Jun 8</span></td>
+          <td>Tunisia public launch?</td>
+          <td>10+ active clinics, 3+ paying, NPS &gt; 7</td>
+          <td>Delay launch, focus on retention</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- TARGET METRICS                              -->
+  <!-- ═══════════════════════════════════════════ -->
+  <h2 style="font-size:20px; margin-bottom:16px;">Target Metrics</h2>
+
+  <div class="metrics-grid">
+    <div class="gantt-wrapper" style="padding:16px;">
+      <h3 style="font-size:14px; margin-bottom:12px; color:var(--tn-light);">Tunisia</h3>
+      <table class="metrics-table">
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th>Wk 5 (Apr 13)</th>
+            <th>Wk 8 (May 4)</th>
+            <th>Wk 13 (Jun 8)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Landing visits</td><td>100+</td><td>300+</td><td>1,000+</td></tr>
+          <tr><td>Trial signups</td><td>3-5</td><td>10-15</td><td>20+</td></tr>
+          <tr><td>Activated</td><td>2-4</td><td>8-12</td><td>15+</td></tr>
+          <tr><td>First check-in</td><td>2-3</td><td>6-10</td><td>12+</td></tr>
+          <tr><td>7-day retention</td><td>50%+</td><td>55%+</td><td>60%+</td></tr>
+          <tr><td>Paying customers</td><td>0</td><td>0</td><td style="font-weight:700; color:var(--tn-light)">5-10</td></tr>
+          <tr><td>MRR (TND)</td><td>0</td><td>0</td><td style="font-weight:700; color:var(--tn-light)">325-650</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="gantt-wrapper" style="padding:16px;">
+      <h3 style="font-size:14px; margin-bottom:12px; color:var(--fr-light);">France</h3>
+      <table class="metrics-table">
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th>Wk 10 (May 18)</th>
+            <th>Wk 13 (Jun 8)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Landing visits</td><td>200+</td><td>500+</td></tr>
+          <tr><td>Trial signups</td><td>3-5</td><td>5-10</td></tr>
+          <tr><td>Activated</td><td>2-3</td><td>4-7</td></tr>
+          <tr><td>Cold email response</td><td>5%+</td><td>Optimize</td></tr>
+          <tr><td>Paying customers</td><td>0</td><td>0 (trial)</td></tr>
+          <tr><td colspan="3" style="color:var(--text-dim); font-style:italic; padding-top:16px;">Scale-up target: September "rentr&eacute;e"</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- ONBOARDING FLOWS                            -->
+  <!-- ═══════════════════════════════════════════ -->
+  <h2 style="font-size:20px; margin-bottom:16px;">Onboarding Flows</h2>
+
+  <div class="metrics-grid">
+    <div class="gantt-wrapper" style="padding:20px;">
+      <h3 style="font-size:14px; margin-bottom:16px; color:var(--tn-light);">Tunisia &mdash; Target: Doctors</h3>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:28px; height:28px; border-radius:50%; background:var(--tn-bg); color:var(--tn-light); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0;">1</div>
+          <div style="font-size:13px;"><strong>Landing page</strong> &rarr; "Essayez gratuitement" CTA</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:28px; height:28px; border-radius:50%; background:var(--tn-bg); color:var(--tn-light); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0;">2</div>
+          <div style="font-size:13px;"><strong>Signup:</strong> 3 fields (clinic name, email, password)</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:28px; height:28px; border-radius:50%; background:var(--tn-bg); color:var(--tn-light); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0;">3</div>
+          <div style="font-size:13px;"><strong>Welcome:</strong> "Bienvenue, Dr. [Name]" + clinic preview</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:28px; height:28px; border-radius:50%; background:var(--tn-bg); color:var(--tn-light); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0;">4</div>
+          <div style="font-size:13px;"><strong>Simulation:</strong> Pre-populated queue with fake patients</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:28px; height:28px; border-radius:50%; background:var(--tn-bg); color:var(--tn-light); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0;">5</div>
+          <div style="font-size:13px;"><strong>Playbook:</strong> Print QR, share with receptionist, add first patient</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:28px; height:28px; border-radius:50%; background:var(--tn-bg); color:var(--tn-light); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0;">6</div>
+          <div style="font-size:13px;"><strong>Day 2 nudge:</strong> WhatsApp "How did your first morning go?"</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="gantt-wrapper" style="padding:20px;">
+      <h3 style="font-size:14px; margin-bottom:16px; color:var(--fr-light);">France &mdash; Target: Receptionists</h3>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:28px; height:28px; border-radius:50%; background:var(--fr-bg); color:var(--fr-light); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0;">1</div>
+          <div style="font-size:13px;"><strong>Landing page</strong> &rarr; "Commencer l'essai gratuit" CTA</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:28px; height:28px; border-radius:50%; background:var(--fr-bg); color:var(--fr-light); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0;">2</div>
+          <div style="font-size:13px;"><strong>Signup:</strong> 3 fields (cabinet name, email, password)</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:28px; height:28px; border-radius:50%; background:var(--fr-bg); color:var(--fr-light); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0;">3</div>
+          <div style="font-size:13px;"><strong>Welcome:</strong> "Bienvenue dans AuSuivant" + value prop</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:28px; height:28px; border-radius:50%; background:var(--fr-bg); color:var(--fr-light); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0;">4</div>
+          <div style="font-size:13px;"><strong>Guided tour:</strong> Interactive overlay (queue, add patient, notifications)</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:28px; height:28px; border-radius:50%; background:var(--fr-bg); color:var(--fr-light); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0;">5</div>
+          <div style="font-size:13px;"><strong>Setup wizard:</strong> Configure doctors, clinic hours, check-in method</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:28px; height:28px; border-radius:50%; background:var(--fr-bg); color:var(--fr-light); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0;">6</div>
+          <div style="font-size:13px;"><strong>Simulation:</strong> "Here's your morning &mdash; a patient just checked in"</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:28px; height:28px; border-radius:50%; background:var(--fr-bg); color:var(--fr-light); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0;">7</div>
+          <div style="font-size:13px;"><strong>Day 2 email:</strong> "Tips for a smooth morning with AuSuivant"</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- RISK MITIGATION                             -->
+  <!-- ═══════════════════════════════════════════ -->
+  <h2 style="font-size:20px; margin-bottom:16px;">Risk Mitigation</h2>
+
+  <div class="gantt-wrapper" style="padding:0;">
+    <table class="decisions-table">
+      <thead>
+        <tr>
+          <th style="width:250px;">Risk</th>
+          <th>Mitigation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="color:var(--milestone);">No clinic signups after campaign</td>
+          <td>Beat 2 WhatsApp is the safety net. Personal outreach always converts better. Offer permanent free tier to first 5 clinics if needed.</td>
+        </tr>
+        <tr>
+          <td style="color:var(--campaign);">Pilot clinic has bad experience</td>
+          <td>Same-day WhatsApp response. Sentry alerts. Have rollback plan ready.</td>
+        </tr>
+        <tr>
+          <td style="color:var(--campaign);">Solo developer burnout</td>
+          <td>Eid break is sacred. Weeks 7-9 split work 60/40. No all-nighters.</td>
+        </tr>
+        <tr>
+          <td style="color:var(--milestone);">France legal entity delayed</td>
+          <td><strong>Start registration April 21.</strong> Micro-entreprise is fastest (1-2 weeks). Stripe Atlas as fallback. Critical path for France.</td>
+        </tr>
+        <tr>
+          <td style="color:var(--campaign);">July-August French vacation</td>
+          <td>Set expectations: "Light summer, full September restart." Use summer to build relationships, not push signups.</td>
+        </tr>
+        <tr>
+          <td style="color:var(--campaign);">Konnect approval delayed</td>
+          <td>Extend free trials manually. Enable payments when approved.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p style="margin-top:40px; text-align:center; color:var(--text-dim); font-size:12px;">
+    Generated March 11, 2026 &middot; Full plan: <code>docs/plans/90-day-launch-plan.md</code>
+  </p>
+
+</div>
+
+</body>
+</html>

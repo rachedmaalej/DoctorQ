@@ -30,41 +30,53 @@ export type SpecialtyId = (typeof SPECIALTIES)[number]['id'];
 
 export const SCREEN_COPY = {
   welcome: {
-    headline: 'Votre cabinet numérique en 2 minutes.',
+    headline: 'Votre salle d\'attente, enfin sous contrôle.',
     subtitle:
-      'Aucune carte bancaire. Aucun engagement. Juste votre file d\'attente — prête en quelques clics.',
-    cta: 'Commencer',
+      'Sans carte bancaire. Sans engagement. Prêt en 2 minutes.',
+    cta: 'Créer ma file gratuite',
   },
   specialty: {
-    headline: 'Quel type de cabinet dirigez-vous ?',
-    subtitle: 'Nous adaptons votre expérience à votre spécialité.',
+    headline: 'Quelle est votre spécialité ?',
+    subtitle: 'Chaque spécialité a ses propres flux. On s\'adapte.',
     cta: 'Continuer',
   },
   signup: {
-    headline: 'Créez votre compte.',
-    subtitle: 'Votre cabinet sera prêt dans 60 secondes.',
+    headline: 'Dans 60 secondes, votre file d\'attente est prête.',
+    subtitle: 'Choisissez comment vous connecter.',
     cta: 'Créer mon compte',
     emailPlaceholder: 'Email professionnel',
     passwordPlaceholder: 'Mot de passe',
     clinicPlaceholder: 'Ex. Clinique Dr. Hafsia',
     clinicLabel: 'Nom de votre cabinet',
     loginLink: 'Déjà inscrit ? Se connecter',
-    trust: 'Aucune carte bancaire · 30 jours gratuits',
+    trust: 'Sans carte bancaire · Essai 30 jours · Annulable à tout moment',
     loading: 'Création en cours…',
   },
   qrReveal: {
-    headline: 'Votre QR Code est prêt !',
+    eyebrow: 'VOTRE CABINET EST PRÊT !',
+    headline: 'Votre QR code,',
+    headlineAccent: 'prêt à l\'emploi.',
     subtitle:
+      'Affichez ce QR code en salle d\'attente. Vos patients scannent et rejoignent la file instantanément — sans télécharger d\'application.',
+    subtitleMobile:
       'Affichez-le en salle d\'attente. Vos patients s\'inscrivent en 10 secondes.',
+    successBadge: 'Inscrit ! Votre file est prête.',
+    successHelper: 'Imprimez-le, affichez-le, ou partagez-le par WhatsApp.',
     whatsapp: 'Envoyer par WhatsApp',
     download: 'Télécharger le PDF',
-    dashboard: 'Commencer',
+    dashboard: 'Accéder à mon tableau de bord',
+    dashboardMobile: 'Commencer',
+    stats: [
+      { value: '0 min', label: 'Configuration' },
+      { value: '∞', label: 'Patients / jour' },
+      { value: '30 j', label: 'Essai gratuit' },
+    ],
   },
 } as const;
 
 export const ILLUSTRATION_PATHS = {
-  welcome: '/images/onboarding/welcome2.png',
-  specialty: '/images/onboarding/specialty2.png',
-  signup: '/images/onboarding/signup2.png',
-  'qr-reveal': '/images/onboarding/qr-reveal2.png',
+  welcome: '/images/onboarding/welcome3.png',
+  specialty: '/images/onboarding/specialty3.png',
+  signup: '/images/onboarding/signup3.png',
+  'qr-reveal': '/images/onboarding/qr-reveal3.png',
 } as const;

@@ -111,6 +111,7 @@ export default function PatientStatusPage() {
           api.getPatientStatus(entryId).then((data) => {
             setEntry(data);
             previousPositionRef.current = data.position;
+            displayedEstimateRef.current = data.estimatedWaitMins ?? null;
           }).catch(() => {});
         }
       }
@@ -245,6 +246,7 @@ export default function PatientStatusPage() {
       setEntry(freshData);
       previousPositionRef.current = freshData.position;
       prevStatusRef.current = freshData.status;
+      displayedEstimateRef.current = freshData.estimatedWaitMins ?? null;
       if (freshData.isDoctorPresent !== undefined) {
         setIsDoctorPresent(freshData.isDoctorPresent);
       }

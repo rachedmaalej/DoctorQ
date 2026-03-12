@@ -71,23 +71,17 @@ export default function OnboardingFlow() {
   }, []);
 
   const handleSignUpComplete = useCallback(
-    async (clinicId: string, clinicName: string) => {
+    (clinicId: string, clinicName: string) => {
       setSignUpResult({ clinicId, clinicName });
-      trackOnboarding(EVENTS.ONBOARDING_COMPLETED);
-      localStorage.setItem('blesaf_onboarded', 'true');
-      try {
-        await api.updateOnboarding(3, true);
-      } catch {
-        // Non-blocking — dashboard will still work
-      }
-      // Queue the guided tour — fires every time a user goes through onboarding
-      useTourStore.getState().setState('WELCOME');
-      await checkAuth();
-      navigate('/dashboard');
+      // Don't call checkAuth() here — it triggers a route guard re-render
+      // which remounts OnboardingFlow and resets step to 0.
+      // Auth is refreshed in handleComplete after QR reveal.
+      advance();
     },
-    [navigate, checkAuth],
+    [advance],
   );
 
+  /** Called from QR reveal screen — final step of onboarding */
   const handleComplete = useCallback(async () => {
     trackOnboarding(EVENTS.ONBOARDING_COMPLETED);
     localStorage.setItem('blesaf_onboarded', 'true');
@@ -96,8 +90,12 @@ export default function OnboardingFlow() {
     } catch {
       // Non-blocking — dashboard will still work
     }
+    // Queue the guided tour
+    useTourStore.getState().setState('WELCOME');
+    // Refresh auth now (after onboardingCompleted is set on server)
+    await checkAuth();
     navigate('/dashboard');
-  }, [navigate]);
+  }, [navigate, checkAuth]);
 
   // Track onboarding start on Welcome screen
   const handleSplashComplete = useCallback(() => {

@@ -1,8 +1,5 @@
 import { useState } from 'react';
-import type React from 'react';
-import ProgressBar from '../components/ProgressBar';
-import IllustrationPanel from '../components/IllustrationPanel';
-import ContentCard from '../components/ContentCard';
+import OnboardingLayout from '../components/OnboardingLayout';
 import PillButton from '../components/PillButton';
 import { SCREEN_COPY, ILLUSTRATION_PATHS, SPECIALTIES, type SpecialtyId } from '../constants/onboardingConfig';
 
@@ -15,9 +12,9 @@ interface SpecialtyScreenProps {
 }
 
 /**
- * Screen 2: Specialty picker — bottom sheet modal over 10 options.
- * "Autres" reveals a free-text input inside the sheet.
- * CTA enabled once a valid selection is made.
+ * Screen 2: Specialty picker.
+ * Mobile: bottom sheet modal over 10 options.
+ * Desktop: inline 2-column chip grid — all options visible at once.
  */
 export default function SpecialtyScreen({
   step,
@@ -46,50 +43,62 @@ export default function SpecialtyScreen({
 
   const closeSheet = () => setIsSheetOpen(false);
 
-  return (
-    <div
-      className="flex flex-col h-full relative"
-      style={{ '--ob-illustration-h': '55dvh', '--ob-card-pad': '16px 20px 20px' } as React.CSSProperties}
+  const skipButton = (
+    <button
+      type="button"
+      onClick={onSkip}
+      className="text-[13px] font-medium opacity-70 hover:opacity-100 transition-opacity"
+      style={{ fontFamily: 'var(--ob-font)', color: 'var(--ob-brand-text)' }}
     >
-      <div className="relative">
-        <ProgressBar step={step} />
+      Passer
+    </button>
+  );
 
-        {/* Skip */}
-        <button
-          type="button"
-          onClick={onSkip}
-          className="absolute top-3 right-4 z-20 text-[13px] font-medium opacity-70 hover:opacity-100 transition-opacity"
-          style={{ fontFamily: 'var(--ob-font)', color: 'var(--ob-brand-text)' }}
-        >
-          Skip
-        </button>
+  return (
+    <div className="relative h-full">
+      <OnboardingLayout
+        step={step}
+        illustrationSrc={ILLUSTRATION_PATHS.specialty}
+        illustrationAlt="Doctor with specialty icons"
+        headerRight={skipButton}
+      >
+        <div className="flex flex-col items-center md:items-stretch md:h-full">
+          {/* Desktop: skip link inline */}
+          <div className="hidden md:flex items-center justify-between mb-1 w-full">
+            <span
+              className="text-[12px] font-medium"
+              style={{ color: 'var(--ob-brand-subtle)' }}
+            >
+              Étape 2 / 4
+            </span>
+            <button
+              type="button"
+              onClick={onSkip}
+              className="text-[13px] font-medium hover:underline transition-all"
+              style={{ fontFamily: 'var(--ob-font)', color: 'var(--ob-brand-subtle)' }}
+            >
+              Passer &rarr;
+            </button>
+          </div>
 
-        <IllustrationPanel
-          src={ILLUSTRATION_PATHS.specialty}
-          alt="Doctor with specialty icons"
-        />
-      </div>
-
-      <ContentCard>
-        <div className="flex flex-col h-full">
           <h1
-            className="text-[22px] font-bold leading-tight mb-[4px]"
+            className="text-[22px] font-bold leading-tight mb-[4px] text-center md:text-left md:text-[28px] md:mb-[6px]"
             style={{ fontFamily: 'var(--ob-font)', color: 'var(--ob-brand-text)' }}
           >
             {copy.headline}
           </h1>
           <p
-            className="text-[13px] leading-relaxed mb-[14px]"
+            className="text-[13px] leading-relaxed mb-[14px] text-center md:text-left md:text-[14px] md:mb-5"
             style={{ fontFamily: 'var(--ob-font)', color: 'var(--ob-brand-subtle)' }}
           >
             {copy.subtitle}
           </p>
 
-          {/* Select trigger */}
+          {/* ── Mobile: Select trigger (opens bottom sheet) ── */}
           <button
             type="button"
             onClick={() => setIsSheetOpen(true)}
-            className="w-full flex items-center justify-between rounded-xl border-2 px-4 py-[11px] text-[14px] font-medium transition-colors"
+            className="md:hidden w-full flex items-center justify-between rounded-xl border-2 px-4 py-[11px] text-[14px] font-medium transition-colors"
             style={{
               fontFamily: 'var(--ob-font)',
               borderColor: specialty ? 'var(--ob-brand-primary)' : '#E5E7EB',
@@ -111,18 +120,60 @@ export default function SpecialtyScreen({
             </span>
           </button>
 
-          <div className="flex-1" />
+          {/* ── Desktop: inline chip grid ── */}
+          <div className="hidden md:grid grid-cols-2 gap-2 mb-5">
+            {SPECIALTIES.map((s) => {
+              const isActive = specialty === s.id;
+              return (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => onSelect(s.id)}
+                  className="px-3 py-[10px] rounded-[10px] border-2 text-[13px] font-medium text-center transition-all hover:border-[var(--ob-brand-primary)] hover:bg-[var(--ob-brand-bg)]"
+                  style={{
+                    fontFamily: 'var(--ob-font)',
+                    borderColor: isActive ? 'var(--ob-brand-primary)' : '#E5E7EB',
+                    backgroundColor: isActive ? 'var(--ob-brand-bg)' : '#FAFAFA',
+                    color: isActive ? 'var(--ob-brand-primary)' : 'var(--ob-brand-text)',
+                    fontWeight: isActive ? 600 : 500,
+                  }}
+                >
+                  {s.label}
+                </button>
+              );
+            })}
+          </div>
 
-          <PillButton onClick={onAdvance} disabled={!canAdvance}>
+          {/* Desktop: "Autres" free-text input */}
+          {specialty === 'autres' && (
+            <div className="hidden md:block mb-4">
+              <input
+                type="text"
+                value={autresText}
+                onChange={(e) => setAutresText(e.target.value)}
+                placeholder="Ex. Neurologie, Urologie…"
+                autoFocus
+                className="w-full rounded-xl border-2 px-4 py-2 text-[13px] outline-none"
+                style={{
+                  fontFamily: 'var(--ob-font)',
+                  borderColor: 'var(--ob-brand-primary)',
+                  backgroundColor: 'var(--ob-brand-bg)',
+                  color: 'var(--ob-brand-text)',
+                }}
+              />
+            </div>
+          )}
+
+          <PillButton onClick={onAdvance} disabled={!canAdvance} className="w-full md:max-w-full mt-2 md:mt-0">
             {copy.cta} <span aria-hidden="true">&rarr;</span>
           </PillButton>
         </div>
-      </ContentCard>
+      </OnboardingLayout>
 
-      {/* ── Bottom Sheet Overlay ── */}
+      {/* ── Mobile: Bottom Sheet Overlay ── */}
       {isSheetOpen && (
         <div
-          className="absolute inset-0 z-50 flex items-end"
+          className="absolute inset-0 z-50 flex items-end md:hidden"
           style={{ background: 'rgba(0,0,0,0.45)' }}
           onClick={(e) => e.target === e.currentTarget && closeSheet()}
         >
@@ -140,7 +191,7 @@ export default function SpecialtyScreen({
               style={{ padding: '14px 20px 12px', borderColor: '#F3F4F6' }}
             >
               <span
-                className="text-[14px] font-700"
+                className="text-[14px]"
                 style={{ fontFamily: 'var(--ob-font)', color: 'var(--ob-brand-text)', fontWeight: 700 }}
               >
                 Votre spécialité
@@ -184,7 +235,7 @@ export default function SpecialtyScreen({
               })}
             </div>
 
-            {/* "Autres" free-text input — shown only when Autres is selected */}
+            {/* "Autres" free-text input */}
             {specialty === 'autres' && (
               <div
                 className="shrink-0 border-t"

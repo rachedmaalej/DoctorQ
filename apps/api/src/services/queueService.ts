@@ -158,11 +158,7 @@ export async function addPatient(input: AddPatientInput): Promise<AddPatientResu
 
   // Fire-and-forget: emit socket updates in background (don't block HTTP response)
   emitQueueUpdate(clinicId).catch(() => {});
-
-  // If the new patient became IN_CONSULTATION or NOTIFIED, emit to their page
-  if (updatedEntry && (updatedEntry.status === QueueStatus.IN_CONSULTATION || updatedEntry.status === QueueStatus.NOTIFIED)) {
-    emitPatientUpdate(updatedEntry.id, updatedEntry.position, updatedEntry.status);
-  }
+  emitAllPatientUpdates(clinicId).catch(() => {});
 
   const finalEntry = updatedEntry || result.entry;
 
@@ -752,7 +748,7 @@ export async function updatePatientStatus(
 
   // Fire-and-forget: emit socket updates in background
   emitQueueUpdate(clinicId).catch(() => {});
-  emitPatientUpdate(updated.id, updated.position, updated.status);
+  emitAllPatientUpdates(clinicId).catch(() => {});
 
   return updated;
 }

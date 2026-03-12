@@ -778,6 +778,26 @@
       "qrHint": "Votre QR code est affiché ? Les patients scanneront pour rejoindre la file.",
       "downloadQr": "Télécharger QR",
       "shareWhatsApp": "WhatsApp"
+    },
+    "step4": {
+      "badgeTitle": "Zéro configuration. Zéro installation.",
+      "badgeSubtitle": "Votre secrétaire gère la file en quelques clics. Vos patients n'attendent plus dans le couloir.",
+      "statusBadge": "Votre file d'attente est créée",
+      "headingLine1": "Affichez ce code.",
+      "headingLine2": "C'est tout.",
+      "bodyCopy": "Vos patients scannent et rejoignent la file depuis leur téléphone — sans télécharger d'application. Votre secrétaire gère les arrivées en quelques clics. Vous consultez, sereinement.",
+      "qrStatus": "Actif · 0 patient en attente",
+      "qrAlt": "QR code de votre cabinet",
+      "btnDownload": "Télécharger",
+      "btnWhatsApp": "WhatsApp",
+      "stat1Label": "de config",
+      "stat2Label": "à installer",
+      "stat3Label": "gratuits",
+      "cta": "Afficher mon QR code en salle d'attente",
+      "inscritToast": "Inscrit !",
+      "bodyCopyMobile": "Vos patients scannent et rejoignent la file depuis leur téléphone — sans télécharger d'application. Votre secrétaire gère les arrivées en quelques clics. Vous consultez, sereinement.",
+      "qrStatusMobile": "Actif · 0 patient",
+      "whatsappMessage": "Rejoignez la file d'attente de mon cabinet ici :"
     }
   },
   "verify": {

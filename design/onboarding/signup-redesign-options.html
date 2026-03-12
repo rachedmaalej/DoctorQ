@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SignUpScreen — 3 Design Alternatives</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ob-font: 'Sora', sans-serif;
+      --ob-brand-primary: #1B6B45;
+      --ob-brand-text: #1A1A2E;
+      --ob-brand-subtle: #6B7280;
+      --ob-brand-bg: #E8F5F0;
+      --ob-card-bg: #FFFFFF;
+      --ob-card-radius: 28px;
+      --ob-btn-radius: 14px;
+      --ob-card-pad: 16px 20px 20px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--ob-font);
+      background: #F0F4F8;
+      min-height: 100vh;
+      padding: 48px 32px 80px;
+    }
+
+    .page-title {
+      text-align: center;
+      font-size: 28px;
+      font-weight: 700;
+      color: #1A1A2E;
+      margin-bottom: 8px;
+    }
+    .page-subtitle {
+      text-align: center;
+      font-size: 14px;
+      color: #6B7280;
+      margin-bottom: 52px;
+    }
+
+    /* ── Grid of 3 phones ── */
+    .phones-grid {
+      display: flex;
+      gap: 48px;
+      justify-content: center;
+      flex-wrap: wrap;
+      align-items: flex-start;
+    }
+
+    .phone-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .option-label {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #6B7280;
+    }
+    .option-name {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1A1A2E;
+      text-align: center;
+      margin-top: -4px;
+    }
+    .option-desc {
+      font-size: 13px;
+      color: #6B7280;
+      text-align: center;
+      max-width: 280px;
+      line-height: 1.5;
+    }
+
+    .badge-recommended {
+      display: inline-block;
+      background: #1B6B45;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 99px;
+      margin-top: 2px;
+    }
+
+    /* ── Phone Frame ── */
+    .phone-frame {
+      width: 375px;
+      height: 812px;
+      background: #fff;
+      border-radius: 44px;
+      overflow: hidden;
+      position: relative;
+      box-shadow:
+        0 0 0 10px #1A1A2E,
+        0 0 0 12px #2A2A3E,
+        0 30px 60px rgba(0,0,0,0.25);
+      flex-shrink: 0;
+    }
+
+    /* Notch */
+    .phone-frame::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 126px;
+      height: 30px;
+      background: #1A1A2E;
+      border-radius: 0 0 20px 20px;
+      z-index: 100;
+    }
+
+    /* ── Inner screen ── */
+    .screen {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* ── Progress bar ── */
+    .progress-bar {
+      position: absolute;
+      top: 40px;
+      left: 20px;
+      right: 20px;
+      z-index: 30;
+      display: flex;
+      gap: 6px;
+    }
+    .progress-segment {
+      flex: 1;
+      height: 3px;
+      border-radius: 2px;
+      background: rgba(255,255,255,0.35);
+    }
+    .progress-segment.active {
+      background: rgba(255,255,255,0.9);
+    }
+
+    /* ── Illustration area ── */
+    .illustration {
+      height: 62vh; /* 503px at 812px */
+      flex-shrink: 0;
+      background: linear-gradient(160deg, #C8E6D4 0%, #A8D5BE 40%, #78B89A 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Decorative circles to suggest illustration */
+    .illustration::after {
+      content: '';
+      position: absolute;
+      bottom: -60px;
+      right: -40px;
+      width: 200px;
+      height: 200px;
+      background: rgba(255,255,255,0.12);
+      border-radius: 50%;
+    }
+    .illustration::before {
+      content: '';
+      position: absolute;
+      top: 60px;
+      left: -30px;
+      width: 140px;
+      height: 140px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 50%;
+    }
+
+    .illustration-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* ── Content Card ── */
+    .content-card {
+      position: relative;
+      z-index: 10;
+      flex: 1;
+      margin-top: -20px;
+      background: var(--ob-card-bg);
+      border-radius: var(--ob-card-radius) var(--ob-card-radius) 0 0;
+      padding: var(--ob-card-pad);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── Typography ── */
+    .card-headline {
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--ob-brand-text);
+      margin-bottom: 4px;
+    }
+    .card-headline-sm {
+      font-size: 19px;
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--ob-brand-text);
+      margin-bottom: 3px;
+    }
+    .card-subtitle {
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--ob-brand-subtle);
+      margin-bottom: 10px;
+    }
+
+    /* ── Form inputs ── */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .form-input {
+      width: 100%;
+      border: 2px solid #E5E7EB;
+      border-radius: 12px;
+      padding: 8px 16px;
+      font-size: 14px;
+      font-family: var(--ob-font);
+      color: var(--ob-brand-text);
+      outline: none;
+      background: #fff;
+      line-height: 1.4;
+    }
+    .form-input::placeholder { color: #B0B7C3; }
+
+    /* ── Pill button ── */
+    .pill-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 13px 24px;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: var(--ob-font);
+      border: none;
+      border-radius: var(--ob-btn-radius);
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .pill-btn-dark {
+      background: var(--ob-brand-text);
+      color: #fff;
+    }
+    .pill-btn-outlined {
+      background: transparent;
+      border: 2px solid #E5E7EB;
+      color: var(--ob-brand-text);
+    }
+    .pill-btn-disabled {
+      opacity: 0.45;
+    }
+
+    /* ── SSO Buttons ── */
+    .sso-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 11px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: var(--ob-font);
+      border: 2px solid #E5E7EB;
+      border-radius: var(--ob-btn-radius);
+      background: #FAFAFA;
+      color: var(--ob-brand-text);
+      cursor: pointer;
+    }
+    .sso-btn + .sso-btn { margin-top: 8px; }
+
+    /* ── Divider ── */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 10px 0;
+      font-size: 12px;
+      color: #B0B7C3;
+      font-weight: 500;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #E5E7EB;
+    }
+
+    /* ── Trust signal ── */
+    .trust-signal {
+      text-align: center;
+      font-size: 11px;
+      color: var(--ob-brand-subtle);
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    /* ── Login link ── */
+    .login-link {
+      display: block;
+      text-align: center;
+      font-size: 12px;
+      color: var(--ob-brand-primary);
+      text-decoration: underline;
+      margin-top: 6px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: var(--ob-font);
+    }
+
+    /* ── Email link (Option B) ── */
+    .email-link {
+      display: block;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ob-brand-primary);
+      text-decoration: none;
+      margin-top: 4px;
+      padding: 6px 0;
+    }
+
+    /* ──────────────────────────────────────────
+       OPTION A — Tabs
+    ────────────────────────────────────────── */
+    .tab-control {
+      display: flex;
+      background: #F3F4F6;
+      border-radius: 10px;
+      padding: 3px;
+      margin-bottom: 10px;
+      gap: 3px;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 7px 0;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: var(--ob-font);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: transparent;
+      color: var(--ob-brand-subtle);
+    }
+    .tab-btn.active {
+      background: #fff;
+      color: var(--ob-brand-primary);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+    .tab-panel { display: none; flex-direction: column; flex: 1; }
+    .tab-panel.active { display: flex; }
+
+    /* ──────────────────────────────────────────
+       OPTION C — Icon Row
+    ────────────────────────────────────────── */
+    .sso-icon-row {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin: 6px 0;
+    }
+    .sso-icon-btn {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      border: 2px solid #E5E7EB;
+      background: #FAFAFA;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    /* ── SVG icon sizes ── */
+    .icon-sm { width: 20px; height: 20px; }
+    .icon-md { width: 22px; height: 22px; }
+  </style>
+</head>
+<body>
+
+  <h1 class="page-title">SignUpScreen — 3 Design Alternatives</h1>
+  <p class="page-subtitle">OAuth SSO (Google · Apple · Facebook) + Email signup · iPhone 13 · 62 vh illustration</p>
+
+  <div class="phones-grid">
+
+    <!-- ════════════════════════════════════════
+         OPTION A — Tabs
+    ════════════════════════════════════════ -->
+    <div class="phone-col">
+      <span class="option-label">Option A</span>
+      <span class="option-name">Tabs</span>
+      <span class="option-desc">Segmented control at top lets users switch between Email form and SSO providers.</span>
+
+      <div class="phone-frame">
+        <div class="screen">
+          <!-- Progress -->
+          <div class="progress-bar">
+            <div class="progress-segment active"></div>
+            <div class="progress-segment active"></div>
+            <div class="progress-segment active"></div>
+            <div class="progress-segment"></div>
+          </div>
+
+          <!-- Illustration -->
+          <div class="illustration" style="height: 62%;">
+            <svg width="120" height="120" viewBox="0 0 120 120" fill="none" opacity="0.3">
+              <circle cx="60" cy="40" r="28" fill="#fff"/>
+              <path d="M20 100 Q60 70 100 100" stroke="#fff" stroke-width="8" fill="none" stroke-linecap="round"/>
+            </svg>
+          </div>
+
+          <!-- Content Card -->
+          <div class="content-card">
+            <div style="font-size:22px;font-weight:700;color:var(--ob-brand-text);margin-bottom:3px;line-height:1.2;">Créez votre compte.</div>
+            <div style="font-size:12px;color:var(--ob-brand-subtle);margin-bottom:10px;">Votre cabinet sera prêt en 60 secondes.</div>
+
+            <!-- Tab control -->
+            <div class="tab-control">
+              <button class="tab-btn active" onclick="switchTab('a','email',this)">✉ Email</button>
+              <button class="tab-btn" onclick="switchTab('a','sso',this)">⚡ SSO rapide</button>
+            </div>
+
+            <!-- Email panel -->
+            <div class="tab-panel active" id="a-email">
+              <div class="form-group">
+                <input class="form-input" type="email" placeholder="Email professionnel" />
+                <input class="form-input" type="password" placeholder="Mot de passe (8 car. min.)" />
+                <input class="form-input" type="text" placeholder="Ex. Clinique Dr. Hafsia" />
+              </div>
+              <button class="pill-btn pill-btn-dark">Créer mon compte &rarr;</button>
+            </div>
+
+            <!-- SSO panel -->
+            <div class="tab-panel" id="a-sso">
+              <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:8px;padding:4px 0;">
+                <button class="sso-btn" style="margin:0;">
+                  <!-- Google SVG -->
+                  <svg class="icon-sm" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                  Continuer avec Google
+                </button>
+                <button class="sso-btn" style="margin:0;background:#000;border-color:#000;color:#fff;">
+                  <!-- Apple SVG -->
+                  <svg class="icon-sm" viewBox="0 0 24 24" fill="#fff"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+                  Continuer avec Apple
+                </button>
+                <button class="sso-btn" style="margin:0;background:#1877F2;border-color:#1877F2;color:#fff;">
+                  <!-- Facebook SVG -->
+                  <svg class="icon-sm" viewBox="0 0 24 24" fill="#fff"><path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.886v2.269h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg>
+                  Continuer avec Facebook
+                </button>
+              </div>
+            </div>
+
+            <!-- Always visible footer -->
+            <div class="trust-signal"><span>🔒</span> Aucune carte bancaire · 30 jours gratuits</div>
+            <button class="login-link">Déjà inscrit ? Se connecter</button>
+          </div>
+        </div>
+      </div>
+
+      <span class="option-desc" style="margin-top:8px;">⚡ Tab switch built-in above — click to preview</span>
+    </div>
+
+
+    <!-- ════════════════════════════════════════
+         OPTION B — SSO First  (RECOMMENDED)
+    ════════════════════════════════════════ -->
+    <div class="phone-col">
+      <span class="option-label">Option B</span>
+      <span class="option-name">SSO en avant</span>
+      <span class="badge-recommended">✦ Recommandé</span>
+      <span class="option-desc">SSO buttons are the primary CTA. Email is offered as a secondary fallback link. Minimal friction, modern pattern.</span>
+
+      <div class="phone-frame">
+        <div class="screen">
+          <div class="progress-bar">
+            <div class="progress-segment active"></div>
+            <div class="progress-segment active"></div>
+            <div class="progress-segment active"></div>
+            <div class="progress-segment"></div>
+          </div>
+
+          <div class="illustration" style="height: 62%;">
+            <svg width="120" height="120" viewBox="0 0 120 120" fill="none" opacity="0.3">
+              <circle cx="60" cy="40" r="28" fill="#fff"/>
+              <path d="M20 100 Q60 70 100 100" stroke="#fff" stroke-width="8" fill="none" stroke-linecap="round"/>
+            </svg>
+          </div>
+
+          <div class="content-card">
+            <div style="font-size:20px;font-weight:700;color:var(--ob-brand-text);margin-bottom:3px;line-height:1.2;">Créez votre compte.</div>
+            <div style="font-size:11px;color:var(--ob-brand-subtle);margin-bottom:12px;line-height:1.4;">Cabinet prêt en 60 secondes. Aucune carte.</div>
+
+            <!-- SSO Buttons -->
+            <button class="sso-btn" style="border-color:#DADCE0;background:#fff;">
+              <svg class="icon-sm" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+              Continuer avec Google
+            </button>
+            <button class="sso-btn" style="background:#000;border-color:#000;color:#fff;">
+              <svg class="icon-sm" viewBox="0 0 24 24" fill="#fff"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+              Continuer avec Apple
+            </button>
+            <button class="sso-btn" style="background:#1877F2;border-color:#1877F2;color:#fff;">
+              <svg class="icon-sm" viewBox="0 0 24 24" fill="#fff"><path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.886v2.269h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg>
+              Continuer avec Facebook
+            </button>
+
+            <!-- Divider -->
+            <div class="divider">ou créer avec email</div>
+
+            <!-- Email link -->
+            <button onclick="toggleEmailForm('b')" style="width:100%;padding:11px 20px;font-size:14px;font-weight:600;font-family:var(--ob-font);border:2px solid var(--ob-brand-primary);border-radius:var(--ob-btn-radius);background:var(--ob-brand-bg);color:var(--ob-brand-primary);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+              ✉ Créer avec email &rarr;
+            </button>
+
+            <!-- Inline email form (hidden by default) -->
+            <div id="b-emailform" style="display:none;margin-top:8px;flex-direction:column;gap:6px;">
+              <input class="form-input" type="email" placeholder="Email professionnel" />
+              <input class="form-input" type="password" placeholder="Mot de passe" />
+              <input class="form-input" type="text" placeholder="Nom de votre cabinet" />
+              <button class="pill-btn pill-btn-dark" style="margin-top:2px;">Créer mon compte &rarr;</button>
+            </div>
+
+            <div class="trust-signal"><span>🔒</span> 30 jours gratuits · Sans engagement</div>
+            <button class="login-link">Déjà inscrit ? Se connecter</button>
+          </div>
+        </div>
+      </div>
+
+      <span class="option-desc" style="margin-top:8px;">⚡ Click "Créer avec email" to expand inline form</span>
+    </div>
+
+
+    <!-- ════════════════════════════════════════
+         OPTION C — Form Primary + Icon Row
+    ════════════════════════════════════════ -->
+    <div class="phone-col">
+      <span class="option-label">Option C</span>
+      <span class="option-name">Formulaire + Icônes SSO</span>
+      <span class="option-desc">Email form stays as primary CTA. Three circular SSO icon buttons sit below a divider as a compact supplement.</span>
+
+      <div class="phone-frame">
+        <div class="screen">
+          <div class="progress-bar">
+            <div class="progress-segment active"></div>
+            <div class="progress-segment active"></div>
+            <div class="progress-segment active"></div>
+            <div class="progress-segment"></div>
+          </div>
+
+          <div class="illustration" style="height: 62%;">
+            <svg width="120" height="120" viewBox="0 0 120 120" fill="none" opacity="0.3">
+              <circle cx="60" cy="40" r="28" fill="#fff"/>
+              <path d="M20 100 Q60 70 100 100" stroke="#fff" stroke-width="8" fill="none" stroke-linecap="round"/>
+            </svg>
+          </div>
+
+          <div class="content-card">
+            <div style="font-size:20px;font-weight:700;color:var(--ob-brand-text);margin-bottom:2px;line-height:1.2;">Créez votre compte.</div>
+            <div style="font-size:11px;color:var(--ob-brand-subtle);margin-bottom:8px;">Votre cabinet sera prêt en 60 secondes.</div>
+
+            <!-- Email form (compact) -->
+            <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:8px;">
+              <input class="form-input" type="email" placeholder="Email professionnel" />
+              <input class="form-input" type="password" placeholder="Mot de passe" />
+              <input class="form-input" type="text" placeholder="Nom du cabinet" />
+            </div>
+
+            <button class="pill-btn pill-btn-dark">Créer mon compte &rarr;</button>
+
+            <!-- Divider -->
+            <div class="divider" style="margin:8px 0 6px;">ou continuer avec</div>
+
+            <!-- SSO Icon Row -->
+            <div class="sso-icon-row">
+              <!-- Google -->
+              <button class="sso-icon-btn" title="Google">
+                <svg class="icon-md" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+              </button>
+              <!-- Apple -->
+              <button class="sso-icon-btn" style="background:#000;border-color:#000;" title="Apple">
+                <svg class="icon-md" viewBox="0 0 24 24" fill="#fff"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+              </button>
+              <!-- Facebook -->
+              <button class="sso-icon-btn" style="background:#1877F2;border-color:#1877F2;" title="Facebook">
+                <svg class="icon-md" viewBox="0 0 24 24" fill="#fff"><path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.886v2.269h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg>
+              </button>
+            </div>
+
+            <div class="trust-signal" style="margin-top:6px;"><span>🔒</span> Aucune carte bancaire · 30 jours gratuits</div>
+            <button class="login-link">Déjà inscrit ? Se connecter</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /phones-grid -->
+
+
+  <!-- ── Comparison table ── -->
+  <div style="max-width:900px;margin:64px auto 0;font-family:var(--ob-font);">
+    <h2 style="font-size:20px;font-weight:700;color:#1A1A2E;text-align:center;margin-bottom:24px;">Comparaison rapide</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+      <thead>
+        <tr style="background:#1A1A2E;color:#fff;">
+          <th style="padding:12px 16px;text-align:left;border-radius:12px 0 0 0;">Critère</th>
+          <th style="padding:12px 16px;text-align:center;">A — Tabs</th>
+          <th style="padding:12px 16px;text-align:center;background:#1B6B45;">B — SSO First ✦</th>
+          <th style="padding:12px 16px;text-align:center;border-radius:0 12px 0 0;">C — Icônes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="background:#fff;">
+          <td style="padding:10px 16px;color:#1A1A2E;font-weight:500;border-bottom:1px solid #F3F4F6;">Friction perçue</td>
+          <td style="padding:10px 16px;text-align:center;border-bottom:1px solid #F3F4F6;">Moyenne</td>
+          <td style="padding:10px 16px;text-align:center;border-bottom:1px solid #F3F4F6;background:#F0FBF5;font-weight:600;color:#1B6B45;">Très faible ✓</td>
+          <td style="padding:10px 16px;text-align:center;border-bottom:1px solid #F3F4F6;">Faible</td>
+        </tr>
+        <tr style="background:#FAFAFA;">
+          <td style="padding:10px 16px;color:#1A1A2E;font-weight:500;border-bottom:1px solid #F3F4F6;">Clarté de l'action principale</td>
+          <td style="padding:10px 16px;text-align:center;border-bottom:1px solid #F3F4F6;">Bonne</td>
+          <td style="padding:10px 16px;text-align:center;border-bottom:1px solid #F3F4F6;background:#F0FBF5;font-weight:600;color:#1B6B45;">Excellente ✓</td>
+          <td style="padding:10px 16px;text-align:center;border-bottom:1px solid #F3F4F6;">Bonne</td>
+        </tr>
+        <tr style="background:#fff;">
+          <td style="padding:10px 16px;color:#1A1A2E;font-weight:500;border-bottom:1px solid #F3F4F6;">Fit dans 38vh sans scroll</td>
+          <td style="padding:10px 16px;text-align:center;border-bottom:1px solid #F3F4F6;">✓ Oui</td>
+          <td style="padding:10px 16px;text-align:center;border-bottom:1px solid #F3F4F6;background:#F0FBF5;font-weight:600;color:#1B6B45;">✓ Oui ✓</td>
+          <td style="padding:10px 16px;text-align:center;border-bottom:1px solid #F3F4F6;">✓ Oui</td>
+        </tr>
+        <tr style="background:#FAFAFA;">
+          <td style="padding:10px 16px;color:#1A1A2E;font-weight:500;border-bottom:1px solid #F3F4F6;">Effort d'implémentation</td>
+          <td style="padding:10px 16px;text-align:center;border-bottom:1px solid #F3F4F6;">Moyen</td>
+          <td style="padding:10px 16px;text-align:center;border-bottom:1px solid #F3F4F6;background:#F0FBF5;font-weight:600;color:#1B6B45;">Faible ✓</td>
+          <td style="padding:10px 16px;text-align:center;border-bottom:1px solid #F3F4F6;">Faible</td>
+        </tr>
+        <tr style="background:#fff;">
+          <td style="padding:10px 16px;color:#1A1A2E;font-weight:500;">Taux de conversion attendu</td>
+          <td style="padding:10px 16px;text-align:center;">Moyen</td>
+          <td style="padding:10px 16px;text-align:center;background:#F0FBF5;font-weight:600;color:#1B6B45;">Élevé ✓</td>
+          <td style="padding:10px 16px;text-align:center;">Moyen–Élevé</td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="font-size:12px;color:#6B7280;text-align:center;margin-top:16px;">
+      ✦ Option B recommandée : SSO réduit la friction maximalement. L'email reste accessible en 1 tap.
+    </p>
+  </div>
+
+  <script>
+    // Option A — tab switching
+    function switchTab(phone, tab, clickedBtn) {
+      const emailPanel = document.getElementById(phone + '-email');
+      const ssoPanel   = document.getElementById(phone + '-sso');
+      const allBtns    = clickedBtn.closest('.tab-control').querySelectorAll('.tab-btn');
+
+      allBtns.forEach(b => b.classList.remove('active'));
+      clickedBtn.classList.add('active');
+
+      if (tab === 'email') {
+        emailPanel.classList.add('active');
+        ssoPanel.classList.remove('active');
+      } else {
+        ssoPanel.classList.add('active');
+        emailPanel.classList.remove('active');
+      }
+    }
+
+    // Option B — toggle inline email form
+    function toggleEmailForm(phone) {
+      const form = document.getElementById(phone + '-emailform');
+      const isHidden = form.style.display === 'none' || form.style.display === '';
+      form.style.display = isHidden ? 'flex' : 'none';
+    }
+  </script>
+
+</body>
+</html>

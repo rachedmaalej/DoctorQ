@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SpecialtyScreen — Dropdown Design Options</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ob-font: 'Sora', sans-serif;
+      --ob-brand-primary: #1B6B45;
+      --ob-brand-text: #1A1A2E;
+      --ob-brand-subtle: #6B7280;
+      --ob-brand-bg: #E8F5F0;
+      --ob-card-bg: #FFFFFF;
+      --ob-card-radius: 28px;
+      --ob-btn-radius: 14px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--ob-font);
+      background: #F0F4F8;
+      min-height: 100vh;
+      padding: 48px 32px 80px;
+    }
+
+    /* ── Page header ── */
+    .page-title { text-align: center; font-size: 26px; font-weight: 700; color: #1A1A2E; margin-bottom: 6px; }
+    .page-subtitle { text-align: center; font-size: 13px; color: #6B7280; margin-bottom: 16px; max-width: 680px; margin-inline: auto; line-height: 1.6; }
+
+    /* ── Research callout ── */
+    .research-box {
+      max-width: 860px;
+      margin: 0 auto 48px;
+      background: #fff;
+      border-radius: 16px;
+      padding: 20px 24px;
+      border-left: 4px solid var(--ob-brand-primary);
+    }
+    .research-box h3 { font-size: 13px; font-weight: 700; color: var(--ob-brand-primary); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 10px; }
+    .research-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+    .research-item h4 { font-size: 13px; font-weight: 600; color: #1A1A2E; margin-bottom: 4px; }
+    .research-item p { font-size: 12px; color: #6B7280; line-height: 1.5; }
+    .tag { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 99px; margin-bottom: 5px; letter-spacing: 0.06em; text-transform: uppercase; }
+    .tag-green { background: #D1FAE5; color: #065F46; }
+    .tag-amber { background: #FEF3C7; color: #92400E; }
+    .tag-red { background: #FEE2E2; color: #991B1B; }
+
+    /* ── Phones grid ── */
+    .phones-grid { display: flex; gap: 48px; justify-content: center; flex-wrap: wrap; align-items: flex-start; }
+    .phone-col { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+    .option-label { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #6B7280; }
+    .option-name { font-size: 17px; font-weight: 700; color: #1A1A2E; text-align: center; margin-top: -4px; }
+    .option-desc { font-size: 12px; color: #6B7280; text-align: center; max-width: 270px; line-height: 1.5; }
+    .badge { display: inline-block; background: var(--ob-brand-primary); color: #fff; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 12px; border-radius: 99px; margin-top: 2px; }
+
+    /* ── Phone frame ── */
+    .phone-frame {
+      width: 375px; height: 812px;
+      background: #fff; border-radius: 44px; overflow: hidden;
+      position: relative; flex-shrink: 0;
+      box-shadow: 0 0 0 10px #1A1A2E, 0 0 0 12px #2A2A3E, 0 28px 56px rgba(0,0,0,0.22);
+    }
+    .phone-frame::before {
+      content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+      width: 126px; height: 30px; background: #1A1A2E;
+      border-radius: 0 0 20px 20px; z-index: 200;
+    }
+    .screen { width: 100%; height: 100%; display: flex; flex-direction: column; position: relative; }
+
+    /* ── Progress ── */
+    .progress-bar {
+      position: absolute; top: 40px; left: 20px; right: 20px; z-index: 30;
+      display: flex; gap: 6px;
+    }
+    .progress-segment { flex: 1; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.35); }
+    .progress-segment.active { background: rgba(255,255,255,0.9); }
+
+    /* Skip */
+    .skip-btn {
+      position: absolute; top: 36px; right: 16px; z-index: 40;
+      font-size: 13px; font-weight: 500; font-family: var(--ob-font);
+      background: none; border: none; cursor: pointer; color: rgba(255,255,255,0.8);
+    }
+
+    /* ── Illustration ── */
+    .illustration {
+      height: 62%; flex-shrink: 0;
+      background: linear-gradient(160deg, #C8E6D4 0%, #A8D5BE 40%, #78B89A 100%);
+      display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden;
+    }
+    .illustration::after {
+      content: ''; position: absolute; bottom: -60px; right: -40px;
+      width: 200px; height: 200px; background: rgba(255,255,255,0.1); border-radius: 50%;
+    }
+
+    /* ── ContentCard ── */
+    .content-card {
+      position: relative; z-index: 10; flex: 1;
+      margin-top: -20px; background: var(--ob-card-bg);
+      border-radius: var(--ob-card-radius) var(--ob-card-radius) 0 0;
+      padding: 16px 20px 20px;
+      display: flex; flex-direction: column; align-items: center; text-align: center;
+      overflow: visible; /* allow dropdown to overflow */
+    }
+
+    /* ── Typography ── */
+    .card-headline { font-size: 22px; font-weight: 700; line-height: 1.2; color: var(--ob-brand-text); margin-bottom: 4px; width: 100%; }
+    .card-subtitle { font-size: 13px; line-height: 1.4; color: var(--ob-brand-subtle); margin-bottom: 14px; width: 100%; }
+
+    /* ── PillButton ── */
+    .pill-btn {
+      width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 13px 24px; font-size: 15px; font-weight: 600; font-family: var(--ob-font);
+      border: none; border-radius: var(--ob-btn-radius); cursor: pointer;
+    }
+    .pill-btn-dark { background: var(--ob-brand-text); color: #fff; }
+    .pill-btn-dark:disabled { opacity: 0.4; cursor: not-allowed; }
+
+
+    /* ═══════════════════════════════════════════
+       OPTION A — Bottom Sheet
+    ═══════════════════════════════════════════ */
+    .select-trigger {
+      width: 100%; display: flex; align-items: center; justify-content: space-between;
+      padding: 11px 16px; border-radius: 12px; border: 2px solid #E5E7EB;
+      background: #FAFAFA; cursor: pointer; margin-bottom: 14px;
+      font-family: var(--ob-font); font-size: 14px; font-weight: 500;
+      transition: border-color 0.2s;
+    }
+    .select-trigger.selected { border-color: var(--ob-brand-primary); background: var(--ob-brand-bg); }
+    .select-trigger .trigger-text { color: var(--ob-brand-subtle); }
+    .select-trigger.selected .trigger-text { color: var(--ob-brand-text); font-weight: 600; }
+    .chevron { font-size: 12px; color: var(--ob-brand-subtle); transition: transform 0.2s; }
+    .chevron.open { transform: rotate(180deg); }
+
+    /* Bottom Sheet Overlay */
+    .sheet-overlay {
+      position: absolute; inset: 0; z-index: 100;
+      background: rgba(0,0,0,0.4); display: none; align-items: flex-end;
+      border-radius: inherit;
+    }
+    .sheet-overlay.open { display: flex; }
+    .sheet {
+      width: 100%; background: #fff;
+      border-radius: 20px 20px 0 0; padding: 0 0 20px;
+      max-height: 65%;
+      display: flex; flex-direction: column;
+      animation: slideUp 0.25s ease;
+    }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .sheet-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px 12px; border-bottom: 1px solid #F3F4F6; flex-shrink: 0;
+    }
+    .sheet-title { font-size: 14px; font-weight: 700; color: var(--ob-brand-text); font-family: var(--ob-font); }
+    .sheet-close {
+      width: 28px; height: 28px; border-radius: 50%; border: none; background: #F3F4F6;
+      cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center;
+      color: var(--ob-brand-subtle); font-family: var(--ob-font);
+    }
+    .sheet-list { overflow-y: auto; flex: 1; }
+    .sheet-option {
+      width: 100%; display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 20px; border: none; background: none; cursor: pointer;
+      font-family: var(--ob-font); font-size: 14px; font-weight: 500;
+      color: var(--ob-brand-text); text-align: left; border-bottom: 1px solid #F9FAFB;
+      transition: background 0.1s;
+    }
+    .sheet-option:hover { background: #F9FAFB; }
+    .sheet-option.active { background: var(--ob-brand-bg); color: var(--ob-brand-primary); font-weight: 600; }
+    .sheet-option .check { font-size: 14px; color: var(--ob-brand-primary); opacity: 0; }
+    .sheet-option.active .check { opacity: 1; }
+    .sheet-input {
+      padding: 10px 20px 14px; border-top: 1px solid #F3F4F6;
+    }
+    .sheet-input input {
+      width: 100%; border: 2px solid var(--ob-brand-primary); border-radius: 10px;
+      padding: 8px 14px; font-size: 13px; font-family: var(--ob-font);
+      outline: none; color: var(--ob-brand-text); background: var(--ob-brand-bg);
+    }
+    .sheet-input input::placeholder { color: #B0B7C3; }
+
+
+    /* ═══════════════════════════════════════════
+       OPTION B — Floating Dropdown
+    ═══════════════════════════════════════════ */
+    .dropdown-wrapper { position: relative; width: 100%; margin-bottom: 12px; }
+    .dropdown-menu {
+      position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 150;
+      background: #fff; border-radius: 14px; border: 2px solid var(--ob-brand-primary);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12); overflow: hidden; display: none;
+      max-height: 210px; overflow-y: auto;
+    }
+    .dropdown-menu.open { display: block; animation: fadeDown 0.15s ease; }
+    @keyframes fadeDown { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+    .dropdown-option {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 14px; cursor: pointer; font-family: var(--ob-font);
+      font-size: 13px; font-weight: 500; color: var(--ob-brand-text);
+      border-bottom: 1px solid #F3F4F6; transition: background 0.1s;
+    }
+    .dropdown-option:last-child { border-bottom: none; }
+    .dropdown-option:hover { background: #F9FAFB; }
+    .dropdown-option.active { background: var(--ob-brand-bg); color: var(--ob-brand-primary); font-weight: 600; }
+    .dropdown-option .dot { width: 8px; height: 8px; border-radius: 50%; border: 2px solid #D1D5DB; flex-shrink: 0; }
+    .dropdown-option.active .dot { background: var(--ob-brand-primary); border-color: var(--ob-brand-primary); }
+    .autres-input-b {
+      width: 100%; margin-top: 8px; border: 2px solid var(--ob-brand-primary); border-radius: 10px;
+      padding: 9px 14px; font-size: 13px; font-family: var(--ob-font);
+      outline: none; color: var(--ob-brand-text); background: var(--ob-brand-bg);
+      display: none;
+    }
+    .autres-input-b::placeholder { color: #B0B7C3; }
+    .autres-input-b.visible { display: block; }
+
+
+    /* ═══════════════════════════════════════════
+       OPTION C — Scrollable Inline List
+    ═══════════════════════════════════════════ */
+    .inline-list-wrap {
+      width: 100%; border: 2px solid #E5E7EB; border-radius: 14px;
+      overflow-y: auto; max-height: 148px; margin-bottom: 10px;
+      flex-shrink: 0;
+    }
+    .inline-list-wrap::-webkit-scrollbar { width: 4px; }
+    .inline-list-wrap::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 4px; }
+    .list-option {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 14px; cursor: pointer; font-family: var(--ob-font);
+      font-size: 13px; font-weight: 500; color: var(--ob-brand-text);
+      border-bottom: 1px solid #F3F4F6; transition: background 0.1s; width: 100%;
+      border: none; background: none; text-align: left;
+    }
+    .list-option:last-child { border-bottom: none; }
+    .list-option:hover { background: #F9FAFB; }
+    .list-option.active { background: var(--ob-brand-bg); color: var(--ob-brand-primary); font-weight: 600; }
+    .radio-circle {
+      width: 18px; height: 18px; border-radius: 50%; border: 2px solid #D1D5DB;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .radio-circle.checked { border-color: var(--ob-brand-primary); background: var(--ob-brand-primary); }
+    .radio-circle.checked::after { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #fff; }
+    .autres-input-c {
+      width: 100%; margin-bottom: 10px; border: 2px solid var(--ob-brand-primary); border-radius: 10px;
+      padding: 9px 14px; font-size: 13px; font-family: var(--ob-font);
+      outline: none; color: var(--ob-brand-text); background: var(--ob-brand-bg);
+      display: none;
+    }
+    .autres-input-c::placeholder { color: #B0B7C3; }
+    .autres-input-c.visible { display: block; }
+
+    /* ── Comparison table ── */
+    .comparison { max-width: 900px; margin: 64px auto 0; font-family: var(--ob-font); }
+    .comparison h2 { font-size: 18px; font-weight: 700; color: #1A1A2E; text-align: center; margin-bottom: 20px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    thead tr { background: #1A1A2E; color: #fff; }
+    th, td { padding: 11px 16px; text-align: left; }
+    th:not(:first-child), td:not(:first-child) { text-align: center; }
+    th:first-child { border-radius: 12px 0 0 0; }
+    th:last-child { border-radius: 0 12px 0 0; }
+    th.rec { background: var(--ob-brand-primary); }
+    tbody tr:nth-child(odd) { background: #fff; }
+    tbody tr:nth-child(even) { background: #FAFAFA; }
+    td.rec-col { background: #F0FBF5; font-weight: 600; color: var(--ob-brand-primary); }
+    td.first-col { font-weight: 500; color: #1A1A2E; }
+    .note { font-size: 12px; color: #6B7280; text-align: center; margin-top: 14px; }
+  </style>
+</head>
+<body>
+
+  <h1 class="page-title">SpecialtyScreen — 3 Dropdown Design Options</h1>
+  <p class="page-subtitle">Replacing the 2×2 grid with a 10-option specialty picker including "Autres" free-text. iPhone 13 · 62 vh illustration · 38 vh card.</p>
+
+  <!-- Research callout -->
+  <div class="research-box">
+    <h3>📐 Mobile dropdown UX — best practices</h3>
+    <div class="research-grid">
+      <div class="research-item">
+        <span class="tag tag-red">Éviter</span>
+        <h4>Native &lt;select&gt;</h4>
+        <p>Le sélecteur système (roue iOS / dialog Android) brise l'identité visuelle, ne peut pas être stylisé, et génère de la friction. À bannir dans les flows d'onboarding.</p>
+      </div>
+      <div class="research-item">
+        <span class="tag tag-green">✦ Idéal mobile</span>
+        <h4>Bottom sheet modal</h4>
+        <p>Pattern natif iOS & Material. Slide-up familier, scrollable sans contrainte, n'écrase pas le contenu de la carte. Standard Airbnb, Uber, Doctolib.</p>
+      </div>
+      <div class="research-item">
+        <span class="tag tag-amber">Contextuel</span>
+        <h4>Liste inline scrollable</h4>
+        <p>Toutes les options sont visibles dès le départ — zéro tap supplémentaire. Idéal quand les options ne dépassent pas ~10 items. Clarifie le choix sans surprise.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="phones-grid">
+
+    <!-- ══════════════════════════════════════
+         OPTION A — Bottom Sheet
+    ══════════════════════════════════════ -->
+    <div class="phone-col">
+      <span class="option-label">Option A</span>
+      <span class="option-name">Bottom Sheet Modal</span>
+      <span class="option-desc">Native mobile pattern. Tap the field to slide up a full picker sheet. Card stays clean.</span>
+
+      <div class="phone-frame">
+        <div class="screen">
+          <!-- Progress -->
+          <div class="progress-bar">
+            <div class="progress-segment active"></div>
+            <div class="progress-segment active"></div>
+            <div class="progress-segment"></div>
+            <div class="progress-segment"></div>
+          </div>
+          <button class="skip-btn">Skip</button>
+
+          <!-- Illustration -->
+          <div class="illustration">
+            <svg width="110" height="110" viewBox="0 0 120 120" fill="none" opacity="0.35">
+              <circle cx="60" cy="38" r="26" fill="#fff"/>
+              <ellipse cx="60" cy="95" rx="35" ry="18" fill="#fff"/>
+            </svg>
+          </div>
+
+          <!-- Content Card -->
+          <div class="content-card">
+            <div class="card-headline" style="text-align:left;">Quel type de cabinet dirigez-vous ?</div>
+            <div class="card-subtitle" style="text-align:left;">Nous adaptons votre expérience à votre spécialité.</div>
+
+            <!-- Trigger -->
+            <button class="select-trigger" id="a-trigger" onclick="openSheet('a')" type="button">
+              <span class="trigger-text" id="a-value">Choisir une spécialité…</span>
+              <span class="chevron" id="a-chevron">▼</span>
+            </button>
+
+            <button class="pill-btn pill-btn-dark" id="a-cta" disabled style="margin-top:auto;">
+              Continuer →
+            </button>
+          </div>
+
+          <!-- Bottom Sheet Overlay -->
+          <div class="sheet-overlay" id="a-overlay" onclick="closeSheet('a', event)">
+            <div class="sheet">
+              <div class="sheet-header">
+                <span class="sheet-title">Votre spécialité</span>
+                <button class="sheet-close" onclick="closeSheet('a')">✕</button>
+              </div>
+              <div class="sheet-list" id="a-list">
+                <!-- options injected by JS -->
+              </div>
+              <div class="sheet-input" id="a-autres-wrap" style="display:none;">
+                <input type="text" placeholder="Ex. Neurologie, Urologie…" id="a-autres-input" oninput="checkAutresA()" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <span class="option-desc" style="margin-top:6px;">⚡ Tap "Choisir une spécialité…" to preview</span>
+    </div>
+
+
+    <!-- ══════════════════════════════════════
+         OPTION B — Floating Dropdown
+    ══════════════════════════════════════ -->
+    <div class="phone-col">
+      <span class="option-label">Option B</span>
+      <span class="option-name">Floating Dropdown</span>
+      <span class="badge">✦ Recommandé</span>
+      <span class="option-desc">Familiar web/app select pattern. Opens below the trigger, scrollable list, stays in context.</span>
+
+      <div class="phone-frame">
+        <div class="screen">
+          <div class="progress-bar">
+            <div class="progress-segment active"></div>
+            <div class="progress-segment active"></div>
+            <div class="progress-segment"></div>
+            <div class="progress-segment"></div>
+          </div>
+          <button class="skip-btn">Skip</button>
+
+          <div class="illustration">
+            <svg width="110" height="110" viewBox="0 0 120 120" fill="none" opacity="0.35">
+              <circle cx="60" cy="38" r="26" fill="#fff"/>
+              <ellipse cx="60" cy="95" rx="35" ry="18" fill="#fff"/>
+            </svg>
+          </div>
+
+          <div class="content-card" style="overflow:visible;">
+            <div class="card-headline" style="text-align:left;">Quel type de cabinet dirigez-vous ?</div>
+            <div class="card-subtitle" style="text-align:left;">Nous adaptons votre expérience à votre spécialité.</div>
+
+            <div class="dropdown-wrapper" id="b-wrapper">
+              <!-- Trigger -->
+              <button class="select-trigger" id="b-trigger" onclick="toggleDropdown('b')" type="button">
+                <span class="trigger-text" id="b-value">Choisir une spécialité…</span>
+                <span class="chevron" id="b-chevron">▼</span>
+              </button>
+              <!-- Dropdown -->
+              <div class="dropdown-menu" id="b-menu">
+                <!-- options injected by JS -->
+              </div>
+            </div>
+
+            <!-- Autres text input -->
+            <input type="text" class="autres-input-b" id="b-autres" placeholder="Ex. Neurologie, Urologie…" oninput="checkAutresB()" />
+
+            <button class="pill-btn pill-btn-dark" id="b-cta" disabled style="margin-top:auto;">
+              Continuer →
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <span class="option-desc" style="margin-top:6px;">⚡ Tap "Choisir une spécialité…" to preview</span>
+    </div>
+
+
+    <!-- ══════════════════════════════════════
+         OPTION C — Inline Scrollable List
+    ══════════════════════════════════════ -->
+    <div class="phone-col">
+      <span class="option-label">Option C</span>
+      <span class="option-name">Liste inline scrollable</span>
+      <span class="option-desc">All options visible immediately — no tap to open. Users can scan and pick in one gesture.</span>
+
+      <div class="phone-frame">
+        <div class="screen">
+          <div class="progress-bar">
+            <div class="progress-segment active"></div>
+            <div class="progress-segment active"></div>
+            <div class="progress-segment"></div>
+            <div class="progress-segment"></div>
+          </div>
+          <button class="skip-btn">Skip</button>
+
+          <div class="illustration">
+            <svg width="110" height="110" viewBox="0 0 120 120" fill="none" opacity="0.35">
+              <circle cx="60" cy="38" r="26" fill="#fff"/>
+              <ellipse cx="60" cy="95" rx="35" ry="18" fill="#fff"/>
+            </svg>
+          </div>
+
+          <div class="content-card">
+            <div class="card-headline" style="text-align:left;">Quel type de cabinet dirigez-vous ?</div>
+            <div class="card-subtitle" style="text-align:left;margin-bottom:10px;">Nous adaptons votre expérience à votre spécialité.</div>
+
+            <!-- Inline list -->
+            <div class="inline-list-wrap" id="c-list">
+              <!-- options injected by JS -->
+            </div>
+
+            <!-- Autres input -->
+            <input type="text" class="autres-input-c" id="c-autres" placeholder="Ex. Neurologie, Urologie…" oninput="checkAutresC()" />
+
+            <button class="pill-btn pill-btn-dark" id="c-cta" disabled style="margin-top:auto;">
+              Continuer →
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <span class="option-desc" style="margin-top:6px;">⚡ Tap any row to select</span>
+    </div>
+
+  </div><!-- /phones-grid -->
+
+  <!-- Comparison table -->
+  <div class="comparison">
+    <h2>Comparaison rapide</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Critère</th>
+          <th>A — Bottom Sheet</th>
+          <th class="rec">B — Dropdown ✦</th>
+          <th>C — Liste inline</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="first-col">Friction (nb. taps pour choisir)</td>
+          <td>2 taps (ouvrir + choisir)</td>
+          <td class="rec-col">2 taps ✓</td>
+          <td>1 tap ✓✓</td>
+        </tr>
+        <tr>
+          <td class="first-col">Familiarité mobile</td>
+          <td>⭐⭐⭐ (natif iOS/Android)</td>
+          <td class="rec-col">⭐⭐⭐ (apps & web) ✓</td>
+          <td>⭐⭐ (moins courant)</td>
+        </tr>
+        <tr>
+          <td class="first-col">Fit dans le 38 vh sans scroll</td>
+          <td>✓ Parfait (overlay)</td>
+          <td class="rec-col">✓ Oui (flotte au-dessus)</td>
+          <td>✓ Oui (max-height scroll)</td>
+        </tr>
+        <tr>
+          <td class="first-col">Gestion "Autres" + saisie libre</td>
+          <td>Naturel (input en bas sheet)</td>
+          <td class="rec-col">Propre (input sous trigger)</td>
+          <td>Propre (input inline)</td>
+        </tr>
+        <tr>
+          <td class="first-col">Effort d'implémentation React</td>
+          <td>Moyen (portal / z-index)</td>
+          <td class="rec-col">Faible ✓</td>
+          <td>Faible ✓</td>
+        </tr>
+        <tr>
+          <td class="first-col">Taux de completion attendu</td>
+          <td>Élevé</td>
+          <td class="rec-col">Élevé ✓</td>
+          <td>Le plus élevé ✓✓</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="note">✦ Option B recommandée : équilibre optimal entre familiarité et implémentation. Option C si on veut maximiser la conversion (0 tap supplémentaire).</p>
+  </div>
+
+  <script>
+    const SPECIALTIES = [
+      'Pédiatrie',
+      'Ophtalmologie',
+      'ORL',
+      'Médecine générale',
+      'Gynécologie',
+      'Dermatologie',
+      'Cardiologie',
+      'Dentisterie',
+      'Pneumologie / Rhumatologie',
+      'Autres',
+    ];
+
+    /* ─────────────── OPTION A — Bottom Sheet ─────────────── */
+    let aSelected = null;
+
+    function buildSheetList() {
+      const list = document.getElementById('a-list');
+      list.innerHTML = '';
+      SPECIALTIES.forEach(sp => {
+        const btn = document.createElement('button');
+        btn.className = 'sheet-option' + (aSelected === sp ? ' active' : '');
+        btn.type = 'button';
+        btn.innerHTML = `<span>${sp}</span><span class="check">✓</span>`;
+        btn.onclick = () => selectA(sp);
+        list.appendChild(btn);
+      });
+    }
+
+    function openSheet(id) {
+      buildSheetList();
+      const overlay = document.getElementById('a-overlay');
+      overlay.classList.add('open');
+      document.getElementById('a-chevron').classList.add('open');
+      if (aSelected === 'Autres') {
+        document.getElementById('a-autres-wrap').style.display = 'block';
+      }
+    }
+
+    function closeSheet(id, e) {
+      if (e && e.target !== document.getElementById('a-overlay')) return;
+      document.getElementById('a-overlay').classList.remove('open');
+      document.getElementById('a-chevron').classList.remove('open');
+    }
+
+    function selectA(sp) {
+      aSelected = sp;
+      const trigger = document.getElementById('a-trigger');
+      const valueEl = document.getElementById('a-value');
+      valueEl.textContent = sp;
+      trigger.classList.add('selected');
+
+      const autresWrap = document.getElementById('a-autres-wrap');
+      if (sp === 'Autres') {
+        autresWrap.style.display = 'block';
+        document.getElementById('a-autres-input').focus();
+        document.getElementById('a-cta').disabled = true;
+      } else {
+        autresWrap.style.display = 'none';
+        document.getElementById('a-cta').disabled = false;
+        // close sheet after small delay for feedback
+        setTimeout(() => closeSheet('a'), 150);
+      }
+      buildSheetList();
+    }
+
+    function checkAutresA() {
+      const val = document.getElementById('a-autres-input').value.trim();
+      document.getElementById('a-cta').disabled = val.length === 0;
+      if (val.length > 0) setTimeout(() => closeSheet('a'), 0);
+    }
+
+    /* ─────────────── OPTION B — Floating Dropdown ─────────────── */
+    let bSelected = null;
+    let bDropdownOpen = false;
+
+    function buildDropdown() {
+      const menu = document.getElementById('b-menu');
+      menu.innerHTML = '';
+      SPECIALTIES.forEach(sp => {
+        const div = document.createElement('div');
+        div.className = 'dropdown-option' + (bSelected === sp ? ' active' : '');
+        div.innerHTML = `<span>${sp}</span><span class="dot"></span>`;
+        div.onclick = () => selectB(sp);
+        menu.appendChild(div);
+      });
+    }
+
+    function toggleDropdown(id) {
+      bDropdownOpen = !bDropdownOpen;
+      const menu = document.getElementById('b-menu');
+      const chevron = document.getElementById('b-chevron');
+      if (bDropdownOpen) {
+        buildDropdown();
+        menu.classList.add('open');
+        chevron.classList.add('open');
+        // close on outside click
+        setTimeout(() => {
+          document.addEventListener('click', closeBOutside, { once: true });
+        }, 0);
+      } else {
+        menu.classList.remove('open');
+        chevron.classList.remove('open');
+      }
+    }
+
+    function closeBOutside(e) {
+      const wrapper = document.getElementById('b-wrapper');
+      if (!wrapper.contains(e.target)) {
+        document.getElementById('b-menu').classList.remove('open');
+        document.getElementById('b-chevron').classList.remove('open');
+        bDropdownOpen = false;
+      }
+    }
+
+    function selectB(sp) {
+      bSelected = sp;
+      const trigger = document.getElementById('b-trigger');
+      document.getElementById('b-value').textContent = sp;
+      trigger.classList.add('selected');
+      document.getElementById('b-menu').classList.remove('open');
+      document.getElementById('b-chevron').classList.remove('open');
+      bDropdownOpen = false;
+
+      const autresInput = document.getElementById('b-autres');
+      if (sp === 'Autres') {
+        autresInput.classList.add('visible');
+        autresInput.focus();
+        document.getElementById('b-cta').disabled = true;
+      } else {
+        autresInput.classList.remove('visible');
+        document.getElementById('b-cta').disabled = false;
+      }
+    }
+
+    function checkAutresB() {
+      const val = document.getElementById('b-autres').value.trim();
+      document.getElementById('b-cta').disabled = val.length === 0;
+    }
+
+    /* ─────────────── OPTION C — Inline List ─────────────── */
+    let cSelected = null;
+
+    function buildInlineList() {
+      const list = document.getElementById('c-list');
+      list.innerHTML = '';
+      SPECIALTIES.forEach(sp => {
+        const btn = document.createElement('button');
+        btn.className = 'list-option' + (cSelected === sp ? ' active' : '');
+        btn.type = 'button';
+        const radio = document.createElement('span');
+        radio.className = 'radio-circle' + (cSelected === sp ? ' checked' : '');
+        btn.innerHTML = `<span>${sp}</span>`;
+        btn.appendChild(radio);
+        btn.onclick = () => selectC(sp);
+        list.appendChild(btn);
+      });
+    }
+
+    function selectC(sp) {
+      cSelected = sp;
+      buildInlineList();
+      const autresInput = document.getElementById('c-autres');
+      if (sp === 'Autres') {
+        autresInput.classList.add('visible');
+        autresInput.focus();
+        document.getElementById('c-cta').disabled = true;
+      } else {
+        autresInput.classList.remove('visible');
+        document.getElementById('c-cta').disabled = false;
+      }
+    }
+
+    function checkAutresC() {
+      const val = document.getElementById('c-autres').value.trim();
+      document.getElementById('c-cta').disabled = val.length === 0;
+    }
+
+    // Init Option C list on load
+    buildInlineList();
+  </script>
+</body>
+</html>

@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BleSaf — Style Guide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=Sora:wght@400;600;700&family=Bebas+Neue&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+  <style>
+    :root {
+      --page-bg: #F5F4F0;
+      --surface: #FFFFFF;
+      --border: #E2E0D8;
+      --text: #1A1A18;
+      --text-muted: #6B6960;
+      --brand: #0F7B6C;
+      --brand-pale: #E8F5F1;
+      --accent: #D4920B;
+      --accent-pale: #FEF7E6;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--page-bg);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* ── Layout ── */
+    .sg-layout { display: flex; min-height: 100vh; }
+
+    /* Sidebar nav */
+    .sg-nav {
+      width: 220px; flex-shrink: 0; position: sticky; top: 0; height: 100vh;
+      background: #1A1A18; overflow-y: auto; padding: 32px 0;
+    }
+    .sg-nav-logo {
+      padding: 0 20px 28px; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 16px;
+    }
+    .sg-nav-logo .wordmark { font-size: 22px; letter-spacing: -0.5px; color: #fff; }
+    .sg-nav-logo .wordmark span { font-family: 'Bebas Neue', sans-serif; color: #0F7B6C; }
+    .sg-nav-logo .version { font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 2px; }
+    .sg-nav a {
+      display: block; padding: 8px 20px; font-size: 12px; font-weight: 500;
+      color: rgba(255,255,255,0.45); text-decoration: none; letter-spacing: 0.02em;
+      transition: color 0.15s, background 0.15s; border-radius: 0;
+    }
+    .sg-nav a:hover { color: #fff; background: rgba(255,255,255,0.05); }
+    .sg-nav .nav-section {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      color: rgba(255,255,255,0.2); padding: 20px 20px 6px;
+    }
+
+    /* Main content */
+    .sg-main { flex: 1; padding: 48px 56px; max-width: 980px; }
+
+    /* Section headers */
+    .sg-section { margin-bottom: 64px; }
+    .sg-section-title {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--brand); margin-bottom: 6px;
+    }
+    .sg-section-headline {
+      font-size: 28px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 6px;
+    }
+    .sg-section-desc { font-size: 14px; color: var(--text-muted); margin-bottom: 32px; }
+    .sg-divider { height: 1px; background: var(--border); margin-bottom: 32px; }
+
+    /* Cards */
+    .sg-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+      padding: 24px; margin-bottom: 16px;
+    }
+    .sg-card-title { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 16px; }
+
+    /* ── Color Swatches ── */
+    .swatch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; }
+    .swatch {
+      border-radius: 10px; overflow: hidden;
+      border: 1px solid rgba(0,0,0,0.06); cursor: pointer;
+    }
+    .swatch-color { height: 64px; }
+    .swatch-info { padding: 8px 10px; background: #fff; }
+    .swatch-name { font-size: 11px; font-weight: 600; color: #1A1A18; }
+    .swatch-hex { font-size: 10px; color: #9E9B90; font-family: 'DM Mono', monospace; margin-top: 2px; }
+
+    .swatch-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+    .swatch-pill {
+      height: 40px; min-width: 80px; border-radius: 8px;
+      display: flex; align-items: flex-end; padding: 4px 8px;
+      font-size: 9px; font-family: 'DM Mono', monospace;
+      color: rgba(255,255,255,0.8); font-weight: 500;
+      border: 1px solid rgba(0,0,0,0.06);
+    }
+    .swatch-pill.light { color: rgba(0,0,0,0.4); }
+
+    /* ── Typography ── */
+    .type-sample { margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
+    .type-sample:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .type-meta {
+      display: flex; gap: 16px; margin-top: 8px; flex-wrap: wrap;
+    }
+    .type-meta span {
+      font-size: 11px; color: var(--text-muted);
+      font-family: 'DM Mono', monospace;
+      background: var(--page-bg); padding: 2px 8px; border-radius: 4px;
+    }
+
+    /* ── Tokens table ── */
+    .token-table { width: 100%; border-collapse: collapse; }
+    .token-table th {
+      text-align: left; font-size: 11px; font-weight: 600; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.06em;
+      padding: 10px 12px; border-bottom: 1px solid var(--border);
+    }
+    .token-table td { padding: 10px 12px; border-bottom: 1px solid #F3F2EE; font-size: 13px; vertical-align: middle; }
+    .token-table tr:last-child td { border-bottom: none; }
+    .token-name { font-family: 'DM Mono', monospace; color: var(--brand); font-size: 12px; }
+    .token-value { font-family: 'DM Mono', monospace; color: var(--text-muted); font-size: 12px; }
+    .color-dot { width: 14px; height: 14px; border-radius: 50%; display: inline-block; border: 1px solid rgba(0,0,0,0.08); vertical-align: middle; margin-right: 8px; flex-shrink: 0; }
+
+    /* ── Icon grid ── */
+    .icon-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px; }
+    .icon-cell {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      padding: 12px 8px; border-radius: 8px; background: var(--page-bg);
+      text-align: center;
+    }
+    .icon-cell .material-symbols-rounded { font-size: 24px; color: #1A1A18; }
+    .icon-cell span:last-child { font-size: 9px; color: var(--text-muted); word-break: break-all; }
+
+    /* ── Component samples ── */
+    .comp-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px; border: none; cursor: pointer;
+      font-family: 'DM Sans', sans-serif; font-weight: 600; border-radius: 12px;
+      transition: all 0.15s; line-height: 1;
+    }
+    .btn-primary { background: #0F7B6C; color: #fff; padding: 12px 20px; font-size: 14px; }
+    .btn-primary:hover { background: #0A5C50; }
+    .btn-secondary { background: #E8F5F1; color: #0F7B6C; padding: 12px 20px; font-size: 14px; }
+    .btn-danger { background: #FDF0ED; color: #D94F3B; padding: 12px 20px; font-size: 14px; }
+    .btn-ghost { background: transparent; color: #1A1A18; padding: 12px 20px; font-size: 14px; border: 1.5px solid #E8E6DF; }
+    .btn-sm { padding: 8px 14px; font-size: 12px; }
+    .btn-pill { border-radius: 99px; }
+    .btn-icon { width: 40px; height: 40px; padding: 0; justify-content: center; border-radius: 10px; background: var(--page-bg); border: 1.5px solid var(--border); color: var(--text); }
+
+    /* Badges */
+    .badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 10px; border-radius: 99px; font-size: 11px; font-weight: 600;
+    }
+    .badge-green { background: #EDF7F0; color: #2D8B4E; }
+    .badge-amber { background: #FEF7E6; color: #D4920B; }
+    .badge-red { background: #FDF0ED; color: #D94F3B; }
+    .badge-blue { background: #EDF3FC; color: #3B7DD9; }
+    .badge-gray { background: #F3F2EE; color: #6B6960; }
+    .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+    /* Inputs */
+    .input-demo {
+      border: 1.5px solid #E8E6DF; border-radius: 10px;
+      padding: 10px 14px; font-family: 'DM Sans', sans-serif;
+      font-size: 14px; color: #1A1A18; outline: none; width: 100%; max-width: 280px;
+      background: #fff;
+    }
+    .input-demo:focus { border-color: #0F7B6C; }
+    .input-demo.error { border-color: #D94F3B; }
+    .input-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+
+    /* Cards */
+    .demo-card {
+      background: #fff; border-radius: 14px; padding: 16px 18px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    }
+
+    /* Sheet */
+    .demo-sheet {
+      background: #fff; border-radius: 20px 20px 0 0;
+      padding: 16px 20px 24px; box-shadow: 0 -4px 32px rgba(0,0,0,0.12); max-width: 375px;
+    }
+    .sheet-handle { width: 36px; height: 4px; background: #E8E6DF; border-radius: 2px; margin: 0 auto 16px; }
+
+    /* Elevation */
+    .elevation-row { display: flex; gap: 20px; align-items: flex-end; }
+    .elev-box {
+      width: 100px; height: 80px; border-radius: 12px; background: #fff;
+      display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px;
+    }
+    .elev-label { font-size: 10px; color: var(--text-muted); font-family: 'DM Mono', monospace; }
+
+    /* Spacing scale */
+    .spacing-row { display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
+    .spacing-item { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .spacing-bar { background: #0F7B6C; border-radius: 3px; width: 32px; }
+    .spacing-label { font-size: 10px; color: var(--text-muted); font-family: 'DM Mono', monospace; }
+
+    /* Radius */
+    .radius-row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
+    .radius-box {
+      width: 64px; height: 64px; background: #E8F5F1; border: 2px solid #0F7B6C;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+    }
+    .radius-label { font-size: 10px; color: var(--text-muted); font-family: 'DM Mono', monospace; margin-top: 4px; }
+
+    /* ── Callout ── */
+    .callout {
+      border-radius: 10px; padding: 14px 16px; font-size: 13px; line-height: 1.5;
+      border-left: 3px solid; margin-bottom: 20px;
+    }
+    .callout-green { background: #EDF7F0; border-color: #2D8B4E; color: #1a4a2a; }
+    .callout-amber { background: #FEF7E6; border-color: #D4920B; color: #6b3e00; }
+
+    /* ── Grid helpers ── */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+    @media (max-width: 900px) {
+      .sg-nav { display: none; }
+      .sg-main { padding: 32px 24px; }
+      .two-col, .three-col { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="sg-layout">
+
+  <!-- ── Sidebar ── -->
+  <nav class="sg-nav">
+    <div class="sg-nav-logo">
+      <div class="wordmark">Blé<span>SAF</span></div>
+      <div class="version">Style Guide · 2026</div>
+    </div>
+    <div class="nav-section">Fondations</div>
+    <a href="#colors">Couleurs</a>
+    <a href="#typography">Typographie</a>
+    <a href="#spacing">Espacement</a>
+    <a href="#radius">Rayons & Ombres</a>
+    <a href="#tokens">Design Tokens</a>
+    <div class="nav-section">Composants</div>
+    <a href="#buttons">Boutons</a>
+    <a href="#badges">Badges & Chips</a>
+    <a href="#inputs">Champs</a>
+    <a href="#cards">Cartes</a>
+    <a href="#sheets">Bottom Sheets</a>
+    <div class="nav-section">Ressources</div>
+    <a href="#icons">Icônes</a>
+    <a href="#motion">Motion</a>
+    <a href="#usage">Usage & Règles</a>
+  </nav>
+
+  <!-- ── Main ── -->
+  <main class="sg-main">
+
+    <!-- Header -->
+    <div style="margin-bottom:56px;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#0F7B6C;margin-bottom:8px;">DESIGN SYSTEM</div>
+      <h1 style="font-size:40px;font-weight:700;letter-spacing:-1px;margin-bottom:8px;">BleSaf<br>Style Guide</h1>
+      <p style="color:var(--text-muted);font-size:15px;max-width:480px;">
+        Référentiel visuel pour l'interface receptionniste mobile, le dashboard desktop et les flows d'onboarding.
+      </p>
+    </div>
+
+
+    <!-- ════════════════════════════════
+         COLORS
+    ════════════════════════════════ -->
+    <section class="sg-section" id="colors">
+      <div class="sg-section-title">Fondations</div>
+      <h2 class="sg-section-headline">Couleurs</h2>
+      <p class="sg-section-desc">Le système de couleurs BleSaf est articulé autour d'un vert teal médical, d'un ambre chaleureux et d'une base crème naturelle.</p>
+
+      <div class="sg-card">
+        <div class="sg-card-title">Palette principale — Brand Teal</div>
+        <div class="swatch-row">
+          <div class="swatch-pill" style="background:#E8F5F1;min-width:96px;" class="light"><span style="color:rgba(0,0,0,0.4);">accent-light</span></div>
+          <div class="swatch-pill" style="background:#A8D5C8;"><span style="color:rgba(0,0,0,0.4);">mid</span></div>
+          <div class="swatch-pill" style="background:#3D8A6E;">brand-light</div>
+          <div class="swatch-pill" style="background:#2D6B55;">brand-mid</div>
+          <div class="swatch-pill" style="background:#1C4A3B;">brand</div>
+          <div class="swatch-pill" style="background:#0F7B6C;">accent</div>
+          <div class="swatch-pill" style="background:#0A5C50;">accent-dark</div>
+        </div>
+        <table class="token-table" style="margin-top:8px;">
+          <tr><td><span class="color-dot" style="background:#E8F5F1;"></span><span class="token-name">--bs-accent-light</span></td><td class="token-value">#E8F5F1</td><td style="color:var(--text-muted);font-size:12px;">Fond de sélection, hover states</td></tr>
+          <tr><td><span class="color-dot" style="background:#0F7B6C;"></span><span class="token-name">--bs-accent</span></td><td class="token-value">#0F7B6C</td><td style="color:var(--text-muted);font-size:12px;">CTA principal, liens actifs</td></tr>
+          <tr><td><span class="color-dot" style="background:#0A5C50;"></span><span class="token-name">--bs-accent-dark</span></td><td class="token-value">#0A5C50</td><td style="color:var(--text-muted);font-size:12px;">Hover du CTA, header desktop</td></tr>
+          <tr><td><span class="color-dot" style="background:#1C4A3B;"></span><span class="token-name">--brand</span></td><td class="token-value">#1C4A3B</td><td style="color:var(--text-muted);font-size:12px;">Texte de marque, header sombre</td></tr>
+          <tr><td><span class="color-dot" style="background:#3c6c5e;"></span><span class="token-name">--ob-brand-primary</span></td><td class="token-value">#1B6B45</td><td style="color:var(--text-muted);font-size:12px;">Onboarding — accent primaire</td></tr>
+        </table>
+      </div>
+
+      <div class="sg-card">
+        <div class="sg-card-title">Surfaces & Backgrounds</div>
+        <div class="swatch-grid">
+          <div class="swatch"><div class="swatch-color" style="background:#F6F5F0;"></div><div class="swatch-info"><div class="swatch-name">bg</div><div class="swatch-hex">#F6F5F0</div></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#FFFFFF;border-bottom:1px solid #eee;"></div><div class="swatch-info"><div class="swatch-name">surface</div><div class="swatch-hex">#FFFFFF</div></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#F0EFEA;"></div><div class="swatch-info"><div class="swatch-name">surface-alt</div><div class="swatch-hex">#F0EFEA</div></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#E8E6DF;"></div><div class="swatch-info"><div class="swatch-name">border</div><div class="swatch-hex">#E8E6DF</div></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#E8F5F0;"></div><div class="swatch-info"><div class="swatch-name">ob-brand-bg</div><div class="swatch-hex">#E8F5F0</div></div></div>
+        </div>
+      </div>
+
+      <div class="sg-card">
+        <div class="sg-card-title">Texte</div>
+        <div class="swatch-grid">
+          <div class="swatch"><div class="swatch-color" style="background:#1A1A1A;"></div><div class="swatch-info"><div class="swatch-name">text-primary</div><div class="swatch-hex">#1A1A1A</div></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#6B6960;"></div><div class="swatch-info"><div class="swatch-name">text-secondary</div><div class="swatch-hex">#6B6960</div></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#9E9B90;"></div><div class="swatch-info"><div class="swatch-name">text-tertiary</div><div class="swatch-hex">#9E9B90</div></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#1A1A2E;"></div><div class="swatch-info"><div class="swatch-name">ob-brand-text</div><div class="swatch-hex">#1A1A2E</div></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#6B7280;"></div><div class="swatch-info"><div class="swatch-name">ob-brand-subtle</div><div class="swatch-hex">#6B7280</div></div></div>
+        </div>
+      </div>
+
+      <div class="sg-card">
+        <div class="sg-card-title">Sémantique — État & Feedback</div>
+        <div class="swatch-grid">
+          <div class="swatch"><div class="swatch-color" style="background:#2D8B4E;"></div><div class="swatch-info"><div class="swatch-name">green</div><div class="swatch-hex">#2D8B4E</div></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#EDF7F0;"></div><div class="swatch-info"><div class="swatch-name">green-light</div><div class="swatch-hex">#EDF7F0</div></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#D4920B;"></div><div class="swatch-info"><div class="swatch-name">amber</div><div class="swatch-hex">#D4920B</div></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#FEF7E6;"></div><div class="swatch-info"><div class="swatch-name">amber-light</div><div class="swatch-hex">#FEF7E6</div></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#D94F3B;"></div><div class="swatch-info"><div class="swatch-name">red</div><div class="swatch-hex">#D94F3B</div></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#FDF0ED;"></div><div class="swatch-info"><div class="swatch-name">red-light</div><div class="swatch-hex">#FDF0ED</div></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#3B7DD9;"></div><div class="swatch-info"><div class="swatch-name">blue</div><div class="swatch-hex">#3B7DD9</div></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#EDF3FC;"></div><div class="swatch-info"><div class="swatch-name">blue-light</div><div class="swatch-hex">#EDF3FC</div></div></div>
+        </div>
+      </div>
+
+      <div class="sg-card">
+        <div class="sg-card-title">Onboarding — Accent spécifique</div>
+        <div class="swatch-row">
+          <div class="swatch-pill" style="background:#E8F5F0;color:rgba(0,0,0,0.4);">bg #E8F5F0</div>
+          <div class="swatch-pill" style="background:#A8D5C2;color:rgba(0,0,0,0.4);">mid #A8D5C2</div>
+          <div class="swatch-pill" style="background:#1B6B45;">primary #1B6B45</div>
+          <div class="swatch-pill" style="background:#F4A261;color:rgba(0,0,0,0.5);">accent #F4A261</div>
+          <div class="swatch-pill" style="background:#1A1A2E;">text #1A1A2E</div>
+        </div>
+        <p style="font-size:12px;color:var(--text-muted);margin-top:8px;">Scope : composants <code>--ob-*</code> (Turbo Wizard / flow signup)</p>
+      </div>
+    </section>
+
+
+    <!-- ════════════════════════════════
+         TYPOGRAPHY
+    ════════════════════════════════ -->
+    <section class="sg-section" id="typography">
+      <h2 class="sg-section-headline">Typographie</h2>
+      <p class="sg-section-desc">Deux familles principales selon le contexte : <strong>DM Sans</strong> pour l'interface opérationnelle, <strong>Sora</strong> pour le flow d'onboarding.</p>
+
+      <div class="sg-card">
+        <div class="sg-card-title">DM Sans — Interface principale</div>
+
+        <div class="type-sample">
+          <div style="font-family:'DM Sans',sans-serif;font-size:32px;font-weight:700;letter-spacing:-0.5px;line-height:1.1;">Cabinet Dr. Hafsia</div>
+          <div class="type-meta">
+            <span>32px</span><span>700 Bold</span><span>-0.5px</span><span>DM Sans</span>
+          </div>
+        </div>
+
+        <div class="type-sample">
+          <div style="font-family:'DM Sans',sans-serif;font-size:22px;font-weight:700;letter-spacing:-0.3px;">Votre file d'attente</div>
+          <div class="type-meta"><span>22px</span><span>700</span><span>Section heading</span></div>
+        </div>
+
+        <div class="type-sample">
+          <div style="font-family:'DM Sans',sans-serif;font-size:17px;font-weight:700;letter-spacing:-0.2px;">Nom du patient</div>
+          <div class="type-meta"><span>17px</span><span>700</span><span>Card title / Patient name</span></div>
+        </div>
+
+        <div class="type-sample">
+          <div style="font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;">Appeler le suivant</div>
+          <div class="type-meta"><span>15px</span><span>500 Medium</span><span>Action labels</span></div>
+        </div>
+
+        <div class="type-sample">
+          <div style="font-family:'DM Sans',sans-serif;font-size:14px;font-weight:400;color:#6B6960;">Position 3 · attente estimée 12 mn</div>
+          <div class="type-meta"><span>14px</span><span>400 Regular</span><span>Body text / descriptions</span></div>
+        </div>
+
+        <div class="type-sample">
+          <div style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#9E9B90;">Patients vus</div>
+          <div class="type-meta"><span>11px</span><span>700</span><span>+0.08em</span><span>Labels uppercase</span></div>
+        </div>
+      </div>
+
+      <div class="sg-card">
+        <div class="sg-card-title">DM Mono — Données & chiffres</div>
+        <div class="type-sample">
+          <div style="font-family:'DM Mono',monospace;font-size:48px;font-weight:500;letter-spacing:-2px;color:#0F7B6C;line-height:1;">42</div>
+          <div class="type-meta"><span>48px</span><span>500</span><span>DM Mono</span><span>KPI géant</span></div>
+        </div>
+        <div class="type-sample">
+          <div style="font-family:'DM Mono',monospace;font-size:20px;font-weight:400;letter-spacing:-0.5px;">09:47:32</div>
+          <div class="type-meta"><span>20px</span><span>400</span><span>Horloge / timer</span></div>
+        </div>
+        <div class="type-sample">
+          <div style="font-family:'DM Mono',monospace;font-size:12px;color:#9E9B90;">#E8F5F1 · var(--bs-accent-light)</div>
+          <div class="type-meta"><span>12px</span><span>Code / hex values</span></div>
+        </div>
+      </div>
+
+      <div class="sg-card">
+        <div class="sg-card-title">Sora — Onboarding uniquement</div>
+        <div class="type-sample">
+          <div style="font-family:'Sora',sans-serif;font-size:24px;font-weight:700;color:#1A1A2E;line-height:1.2;">Votre cabinet numérique<br>en 2 minutes.</div>
+          <div class="type-meta"><span>24px</span><span>700</span><span>Sora</span><span>Screen headline</span></div>
+        </div>
+        <div class="type-sample">
+          <div style="font-family:'Sora',sans-serif;font-size:14px;font-weight:400;color:#6B7280;">Aucune carte bancaire. Aucun engagement.</div>
+          <div class="type-meta"><span>14px</span><span>400</span><span>Screen subtitle</span></div>
+        </div>
+        <div class="callout callout-amber" style="margin-top:12px;">
+          <strong>Scope strict.</strong> Sora est réservé aux composants du flow onboarding (screens <code>--ob-*</code>). Ne pas utiliser dans le dashboard.
+        </div>
+      </div>
+
+      <div class="sg-card">
+        <div class="sg-card-title">Logo BleSaf</div>
+        <div style="display:flex;align-items:baseline;gap:0;font-size:36px;">
+          <span style="font-family:'IBM Plex Sans',sans-serif;font-weight:300;color:#1A1A18;letter-spacing:-1px;">Blé</span><span style="font-family:'Bebas Neue',sans-serif;color:#0F7B6C;font-size:38px;letter-spacing:1px;">SAF</span>
+        </div>
+        <div class="type-meta" style="margin-top:8px;">
+          <span>IBM Plex Sans 300</span><span>Bebas Neue</span><span>Mixte poids/police</span>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ════════════════════════════════
+         SPACING
+    ════════════════════════════════ -->
+    <section class="sg-section" id="spacing">
+      <h2 class="sg-section-headline">Espacement</h2>
+      <p class="sg-section-desc">Grille de base 4px. Valeurs courantes dans l'interface.</p>
+      <div class="sg-card">
+        <div class="spacing-row">
+          <div class="spacing-item"><div class="spacing-bar" style="height:4px;"></div><div class="spacing-label">4px</div></div>
+          <div class="spacing-item"><div class="spacing-bar" style="height:6px;"></div><div class="spacing-label">6px</div></div>
+          <div class="spacing-item"><div class="spacing-bar" style="height:8px;"></div><div class="spacing-label">8px</div></div>
+          <div class="spacing-item"><div class="spacing-bar" style="height:10px;"></div><div class="spacing-label">10px</div></div>
+          <div class="spacing-item"><div class="spacing-bar" style="height:12px;"></div><div class="spacing-label">12px</div></div>
+          <div class="spacing-item"><div class="spacing-bar" style="height:14px;"></div><div class="spacing-label">14px</div></div>
+          <div class="spacing-item"><div class="spacing-bar" style="height:16px;"></div><div class="spacing-label">16px</div></div>
+          <div class="spacing-item"><div class="spacing-bar" style="height:20px;"></div><div class="spacing-label">20px</div></div>
+          <div class="spacing-item"><div class="spacing-bar" style="height:24px;"></div><div class="spacing-label">24px</div></div>
+          <div class="spacing-item"><div class="spacing-bar" style="height:32px;"></div><div class="spacing-label">32px</div></div>
+          <div class="spacing-item"><div class="spacing-bar" style="height:40px;"></div><div class="spacing-label">40px</div></div>
+          <div class="spacing-item"><div class="spacing-bar" style="height:48px;"></div><div class="spacing-label">48px</div></div>
+        </div>
+        <div style="margin-top:24px;">
+          <table class="token-table">
+            <tr><th>Contexte</th><th>Valeur</th></tr>
+            <tr><td>Gap interne carte</td><td class="token-value">12–16px</td></tr>
+            <tr><td>Padding carte mobile</td><td class="token-value">14–16px H · 16px V</td></tr>
+            <tr><td>Padding card onboarding</td><td class="token-value">16px top · 20px H · 20px bottom</td></tr>
+            <tr><td>Marges écran</td><td class="token-value">10px (mobile) · 24px (desktop)</td></tr>
+            <tr><td>Touch target minimum</td><td class="token-value">44px</td></tr>
+            <tr><td>Hauteur bouton principal</td><td class="token-value">48px (mobile) · 42px (desktop)</td></tr>
+            <tr><td>Hauteur champ de saisie</td><td class="token-value">40–44px</td></tr>
+          </table>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ════════════════════════════════
+         RADIUS & SHADOWS
+    ════════════════════════════════ -->
+    <section class="sg-section" id="radius">
+      <h2 class="sg-section-headline">Rayons & Ombres</h2>
+
+      <div class="two-col">
+        <div class="sg-card">
+          <div class="sg-card-title">Border Radius</div>
+          <div class="radius-row">
+            <div>
+              <div class="radius-box" style="border-radius:6px;"></div>
+              <div class="radius-label">6px — xs<br>chips, tags</div>
+            </div>
+            <div>
+              <div class="radius-box" style="border-radius:8px;"></div>
+              <div class="radius-label">8px — sm<br>dropdowns</div>
+            </div>
+            <div>
+              <div class="radius-box" style="border-radius:12px;"></div>
+              <div class="radius-label">12px — md<br>cartes, boutons</div>
+            </div>
+            <div>
+              <div class="radius-box" style="border-radius:14px;"></div>
+              <div class="radius-label">14px — lg<br>inputs, CTA</div>
+            </div>
+            <div>
+              <div class="radius-box" style="border-radius:20px;"></div>
+              <div class="radius-label">20px — xl<br>sheets</div>
+            </div>
+            <div>
+              <div class="radius-box" style="border-radius:28px;"></div>
+              <div class="radius-label">28px — 2xl<br>onboarding card</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sg-card">
+          <div class="sg-card-title">Box Shadow</div>
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            <div>
+              <div class="elev-box" style="box-shadow:0 1px 2px rgba(0,0,0,0.04);"><span class="elev-label">bs-sm</span></div>
+              <div class="radius-label" style="margin-top:4px;">0 1px 2px / 0.04 · listes</div>
+            </div>
+            <div>
+              <div class="elev-box" style="box-shadow:0 4px 12px rgba(0,0,0,0.06);"><span class="elev-label">bs-md</span></div>
+              <div class="radius-label" style="margin-top:4px;">0 4px 12px / 0.06 · cartes</div>
+            </div>
+            <div>
+              <div class="elev-box" style="box-shadow:0 8px 32px rgba(0,0,0,0.10);"><span class="elev-label">bs-lg</span></div>
+              <div class="radius-label" style="margin-top:4px;">0 8px 32px / 0.10 · modales</div>
+            </div>
+            <div>
+              <div class="elev-box" style="box-shadow:0 6px 24px rgba(15,123,108,0.25);"><span class="elev-label">bs-float</span></div>
+              <div class="radius-label" style="margin-top:4px;">0 6px 24px teal·0.25 · FAB</div>
+            </div>
+            <div>
+              <div class="elev-box" style="box-shadow:0 -4px 32px rgba(0,0,0,0.12);"><span class="elev-label">bs-sheet</span></div>
+              <div class="radius-label" style="margin-top:4px;">0 -4px 32px / 0.12 · bottom sheets</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ════════════════════════════════
+         TOKENS
+    ════════════════════════════════ -->
+    <section class="sg-section" id="tokens">
+      <h2 class="sg-section-headline">Design Tokens</h2>
+      <p class="sg-section-desc">Variables CSS scoped par contexte. Prioriser les tokens spécifiques au scope plutôt que les valeurs brutes.</p>
+
+      <div class="sg-card">
+        <div class="sg-card-title">BS (Receptionist Dashboard) — <code style="font-size:11px;">scope: .bs-dashboard</code></div>
+        <table class="token-table">
+          <tr><th>Token</th><th>Valeur</th><th>Usage</th></tr>
+          <tr><td class="token-name">--bs-bg / bg</td><td class="token-value">#F6F5F0</td><td style="color:var(--text-muted);font-size:12px;">Fond écran</td></tr>
+          <tr><td class="token-name">--bs-surface</td><td class="token-value">#FFFFFF</td><td style="color:var(--text-muted);font-size:12px;">Cartes, sheets</td></tr>
+          <tr><td class="token-name">--bs-surface-alt</td><td class="token-value">#F0EFEA</td><td style="color:var(--text-muted);font-size:12px;">Hover rows</td></tr>
+          <tr><td class="token-name">--bs-border</td><td class="token-value">#E8E6DF</td><td style="color:var(--text-muted);font-size:12px;">Séparateurs, inputs</td></tr>
+          <tr><td class="token-name">--bs-text-primary</td><td class="token-value">#1A1A1A</td><td style="color:var(--text-muted);font-size:12px;">Texte principal</td></tr>
+          <tr><td class="token-name">--bs-text-secondary</td><td class="token-value">#6B6960</td><td style="color:var(--text-muted);font-size:12px;">Descriptions</td></tr>
+          <tr><td class="token-name">--bs-text-tertiary</td><td class="token-value">#9E9B90</td><td style="color:var(--text-muted);font-size:12px;">Labels, placeholders</td></tr>
+          <tr><td class="token-name">--bs-accent</td><td class="token-value">#0F7B6C</td><td style="color:var(--text-muted);font-size:12px;">CTA, sélection</td></tr>
+          <tr><td class="token-name">--bs-accent-light</td><td class="token-value">#E8F5F1</td><td style="color:var(--text-muted);font-size:12px;">Fond sélectionné</td></tr>
+          <tr><td class="token-name">--bs-red / red-light</td><td class="token-value">#D94F3B / #FDF0ED</td><td style="color:var(--text-muted);font-size:12px;">Danger, urgence</td></tr>
+          <tr><td class="token-name">--bs-amber / amber-light</td><td class="token-value">#D4920B / #FEF7E6</td><td style="color:var(--text-muted);font-size:12px;">Avertissement</td></tr>
+          <tr><td class="token-name">--bs-green / green-light</td><td class="token-value">#2D8B4E / #EDF7F0</td><td style="color:var(--text-muted);font-size:12px;">Succès, notifié</td></tr>
+          <tr><td class="token-name">--bs-blue / blue-light</td><td class="token-value">#3B7DD9 / #EDF3FC</td><td style="color:var(--text-muted);font-size:12px;">Info, lien copie</td></tr>
+        </table>
+      </div>
+
+      <div class="sg-card" style="margin-top:0;">
+        <div class="sg-card-title">OB (Onboarding) — <code style="font-size:11px;">scope: inline style sur chaque screen</code></div>
+        <table class="token-table">
+          <tr><th>Token</th><th>Valeur</th><th>Usage</th></tr>
+          <tr><td class="token-name">--ob-brand-primary</td><td class="token-value">#1B6B45</td><td style="color:var(--text-muted);font-size:12px;">Boutons, bordures actives</td></tr>
+          <tr><td class="token-name">--ob-brand-bg</td><td class="token-value">#E8F5F0</td><td style="color:var(--text-muted);font-size:12px;">Fond sélection, brand-bg</td></tr>
+          <tr><td class="token-name">--ob-brand-text</td><td class="token-value">#1A1A2E</td><td style="color:var(--text-muted);font-size:12px;">Titres, bouton dark</td></tr>
+          <tr><td class="token-name">--ob-brand-subtle</td><td class="token-value">#6B7280</td><td style="color:var(--text-muted);font-size:12px;">Subtitles, placeholders</td></tr>
+          <tr><td class="token-name">--ob-card-radius</td><td class="token-value">28px</td><td style="color:var(--text-muted);font-size:12px;">ContentCard top radius</td></tr>
+          <tr><td class="token-name">--ob-btn-radius</td><td class="token-value">14px</td><td style="color:var(--text-muted);font-size:12px;">PillButton radius</td></tr>
+          <tr><td class="token-name">--ob-illustration-h</td><td class="token-value">62vh</td><td style="color:var(--text-muted);font-size:12px;">Hauteur zone illustration</td></tr>
+          <tr><td class="token-name">--ob-card-pad</td><td class="token-value">16px 20px 20px</td><td style="color:var(--text-muted);font-size:12px;">Padding ContentCard (override)</td></tr>
+          <tr><td class="token-name">--ob-font</td><td class="token-value">Sora, sans-serif</td><td style="color:var(--text-muted);font-size:12px;">Police onboarding</td></tr>
+        </table>
+      </div>
+    </section>
+
+
+    <!-- ════════════════════════════════
+         BUTTONS
+    ════════════════════════════════ -->
+    <section class="sg-section" id="buttons">
+      <div class="sg-section-title">Composants</div>
+      <h2 class="sg-section-headline">Boutons</h2>
+
+      <div class="sg-card">
+        <div class="sg-card-title">Variantes</div>
+        <div class="comp-row">
+          <button class="btn btn-primary">
+            <span class="material-symbols-rounded" style="font-size:18px;">arrow_forward</span>
+            Appeler
+          </button>
+          <button class="btn btn-secondary">Réouvrir</button>
+          <button class="btn btn-danger">
+            <span class="material-symbols-rounded" style="font-size:18px;">person_remove</span>
+            Retirer
+          </button>
+          <button class="btn btn-ghost">Annuler</button>
+        </div>
+        <div class="comp-row" style="margin-top:8px;">
+          <button class="btn btn-primary btn-sm">Petit</button>
+          <button class="btn btn-primary btn-pill">
+            <span class="material-symbols-rounded" style="font-size:18px;">add</span>
+            Ajouter un patient
+          </button>
+          <button class="btn btn-icon">
+            <span class="material-symbols-rounded" style="font-size:20px;">settings</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="sg-card">
+        <div class="sg-card-title">CTA Onboarding (PillButton)</div>
+        <div style="max-width:335px;">
+          <button style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 24px;font-size:16px;font-weight:600;font-family:'Sora',sans-serif;border:none;border-radius:14px;background:#1A1A2E;color:#fff;cursor:pointer;">
+            Créer mon compte <span style="font-size:18px;">→</span>
+          </button>
+          <button style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 24px;font-size:16px;font-weight:600;font-family:'Sora',sans-serif;border:2px solid #E5E7EB;border-radius:14px;background:transparent;color:#1A1A2E;cursor:pointer;margin-top:10px;">
+            Continuer <span>→</span>
+          </button>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:8px;">height: 48px · radius: 14px · font: Sora 600 16px</div>
+        </div>
+      </div>
+
+      <div class="sg-card">
+        <div class="sg-card-title">CTA Receptionist — Teal card button</div>
+        <div style="max-width:355px;">
+          <button style="width:100%;display:flex;flex-direction:column;justify-content:space-between;gap:10px;padding:14px;border-radius:14px;background:#3c6c5e;border:none;cursor:pointer;text-align:left;box-shadow:0 4px 12px rgba(0,0,0,0.12);">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,0.35);display:inline-block;"></span>
+              <span style="font-size:10px;font-family:'DM Sans',sans-serif;font-weight:500;color:rgba(255,255,255,0.5);">File actuellement fermée</span>
+            </div>
+            <p style="font-size:16px;font-weight:700;color:#fff;font-family:'DM Sans',sans-serif;line-height:1.2;">Ouvrir la file<br>d'attente</p>
+            <span style="font-size:22px;color:rgba(255,255,255,0.7);align-self:flex-end;">→</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ════════════════════════════════
+         BADGES
+    ════════════════════════════════ -->
+    <section class="sg-section" id="badges">
+      <h2 class="sg-section-headline">Badges & Chips</h2>
+
+      <div class="sg-card">
+        <div class="sg-card-title">Status Badges</div>
+        <div class="comp-row">
+          <span class="badge badge-green"><span class="badge-dot"></span>Notifié</span>
+          <span class="badge badge-gray"><span class="badge-dot"></span>En attente</span>
+          <span class="badge badge-amber"><span class="badge-dot"></span>Avertissement</span>
+          <span class="badge badge-red"><span class="badge-dot"></span>Urgence</span>
+          <span class="badge badge-blue"><span class="badge-dot"></span>Info</span>
+        </div>
+      </div>
+
+      <div class="sg-card">
+        <div class="sg-card-title">Subscription Chips</div>
+        <div class="comp-row">
+          <span class="badge" style="background:#E8F5F1;color:#0F7B6C;">● TRIAL</span>
+          <span class="badge" style="background:#EDF7F0;color:#2D8B4E;">● ACTIVE</span>
+          <span class="badge" style="background:#FDF0ED;color:#D94F3B;">● EXPIRED</span>
+          <span class="badge" style="background:#FEF7E6;color:#D4920B;">● PAST DUE</span>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ════════════════════════════════
+         INPUTS
+    ════════════════════════════════ -->
+    <section class="sg-section" id="inputs">
+      <h2 class="sg-section-headline">Champs de saisie</h2>
+
+      <div class="sg-card">
+        <div style="display:flex;flex-direction:column;gap:16px;max-width:360px;">
+          <div>
+            <div class="input-label">Email professionnel</div>
+            <input class="input-demo" type="email" placeholder="docteur@cabinet.tn" />
+          </div>
+          <div>
+            <div class="input-label">Nom du patient</div>
+            <input class="input-demo" type="text" value="Ahmed Ben Salah" style="border-color:#0F7B6C;" />
+          </div>
+          <div>
+            <div class="input-label">Erreur de validation</div>
+            <input class="input-demo error" type="email" value="email-invalide" />
+            <div style="font-size:12px;color:#D94F3B;margin-top:4px;">Format email invalide</div>
+          </div>
+          <div>
+            <div class="input-label">Téléphone</div>
+            <div style="display:flex;border:1.5px solid #E8E6DF;border-radius:10px;overflow:hidden;background:#fff;max-width:280px;">
+              <div style="padding:10px 12px;font-size:14px;font-weight:600;color:#9E9B90;border-right:1px solid #E8E6DF;background:#F6F5F0;font-family:'DM Mono',monospace;">+216</div>
+              <input style="flex:1;padding:10px 14px;font-size:14px;border:none;outline:none;background:transparent;font-family:'DM Sans',sans-serif;" placeholder="20 123 456" />
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);">
+          <table class="token-table">
+            <tr><th>État</th><th>border-color</th></tr>
+            <tr><td>Repos</td><td class="token-value">#E8E6DF</td></tr>
+            <tr><td>Focus</td><td class="token-value">#0F7B6C</td></tr>
+            <tr><td>Erreur</td><td class="token-value">#D94F3B</td></tr>
+            <tr><td>Valide (onboarding)</td><td class="token-value">var(--ob-brand-primary) #1B6B45</td></tr>
+          </table>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ════════════════════════════════
+         CARDS
+    ════════════════════════════════ -->
+    <section class="sg-section" id="cards">
+      <h2 class="sg-section-headline">Cartes</h2>
+      <div class="two-col">
+
+        <div>
+          <div class="sg-card-title" style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);margin-bottom:8px;">Carte patient en file</div>
+          <div class="demo-card" style="display:flex;align-items:center;gap:14px;">
+            <div style="width:32px;height:32px;border-radius:50%;background:#E8F5F1;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:700;color:#0F7B6C;font-size:14px;">3</div>
+            <div style="flex:1;">
+              <div style="font-weight:700;font-size:15px;color:#1A1A1A;">Nadia Boulares</div>
+              <div style="font-size:12px;color:#9E9B90;margin-top:2px;">arrivée 09:14 · attente ~18 mn</div>
+            </div>
+            <span class="badge badge-gray">Attente</span>
+          </div>
+        </div>
+
+        <div>
+          <div class="sg-card-title" style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);margin-bottom:8px;">KPI card</div>
+          <div class="demo-card" style="position:relative;overflow:hidden;">
+            <div style="position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;background:#E8F5F1;"></div>
+            <div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#9E9B90;margin-bottom:4px;">Patients vus</div>
+            <div style="font-family:'DM Mono',monospace;font-size:52px;font-weight:500;color:#0F7B6C;line-height:1;letter-spacing:-2px;">27</div>
+            <div style="font-size:12px;color:#9E9B90;margin-top:4px;">personnes prises en charge</div>
+            <span class="badge badge-green" style="margin-top:8px;">↑ +12% vs sem. passée</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- ════════════════════════════════
+         SHEETS
+    ════════════════════════════════ -->
+    <section class="sg-section" id="sheets">
+      <h2 class="sg-section-headline">Bottom Sheets</h2>
+      <p class="sg-section-desc">Pattern central de l'interface mobile. border-radius: 20px 20px 0 0 · box-shadow: bs-sheet · max-width: 375px.</p>
+
+      <div class="demo-sheet">
+        <div class="sheet-handle"></div>
+        <div style="font-weight:700;font-size:16px;margin-bottom:4px;">Ahmed Ben Salah</div>
+        <div style="font-size:12px;color:#9E9B90;padding-bottom:12px;border-bottom:1px solid #E8E6DF;margin-bottom:8px;">Position 3 · attente estimée 12 mn</div>
+
+        <!-- Action rows -->
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #F5F4F0;">
+          <div style="width:40px;height:40px;border-radius:10px;background:#FDF0ED;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <span class="material-symbols-rounded" style="font-size:20px;color:#D94F3B;">emergency</span>
+          </div>
+          <div style="flex:1;"><div style="font-weight:600;font-size:15px;">Urgence</div><div style="font-size:12px;color:#9E9B90;">Passe en priorité absolue</div></div>
+          <span class="material-symbols-rounded" style="font-size:18px;color:#9E9B90;">chevron_right</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #F5F4F0;">
+          <div style="width:40px;height:40px;border-radius:10px;background:#EDF3FC;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <span class="material-symbols-rounded" style="font-size:20px;color:#3B7DD9;">link</span>
+          </div>
+          <div style="flex:1;"><div style="font-weight:600;font-size:15px;">Copier URL</div><div style="font-size:12px;color:#9E9B90;">Lien de suivi de la position</div></div>
+          <span class="material-symbols-rounded" style="font-size:18px;color:#9E9B90;">chevron_right</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 0;">
+          <div style="width:40px;height:40px;border-radius:10px;background:#E8F7EE;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.553 4.122 1.523 5.857L.057 23.882a.5.5 0 0 0 .613.613l6.101-1.459A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.885 0-3.65-.52-5.16-1.426l-.37-.22-3.827.916.933-3.74-.242-.386A9.944 9.944 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+          </div>
+          <div style="flex:1;"><div style="font-weight:600;font-size:15px;">Envoyer via WhatsApp</div><div style="font-size:12px;color:#9E9B90;">Partager le lien de suivi</div></div>
+          <span class="material-symbols-rounded" style="font-size:18px;color:#9E9B90;">chevron_right</span>
+        </div>
+      </div>
+
+      <div class="callout callout-green" style="margin-top:16px;">
+        <strong>Pattern row.</strong> Chaque action = icon square 40×40px (radius 10px) + label 15px 600 + description 12px tertiary + chevron_right 18px.
+      </div>
+    </section>
+
+
+    <!-- ════════════════════════════════
+         ICONS
+    ════════════════════════════════ -->
+    <section class="sg-section" id="icons">
+      <div class="sg-section-title">Ressources</div>
+      <h2 class="sg-section-headline">Icônes</h2>
+      <p class="sg-section-desc">Material Symbols Rounded est la bibliothèque principale. Taille standard : 20–24px. Utiliser la variante <strong>Rounded</strong> partout sauf indication contraire.</p>
+
+      <div class="sg-card">
+        <div class="sg-card-title">Navigation & Actions courantes</div>
+        <div class="icon-grid">
+          <div class="icon-cell"><span class="material-symbols-rounded">arrow_forward</span><span>arrow_forward</span></div>
+          <div class="icon-cell"><span class="material-symbols-rounded">add</span><span>add</span></div>
+          <div class="icon-cell"><span class="material-symbols-rounded">close</span><span>close</span></div>
+          <div class="icon-cell"><span class="material-symbols-rounded">settings</span><span>settings</span></div>
+          <div class="icon-cell"><span class="material-symbols-rounded">menu</span><span>menu</span></div>
+          <div class="icon-cell"><span class="material-symbols-rounded">chevron_right</span><span>chevron_right</span></div>
+          <div class="icon-cell"><span class="material-symbols-rounded">search</span><span>search</span></div>
+          <div class="icon-cell"><span class="material-symbols-rounded">link</span><span>link</span></div>
+          <div class="icon-cell"><span class="material-symbols-rounded">share</span><span>share</span></div>
+          <div class="icon-cell"><span class="material-symbols-rounded">content_copy</span><span>content_copy</span></div>
+          <div class="icon-cell"><span class="material-symbols-rounded">save</span><span>save</span></div>
+          <div class="icon-cell"><span class="material-symbols-rounded">download</span><span>download</span></div>
+        </div>
+      </div>
+
+      <div class="sg-card">
+        <div class="sg-card-title">Queue & Patients</div>
+        <div class="icon-grid">
+          <div class="icon-cell"><span class="material-symbols-rounded">person</span><span>person</span></div>
+          <div class="icon-cell"><span class="material-symbols-rounded">person_add</span><span>person_add</span></div>
+          <div class="icon-cell"><span class="material-symbols-rounded">person_remove</span><span>person_remove</span></div>
+          <div class="icon-cell"><span class="material-symbols-rounded">emergency</span><span>emergency</span></div>
+          <div class="icon-cell"><span class="material-symbols-rounded">add_call</span><span>add_call</span></div>
+          <div class="icon-cell"><span class="material-symbols-rounded">phone</span><span>phone</span></div>
+          <div class="icon-cell"><span class="material-symbols-rounded">schedule</span><span>schedule</span></div>
+          <div class="icon-cell"><span class="material-symbols-rounded">timer</span><span>timer</span></div>
+          <div class="icon-cell"><span class="material-symbols-rounded">qr_code</span><span>qr_code</span></div>
+          <div class="icon-cell"><span class="material-symbols-rounded">notifications</span><span>notifications</span></div>
+          <div class="icon-cell"><span class="material-symbols-rounded">campaign</span><span>campaign</span></div>
+          <div class="icon-cell"><span class="material-symbols-rounded">drag_indicator</span><span>drag_indicator</span></div>
+        </div>
+      </div>
+
+      <div class="sg-card">
+        <div class="sg-card-title">État & Feedback</div>
+        <div class="icon-grid">
+          <div class="icon-cell"><span class="material-symbols-rounded" style="color:#2D8B4E;">check_circle</span><span>check_circle</span></div>
+          <div class="icon-cell"><span class="material-symbols-rounded" style="color:#D94F3B;">error</span><span>error</span></div>
+          <div class="icon-cell"><span class="material-symbols-rounded" style="color:#D4920B;">warning</span><span>warning</span></div>
+          <div class="icon-cell"><span class="material-symbols-rounded" style="color:#3B7DD9;">info</span><span>info</span></div>
+          <div class="icon-cell"><span class="material-symbols-rounded">progress_activity</span><span>progress_activity</span></div>
+          <div class="icon-cell"><span class="material-symbols-rounded">lock</span><span>lock</span></div>
+          <div class="icon-cell"><span class="material-symbols-rounded">visibility</span><span>visibility</span></div>
+          <div class="icon-cell"><span class="material-symbols-rounded">visibility_off</span><span>visibility_off</span></div>
+        </div>
+      </div>
+
+      <div class="callout callout-amber">
+        <strong>Règle d'usage.</strong> Toujours utiliser <code>className="material-symbols-rounded"</code>. Taille via <code>style={{ fontSize: 20 }}</code>. Ne jamais utiliser les variantes <em>Outlined</em> ou <em>Sharp</em> dans le dashboard receptionniste.
+      </div>
+    </section>
+
+
+    <!-- ════════════════════════════════
+         MOTION
+    ════════════════════════════════ -->
+    <section class="sg-section" id="motion">
+      <h2 class="sg-section-headline">Motion</h2>
+
+      <div class="sg-card">
+        <div class="sg-card-title">Durées & Easing</div>
+        <table class="token-table">
+          <tr><th>Nom</th><th>Valeur</th><th>Usage</th></tr>
+          <tr><td>Fast</td><td class="token-value">150ms ease</td><td style="color:var(--text-muted);font-size:12px;">Hover, focus, color transitions</td></tr>
+          <tr><td>Default</td><td class="token-value">200ms ease</td><td style="color:var(--text-muted);font-size:12px;">Boutons, badges, états</td></tr>
+          <tr><td>Sheet open</td><td class="token-value">220ms ease</td><td style="color:var(--text-muted);font-size:12px;">Bottom sheet slide-up</td></tr>
+          <tr><td>Page transition</td><td class="token-value">spring · stiffness 300 · damping 30</td><td style="color:var(--text-muted);font-size:12px;">Framer Motion slide entre écrans</td></tr>
+          <tr><td>Dropdown open</td><td class="token-value">150ms cubic-bezier(0.22,1,0.36,1)</td><td style="color:var(--text-muted);font-size:12px;">fadeDown animation</td></tr>
+          <tr><td>Skeleton pulse</td><td class="token-value">1.5s ease-in-out infinite</td><td style="color:var(--text-muted);font-size:12px;">Loading states</td></tr>
+          <tr><td>CTA breathe</td><td class="token-value">bs-pulse-cta 3s ease-in-out infinite</td><td style="color:var(--text-muted);font-size:12px;">FAB attention animation</td></tr>
+        </table>
+      </div>
+
+      <div class="sg-card">
+        <div class="sg-card-title">Keyframes disponibles</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+          <span class="badge badge-gray">fadeInUp</span>
+          <span class="badge badge-gray">slideInDown</span>
+          <span class="badge badge-gray">bs-slide-in</span>
+          <span class="badge badge-gray">sheetSlideUp</span>
+          <span class="badge badge-gray">bs-pulse-dot</span>
+          <span class="badge badge-gray">bs-pulse-cta</span>
+          <span class="badge badge-gray">pulse-ring</span>
+          <span class="badge badge-gray">menu-pop</span>
+          <span class="badge badge-gray">dropdown-in</span>
+          <span class="badge badge-gray">ps-fadeUp</span>
+          <span class="badge badge-gray">ps-countPulse</span>
+          <span class="badge badge-gray">ps-go-ring-pulse</span>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ════════════════════════════════
+         USAGE
+    ════════════════════════════════ -->
+    <section class="sg-section" id="usage">
+      <h2 class="sg-section-headline">Règles d'usage</h2>
+
+      <div class="sg-card">
+        <div class="sg-card-title">DO — À faire</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:10px;">
+          <li style="display:flex;gap:10px;align-items:flex-start;"><span style="color:#2D8B4E;font-size:16px;flex-shrink:0;">✓</span><span>Utiliser les tokens CSS (<code>--bs-*</code>, <code>--ob-*</code>) plutôt que les valeurs hex directes dans les composants</span></li>
+          <li style="display:flex;gap:10px;align-items:flex-start;"><span style="color:#2D8B4E;font-size:16px;flex-shrink:0;">✓</span><span>DM Sans partout dans le dashboard · Sora exclusivement dans l'onboarding</span></li>
+          <li style="display:flex;gap:10px;align-items:flex-start;"><span style="color:#2D8B4E;font-size:16px;flex-shrink:0;">✓</span><span>Touch targets ≥ 44px sur mobile</span></li>
+          <li style="display:flex;gap:10px;align-items:flex-start;"><span style="color:#2D8B4E;font-size:16px;flex-shrink:0;">✓</span><span>Utiliser <code>material-symbols-rounded</code> pour toutes les icônes système</span></li>
+          <li style="display:flex;gap:10px;align-items:flex-start;"><span style="color:#2D8B4E;font-size:16px;flex-shrink:0;">✓</span><span>Bottom sheets pour les sélections sur mobile (≥ 5 options)</span></li>
+          <li style="display:flex;gap:10px;align-items:flex-start;"><span style="color:#2D8B4E;font-size:16px;flex-shrink:0;">✓</span><span>Fond crème <code>#F6F5F0</code> comme base du dashboard réceptionniste</span></li>
+        </ul>
+      </div>
+
+      <div class="sg-card">
+        <div class="sg-card-title">DON'T — À éviter</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:10px;">
+          <li style="display:flex;gap:10px;align-items:flex-start;"><span style="color:#D94F3B;font-size:16px;flex-shrink:0;">✗</span><span>Mélanger les tokens <code>--ob-*</code> et <code>--bs-*</code> dans un même composant</span></li>
+          <li style="display:flex;gap:10px;align-items:flex-start;"><span style="color:#D94F3B;font-size:16px;flex-shrink:0;">✗</span><span>Utiliser <code>&lt;select&gt;</code> natif dans les flows d'onboarding ou de paramètres</span></li>
+          <li style="display:flex;gap:10px;align-items:flex-start;"><span style="color:#D94F3B;font-size:16px;flex-shrink:0;">✗</span><span>Icônes <em>Outlined</em> ou <em>Sharp</em> dans le dashboard receptionniste</span></li>
+          <li style="display:flex;gap:10px;align-items:flex-start;"><span style="color:#D94F3B;font-size:16px;flex-shrink:0;">✗</span><span>Scroll horizontal ou contenu tronqué sans indication visuelle</span></li>
+          <li style="display:flex;gap:10px;align-items:flex-start;"><span style="color:#D94F3B;font-size:16px;flex-shrink:0;">✗</span><span>Animations > 300ms pour les interactions utilisateur directes</span></li>
+          <li style="display:flex;gap:10px;align-items:flex-start;"><span style="color:#D94F3B;font-size:16px;flex-shrink:0;">✗</span><span>Utiliser la police Sora dans le dashboard (hors onboarding)</span></li>
+        </ul>
+      </div>
+
+      <div class="sg-card">
+        <div class="sg-card-title">Scope des surfaces</div>
+        <table class="token-table">
+          <tr><th>Surface</th><th>Police</th><th>Tokens</th><th>Bg</th></tr>
+          <tr><td>Onboarding screens</td><td>Sora</td><td><code>--ob-*</code></td><td>Illustration / blanc</td></tr>
+          <tr><td>Dashboard réceptionniste</td><td>DM Sans</td><td><code>--bs-*</code></td><td>#F6F5F0</td></tr>
+          <tr><td>Dashboard desktop</td><td>IBM Plex Sans</td><td><code>--db-*</code></td><td>#F8F7F5</td></tr>
+          <tr><td>Patient status page</td><td>DM Sans</td><td><code>--ps-*</code></td><td>Phase-specific</td></tr>
+          <tr><td>Admin dashboard</td><td>IBM Plex Sans</td><td>Tailwind</td><td>#F5F4F0</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <div style="text-align:center;padding:32px 0;color:var(--text-muted);font-size:12px;border-top:1px solid var(--border);">
+      BleSaf Design System · Généré 2026 · <code style="font-size:11px;">design/blesaf-style-guide.html</code>
+    </div>
+
+  </main>
+</div>
+</body>
+</html>
