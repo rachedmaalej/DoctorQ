@@ -75,8 +75,8 @@ export const SCREEN_COPY = {
 } as const;
 
 export const ILLUSTRATION_PATHS = {
-  welcome: '/images/onboarding/welcome3.png',
-  specialty: '/images/onboarding/specialty3.png',
-  signup: '/images/onboarding/signup3.png',
-  'qr-reveal': '/images/onboarding/qr-reveal3.png',
+  welcome: '/images/onboarding/welcome2.png',
+  specialty: '/images/onboarding/specialty2.png',
+  signup: '/images/onboarding/signup2.png',
+  'qr-reveal': '/images/onboarding/qr-reveal2.png',
 } as const;

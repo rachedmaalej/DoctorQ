@@ -70,7 +70,7 @@ export default function OnboardingLayout({
       {/* ── Mobile: overlapping white card ── */}
       <div className="md:hidden relative z-10 flex-1 flex flex-col justify-center"
         style={{
-          marginTop: '0px',
+          marginTop: 'var(--ob-card-overlap)',
           backgroundColor: 'var(--ob-card-bg)',
           borderRadius: 'var(--ob-card-radius) var(--ob-card-radius) 0 0',
           padding: 'var(--ob-card-pad)',

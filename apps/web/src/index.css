@@ -43,12 +43,13 @@
   --ob-brand-text:    #1A1A2E;
   --ob-brand-subtle:  #6B7280;
   --ob-card-bg:       #FFFFFF;
-  --ob-illustration-h: 50vh;
+  --ob-illustration-h: 60dvh;
   --ob-card-radius:   28px;
   --ob-btn-radius:    14px;
   --ob-progress-h:    3px;
   --ob-screen-pad:    24px;
-  --ob-card-pad:      28px 24px 40px;
+  --ob-card-pad:      33px;
+  --ob-card-overlap:  -27px;
   --ob-font:          'Sora', sans-serif;
 
   /* ─── Admin Dashboard Design Tokens ─────────────────────── */
