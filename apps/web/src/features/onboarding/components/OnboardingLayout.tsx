@@ -35,7 +35,7 @@ export default function OnboardingLayout({
   alignTop = false,
 }: OnboardingLayoutProps) {
   return (
-    <div className="flex flex-col h-full md:flex-row">
+    <div className="flex flex-col h-full overflow-y-auto md:overflow-hidden md:flex-row">
       {/* ── Left / Top: Illustration ──
           Mobile: fixed height via inline style (55dvh default, overridable per screen)
           Desktop: md:!h-full overrides inline height to fill parent, overflow hidden clips image */}
@@ -74,7 +74,7 @@ export default function OnboardingLayout({
       </div>
 
       {/* ── Mobile: overlapping white card ── */}
-      <div className={`md:hidden relative z-10 flex-1 flex flex-col ${alignTop ? 'justify-start' : 'justify-center'}`}
+      <div className={`md:hidden relative z-10 flex flex-col ${alignTop ? 'justify-start' : 'justify-center'}`}
         style={{
           marginTop: cardOverlap ?? 'var(--ob-card-overlap)',
           backgroundColor: 'var(--ob-card-bg)',
