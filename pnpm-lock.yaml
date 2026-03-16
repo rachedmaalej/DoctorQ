@@ -29,6 +29,9 @@ importers:
       '@sentry/node':
         specifier: ^10.38.0
         version: 10.38.0
+      '@supabase/supabase-js':
+        specifier: ^2.99.2
+        version: 2.99.2
       bcryptjs:
         specifier: ^2.4.3
         version: 2.4.3
