@@ -44,14 +44,26 @@ export default function OnboardingFlow() {
   const { checkAuth } = useAuthStore();
 
   // Skip to QR reveal if clinic already created (OAuth callback or page refresh after signup)
-  const skipToQr = searchParams.get('step') === 'qr' || (!!storedClinicId && !!storedClinicName);
+  // Check sessionStorage for OAuth flow (survives checkAuth re-renders)
+  const oauthSkip = sessionStorage.getItem('oauth_skip_to_qr') === '1';
+  const oauthClinicId = sessionStorage.getItem('oauth_clinic_id');
+  const oauthClinicName = sessionStorage.getItem('oauth_clinic_name_result');
+
+  if (oauthSkip && oauthClinicId && oauthClinicName && !storedClinicId) {
+    // Restore from sessionStorage into Zustand store
+    useOnboardingStore.getState().setClinicInfo(oauthClinicId, oauthClinicName);
+  }
+
+  const effectiveClinicId = storedClinicId || oauthClinicId;
+  const effectiveClinicName = storedClinicName || oauthClinicName;
+  const skipToQr = searchParams.get('step') === 'qr' || oauthSkip || (!!storedClinicId && !!storedClinicName);
   const initialStep = skipToQr ? STEPS.indexOf('qr-reveal') : 0;
   const [step, setStep] = useState(initialStep);
   const [direction, setDirection] = useState(1);
   const [specialty, setSpecialty] = useState<SpecialtyId | null>(null);
   const [signUpResult, setSignUpResult] = useState<{ clinicId: string; clinicName: string } | null>(
-    storedClinicId && storedClinicName
-      ? { clinicId: storedClinicId, clinicName: storedClinicName }
+    effectiveClinicId && effectiveClinicName
+      ? { clinicId: effectiveClinicId, clinicName: effectiveClinicName }
       : null,
   );
 
@@ -89,6 +101,10 @@ export default function OnboardingFlow() {
   const handleComplete = useCallback(async () => {
     trackOnboarding(EVENTS.ONBOARDING_COMPLETED);
     localStorage.setItem('blesaf_onboarded', 'true');
+    // Clean up OAuth sessionStorage
+    sessionStorage.removeItem('oauth_skip_to_qr');
+    sessionStorage.removeItem('oauth_clinic_id');
+    sessionStorage.removeItem('oauth_clinic_name_result');
     try {
       await api.updateOnboarding(3, true);
     } catch {

@@ -50,6 +50,10 @@ export default function AuthCallbackPage() {
         if (result.isNewUser) {
           // New user — set clinic info and skip to QR reveal
           useOnboardingStore.getState().setClinicInfo(result.clinicId!, result.clinicName!);
+          // Persist in sessionStorage so it survives checkAuth re-renders
+          sessionStorage.setItem('oauth_skip_to_qr', '1');
+          sessionStorage.setItem('oauth_clinic_id', result.clinicId!);
+          sessionStorage.setItem('oauth_clinic_name_result', result.clinicName!);
           navigate('/onboarding?step=qr', { replace: true });
         } else if (source === 'login') {
           // Existing user from login page
