@@ -121,7 +121,7 @@ const SettingsDropdown = forwardRef<HTMLDivElement, SettingsDropdownProps>(
           activePane ? 'w-[400px]' : 'w-[320px]',
         )}
       >
-        <div className="overflow-hidden">
+        <div className="overflow-hidden max-h-[calc(100vh-120px)]">
           <div
             className="flex transition-transform duration-[250ms] ease-[cubic-bezier(0.32,0,0.15,1)]"
             style={{
@@ -130,7 +130,7 @@ const SettingsDropdown = forwardRef<HTMLDivElement, SettingsDropdownProps>(
             }}
           >
             {/* ── Main menu panel ── */}
-            <div className="w-1/2 shrink-0">
+            <div className="w-1/2 shrink-0 max-h-[calc(100vh-120px)] overflow-y-auto">
               <DropdownHeader
                 clinicName={props.clinicName}
                 isDoctorPresent={props.isDoctorPresent}
