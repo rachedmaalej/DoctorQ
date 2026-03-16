@@ -23,6 +23,7 @@ const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
 const TeaserPage = lazy(() => import('./pages/TeaserPage'));
 const ReceptionistPreview = lazy(() => import('./components/receptionist/ReceptionistPreview'));
 const DemoSimulation = lazy(() => import('./components/demo/DemoSimulation'));
+const AuthCallbackPage = lazy(() => import('./pages/AuthCallbackPage'));
 
 // Lightweight loading spinner for Suspense fallback
 function PageLoader() {
@@ -74,6 +75,9 @@ function App() {
         <Route path="/signup" element={<Navigate to="/onboarding" replace />} />
         <Route path="/signup/setup" element={<Navigate to="/onboarding" replace />} />
         <Route path="/welcome" element={<Navigate to="/onboarding" replace />} />
+
+        {/* OAuth callback */}
+        <Route path="/auth/callback" element={<AuthCallbackPage />} />
 
         {/* Public auth routes */}
         <Route path="/login" element={!isAuthenticated ? <LoginPage /> : <Navigate to="/dashboard" />} />

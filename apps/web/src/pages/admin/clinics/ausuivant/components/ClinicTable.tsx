@@ -37,15 +37,30 @@ interface ClinicTableProps {
   onToggleSort: (field: DirectorySort['field']) => void;
   onExtend: (clinicId: string, clinicName: string) => void;
   onUpgrade: (clinicId: string, clinicName: string) => void;
+  selectedIds: Set<string>;
+  onToggleSelect: (clinicId: string) => void;
+  onToggleSelectAll: () => void;
 }
 
-export default function ClinicTable({ clinics, totalCount, sort, onToggleSort, onExtend, onUpgrade }: ClinicTableProps) {
+const checkboxStyle: React.CSSProperties = {
+  width: 16,
+  height: 16,
+  accentColor: '#c0392b',
+  cursor: 'pointer',
+};
+
+export default function ClinicTable({
+  clinics, totalCount, sort, onToggleSort, onExtend, onUpgrade,
+  selectedIds, onToggleSelect, onToggleSelectAll,
+}: ClinicTableProps) {
   const navigate = useNavigate();
 
   const getSortIcon = (field: string) => {
     if (sort.field !== field) return '↕';
     return sort.direction === 'asc' ? '↑' : '↓';
   };
+
+  const allSelected = clinics.length > 0 && clinics.every((c) => selectedIds.has(c.id));
 
   const thStyle: React.CSSProperties = {
     padding: '0.65rem 1.2rem',
@@ -79,6 +94,15 @@ export default function ClinicTable({ clinics, totalCount, sort, onToggleSort, o
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
           <tr>
+            <th style={{ ...thStyle, width: 40, paddingRight: 0 }} onClick={(e) => e.stopPropagation()}>
+              <input
+                type="checkbox"
+                checked={allSelected}
+                onChange={onToggleSelectAll}
+                style={checkboxStyle}
+                aria-label="Sélectionner tous les cabinets"
+              />
+            </th>
             <th style={{ ...thStyle, cursor: 'pointer' }} onClick={() => onToggleSort('name')}>
               Cabinet {getSortIcon('name')}
             </th>
@@ -99,13 +123,14 @@ export default function ClinicTable({ clinics, totalCount, sort, onToggleSort, o
         <tbody>
           {clinics.length === 0 ? (
             <tr>
-              <td colSpan={7} style={{ ...tdStyle, textAlign: 'center', color: '#999', padding: '2rem' }}>
+              <td colSpan={8} style={{ ...tdStyle, textAlign: 'center', color: '#999', padding: '2rem' }}>
                 {totalCount === 0 ? 'Aucun cabinet.' : 'Aucun cabinet ne correspond aux filtres.'}
               </td>
             </tr>
           ) : (
             clinics.map((clinic, i) => {
               const pill = STATUS_PILLS[clinic.subscriptionStatus] || STATUS_PILLS.TRIAL;
+              const isSelected = selectedIds.has(clinic.id);
               return (
                 <tr
                   key={clinic.id}
@@ -113,11 +138,23 @@ export default function ClinicTable({ clinics, totalCount, sort, onToggleSort, o
                     borderBottom: i < clinics.length - 1 ? '1px solid #f0ebe4' : 'none',
                     cursor: 'pointer',
                     transition: 'background 150ms',
+                    background: isSelected ? '#fef5f3' : undefined,
                   }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = '#f9f6f2'; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
+                  onMouseEnter={(e) => { if (!isSelected) (e.currentTarget as HTMLElement).style.background = '#f9f6f2'; }}
+                  onMouseLeave={(e) => { if (!isSelected) (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
                   onClick={() => navigate(`/admin/clinics/${clinic.id}`)}
                 >
+                  {/* Checkbox */}
+                  <td style={{ ...tdStyle, width: 40, paddingRight: 0 }} onClick={(e) => e.stopPropagation()}>
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => onToggleSelect(clinic.id)}
+                      style={checkboxStyle}
+                      aria-label={`Sélectionner ${clinic.name}`}
+                    />
+                  </td>
+
                   <td style={tdStyle}>
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
                       <span style={{ fontWeight: 600, fontSize: '0.82rem', color: '#1a1a2e' }}>{clinic.name}</span>

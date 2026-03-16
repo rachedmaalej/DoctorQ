@@ -1,9 +1,10 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useClinicsSummary } from '@/hooks/admin/useClinicsSummary';
 import { AlertBanner, StatCard, Card, FilterBar, Tag, HealthBars, RiskChip } from '@/components/admin/ui';
 import ExtendTrialModal from '@/components/admin/ExtendTrialModal';
 import ConfirmModal from '@/components/ui/ConfirmModal';
+import BulkActionBar from './clinics/shared/components/BulkActionBar';
 import { api } from '@/lib/api';
 import type { ClinicSummary } from '@/types';
 
@@ -87,6 +88,11 @@ export default function ClinicsPage() {
   } | null>(null);
   const [isUpgrading, setIsUpgrading] = useState(false);
 
+  // Selection state
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
+  const [isBulkDeleting, setIsBulkDeleting] = useState(false);
+
   // ── Derived data ────────────────────────────────────────────
 
   const filtered = useMemo(
@@ -163,6 +169,27 @@ export default function ClinicsPage() {
   const expiringCount = expiringTrials.length;
   const neverQrCount = neverQrClinics.length;
 
+  // ── Selection handlers ────────────────────────────────────
+
+  const allFilteredSelected = filtered.length > 0 && filtered.every((c) => selectedIds.has(c.id));
+
+  const toggleSelect = useCallback((clinicId: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(clinicId)) next.delete(clinicId);
+      else next.add(clinicId);
+      return next;
+    });
+  }, []);
+
+  const toggleSelectAll = useCallback(() => {
+    setSelectedIds((prev) => {
+      const allSelected = filtered.every((c) => prev.has(c.id));
+      if (allSelected) return new Set();
+      return new Set(filtered.map((c) => c.id));
+    });
+  }, [filtered]);
+
   // ── Modal handlers ─────────────────────────────────────────
 
   const handleUpgradeConfirm = async () => {
@@ -178,6 +205,21 @@ export default function ClinicsPage() {
       setIsUpgrading(false);
     }
   };
+
+  const handleBulkDelete = useCallback(async () => {
+    if (selectedIds.size === 0) return;
+    setIsBulkDeleting(true);
+    try {
+      await api.deleteClinics([...selectedIds]);
+      setSelectedIds(new Set());
+      setShowBulkDeleteConfirm(false);
+      refetch();
+    } catch (err: any) {
+      alert(err.message || 'Failed to delete clinics');
+    } finally {
+      setIsBulkDeleting(false);
+    }
+  }, [selectedIds, refetch]);
 
   // ── Loading state ──────────────────────────────────────────
 
@@ -377,6 +419,29 @@ export default function ClinicsPage() {
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr>
+                  <th
+                    style={{
+                      padding: '11px 16px',
+                      fontSize: 11,
+                      fontWeight: 650,
+                      textTransform: 'uppercase',
+                      letterSpacing: 0.6,
+                      color: 'var(--text-muted)',
+                      background: 'var(--surface-2)',
+                      borderBottom: '1px solid var(--border)',
+                      whiteSpace: 'nowrap',
+                      textAlign: 'left',
+                      width: 40,
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={allFilteredSelected}
+                      onChange={toggleSelectAll}
+                      style={{ width: 16, height: 16, accentColor: 'var(--brand)', cursor: 'pointer' }}
+                      aria-label="Select all clinics"
+                    />
+                  </th>
                   {['CLINIC', 'PLAN', 'TRIAL ENDS', 'HEALTH', 'PATIENTS (30D)', 'QR ADOPTION', 'LAST ACTIVE', 'CHURN RISK', 'ACTIONS'].map(
                     (h) => (
                       <th
@@ -404,7 +469,7 @@ export default function ClinicsPage() {
                 {filtered.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={9}
+                      colSpan={10}
                       style={{
                         padding: '40px 16px',
                         textAlign: 'center',
@@ -420,6 +485,8 @@ export default function ClinicsPage() {
                     <ClinicRow
                       key={clinic.id}
                       clinic={clinic}
+                      selected={selectedIds.has(clinic.id)}
+                      onToggleSelect={() => toggleSelect(clinic.id)}
                       onNavigate={() => navigate(`/admin/clinics/${clinic.id}`)}
                       onExtend={() => setTrialModal({ clinicId: clinic.id, clinicName: clinic.name })}
                       onUpgrade={() =>
@@ -450,6 +517,13 @@ export default function ClinicsPage() {
         </Card>
       </div>
 
+      {/* ── Bulk Action Bar ───────────────────────────────── */}
+      <BulkActionBar
+        count={selectedIds.size}
+        onDelete={() => setShowBulkDeleteConfirm(true)}
+        onClear={() => setSelectedIds(new Set())}
+      />
+
       {/* ── Modals ──────────────────────────────────────── */}
       {trialModal && (
         <ExtendTrialModal
@@ -473,6 +547,19 @@ export default function ClinicsPage() {
           isLoading={isUpgrading}
         />
       )}
+
+      {showBulkDeleteConfirm && (
+        <ConfirmModal
+          isOpen={true}
+          onClose={() => setShowBulkDeleteConfirm(false)}
+          onConfirm={handleBulkDelete}
+          title={`Delete ${selectedIds.size} clinic${selectedIds.size > 1 ? 's' : ''}`}
+          message={`This will permanently delete ${selectedIds.size} clinic${selectedIds.size > 1 ? 's' : ''} and all their data. This action cannot be undone.`}
+          confirmText={isBulkDeleting ? 'Deleting...' : 'Delete All'}
+          variant="danger"
+          isLoading={isBulkDeleting}
+        />
+      )}
     </div>
   );
 }
@@ -481,18 +568,20 @@ export default function ClinicsPage() {
 
 interface ClinicRowProps {
   clinic: ClinicSummary;
+  selected: boolean;
+  onToggleSelect: () => void;
   onNavigate: () => void;
   onExtend: () => void;
   onUpgrade: () => void;
 }
 
-function ClinicRow({ clinic, onNavigate, onExtend, onUpgrade }: ClinicRowProps) {
+function ClinicRow({ clinic, selected, onToggleSelect, onNavigate, onExtend, onUpgrade }: ClinicRowProps) {
   const [hovered, setHovered] = useState(false);
 
   const rowStyle: React.CSSProperties = {
     borderBottom: '1px solid var(--border-subtle)',
     transition: 'background 0.12s',
-    background: hovered ? '#FAFAF8' : undefined,
+    background: selected ? '#f0faf5' : hovered ? '#FAFAF8' : undefined,
   };
 
   const cellStyle: React.CSSProperties = {
@@ -577,6 +666,18 @@ function ClinicRow({ clinic, onNavigate, onExtend, onUpgrade }: ClinicRowProps) 
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
+      {/* CHECKBOX */}
+      <td style={{ ...cellStyle, width: 40 }}>
+        <input
+          type="checkbox"
+          checked={selected}
+          onChange={onToggleSelect}
+          onClick={(e) => e.stopPropagation()}
+          style={{ width: 16, height: 16, accentColor: 'var(--brand)', cursor: 'pointer' }}
+          aria-label={`Select ${clinic.name}`}
+        />
+      </td>
+
       {/* CLINIC */}
       <td style={cellStyle}>
         <div

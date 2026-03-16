@@ -31,7 +31,8 @@ model Clinic {
 
   // Auth
   email               String       @unique
-  passwordHash        String
+  passwordHash        String?
+  oauthProvider       String?      // 'google' | 'apple' | 'facebook' — null for email/password users
 
   // Settings
   notifyAtPosition    Int          @default(2)  // Notify when X patients away

@@ -19,8 +19,9 @@ export default function WelcomeScreen({ step, onAdvance }: WelcomeScreenProps) {
       step={step}
       illustrationSrc={ILLUSTRATION_PATHS.welcome}
       illustrationAlt="Doctors greeting patients"
+      illustrationHeight="65dvh"
     >
-      <div className="flex flex-col items-center text-center gap-2 md:items-start md:text-left md:h-auto md:gap-3">
+      <div className="flex flex-col items-center text-center gap-[18px] md:items-start md:text-left md:h-auto md:gap-[18px]">
         <h1
           className="text-[24px] font-bold leading-tight md:text-[32px]"
           style={{ fontFamily: 'var(--ob-font)', color: 'var(--ob-brand-text)' }}

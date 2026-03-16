@@ -61,6 +61,8 @@ export default function SpecialtyScreen({
         illustrationSrc={ILLUSTRATION_PATHS.specialty}
         illustrationAlt="Doctor with specialty icons"
         headerRight={skipButton}
+        illustrationHeight="65dvh"
+        cardOverlap="-44px"
       >
         <div className="flex flex-col items-center md:items-stretch md:h-full">
           {/* Desktop: skip link inline */}
@@ -82,13 +84,13 @@ export default function SpecialtyScreen({
           </div>
 
           <h1
-            className="text-[22px] font-bold leading-tight mb-[4px] text-center md:text-left md:text-[28px] md:mb-[6px]"
+            className="text-[22px] font-bold leading-tight mb-[9px] text-center md:text-left md:text-[28px] md:mb-[9px]"
             style={{ fontFamily: 'var(--ob-font)', color: 'var(--ob-brand-text)' }}
           >
             {copy.headline}
           </h1>
           <p
-            className="text-[13px] leading-relaxed mb-[14px] text-center md:text-left md:text-[14px] md:mb-5"
+            className="text-[13px] leading-relaxed mb-[9px] text-center md:text-left md:text-[14px] md:mb-[9px]"
             style={{ fontFamily: 'var(--ob-font)', color: 'var(--ob-brand-subtle)' }}
           >
             {copy.subtitle}

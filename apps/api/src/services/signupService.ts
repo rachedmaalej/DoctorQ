@@ -133,6 +133,56 @@ export async function registerClinic(data: SignupData): Promise<SignupResult> {
   };
 }
 
+// ─── OAuth Signup ────────────────────────────────────────────
+
+export interface OAuthSignupData {
+  email: string;
+  name: string;
+  provider: 'google' | 'apple' | 'facebook';
+  language?: 'fr' | 'ar';
+}
+
+/**
+ * Register a new clinic via OAuth (Google/Apple/Facebook).
+ * No password, email pre-verified, trial subscription.
+ */
+export async function registerClinicOAuth(data: OAuthSignupData): Promise<{ clinicId: string; email: string }> {
+  const trialEndsAt = getTrialEndDate();
+
+  const clinic = await prisma.clinic.create({
+    data: {
+      name: data.name,
+      email: data.email,
+      oauthProvider: data.provider,
+      language: data.language ?? 'fr',
+      // OAuth users are pre-verified
+      emailVerified: true,
+      // Subscription defaults
+      subscriptionStatus: 'TRIAL',
+      trialEndsAt,
+      // Onboarding
+      onboardingCompleted: false,
+      onboardingStep: 0,
+      // Market isolation
+      country: brand.country,
+    },
+    select: {
+      id: true,
+      email: true,
+    },
+  });
+
+  await prisma.subscriptionEvent.create({
+    data: {
+      clinicId: clinic.id,
+      eventType: 'trial_started',
+      notes: `30-day trial started (OAuth: ${data.provider}). Ends ${trialEndsAt.toISOString()}`,
+    },
+  });
+
+  return { clinicId: clinic.id, email: clinic.email };
+}
+
 // ─── Email Verification ──────────────────────────────────────
 
 /**

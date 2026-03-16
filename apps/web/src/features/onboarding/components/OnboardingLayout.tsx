@@ -12,6 +12,10 @@ interface OnboardingLayoutProps {
   headerRight?: ReactNode;
   /** Override mobile illustration height (default: 55dvh) */
   illustrationHeight?: string;
+  /** Override mobile card overlap (default: var(--ob-card-overlap)) */
+  cardOverlap?: string;
+  /** Align card content to top instead of center (useful for tall forms) */
+  alignTop?: boolean;
 }
 
 /**
@@ -27,6 +31,8 @@ export default function OnboardingLayout({
   children,
   headerRight,
   illustrationHeight = '42dvh',
+  cardOverlap,
+  alignTop = false,
 }: OnboardingLayoutProps) {
   return (
     <div className="flex flex-col h-full md:flex-row">
@@ -68,9 +74,9 @@ export default function OnboardingLayout({
       </div>
 
       {/* ── Mobile: overlapping white card ── */}
-      <div className="md:hidden relative z-10 flex-1 flex flex-col justify-center"
+      <div className={`md:hidden relative z-10 flex-1 flex flex-col ${alignTop ? 'justify-start' : 'justify-center'}`}
         style={{
-          marginTop: 'var(--ob-card-overlap)',
+          marginTop: cardOverlap ?? 'var(--ob-card-overlap)',
           backgroundColor: 'var(--ob-card-bg)',
           borderRadius: 'var(--ob-card-radius) var(--ob-card-radius) 0 0',
           padding: 'var(--ob-card-pad)',

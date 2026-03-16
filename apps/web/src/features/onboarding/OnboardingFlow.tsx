@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { STEPS } from './constants/onboardingConfig';
 import type { SpecialtyId } from './constants/onboardingConfig';
@@ -39,10 +39,14 @@ const slideTransition = {
 
 export default function OnboardingFlow() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { clinicId: storedClinicId, clinicName: storedClinicName } = useOnboardingStore();
   const { checkAuth } = useAuthStore();
 
-  const [step, setStep] = useState(0);
+  // Skip to QR reveal if clinic already created (OAuth callback or page refresh after signup)
+  const skipToQr = searchParams.get('step') === 'qr' || (!!storedClinicId && !!storedClinicName);
+  const initialStep = skipToQr ? STEPS.indexOf('qr-reveal') : 0;
+  const [step, setStep] = useState(initialStep);
   const [direction, setDirection] = useState(1);
   const [specialty, setSpecialty] = useState<SpecialtyId | null>(null);
   const [signUpResult, setSignUpResult] = useState<{ clinicId: string; clinicName: string } | null>(

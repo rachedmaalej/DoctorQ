@@ -936,29 +936,45 @@ export async function resetClinicPassword(clinicId: string, newPassword: string)
 }
 
 export async function deleteClinic(clinicId: string) {
-  // Delete in order to respect foreign key constraints
-  // 1. Delete all queue entries for this clinic
-  await prisma.queueEntry.deleteMany({
-    where: { clinicId },
-  });
+  return prisma.$transaction(async (tx) => {
+    // Delete all related models in dependency order
+    await tx.pushSubscription.deleteMany({
+      where: { entry: { clinicId } },
+    });
+    await tx.queueEntry.deleteMany({ where: { clinicId } });
+    await tx.scheduleSlot.deleteMany({ where: { clinicId } });
+    await tx.doctorDailyStat.deleteMany({ where: { clinicId } });
+    await tx.doctor.deleteMany({ where: { clinicId } });
+    await tx.patient.deleteMany({ where: { clinicId } });
+    await tx.hourlyStat.deleteMany({ where: { clinicId } });
+    await tx.dailyStat.deleteMany({ where: { clinicId } });
+    await tx.paymentRecord.deleteMany({ where: { clinicId } });
+    await tx.subscriptionEvent.deleteMany({ where: { clinicId } });
 
-  // 2. Delete all payment records for this clinic
-  await prisma.paymentRecord.deleteMany({
-    where: { clinicId },
+    return tx.clinic.delete({
+      where: { id: clinicId },
+      select: { id: true, name: true },
+    });
   });
+}
 
-  // 3. Delete all daily stats for this clinic
-  await prisma.dailyStat.deleteMany({
-    where: { clinicId },
+export async function deleteClinics(clinicIds: string[]) {
+  return prisma.$transaction(async (tx) => {
+    const where = { clinicId: { in: clinicIds } };
+    await tx.pushSubscription.deleteMany({ where: { entry: { clinicId: { in: clinicIds } } } });
+    await tx.queueEntry.deleteMany({ where });
+    await tx.scheduleSlot.deleteMany({ where });
+    await tx.doctorDailyStat.deleteMany({ where });
+    await tx.doctor.deleteMany({ where });
+    await tx.patient.deleteMany({ where });
+    await tx.hourlyStat.deleteMany({ where });
+    await tx.dailyStat.deleteMany({ where });
+    await tx.paymentRecord.deleteMany({ where });
+    await tx.subscriptionEvent.deleteMany({ where });
+
+    const result = await tx.clinic.deleteMany({ where: { id: { in: clinicIds } } });
+    return { count: result.count };
   });
-
-  // 4. Finally delete the clinic itself
-  const clinic = await prisma.clinic.delete({
-    where: { id: clinicId },
-    select: { id: true, name: true },
-  });
-
-  return clinic;
 }
 
 export async function getClinicForImpersonation(clinicId: string) {

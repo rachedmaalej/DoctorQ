@@ -6,6 +6,7 @@ import PillButton from '../components/PillButton';
 import { SCREEN_COPY, ILLUSTRATION_PATHS, type SpecialtyId } from '../constants/onboardingConfig';
 import { trackOnboarding, EVENTS } from '../hooks/useOnboardingAnalytics';
 import { api } from '@/lib/api';
+import { supabase } from '@/lib/supabase';
 import { useOnboardingStore } from '@/stores/onboardingStore';
 
 interface SignUpScreenProps {
@@ -61,6 +62,39 @@ export default function SignUpScreen({ step, specialty, onAdvance }: SignUpScree
   const [clinicName, setClinicName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const ssoAvailable = !!supabase;
+
+  const handleOAuthSignIn = useCallback(async (provider: 'google' | 'apple' | 'facebook') => {
+    if (!supabase) return;
+
+    // Require clinic name before OAuth redirect
+    if (!clinicName.trim()) {
+      setError('Entrez le nom du cabinet avant de continuer.');
+      setShowEmailForm(false); // show SSO view with name field visible
+      return;
+    }
+
+    // Save context for after redirect
+    sessionStorage.setItem('oauth_provider', provider);
+    sessionStorage.setItem('oauth_clinic_name', clinicName.trim());
+    sessionStorage.setItem('oauth_language', 'fr');
+    sessionStorage.setItem('oauth_source', 'signup');
+    if (specialty) sessionStorage.setItem('oauth_specialty', specialty);
+
+    trackOnboarding(EVENTS.SIGNUP_SUBMITTED, { method: provider });
+
+    const { error: oauthError } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+
+    if (oauthError) {
+      setError(oauthError.message);
+    }
+  }, [clinicName, specialty]);
 
   const emailValid = isValidEmail(email);
   const passwordValid = password.length >= 8;
@@ -177,9 +211,11 @@ export default function SignUpScreen({ step, specialty, onAdvance }: SignUpScree
       step={step}
       illustrationSrc={ILLUSTRATION_PATHS.signup}
       illustrationAlt="Admin creating account"
-      illustrationHeight={showEmailForm ? '35dvh' : '42dvh'}
+      illustrationHeight={showEmailForm ? '58dvh' : '54dvh'}
+      cardOverlap={showEmailForm ? '-70px' : '-29px'}
+      alignTop={showEmailForm}
     >
-      <div className="flex flex-col overflow-y-auto" style={{ maxHeight: showEmailForm ? '65vh' : undefined }}>
+      <div className="flex flex-col overflow-y-auto">
         {/* Desktop step label */}
         <span
           className="hidden md:block text-[12px] font-medium mb-1"
@@ -189,13 +225,13 @@ export default function SignUpScreen({ step, specialty, onAdvance }: SignUpScree
         </span>
 
         <h1
-          className="text-[20px] font-bold leading-tight mb-[3px] md:text-[28px] md:mb-[6px]"
+          className="text-[20px] font-bold leading-tight mb-[2px] md:text-[28px] md:mb-[5px]"
           style={{ fontFamily: 'var(--ob-font)', color: 'var(--ob-brand-text)' }}
         >
           {copy.headline}
         </h1>
         <p
-          className="text-[11px] leading-relaxed mb-[10px] md:text-[14px] md:mb-4"
+          className="text-[11px] leading-relaxed mb-[5px] md:text-[14px] md:mb-3"
           style={{ fontFamily: 'var(--ob-font)', color: 'var(--ob-brand-subtle)' }}
         >
           {copy.subtitle}
@@ -203,29 +239,46 @@ export default function SignUpScreen({ step, specialty, onAdvance }: SignUpScree
 
         {/* ── Desktop: SSO row (horizontal) + email form always visible ── */}
         <div className="hidden md:block">
-          <div className="flex gap-2 mb-1">
-            <button
-              type="button"
-              className="flex-1 flex items-center justify-center gap-[8px] rounded-[14px] border-2 py-[10px] px-3 text-[13px] font-semibold transition-colors hover:bg-gray-50"
-              style={{ fontFamily: 'var(--ob-font)', borderColor: '#DADCE0', backgroundColor: '#fff', color: 'var(--ob-brand-text)' }}
-            >
-              <GoogleIcon /> Google
-            </button>
-            <button
-              type="button"
-              className="flex-1 flex items-center justify-center gap-[8px] rounded-[14px] border-2 py-[10px] px-3 text-[13px] font-semibold transition-opacity hover:opacity-90"
-              style={{ fontFamily: 'var(--ob-font)', borderColor: '#000', backgroundColor: '#000', color: '#fff' }}
-            >
-              <AppleIcon /> Apple
-            </button>
-            <button
-              type="button"
-              className="flex-1 flex items-center justify-center gap-[8px] rounded-[14px] border-2 py-[10px] px-3 text-[13px] font-semibold transition-opacity hover:opacity-90"
-              style={{ fontFamily: 'var(--ob-font)', borderColor: '#1877F2', backgroundColor: '#1877F2', color: '#fff' }}
-            >
-              <FacebookIcon /> Facebook
-            </button>
-          </div>
+          {ssoAvailable && (
+            <>
+              {/* Clinic name for SSO (desktop) */}
+              <input
+                type="text"
+                value={clinicName}
+                onChange={(e) => setClinicName(e.target.value)}
+                placeholder={copy.clinicPlaceholder}
+                autoComplete="organization"
+                className="w-full rounded-xl border-2 px-4 py-2 text-[14px] outline-none transition-colors mb-2"
+                style={{ fontFamily: 'var(--ob-font)', borderColor: '#E5E7EB', color: 'var(--ob-brand-text)' }}
+              />
+              <div className="flex gap-2 mb-1">
+                <button
+                  type="button"
+                  onClick={() => handleOAuthSignIn('google')}
+                  className="flex-1 flex items-center justify-center gap-[8px] rounded-[14px] border-2 py-[10px] px-3 text-[13px] font-semibold transition-colors hover:bg-gray-50"
+                  style={{ fontFamily: 'var(--ob-font)', borderColor: '#DADCE0', backgroundColor: '#fff', color: 'var(--ob-brand-text)' }}
+                >
+                  <GoogleIcon /> Google
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleOAuthSignIn('apple')}
+                  className="flex-1 flex items-center justify-center gap-[8px] rounded-[14px] border-2 py-[10px] px-3 text-[13px] font-semibold transition-opacity hover:opacity-90"
+                  style={{ fontFamily: 'var(--ob-font)', borderColor: '#000', backgroundColor: '#000', color: '#fff' }}
+                >
+                  <AppleIcon /> Apple
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleOAuthSignIn('facebook')}
+                  className="flex-1 flex items-center justify-center gap-[8px] rounded-[14px] border-2 py-[10px] px-3 text-[13px] font-semibold transition-opacity hover:opacity-90"
+                  style={{ fontFamily: 'var(--ob-font)', borderColor: '#1877F2', backgroundColor: '#1877F2', color: '#fff' }}
+                >
+                  <FacebookIcon /> Facebook
+                </button>
+              </div>
+            </>
+          )}
 
           <div
             className="flex items-center gap-[10px] my-3 text-[12px] font-medium"
@@ -243,32 +296,50 @@ export default function SignUpScreen({ step, specialty, onAdvance }: SignUpScree
         <div className="md:hidden">
           {!showEmailForm ? (
             <>
-              {/* Google */}
-              <button
-                type="button"
-                className="w-full flex items-center justify-center gap-[10px] rounded-[14px] border-2 py-[9px] px-5 text-[14px] font-semibold transition-colors hover:bg-gray-50"
-                style={{ fontFamily: 'var(--ob-font)', borderColor: '#DADCE0', backgroundColor: '#fff', color: 'var(--ob-brand-text)' }}
-              >
-                <GoogleIcon /> Continuer avec Google
-              </button>
+              {/* Clinic name input (before SSO buttons) */}
+              <input
+                type="text"
+                value={clinicName}
+                onChange={(e) => setClinicName(e.target.value)}
+                placeholder={copy.clinicPlaceholder}
+                autoComplete="organization"
+                className="w-full rounded-xl border-2 px-4 py-2 text-[14px] outline-none transition-colors mb-[8px]"
+                style={{ fontFamily: 'var(--ob-font)', borderColor: '#E5E7EB', color: 'var(--ob-brand-text)' }}
+              />
 
-              {/* Apple */}
-              <button
-                type="button"
-                className="w-full flex items-center justify-center gap-[10px] rounded-[14px] border-2 py-[9px] px-5 text-[14px] font-semibold mt-[7px] transition-opacity hover:opacity-90"
-                style={{ fontFamily: 'var(--ob-font)', borderColor: '#000', backgroundColor: '#000', color: '#fff' }}
-              >
-                <AppleIcon /> Continuer avec Apple
-              </button>
+              {ssoAvailable && (
+                <>
+                  {/* Google */}
+                  <button
+                    type="button"
+                    onClick={() => handleOAuthSignIn('google')}
+                    className="w-full flex items-center justify-center gap-[10px] rounded-[14px] border-2 py-[9px] px-5 text-[14px] font-semibold transition-colors hover:bg-gray-50"
+                    style={{ fontFamily: 'var(--ob-font)', borderColor: '#DADCE0', backgroundColor: '#fff', color: 'var(--ob-brand-text)' }}
+                  >
+                    <GoogleIcon /> Continuer avec Google
+                  </button>
 
-              {/* Facebook */}
-              <button
-                type="button"
-                className="w-full flex items-center justify-center gap-[10px] rounded-[14px] border-2 py-[9px] px-5 text-[14px] font-semibold mt-[7px] transition-opacity hover:opacity-90"
-                style={{ fontFamily: 'var(--ob-font)', borderColor: '#1877F2', backgroundColor: '#1877F2', color: '#fff' }}
-              >
-                <FacebookIcon /> Continuer avec Facebook
-              </button>
+                  {/* Apple */}
+                  <button
+                    type="button"
+                    onClick={() => handleOAuthSignIn('apple')}
+                    className="w-full flex items-center justify-center gap-[10px] rounded-[14px] border-2 py-[9px] px-5 text-[14px] font-semibold mt-[7px] transition-opacity hover:opacity-90"
+                    style={{ fontFamily: 'var(--ob-font)', borderColor: '#000', backgroundColor: '#000', color: '#fff' }}
+                  >
+                    <AppleIcon /> Continuer avec Apple
+                  </button>
+
+                  {/* Facebook */}
+                  <button
+                    type="button"
+                    onClick={() => handleOAuthSignIn('facebook')}
+                    className="w-full flex items-center justify-center gap-[10px] rounded-[14px] border-2 py-[9px] px-5 text-[14px] font-semibold mt-[7px] transition-opacity hover:opacity-90"
+                    style={{ fontFamily: 'var(--ob-font)', borderColor: '#1877F2', backgroundColor: '#1877F2', color: '#fff' }}
+                  >
+                    <FacebookIcon /> Continuer avec Facebook
+                  </button>
+                </>
+              )}
 
               {/* Divider */}
               <div
@@ -294,6 +365,12 @@ export default function SignUpScreen({ step, specialty, onAdvance }: SignUpScree
               >
                 ✉ Créer avec email &rarr;
               </button>
+
+              {error && (
+                <p className="text-[12px] text-red-600 mt-2 text-center" style={{ fontFamily: 'var(--ob-font)' }}>
+                  {error}
+                </p>
+              )}
             </>
           ) : (
             <>

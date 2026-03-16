@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useIsMobile } from '../useIsMobile';
 import { useClinicDirectoryData } from '../shared/hooks/useClinicDirectoryData';
 import ClinicTable from './components/ClinicTable';
 import ClinicMobileList from './components/ClinicMobileList';
 import ExtendTrialModal from '@/components/admin/ExtendTrialModal';
 import ConfirmModal from '@/components/ui/ConfirmModal';
+import BulkActionBar from '../shared/components/BulkActionBar';
 import { api } from '@/lib/api';
 
 export default function BlesafClinicsDirectory() {
@@ -27,6 +28,43 @@ export default function BlesafClinicsDirectory() {
   const [upgradeModal, setUpgradeModal] = useState<{ clinicId: string; clinicName: string } | null>(null);
   const [isUpgrading, setIsUpgrading] = useState(false);
   const [showFilterSheet, setShowFilterSheet] = useState(false);
+
+  // Selection state
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
+  const [isBulkDeleting, setIsBulkDeleting] = useState(false);
+
+  const toggleSelect = useCallback((clinicId: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(clinicId)) next.delete(clinicId);
+      else next.add(clinicId);
+      return next;
+    });
+  }, []);
+
+  const toggleSelectAll = useCallback(() => {
+    setSelectedIds((prev) => {
+      const allSelected = clinics.every((c) => prev.has(c.id));
+      if (allSelected) return new Set();
+      return new Set(clinics.map((c) => c.id));
+    });
+  }, [clinics]);
+
+  const handleBulkDelete = useCallback(async () => {
+    if (selectedIds.size === 0) return;
+    setIsBulkDeleting(true);
+    try {
+      await api.deleteClinics([...selectedIds]);
+      setSelectedIds(new Set());
+      setShowBulkDeleteConfirm(false);
+      refetch();
+    } catch (err: any) {
+      alert(err.message || 'Failed to delete clinics');
+    } finally {
+      setIsBulkDeleting(false);
+    }
+  }, [selectedIds, refetch]);
 
   const handleUpgradeConfirm = async () => {
     if (!upgradeModal) return;
@@ -275,8 +313,18 @@ export default function BlesafClinicsDirectory() {
           onToggleSort={toggleSort}
           onExtend={(id, name) => setTrialModal({ clinicId: id, clinicName: name })}
           onUpgrade={(id, name) => setUpgradeModal({ clinicId: id, clinicName: name })}
+          selectedIds={selectedIds}
+          onToggleSelect={toggleSelect}
+          onToggleSelectAll={toggleSelectAll}
         />
       )}
+
+      {/* Bulk action bar */}
+      <BulkActionBar
+        count={selectedIds.size}
+        onDelete={() => setShowBulkDeleteConfirm(true)}
+        onClear={() => setSelectedIds(new Set())}
+      />
 
       {/* Modals */}
       {trialModal && (
@@ -298,6 +346,18 @@ export default function BlesafClinicsDirectory() {
           confirmText="Upgrade"
           variant="info"
           isLoading={isUpgrading}
+        />
+      )}
+      {showBulkDeleteConfirm && (
+        <ConfirmModal
+          isOpen={true}
+          onClose={() => setShowBulkDeleteConfirm(false)}
+          onConfirm={handleBulkDelete}
+          title={`Delete ${selectedIds.size} clinic${selectedIds.size > 1 ? 's' : ''}`}
+          message={`This will permanently delete ${selectedIds.size} clinic${selectedIds.size > 1 ? 's' : ''} and all their data. This action cannot be undone.`}
+          confirmText={isBulkDeleting ? 'Deleting...' : 'Delete All'}
+          variant="danger"
+          isLoading={isBulkDeleting}
         />
       )}
     </div>

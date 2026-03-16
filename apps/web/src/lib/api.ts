@@ -178,6 +178,20 @@ class ApiClient {
     return response;
   }
 
+  async oauthLogin(data: {
+    supabaseToken: string;
+    provider: 'google' | 'apple' | 'facebook';
+    clinicName?: string;
+    language?: 'fr' | 'ar';
+  }): Promise<{ token: string; isNewUser: boolean; clinic?: any; clinicId?: string; clinicName?: string }> {
+    const response = await this.request<{ token: string; isNewUser: boolean; clinic?: any; clinicId?: string; clinicName?: string }>('/api/auth/oauth', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+    this.setToken(response.token);
+    return response;
+  }
+
   async logout(): Promise<void> {
     await this.request('/api/auth/logout', {
       method: 'POST',
@@ -601,6 +615,13 @@ class ApiClient {
   async deleteClinic(clinicId: string): Promise<{ id: string; name: string }> {
     return this.request(`/api/admin/clinics/${clinicId}`, {
       method: 'DELETE',
+    });
+  }
+
+  async deleteClinics(clinicIds: string[]): Promise<{ count: number }> {
+    return this.request('/api/admin/clinics/bulk-delete', {
+      method: 'POST',
+      body: JSON.stringify({ clinicIds }),
     });
   }
 

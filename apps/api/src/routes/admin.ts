@@ -17,6 +17,7 @@ import {
   updateClinicStatus,
   resetClinicPassword,
   deleteClinic,
+  deleteClinics,
   getClinicForImpersonation,
   recordPayment,
   getClinicPayments,
@@ -239,6 +240,26 @@ router.delete('/clinics/:id', authMiddleware, isAdmin, async (req: AuthRequest, 
     }
     logger.error({ err: error }, "Error deleting clinic");
     res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to delete clinic' } });
+  }
+});
+
+// ─── Bulk Delete Clinics ────────────────────────────────────
+
+const bulkDeleteSchema = z.object({
+  clinicIds: z.array(z.string().uuid()).min(1).max(50),
+});
+
+router.post('/clinics/bulk-delete', authMiddleware, isAdmin, async (req: AuthRequest, res: Response) => {
+  try {
+    const { clinicIds } = bulkDeleteSchema.parse(req.body);
+    const result = await deleteClinics(clinicIds);
+    res.json({ data: result });
+  } catch (error: any) {
+    if (error.name === 'ZodError') {
+      return res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: 'Invalid input' } });
+    }
+    logger.error({ err: error }, "Error bulk-deleting clinics");
+    res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to delete clinics' } });
   }
 });
 
