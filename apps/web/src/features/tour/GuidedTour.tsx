@@ -486,7 +486,7 @@ export default function GuidedTour({
     const ver = seqVersion.current;
     const t0 = setTimeout(() => setShowFill(true), 1800);
     const t1 = setTimeout(() => setFillGo(true), 2000);
-    const t2 = setTimeout(async () => {
+    const t2 = setTimeout(async () => {  // 2000 + 2400 (progress bar) + 800 (reading)
       if (seqVersion.current !== ver) return;
       setShowFill(false);
       setFillGo(false);
@@ -509,7 +509,7 @@ export default function GuidedTour({
       await delay(600);
       if (seqVersion.current !== ver) return;
       setState('SPOTLIGHT_PRESENCE');
-    }, 3000);
+    }, 5200);
     return () => { clearTimeout(t0); clearTimeout(t1); clearTimeout(t2); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tourState]);
