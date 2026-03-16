@@ -433,6 +433,32 @@
     },
     "waitTimes": {
       "label": "TEMPS D'ATTENTE"
+    },
+    "morningState": {
+      "queueReady": "File d'attente prête",
+      "greeting": "Bonne journée !",
+      "noPatientYet": "Aucun patient pour l'instant.\nAjoutez le premier pour démarrer.",
+      "addFirstPatient": "Ajouter le 1er patient",
+      "maxLabel": "MAX PATS.",
+      "patientCount_zero": "0 patient",
+      "patientCount_one": "{{count}} patient",
+      "patientCount_other": "{{count}} patients",
+      "queueHint": "Apparaîtra ici dès qu'un patient est ajouté",
+      "qrCard": {
+        "title": "Auto-inscription QR",
+        "body": "Affichez le QR code en salle d'attente pour que les patients s'inscrivent directement depuis leur téléphone.",
+        "link": "Afficher le QR"
+      },
+      "whatsappCard": {
+        "title": "Partager via WhatsApp",
+        "body": "Envoyez le lien d'inscription directement aux patients par WhatsApp pour les inviter à rejoindre la file.",
+        "link": "Envoyer sur WhatsApp"
+      }
+    },
+    "share": {
+      "showQr": "Afficher QR",
+      "whatsapp": "WhatsApp",
+      "copyLink": "Copier lien"
     }
   },
   "funFact": {

@@ -7,6 +7,8 @@ import { useUILabels } from '@/hooks/useUILabels';
 import { webBrand } from '@/lib/brand';
 import Logo from '@/components/ui/Logo';
 import { formatTime, getWaitingMinutes } from '@/lib/time';
+import MorningHeroCard from './MorningHeroCard';
+import CollapsedQueueBar from './CollapsedQueueBar';
 
 interface MobileDashboardProps {
   queue: QueueEntry[];
@@ -84,6 +86,9 @@ export default function MobileDashboard({
         p.status === QueueStatus.NOTIFIED ||
         p.status === QueueStatus.IN_CONSULTATION
       );
+
+  // Morning empty state: no patients at all today
+  const showMorningState = !isDoctorPresent && queue.length === 0 && (stats?.seen ?? 0) === 0;
 
   // Count for disabled state - also disabled when doctor is not present
   const canCallNext = isDoctorPresent && queue.some(p => p.status === QueueStatus.WAITING || p.status === QueueStatus.NOTIFIED);
@@ -664,8 +669,50 @@ export default function MobileDashboard({
         </div>
       )}
 
-      {/* Empty State */}
-      {queue.length === 0 && (
+      {/* Morning Empty State */}
+      {showMorningState ? (
+        <div style={{ padding: 14, display: 'flex', flexDirection: 'column', gap: 10, flex: 1 }}>
+          <MorningHeroCard
+            waitingCount={0}
+            seenCount={0}
+            variant="mobile"
+            onAddPatientClick={onAddPatient}
+          />
+          {/* Share shortcuts */}
+          <div style={{ display: 'flex', gap: 8 }}>
+            {[
+              { icon: 'qr_code_2', label: t('dashboard.share.showQr', 'Afficher QR'), onClick: onShowQR },
+              { icon: 'chat', label: t('dashboard.share.whatsapp', 'WhatsApp'), onClick: onShowQR },
+              { icon: 'content_copy', label: t('dashboard.share.copyLink', 'Copier lien'), onClick: onShowQR },
+            ].map((btn) => (
+              <button
+                key={btn.icon}
+                type="button"
+                onClick={btn.onClick}
+                style={{
+                  flex: 1,
+                  background: '#fff',
+                  border: '1px solid #E8E6DF',
+                  borderRadius: 10,
+                  padding: '10px 8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 6,
+                  fontSize: 12,
+                  fontWeight: 500,
+                  color: '#6B6960',
+                  cursor: 'pointer',
+                }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: 16 }}>{btn.icon}</span>
+                {btn.label}
+              </button>
+            ))}
+          </div>
+          <CollapsedQueueBar patientCount={0} variant="mobile" />
+        </div>
+      ) : queue.length === 0 ? (
         <div className="px-4 py-12 text-center">
           <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <span
@@ -677,7 +724,7 @@ export default function MobileDashboard({
           </div>
           <p className="text-gray-500">{labels.noCustomers}</p>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

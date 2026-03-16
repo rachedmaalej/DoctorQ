@@ -16,6 +16,8 @@ import PatientContextMenu from '@/components/desktop/PatientContextMenu';
 import CallNextBar from '@/components/desktop/CallNextBar';
 import DesktopTopBar from '@/components/DesktopTopBar';
 import DesktopSettingsDrawer, { type SettingsPane } from './DesktopSettingsDrawer';
+import MorningHeroCard from '@/components/queue/MorningHeroCard';
+import CollapsedQueueBar from '@/components/queue/CollapsedQueueBar';
 import './desktop-dashboard.css';
 
 // ─── Props ───────────────────────────────────────────────────────────────────
@@ -676,6 +678,9 @@ export default function DesktopDashboard({
   const seenToday = stats?.seen ?? 0;
   const avgWait = stats?.avgWait ?? 0;
 
+  // Morning empty state
+  const showMorningState = !isDoctorPresent && queue.length === 0 && seenToday === 0;
+
   // QR URL derivation
   const clinicQrUrl = qrData?.url
     ? qrData.url.replace(/^https?:\/\//, '')
@@ -787,7 +792,7 @@ export default function DesktopDashboard({
         onQrWhatsApp={handleQrWhatsApp}
       />
 
-      <div className="db-layout">
+      <div className="db-layout" style={showMorningState ? { gridTemplateColumns: '268px 1fr' } : undefined}>
         {/* Left Panel */}
         <div className="db-left">
           <AddPatientSection />
@@ -806,60 +811,160 @@ export default function DesktopDashboard({
           )}
         </div>
 
-        {/* Center — Redesigned Queue Table */}
-        <div className="db-center" style={{ padding: "16px 16px 0" }}>
-          <div className="db-section-label">{t('queue.title')}</div>
-          <QueueTableHeader
-            activeFilter={activeFilter}
-            onFilterChange={setActiveFilter}
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
-            counts={counts}
-          />
+        {showMorningState ? (
+          /* ── Morning Empty State ── */
+          <div className="db-center" style={{ padding: '24px 28px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <MorningHeroCard
+              waitingCount={0}
+              seenCount={0}
+              variant="desktop"
+            />
 
-          <div className="bg-white border border-[#DDE2DC] rounded-[14px] shadow-sm overflow-x-auto">
-            <table className="w-full border-collapse" style={{ minWidth: 580 }}>
-              <thead>
-                <tr className="bg-[#F4F5F1] border-b-[1.5px] border-[#DDE2DC]">
-                  <th className="text-[9px] font-semibold tracking-[0.6px] uppercase text-[#94A49A] px-3 py-2.5 text-left w-[44px]">#</th>
-                  <th className="text-[9px] font-semibold tracking-[0.6px] uppercase text-[#94A49A] px-3 py-2.5 text-left">{t('queue.col.patient')}</th>
-                  <th className="text-[9px] font-semibold tracking-[0.6px] uppercase text-[#94A49A] px-3 py-2.5 text-left">{t('queue.col.arrival')}</th>
-                  <th className="text-[9px] font-semibold tracking-[0.6px] uppercase text-[#94A49A] px-3 py-2.5 text-left">{t('queue.col.wait')}</th>
-                  <th className="text-[9px] font-semibold tracking-[0.6px] uppercase text-[#94A49A] px-3 py-2.5 text-left">{t('queue.col.eta')}</th>
-                  <th className="text-[9px] font-semibold tracking-[0.6px] uppercase text-[#94A49A] px-3 py-2.5 text-left">{t('queue.col.contact')}</th>
-                  <th className="w-[44px]" />
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map(entry => (
-                  <QueueTableRowNew
-                    key={entry.id}
-                    entry={entry}
-                    isMenuOpen={menuState.entry?.id === entry.id && menuState.open}
-                    isExiting={entry.id === exitingPatientId}
-                    onKebabClick={handleKebabClick}
-                  />
-                ))}
-                {filtered.length === 0 && (
-                  <tr>
-                    <td colSpan={7} className="text-center py-12 text-[#94A49A] text-[14px]">
-                      {t('queue.empty')}
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+            {/* Action cards */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <button
+                type="button"
+                onClick={handleQrDisplay}
+                role="button"
+                tabIndex={0}
+                style={{
+                  background: '#fff',
+                  border: '1px solid #E8E6DF',
+                  borderRadius: 14,
+                  padding: '18px 20px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 8,
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  transition: 'border-color 150ms, box-shadow 150ms',
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = '#0F7B6C';
+                  (e.currentTarget as HTMLElement).style.boxShadow = '0 0 0 3px rgba(15,123,108,0.07)';
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = '#E8E6DF';
+                  (e.currentTarget as HTMLElement).style.boxShadow = 'none';
+                }}
+              >
+                <div style={{ width: 36, height: 36, background: '#E8F5F1', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0F7B6C', marginBottom: 2 }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: 20 }}>qr_code_2</span>
+                </div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: '#1A1A1A' }}>
+                  {t('dashboard.morningState.qrCard.title', 'Auto-inscription QR')}
+                </div>
+                <div style={{ fontSize: 12, color: '#6B6960', lineHeight: 1.55 }}>
+                  {t('dashboard.morningState.qrCard.body', "Affichez le QR code en salle d'attente pour que les patients s'inscrivent directement depuis leur téléphone.")}
+                </div>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 600, color: '#0F7B6C', marginTop: 4 }}>
+                  {t('dashboard.morningState.qrCard.link', 'Afficher le QR')}
+                  <span className="material-symbols-outlined" style={{ fontSize: 16 }}>arrow_forward</span>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleQrWhatsApp}
+                role="button"
+                tabIndex={0}
+                style={{
+                  background: '#fff',
+                  border: '1px solid #E8E6DF',
+                  borderRadius: 14,
+                  padding: '18px 20px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 8,
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  transition: 'border-color 150ms, box-shadow 150ms',
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = '#0F7B6C';
+                  (e.currentTarget as HTMLElement).style.boxShadow = '0 0 0 3px rgba(15,123,108,0.07)';
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = '#E8E6DF';
+                  (e.currentTarget as HTMLElement).style.boxShadow = 'none';
+                }}
+              >
+                <div style={{ width: 36, height: 36, background: '#E8F5F1', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0F7B6C', marginBottom: 2 }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: 20 }}>chat</span>
+                </div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: '#1A1A1A' }}>
+                  {t('dashboard.morningState.whatsappCard.title', 'Partager via WhatsApp')}
+                </div>
+                <div style={{ fontSize: 12, color: '#6B6960', lineHeight: 1.55 }}>
+                  {t('dashboard.morningState.whatsappCard.body', "Envoyez le lien d'inscription directement aux patients par WhatsApp pour les inviter à rejoindre la file.")}
+                </div>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 600, color: '#0F7B6C', marginTop: 4 }}>
+                  {t('dashboard.morningState.whatsappCard.link', 'Envoyer sur WhatsApp')}
+                  <span className="material-symbols-outlined" style={{ fontSize: 16 }}>arrow_forward</span>
+                </div>
+              </button>
+            </div>
+
+            <CollapsedQueueBar patientCount={0} variant="desktop" />
           </div>
-        </div>
+        ) : (
+          /* ── Normal Queue Table ── */
+          <>
+          <div className="db-center" style={{ padding: "16px 16px 0" }}>
+            <div className="db-section-label">{t('queue.title')}</div>
+            <QueueTableHeader
+              activeFilter={activeFilter}
+              onFilterChange={setActiveFilter}
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              counts={counts}
+            />
 
-        {/* Right Panel */}
-        <RightPanel
-          waitingCount={waitingCount}
-          seenToday={seenToday}
-          avgWait={avgWait}
-          consultMinutes={consultMinutes}
-          entries={queue}
-        />
+            <div className="bg-white border border-[#DDE2DC] rounded-[14px] shadow-sm overflow-x-auto">
+              <table className="w-full border-collapse" style={{ minWidth: 580 }}>
+                <thead>
+                  <tr className="bg-[#F4F5F1] border-b-[1.5px] border-[#DDE2DC]">
+                    <th className="text-[9px] font-semibold tracking-[0.6px] uppercase text-[#94A49A] px-3 py-2.5 text-left w-[44px]">#</th>
+                    <th className="text-[9px] font-semibold tracking-[0.6px] uppercase text-[#94A49A] px-3 py-2.5 text-left">{t('queue.col.patient')}</th>
+                    <th className="text-[9px] font-semibold tracking-[0.6px] uppercase text-[#94A49A] px-3 py-2.5 text-left">{t('queue.col.arrival')}</th>
+                    <th className="text-[9px] font-semibold tracking-[0.6px] uppercase text-[#94A49A] px-3 py-2.5 text-left">{t('queue.col.wait')}</th>
+                    <th className="text-[9px] font-semibold tracking-[0.6px] uppercase text-[#94A49A] px-3 py-2.5 text-left">{t('queue.col.eta')}</th>
+                    <th className="text-[9px] font-semibold tracking-[0.6px] uppercase text-[#94A49A] px-3 py-2.5 text-left">{t('queue.col.contact')}</th>
+                    <th className="w-[44px]" />
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.map(entry => (
+                    <QueueTableRowNew
+                      key={entry.id}
+                      entry={entry}
+                      isMenuOpen={menuState.entry?.id === entry.id && menuState.open}
+                      isExiting={entry.id === exitingPatientId}
+                      onKebabClick={handleKebabClick}
+                    />
+                  ))}
+                  {filtered.length === 0 && (
+                    <tr>
+                      <td colSpan={7} className="text-center py-12 text-[#94A49A] text-[14px]">
+                        {t('queue.empty')}
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Right Panel */}
+          <RightPanel
+            waitingCount={waitingCount}
+            seenToday={seenToday}
+            avgWait={avgWait}
+            consultMinutes={consultMinutes}
+            entries={queue}
+          />
+          </>
+        )}
       </div>
 
       {/* Floating call-next bar */}

@@ -430,6 +430,32 @@
     },
     "waitTimes": {
       "label": "أوقات الانتظار"
+    },
+    "morningState": {
+      "queueReady": "قائمة الانتظار جاهزة",
+      "greeting": "يوم سعيد!",
+      "noPatientYet": "لا يوجد مرضى بعد.\nأضف أول مريض للبدء.",
+      "addFirstPatient": "إضافة أول مريض",
+      "maxLabel": "أقصى عدد",
+      "patientCount_zero": "0 مريض",
+      "patientCount_one": "مريض واحد",
+      "patientCount_other": "{{count}} مريض",
+      "queueHint": "ستظهر هنا بمجرد إضافة مريض",
+      "qrCard": {
+        "title": "التسجيل الذاتي بـ QR",
+        "body": "اعرض رمز QR في غرفة الانتظار لتمكين المرضى من التسجيل مباشرةً من هواتفهم.",
+        "link": "عرض رمز QR"
+      },
+      "whatsappCard": {
+        "title": "المشاركة عبر واتساب",
+        "body": "أرسل رابط التسجيل مباشرةً للمرضى عبر واتساب لدعوتهم للانضمام إلى قائمة الانتظار.",
+        "link": "إرسال عبر واتساب"
+      }
+    },
+    "share": {
+      "showQr": "عرض QR",
+      "whatsapp": "واتساب",
+      "copyLink": "نسخ الرابط"
     }
   },
   "funFact": {
