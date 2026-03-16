@@ -31,7 +31,7 @@ export default function AuthCallbackPage() {
         const provider = (sessionStorage.getItem('oauth_provider') || 'google') as 'google' | 'apple' | 'facebook';
         const clinicName = sessionStorage.getItem('oauth_clinic_name') || undefined;
         const language = (sessionStorage.getItem('oauth_language') || undefined) as 'fr' | 'ar' | undefined;
-        const source = sessionStorage.getItem('oauth_source') || 'signup';
+        sessionStorage.removeItem('oauth_source');
 
         // Exchange Supabase token for app JWT
         const result = await api.oauthLogin({
@@ -47,20 +47,23 @@ export default function AuthCallbackPage() {
         sessionStorage.removeItem('oauth_language');
         sessionStorage.removeItem('oauth_source');
 
-        if (result.isNewUser) {
-          // New user — set clinic info and skip to QR reveal
-          useOnboardingStore.getState().setClinicInfo(result.clinicId!, result.clinicName!);
-          // Persist in sessionStorage so it survives checkAuth re-renders
-          sessionStorage.setItem('oauth_skip_to_qr', '1');
-          sessionStorage.setItem('oauth_clinic_id', result.clinicId!);
-          sessionStorage.setItem('oauth_clinic_name_result', result.clinicName!);
+        // Determine where to go
+        const needsOnboarding = result.isNewUser || (result.clinic && !result.clinic.onboardingCompleted);
+
+        if (needsOnboarding) {
+          // New user or existing user who hasn't finished onboarding → skip to QR
+          const cId = result.clinicId || result.clinic?.id;
+          const cName = result.clinicName || result.clinic?.name;
+          if (cId && cName) {
+            useOnboardingStore.getState().setClinicInfo(cId, cName);
+            sessionStorage.setItem('oauth_skip_to_qr', '1');
+            sessionStorage.setItem('oauth_clinic_id', cId);
+            sessionStorage.setItem('oauth_clinic_name_result', cName);
+          }
+          // Set token but don't call checkAuth — it re-renders App and resets onboarding
           navigate('/onboarding?step=qr', { replace: true });
-        } else if (source === 'login') {
-          // Existing user from login page
-          await checkAuth();
-          navigate('/dashboard', { replace: true });
         } else {
-          // Existing user from signup → still go to dashboard
+          // Existing user with completed onboarding → dashboard
           await checkAuth();
           navigate('/dashboard', { replace: true });
         }
