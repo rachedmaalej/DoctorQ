@@ -34,16 +34,6 @@ const GoogleIcon = () => (
     <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
   </svg>
 );
-const AppleIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff" aria-hidden="true">
-    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
-  </svg>
-);
-const FacebookIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff" aria-hidden="true">
-    <path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.886v2.269h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/>
-  </svg>
-);
 
 /**
  * Screen 3: Sign-up.
@@ -251,32 +241,14 @@ export default function SignUpScreen({ step, specialty, onAdvance }: SignUpScree
                 className="w-full rounded-xl border-2 px-4 py-2 text-[14px] outline-none transition-colors mb-2"
                 style={{ fontFamily: 'var(--ob-font)', borderColor: '#E5E7EB', color: 'var(--ob-brand-text)' }}
               />
-              <div className="flex gap-2 mb-1">
-                <button
-                  type="button"
-                  onClick={() => handleOAuthSignIn('google')}
-                  className="flex-1 flex items-center justify-center gap-[8px] rounded-[14px] border-2 py-[10px] px-3 text-[13px] font-semibold transition-colors hover:bg-gray-50"
-                  style={{ fontFamily: 'var(--ob-font)', borderColor: '#DADCE0', backgroundColor: '#fff', color: 'var(--ob-brand-text)' }}
-                >
-                  <GoogleIcon /> Google
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleOAuthSignIn('apple')}
-                  className="flex-1 flex items-center justify-center gap-[8px] rounded-[14px] border-2 py-[10px] px-3 text-[13px] font-semibold transition-opacity hover:opacity-90"
-                  style={{ fontFamily: 'var(--ob-font)', borderColor: '#000', backgroundColor: '#000', color: '#fff' }}
-                >
-                  <AppleIcon /> Apple
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleOAuthSignIn('facebook')}
-                  className="flex-1 flex items-center justify-center gap-[8px] rounded-[14px] border-2 py-[10px] px-3 text-[13px] font-semibold transition-opacity hover:opacity-90"
-                  style={{ fontFamily: 'var(--ob-font)', borderColor: '#1877F2', backgroundColor: '#1877F2', color: '#fff' }}
-                >
-                  <FacebookIcon /> Facebook
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={() => handleOAuthSignIn('google')}
+                className="w-full flex items-center justify-center gap-[8px] rounded-[14px] border-2 py-[10px] px-3 text-[13px] font-semibold transition-colors hover:bg-gray-50 mb-1"
+                style={{ fontFamily: 'var(--ob-font)', borderColor: '#DADCE0', backgroundColor: '#fff', color: 'var(--ob-brand-text)' }}
+              >
+                <GoogleIcon /> Continuer avec Google
+              </button>
             </>
           )}
 
@@ -308,37 +280,14 @@ export default function SignUpScreen({ step, specialty, onAdvance }: SignUpScree
               />
 
               {ssoAvailable && (
-                <>
-                  {/* Google */}
-                  <button
-                    type="button"
-                    onClick={() => handleOAuthSignIn('google')}
-                    className="w-full flex items-center justify-center gap-[10px] rounded-[14px] border-2 py-[9px] px-5 text-[14px] font-semibold transition-colors hover:bg-gray-50"
-                    style={{ fontFamily: 'var(--ob-font)', borderColor: '#DADCE0', backgroundColor: '#fff', color: 'var(--ob-brand-text)' }}
-                  >
-                    <GoogleIcon /> Continuer avec Google
-                  </button>
-
-                  {/* Apple */}
-                  <button
-                    type="button"
-                    onClick={() => handleOAuthSignIn('apple')}
-                    className="w-full flex items-center justify-center gap-[10px] rounded-[14px] border-2 py-[9px] px-5 text-[14px] font-semibold mt-[7px] transition-opacity hover:opacity-90"
-                    style={{ fontFamily: 'var(--ob-font)', borderColor: '#000', backgroundColor: '#000', color: '#fff' }}
-                  >
-                    <AppleIcon /> Continuer avec Apple
-                  </button>
-
-                  {/* Facebook */}
-                  <button
-                    type="button"
-                    onClick={() => handleOAuthSignIn('facebook')}
-                    className="w-full flex items-center justify-center gap-[10px] rounded-[14px] border-2 py-[9px] px-5 text-[14px] font-semibold mt-[7px] transition-opacity hover:opacity-90"
-                    style={{ fontFamily: 'var(--ob-font)', borderColor: '#1877F2', backgroundColor: '#1877F2', color: '#fff' }}
-                  >
-                    <FacebookIcon /> Continuer avec Facebook
-                  </button>
-                </>
+                <button
+                  type="button"
+                  onClick={() => handleOAuthSignIn('google')}
+                  className="w-full flex items-center justify-center gap-[10px] rounded-[14px] border-2 py-[9px] px-5 text-[14px] font-semibold transition-colors hover:bg-gray-50"
+                  style={{ fontFamily: 'var(--ob-font)', borderColor: '#DADCE0', backgroundColor: '#fff', color: 'var(--ob-brand-text)' }}
+                >
+                  <GoogleIcon /> Continuer avec Google
+                </button>
               )}
 
               {/* Divider */}
