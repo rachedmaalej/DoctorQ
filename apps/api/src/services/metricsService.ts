@@ -344,3 +344,30 @@ export function buildDoctorSnapshots(
 
   return snapshots;
 }
+
+// ─── Time Saved Calculation ───
+
+export interface TimeSavedResult {
+  timeSavedMinutes: number;
+  timeSavedHours: number;
+  remotePatientCount: number;
+  period: string;
+}
+
+/**
+ * Compute "time saved" — total wait time for patients who checked in remotely
+ * (QR or WhatsApp) and could wait outside the physical waiting room.
+ */
+export function computeTimeSavedFromEntries(entries: SnapshotEntry[]): { totalMinutes: number; patientCount: number } {
+  const remoteWithWait = entries.filter(
+    e => (e.checkInMethod === CheckInMethod.QR_CODE || e.checkInMethod === CheckInMethod.WHATSAPP)
+      && e.arrivedAt && e.calledAt
+  );
+
+  const totalMinutes = remoteWithWait.reduce((sum, e) => {
+    const waitMins = Math.round((e.calledAt!.getTime() - e.arrivedAt.getTime()) / 60000);
+    return sum + Math.max(0, waitMins);
+  }, 0);
+
+  return { totalMinutes, patientCount: remoteWithWait.length };
+}

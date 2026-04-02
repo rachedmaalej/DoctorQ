@@ -13,8 +13,10 @@ import {
   createSubscriptionCheckout,
   getPaymentHistory,
   processSubscriptionPayment,
+  getTierPrice,
   PRICING,
 } from '../services/subscriptionService.js';
+import { DAILY_LIMITS, DOCTOR_LIMITS, HISTORY_DAYS } from '../lib/tierGate.js';
 import {
   updateOnboardingStep,
   getOnboardingStatus,
@@ -29,6 +31,7 @@ const router = Router();
 
 const checkoutSchema = z.object({
   plan: z.enum(['MONTHLY', 'YEARLY']),
+  tier: z.enum(['SOLO_PRO', 'EQUIPE', 'CLINIQUE']).optional(),
 });
 
 const onboardingStepSchema = z.object({
@@ -108,23 +111,53 @@ router.post('/webhooks/stripe', async (req: Request, res: Response) => {
  * Get current pricing information
  */
 router.get('/pricing', (req: Request, res: Response) => {
+  const mul = brand.currency.multiplier;
+  const cur = brand.currency.symbol;
+
+  // Build tier pricing info
+  const tiers = (['FREE', 'SOLO_PRO', 'EQUIPE', 'CLINIQUE'] as const).map((tier) => {
+    const monthlyAmount = tier === 'FREE' ? 0 : getTierPrice(tier, 'MONTHLY');
+    const yearlyAmount = tier === 'FREE' ? 0 : getTierPrice(tier, 'YEARLY');
+    return {
+      tier,
+      monthly: {
+        amount: monthlyAmount,
+        amountDisplay: monthlyAmount / mul,
+        currency: cur,
+      },
+      yearly: {
+        amount: yearlyAmount,
+        amountDisplay: yearlyAmount / mul,
+        currency: cur,
+        savings: tier === 'FREE' ? 0 : (monthlyAmount * 12 - yearlyAmount) / mul,
+      },
+      limits: {
+        dailyPatients: DAILY_LIMITS[tier],
+        maxDoctors: DOCTOR_LIMITS[tier],
+        historyDays: HISTORY_DAYS[tier],
+      },
+    };
+  });
+
   res.json({
     data: {
+      // Legacy flat pricing (backward compatibility for BleSaf)
       subscription: {
         monthly: {
           amount: PRICING.MONTHLY,
-          amountDisplay: PRICING.MONTHLY / brand.currency.multiplier,
-          currency: brand.currency.symbol,
+          amountDisplay: PRICING.MONTHLY / mul,
+          currency: cur,
           description: 'Monthly subscription',
         },
         yearly: {
           amount: PRICING.YEARLY,
-          amountDisplay: PRICING.YEARLY / brand.currency.multiplier,
-          currency: brand.currency.symbol,
+          amountDisplay: PRICING.YEARLY / mul,
+          currency: cur,
           description: 'Yearly subscription (2 months free)',
-          savings: (PRICING.MONTHLY * 12 - PRICING.YEARLY) / brand.currency.multiplier,
+          savings: (PRICING.MONTHLY * 12 - PRICING.YEARLY) / mul,
         },
       },
+      tiers,
       trialDays: brand.pricing.freeTrialDays,
     },
   });
@@ -158,12 +191,12 @@ router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {
  */
 router.post('/checkout', authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
-    const { plan } = checkoutSchema.parse(req.body);
+    const { plan, tier } = checkoutSchema.parse(req.body);
 
     // Get base URL from request or env
     const baseUrl = process.env.FRONTEND_URL || `${req.protocol}://${req.get('host')}`;
 
-    const result = await createSubscriptionCheckout(req.clinic!.id, plan, baseUrl);
+    const result = await createSubscriptionCheckout(req.clinic!.id, plan, baseUrl, tier as any);
 
     res.json({
       data: {

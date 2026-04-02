@@ -73,11 +73,30 @@ export async function deleteDoctor(clinicId: string, doctorId: string) {
 
   if (!doctor) return false;
 
-  // Unset doctorId on queue entries instead of deleting them
-  await prisma.queueEntry.updateMany({
-    where: { doctorId },
-    data: { doctorId: null },
+  // Prevent deleting the last active doctor
+  const activeCount = await prisma.doctor.count({
+    where: { clinicId, isActive: true },
   });
+
+  if (activeCount <= 1) {
+    throw Object.assign(new Error('Cannot remove the last active doctor'), {
+      code: 'LAST_DOCTOR',
+    });
+  }
+
+  // Reassign queue entries to the primary (oldest) remaining doctor
+  const primaryDoctor = await prisma.doctor.findFirst({
+    where: { clinicId, isActive: true, id: { not: doctorId } },
+    orderBy: { createdAt: 'asc' },
+    select: { id: true },
+  });
+
+  if (primaryDoctor) {
+    await prisma.queueEntry.updateMany({
+      where: { doctorId, status: { in: ['WAITING', 'NOTIFIED', 'IN_CONSULTATION'] } },
+      data: { doctorId: primaryDoctor.id },
+    });
+  }
 
   await prisma.doctor.delete({ where: { id: doctorId } });
   return true;
@@ -112,7 +131,30 @@ export async function updateDoctorState(
   });
 
   emitDoctorState(clinicId, doctorId, state, homeVisitETA);
+
+  // Keep clinic.isDoctorPresent in sync with doctor states
+  await syncClinicPresence(clinicId);
+
   return updated;
+}
+
+/**
+ * Sync clinic.isDoctorPresent from active doctor states.
+ * Called after any doctor state change.
+ */
+export async function syncClinicPresence(clinicId: string): Promise<void> {
+  const activePresent = await prisma.doctor.count({
+    where: {
+      clinicId,
+      isActive: true,
+      state: { in: ['consulting', 'free'] },
+    },
+  });
+
+  await prisma.clinic.update({
+    where: { id: clinicId },
+    data: { isDoctorPresent: activePresent > 0 },
+  });
 }
 
 export type AbsenceOption = 'close' | 'reassign' | 'keep';

@@ -17,10 +17,11 @@ export default function ASQuickActionBar({
 }: ASQuickActionBarProps) {
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 flex items-center gap-3"
+      className="fixed left-0 right-0 flex items-center gap-3"
       style={{
+        bottom: 0,
         padding: '12px 18px',
-        paddingBottom: 'max(12px, env(safe-area-inset-bottom))',
+        paddingBottom: 'calc(16px + env(safe-area-inset-bottom, 0px))',
         background: 'var(--color-primary)',
         zIndex: 30,
         maxWidth: 430,

@@ -163,6 +163,14 @@ app.use('/metrics', metricsRoutes);
 // Apply rate limiting to public endpoints (before routes)
 app.use('/api/queue/checkin', publicRateLimiter);
 app.use('/api/queue/patient', publicRateLimiter);
+// Public queue snapshot for check-in page (rate limited to 60/min)
+app.use(/\/api\/queue\/[^/]+\/public/, rateLimit({
+  windowMs: 60 * 1000,
+  max: isDevEnv ? 300 : 60,
+  message: { error: { code: 'RATE_LIMITED', message: 'Too many requests' } },
+  standardHeaders: true,
+  legacyHeaders: false,
+}));
 app.use('/api/signup', publicRateLimiter);
 app.use('/api/leads', publicRateLimiter);
 app.use('/api/push', publicRateLimiter);
@@ -258,6 +266,22 @@ io.on('connection', (socket) => {
       logger.error({ err: error }, 'Socket.io join patient error');
       socket.emit('error', { message: 'Failed to join patient room' });
     }
+  });
+
+  // Join public queue room (for check-in page — no auth required)
+  socket.on('join:public', ({ clinicId }: { clinicId: string }) => {
+    if (!clinicId) return;
+    const roomName = `clinic:${clinicId}:public`;
+    socket.join(roomName);
+    if (isDev) logger.debug({ socketId: socket.id, room: roomName }, 'Socket.io joined public queue room');
+    socket.emit('joined:public', { clinicId, success: true });
+  });
+
+  socket.on('leave:public', ({ clinicId }: { clinicId: string }) => {
+    if (!clinicId) return;
+    const roomName = `clinic:${clinicId}:public`;
+    socket.leave(roomName);
+    if (isDev) logger.debug({ socketId: socket.id, room: roomName }, 'Socket.io left public queue room');
   });
 
   socket.on('disconnect', () => {

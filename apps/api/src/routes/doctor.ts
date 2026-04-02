@@ -7,6 +7,7 @@ import { Router, Response } from 'express';
 import { z } from 'zod';
 import { authMiddleware } from '../lib/auth.js';
 import { subscriptionGate } from '../lib/subscriptionGate.js';
+import { checkDoctorLimit } from '../lib/tierGate.js';
 import { AuthRequest } from '../types/index.js';
 import {
   getDoctors,
@@ -68,7 +69,7 @@ router.get('/:id', authMiddleware, async (req: AuthRequest, res: Response) => {
 });
 
 // POST /api/clinic/doctors - Create doctor
-router.post('/', authMiddleware, subscriptionGate, async (req: AuthRequest, res: Response) => {
+router.post('/', authMiddleware, subscriptionGate, checkDoctorLimit, async (req: AuthRequest, res: Response) => {
   try {
     const data = createDoctorSchema.parse(req.body);
     const doctor = await createDoctor({
@@ -123,7 +124,12 @@ router.delete('/:id', authMiddleware, subscriptionGate, async (req: AuthRequest,
       });
     }
     res.json({ data: { message: 'Doctor deleted' } });
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.code === 'LAST_DOCTOR') {
+      return res.status(400).json({
+        error: { code: 'LAST_DOCTOR', message: 'Cannot remove the last active doctor' },
+      });
+    }
     logger.error({ err: error }, 'Delete doctor error');
     res.status(500).json({
       error: { code: 'SERVER_ERROR', message: 'Failed to delete doctor' },

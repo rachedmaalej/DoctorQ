@@ -14,6 +14,9 @@ export interface InitPaymentParams {
   webhookUrl: string;
   successUrl: string;
   failUrl: string;
+  recurring?: {
+    interval: 'month' | 'year';
+  };
 }
 
 export interface InitPaymentResponse {

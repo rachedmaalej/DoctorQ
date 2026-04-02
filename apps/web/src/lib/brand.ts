@@ -51,6 +51,11 @@ export interface WebBrandConfig {
     yearlyDisplay: string;
     monthlyUnit: string;
     yearlyUnit: string;
+    tiers?: {
+      SOLO_PRO: { monthlyDisplay: string; yearlyDisplay: string };
+      EQUIPE: { monthlyDisplay: string; yearlyDisplay: string };
+      CLINIQUE: { monthlyDisplay: string; yearlyDisplay: string };
+    };
   };
 
   legal: {
@@ -139,6 +144,11 @@ const brands: Record<BrandId, WebBrandConfig> = {
       yearlyDisplay: '490 EUR',
       monthlyUnit: 'EUR/mois',
       yearlyUnit: 'EUR/an',
+      tiers: {
+        SOLO_PRO: { monthlyDisplay: '29 €', yearlyDisplay: '290 €' },
+        EQUIPE: { monthlyDisplay: '69 €', yearlyDisplay: '690 €' },
+        CLINIQUE: { monthlyDisplay: '149 €', yearlyDisplay: '1 490 €' },
+      },
     },
     legal: {
       entityName: 'AuSuivant SAS',

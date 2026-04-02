@@ -321,10 +321,13 @@ class ApiClient {
   async getSubscription(): Promise<{
     status: string;
     plan: string | null;
+    tier: string;
     trialEndsAt: string | null;
     subscriptionEndsAt: string | null;
     daysRemaining: number | null;
     canUseApp: boolean;
+    limits: { dailyPatients: number; maxDoctors: number; historyDays: number };
+    usage: { dailyPatientCount: number };
   }> {
     return this.request('/api/subscription');
   }
@@ -334,15 +337,21 @@ class ApiClient {
       monthly: { amount: number; amountDisplay: number; currency: string; description: string };
       yearly: { amount: number; amountDisplay: number; currency: string; description: string; savings: number };
     };
+    tiers: Array<{
+      tier: string;
+      monthly: { amount: number; amountDisplay: number; currency: string };
+      yearly: { amount: number; amountDisplay: number; currency: string; savings: number };
+      limits: { dailyPatients: number; maxDoctors: number; historyDays: number };
+    }>;
     trialDays: number;
   }> {
     return this.request('/api/subscription/pricing');
   }
 
-  async createSubscriptionCheckout(plan: 'MONTHLY' | 'YEARLY'): Promise<{ payUrl: string; paymentRef: string }> {
+  async createSubscriptionCheckout(plan: 'MONTHLY' | 'YEARLY', tier?: string): Promise<{ payUrl: string; paymentRef: string }> {
     return this.request('/api/subscription/checkout', {
       method: 'POST',
-      body: JSON.stringify({ plan }),
+      body: JSON.stringify({ plan, ...(tier && { tier }) }),
     });
   }
 
@@ -445,6 +454,10 @@ class ApiClient {
     return this.request<YesterdayStats>('/api/queue/yesterday-stats');
   }
 
+  async getTimeSaved(period: 'today' | 'week' | 'month' = 'today'): Promise<{ timeSavedMinutes: number; timeSavedHours: number; remotePatientCount: number; period: string }> {
+    return this.request(`/api/queue/time-saved?period=${period}`);
+  }
+
   // Patient endpoints (public)
   async getPatientStatus(entryId: string): Promise<PatientStatusResponse> {
     return this.request<PatientStatusResponse>(`/api/queue/patient/${entryId}`);
@@ -458,6 +471,14 @@ class ApiClient {
   // Patient step back into queue (public)
   async stepBack(entryId: string): Promise<{ message: string; isSteppedOut: boolean }> {
     return this.request(`/api/queue/patient/${entryId}/step-back`, { method: 'POST' });
+  }
+
+  // Patient feedback (public)
+  async submitFeedback(entryId: string, rating: number): Promise<{ submitted: true; showGooglePrompt: boolean; googleReviewUrl: string | null }> {
+    return this.request(`/api/queue/feedback/${entryId}`, {
+      method: 'POST',
+      body: JSON.stringify({ rating }),
+    });
   }
 
   // Patient leave queue (public)
@@ -475,7 +496,7 @@ class ApiClient {
   }
 
   // Public clinic info (for check-in page)
-  async getClinicInfo(clinicId: string): Promise<{ name: string; waitingCount: number; avgConsultationMins: number; isDoctorPresent: boolean; doctorName: string | null; doctorGender: string | null; specialty: string | null; multiDoctorEnabled: boolean; doctors: Array<{ id: string; name: string; specialty: string | null; colorToken: string }> }> {
+  async getClinicInfo(clinicId: string): Promise<{ name: string; waitingCount: number; avgConsultationMins: number; isDoctorPresent: boolean; doctorName: string | null; doctorGender: string | null; specialty: string | null; doctors: Array<{ id: string; name: string; specialty: string | null; colorToken: string }> }> {
     return this.request(`/api/clinic/${clinicId}/info`);
   }
 

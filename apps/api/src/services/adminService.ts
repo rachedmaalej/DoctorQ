@@ -991,7 +991,6 @@ export async function getClinicForImpersonation(clinicId: string) {
       isDoctorPresent: true,
       businessType: true,
       showAppointments: true,
-      multiDoctorEnabled: true,
     },
   });
 
@@ -1358,7 +1357,7 @@ export interface FeatureAdoption {
     manual: { count: number; percentage: number };
     whatsApp: { count: number; percentage: number };
   };
-  multiDoctorAdoption: number;
+  multiDoctorClinics: number;
   avgPatientsPerClinicPerDay: number;
 }
 
@@ -1401,7 +1400,7 @@ export async function getFeatureAdoption(): Promise<FeatureAdoption> {
       manual: { count: manualCount, percentage: pct(manualCount) },
       whatsApp: { count: whatsAppCount, percentage: pct(whatsAppCount) },
     },
-    multiDoctorAdoption: clinicsWithDoctors.length,
+    multiDoctorClinics: clinicsWithDoctors.length,
     avgPatientsPerClinicPerDay,
   };
 }
@@ -1568,7 +1567,6 @@ export interface ClinicDetailEnrichedResponse {
   qrCodeActive: boolean;
   qrCodeLastScannedAt: string | null;
   isActive: boolean;
-  multiDoctorEnabled: boolean;
 
   // Onboarding
   onboardingStep: number;
@@ -2258,7 +2256,6 @@ export async function getClinicDetailEnriched(clinicId: string): Promise<ClinicD
     qrCodeActive,
     qrCodeLastScannedAt,
     isActive: clinic.isActive,
-    multiDoctorEnabled: clinic.multiDoctorEnabled,
 
     onboardingStep: clinic.onboardingStep,
     onboardingTotalSteps: 4,

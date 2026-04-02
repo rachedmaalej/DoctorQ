@@ -1,5 +1,5 @@
 import ASIcon from './ASIcon';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 import { useQueueStore } from '@/stores/queueStore';
 import { webBrand } from '@/lib/brand';
@@ -38,6 +38,9 @@ export default function ASAddPatientSheet({ isOpen, onClose, doctors = [], initi
   const [error, setError] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
   const [addedPosition, setAddedPosition] = useState<number | null>(null);
+  const [addedEntryId, setAddedEntryId] = useState<string | null>(null);
+  const [countdown, setCountdown] = useState(5);
+  const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const firstNameRef = useRef<HTMLInputElement>(null);
 
   // Pre-fill from initial props when sheet opens
@@ -76,12 +79,57 @@ export default function ASAddPatientSheet({ isOpen, onClose, doctors = [], initi
     setError('');
     setShowSuccess(false);
     setAddedPosition(null);
+    setAddedEntryId(null);
+    setCountdown(5);
+    if (countdownRef.current) clearInterval(countdownRef.current);
   };
 
   const handleClose = () => {
     resetForm();
     onClose();
   };
+
+  const handleAddAnother = useCallback(() => {
+    if (countdownRef.current) clearInterval(countdownRef.current);
+    setShowSuccess(false);
+    setAddedPosition(null);
+    setAddedEntryId(null);
+    setFirstName('');
+    setLastName('');
+    setPhone('');
+    setNotes('');
+    setError('');
+    setCountdown(5);
+    setTimeout(() => firstNameRef.current?.focus(), 300);
+  }, []);
+
+  const handleSendWhatsApp = useCallback(() => {
+    if (!addedEntryId) return;
+    const phoneDigits = phone.replace(/\D/g, '');
+    if (!phoneDigits) return;
+    const fullPhone = `${webBrand.phone.countryCode}${phoneDigits}`.replace('+', '');
+    const statusUrl = `${window.location.origin}/patient/status/${addedEntryId}`;
+    const name = firstName.trim().split(' ')[0];
+    const msg = `Bonjour ${name}, suivez votre position en temps réel :\n${statusUrl}`;
+    window.open(`https://wa.me/${fullPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+  }, [addedEntryId, phone, firstName]);
+
+  // Auto-dismiss countdown when success is shown
+  useEffect(() => {
+    if (!showSuccess) return;
+    setCountdown(5);
+    countdownRef.current = setInterval(() => {
+      setCountdown(prev => {
+        if (prev <= 1) {
+          if (countdownRef.current) clearInterval(countdownRef.current);
+          handleClose();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => { if (countdownRef.current) clearInterval(countdownRef.current); };
+  }, [showSuccess]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handlePhoneInput = (value: string) => {
     const digits = value.replace(/\D/g, '');
@@ -113,9 +161,11 @@ export default function ASAddPatientSheet({ isOpen, onClose, doctors = [], initi
         doctorId: selectedDoctorId || undefined,
       });
 
-      // Get position from result or queue length
+      // Get position and ID from result
       const position = (result as any)?.position || null;
+      const entryId = (result as any)?.id || null;
       setAddedPosition(position);
+      setAddedEntryId(entryId);
       setShowSuccess(true);
     } catch (err: any) {
       if (err?.code === 'ALREADY_CHECKED_IN') {
@@ -195,7 +245,7 @@ export default function ASAddPatientSheet({ isOpen, onClose, doctors = [], initi
 
         {showSuccess ? (
           /* ─── Success State ─── */
-          <div className="flex flex-col items-center" style={{ padding: '40px 20px' }}>
+          <div className="flex flex-col items-center" style={{ padding: '32px 20px' }}>
             <div
               className="as-success-pop flex items-center justify-center"
               style={{
@@ -232,23 +282,73 @@ export default function ASAddPatientSheet({ isOpen, onClose, doctors = [], initi
               </div>
             )}
 
-            <button
-              onClick={handleClose}
-              style={{
-                marginTop: 24,
-                background: 'var(--color-surface-alt)',
-                color: 'var(--color-text-primary)',
-                borderRadius: 'var(--radius-sm)',
-                fontSize: 14,
-                fontWeight: 600,
-                padding: '12px 48px',
-                border: 'none',
-                cursor: 'pointer',
-                fontFamily: 'inherit',
-              }}
-            >
-              Fermer
-            </button>
+            {/* Action buttons */}
+            <div className="flex gap-2 w-full" style={{ marginTop: 24 }}>
+              {/* WhatsApp — send status link */}
+              <button
+                onClick={handleSendWhatsApp}
+                disabled={!phone.replace(/\D/g, '') || !addedEntryId}
+                title={!phone.replace(/\D/g, '') ? 'Aucun numéro de téléphone' : 'Envoyer le lien via WhatsApp'}
+                className="flex items-center justify-center"
+                style={{
+                  width: 48,
+                  height: 48,
+                  borderRadius: 'var(--radius)',
+                  background: phone.replace(/\D/g, '') ? '#25D366' : 'var(--color-surface-alt)',
+                  color: phone.replace(/\D/g, '') ? 'white' : 'var(--color-text-muted)',
+                  border: 'none',
+                  cursor: phone.replace(/\D/g, '') ? 'pointer' : 'not-allowed',
+                  opacity: phone.replace(/\D/g, '') ? 1 : 0.5,
+                  flexShrink: 0,
+                }}
+              >
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                </svg>
+              </button>
+
+              {/* Add another patient */}
+              <button
+                onClick={handleAddAnother}
+                className="flex items-center justify-center gap-2 flex-1"
+                style={{
+                  height: 48,
+                  borderRadius: 'var(--radius)',
+                  background: 'var(--color-surface-alt)',
+                  color: 'var(--color-text-primary)',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  fontFamily: 'inherit',
+                }}
+              >
+                <ASIcon name="person_add" size={18} />
+                Ajouter un autre
+              </button>
+
+              {/* Dismiss with countdown */}
+              <button
+                onClick={handleClose}
+                className="flex items-center justify-center"
+                style={{
+                  width: 48,
+                  height: 48,
+                  borderRadius: 'var(--radius)',
+                  background: 'var(--color-surface-alt)',
+                  color: 'var(--color-text-muted)',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: 13,
+                  fontWeight: 700,
+                  fontFamily: 'inherit',
+                  position: 'relative',
+                  flexShrink: 0,
+                }}
+              >
+                {countdown}
+              </button>
+            </div>
           </div>
         ) : (
           /* ─── Form ─── */

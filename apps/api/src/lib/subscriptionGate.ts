@@ -6,7 +6,7 @@
 
 import { Response, NextFunction } from 'express';
 import { AuthRequest } from '../types/index.js';
-import { getSubscriptionStatus } from '../services/subscriptionService.js';
+import { prisma } from './prisma.js';
 
 export async function subscriptionGate(
   req: AuthRequest,
@@ -26,13 +26,30 @@ export async function subscriptionGate(
   }
 
   try {
-    const sub = await getSubscriptionStatus(clinicId);
+    const clinic = await prisma.clinic.findUnique({
+      where: { id: clinicId },
+      select: { subscriptionStatus: true, subscriptionTier: true },
+    });
 
-    if (!sub.canUseApp) {
+    if (!clinic) {
+      return res.status(404).json({
+        error: { code: 'CLINIC_NOT_FOUND', message: 'Clinic not found' },
+      });
+    }
+
+    // FREE tier always has access (forever-free)
+    if (clinic.subscriptionTier === 'FREE') {
+      return next();
+    }
+
+    // Paid tiers need active subscription
+    const canUseApp = ['TRIAL', 'ACTIVE', 'PAST_DUE'].includes(clinic.subscriptionStatus);
+    if (!canUseApp) {
       return res.status(403).json({
         error: {
           code: 'SUBSCRIPTION_EXPIRED',
           message: 'Your subscription has expired. Please upgrade to continue.',
+          currentTier: clinic.subscriptionTier,
         },
       });
     }

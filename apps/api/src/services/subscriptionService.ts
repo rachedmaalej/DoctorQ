@@ -4,9 +4,11 @@
  */
 
 import { prisma } from '../lib/prisma.js';
+import { SubscriptionTier } from '@prisma/client';
 import { initPayment, getPaymentDetails } from '../lib/payment/index.js';
 import { logger } from '../lib/logger.js';
 import { brand } from '../lib/brand.js';
+import { DAILY_LIMITS, DOCTOR_LIMITS, HISTORY_DAYS } from '../lib/tierGate.js';
 
 // ─── Constants ───────────────────────────────────────────────
 
@@ -20,10 +22,19 @@ export const PRICING = {
 export interface SubscriptionInfo {
   status: string;
   plan: string | null;
+  tier: SubscriptionTier;
   trialEndsAt: string | null;
   subscriptionEndsAt: string | null;
   daysRemaining: number | null;
   canUseApp: boolean;
+  limits: {
+    dailyPatients: number;
+    maxDoctors: number;
+    historyDays: number;
+  };
+  usage: {
+    dailyPatientCount: number;
+  };
 }
 
 export interface CheckoutResult {
@@ -61,8 +72,10 @@ export async function getSubscriptionStatus(clinicId: string): Promise<Subscript
     select: {
       subscriptionStatus: true,
       subscriptionPlan: true,
+      subscriptionTier: true,
       trialEndsAt: true,
       subscriptionEndsAt: true,
+      dailyPatientCount: true,
     },
   });
 
@@ -75,41 +88,73 @@ export async function getSubscriptionStatus(clinicId: string): Promise<Subscript
     ? clinic.trialEndsAt
     : clinic.subscriptionEndsAt;
 
-  // Can use app if trial is active OR subscription is active/past_due
-  const canUseApp = ['TRIAL', 'ACTIVE', 'PAST_DUE'].includes(clinic.subscriptionStatus);
+  // FREE tier always has access; paid tiers need active subscription
+  const canUseApp = clinic.subscriptionTier === 'FREE'
+    || ['TRIAL', 'ACTIVE', 'PAST_DUE'].includes(clinic.subscriptionStatus);
 
   return {
     status: clinic.subscriptionStatus,
     plan: clinic.subscriptionPlan,
+    tier: clinic.subscriptionTier,
     trialEndsAt: clinic.trialEndsAt?.toISOString() ?? null,
     subscriptionEndsAt: clinic.subscriptionEndsAt?.toISOString() ?? null,
     daysRemaining: getDaysRemaining(endDate),
     canUseApp,
+    limits: {
+      dailyPatients: DAILY_LIMITS[clinic.subscriptionTier],
+      maxDoctors: DOCTOR_LIMITS[clinic.subscriptionTier],
+      historyDays: HISTORY_DAYS[clinic.subscriptionTier],
+    },
+    usage: {
+      dailyPatientCount: clinic.dailyPatientCount,
+    },
   };
 }
 
 // ─── Subscription Checkout ───────────────────────────────────
 
 /**
- * Create a checkout session for subscription payment
+ * Get the price for a tier+plan combination.
+ * Uses tier-specific pricing if available, falls back to legacy flat pricing.
+ */
+export function getTierPrice(tier: SubscriptionTier, plan: 'MONTHLY' | 'YEARLY'): number {
+  const tierPricing = brand.pricing.tiers;
+  if (tierPricing && tier in tierPricing) {
+    const tp = tierPricing[tier as keyof typeof tierPricing];
+    return plan === 'MONTHLY' ? tp.monthly : tp.yearly;
+  }
+  // Fallback to legacy flat pricing (BleSaf)
+  return plan === 'MONTHLY' ? PRICING.MONTHLY : PRICING.YEARLY;
+}
+
+/**
+ * Create a checkout session for subscription payment.
+ * Supports tier-specific pricing (AuSuivant) and legacy flat pricing (BleSaf).
  */
 export async function createSubscriptionCheckout(
   clinicId: string,
   plan: 'MONTHLY' | 'YEARLY',
-  baseUrl: string
+  baseUrl: string,
+  tier?: SubscriptionTier
 ): Promise<CheckoutResult> {
   const clinic = await prisma.clinic.findUnique({
     where: { id: clinicId },
-    select: { id: true, name: true, email: true, doctorName: true, phone: true },
+    select: { id: true, name: true, email: true, doctorName: true, phone: true, subscriptionTier: true },
   });
 
   if (!clinic) {
     throw Object.assign(new Error('Clinic not found'), { code: 'CLINIC_NOT_FOUND' });
   }
 
-  const amount = plan === 'MONTHLY' ? PRICING.MONTHLY : PRICING.YEARLY;
+  // Use requested tier, or current tier, defaulting to SOLO_PRO for new subscriptions
+  const targetTier = tier || (clinic.subscriptionTier === 'FREE' ? 'SOLO_PRO' as SubscriptionTier : clinic.subscriptionTier);
+  const amount = getTierPrice(targetTier, plan);
   const orderId = `sub_${clinicId}_${Date.now()}`;
-  const description = `${brand.name} ${plan === 'MONTHLY' ? 'Monthly' : 'Yearly'} Subscription`;
+  const tierLabel = targetTier.replace('_', ' ');
+  const description = `${brand.name} ${tierLabel} ${plan === 'MONTHLY' ? 'Monthly' : 'Yearly'} Subscription`;
+
+  // Use recurring billing for Stripe (France), one-time for Konnect (Tunisia)
+  const isStripe = brand.payment.provider === 'stripe';
 
   const result = await initPayment({
     amount,
@@ -119,19 +164,26 @@ export async function createSubscriptionCheckout(
     lastName: clinic.doctorName?.split(' ').slice(1).join(' '),
     email: clinic.email,
     phone: clinic.phone ?? undefined,
-    webhookUrl: `${baseUrl}/api/subscription/webhooks/subscription`,
+    webhookUrl: isStripe
+      ? `${baseUrl}/api/subscription/webhooks/stripe`
+      : `${baseUrl}/api/subscription/webhooks/subscription`,
     successUrl: `${baseUrl}/subscription/success?ref=${orderId}`,
     failUrl: `${baseUrl}/subscription/failed?ref=${orderId}`,
+    ...(isStripe && {
+      recurring: {
+        interval: plan === 'MONTHLY' ? 'month' as const : 'year' as const,
+      },
+    }),
   });
 
-  // Store pending payment info
+  // Store pending payment info (include tier in notes)
   await prisma.subscriptionEvent.create({
     data: {
       clinicId,
       eventType: 'payment_initiated',
       amount,
       paymentRef: result.paymentRef,
-      notes: JSON.stringify({ plan, orderId }),
+      notes: JSON.stringify({ plan, tier: targetTier, orderId }),
     },
   });
 
@@ -164,15 +216,17 @@ export async function processSubscriptionPayment(paymentRef: string): Promise<vo
     return;
   }
 
-  const { plan } = JSON.parse(event.notes) as { plan: 'MONTHLY' | 'YEARLY' };
+  const { plan, tier } = JSON.parse(event.notes) as { plan: 'MONTHLY' | 'YEARLY'; tier?: SubscriptionTier };
   const subscriptionEndsAt = getSubscriptionEndDate(plan);
+  const activatedTier = tier || ('SOLO_PRO' as SubscriptionTier);
 
-  // Update clinic subscription
+  // Update clinic subscription + tier
   await prisma.clinic.update({
     where: { id: event.clinicId },
     data: {
       subscriptionStatus: 'ACTIVE',
       subscriptionPlan: plan,
+      subscriptionTier: activatedTier,
       subscriptionEndsAt,
     },
   });
@@ -184,11 +238,11 @@ export async function processSubscriptionPayment(paymentRef: string): Promise<vo
       eventType: 'payment_success',
       amount: paymentDetails.payment.amount,
       paymentRef,
-      notes: `${plan} subscription activated until ${subscriptionEndsAt.toISOString()}`,
+      notes: `${activatedTier} ${plan} subscription activated until ${subscriptionEndsAt.toISOString()}`,
     },
   });
 
-  logger.info({ clinicId: event.clinicId, plan }, 'Subscription activated');
+  logger.info({ clinicId: event.clinicId, plan, tier: activatedTier }, 'Subscription activated');
 }
 
 // ─── Subscription Expiry Check ───────────────────────────────

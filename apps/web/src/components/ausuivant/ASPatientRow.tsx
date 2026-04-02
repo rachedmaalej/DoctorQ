@@ -343,7 +343,7 @@ export default function ASPatientRow({
           <>
             <div
               className="fixed inset-0"
-              style={{ zIndex: 9998 }}
+              style={{ zIndex: 9998, background: 'rgba(0,0,0,0.08)', backdropFilter: 'blur(2px)' }}
               onClick={() => setMenuOpen(false)}
             />
             <div
@@ -353,9 +353,9 @@ export default function ASPatientRow({
                 top: menuPos.top,
                 right: menuPos.right,
                 zIndex: 9999,
-                background: 'var(--color-surface)',
+                background: '#FFFFFF',
                 borderRadius: 12,
-                boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.12)',
+                boxShadow: '0 2px 6px rgba(0,0,0,0.1), 0 12px 32px rgba(0,0,0,0.16)',
                 minWidth: 180,
                 overflow: 'hidden',
                 padding: '4px 0',

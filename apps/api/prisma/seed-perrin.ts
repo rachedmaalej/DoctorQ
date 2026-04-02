@@ -71,10 +71,10 @@ async function seed() {
     }),
   ]);
 
-  // Enable multi-doctor on the clinic
+  // Set clinic as having a present doctor
   await prisma.clinic.update({
     where: { id: clinic.id },
-    data: { multiDoctorEnabled: true, isDoctorPresent: true },
+    data: { isDoctorPresent: true },
   });
 
   const now = new Date();

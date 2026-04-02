@@ -113,7 +113,6 @@ export interface Clinic {
   welcomeMessage?: string | null;
   showQueuePosition?: boolean;
   showEstimatedWait?: boolean;
-  multiDoctorEnabled?: boolean;
 }
 
 export type DoctorState = 'consulting' | 'free' | 'pause' | 'absent_today' | 'home_visit' | 'inactive';
@@ -156,6 +155,48 @@ export interface ScheduleSlot {
   } | null;
   createdAt: string;
   updatedAt: string;
+}
+
+// ─── Subscription Tier ──────────────────────────────────────
+
+export type SubscriptionTier = 'FREE' | 'SOLO_PRO' | 'EQUIPE' | 'CLINIQUE';
+
+export interface SubscriptionInfo {
+  status: string;
+  plan: string | null;
+  tier: SubscriptionTier;
+  trialEndsAt: string | null;
+  subscriptionEndsAt: string | null;
+  daysRemaining: number | null;
+  canUseApp: boolean;
+  limits: {
+    dailyPatients: number;
+    maxDoctors: number;
+    historyDays: number;
+  };
+  usage: {
+    dailyPatientCount: number;
+  };
+}
+
+export interface TierPricing {
+  tier: SubscriptionTier;
+  monthly: {
+    amount: number;
+    amountDisplay: number;
+    currency: string;
+  };
+  yearly: {
+    amount: number;
+    amountDisplay: number;
+    currency: string;
+    savings: number;
+  };
+  limits: {
+    dailyPatients: number;
+    maxDoctors: number;
+    historyDays: number;
+  };
 }
 
 export interface LoginCredentials {
@@ -203,6 +244,10 @@ export interface ApiError {
 export interface PatientStatusResponse extends QueueEntry {
   isDoctorPresent?: boolean;
   estimatedWaitMins?: number;
+  minWaitMins?: number;
+  maxWaitMins?: number;
+  hasEmergencyAhead?: boolean;
+  updatedAt?: string;
   avgConsultationMins?: number;
   confidence?: 'high' | 'medium' | 'low';
   doctorAbsent?: boolean;
@@ -214,6 +259,8 @@ export interface PatientStatusResponse extends QueueEntry {
   specialty?: string | null;
   funFactsEnabled?: boolean;
   enableStepOut?: boolean;
+  subscriptionTier?: SubscriptionTier;
+  feedbackEnabled?: boolean;
 }
 
 // ─── Admin Types ─────────────────────────────────────────────
@@ -307,7 +354,6 @@ export interface ClinicEditableFields {
   businessType?: string;
   address?: string;
   notifyAtPosition?: number;
-  multiDoctorEnabled?: boolean;
 }
 
 export interface ClinicDetail {
@@ -459,7 +505,7 @@ export interface FeatureAdoption {
     manual: { count: number; percentage: number };
     whatsApp: { count: number; percentage: number };
   };
-  multiDoctorAdoption: number;
+  multiDoctorClinics: number;
   avgPatientsPerClinicPerDay: number;
 }
 
@@ -598,7 +644,6 @@ export interface ClinicDetailEnriched {
   qrCodeActive: boolean;
   qrCodeLastScannedAt: string | null;
   isActive: boolean;
-  multiDoctorEnabled?: boolean;
 
   onboardingStep: number;
   onboardingTotalSteps: number;

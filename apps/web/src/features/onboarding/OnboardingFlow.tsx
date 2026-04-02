@@ -2,7 +2,6 @@ import { useState, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { STEPS } from './constants/onboardingConfig';
-import type { SpecialtyId } from './constants/onboardingConfig';
 import { trackOnboarding, EVENTS } from './hooks/useOnboardingAnalytics';
 import { api } from '@/lib/api';
 import { useOnboardingStore } from '@/stores/onboardingStore';
@@ -11,7 +10,6 @@ import { useTourStore } from '@/features/tour/tourStore';
 
 import SplashScreen from './screens/SplashScreen';
 import WelcomeScreen from './screens/WelcomeScreen';
-import SpecialtyScreen from './screens/SpecialtyScreen';
 import SignUpScreen from './screens/SignUpScreen';
 import QRRevealScreen from './screens/QRRevealScreen';
 
@@ -60,7 +58,6 @@ export default function OnboardingFlow() {
   const initialStep = skipToQr ? STEPS.indexOf('qr-reveal') : 0;
   const [step, setStep] = useState(initialStep);
   const [direction, setDirection] = useState(1);
-  const [specialty, setSpecialty] = useState<SpecialtyId | null>(null);
   const [signUpResult, setSignUpResult] = useState<{ clinicId: string; clinicName: string } | null>(
     effectiveClinicId && effectiveClinicName
       ? { clinicId: effectiveClinicId, clinicName: effectiveClinicName }
@@ -70,20 +67,6 @@ export default function OnboardingFlow() {
   const advance = useCallback(() => {
     setDirection(1);
     setStep((s) => s + 1);
-  }, []);
-
-  const skip = useCallback(() => {
-    if (step === 2) {
-      // Specialty step — default to "other"
-      setSpecialty('autres');
-    }
-    setDirection(1);
-    setStep((s) => s + 1);
-  }, [step]);
-
-  const handleSpecialtySelect = useCallback((id: SpecialtyId) => {
-    setSpecialty(id);
-    trackOnboarding(EVENTS.SPECIALTY_SELECTED, { specialty: id });
   }, []);
 
   const handleSignUpComplete = useCallback(
@@ -106,7 +89,7 @@ export default function OnboardingFlow() {
     sessionStorage.removeItem('oauth_clinic_id');
     sessionStorage.removeItem('oauth_clinic_name_result');
     try {
-      await api.updateOnboarding(3, true);
+      await api.updateOnboarding(2, true);
     } catch {
       // Non-blocking — dashboard will still work
     }
@@ -131,21 +114,10 @@ export default function OnboardingFlow() {
         return <SplashScreen onComplete={handleSplashComplete} />;
       case 'welcome':
         return <WelcomeScreen step={step} onAdvance={advance} />;
-      case 'specialty':
-        return (
-          <SpecialtyScreen
-            step={step}
-            specialty={specialty}
-            onSelect={handleSpecialtySelect}
-            onAdvance={advance}
-            onSkip={skip}
-          />
-        );
       case 'signup':
         return (
           <SignUpScreen
             step={step}
-            specialty={specialty}
             onAdvance={handleSignUpComplete}
           />
         );

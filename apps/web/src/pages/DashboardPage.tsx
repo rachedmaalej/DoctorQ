@@ -14,6 +14,7 @@ import ConfirmModal from '@/components/ui/ConfirmModal';
 import AnnouncementModal from '@/components/queue/AnnouncementModal';
 import { Toast } from '@/components/ui/Toast';
 import TrialBanner from '@/components/ui/TrialBanner';
+import TierUsageBanner from '@/components/shared/TierUsageBanner';
 import SettingsPage from './SettingsPage';
 // ActivationChecklist now lives inside BlesafDashboard empty state
 
@@ -79,6 +80,7 @@ export default function DashboardPage() {
 
     // Doctors
     doctors,
+    refreshDoctors,
 
     // Actions
     handleCallNext,
@@ -107,6 +109,11 @@ export default function DashboardPage() {
     <div className="min-h-screen" style={{ background: '#F5F0E8' }}>
       {/* Trial Expiration Banner */}
       <TrialBanner />
+
+      {/* Tier Usage Banner — shows when approaching daily patient limit */}
+      <div className="max-w-6xl mx-auto px-4 pt-2">
+        <TierUsageBanner />
+      </div>
 
       {/* Email verification banner — disabled during development, re-enable before sharing */}
 
@@ -156,6 +163,7 @@ export default function DashboardPage() {
             isDoctorPresent={isDoctorPresent}
             onToggleDoctorPresent={handleToggleDoctorPresent}
             isTogglingPresence={isTogglingPresence}
+            onRefreshDoctors={refreshDoctors}
           />
         ) : (
           <ReceptionistDashboard

@@ -3,14 +3,18 @@ import { subscriptionGate } from '../subscriptionGate.js';
 import type { Response, NextFunction } from 'express';
 import type { AuthRequest } from '../../types/index.js';
 
-// Mock the subscription service
-vi.mock('../../services/subscriptionService.js', () => ({
-  getSubscriptionStatus: vi.fn(),
+// Mock Prisma
+vi.mock('../prisma.js', () => ({
+  prisma: {
+    clinic: {
+      findUnique: vi.fn(),
+    },
+  },
 }));
 
-import { getSubscriptionStatus } from '../../services/subscriptionService.js';
+import { prisma } from '../prisma.js';
 
-const mockGetSubscriptionStatus = vi.mocked(getSubscriptionStatus);
+const mockFindUnique = vi.mocked(prisma.clinic.findUnique);
 
 function createMockReq(overrides: Partial<AuthRequest> = {}): AuthRequest {
   return {
@@ -43,7 +47,7 @@ describe('subscriptionGate', () => {
     await subscriptionGate(req, res, next);
 
     expect(next).toHaveBeenCalled();
-    expect(mockGetSubscriptionStatus).not.toHaveBeenCalled();
+    expect(mockFindUnique).not.toHaveBeenCalled();
   });
 
   it('should return 401 if no clinic ID is present', async () => {
@@ -60,15 +64,10 @@ describe('subscriptionGate', () => {
   });
 
   it('should allow POST requests when subscription is ACTIVE', async () => {
-    mockGetSubscriptionStatus.mockResolvedValue({
-      status: 'ACTIVE',
-      plan: 'MONTHLY',
-      trialEndsAt: null,
-      subscriptionEndsAt: '2026-12-31T00:00:00.000Z',
-      daysRemaining: 300,
-
-      canUseApp: true,
-    });
+    mockFindUnique.mockResolvedValue({
+      subscriptionStatus: 'ACTIVE',
+      subscriptionTier: 'SOLO_PRO',
+    } as any);
 
     const req = createMockReq();
     const res = createMockRes();
@@ -80,15 +79,10 @@ describe('subscriptionGate', () => {
   });
 
   it('should allow POST requests when subscription is TRIAL', async () => {
-    mockGetSubscriptionStatus.mockResolvedValue({
-      status: 'TRIAL',
-      plan: null,
-      trialEndsAt: '2026-03-01T00:00:00.000Z',
-      subscriptionEndsAt: null,
-      daysRemaining: 20,
-
-      canUseApp: true,
-    });
+    mockFindUnique.mockResolvedValue({
+      subscriptionStatus: 'TRIAL',
+      subscriptionTier: 'SOLO_PRO',
+    } as any);
 
     const req = createMockReq();
     const res = createMockRes();
@@ -99,16 +93,26 @@ describe('subscriptionGate', () => {
     expect(res.status).not.toHaveBeenCalled();
   });
 
-  it('should block POST requests when subscription is EXPIRED', async () => {
-    mockGetSubscriptionStatus.mockResolvedValue({
-      status: 'EXPIRED',
-      plan: null,
-      trialEndsAt: '2026-01-01T00:00:00.000Z',
-      subscriptionEndsAt: null,
-      daysRemaining: 0,
+  it('should always allow FREE tier through regardless of subscription status', async () => {
+    mockFindUnique.mockResolvedValue({
+      subscriptionStatus: 'EXPIRED',
+      subscriptionTier: 'FREE',
+    } as any);
 
-      canUseApp: false,
-    });
+    const req = createMockReq();
+    const res = createMockRes();
+
+    await subscriptionGate(req, res, next);
+
+    expect(next).toHaveBeenCalled();
+    expect(res.status).not.toHaveBeenCalled();
+  });
+
+  it('should block POST requests when paid tier subscription is EXPIRED', async () => {
+    mockFindUnique.mockResolvedValue({
+      subscriptionStatus: 'EXPIRED',
+      subscriptionTier: 'SOLO_PRO',
+    } as any);
 
     const req = createMockReq();
     const res = createMockRes();
@@ -120,13 +124,14 @@ describe('subscriptionGate', () => {
       error: {
         code: 'SUBSCRIPTION_EXPIRED',
         message: 'Your subscription has expired. Please upgrade to continue.',
+        currentTier: 'SOLO_PRO',
       },
     });
     expect(next).not.toHaveBeenCalled();
   });
 
-  it('should fail-open if subscription check throws an error', async () => {
-    mockGetSubscriptionStatus.mockRejectedValue(new Error('DB connection failed'));
+  it('should fail-open if prisma throws an error', async () => {
+    mockFindUnique.mockRejectedValue(new Error('DB connection failed'));
 
     const req = createMockReq();
     const res = createMockRes();
@@ -137,16 +142,11 @@ describe('subscriptionGate', () => {
     expect(res.status).not.toHaveBeenCalled();
   });
 
-  it('should block DELETE requests for expired subscriptions', async () => {
-    mockGetSubscriptionStatus.mockResolvedValue({
-      status: 'EXPIRED',
-      plan: null,
-      trialEndsAt: null,
-      subscriptionEndsAt: null,
-      daysRemaining: 0,
-
-      canUseApp: false,
-    });
+  it('should block DELETE requests for expired paid subscriptions', async () => {
+    mockFindUnique.mockResolvedValue({
+      subscriptionStatus: 'EXPIRED',
+      subscriptionTier: 'EQUIPE',
+    } as any);
 
     const req = createMockReq({ method: 'DELETE' });
     const res = createMockRes();

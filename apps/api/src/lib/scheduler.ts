@@ -27,6 +27,8 @@ export function initScheduledTasks() {
             announcement: null,
             announcementAt: null,
             lastDailyResetAt: new Date(),
+            dailyPatientCount: 0,
+            dailyCountResetAt: new Date(),
           },
         });
 

@@ -192,7 +192,6 @@ const updateClinicSchema = z.object({
   businessType: z.string().optional(),
   address: z.string().optional(),
   notifyAtPosition: z.number().min(1).max(10).optional(),
-  multiDoctorEnabled: z.boolean().optional(),
 });
 
 router.patch('/clinics/:id', authMiddleware, isAdmin, async (req: AuthRequest, res: Response) => {
@@ -291,7 +290,6 @@ router.post('/clinics/:id/impersonate', authMiddleware, isAdmin, async (req: Aut
           isDoctorPresent: clinic.isDoctorPresent,
           businessType: clinic.businessType,
           showAppointments: clinic.showAppointments,
-          multiDoctorEnabled: clinic.multiDoctorEnabled,
         },
         isImpersonation: true,
       },

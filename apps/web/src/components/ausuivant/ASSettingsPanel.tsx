@@ -11,6 +11,7 @@ import BSClinicHoursPanel from '@/components/shared/BSClinicHoursPanel';
 import BSCheckInMethodsPanel from '@/components/shared/BSCheckInMethodsPanel';
 import BSNotificationsPanel from '@/components/shared/BSNotificationsPanel';
 import BSWaitingRoomDisplayPanel from '@/components/shared/BSWaitingRoomDisplayPanel';
+import { api } from '@/lib/api';
 
 interface ASSettingsPanelProps {
   isOpen: boolean;
@@ -85,21 +86,6 @@ function SettingsItem({ icon, iconColor, title, description, right, onClick, isL
   );
 }
 
-function ToggleSwitch({ checked, onChange }: { checked: boolean; onChange: () => void }) {
-  return (
-    <div
-      className="as-toggle"
-      role="switch"
-      aria-checked={checked}
-      tabIndex={0}
-      onClick={(e) => { e.stopPropagation(); onChange(); }}
-      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onChange(); } }}
-    >
-      <div className="as-toggle-knob" />
-    </div>
-  );
-}
-
 function ValueChevron({ value }: { value?: string }) {
   return (
     <>
@@ -124,6 +110,7 @@ export default function ASSettingsPanel({ isOpen, onClose, clinic }: ASSettingsP
   const [showCheckInMethods, setShowCheckInMethods] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showWaitingRoomDisplay, setShowWaitingRoomDisplay] = useState(false);
+  const [showQrCode, setShowQrCode] = useState(false);
 
   // Reset sub-panels when main panel closes
   useEffect(() => {
@@ -137,6 +124,7 @@ export default function ASSettingsPanel({ isOpen, onClose, clinic }: ASSettingsP
       setShowCheckInMethods(false);
       setShowNotifications(false);
       setShowWaitingRoomDisplay(false);
+      setShowQrCode(false);
     }
   }, [isOpen]);
 
@@ -288,20 +276,20 @@ export default function ASSettingsPanel({ isOpen, onClose, clinic }: ASSettingsP
             onClick={() => setShowClinicProfile(true)}
           />
           <SettingsItem
-            icon={<ASIcon name="schedule" size={18} />}
-            iconColor="warm"
-            title="Horaires du cabinet"
-            description="Planning hebdomadaire, pauses"
-            right={<ValueChevron />}
-            onClick={() => setShowClinicHours(true)}
-          />
-          <SettingsItem
             icon={<ASIcon name="group" size={18} />}
             iconColor="blue"
-            title="Accès"
-            description="Gérer les secrétaires et collaborateurs"
+            title="Médecins"
+            description="Gérer votre équipe médicale"
             right={<ValueChevron />}
             onClick={() => setShowTeamAccess(true)}
+          />
+          <SettingsItem
+            icon={<ASIcon name="qr_code_2" size={18} />}
+            iconColor="blue"
+            title="Code QR"
+            description="Afficher et partager votre QR code"
+            right={<ValueChevron />}
+            onClick={() => setShowQrCode(true)}
           />
           <SettingsItem
             icon={<ASIcon name="credit_card" size={18} />}
@@ -310,14 +298,6 @@ export default function ASSettingsPanel({ isOpen, onClose, clinic }: ASSettingsP
             description="Gérer votre abonnement"
             right={<ValueChevron />}
             onClick={() => setShowSubscription(true)}
-          />
-          <SettingsItem
-            icon={<ASIcon name="desktop_windows" size={18} />}
-            iconColor="green"
-            title="Affichage salle d'attente"
-            description="Personnaliser la page patient"
-            right={<ValueChevron />}
-            onClick={() => setShowWaitingRoomDisplay(true)}
             isLast
           />
         </SettingsSection>
@@ -331,49 +311,6 @@ export default function ASSettingsPanel({ isOpen, onClose, clinic }: ASSettingsP
             description="Utilisée pour estimer l'attente"
             right={<ValueChevron value={`${clinic?.avgConsultationMins || 15} min`} />}
             onClick={() => setShowConsultationDuration(true)}
-          />
-          <SettingsItem
-            icon={<ASIcon name="notifications" size={18} />}
-            iconColor="blue"
-            title="Notifications patients"
-            description="Alertes, sons, heures silencieuses"
-            right={<ValueChevron />}
-            onClick={() => setShowNotifications(true)}
-          />
-          <SettingsItem
-            icon={<ASIcon name="smartphone" size={18} />}
-            iconColor="gray"
-            title="Méthodes d'enregistrement"
-            description="QR code, saisie manuelle, WhatsApp"
-            right={<ValueChevron />}
-            onClick={() => setShowCheckInMethods(true)}
-          />
-          <SettingsItem
-            icon={<ASIcon name="language" size={18} />}
-            iconColor="gray"
-            title="Langue"
-            description={clinic?.language === 'ar' ? 'العربية' : 'Français'}
-            right={<ValueChevron value={clinic?.language === 'ar' ? 'AR' : 'FR'} />}
-            onClick={() => setShowLanguage(true)}
-            isLast
-          />
-        </SettingsSection>
-
-        {/* ─── BILAN & RAPPORTS ─── */}
-        <SettingsSection label="BILAN & RAPPORTS">
-          <SettingsItem
-            icon={<ASIcon name="bar_chart" size={18} />}
-            iconColor="green"
-            title="Bilan de fin de journée"
-            description="Résumé quotidien sur le tableau de bord"
-            right={<ToggleSwitch checked={true} onChange={() => {}} />}
-          />
-          <SettingsItem
-            icon={<ASIcon name="mail" size={18} />}
-            iconColor="blue"
-            title="Rapport hebdomadaire"
-            description="E-mail chaque lundi avec vos statistiques"
-            right={<ToggleSwitch checked={true} onChange={() => {}} />}
             isLast
           />
         </SettingsSection>
@@ -385,13 +322,6 @@ export default function ASSettingsPanel({ isOpen, onClose, clinic }: ASSettingsP
             iconColor="gray"
             title="Aide & support"
             description="FAQ, contact, tutoriels"
-            right={<ValueChevron />}
-          />
-          <SettingsItem
-            icon={<ASIcon name="shield" size={18} />}
-            iconColor="gray"
-            title="Confidentialité & RGPD"
-            description="Politique de données, droits patients"
             right={<ValueChevron />}
             isLast
           />
@@ -430,6 +360,7 @@ export default function ASSettingsPanel({ isOpen, onClose, clinic }: ASSettingsP
       <BSTeamAccessPanel
         isOpen={showTeamAccess}
         onClose={() => setShowTeamAccess(false)}
+        zIndex={220}
       />
       <BSSubscriptionPanel
         isOpen={showSubscription}
@@ -459,6 +390,132 @@ export default function ASSettingsPanel({ isOpen, onClose, clinic }: ASSettingsP
         isOpen={showWaitingRoomDisplay}
         onClose={() => setShowWaitingRoomDisplay(false)}
       />
+      {showQrCode && <ASQrCodeOverlay onClose={() => setShowQrCode(false)} />}
+    </>
+  );
+}
+
+function ASQrCodeOverlay({ onClose }: { onClose: () => void }) {
+  const [qrData, setQrData] = useState<{ url: string; qrCode: string; clinicName: string } | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    api.getQRCode()
+      .then(data => setQrData(data))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleCopy = async () => {
+    if (!qrData) return;
+    await navigator.clipboard.writeText(qrData.url).catch(() => {});
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
+
+  const handleWhatsApp = () => {
+    if (!qrData) return;
+    const msg = encodeURIComponent(`Rejoignez notre file d'attente : ${qrData.url}`);
+    window.open(`https://wa.me/?text=${msg}`, '_blank', 'noopener');
+  };
+
+  return (
+    <>
+      {/* Backdrop */}
+      <div
+        className="fixed inset-0"
+        style={{ zIndex: 300, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}
+        onClick={onClose}
+      />
+      {/* Panel */}
+      <div
+        className="fixed"
+        style={{
+          zIndex: 301,
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: 'calc(100% - 48px)',
+          maxWidth: 340,
+          background: '#FFFFFF',
+          borderRadius: 20,
+          padding: '32px 24px 24px',
+          boxShadow: '0 16px 48px rgba(0,0,0,0.2)',
+        }}
+      >
+        {/* Close */}
+        <button
+          onClick={onClose}
+          style={{
+            position: 'absolute', top: 12, right: 12,
+            width: 32, height: 32, borderRadius: '50%',
+            background: 'var(--color-surface-alt, #EDF0F7)', border: 'none',
+            cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: 'var(--color-text-muted)',
+          }}
+        >
+          <ASIcon name="close" size={18} />
+        </button>
+
+        {/* QR code */}
+        <div style={{ textAlign: 'center' }}>
+          {loading && (
+            <div style={{ width: 180, height: 180, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F2F5FB', borderRadius: 16 }}>
+              <div className="animate-spin" style={{ width: 28, height: 28, borderRadius: '50%', borderBottom: '2.5px solid var(--color-primary)' }} />
+            </div>
+          )}
+          {qrData && !loading && (
+            <>
+              <div style={{ display: 'inline-block', borderRadius: 16, border: '1px solid var(--color-border)', padding: 12, background: '#FFFFFF' }}>
+                <img
+                  src={qrData.qrCode}
+                  alt="QR Code"
+                  style={{ width: 180, height: 180, display: 'block', borderRadius: 8 }}
+                />
+              </div>
+              <p style={{ marginTop: 12, fontSize: 15, fontWeight: 700, color: 'var(--color-text-primary)' }}>
+                {qrData.clinicName}
+              </p>
+              <p style={{ marginTop: 4, fontSize: 11, color: 'var(--color-text-muted)', wordBreak: 'break-all' }}>
+                {qrData.url}
+              </p>
+            </>
+          )}
+        </div>
+
+        {/* Actions */}
+        <div className="flex gap-2" style={{ marginTop: 20 }}>
+          <button
+            onClick={handleCopy}
+            className="flex-1 flex items-center justify-center gap-1.5"
+            style={{
+              padding: '12px 8px', borderRadius: 'var(--radius)',
+              border: `1.5px solid ${copied ? 'var(--color-primary)' : 'var(--color-border)'}`,
+              background: copied ? 'var(--color-primary-light)' : 'var(--color-surface)',
+              fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
+              color: copied ? 'var(--color-primary)' : 'var(--color-text-primary)',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            <ASIcon name={copied ? 'check' : 'content_copy'} size={16} />
+            {copied ? 'Copié !' : 'Copier le lien'}
+          </button>
+          <button
+            onClick={handleWhatsApp}
+            className="flex-1 flex items-center justify-center gap-1.5"
+            style={{
+              padding: '12px 8px', borderRadius: 'var(--radius)',
+              border: 'none',
+              background: '#25D366', color: 'white',
+              fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            WhatsApp
+          </button>
+        </div>
+      </div>
     </>
   );
 }

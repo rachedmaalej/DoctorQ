@@ -85,7 +85,7 @@ export default function EngagementTab() {
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="py-3 border-r border-[#E6F2F0] pr-4">
-                  <div className="text-2xl font-bold text-[#132E2C]">{adoption.multiDoctorAdoption}</div>
+                  <div className="text-2xl font-bold text-[#132E2C]">{adoption.multiDoctorClinics}</div>
                   <div className="text-xs text-[#8AADAA]">Multi-Doctor Clinics</div>
                 </div>
                 <div className="py-3 pl-4">

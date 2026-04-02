@@ -3,7 +3,7 @@ import type React from 'react';
 import { useNavigate } from 'react-router-dom';
 import OnboardingLayout from '../components/OnboardingLayout';
 import PillButton from '../components/PillButton';
-import { SCREEN_COPY, ILLUSTRATION_PATHS, type SpecialtyId } from '../constants/onboardingConfig';
+import { SCREEN_COPY, ILLUSTRATION_PATHS } from '../constants/onboardingConfig';
 import { trackOnboarding, EVENTS } from '../hooks/useOnboardingAnalytics';
 import { api } from '@/lib/api';
 import { supabase } from '@/lib/supabase';
@@ -11,7 +11,6 @@ import { useOnboardingStore } from '@/stores/onboardingStore';
 
 interface SignUpScreenProps {
   step: number;
-  specialty: SpecialtyId | null;
   onAdvance: (clinicId: string, clinicName: string) => void;
 }
 
@@ -40,7 +39,7 @@ const GoogleIcon = () => (
  * Mobile: SSO-first with toggle to email form.
  * Desktop: SSO row (horizontal) + email form always visible below.
  */
-export default function SignUpScreen({ step, specialty, onAdvance }: SignUpScreenProps) {
+export default function SignUpScreen({ step, onAdvance }: SignUpScreenProps) {
   const navigate = useNavigate();
   const copy = SCREEN_COPY.signup;
   // checkAuth deliberately NOT called here — see OnboardingFlow.handleComplete
@@ -70,7 +69,6 @@ export default function SignUpScreen({ step, specialty, onAdvance }: SignUpScree
     sessionStorage.setItem('oauth_clinic_name', clinicName.trim());
     sessionStorage.setItem('oauth_language', 'fr');
     sessionStorage.setItem('oauth_source', 'signup');
-    if (specialty) sessionStorage.setItem('oauth_specialty', specialty);
 
     trackOnboarding(EVENTS.SIGNUP_SUBMITTED, { method: provider });
 
@@ -84,7 +82,7 @@ export default function SignUpScreen({ step, specialty, onAdvance }: SignUpScree
     if (oauthError) {
       setError(oauthError.message);
     }
-  }, [clinicName, specialty]);
+  }, [clinicName]);
 
   const emailValid = isValidEmail(email);
   const passwordValid = password.length >= 8;
@@ -118,7 +116,7 @@ export default function SignUpScreen({ step, specialty, onAdvance }: SignUpScree
     } finally {
       setLoading(false);
     }
-  }, [canSubmit, email, password, clinicName, specialty, setClinicInfo, onAdvance]);
+  }, [canSubmit, email, password, clinicName, setClinicInfo, onAdvance]);
 
   /* Shared email form fields */
   const emailFormFields = (
@@ -211,7 +209,7 @@ export default function SignUpScreen({ step, specialty, onAdvance }: SignUpScree
           className="hidden md:block text-[12px] font-medium mb-1"
           style={{ color: 'var(--ob-brand-subtle)' }}
         >
-          Étape 3 / 4
+          Étape 2 / 3
         </span>
 
         <h1

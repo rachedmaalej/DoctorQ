@@ -95,6 +95,38 @@ export function parseHeroTime(totalMinutes: number): HeroTimeParts {
   return { prefix: '~', minutes: m, hasHours: false };
 }
 
+// ─── Range Format ───
+
+export interface HeroRangeParts {
+  minStr: string;   // e.g. "15" or "1h10"
+  maxStr: string;   // e.g. "25" or "1h30"
+  unit: string;     // "min" (omitted when both have hours)
+  hasHours: boolean;
+}
+
+function formatRangePart(mins: number): string {
+  const m = Math.max(0, Math.round(mins));
+  if (m >= 60) {
+    const h = Math.floor(m / 60);
+    const rem = m % 60;
+    return rem > 0 ? `${h}h${String(rem).padStart(2, '0')}` : `${h}h`;
+  }
+  return String(m);
+}
+
+export function parseHeroRange(minMins: number, maxMins: number): HeroRangeParts | null {
+  const min = Math.max(0, Math.round(minMins));
+  const max = Math.max(0, Math.round(maxMins));
+  if (min === max || max === 0) return null;
+  const hasHours = min >= 60 || max >= 60;
+  return {
+    minStr: formatRangePart(min),
+    maxStr: formatRangePart(max),
+    unit: hasHours ? '' : 'min',
+    hasHours,
+  };
+}
+
 // ─── Toast Message ───
 
 export function deriveToastMessage(peopleAhead: number): string | null {

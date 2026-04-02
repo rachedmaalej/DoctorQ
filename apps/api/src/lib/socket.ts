@@ -37,3 +37,8 @@ export function emitPatientTransferred(clinicId: string, patientId: string, from
 export function emitDelayNotified(clinicId: string, doctorId: string, delayMinutes: number) {
   emitToRoom(`clinic:${clinicId}`, 'delay:notified', { doctorId, delayMinutes });
 }
+
+// Public queue update — emitted to unauthenticated check-in page viewers
+export function emitPublicQueueUpdate(clinicId: string, data: Record<string, unknown>) {
+  emitToRoom(`clinic:${clinicId}:public`, 'queue:public:update', data);
+}

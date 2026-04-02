@@ -2,7 +2,6 @@ import posthog from 'posthog-js';
 
 export const EVENTS = {
   ONBOARDING_STARTED: 'onboarding_started',
-  SPECIALTY_SELECTED: 'specialty_selected',
   SIGNUP_SUBMITTED: 'signup_submitted',
   SIGNUP_FAILED: 'signup_failed',
   QR_VIEWED: 'qr_viewed',

@@ -1,30 +1,25 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import type { QueueEntry, QueueStats, Doctor, ScheduleSlot } from '@/types';
+import type { QueueEntry, QueueStats, Doctor } from '@/types';
 import { useAuthStore } from '@/stores/authStore';
 import { useWaitingRoom } from '@/hooks/useWaitingRoom';
-import { useScheduleView } from '@/hooks/useScheduleView';
 import { useDoctorActions } from '@/hooks/useDoctorActions';
 import { usePatientActions } from '@/hooks/usePatientActions';
-import { api } from '@/lib/api';
 import './ausuivant.css';
 
 import ASTopbar from './ASTopbar';
 import ASDoctorStatusBar from './ASDoctorStatusBar';
 import ASDoctorActionPanel from './ASDoctorActionPanel';
-import ASSessionControls from './ASSessionControls';
-import type { DashboardView } from './ASSessionControls';
 import ASWaitingRoom from './ASWaitingRoom';
-import ASScheduleTimeline from './ASScheduleTimeline';
-import ASNoShowBanner from './ASNoShowBanner';
-import ASDoctolibImportBanner, { isDoctolibBannerDismissed } from './ASDoctolibImportBanner';
 import ASQuickActionBar from './ASQuickActionBar';
+import ASStatsStrip from './ASStatsStrip';
+import ASSoloConsultationCard from './ASSoloConsultationCard';
+import ASSoloBottomBar from './ASSoloBottomBar';
+import ASSoloStartScreen from './ASSoloStartScreen';
 import ASCallNextSheet from './ASCallNextSheet';
 import ASAddPatientSheet from './ASAddPatientSheet';
 import ASSettingsPanel from './ASSettingsPanel';
 import ASTransferPatientSheet from './ASTransferPatientSheet';
 import ASPatientDetailDrawer from './ASPatientDetailDrawer';
-import ASManualRDVSheet from './ASManualRDVSheet';
-import ASIcsImportSheet from './ASIcsImportSheet';
 
 interface AuSuivantDashboardProps {
   queue: QueueEntry[];
@@ -64,12 +59,6 @@ export default function AuSuivantDashboard({
   const [selectedSuggestionIdx, setSelectedSuggestionIdx] = useState(-1);
   const quickAddRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
-  const [activeView, setActiveView] = useState<DashboardView>('queue');
-  const [scheduleSlots, setScheduleSlots] = useState<ScheduleSlot[]>([]);
-  const [dismissedNoShows, setDismissedNoShows] = useState<Set<string>>(new Set());
-  const [isManualRDVOpen, setIsManualRDVOpen] = useState(false);
-  const [isIcsImportOpen, setIsIcsImportOpen] = useState(false);
-
   // Doctor action panel state
   const [actionPanelDoctorId, setActionPanelDoctorId] = useState<string | null>(null);
   const actionPanelDoctor = actionPanelDoctorId ? doctors.find((d) => d.id === actionPanelDoctorId) : null;
@@ -172,61 +161,37 @@ export default function AuSuivantDashboard({
   const avgMins = (stats as any)?.effectiveAvgMins || clinic?.avgConsultationMins || 15;
   const hasMultiDoctor = doctors.length > 1;
 
-  // In multi-doctor mode, derive presence from individual doctor states
-  const effectiveDoctorPresent = hasMultiDoctor
+  // Derive presence from individual doctor states
+  const effectiveDoctorPresent = doctors.length > 0
     ? doctors.some((d) => d.isActive && (d.state === 'free' || d.state === 'consulting'))
     : isDoctorPresent;
+
+  // Solo-mode derived values
+  const soloDoctor = !hasMultiDoctor ? doctors[0] : null;
+  const soloInConsultation = !hasMultiDoctor
+    ? allPatients.find(p => p.status === 'IN_CONSULTATION') ?? null
+    : null;
+  const soloNextPatient = !hasMultiDoctor
+    ? allPatients.find(p => p.status === 'WAITING' || p.status === 'NOTIFIED') ?? null
+    : null;
 
   // Doctor actions
   const refreshDoctors = onRefreshDoctors || (() => {});
   const doctorActions = useDoctorActions(refreshDoctors);
   const patientActions = usePatientActions(refreshDoctors);
 
-  // Fetch schedule slots
-  const fetchSchedule = useCallback(async () => {
-    try {
-      const data = await api.getScheduleToday();
-      setScheduleSlots(data);
-    } catch {
-      // Schedule API may not be available yet — silently ignore
+  // Start/end session for solo doctor
+  const handleStartSession = useCallback(() => {
+    if (soloDoctor) {
+      doctorActions.updateState(soloDoctor.id, 'free');
     }
-  }, []);
+  }, [soloDoctor, doctorActions]);
 
-  useEffect(() => {
-    fetchSchedule();
-  }, [fetchSchedule]);
-
-  // Schedule view derivation
-  const graceMinutes = 10;
-  const hasSchedule = scheduleSlots.length > 0;
-  const scheduleView = useScheduleView(queue, doctors, scheduleSlots, graceMinutes, hasSchedule);
-
-  // Filter out dismissed no-shows
-  const activeNoShows = scheduleView.noShowCandidates.filter(
-    (s) => !dismissedNoShows.has(s.id),
-  );
-
-  const handleMarkNoShow = useCallback(async (slotIds: string[]) => {
-    setDismissedNoShows((prev) => {
-      const next = new Set(prev);
-      for (const id of slotIds) next.add(id);
-      return next;
-    });
-  }, []);
-
-  const handleDismissNoShow = useCallback((slotId: string) => {
-    setDismissedNoShows((prev) => new Set(prev).add(slotId));
-  }, []);
-
-  const handleAssignToSlot = useCallback((_slotId: string) => {
-    setIsAddSheetOpen(true);
-  }, []);
-
-  const handlePatientClick = useCallback((entryId: string) => {
-    setDetailPatientId(entryId);
-  }, []);
-
-  const showDoctolibBanner = !hasSchedule && !isDoctolibBannerDismissed();
+  const handleEndSession = useCallback(() => {
+    if (soloDoctor) {
+      doctorActions.updateState(soloDoctor.id, 'inactive');
+    }
+  }, [soloDoctor, doctorActions]);
 
   return (
     <div className="as-dashboard">
@@ -236,12 +201,10 @@ export default function AuSuivantDashboard({
         isSessionActive={isDoctorPresent}
       />
 
-      {/* View Tabs: Salle / Agenda (moved above doctor cards per B3 layout) */}
-      <ASSessionControls
-        activeView={activeView}
-        onViewChange={setActiveView}
-        waitingCount={waitingCount}
-      />
+      {/* Solo-doctor mode: Stats strip (only when session active) */}
+      {!hasMultiDoctor && effectiveDoctorPresent && (
+        <ASStatsStrip stats={stats} waitingCount={waitingCount} avgMins={avgMins} />
+      )}
 
       {/* B3 Per-Doctor Cards with KPIs (multi-doctor only) */}
       {hasMultiDoctor && (
@@ -275,32 +238,28 @@ export default function AuSuivantDashboard({
         </div>
       )}
 
-      {/* No-show banner (shown in both views) */}
-      {activeNoShows.length > 0 && (
-        <ASNoShowBanner
-          noShowCandidates={activeNoShows}
-          doctors={doctors}
-          onMarkNoShow={handleMarkNoShow}
-          onDismiss={handleDismissNoShow}
+      {/* Main content */}
+      {!hasMultiDoctor && !effectiveDoctorPresent ? (
+        /* Pre-session start screen for solo doctor */
+        <ASSoloStartScreen
+          waitingCount={waitingCount}
+          onStartSession={handleStartSession}
         />
-      )}
-
-      {/* Doctolib import banner (only when no schedule exists) */}
-      {showDoctolibBanner && (
-        <ASDoctolibImportBanner
-          onImportDoctolib={() => setIsIcsImportOpen(true)}
-          onManualEntry={() => setIsManualRDVOpen(true)}
-          onDismiss={() => {}}
-        />
-      )}
-
-      {/* Main content: Queue or Schedule view */}
-      <div key={activeView} className="as-view-enter">
-        {activeView === 'queue' ? (
+      ) : (
+        <>
+          {/* Solo-doctor: consultation card */}
+          {!hasMultiDoctor && (
+            <ASSoloConsultationCard
+              patient={soloInConsultation}
+              onComplete={patientActions.markDone}
+              onMarkNoShow={patientActions.markNoShow}
+            />
+          )}
           <ASWaitingRoom
             patients={allPatients}
             doctors={doctors}
             avgConsultationMins={avgMins}
+            hideConsultation={!hasMultiDoctor}
             onMarkUrgent={onMarkUrgent}
             onRemove={onRemovePatient}
             onCallIn={patientActions.callIn}
@@ -315,6 +274,7 @@ export default function AuSuivantDashboard({
                 style={{
                   margin: '0 12px 10px',
                   position: 'relative',
+                  zIndex: 10,
                 }}
               >
                 <div
@@ -420,40 +380,46 @@ export default function AuSuivantDashboard({
               </div>
             }
           />
-        ) : (
-          <ASScheduleTimeline
-            slots={scheduleSlots}
-            walkIns={scheduleView.walkIns}
-            doctors={doctors}
-            onAssignToSlot={handleAssignToSlot}
-            onPatientClick={handlePatientClick}
-          />
-        )}
-      </div>
+        </>
+      )}
 
-      {/* Quick Action Bar (fixed bottom) */}
-      <ASQuickActionBar
-        onAddPatient={() => setIsAddSheetOpen(true)}
-        onCallNext={() => {
-          // If only one doctor is free (not consulting), skip the picker sheet
-          const freeDoctors = doctors.filter(
-            (d) => d.isActive && d.state === 'free',
-          );
-          if (freeDoctors.length === 1) {
-            onCallNextForDoctor(freeDoctors[0].id);
-          } else if (doctors.filter((d) => d.isActive).length <= 1) {
-            // Single-doctor mode: call directly
-            const active = doctors.find((d) => d.isActive);
-            if (active) onCallNextForDoctor(active.id);
+      {/* Bottom Action Bar */}
+      {!hasMultiDoctor ? (
+        <ASSoloBottomBar
+          nextPatientName={soloNextPatient?.patientName ?? null}
+          onCallNext={() => {
+            if (soloDoctor) onCallNextForDoctor(soloDoctor.id);
             else onCallNext();
-          } else {
-            setIsCallNextSheetOpen(true);
-          }
-        }}
-        isCallingNext={isCallingNext}
-        disabled={waitingCount === 0 || !effectiveDoctorPresent}
-        waitingCount={waitingCount}
-      />
+          }}
+          onAddPatient={() => setIsAddSheetOpen(true)}
+          isCallingNext={isCallingNext}
+          disabled={waitingCount === 0 || !effectiveDoctorPresent}
+          isDoctorPresent={effectiveDoctorPresent}
+          onStartSession={handleStartSession}
+          onEndSession={handleEndSession}
+        />
+      ) : (
+        <ASQuickActionBar
+          onAddPatient={() => setIsAddSheetOpen(true)}
+          onCallNext={() => {
+            const freeDoctors = doctors.filter(
+              (d) => d.isActive && d.state === 'free',
+            );
+            if (freeDoctors.length === 1) {
+              onCallNextForDoctor(freeDoctors[0].id);
+            } else if (doctors.filter((d) => d.isActive).length <= 1) {
+              const active = doctors.find((d) => d.isActive);
+              if (active) onCallNextForDoctor(active.id);
+              else onCallNext();
+            } else {
+              setIsCallNextSheetOpen(true);
+            }
+          }}
+          isCallingNext={isCallingNext}
+          disabled={waitingCount === 0 || !effectiveDoctorPresent}
+          waitingCount={waitingCount}
+        />
+      )}
 
       {/* Call Next Sheet (doctor picker) */}
       <ASCallNextSheet
@@ -480,23 +446,6 @@ export default function AuSuivantDashboard({
         initialLastName={quickAddInitialLast}
       />
 
-      {/* Manual RDV Entry Sheet */}
-      <ASManualRDVSheet
-        isOpen={isManualRDVOpen}
-        onClose={() => setIsManualRDVOpen(false)}
-        doctors={doctors}
-        defaultDuration={clinic?.avgConsultationMins || 15}
-        onSlotsCreated={() => { fetchSchedule(); setIsManualRDVOpen(false); }}
-      />
-
-      {/* ICS Import Sheet (Doctolib) */}
-      <ASIcsImportSheet
-        isOpen={isIcsImportOpen}
-        onClose={() => setIsIcsImportOpen(false)}
-        doctors={doctors}
-        defaultDuration={clinic?.avgConsultationMins || 15}
-        onSlotsCreated={() => { fetchSchedule(); setIsIcsImportOpen(false); }}
-      />
 
       {/* Settings Panel */}
       <ASSettingsPanel

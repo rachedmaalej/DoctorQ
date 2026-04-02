@@ -17,6 +17,8 @@ interface ASWaitingRoomProps {
   onComplete?: (id: string) => void;
   completedCount?: number;
   hasDoctors?: boolean;
+  /** Hide the consultation section (when solo mode renders its own card) */
+  hideConsultation?: boolean;
   /** Slot rendered between En Consultation and File d'attente */
   addPatientSlot?: React.ReactNode;
 }
@@ -33,6 +35,7 @@ export default function ASWaitingRoom({
   onComplete,
   completedCount = 0,
   hasDoctors = true,
+  hideConsultation = false,
   addPatientSlot,
 }: ASWaitingRoomProps) {
   const inConsultation = patients.filter(p => p.status === QueueStatus.IN_CONSULTATION);
@@ -46,7 +49,7 @@ export default function ASWaitingRoom({
   const slotDoctors = doctors
     .filter(d => d.isActive && (d.state === 'consulting' || d.state === 'free'))
     .sort((a, b) => a.id.localeCompare(b.id));
-  const showConsultSection = slotDoctors.length > 0;
+  const showConsultSection = !hideConsultation && slotDoctors.length > 0;
   const activeConsultCount = inConsultation.length;
 
   if (patients.length === 0 && !showConsultSection) {

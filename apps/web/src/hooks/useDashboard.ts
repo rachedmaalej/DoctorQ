@@ -198,12 +198,14 @@ export function useDashboard() {
     }
   }, [clinic?.id, joinClinicRoom]);
 
-  // Fetch doctors for multi-doctor support
+  // Always fetch doctors (every clinic has at least one)
+  const refreshDoctors = useCallback(() => {
+    api.getDoctors().then(setDoctors).catch(() => {});
+  }, []);
+
   useEffect(() => {
-    if (clinic?.multiDoctorEnabled) {
-      api.getDoctors().then(setDoctors).catch(() => {});
-    }
-  }, [clinic?.multiDoctorEnabled]);
+    refreshDoctors();
+  }, [refreshDoctors]);
 
   // Mark patient as urgent
   const handleMarkUrgent = useCallback(async (id: string) => {
@@ -528,6 +530,7 @@ export function useDashboard() {
 
     // Doctors (with state derived from queue)
     doctors: effectiveDoctors,
+    refreshDoctors,
 
     // Actions
     handleCallNext,

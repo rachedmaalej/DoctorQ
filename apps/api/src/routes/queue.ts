@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { prisma } from '../lib/prisma.js';
 import { authMiddleware } from '../lib/auth.js';
 import { subscriptionGate } from '../lib/subscriptionGate.js';
+import { checkDailyLimit } from '../lib/tierGate.js';
 import { AuthRequest } from '../types/index.js';
 import { QueueStatus, CheckInMethod, Priority } from '@prisma/client';
 import {
@@ -78,7 +79,7 @@ router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {
 });
 
 // POST /api/queue - Add patient to queue
-router.post('/', authMiddleware, subscriptionGate, async (req: AuthRequest, res: Response) => {
+router.post('/', authMiddleware, subscriptionGate, checkDailyLimit, async (req: AuthRequest, res: Response) => {
   try {
     const clinicId = req.clinic!.id;
     const { patientPhone, patientName, checkInMethod, appointmentTime, arrivedAt, doctorId, isUrgent } = addPatientSchema.parse(req.body);
@@ -136,30 +137,23 @@ router.post('/next', authMiddleware, subscriptionGate, async (req: AuthRequest, 
     const clinicId = req.clinic!.id;
     const doctorId = typeof req.query.doctorId === 'string' ? req.query.doctorId : undefined;
 
-    // Guard: doctor must be present to call next patient
-    if (doctorId) {
-      // Multi-doctor mode: check the specific doctor's state
-      const doctor = await prisma.doctor.findFirst({
-        where: { id: doctorId, clinicId },
-        select: { state: true },
+    if (!doctorId) {
+      return res.status(400).json({
+        error: { code: 'DOCTOR_ID_REQUIRED', message: 'doctorId query parameter is required' },
       });
-      if (!doctor || doctor.state === 'inactive' || doctor.state === 'absent_today') {
-        return res.status(400).json({
-          error: { code: 'DOCTOR_NOT_PRESENT', message: 'Cannot call next patient while consultations are paused' },
-        });
-      }
-    } else {
-      // Single-doctor (BleSaf) mode: check clinic-level presence
-      const clinic = await prisma.clinic.findUnique({
-        where: { id: clinicId },
-        select: { isDoctorPresent: true },
-      });
-      if (!clinic?.isDoctorPresent) {
-        return res.status(400).json({
-          error: { code: 'DOCTOR_NOT_PRESENT', message: 'Cannot call next patient while consultations are paused' },
-        });
-      }
     }
+
+    // Guard: doctor must be present and active to call next patient
+    const doctor = await prisma.doctor.findFirst({
+      where: { id: doctorId, clinicId },
+      select: { state: true },
+    });
+    if (!doctor || doctor.state === 'inactive' || doctor.state === 'absent_today') {
+      return res.status(400).json({
+        error: { code: 'DOCTOR_NOT_PRESENT', message: 'Cannot call next patient while consultations are paused' },
+      });
+    }
+
     const newInConsultation = await callNextPatient(clinicId, doctorId);
 
     if (!newInConsultation) {
@@ -283,6 +277,78 @@ router.get('/yesterday-stats', authMiddleware, async (req: AuthRequest, res: Res
   } catch (error) {
     logger.error({ err: error }, 'yesterday-stats error');
     res.status(500).json({ error: { code: 'SERVER_ERROR', message: 'Failed to fetch yesterday stats' } });
+  }
+});
+
+// GET /api/queue/time-saved — "Temps gagné" metric for dashboard
+router.get('/time-saved', authMiddleware, async (req: AuthRequest, res: Response) => {
+  try {
+    const clinicId = req.clinic!.id;
+    const period = (req.query.period as string) || 'today';
+
+    const { getStartOfToday } = await import('../lib/timezone.js');
+
+    if (period === 'today') {
+      // Query today's completed entries with remote check-in
+      const todayStart = getStartOfToday();
+      const entries = await prisma.queueEntry.findMany({
+        where: {
+          clinicId,
+          status: QueueStatus.COMPLETED,
+          checkInMethod: { in: [CheckInMethod.QR_CODE, CheckInMethod.WHATSAPP] },
+          arrivedAt: { gte: todayStart },
+          calledAt: { not: null },
+        },
+        select: { arrivedAt: true, calledAt: true },
+      });
+
+      const totalMinutes = entries.reduce((sum, e) => {
+        if (!e.calledAt) return sum;
+        const waitMins = Math.round((e.calledAt.getTime() - e.arrivedAt.getTime()) / 60000);
+        return sum + Math.max(0, waitMins);
+      }, 0);
+
+      res.json({
+        data: {
+          timeSavedMinutes: totalMinutes,
+          timeSavedHours: Math.round(totalMinutes / 6) / 10, // 1 decimal
+          remotePatientCount: entries.length,
+          period,
+        },
+      });
+    } else {
+      // week or month — aggregate from DailyStat
+      const daysBack = period === 'week' ? 7 : 30;
+      const since = new Date();
+      since.setDate(since.getDate() - daysBack);
+
+      const stats = await prisma.dailyStat.findMany({
+        where: { clinicId, date: { gte: since } },
+        select: { totalWaitMins: true, checkInQr: true, checkInWhatsapp: true, totalPatients: true },
+      });
+
+      let totalMinutes = 0;
+      let remoteCount = 0;
+      for (const s of stats) {
+        if (s.totalPatients > 0) {
+          const remoteRatio = (s.checkInQr + s.checkInWhatsapp) / s.totalPatients;
+          totalMinutes += Math.round(s.totalWaitMins * remoteRatio);
+          remoteCount += s.checkInQr + s.checkInWhatsapp;
+        }
+      }
+
+      res.json({
+        data: {
+          timeSavedMinutes: totalMinutes,
+          timeSavedHours: Math.round(totalMinutes / 6) / 10,
+          remotePatientCount: remoteCount,
+          period,
+        },
+      });
+    }
+  } catch (error) {
+    logger.error({ err: error }, 'time-saved error');
+    res.status(500).json({ error: { code: 'SERVER_ERROR', message: 'Failed to fetch time saved' } });
   }
 });
 
@@ -631,7 +697,7 @@ router.post('/checkin/:clinicId', async (req, res: Response) => {
       });
     }
 
-    const { estimatedWaitMins } = await computeSmartWaitEstimate(
+    const { estimatedWaitMins, minWaitMins, maxWaitMins } = await computeSmartWaitEstimate(
       clinic.id,
       result.entry.position,
       result.entry.doctorId
@@ -642,6 +708,8 @@ router.post('/checkin/:clinicId', async (req, res: Response) => {
         ...result.entry,
         clinicName: clinic.name,
         estimatedWaitMins,
+        minWaitMins,
+        maxWaitMins,
       },
     });
   } catch (error) {
@@ -819,6 +887,135 @@ router.get('/patient/:entryId', async (req, res: Response) => {
     res.status(500).json({
       error: { code: 'SERVER_ERROR', message: 'Failed to get patient status' },
     });
+  }
+});
+
+// GET /api/queue/:clinicId/public - Public queue snapshot for check-in page (no auth)
+router.get('/:clinicId/public', async (req, res: Response) => {
+  try {
+    const { clinicId } = req.params;
+
+    const clinic = await prisma.clinic.findUnique({
+      where: { id: clinicId },
+      select: {
+        id: true,
+        name: true,
+        specialty: true,
+        isDoctorPresent: true,
+        avgConsultationMins: true,
+        isActive: true,
+      },
+    });
+
+    if (!clinic) {
+      return res.status(404).json({
+        error: { code: 'CLINIC_NOT_FOUND', message: 'Clinic not found' },
+      });
+    }
+
+    // Get today's start (Africa/Tunis)
+    const now = new Date();
+    const todayStart = new Date(now.toLocaleString('en-US', { timeZone: 'Africa/Tunis' }));
+    todayStart.setHours(0, 0, 0, 0);
+
+    // Active entries (WAITING, NOTIFIED, IN_CONSULTATION)
+    const activeEntries = await prisma.queueEntry.findMany({
+      where: {
+        clinicId,
+        status: { in: [QueueStatus.WAITING, QueueStatus.NOTIFIED, QueueStatus.IN_CONSULTATION] },
+      },
+      orderBy: { position: 'asc' },
+      select: {
+        position: true,
+        patientName: true,
+        status: true,
+        arrivedAt: true,
+      },
+    });
+
+    // Total patients today (all statuses)
+    const totalToday = await prisma.queueEntry.count({
+      where: {
+        clinicId,
+        createdAt: { gte: todayStart },
+      },
+    });
+
+    const waitingCount = activeEntries.filter(
+      (e) => e.status === QueueStatus.WAITING || e.status === QueueStatus.NOTIFIED
+    ).length;
+
+    // Map to public entries (initials only — no PII)
+    const entries = activeEntries.slice(0, 4).map((e) => {
+      const initial = e.patientName
+        ? e.patientName.trim().charAt(0).toUpperCase()
+        : '?';
+      const waitMinutes = e.arrivedAt
+        ? Math.max(0, Math.round((now.getTime() - new Date(e.arrivedAt).getTime()) / 60000))
+        : 0;
+
+      return {
+        position: e.position,
+        initials: initial,
+        status: e.status as 'IN_CONSULTATION' | 'NOTIFIED' | 'WAITING',
+        waitMinutes,
+      };
+    });
+
+    res.json({
+      clinicId: clinic.id,
+      clinicName: clinic.name,
+      specialty: clinic.specialty ?? '',
+      isDoctorPresent: clinic.isDoctorPresent,
+      waitingCount,
+      totalToday,
+      avgConsultMinutes: clinic.avgConsultationMins,
+      entries,
+    });
+  } catch (error) {
+    logger.error({ err: error }, 'Public queue snapshot error');
+    res.status(500).json({
+      error: { code: 'SERVER_ERROR', message: 'Failed to fetch queue snapshot' },
+    });
+  }
+});
+
+// ── Patient Feedback (Public) ──────────────────────────────
+
+// POST /api/queue/feedback/:entryId - Submit star rating
+router.post('/feedback/:entryId', async (req, res: Response) => {
+  try {
+    const { entryId } = req.params;
+    const { rating } = z.object({ rating: z.number().int().min(1).max(5) }).parse(req.body);
+
+    const { submitFeedback } = await import('../services/feedbackService.js');
+    const result = await submitFeedback(entryId, rating);
+    res.json({ data: result });
+  } catch (error: any) {
+    if (error.name === 'ZodError') {
+      return res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: 'Rating must be 1-5' } });
+    }
+    const status = error.status || 500;
+    if (status < 500) {
+      return res.status(status).json({ error: { code: 'FEEDBACK_ERROR', message: error.message } });
+    }
+    logger.error({ err: error }, 'Feedback submission error');
+    res.status(500).json({ error: { code: 'SERVER_ERROR', message: 'Failed to submit feedback' } });
+  }
+});
+
+// POST /api/queue/feedback/:entryId/google-clicked - Track Google review redirect
+router.post('/feedback/:entryId/google-clicked', async (req, res: Response) => {
+  try {
+    const { entryId } = req.params;
+    const { recordGoogleClick } = await import('../services/feedbackService.js');
+    await recordGoogleClick(entryId);
+    res.json({ data: { updated: true } });
+  } catch (error: any) {
+    const status = error.status || 500;
+    if (status < 500) return res.status(status).json({ error: { code: 'NOT_FOUND', message: error.message } });
+    logger.error({ err: error }, 'Google click tracking error');
+    res.status(500).json({ error: { code: 'SERVER_ERROR', message: 'Failed to track click' } });
   }
 });
 

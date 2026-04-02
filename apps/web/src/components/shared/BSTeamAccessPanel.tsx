@@ -1,13 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { api } from '@/lib/api';
-import { useAuthStore } from '@/stores/authStore';
 import type { Doctor } from '@/types';
 import '@/components/receptionist/receptionist.css';
 
 interface BSTeamAccessPanelProps {
   isOpen: boolean;
   onClose: () => void;
+  zIndex?: number;
 }
 
 const AVATAR_COLORS = ['#0F7B6C', '#3B7DD9', '#D4920B', '#7C5CFC'] as const;
@@ -45,11 +45,8 @@ function getSpecialtyStyle(specialty: string | null): { bg: string; color: strin
   return SPECIALTY_STYLES[specialty] ?? { bg: '#EDF3FC', color: '#3B7DD9' };
 }
 
-export default function BSTeamAccessPanel({ isOpen, onClose }: BSTeamAccessPanelProps) {
+export default function BSTeamAccessPanel({ isOpen, onClose, zIndex }: BSTeamAccessPanelProps) {
   const { t } = useTranslation();
-  const { clinic } = useAuthStore();
-  const multiDoctorEnabled = clinic?.multiDoctorEnabled ?? false;
-
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -61,16 +58,16 @@ export default function BSTeamAccessPanel({ isOpen, onClose }: BSTeamAccessPanel
   const [newSpecialty, setNewSpecialty] = useState('');
   const [addingDoctor, setAddingDoctor] = useState(false);
 
-  // Fetch doctors when panel opens (only if multi-doctor enabled)
+  // Fetch doctors when panel opens
   useEffect(() => {
-    if (isOpen && multiDoctorEnabled) {
+    if (isOpen) {
       setLoading(true);
       api.getDoctors()
         .then(setDoctors)
         .catch(() => {})
         .finally(() => setLoading(false));
     }
-  }, [isOpen, multiDoctorEnabled]);
+  }, [isOpen]);
 
   // Close on Escape
   useEffect(() => {
@@ -151,9 +148,9 @@ export default function BSTeamAccessPanel({ isOpen, onClose }: BSTeamAccessPanel
 
   return (
     <>
-      {isOpen && <div className="bs-panel-backdrop" onClick={onClose} />}
+      {isOpen && <div className="bs-panel-backdrop" onClick={onClose} style={zIndex ? { zIndex: zIndex - 1 } : undefined} />}
 
-      <div className={`bs-right-panel ${isOpen ? 'open' : ''}`} style={{ zIndex: 95 }}>
+      <div className={`bs-right-panel ${isOpen ? 'open' : ''}`} style={{ zIndex: zIndex ?? 95 }}>
         {/* Header */}
         <div className="bs-panel-header">
           <button onClick={onClose} className="bs-panel-back">
@@ -163,74 +160,8 @@ export default function BSTeamAccessPanel({ isOpen, onClose }: BSTeamAccessPanel
         </div>
 
         <div className="bs-panel-body">
-          {!multiDoctorEnabled ? (
             <>
-              {/* Single-doctor view */}
-              <div className="bs-settings-label">{t('settingsBs.teamAccess.yourDoctor')}</div>
-              <div className="bs-settings-group" style={{ padding: '20px 16px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                  {/* Avatar */}
-                  <div style={{
-                    width: 48, height: 48, borderRadius: '50%',
-                    background: AVATAR_COLORS[0],
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 17, fontWeight: 700, color: '#FFF',
-                    flexShrink: 0, letterSpacing: -0.3,
-                  }}>
-                    {clinic?.doctorName ? getInitials(clinic.doctorName) : '\u2014'}
-                  </div>
-                  {/* Info */}
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 15, fontWeight: 600, color: '#1A1A1A' }}>
-                      {clinic?.doctorGender === 'M' ? 'Dr.' : clinic?.doctorGender === 'F' ? 'Dre.' : ''}{' '}
-                      {clinic?.doctorName || '\u2014'}
-                    </div>
-                    <div style={{
-                      fontSize: 12, color: '#9E9B90', marginTop: 4,
-                      display: 'flex', alignItems: 'center', gap: 4,
-                    }}>
-                      <span className="material-symbols-rounded" style={{ fontSize: 14 }}>settings</span>
-                      {t('settingsBs.teamAccess.editInProfile')}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Multi-doctor teaser */}
-              <div style={{ marginTop: 20, opacity: 0.55, pointerEvents: 'none' }}>
-                <div className="bs-settings-label">{t('settingsBs.teamAccess.multiDoctorTitle')}</div>
-                <div className="bs-settings-group" style={{ padding: '32px 20px', textAlign: 'center' }}>
-                  <div style={{
-                    width: 56, height: 56, borderRadius: '50%',
-                    background: '#F0EFEA',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    margin: '0 auto 14px',
-                  }}>
-                    <span className="material-symbols-rounded" style={{ fontSize: 26, color: '#9E9B90' }}>group</span>
-                  </div>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: '#1A1A1A', marginBottom: 6 }}>
-                    {t('settingsBs.teamAccess.multiDoctorTitle')}
-                  </div>
-                  <div style={{
-                    fontSize: 12, color: '#9E9B90', lineHeight: 1.5,
-                    maxWidth: 260, margin: '0 auto 12px',
-                  }}>
-                    {t('settingsBs.teamAccess.multiDoctorDesc')}
-                  </div>
-                  <span style={{
-                    fontSize: 10, fontWeight: 600, textTransform: 'uppercase',
-                    padding: '3px 10px', borderRadius: 100,
-                    background: '#F0EFEA', color: '#9E9B90',
-                    letterSpacing: '0.5px',
-                  }}>
-                    {t('settingsBs.teamAccess.comingSoon')}
-                  </span>
-                </div>
-              </div>
-            </>
-          ) : (
-            <>
-              {/* Multi-doctor CRUD view */}
+              {/* Doctor CRUD view */}
               {/* Section label with count badge */}
               <div
                 className="bs-settings-label"
@@ -717,7 +648,6 @@ export default function BSTeamAccessPanel({ isOpen, onClose }: BSTeamAccessPanel
                 </button>
               </div>
             </>
-          )}
         </div>
 
         {/* Confirmation dialog overlay */}

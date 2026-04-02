@@ -19,10 +19,20 @@ export interface CurrencyConfig {
   symbol: string;
 }
 
-export interface PricingConfig {
+export interface TierPricing {
   monthly: number;     // in minor currency units
   yearly: number;
+}
+
+export interface PricingConfig {
+  monthly: number;     // in minor currency units (legacy flat pricing)
+  yearly: number;
   freeTrialDays: number;
+  tiers?: {
+    SOLO_PRO: TierPricing;
+    EQUIPE: TierPricing;
+    CLINIQUE: TierPricing;
+  };
 }
 
 export interface BrandConfig {
@@ -111,9 +121,14 @@ const brands: Record<BrandId, BrandDefaults> = {
       symbol: 'EUR',
     },
     pricing: {
-      monthly: 4900,     // 49 EUR
-      yearly: 49000,     // 490 EUR
+      monthly: 4900,     // 49 EUR (legacy flat)
+      yearly: 49000,     // 490 EUR (legacy flat)
       freeTrialDays: 30,
+      tiers: {
+        SOLO_PRO: { monthly: 2900, yearly: 29000 },   // 29 EUR/mo, 290 EUR/yr
+        EQUIPE: { monthly: 6900, yearly: 69000 },      // 69 EUR/mo, 690 EUR/yr
+        CLINIQUE: { monthly: 14900, yearly: 149000 },   // 149 EUR/mo, 1490 EUR/yr
+      },
     },
     payment: { provider: 'stripe' },
   },

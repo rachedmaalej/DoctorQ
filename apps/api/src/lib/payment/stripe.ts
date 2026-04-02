@@ -21,9 +21,11 @@ export class StripeGateway implements PaymentGateway {
   async initPayment(params: InitPaymentParams): Promise<InitPaymentResponse> {
     const stripe = await this.getStripe();
 
+    const isRecurring = !!params.recurring;
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
-      mode: 'payment',
+      mode: isRecurring ? 'subscription' : 'payment',
       line_items: [
         {
           price_data: {
@@ -32,6 +34,11 @@ export class StripeGateway implements PaymentGateway {
               name: params.description,
             },
             unit_amount: params.amount,
+            ...(isRecurring && {
+              recurring: {
+                interval: params.recurring!.interval,
+              },
+            }),
           },
           quantity: 1,
         },

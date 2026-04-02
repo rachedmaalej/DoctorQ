@@ -90,6 +90,7 @@ export interface SummaryData {
   avgConsultMinutes: number;
   firstPatientTime: string; // "08:32"
   lastPatientTime: string; // "19:05"
+  timeSavedMinutes?: number; // Total wait mins saved by remote check-in patients
   sessions: TimelineSession[];
   breakLabel: string; // "Pause 12h–14h"
 }

@@ -49,6 +49,20 @@ export default function SummaryCard({ summary, onShare }: SummaryCardProps) {
         <GridCell value={summary.lastPatientTime} label={t('receptionist.summary.lastPatient')} />
       </div>
 
+      {/* Temps gagné — only when remote check-ins occurred */}
+      {summary.timeSavedMinutes != null && summary.timeSavedMinutes > 0 && (
+        <div className="text-center" style={{ padding: '16px 24px 4px', borderTop: '1px solid rgba(0,0,0,0.06)' }}>
+          <div className="text-bs-text-primary font-bold" style={{ fontSize: 20, letterSpacing: '-0.02em' }}>
+            {summary.timeSavedMinutes >= 60
+              ? `${Math.floor(summary.timeSavedMinutes / 60)}h${(summary.timeSavedMinutes % 60).toString().padStart(2, '0')}`
+              : `${summary.timeSavedMinutes} min`}
+          </div>
+          <div className="text-bs-text-tertiary mt-0.5" style={{ fontSize: 12 }}>
+            {t('dashboard.timeSavedToday')}
+          </div>
+        </div>
+      )}
+
       {/* Footer */}
       <div className="flex items-center justify-between" style={{ padding: '16px 24px' }}>
         <div className="flex items-center gap-1.5 text-bs-text-tertiary font-semibold" style={{ fontSize: 13 }}>

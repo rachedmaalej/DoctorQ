@@ -38,25 +38,20 @@ import { emitToRoom } from '../lib/socket.js';
 export async function recalculatePositionsAndStatuses(clinicId: string): Promise<void> {
   const clinic = await prisma.clinic.findUnique({
     where: { id: clinicId },
-    select: { isDoctorPresent: true, queueMode: true, rdvGraceMinutes: true, multiDoctorEnabled: true },
+    select: { queueMode: true, rdvGraceMinutes: true },
   });
-  let doctorPresent = clinic?.isDoctorPresent ?? false;
   const queueMode = clinic?.queueMode ?? 'RDV_PRIORITY';
   const graceMinutes = clinic?.rdvGraceMinutes ?? 15;
-  const multiDoctor = clinic?.multiDoctorEnabled ?? false;
 
-  // In multi-doctor mode, derive presence from individual doctor states
-  // instead of the legacy clinic-level isDoctorPresent flag
-  if (multiDoctor) {
-    const activeDoctorCount = await prisma.doctor.count({
-      where: {
-        clinicId,
-        isActive: true,
-        state: { in: ['consulting', 'free'] },
-      },
-    });
-    doctorPresent = activeDoctorCount > 0;
-  }
+  // Always derive presence from individual doctor states
+  const activeDoctorCount = await prisma.doctor.count({
+    where: {
+      clinicId,
+      isActive: true,
+      state: { in: ['consulting', 'free'] },
+    },
+  });
+  const doctorPresent = activeDoctorCount > 0;
 
   // Auto-expire stepped-out patients after 60 minutes
   await prisma.$executeRaw`
@@ -149,18 +144,39 @@ export async function recalculatePositionsAndStatuses(clinicId: string): Promise
         break;
     }
 
-    // Step 2: First, reset all active entries to WAITING (clean slate)
+    // Step 2: Reset NOTIFIED to WAITING, and reset excess IN_CONSULTATION
+    // (keep only the most recently called patient per doctor)
     await tx.$executeRaw`
       UPDATE "QueueEntry"
       SET status = 'WAITING'
       WHERE "clinicId" = ${clinicId}
-      AND status IN ('NOTIFIED', 'IN_CONSULTATION')
+      AND status = 'NOTIFIED'
     `;
 
-    if (multiDoctor && doctorPresent) {
-      // Multi-doctor mode: promote one patient per CONSULTING doctor to IN_CONSULTATION
-      // Only doctors in 'consulting' state get auto-promotion — 'free' doctors wait
-      // for the receptionist to click "Suivant" before a new patient is called
+    // Reset IN_CONSULTATION entries that are NOT the most recently called per doctor
+    await tx.$executeRaw`
+      UPDATE "QueueEntry" e
+      SET status = 'WAITING'
+      FROM (
+        SELECT id FROM "QueueEntry"
+        WHERE "clinicId" = ${clinicId}
+        AND status = 'IN_CONSULTATION'
+        AND id NOT IN (
+          SELECT DISTINCT ON ("doctorId") id
+          FROM "QueueEntry"
+          WHERE "clinicId" = ${clinicId}
+          AND status = 'IN_CONSULTATION'
+          AND "doctorId" IS NOT NULL
+          ORDER BY "doctorId", "calledAt" DESC NULLS LAST
+        )
+      ) excess
+      WHERE e.id = excess.id
+    `;
+
+    if (doctorPresent) {
+      // Promote one patient per CONSULTING doctor to IN_CONSULTATION
+      // Only if that doctor doesn't already have a patient in consultation
+      // (the kept entry from above satisfies this — skip doctors who already have one)
       await tx.$executeRaw`
         UPDATE "QueueEntry" e
         SET status = 'IN_CONSULTATION',
@@ -175,6 +191,12 @@ export async function recalculatePositionsAndStatuses(clinicId: string): Promise
           AND qe."doctorId" IS NOT NULL
           AND d."isActive" = true
           AND d.state = 'consulting'
+          AND NOT EXISTS (
+            SELECT 1 FROM "QueueEntry" existing
+            WHERE existing."doctorId" = qe."doctorId"
+            AND existing."clinicId" = ${clinicId}
+            AND existing.status = 'IN_CONSULTATION'
+          )
           ORDER BY qe."doctorId", qe.position ASC
         ) sub
         WHERE e.id = sub.id
@@ -219,45 +241,8 @@ export async function recalculatePositionsAndStatuses(clinicId: string): Promise
         ) sub
         WHERE e.id = sub.id
       `;
-
-      // Unassigned patients (no doctorId) stay WAITING in multi-doctor mode
-      // — they must be assigned to a doctor before being called
-    } else if (doctorPresent) {
-      // Single-doctor mode: first non-stepped-out patient → IN_CONSULTATION,
-      // second non-stepped-out → NOTIFIED, stepped-out patients stay WAITING
-
-      // Step 2a: First non-stepped-out active patient → IN_CONSULTATION
-      await tx.$executeRaw`
-        UPDATE "QueueEntry"
-        SET status = 'IN_CONSULTATION',
-            "calledAt" = COALESCE("calledAt", NOW())
-        WHERE id = (
-          SELECT id FROM "QueueEntry"
-          WHERE "clinicId" = ${clinicId}
-          AND status = 'WAITING'
-          AND "isSteppedOut" = false
-          ORDER BY position ASC
-          LIMIT 1
-        )
-      `;
-
-      // Step 2b: Second non-stepped-out active patient → NOTIFIED
-      await tx.$executeRaw`
-        UPDATE "QueueEntry"
-        SET status = 'NOTIFIED',
-            "notifiedAt" = COALESCE("notifiedAt", NOW())
-        WHERE id = (
-          SELECT id FROM "QueueEntry"
-          WHERE "clinicId" = ${clinicId}
-          AND status = 'WAITING'
-          AND "isSteppedOut" = false
-          ORDER BY position ASC
-          LIMIT 1
-        )
-      `;
     } else {
-      // Doctor NOT present: first non-stepped-out → NOTIFIED, no IN_CONSULTATION
-
+      // No doctor present: first non-stepped-out → NOTIFIED, no IN_CONSULTATION
       await tx.$executeRaw`
         UPDATE "QueueEntry"
         SET status = 'NOTIFIED',
@@ -273,48 +258,44 @@ export async function recalculatePositionsAndStatuses(clinicId: string): Promise
       `;
     }
 
-    // Multi-doctor: auto-sync doctor states based on IN_CONSULTATION patients
-    if (multiDoctor) {
-      // Doctors with an IN_CONSULTATION patient → 'consulting'
-      await tx.$executeRaw`
-        UPDATE "Doctor" d
-        SET state = 'consulting', "stateUpdatedAt" = NOW()
-        WHERE d."clinicId" = ${clinicId}
-        AND d."isActive" = true
-        AND d.state = 'free'
-        AND EXISTS (
-          SELECT 1 FROM "QueueEntry" qe
-          WHERE qe."doctorId" = d.id
-          AND qe."clinicId" = ${clinicId}
-          AND qe.status = 'IN_CONSULTATION'
-        )
-      `;
+    // Auto-sync doctor states based on IN_CONSULTATION patients
+    // Doctors with an IN_CONSULTATION patient → 'consulting'
+    await tx.$executeRaw`
+      UPDATE "Doctor" d
+      SET state = 'consulting', "stateUpdatedAt" = NOW()
+      WHERE d."clinicId" = ${clinicId}
+      AND d."isActive" = true
+      AND d.state = 'free'
+      AND EXISTS (
+        SELECT 1 FROM "QueueEntry" qe
+        WHERE qe."doctorId" = d.id
+        AND qe."clinicId" = ${clinicId}
+        AND qe.status = 'IN_CONSULTATION'
+      )
+    `;
 
-      // Doctors without IN_CONSULTATION patient → 'free' (only if currently 'consulting')
-      await tx.$executeRaw`
-        UPDATE "Doctor" d
-        SET state = 'free', "stateUpdatedAt" = NOW()
-        WHERE d."clinicId" = ${clinicId}
-        AND d."isActive" = true
-        AND d.state = 'consulting'
-        AND NOT EXISTS (
-          SELECT 1 FROM "QueueEntry" qe
-          WHERE qe."doctorId" = d.id
-          AND qe."clinicId" = ${clinicId}
-          AND qe.status = 'IN_CONSULTATION'
-        )
-      `;
-    }
+    // Doctors without IN_CONSULTATION patient → 'free' (only if currently 'consulting')
+    await tx.$executeRaw`
+      UPDATE "Doctor" d
+      SET state = 'free', "stateUpdatedAt" = NOW()
+      WHERE d."clinicId" = ${clinicId}
+      AND d."isActive" = true
+      AND d.state = 'consulting'
+      AND NOT EXISTS (
+        SELECT 1 FROM "QueueEntry" qe
+        WHERE qe."doctorId" = d.id
+        AND qe."clinicId" = ${clinicId}
+        AND qe.status = 'IN_CONSULTATION'
+      )
+    `;
   });
 
-  // After transaction: emit updated doctors list for multi-doctor clinics
-  if (multiDoctor) {
-    const doctors = await prisma.doctor.findMany({
-      where: { clinicId, isActive: true },
-      orderBy: { createdAt: 'asc' },
-    });
-    emitToRoom(`clinic:${clinicId}`, 'doctors:updated', { doctors });
-  }
+  // Always emit updated doctors list
+  const doctors = await prisma.doctor.findMany({
+    where: { clinicId, isActive: true },
+    orderBy: { createdAt: 'asc' },
+  });
+  emitToRoom(`clinic:${clinicId}`, 'doctors:updated', { doctors });
 }
 
 /**
@@ -384,24 +365,48 @@ export async function reorderPatient(
  * OPTIMIZED: Uses batch queries instead of N individual updates
  */
 export async function updateStatusesAfterReorder(clinicId: string): Promise<void> {
-  const clinic = await prisma.clinic.findUnique({
-    where: { id: clinicId },
-    select: { isDoctorPresent: true, multiDoctorEnabled: true },
+  // Always derive presence from individual doctor states
+  const activeDoctorCount = await prisma.doctor.count({
+    where: {
+      clinicId,
+      isActive: true,
+      state: { in: ['consulting', 'free'] },
+    },
   });
-  const doctorPresent = clinic?.isDoctorPresent ?? false;
-  const multiDoctor = clinic?.multiDoctorEnabled ?? false;
+  const doctorPresent = activeDoctorCount > 0;
 
   await prisma.$transaction(async (tx) => {
-    // Reset all to WAITING first (clean slate)
+    // Reset NOTIFIED to WAITING
     await tx.$executeRaw`
       UPDATE "QueueEntry"
       SET status = 'WAITING'
       WHERE "clinicId" = ${clinicId}
-      AND status IN ('NOTIFIED', 'IN_CONSULTATION')
+      AND status = 'NOTIFIED'
     `;
 
-    if (multiDoctor && doctorPresent) {
-      // Multi-doctor: per-doctor promotion
+    // Reset excess IN_CONSULTATION (keep only most recently called per doctor)
+    await tx.$executeRaw`
+      UPDATE "QueueEntry" e
+      SET status = 'WAITING'
+      FROM (
+        SELECT id FROM "QueueEntry"
+        WHERE "clinicId" = ${clinicId}
+        AND status = 'IN_CONSULTATION'
+        AND id NOT IN (
+          SELECT DISTINCT ON ("doctorId") id
+          FROM "QueueEntry"
+          WHERE "clinicId" = ${clinicId}
+          AND status = 'IN_CONSULTATION'
+          AND "doctorId" IS NOT NULL
+          ORDER BY "doctorId", "calledAt" DESC NULLS LAST
+        )
+      ) excess
+      WHERE e.id = excess.id
+    `;
+
+    if (doctorPresent) {
+      // Per-doctor promotion: one patient per consulting doctor → IN_CONSULTATION
+      // Only if doctor doesn't already have a patient in consultation
       await tx.$executeRaw`
         UPDATE "QueueEntry" e
         SET status = 'IN_CONSULTATION',
@@ -416,11 +421,18 @@ export async function updateStatusesAfterReorder(clinicId: string): Promise<void
           AND qe."doctorId" IS NOT NULL
           AND d."isActive" = true
           AND d.state IN ('consulting', 'free')
+          AND NOT EXISTS (
+            SELECT 1 FROM "QueueEntry" existing
+            WHERE existing."doctorId" = qe."doctorId"
+            AND existing."clinicId" = ${clinicId}
+            AND existing.status = 'IN_CONSULTATION'
+          )
           ORDER BY qe."doctorId", qe.position ASC
         ) sub
         WHERE e.id = sub.id
       `;
 
+      // Second per doctor → NOTIFIED
       await tx.$executeRaw`
         UPDATE "QueueEntry" e
         SET status = 'NOTIFIED',
@@ -439,41 +451,8 @@ export async function updateStatusesAfterReorder(clinicId: string): Promise<void
         ) sub
         WHERE e.id = sub.id
       `;
-
-      // Unassigned patients (no doctorId) stay WAITING in multi-doctor mode
-      // — they must be assigned to a doctor before being called
-    } else if (doctorPresent) {
-      // Single-doctor: first non-stepped-out → IN_CONSULTATION
-      await tx.$executeRaw`
-        UPDATE "QueueEntry"
-        SET status = 'IN_CONSULTATION',
-            "calledAt" = COALESCE("calledAt", NOW())
-        WHERE id = (
-          SELECT id FROM "QueueEntry"
-          WHERE "clinicId" = ${clinicId}
-          AND status = 'WAITING'
-          AND "isSteppedOut" = false
-          ORDER BY position ASC
-          LIMIT 1
-        )
-      `;
-
-      // Second non-stepped-out → NOTIFIED
-      await tx.$executeRaw`
-        UPDATE "QueueEntry"
-        SET status = 'NOTIFIED',
-            "notifiedAt" = COALESCE("notifiedAt", NOW())
-        WHERE id = (
-          SELECT id FROM "QueueEntry"
-          WHERE "clinicId" = ${clinicId}
-          AND status = 'WAITING'
-          AND "isSteppedOut" = false
-          ORDER BY position ASC
-          LIMIT 1
-        )
-      `;
     } else {
-      // Doctor NOT present: first non-stepped-out → NOTIFIED
+      // No doctor present: first non-stepped-out → NOTIFIED
       await tx.$executeRaw`
         UPDATE "QueueEntry"
         SET status = 'NOTIFIED',
@@ -489,46 +468,42 @@ export async function updateStatusesAfterReorder(clinicId: string): Promise<void
       `;
     }
 
-    // Multi-doctor: auto-sync doctor states
-    if (multiDoctor) {
-      await tx.$executeRaw`
-        UPDATE "Doctor" d
-        SET state = 'consulting', "stateUpdatedAt" = NOW()
-        WHERE d."clinicId" = ${clinicId}
-        AND d."isActive" = true
-        AND d.state = 'free'
-        AND EXISTS (
-          SELECT 1 FROM "QueueEntry" qe
-          WHERE qe."doctorId" = d.id
-          AND qe."clinicId" = ${clinicId}
-          AND qe.status = 'IN_CONSULTATION'
-        )
-      `;
+    // Auto-sync doctor states based on IN_CONSULTATION patients
+    await tx.$executeRaw`
+      UPDATE "Doctor" d
+      SET state = 'consulting', "stateUpdatedAt" = NOW()
+      WHERE d."clinicId" = ${clinicId}
+      AND d."isActive" = true
+      AND d.state = 'free'
+      AND EXISTS (
+        SELECT 1 FROM "QueueEntry" qe
+        WHERE qe."doctorId" = d.id
+        AND qe."clinicId" = ${clinicId}
+        AND qe.status = 'IN_CONSULTATION'
+      )
+    `;
 
-      await tx.$executeRaw`
-        UPDATE "Doctor" d
-        SET state = 'free', "stateUpdatedAt" = NOW()
-        WHERE d."clinicId" = ${clinicId}
-        AND d."isActive" = true
-        AND d.state = 'consulting'
-        AND NOT EXISTS (
-          SELECT 1 FROM "QueueEntry" qe
-          WHERE qe."doctorId" = d.id
-          AND qe."clinicId" = ${clinicId}
-          AND qe.status = 'IN_CONSULTATION'
-        )
-      `;
-    }
+    await tx.$executeRaw`
+      UPDATE "Doctor" d
+      SET state = 'free', "stateUpdatedAt" = NOW()
+      WHERE d."clinicId" = ${clinicId}
+      AND d."isActive" = true
+      AND d.state = 'consulting'
+      AND NOT EXISTS (
+        SELECT 1 FROM "QueueEntry" qe
+        WHERE qe."doctorId" = d.id
+        AND qe."clinicId" = ${clinicId}
+        AND qe.status = 'IN_CONSULTATION'
+      )
+    `;
   });
 
-  // Emit updated doctors list for multi-doctor clinics
-  if (multiDoctor) {
-    const doctors = await prisma.doctor.findMany({
-      where: { clinicId, isActive: true },
-      orderBy: { createdAt: 'asc' },
-    });
-    emitToRoom(`clinic:${clinicId}`, 'doctors:updated', { doctors });
-  }
+  // Always emit updated doctors list
+  const doctors = await prisma.doctor.findMany({
+    where: { clinicId, isActive: true },
+    orderBy: { createdAt: 'asc' },
+  });
+  emitToRoom(`clinic:${clinicId}`, 'doctors:updated', { doctors });
 }
 
 /**

@@ -118,7 +118,20 @@ export default function ReceptionistDashboard({
   const summaryBrief = stats
     ? toDaySummaryBrief(stats)
     : { totalPatients: 0, avgWaitMinutes: 0, avgConsultMinutes: 0 };
-  const summaryData = toSummaryData(clinic, closedSummary);
+  const summaryDataBase = toSummaryData(clinic, closedSummary);
+
+  // ── Temps gagné fetch (for summary card) ──────────────────
+  const [timeSavedMinutes, setTimeSavedMinutes] = useState<number | undefined>(undefined);
+  useEffect(() => {
+    api.getTimeSaved('today')
+      .then(data => setTimeSavedMinutes(data.timeSavedMinutes))
+      .catch(() => {}); // non-critical
+  }, [closedSummary]); // re-fetch when day ends
+
+  const summaryData = useMemo(
+    () => ({ ...summaryDataBase, timeSavedMinutes }),
+    [summaryDataBase, timeSavedMinutes],
+  );
 
   // ── Screen derivation ─────────────────────────────────────
   // When the tour has ever run (active or just finished), bypass PRE_OPEN.

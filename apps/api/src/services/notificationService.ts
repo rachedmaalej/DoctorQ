@@ -5,7 +5,7 @@
 
 import { prisma } from '../lib/prisma.js';
 import { QueueStatus } from '@prisma/client';
-import { emitToRoom } from '../lib/socket.js';
+import { emitToRoom, emitPublicQueueUpdate } from '../lib/socket.js';
 import { getQueueStats, computeSmartWaitEstimate } from './statsService.js';
 import { sendPushToEntry, isPushConfigured } from '../lib/webpush.js';
 import { logger } from '../lib/logger.js';
@@ -32,6 +32,33 @@ export async function emitQueueUpdate(clinicId: string): Promise<void> {
 
     // Emit to clinic room
     emitToRoom(`clinic:${clinicId}`, 'queue:updated', { queue, stats });
+
+    // Emit to public check-in page viewers (non-sensitive data only)
+    const now = new Date();
+    const waitingCount = queue.filter(
+      (e) => e.status === QueueStatus.WAITING || e.status === QueueStatus.NOTIFIED
+    ).length;
+    const todayStart = new Date(now.toLocaleString('en-US', { timeZone: 'Africa/Tunis' }));
+    todayStart.setHours(0, 0, 0, 0);
+    const [totalToday, clinic] = await Promise.all([
+      prisma.queueEntry.count({ where: { clinicId, createdAt: { gte: todayStart } } }),
+      prisma.clinic.findUnique({ where: { id: clinicId }, select: { isDoctorPresent: true, avgConsultationMins: true } }),
+    ]);
+    emitPublicQueueUpdate(clinicId, {
+      waitingCount,
+      totalToday,
+      avgConsultMinutes: clinic?.avgConsultationMins ?? 10,
+      isDoctorPresent: clinic?.isDoctorPresent ?? false,
+      entries: queue.slice(0, 4).map((e) => ({
+        position: e.position,
+        initials: e.patientName ? e.patientName.trim().charAt(0).toUpperCase() : '?',
+        status: e.status,
+        waitMinutes: e.arrivedAt
+          ? Math.max(0, Math.round((now.getTime() - new Date(e.arrivedAt).getTime()) / 60000))
+          : 0,
+      })),
+    });
+
     logger.debug({ clinicId }, 'Emitted queue:updated');
   } catch (error) {
     logger.error({ err: error }, 'Failed to emit queue update');
@@ -49,10 +76,17 @@ export function emitPatientUpdate(
   estimatedWaitMins?: number,
   confidence?: 'high' | 'medium' | 'low',
   isSteppedOut?: boolean,
+  minWaitMins?: number,
+  maxWaitMins?: number,
+  hasEmergencyAhead?: boolean,
 ): void {
   const roomName = `patient:${entryId}`;
   logger.debug({ room: roomName, position, status, estimatedWaitMins, confidence, isSteppedOut }, 'Emitting patient:called');
-  emitToRoom(roomName, 'patient:called', { position, status, estimatedWaitMins, confidence, isSteppedOut });
+  emitToRoom(roomName, 'patient:called', {
+    position, status, estimatedWaitMins, confidence, isSteppedOut,
+    minWaitMins, maxWaitMins, hasEmergencyAhead,
+    updatedAt: new Date().toISOString(),
+  });
 
   // Send Web Push for critical statuses (non-blocking — fire and forget)
   if (isPushConfigured()) {
@@ -97,14 +131,27 @@ export async function emitAllPatientUpdates(clinicId: string): Promise<void> {
       },
     },
     orderBy: { position: 'asc' },
+    select: {
+      id: true, position: true, status: true, doctorId: true, isSteppedOut: true, priority: true,
+    },
   });
 
+  // Pre-compute urgent positions for emergency flag
+  const urgentPositions = patients
+    .filter(p => p.priority === 'urgent')
+    .map(p => p.position);
+
   for (const patient of patients) {
-    const { estimatedWaitMins, confidence } = await computeSmartWaitEstimate(
+    const { estimatedWaitMins, confidence, minWaitMins, maxWaitMins } = await computeSmartWaitEstimate(
       clinicId,
       patient.position,
       patient.doctorId,
     );
-    emitPatientUpdate(patient.id, patient.position, patient.status, estimatedWaitMins, confidence, patient.isSteppedOut);
+    const hasEmergencyAhead = urgentPositions.some(pos => pos < patient.position);
+    emitPatientUpdate(
+      patient.id, patient.position, patient.status,
+      estimatedWaitMins, confidence, patient.isSteppedOut,
+      minWaitMins, maxWaitMins, hasEmergencyAhead,
+    );
   }
 }

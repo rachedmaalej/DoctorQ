@@ -1,8 +1,8 @@
-export const STEPS = ['splash', 'welcome', 'specialty', 'signup', 'qr-reveal'] as const;
+export const STEPS = ['splash', 'welcome', 'signup', 'qr-reveal'] as const;
 export type StepName = (typeof STEPS)[number];
 
-/** Progress bar shows steps 1–4 (splash doesn't count) */
-export const VISIBLE_STEPS = STEPS.length - 1; // 4
+/** Progress bar shows steps 1–3 (splash doesn't count) */
+export const VISIBLE_STEPS = STEPS.length - 1; // 3
 
 export const LAYOUT = {
   ILLUSTRATION_HEIGHT: '58vh',
@@ -13,32 +13,12 @@ export const LAYOUT = {
   CARD_PADDING: '28px 24px 40px',
 } as const;
 
-export const SPECIALTIES = [
-  { id: 'pediatrie', label: 'Pédiatrie' },
-  { id: 'ophthalmologie', label: 'Ophtalmologie' },
-  { id: 'orl', label: 'ORL' },
-  { id: 'medecine-generale', label: 'Médecine générale' },
-  { id: 'gynecologie', label: 'Gynécologie' },
-  { id: 'dermatologie', label: 'Dermatologie' },
-  { id: 'cardiologie', label: 'Cardiologie' },
-  { id: 'dentisterie', label: 'Dentisterie' },
-  { id: 'pneumologie-rhumatologie', label: 'Pneumologie / Rhumatologie' },
-  { id: 'autres', label: 'Autres' },
-] as const;
-
-export type SpecialtyId = (typeof SPECIALTIES)[number]['id'];
-
 export const SCREEN_COPY = {
   welcome: {
     headline: 'Votre salle d\'attente, enfin sous contrôle.',
     subtitle:
       'Sans carte bancaire. Sans engagement. Prêt en 2 minutes.',
     cta: 'Créer ma file gratuite',
-  },
-  specialty: {
-    headline: 'Quelle est votre spécialité ?',
-    subtitle: 'Chaque spécialité a ses propres flux. On s\'adapte.',
-    cta: 'Continuer',
   },
   signup: {
     headline: 'Dans 60 secondes, votre file d\'attente est prête.',
@@ -76,7 +56,6 @@ export const SCREEN_COPY = {
 
 export const ILLUSTRATION_PATHS = {
   welcome: '/images/onboarding/welcome2.png',
-  specialty: '/images/onboarding/specialty2.png',
   signup: '/images/onboarding/signup2.png',
   'qr-reveal': '/images/onboarding/qr-reveal2.png',
 } as const;

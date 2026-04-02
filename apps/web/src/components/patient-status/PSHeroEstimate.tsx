@@ -1,12 +1,14 @@
 import { useRef, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Phase } from './utils';
-import { deriveEyebrowKey, parseHeroTime, waitTimeAriaLabel, calculateRingProgress } from './utils';
+import { deriveEyebrowKey, parseHeroTime, parseHeroRange, waitTimeAriaLabel, calculateRingProgress } from './utils';
 import PSProgressRing from './PSProgressRing';
 
 interface PSHeroEstimateProps {
   phase: Phase;
   estimatedMins: number;
+  minWaitMins?: number;
+  maxWaitMins?: number;
   peopleAhead: number;
   initialPeopleAhead: number;
   status: string;
@@ -24,7 +26,7 @@ function PauseCircleIcon() {
   );
 }
 
-export default function PSHeroEstimate({ phase, estimatedMins, peopleAhead, initialPeopleAhead, status, isDoctorPresent, confidence }: PSHeroEstimateProps) {
+export default function PSHeroEstimate({ phase, estimatedMins, minWaitMins, maxWaitMins, peopleAhead, initialPeopleAhead, status, isDoctorPresent, confidence }: PSHeroEstimateProps) {
   const { t } = useTranslation();
   const [pulse, setPulse] = useState(false);
   const prevMinsRef = useRef(estimatedMins);
@@ -45,6 +47,11 @@ export default function PSHeroEstimate({ phase, estimatedMins, peopleAhead, init
   const ariaLabel = waitTimeAriaLabel(estimatedMins);
   const progress = calculateRingProgress(peopleAhead, initialPeopleAhead);
 
+  // Show range in relax phase when min/max differ
+  const rangeParts = (phase === 'relax' && minWaitMins != null && maxWaitMins != null)
+    ? parseHeroRange(minWaitMins, maxWaitMins)
+    : null;
+
   return (
     <div className="ps-hero-section ps-fade-up-d1">
       {/* Eyebrow */}
@@ -52,12 +59,20 @@ export default function PSHeroEstimate({ phase, estimatedMins, peopleAhead, init
         {t(eyebrowKey)}
       </div>
 
-      {/* Hero Time */}
+      {/* Hero Time — range or point estimate */}
       <div
         className={`ps-hero-time ${phase === 'ready' ? 'phase-ready' : ''} ${pulse ? 'ps-count-pulse' : ''} ${doctorAbsent ? 'doctor-absent' : ''} ${confidence === 'low' && !doctorAbsent ? 'low-confidence' : ''}`}
         aria-label={ariaLabel}
       >
-        {timeParts.hasHours ? (
+        {rangeParts ? (
+          <>
+            <span className="ps-hero-range-label">entre </span>
+            {rangeParts.minStr}
+            <span className="ps-hero-range-label"> et </span>
+            {rangeParts.maxStr}
+            {rangeParts.unit && <span className="unit"> {rangeParts.unit}</span>}
+          </>
+        ) : timeParts.hasHours ? (
           <>
             {timeParts.prefix}{timeParts.hours}
             <span className="unit">h</span>

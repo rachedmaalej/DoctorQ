@@ -240,7 +240,7 @@ export default function QRRevealScreen({
           className="hidden md:block text-[12px] font-medium mb-1"
           style={{ color: 'var(--ob-brand-subtle)' }}
         >
-          Étape 4 / 4
+          Étape 3 / 3
         </span>
 
         <StatusBadge />

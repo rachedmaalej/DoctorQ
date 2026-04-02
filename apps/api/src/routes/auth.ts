@@ -106,7 +106,6 @@ router.post('/login', async (req: Request, res: Response) => {
           subscriptionPlan: clinic.subscriptionPlan,
           daysRemaining,
           isAdmin: ADMIN_EMAILS.includes(clinic.email.toLowerCase()),
-          multiDoctorEnabled: clinic.multiDoctorEnabled,
           uiLabels,
         },
       },
@@ -162,7 +161,6 @@ router.get('/me', authMiddleware, async (req: AuthRequest, res: Response) => {
         emailVerified: true,
         onboardingCompleted: true,
         onboardingStep: true,
-        multiDoctorEnabled: true,
       },
     });
 
@@ -340,7 +338,6 @@ router.post('/oauth', async (req: Request, res: Response) => {
             subscriptionPlan: existing.subscriptionPlan,
             daysRemaining,
             isAdmin: ADMIN_EMAILS.includes(existing.email.toLowerCase()),
-            multiDoctorEnabled: existing.multiDoctorEnabled,
             uiLabels,
           },
         },

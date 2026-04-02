@@ -122,6 +122,8 @@ body:has(.as-desktop) {
   margin: 0 auto;
   min-height: 100dvh;
   overflow-x: hidden;
+  /* Reserve space for the fixed bottom action bar */
+  padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
 }
 
 .as-dashboard *, .as-dashboard *::before, .as-dashboard *::after {

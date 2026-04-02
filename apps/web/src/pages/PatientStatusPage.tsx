@@ -18,13 +18,14 @@ import PSAlertBanner from '@/components/patient-status/PSAlertBanner';
 import PSRdvContext from '@/components/patient-status/PSRdvContext';
 import PSHeroEstimate from '@/components/patient-status/PSHeroEstimate';
 import PSCalledHero from '@/components/patient-status/PSCalledHero';
-import PSDoneHero from '@/components/patient-status/PSDoneHero';
+import PSCompletedScreen from '@/components/patient-status/PSCompletedScreen';
 import PSContextCard from '@/components/patient-status/PSContextCard';
 import PSVisitSummary from '@/components/patient-status/PSVisitSummary';
 import PSManageFooter from '@/components/patient-status/PSManageFooter';
 import PSBrandFooter from '@/components/patient-status/PSBrandFooter';
 import PSProgressToast from '@/components/patient-status/PSProgressToast';
 import PSQuitModal from '@/components/patient-status/PSQuitModal';
+import FreeTierWatermark from '@/components/shared/FreeTierWatermark';
 
 // Vibration helper
 function vibrate(pattern: number | number[] = 200): void {
@@ -58,6 +59,9 @@ export default function PatientStatusPage() {
   const [enableStepOut, setEnableStepOut] = useState(false);
   const [isSteppingOut, setIsSteppingOut] = useState(false);
   const [toast, setToast] = useState<{ visible: boolean; message: string }>({ visible: false, message: '' });
+  const [emergencyMessage, setEmergencyMessage] = useState<string | null>(null);
+  const [lastUpdatedAt, setLastUpdatedAt] = useState<string | null>(null);
+  const [relativeTime, setRelativeTime] = useState('');
 
   // ─── Refs ───
   const previousPositionRef = useRef<number | null>(null);
@@ -129,7 +133,7 @@ export default function PatientStatusPage() {
 
   // ─── Socket Handlers ───
 
-  const handlePatientCalled = useCallback((data: { position: number; status: string; estimatedWaitMins?: number; confidence?: 'high' | 'medium' | 'low'; isSteppedOut?: boolean }) => {
+  const handlePatientCalled = useCallback((data: { position: number; status: string; estimatedWaitMins?: number; confidence?: 'high' | 'medium' | 'low'; isSteppedOut?: boolean; minWaitMins?: number; maxWaitMins?: number; hasEmergencyAhead?: boolean; updatedAt?: string }) => {
     logger.log('[PatientStatus] handlePatientCalled received:', data);
 
     const status = data.status as QueueStatus;
@@ -180,6 +184,16 @@ export default function PatientStatusPage() {
     previousPositionRef.current = newPosition;
     prevStatusRef.current = status;
 
+    // Emergency detection: wait increased AND emergency ahead
+    if (data.hasEmergencyAhead && data.estimatedWaitMins !== undefined && displayedEstimateRef.current !== null && data.estimatedWaitMins > displayedEstimateRef.current) {
+      setEmergencyMessage(t('status.emergencyAdjusted'));
+    }
+
+    // Update "last updated" timestamp
+    if (data.updatedAt) {
+      setLastUpdatedAt(data.updatedAt);
+    }
+
     setEntry((prev) => {
       if (!prev) return null;
       return {
@@ -189,9 +203,12 @@ export default function PatientStatusPage() {
         ...(data.estimatedWaitMins !== undefined && { estimatedWaitMins: data.estimatedWaitMins }),
         ...(data.confidence !== undefined && { confidence: data.confidence }),
         ...(data.isSteppedOut !== undefined && { isSteppedOut: data.isSteppedOut }),
+        ...(data.minWaitMins !== undefined && { minWaitMins: data.minWaitMins }),
+        ...(data.maxWaitMins !== undefined && { maxWaitMins: data.maxWaitMins }),
+        ...(data.hasEmergencyAhead !== undefined && { hasEmergencyAhead: data.hasEmergencyAhead }),
       };
     });
-  }, []);
+  }, [t]);
 
   const handlePositionChanged = useCallback((data: { entryId: string; newPosition: number; estimatedWait: number }) => {
     if (data.entryId !== entryId) return;
@@ -290,6 +307,7 @@ export default function PatientStatusPage() {
         setStepOutCount(data.stepOutCount ?? 0);
         setSteppedOutAt(data.steppedOutAt ?? null);
         isSteppedOutRef.current = data.isSteppedOut ?? false;
+        setLastUpdatedAt(data.updatedAt ?? new Date().toISOString());
       } catch (err: any) {
         setError(err.message || 'Failed to load patient status');
       } finally {
@@ -298,6 +316,29 @@ export default function PatientStatusPage() {
     };
     fetchPatientStatus();
   }, [entryId]);
+
+  // ─── "Last updated" relative time ticker ───
+  useEffect(() => {
+    if (!lastUpdatedAt) return;
+    const update = () => {
+      const secs = Math.floor((Date.now() - new Date(lastUpdatedAt).getTime()) / 1000);
+      if (secs < 60) {
+        setRelativeTime(t('status.lastUpdatedSeconds', { count: secs }));
+      } else {
+        setRelativeTime(t('status.lastUpdatedMinutes', { count: Math.floor(secs / 60) }));
+      }
+    };
+    update();
+    const timer = setInterval(update, 15000);
+    return () => clearInterval(timer);
+  }, [lastUpdatedAt, t]);
+
+  // ─── Emergency message auto-dismiss ───
+  useEffect(() => {
+    if (!emergencyMessage) return;
+    const timer = setTimeout(() => setEmergencyMessage(null), 30000);
+    return () => clearTimeout(timer);
+  }, [emergencyMessage]);
 
   // ─── Join Socket Room ───
   useEffect(() => {
@@ -453,12 +494,28 @@ export default function PatientStatusPage() {
           <PSHeroEstimate
             phase={phase}
             estimatedMins={smoothedEstimate}
+            minWaitMins={entry.minWaitMins}
+            maxWaitMins={entry.maxWaitMins}
             peopleAhead={peopleAhead}
             initialPeopleAhead={initialPeopleAhead}
             status={entry.status}
             isDoctorPresent={isDoctorPresent}
             confidence={entry.confidence}
           />
+        )}
+
+        {/* Emergency explanation banner */}
+        {emergencyMessage && isWaiting && !isCancelled && (
+          <div className="ps-alert-banner ps-fade-up" style={{ background: '#FEF3C7', color: '#92400E', padding: '10px 16px', borderRadius: 12, fontSize: 13, textAlign: 'center', marginTop: 8 }}>
+            ⚠️ {emergencyMessage}
+          </div>
+        )}
+
+        {/* Last updated timestamp */}
+        {isWaiting && !isCancelled && relativeTime && (
+          <div className="ps-last-updated">
+            {t('status.lastUpdated', { time: relativeTime })}
+          </div>
         )}
 
         {/* Go: next (#1) or called (#0) — flex:1 so hero fills vertical space */}
@@ -473,9 +530,13 @@ export default function PatientStatusPage() {
           </div>
         )}
 
-        {/* Done */}
+        {/* Done — star rating gate */}
         {phase === 'done' && (
-          <PSDoneHero doctorName={entry.doctorName} />
+          <PSCompletedScreen
+            entryId={entry.id}
+            doctorName={entry.doctorName}
+            feedbackEnabled={entry.feedbackEnabled}
+          />
         )}
 
         {/* Cancelled state — simple message + rejoin */}
@@ -579,6 +640,9 @@ export default function PatientStatusPage() {
         isLoading={isLeaving}
         doctorName={entry.doctorName}
       />
+
+      {/* FREE tier watermark */}
+      <FreeTierWatermark tier={entry.subscriptionTier} />
     </div>
   );
 }

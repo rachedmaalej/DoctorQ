@@ -26,6 +26,8 @@ export interface EffectiveAvgResult {
 
 export interface SmartWaitEstimate {
   estimatedWaitMins: number;
+  minWaitMins: number;
+  maxWaitMins: number;
   effectiveAvgMins: number;
   confidence: 'high' | 'medium' | 'low';
   doctorAbsent: boolean;
@@ -408,7 +410,7 @@ export async function computeSmartWaitEstimate(
   const doctorAbsent = !(clinic?.isDoctorPresent ?? true);
 
   if (position <= 0) {
-    return { estimatedWaitMins: 0, effectiveAvgMins, confidence: 'high', doctorAbsent };
+    return { estimatedWaitMins: 0, minWaitMins: 0, maxWaitMins: 0, effectiveAvgMins, confidence: 'high', doctorAbsent };
   }
 
   // Get no-show discount
@@ -456,8 +458,23 @@ export async function computeSmartWaitEstimate(
     confidence = 'medium';
   }
 
+  const capped = Math.max(0, estimatedWaitMins);
+
+  // Range: √n scaling with absolute cap
+  // Each consultation ahead is an independent random variable — uncertainty grows with √n, not n.
+  // Cap at ±20 min so the total spread never exceeds 40 min (actionable, not anxiety-inducing).
+  const patientsAhead = Math.max(0, position - 1);
+  const variabilityFactors: Record<string, number> = { high: 0.3, medium: 0.5, low: 0.7 };
+  const vf = variabilityFactors[confidence];
+  const maxMarginCap = 20;
+  const marginMins = Math.min(maxMarginCap, Math.round(effectiveAvgMins * vf * Math.sqrt(patientsAhead)));
+  const minWaitMins = Math.max(0, capped - marginMins);
+  const maxWaitMins = capped + marginMins;
+
   return {
-    estimatedWaitMins: Math.max(0, estimatedWaitMins),
+    estimatedWaitMins: capped,
+    minWaitMins,
+    maxWaitMins,
     effectiveAvgMins,
     confidence,
     doctorAbsent,

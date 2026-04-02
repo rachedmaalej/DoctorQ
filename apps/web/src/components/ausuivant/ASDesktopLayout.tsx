@@ -20,6 +20,7 @@ import ASCallNextSheet from './ASCallNextSheet';
 import ASAddPatientDrawer from './ASAddPatientDrawer';
 import ASSettingsPanel from './ASSettingsPanel';
 import ASTransferPatientSheet from './ASTransferPatientSheet';
+import ASSoloConsultationCard from './ASSoloConsultationCard';
 import ASPatientDetailDrawer from './ASPatientDetailDrawer';
 import { formatDoctorName, formatDisplayName, getTokenColor, formatArrivalTime, getConsultationDuration } from './utils';
 
@@ -507,6 +508,17 @@ export default function ASDesktopLayout({
         </div>
       )}
 
+      {/* ═══ SOLO-DOCTOR CONSULTATION CARD (desktop) ═══ */}
+      {!hasMultiDoctor && (
+        <div style={{ maxWidth: 960, margin: '12px auto 0', padding: '0 24px' }}>
+          <ASSoloConsultationCard
+            patient={queue.find(e => e.status === QueueStatus.IN_CONSULTATION) ?? null}
+            onComplete={patientActions.markDone}
+            onMarkNoShow={patientActions.markNoShow}
+          />
+        </div>
+      )}
+
       {/* ═══ AGENDA STRIP (collapsed when empty, expandable when populated) ═══ */}
       <div style={{ maxWidth: 960, margin: '12px auto 0', padding: '0 24px' }}>
         {hasSchedule ? (
@@ -591,7 +603,15 @@ export default function ASDesktopLayout({
           </div>
 
           <button
-            onClick={() => hasMultiDoctor ? setIsCallNextSheetOpen(true) : onCallNext()}
+            onClick={() => {
+              if (hasMultiDoctor) {
+                setIsCallNextSheetOpen(true);
+              } else {
+                const active = doctors.find((d) => d.isActive);
+                if (active) onCallNextForDoctor(active.id);
+                else onCallNext();
+              }
+            }}
             disabled={waitingCount === 0 || !isDoctorPresent || isCallingNext}
             className="flex items-center gap-1.5"
             style={{

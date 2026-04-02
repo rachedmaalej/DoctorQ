@@ -59,6 +59,19 @@ export async function addPatient(input: AddPatientInput): Promise<AddPatientResu
 
   const formattedPhone = patientPhone ? formatPhoneNumber(patientPhone) : '';
 
+  // Auto-assign to primary doctor if no doctorId provided (e.g., QR check-in)
+  let resolvedDoctorId = doctorId;
+  if (!resolvedDoctorId) {
+    const primaryDoctor = await prisma.doctor.findFirst({
+      where: { clinicId, isActive: true },
+      orderBy: { createdAt: 'asc' },
+      select: { id: true },
+    });
+    if (primaryDoctor) {
+      resolvedDoctorId = primaryDoctor.id;
+    }
+  }
+
   // Use transaction to prevent race conditions
   const result = await prisma.$transaction(async (tx) => {
     // Check for duplicate within transaction (skip if no phone)
@@ -107,7 +120,7 @@ export async function addPatient(input: AddPatientInput): Promise<AddPatientResu
         checkInMethod,
         appointmentTime,
         priority: isUrgent ? Priority.urgent : Priority.normal,
-        ...(doctorId && { doctorId }),
+        ...(resolvedDoctorId && { doctorId: resolvedDoctorId }),
         ...(arrivedAt && { arrivedAt }),
       },
     });
@@ -117,6 +130,16 @@ export async function addPatient(input: AddPatientInput): Promise<AddPatientResu
 
   if (result.isAlreadyCheckedIn) {
     return result as AddPatientResult;
+  }
+
+  // Increment daily patient count for tier limit tracking (non-critical)
+  try {
+    await prisma.clinic.update({
+      where: { id: clinicId },
+      data: { dailyPatientCount: { increment: 1 } },
+    });
+  } catch (err) {
+    logger.warn({ err }, 'Failed to increment daily patient count');
   }
 
   // Upsert Patient record for autocomplete & visit tracking (non-critical, fire-and-forget)
@@ -209,7 +232,7 @@ export async function removePatient(clinicId: string, entryId: string): Promise<
  * Call the next patient (complete current, advance queue)
  * Uses a transaction to ensure atomicity of complete + advance operations
  */
-export async function callNextPatient(clinicId: string, doctorId?: string): Promise<QueueEntry | null> {
+export async function callNextPatient(clinicId: string, doctorId: string): Promise<QueueEntry | null> {
   // Use transaction to ensure atomicity
   const promotedId = await prisma.$transaction(async (tx) => {
     // Complete the current IN_CONSULTATION patient (scoped to doctor if provided)
@@ -592,6 +615,8 @@ export async function ensureDailyReset(clinicId: string): Promise<boolean> {
       announcement: null,
       announcementAt: null,
       lastDailyResetAt: new Date(),
+      dailyPatientCount: 0,
+      dailyCountResetAt: new Date(),
     },
   });
 
@@ -627,6 +652,8 @@ export async function getPatientStatus(entryId: string) {
           specialty: true,
           funFactsEnabled: true,
           enableStepOut: true,
+          subscriptionTier: true,
+          feedbackEnabled: true,
         },
       },
     },
@@ -649,11 +676,23 @@ export async function getPatientStatus(entryId: string) {
     }
   }
 
-  const { estimatedWaitMins, effectiveAvgMins, confidence, doctorAbsent } = await computeSmartWaitEstimate(
+  const { estimatedWaitMins, minWaitMins, maxWaitMins, effectiveAvgMins, confidence, doctorAbsent } = await computeSmartWaitEstimate(
     entry.clinicId,
     entry.position,
     entry.doctorId
   );
+
+  // Check if there are urgent patients ahead (for emergency explanation)
+  const hasEmergencyAhead = entry.position > 1
+    ? (await prisma.queueEntry.count({
+        where: {
+          clinicId: entry.clinicId,
+          priority: 'urgent',
+          position: { lt: entry.position },
+          status: { in: [QueueStatus.WAITING, QueueStatus.NOTIFIED, QueueStatus.IN_CONSULTATION] },
+        },
+      })) > 0
+    : false;
 
   return {
     id: entry.id,
@@ -672,18 +711,28 @@ export async function getPatientStatus(entryId: string) {
     stepOutCount: entry.stepOutCount,
     steppedOutAt: entry.steppedOutAt,
     estimatedWaitMins,
+    minWaitMins,
+    maxWaitMins,
+    hasEmergencyAhead,
+    updatedAt: new Date().toISOString(),
     avgConsultationMins: effectiveAvgMins,
     confidence,
     doctorAbsent,
     clinicName: entry.clinic.name,
     doctorName: entry.clinic.doctorName,
     doctorGender: entry.clinic.doctorGender,
-    isDoctorPresent: entry.clinic.isDoctorPresent,
+    isDoctorPresent: entry.clinic.isDoctorPresent
+      // Fallback: if someone is IN_CONSULTATION, doctor is clearly present
+      || (await prisma.queueEntry.count({
+        where: { clinicId: entry.clinicId, status: QueueStatus.IN_CONSULTATION },
+      })) > 0,
     announcement: entry.clinic.announcement,
     announcementAt: entry.clinic.announcementAt,
     specialty: entry.clinic.specialty,
     funFactsEnabled: entry.clinic.funFactsEnabled,
     enableStepOut: entry.clinic.enableStepOut,
+    subscriptionTier: entry.clinic.subscriptionTier,
+    feedbackEnabled: entry.clinic.feedbackEnabled,
   };
 }
 

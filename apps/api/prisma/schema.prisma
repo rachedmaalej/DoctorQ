@@ -38,7 +38,6 @@ model Clinic {
   notifyAtPosition    Int          @default(2)  // Notify when X patients away
   enableWhatsApp      Boolean      @default(false)
   isDoctorPresent     Boolean      @default(false)  // Track if doctor is currently seeing patients
-  multiDoctorEnabled  Boolean      @default(false)  // Admin-controlled: unlock multi-doctor management
 
   // Announcement to all patients (displayed as banner on patient status page)
   announcement        String?      // Active announcement text (null = no announcement)
@@ -56,6 +55,10 @@ model Clinic {
   // Specialty & fun facts
   specialty           String?      // Medical specialty (ophthalmology, dentistry, cardiology, etc.)
   funFactsEnabled     Boolean      @default(true)  // Show fun facts on patient status page
+
+  // Patient feedback / Google Reviews
+  googlePlaceId     String?                          // Google Maps Place ID for review redirect
+  feedbackEnabled   Boolean      @default(true)      // Toggle to disable post-consultation rating
 
   // Localization settings
   country                String    @default("TN")    // TN = Tunisia, FR = France
@@ -82,8 +85,13 @@ model Clinic {
   // Subscription fields (for self-service)
   subscriptionStatus    SubscriptionStatus @default(TRIAL)
   subscriptionPlan      SubscriptionPlan?
+  subscriptionTier      SubscriptionTier   @default(FREE)
   trialEndsAt           DateTime?          // When free trial expires
   subscriptionEndsAt    DateTime?          // When paid subscription expires
+
+  // Tier usage tracking
+  dailyPatientCount     Int                @default(0)
+  dailyCountResetAt     DateTime           @default(now())
 
   // Email verification
   emailVerified           Boolean   @default(false)
@@ -119,6 +127,7 @@ model Clinic {
   doctors               Doctor[]
   patients              Patient[]
   scheduleSlots         ScheduleSlot[]
+  feedback              PatientFeedback[]
 
   @@index([email])
   @@index([subscriptionStatus])
@@ -216,6 +225,7 @@ model QueueEntry {
   slot          ScheduleSlot? @relation(fields: [slotId], references: [id], onDelete: SetNull)
 
   pushSubscriptions PushSubscription[]
+  feedback          PatientFeedback?
 
   // Performance indexes for common queries
   @@index([clinicId, status])                       // Filter active queue by clinic
@@ -246,6 +256,21 @@ enum CheckInMethod {
   WHATSAPP
 }
 
+model PatientFeedback {
+  id                 String   @id @default(cuid())
+  clinicId           String
+  queueEntryId       String   @unique
+  rating             Int      // 1–5
+  redirectedToGoogle Boolean  @default(false)
+  createdAt          DateTime @default(now())
+
+  clinic     Clinic     @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  queueEntry QueueEntry @relation(fields: [queueEntryId], references: [id], onDelete: Cascade)
+
+  @@index([clinicId])
+  @@index([clinicId, createdAt])
+}
+
 enum Priority {
   normal
   urgent
@@ -269,8 +294,15 @@ enum SubscriptionStatus {
 }
 
 enum SubscriptionPlan {
-  MONTHLY         // 65 TND/month
-  YEARLY          // 650 TND/year (2 months free)
+  MONTHLY         // 65 TND/month or 29/69/149 EUR/month
+  YEARLY          // 650 TND/year or 290/690/1490 EUR/year
+}
+
+enum SubscriptionTier {
+  FREE            // Forever-free: 1 doctor, 30 patients/day, 7-day history
+  SOLO_PRO        // 29 EUR/mo: 1 doctor, 100 patients/day, 90-day history
+  EQUIPE          // 69 EUR/mo: 5 doctors, 100 patients/day, 90-day history
+  CLINIQUE        // 149 EUR/mo: unlimited doctors, unlimited patients, unlimited history
 }
 
 model DailyStat {

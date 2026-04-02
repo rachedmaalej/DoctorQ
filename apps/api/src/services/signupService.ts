@@ -88,42 +88,54 @@ export async function registerClinic(data: SignupData): Promise<SignupResult> {
   // Calculate trial end date
   const trialEndsAt = getTrialEndDate();
 
-  // Create clinic with trial subscription
-  const clinic = await prisma.clinic.create({
-    data: {
-      name: data.name,
-      email: data.email,
-      passwordHash,
-      doctorName: data.doctorName,
-      doctorGender: data.doctorGender,
-      phone: data.phone,
-      language: data.language ?? 'fr',
-      // Subscription defaults
-      subscriptionStatus: 'TRIAL',
-      trialEndsAt,
-      // Email verification
-      emailVerified: false,
-      emailVerificationToken: verificationToken,
-      emailVerificationExpiry: verificationExpiry,
-      // Onboarding
-      onboardingCompleted: false,
-      onboardingStep: 0,
-      // Market isolation
-      country: brand.country,
-    },
-    select: {
-      id: true,
-      email: true,
-    },
-  });
+  // Create clinic with trial subscription + default doctor
+  const clinic = await prisma.$transaction(async (tx) => {
+    const c = await tx.clinic.create({
+      data: {
+        name: data.name,
+        email: data.email,
+        passwordHash,
+        doctorName: data.doctorName,
+        doctorGender: data.doctorGender,
+        phone: data.phone,
+        language: data.language ?? 'fr',
+        // Subscription defaults
+        subscriptionStatus: 'TRIAL',
+        trialEndsAt,
+        // Email verification
+        emailVerified: false,
+        emailVerificationToken: verificationToken,
+        emailVerificationExpiry: verificationExpiry,
+        // Onboarding
+        onboardingCompleted: false,
+        onboardingStep: 0,
+        // Market isolation
+        country: brand.country,
+      },
+      select: {
+        id: true,
+        email: true,
+      },
+    });
 
-  // Log subscription event
-  await prisma.subscriptionEvent.create({
-    data: {
-      clinicId: clinic.id,
-      eventType: 'trial_started',
-      notes: `30-day trial started. Ends ${trialEndsAt.toISOString()}`,
-    },
+    // Always create a default doctor for the clinic owner
+    await tx.doctor.create({
+      data: {
+        clinicId: c.id,
+        name: data.doctorName || data.name,
+        state: 'inactive',
+      },
+    });
+
+    await tx.subscriptionEvent.create({
+      data: {
+        clinicId: c.id,
+        eventType: 'trial_started',
+        notes: `30-day trial started. Ends ${trialEndsAt.toISOString()}`,
+      },
+    });
+
+    return c;
   });
 
   return {
@@ -149,35 +161,48 @@ export interface OAuthSignupData {
 export async function registerClinicOAuth(data: OAuthSignupData): Promise<{ clinicId: string; email: string }> {
   const trialEndsAt = getTrialEndDate();
 
-  const clinic = await prisma.clinic.create({
-    data: {
-      name: data.name,
-      email: data.email,
-      oauthProvider: data.provider,
-      language: data.language ?? 'fr',
-      // OAuth users are pre-verified
-      emailVerified: true,
-      // Subscription defaults
-      subscriptionStatus: 'TRIAL',
-      trialEndsAt,
-      // Onboarding
-      onboardingCompleted: false,
-      onboardingStep: 0,
-      // Market isolation
-      country: brand.country,
-    },
-    select: {
-      id: true,
-      email: true,
-    },
-  });
+  const clinic = await prisma.$transaction(async (tx) => {
+    const c = await tx.clinic.create({
+      data: {
+        name: data.name,
+        email: data.email,
+        oauthProvider: data.provider,
+        language: data.language ?? 'fr',
+        // OAuth users are pre-verified
+        emailVerified: true,
+        // Subscription defaults
+        subscriptionStatus: 'TRIAL',
+        trialEndsAt,
+        // Onboarding
+        onboardingCompleted: false,
+        onboardingStep: 0,
+        // Market isolation
+        country: brand.country,
+      },
+      select: {
+        id: true,
+        email: true,
+      },
+    });
 
-  await prisma.subscriptionEvent.create({
-    data: {
-      clinicId: clinic.id,
-      eventType: 'trial_started',
-      notes: `30-day trial started (OAuth: ${data.provider}). Ends ${trialEndsAt.toISOString()}`,
-    },
+    // Always create a default doctor for the clinic owner
+    await tx.doctor.create({
+      data: {
+        clinicId: c.id,
+        name: data.name,
+        state: 'inactive',
+      },
+    });
+
+    await tx.subscriptionEvent.create({
+      data: {
+        clinicId: c.id,
+        eventType: 'trial_started',
+        notes: `30-day trial started (OAuth: ${data.provider}). Ends ${trialEndsAt.toISOString()}`,
+      },
+    });
+
+    return c;
   });
 
   return { clinicId: clinic.id, email: clinic.email };

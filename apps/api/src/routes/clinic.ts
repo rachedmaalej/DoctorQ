@@ -74,6 +74,8 @@ const updateClinicSchema = z.object({
   queueMode: z.enum(['RDV_PRIORITY', 'FIFO', 'RDV_ON_TIME']).optional(),
   rdvGraceMinutes: z.number().int().min(5).max(30).optional(),
   enableStepOut: z.boolean().optional(),
+  googlePlaceId: z.string().max(200).optional().nullable(),
+  feedbackEnabled: z.boolean().optional(),
 });
 
 router.patch('/', authMiddleware, subscriptionGate, async (req: AuthRequest, res: Response) => {
@@ -483,6 +485,19 @@ router.post('/activation-progress', authMiddleware, async (req: AuthRequest, res
   } catch (error) {
     logger.error({ err: error }, 'Error updating activation progress');
     res.status(500).json({ error: { code: 'SERVER_ERROR', message: 'Failed to update activation progress' } });
+  }
+});
+
+// GET /api/clinic/feedback/summary - Feedback aggregate data
+router.get('/feedback/summary', authMiddleware, async (req: AuthRequest, res: Response) => {
+  try {
+    const clinicId = req.clinic!.id;
+    const { getFeedbackSummary } = await import('../services/feedbackService.js');
+    const summary = await getFeedbackSummary(clinicId);
+    res.json({ data: summary });
+  } catch (error) {
+    logger.error({ err: error }, 'Feedback summary error');
+    res.status(500).json({ error: { code: 'SERVER_ERROR', message: 'Failed to fetch feedback summary' } });
   }
 });
 
