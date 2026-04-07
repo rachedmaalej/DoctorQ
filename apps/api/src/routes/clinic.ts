@@ -44,6 +44,15 @@ router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {
         queueMode: true,
         rdvGraceMinutes: true,
         enableStepOut: true,
+        siret: true,
+        tvaIntracomNumber: true,
+        tvaRegime: true,
+        postalCode: true,
+        city: true,
+        presetMessage1: true,
+        presetMessage2: true,
+        presetMessage3: true,
+        presetMessage4: true,
       },
     });
 
@@ -76,6 +85,17 @@ const updateClinicSchema = z.object({
   enableStepOut: z.boolean().optional(),
   googlePlaceId: z.string().max(200).optional().nullable(),
   feedbackEnabled: z.boolean().optional(),
+  // France legal identifiers
+  siret: z.string().regex(/^\d{14}$/, 'SIRET doit contenir 14 chiffres').optional().nullable().or(z.literal('')),
+  tvaIntracomNumber: z.string().regex(/^FR\d{11}$/, 'Format: FR + 11 chiffres').optional().nullable().or(z.literal('')),
+  tvaRegime: z.enum(['VAT_APPLIED', 'VAT_EXEMPT_293B']).optional(),
+  postalCode: z.string().regex(/^\d{5}$/, 'Code postal: 5 chiffres').optional().nullable().or(z.literal('')),
+  city: z.string().max(100).optional().nullable().or(z.literal('')),
+  // Preset announcement messages
+  presetMessage1: z.string().max(200).optional().nullable().or(z.literal('')),
+  presetMessage2: z.string().max(200).optional().nullable().or(z.literal('')),
+  presetMessage3: z.string().max(200).optional().nullable().or(z.literal('')),
+  presetMessage4: z.string().max(200).optional().nullable().or(z.literal('')),
 });
 
 router.patch('/', authMiddleware, subscriptionGate, async (req: AuthRequest, res: Response) => {
@@ -87,9 +107,18 @@ router.patch('/', authMiddleware, subscriptionGate, async (req: AuthRequest, res
 
     const data = updateClinicSchema.parse(req.body);
 
+    // Normalize empty strings to null for optional fields
+    const normalized = {
+      ...data,
+      siret: data.siret === '' ? null : data.siret,
+      tvaIntracomNumber: data.tvaIntracomNumber === '' ? null : data.tvaIntracomNumber,
+      postalCode: data.postalCode === '' ? null : data.postalCode,
+      city: data.city === '' ? null : data.city,
+    };
+
     const updatedClinic = await prisma.clinic.update({
       where: { id: clinicId },
-      data,
+      data: normalized,
       select: {
         id: true,
         name: true,
@@ -106,6 +135,15 @@ router.patch('/', authMiddleware, subscriptionGate, async (req: AuthRequest, res
         queueMode: true,
         rdvGraceMinutes: true,
         enableStepOut: true,
+        siret: true,
+        tvaIntracomNumber: true,
+        tvaRegime: true,
+        postalCode: true,
+        city: true,
+        presetMessage1: true,
+        presetMessage2: true,
+        presetMessage3: true,
+        presetMessage4: true,
       },
     });
 

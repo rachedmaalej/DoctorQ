@@ -31,6 +31,10 @@ export interface SmartWaitEstimate {
   effectiveAvgMins: number;
   confidence: 'high' | 'medium' | 'low';
   doctorAbsent: boolean;
+  /** Per-doctor sub-queue position (1-based). Equals clinic-wide position in single-doctor clinics. */
+  positionInDoctorQueue: number;
+  /** Count of patients ahead in the same doctor's sub-queue. Max(0, positionInDoctorQueue - 1). */
+  patientsAheadForDoctor: number;
 }
 
 // ─── Queue Statistics ───
@@ -393,33 +397,96 @@ async function getNoShowRate(clinicId: string): Promise<number> {
  * 2. Querying upcoming appointments in the estimated wait window
  * 3. Adding a "potential insertions" count to the walk-in estimate
  */
+/**
+ * Compute an accurate wait-time estimate for a patient.
+ *
+ * Multi-doctor aware: when `queueEntryId` is provided and the entry has a
+ * `doctorId`, the function scopes position, IN_CONSULTATION lookup, and
+ * presence check to that specific doctor's sub-queue. Otherwise it falls
+ * back to legacy clinic-wide behavior (single-doctor clinics).
+ *
+ * See `docs/AuSuivantPlan/multi-doctor-wait-estimation-spec.md`.
+ */
 export async function computeSmartWaitEstimate(
   clinicId: string,
-  position: number,
-  doctorId?: string | null
+  clinicWidePosition: number,
+  doctorId?: string | null,
+  queueEntryId?: string,
 ): Promise<SmartWaitEstimate> {
   const avgResult = await getEffectiveConsultationAvgDetailed(clinicId, doctorId);
   // Floor at 1 min to prevent 0 × N = 0 estimates when avg is missing/zero
   const effectiveAvgMins = Math.max(1, avgResult.avgMins);
 
-  // Check doctor presence
-  const clinic = await prisma.clinic.findUnique({
-    where: { id: clinicId },
-    select: { isDoctorPresent: true },
-  });
-  const doctorAbsent = !(clinic?.isDoctorPresent ?? true);
+  // ─── Resolve per-doctor scoping ───
+  // Use per-doctor logic only when we have both an entry id AND a doctorId.
+  // Otherwise (unassigned patients, legacy callers) we fall back to clinic-wide.
+  let positionInDoctorQueue = clinicWidePosition;
+  let scopedDoctorId: string | null = doctorId ?? null;
 
-  if (position <= 0) {
-    return { estimatedWaitMins: 0, minWaitMins: 0, maxWaitMins: 0, effectiveAvgMins, confidence: 'high', doctorAbsent };
+  if (queueEntryId && doctorId) {
+    // Compute per-doctor sub-queue position by filtering to this doctor's entries
+    // ordered by clinic-wide position (relative order preserved within sub-queue).
+    const docQueue = await prisma.queueEntry.findMany({
+      where: {
+        clinicId,
+        doctorId,
+        status: {
+          in: [QueueStatus.WAITING, QueueStatus.NOTIFIED, QueueStatus.IN_CONSULTATION],
+        },
+      },
+      select: { id: true },
+      orderBy: { position: 'asc' },
+    });
+    const idx = docQueue.findIndex((e) => e.id === queueEntryId);
+    if (idx >= 0) {
+      positionInDoctorQueue = idx + 1; // 1-based
+    }
+    // If the entry isn't in the sub-queue (edge case: transferred/completed),
+    // fall through with the clinic-wide position as a best-effort fallback.
   }
 
-  // Get no-show discount
+  // ─── Doctor presence (per-doctor when scoped, else clinic-wide) ───
+  let doctorAbsent: boolean;
+  if (scopedDoctorId) {
+    const doctor = await prisma.doctor.findUnique({
+      where: { id: scopedDoctorId },
+      select: { isActive: true, state: true },
+    });
+    // Present = active AND state is 'consulting' or 'free'
+    doctorAbsent = !doctor
+      || !doctor.isActive
+      || (doctor.state !== 'consulting' && doctor.state !== 'free');
+  } else {
+    const clinic = await prisma.clinic.findUnique({
+      where: { id: clinicId },
+      select: { isDoctorPresent: true },
+    });
+    doctorAbsent = !(clinic?.isDoctorPresent ?? true);
+  }
+
+  const patientsAheadForDoctor = Math.max(0, positionInDoctorQueue - 1);
+
+  if (positionInDoctorQueue <= 0) {
+    return {
+      estimatedWaitMins: 0,
+      minWaitMins: 0,
+      maxWaitMins: 0,
+      effectiveAvgMins,
+      confidence: 'high',
+      doctorAbsent,
+      positionInDoctorQueue: Math.max(1, positionInDoctorQueue),
+      patientsAheadForDoctor: 0,
+    };
+  }
+
+  // ─── No-show discount (clinic-wide for now) ───
   const noShowRate = await getNoShowRate(clinicId);
 
-  // Find the current IN_CONSULTATION patient to account for elapsed time
+  // ─── Find current IN_CONSULTATION patient (scoped to this doctor if scoped) ───
   const currentPatient = await prisma.queueEntry.findFirst({
     where: {
       clinicId,
+      ...(scopedDoctorId ? { doctorId: scopedDoctorId } : {}),
       status: QueueStatus.IN_CONSULTATION,
     },
     select: { calledAt: true },
@@ -431,25 +498,25 @@ export async function computeSmartWaitEstimate(
     // Doctor is actively seeing someone — account for elapsed time
     const elapsedMins = (Date.now() - currentPatient.calledAt.getTime()) / 60000;
     const remaining = Math.max(0, effectiveAvgMins - elapsedMins);
-    const fullConsultationsAhead = Math.max(0, position - 2);
+    const fullConsultationsAhead = Math.max(0, positionInDoctorQueue - 2);
     // Apply no-show discount: some patients ahead may not show up
     const discountedAhead = fullConsultationsAhead * (1 - noShowRate);
     estimatedWaitMins = Math.round(remaining + discountedAhead * effectiveAvgMins);
   } else {
     // No one in consultation (doctor absent or between patients)
-    const fullAhead = Math.max(0, position - 1);
+    const fullAhead = Math.max(0, positionInDoctorQueue - 1);
     const discountedAhead = fullAhead * (1 - noShowRate);
     estimatedWaitMins = Math.round(discountedAhead * effectiveAvgMins);
   }
 
-  // Determine confidence level
+  // ─── Confidence level ───
   let confidence: 'high' | 'medium' | 'low';
 
   if (doctorAbsent) {
     confidence = 'low';
   } else if (avgResult.source === 'clinic_fallback') {
     confidence = 'low';
-  } else if (avgResult.source === 'today_weighted' && avgResult.sampleSize >= 3 && position <= 5) {
+  } else if (avgResult.source === 'today_weighted' && avgResult.sampleSize >= 3 && positionInDoctorQueue <= 5) {
     confidence = 'high';
   } else if (avgResult.source === 'today_weighted' && avgResult.sampleSize >= 3) {
     confidence = 'medium'; // Today's data is good but high position amplifies uncertainty
@@ -460,14 +527,13 @@ export async function computeSmartWaitEstimate(
 
   const capped = Math.max(0, estimatedWaitMins);
 
-  // Range: √n scaling with absolute cap
+  // ─── Range: √n scaling with absolute cap ───
   // Each consultation ahead is an independent random variable — uncertainty grows with √n, not n.
   // Cap at ±20 min so the total spread never exceeds 40 min (actionable, not anxiety-inducing).
-  const patientsAhead = Math.max(0, position - 1);
   const variabilityFactors: Record<string, number> = { high: 0.3, medium: 0.5, low: 0.7 };
   const vf = variabilityFactors[confidence];
   const maxMarginCap = 20;
-  const marginMins = Math.min(maxMarginCap, Math.round(effectiveAvgMins * vf * Math.sqrt(patientsAhead)));
+  const marginMins = Math.min(maxMarginCap, Math.round(effectiveAvgMins * vf * Math.sqrt(patientsAheadForDoctor)));
   const minWaitMins = Math.max(0, capped - marginMins);
   const maxWaitMins = capped + marginMins;
 
@@ -478,5 +544,7 @@ export async function computeSmartWaitEstimate(
     effectiveAvgMins,
     confidence,
     doctorAbsent,
+    positionInDoctorQueue,
+    patientsAheadForDoctor,
   };
 }

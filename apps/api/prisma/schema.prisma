@@ -6,8 +6,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
   // For direct connections (migrations), use DIRECT_URL if available
   // pgbouncer doesn't support DDL transactions, so migrations need a direct connection
   directUrl = env("DIRECT_URL")
@@ -19,50 +19,50 @@ datasource db {
 // - Use DIRECT_URL for migrations when using pgbouncer
 
 model Clinic {
-  id                  String       @id @default(uuid())
+  id                  String  @id @default(uuid())
   name                String
   doctorName          String?
-  doctorGender        String?            // "M" or "F"
+  doctorGender        String? // "M" or "F"
   phone               String?
   address             String?
-  language            String       @default("fr") // fr, ar
-  avgConsultationMins Int          @default(10)
-  isActive            Boolean      @default(true)
+  language            String  @default("fr") // fr, ar
+  avgConsultationMins Int     @default(10)
+  isActive            Boolean @default(true)
 
   // Auth
-  email               String       @unique
-  passwordHash        String?
-  oauthProvider       String?      // 'google' | 'apple' | 'facebook' — null for email/password users
+  email         String  @unique
+  passwordHash  String?
+  oauthProvider String? // 'google' | 'apple' | 'facebook' — null for email/password users
 
   // Settings
-  notifyAtPosition    Int          @default(2)  // Notify when X patients away
-  enableWhatsApp      Boolean      @default(false)
-  isDoctorPresent     Boolean      @default(false)  // Track if doctor is currently seeing patients
+  notifyAtPosition Int     @default(2) // Notify when X patients away
+  enableWhatsApp   Boolean @default(false)
+  isDoctorPresent  Boolean @default(false) // Track if doctor is currently seeing patients
 
   // Announcement to all patients (displayed as banner on patient status page)
-  announcement        String?      // Active announcement text (null = no announcement)
-  announcementAt      DateTime?    // When the announcement was set
+  announcement   String? // Active announcement text (null = no announcement)
+  announcementAt DateTime? // When the announcement was set
 
   // Queue rules
-  queueMode           String       @default("RDV_PRIORITY")  // RDV_PRIORITY | FIFO | RDV_ON_TIME
-  rdvGraceMinutes     Int          @default(15)              // Grace period for RDV_ON_TIME mode (5-30 min)
-  enableStepOut       Boolean      @default(false)           // Allow patients to temporarily step out of queue
+  queueMode       String  @default("RDV_PRIORITY") // RDV_PRIORITY | FIFO | RDV_ON_TIME
+  rdvGraceMinutes Int     @default(15) // Grace period for RDV_ON_TIME mode (5-30 min)
+  enableStepOut   Boolean @default(false) // Allow patients to temporarily step out of queue
 
   // Business type customization
-  businessType        String       @default("medical")  // medical, retail, restaurant, etc.
-  showAppointments    Boolean      @default(true)       // Whether to show appointment time field
+  businessType     String  @default("medical") // medical, retail, restaurant, etc.
+  showAppointments Boolean @default(true) // Whether to show appointment time field
 
   // Specialty & fun facts
-  specialty           String?      // Medical specialty (ophthalmology, dentistry, cardiology, etc.)
-  funFactsEnabled     Boolean      @default(true)  // Show fun facts on patient status page
+  specialty       String? // Medical specialty (ophthalmology, dentistry, cardiology, etc.)
+  funFactsEnabled Boolean @default(true) // Show fun facts on patient status page
 
   // Patient feedback / Google Reviews
-  googlePlaceId     String?                          // Google Maps Place ID for review redirect
-  feedbackEnabled   Boolean      @default(true)      // Toggle to disable post-consultation rating
+  googlePlaceId   String? // Google Maps Place ID for review redirect
+  feedbackEnabled Boolean @default(true) // Toggle to disable post-consultation rating
 
   // Localization settings
-  country                String    @default("TN")    // TN = Tunisia, FR = France
-  enableLanguageSwitcher Boolean   @default(true)    // Show/hide language toggle on public pages
+  country                String  @default("TN") // TN = Tunisia, FR = France
+  enableLanguageSwitcher Boolean @default(true) // Show/hide language toggle on public pages
 
   // NOTE: The following fields are defined in the plan but NOT yet migrated to DB.
   // They are commented out until `prisma db push` or `prisma migrate` can run
@@ -78,20 +78,42 @@ model Clinic {
   // showQueuePosition      Boolean   @default(true)
   // showEstimatedWait      Boolean   @default(true)
 
+  // France legal identifiers (required for facture conforme)
+  siret             String? // 14 digits
+  tvaIntracomNumber String? // FR + 11 digits (optional for micro-enterprises)
+  tvaRegime         String  @default("VAT_EXEMPT_293B") // VAT_APPLIED | VAT_EXEMPT_293B
+
+  // Address completeness (required for invoice issuer address)
+  postalCode String? // 5 digits (France format)
+  city       String?
+
+  // Soft-delete for French accounting retention (10 years on invoices)
+  deletedAt          DateTime? // null = active clinic
+  dataRetentionUntil DateTime? // hard-delete allowed after this date
+
+  // Preset announcement messages (4 slots, max 200 chars each)
+  presetMessage1 String?
+  presetMessage2 String?
+  presetMessage3 String?
+  presetMessage4 String?
+
+  // Session invalidation on password change
+  tokenVersion Int @default(0)
+
   // Activity tracking
-  lastLoginAt         DateTime?    // Last login timestamp for churn detection
-  lastDailyResetAt    DateTime?    // Last successful midnight reset (for lazy cleanup)
+  lastLoginAt      DateTime? // Last login timestamp for churn detection
+  lastDailyResetAt DateTime? // Last successful midnight reset (for lazy cleanup)
 
   // Subscription fields (for self-service)
-  subscriptionStatus    SubscriptionStatus @default(TRIAL)
-  subscriptionPlan      SubscriptionPlan?
-  subscriptionTier      SubscriptionTier   @default(FREE)
-  trialEndsAt           DateTime?          // When free trial expires
-  subscriptionEndsAt    DateTime?          // When paid subscription expires
+  subscriptionStatus SubscriptionStatus @default(TRIAL)
+  subscriptionPlan   SubscriptionPlan?
+  subscriptionTier   SubscriptionTier   @default(FREE)
+  trialEndsAt        DateTime? // When free trial expires
+  subscriptionEndsAt DateTime? // When paid subscription expires
 
   // Tier usage tracking
-  dailyPatientCount     Int                @default(0)
-  dailyCountResetAt     DateTime           @default(now())
+  dailyPatientCount Int      @default(0)
+  dailyCountResetAt DateTime @default(now())
 
   // Email verification
   emailVerified           Boolean   @default(false)
@@ -99,77 +121,82 @@ model Clinic {
   emailVerificationExpiry DateTime?
 
   // Password reset
-  passwordResetToken    String?   @unique
-  passwordResetExpiry   DateTime?
+  passwordResetToken  String?   @unique
+  passwordResetExpiry DateTime?
 
   // Onboarding
-  onboardingCompleted   Boolean   @default(false)
-  onboardingStep        Int       @default(0)
+  onboardingCompleted Boolean @default(false)
+  onboardingStep      Int     @default(0)
 
   // Activation checklist (backend-persisted)
-  activationQrDownloaded       Boolean   @default(false)
-  activationFirstPatient       Boolean   @default(false)
-  activationChecklistDismissed Boolean   @default(false)
+  activationQrDownloaded       Boolean @default(false)
+  activationFirstPatient       Boolean @default(false)
+  activationChecklistDismissed Boolean @default(false)
 
   // Behavior-triggered email tracking (for future cron jobs)
-  qrReminderSentAt             DateTime?
-  noPatientReminderSentAt      DateTime?
+  qrReminderSentAt        DateTime?
+  noPatientReminderSentAt DateTime?
 
-  createdAt           DateTime     @default(now())
-  updatedAt           DateTime     @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  queueEntries          QueueEntry[]
-  dailyStats            DailyStat[]
-  hourlyStats           HourlyStat[]
-  doctorDailyStats      DoctorDailyStat[]
-  paymentRecords        PaymentRecord[]
-  subscriptionEvents    SubscriptionEvent[]
-  doctors               Doctor[]
-  patients              Patient[]
-  scheduleSlots         ScheduleSlot[]
-  feedback              PatientFeedback[]
+  queueEntries       QueueEntry[]
+  dailyStats         DailyStat[]
+  hourlyStats        HourlyStat[]
+  doctorDailyStats   DoctorDailyStat[]
+  paymentRecords     PaymentRecord[]
+  subscriptionEvents SubscriptionEvent[]
+  doctors            Doctor[]
+  patients           Patient[]
+  scheduleSlots      ScheduleSlot[]
+  feedback           PatientFeedback[]
+  closures           ClinicClosure[]
+  invoices           Invoice[]
+  dataExportRequests DataExportRequest[]
 
   @@index([email])
   @@index([subscriptionStatus])
   @@index([trialEndsAt])
+  @@index([deletedAt])
+  @@index([dataRetentionUntil])
 }
 
 model Doctor {
-  id                  String       @id @default(uuid())
-  clinicId            String
-  clinic              Clinic       @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  id       String @id @default(uuid())
+  clinicId String
+  clinic   Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
 
   name                String
   specialty           String?
-  isActive            Boolean      @default(true)
-  avgConsultationMins Int          @default(15)
+  isActive            Boolean @default(true)
+  avgConsultationMins Int     @default(15)
 
-  state               DoctorState  @default(inactive)
-  stateUpdatedAt      DateTime?
-  homeVisitETA        DateTime?
-  colorToken          String       @default("blue")
+  state          DoctorState @default(inactive)
+  stateUpdatedAt DateTime?
+  homeVisitETA   DateTime?
+  colorToken     String      @default("blue")
 
-  createdAt           DateTime     @default(now())
-  updatedAt           DateTime     @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  queueEntries        QueueEntry[]
-  scheduleSlots       ScheduleSlot[]
+  queueEntries  QueueEntry[]
+  scheduleSlots ScheduleSlot[]
 
   @@index([clinicId, isActive])
 }
 
 model Patient {
-  id          String      @id @default(uuid())
+  id          String    @id @default(uuid())
   clinicId    String
   name        String
   phone       String?
-  visitCount  Int         @default(1)
-  lastVisitAt DateTime    @updatedAt
-  createdAt   DateTime    @default(now())
-  deletedAt   DateTime?   // Soft-delete for data compliance
+  visitCount  Int       @default(1)
+  lastVisitAt DateTime  @updatedAt
+  createdAt   DateTime  @default(now())
+  deletedAt   DateTime? // Soft-delete for data compliance
 
-  clinic      Clinic      @relation(fields: [clinicId], references: [id], onDelete: Cascade)
-  entries     QueueEntry[]
+  clinic  Clinic       @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  entries QueueEntry[]
 
   @@unique([clinicId, phone])
   @@index([clinicId, name])
@@ -177,73 +204,73 @@ model Patient {
 }
 
 model QueueEntry {
-  id            String        @id @default(uuid())
-  clinicId      String
-  clinic        Clinic        @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  id       String @id @default(uuid())
+  clinicId String
+  clinic   Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
 
   // Multi-doctor support (nullable for backward compatibility)
-  doctorId      String?
-  doctor        Doctor?       @relation(fields: [doctorId], references: [id], onDelete: SetNull)
+  doctorId String?
+  doctor   Doctor? @relation(fields: [doctorId], references: [id], onDelete: SetNull)
 
-  patientName   String?
-  patientPhone  String
-  position      Int
+  patientName  String?
+  patientPhone String
+  position     Int
 
   status        QueueStatus   @default(WAITING)
   checkInMethod CheckInMethod @default(MANUAL)
 
   // Appointment support (v0.3)
-  appointmentTime DateTime?   // Scheduled appointment time (null = walk-in)
+  appointmentTime DateTime? // Scheduled appointment time (null = walk-in)
 
   // Priority level — urgent patients float to top of queue
-  priority      Priority      @default(normal)
+  priority Priority @default(normal)
 
   // Stepped-out flag — patient temporarily left the waiting room
-  isSteppedOut  Boolean       @default(false)
-  stepOutCount  Int           @default(0)    // How many times patient has stepped out (max 2)
-  steppedOutAt  DateTime?                    // When patient stepped out (for 60-min timeout)
+  isSteppedOut Boolean   @default(false)
+  stepOutCount Int       @default(0) // How many times patient has stepped out (max 2)
+  steppedOutAt DateTime? // When patient stepped out (for 60-min timeout)
 
   // Manual reordering support
   // When set, this patient's position is "pinned" and won't be auto-recalculated
   // Value is the timestamp when manually reordered (used for ordering pinned patients)
   priorityOrder DateTime?
 
-  arrivedAt     DateTime      @default(now())
-  notifiedAt    DateTime?     // When "almost your turn" sent
-  calledAt      DateTime?     // When called for consultation
-  completedAt   DateTime?
+  arrivedAt   DateTime  @default(now())
+  notifiedAt  DateTime? // When "almost your turn" sent
+  calledAt    DateTime? // When called for consultation
+  completedAt DateTime?
 
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Patient record link (for autocomplete & visit tracking)
-  patientId     String?
-  patient       Patient?      @relation(fields: [patientId], references: [id])
+  patientId String?
+  patient   Patient? @relation(fields: [patientId], references: [id])
 
   // Schedule slot link (null = walk-in)
-  slotId        String?       @unique
-  slot          ScheduleSlot? @relation(fields: [slotId], references: [id], onDelete: SetNull)
+  slotId String?       @unique
+  slot   ScheduleSlot? @relation(fields: [slotId], references: [id], onDelete: SetNull)
 
   pushSubscriptions PushSubscription[]
   feedback          PatientFeedback?
 
   // Performance indexes for common queries
-  @@index([clinicId, status])                       // Filter active queue by clinic
-  @@index([clinicId, arrivedAt])                    // Order by arrival time
-  @@index([clinicId, createdAt])                    // Order by creation time
-  @@index([clinicId, appointmentTime])              // Order by appointment time
-  @@index([clinicId, status, position])             // Queue recalculation queries
-  @@index([clinicId, status, arrivedAt])            // Duplicate check (phone + status + date)
-  @@index([clinicId, patientPhone, status])         // Fast duplicate detection
-  @@index([patientPhone])                           // Global phone lookup
-  @@index([status, completedAt])                    // Stats: last completed patient
-  @@index([clinicId, calledAt])                     // Stats: average wait time calculation
-  @@index([doctorId])                               // Multi-doctor queue filtering
+  @@index([clinicId, status]) // Filter active queue by clinic
+  @@index([clinicId, arrivedAt]) // Order by arrival time
+  @@index([clinicId, createdAt]) // Order by creation time
+  @@index([clinicId, appointmentTime]) // Order by appointment time
+  @@index([clinicId, status, position]) // Queue recalculation queries
+  @@index([clinicId, status, arrivedAt]) // Duplicate check (phone + status + date)
+  @@index([clinicId, patientPhone, status]) // Fast duplicate detection
+  @@index([patientPhone]) // Global phone lookup
+  @@index([status, completedAt]) // Stats: last completed patient
+  @@index([clinicId, calledAt]) // Stats: average wait time calculation
+  @@index([doctorId]) // Multi-doctor queue filtering
 }
 
 enum QueueStatus {
   WAITING
-  NOTIFIED      // "Almost your turn" sent
+  NOTIFIED // "Almost your turn" sent
   IN_CONSULTATION
   COMPLETED
   NO_SHOW
@@ -260,7 +287,7 @@ model PatientFeedback {
   id                 String   @id @default(cuid())
   clinicId           String
   queueEntryId       String   @unique
-  rating             Int      // 1–5
+  rating             Int // 1–5
   redirectedToGoogle Boolean  @default(false)
   createdAt          DateTime @default(now())
 
@@ -286,38 +313,38 @@ enum DoctorState {
 }
 
 enum SubscriptionStatus {
-  TRIAL           // Free 30-day trial
-  ACTIVE          // Paid and current
-  PAST_DUE        // Payment failed, grace period
-  EXPIRED         // Trial or subscription ended
-  CANCELLED       // User cancelled
+  TRIAL // Free 30-day trial
+  ACTIVE // Paid and current
+  PAST_DUE // Payment failed, grace period
+  EXPIRED // Trial or subscription ended
+  CANCELLED // User cancelled
 }
 
 enum SubscriptionPlan {
-  MONTHLY         // 65 TND/month or 29/69/149 EUR/month
-  YEARLY          // 650 TND/year or 290/690/1490 EUR/year
+  MONTHLY // 65 TND/month or 29/69/149 EUR/month
+  YEARLY // 650 TND/year or 290/690/1490 EUR/year
 }
 
 enum SubscriptionTier {
-  FREE            // Forever-free: 1 doctor, 30 patients/day, 7-day history
-  SOLO_PRO        // 29 EUR/mo: 1 doctor, 100 patients/day, 90-day history
-  EQUIPE          // 69 EUR/mo: 5 doctors, 100 patients/day, 90-day history
-  CLINIQUE        // 149 EUR/mo: unlimited doctors, unlimited patients, unlimited history
+  FREE // Forever-free: 1 doctor, 30 patients/day, 7-day history
+  SOLO_PRO // 29 EUR/mo: 1 doctor, 100 patients/day, 90-day history
+  EQUIPE // 69 EUR/mo: 5 doctors, 100 patients/day, 90-day history
+  CLINIQUE // 149 EUR/mo: unlimited doctors, unlimited patients, unlimited history
 }
 
 model DailyStat {
-  id            String   @id @default(uuid())
-  clinicId      String
-  clinic        Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  id       String @id @default(uuid())
+  clinicId String
+  clinic   Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
 
-  date                DateTime @db.Date
-  dayOfWeek           Int      @default(0)   // 0=Sun..6=Sat
+  date      DateTime @db.Date
+  dayOfWeek Int      @default(0) // 0=Sun..6=Sat
 
   // Volume
-  totalPatients       Int      @default(0)
-  completed           Int      @default(0)
-  noShows             Int      @default(0)
-  cancelled           Int      @default(0)
+  totalPatients Int @default(0)
+  completed     Int @default(0)
+  noShows       Int @default(0)
+  cancelled     Int @default(0)
 
   // Timing averages (kept for backward compatibility)
   avgWaitMins         Int?
@@ -326,26 +353,26 @@ model DailyStat {
   // Richer timing (enables accurate cross-day averaging)
   maxWaitMins         Int?
   minWaitMins         Int?
-  totalWaitMins       Int      @default(0)   // Sum of all wait times in minutes
-  totalConsultMins    Int      @default(0)   // Sum of all consultation durations
-  patientsWithWait    Int      @default(0)   // Count with valid wait data
-  patientsWithConsult Int      @default(0)   // Count with valid consult data
+  totalWaitMins       Int  @default(0) // Sum of all wait times in minutes
+  totalConsultMins    Int  @default(0) // Sum of all consultation durations
+  patientsWithWait    Int  @default(0) // Count with valid wait data
+  patientsWithConsult Int  @default(0) // Count with valid consult data
 
   // Check-in method breakdown
-  checkInQr           Int      @default(0)
-  checkInManual       Int      @default(0)
-  checkInWhatsapp     Int      @default(0)
+  checkInQr       Int @default(0)
+  checkInManual   Int @default(0)
+  checkInWhatsapp Int @default(0)
 
   // Walk-in vs appointment
-  walkIns             Int      @default(0)
-  appointments        Int      @default(0)
-  emergencies         Int      @default(0)
+  walkIns      Int @default(0)
+  appointments Int @default(0)
+  emergencies  Int @default(0)
 
   // Pre-computed
-  peakHour            Int?     // 0-23, busiest arrival hour
+  peakHour Int? // 0-23, busiest arrival hour
 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([clinicId, date])
   @@index([clinicId, date])
@@ -353,29 +380,29 @@ model DailyStat {
 }
 
 model HourlyStat {
-  id             String   @id @default(uuid())
-  clinicId       String
-  clinic         Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  id       String @id @default(uuid())
+  clinicId String
+  clinic   Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
 
-  date           DateTime @db.Date
-  hour           Int      // 0-23
-  dayOfWeek      Int      // 0=Sun..6=Sat
+  date      DateTime @db.Date
+  hour      Int // 0-23
+  dayOfWeek Int // 0=Sun..6=Sat
 
   // Counts
-  arrivals          Int   @default(0)
-  completed         Int   @default(0)
-  noShows           Int   @default(0)
+  arrivals  Int @default(0)
+  completed Int @default(0)
+  noShows   Int @default(0)
 
   // Timing (sums for accurate cross-hour/day averaging)
-  totalWaitMins     Int   @default(0)
-  totalConsultMins  Int   @default(0)
-  patientsWithWait  Int   @default(0)
+  totalWaitMins    Int @default(0)
+  totalConsultMins Int @default(0)
+  patientsWithWait Int @default(0)
 
   // Method breakdown
-  checkInQr         Int   @default(0)
-  checkInManual     Int   @default(0)
+  checkInQr     Int @default(0)
+  checkInManual Int @default(0)
 
-  createdAt      DateTime @default(now())
+  createdAt DateTime @default(now())
 
   @@unique([clinicId, date, hour])
   @@index([clinicId, dayOfWeek, hour])
@@ -383,45 +410,46 @@ model HourlyStat {
 }
 
 model DoctorDailyStat {
-  clinic         Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
-  id             String   @id @default(uuid())
-  clinicId       String
-  doctorId       String
+  clinic   Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  id       String @id @default(uuid())
+  clinicId String
+  doctorId String
 
-  date           DateTime @db.Date
+  date DateTime @db.Date
 
-  totalPatients     Int   @default(0)
-  completed         Int   @default(0)
-  noShows           Int   @default(0)
-  totalWaitMins     Int   @default(0)
-  totalConsultMins  Int   @default(0)
-  patientsWithWait  Int   @default(0)
+  totalPatients       Int @default(0)
+  completed           Int @default(0)
+  noShows             Int @default(0)
+  totalWaitMins       Int @default(0)
+  totalConsultMins    Int @default(0)
+  patientsWithWait    Int @default(0)
   patientsWithConsult Int @default(0)
 
-  createdAt      DateTime @default(now())
+  createdAt DateTime @default(now())
 
   @@unique([clinicId, doctorId, date])
   @@index([clinicId, date])
   @@index([doctorId, date])
 }
 
-
 model PaymentRecord {
-  id         String   @id @default(uuid())
-  clinicId   String
-  clinic     Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  id       String @id @default(uuid())
+  clinicId String
+  clinic   Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
 
-  amount     Int      // Amount in millimes (65000 = 65 TND)
-  month      DateTime @db.Date  // Payment for which month (first day of month)
-  method     String   // "konnect", "bank_transfer", "cash", "cheque"
-  reference  String?  // Konnect paymentRef or bank transfer ref
-  notes      String?
-  status     String   @default("paid") // "paid", "pending", "failed"
+  amount    Int // Amount in millimes (65000 = 65 TND)
+  month     DateTime @db.Date // Payment for which month (first day of month)
+  method    String // "konnect", "bank_transfer", "cash", "cheque"
+  reference String? // Konnect paymentRef or bank transfer ref
+  notes     String?
+  status    String   @default("paid") // "paid", "pending", "failed"
 
   paidAt     DateTime @default(now())
-  recordedBy String   // Admin email who recorded it
+  recordedBy String // Admin email who recorded it
 
-  createdAt  DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  invoice Invoice?
 
   @@unique([clinicId, month])
   @@index([clinicId])
@@ -430,16 +458,16 @@ model PaymentRecord {
 
 // Track subscription lifecycle events
 model SubscriptionEvent {
-  id            String   @id @default(uuid())
-  clinicId      String
-  clinic        Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  id       String @id @default(uuid())
+  clinicId String
+  clinic   Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
 
-  eventType     String   // trial_started, trial_expired, payment_success, payment_failed, subscription_activated, subscription_cancelled
-  amount        Int?     // Amount in millimes (if payment related)
-  paymentRef    String?  // Konnect reference
-  notes         String?
+  eventType  String // trial_started, trial_expired, payment_success, payment_failed, subscription_activated, subscription_cancelled
+  amount     Int? // Amount in millimes (if payment related)
+  paymentRef String? // Konnect reference
+  notes      String?
 
-  createdAt     DateTime @default(now())
+  createdAt DateTime @default(now())
 
   @@index([clinicId])
   @@index([eventType])
@@ -454,7 +482,7 @@ model PushSubscription {
   auth      String
   createdAt DateTime @default(now())
 
-  entry     QueueEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  entry QueueEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
 
   @@index([entryId])
 }
@@ -471,22 +499,22 @@ model Lead {
 // ─── Phase 2: Schedule View ───
 
 model ScheduleSlot {
-  id          String    @id @default(cuid())
+  id          String   @id @default(cuid())
   clinicId    String
   doctorId    String
-  date        DateTime  @db.Date
+  date        DateTime @db.Date
   startTime   DateTime
   endTime     DateTime
-  slotType    SlotType  @default(named)
+  slotType    SlotType @default(named)
   patientName String?
-  doctoLibId  String?   // External booking reference for future Doctolib import
+  doctoLibId  String? // External booking reference for future Doctolib import
 
-  clinic      Clinic    @relation(fields: [clinicId], references: [id], onDelete: Cascade)
-  doctor      Doctor    @relation(fields: [doctorId], references: [id], onDelete: Cascade)
-  queueEntry  QueueEntry?
+  clinic     Clinic      @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  doctor     Doctor      @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  queueEntry QueueEntry?
 
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([clinicId, date])
   @@index([doctorId, date])
@@ -496,4 +524,76 @@ enum SlotType {
   named
   regulation
   unplanned
+}
+
+// ─── Clinic Closures (jours fériés, congés, exceptional closures) ───
+model ClinicClosure {
+  id        String   @id @default(uuid())
+  clinicId  String
+  clinic    Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  date      DateTime @db.Date
+  reason    String? // "Jour férié", "Congés", "Formation", etc.
+  createdAt DateTime @default(now())
+
+  @@unique([clinicId, date])
+  @@index([clinicId, date])
+}
+
+// ─── Invoices (facture conforme for France) ───
+model Invoice {
+  id       String @id @default(uuid())
+  clinicId String
+  clinic   Clinic @relation(fields: [clinicId], references: [id])
+
+  // Sequential numbering — per-clinic, no gaps (French legal requirement)
+  sequenceNumber Int
+
+  // Optional link to the payment that triggered issuance
+  paymentRecordId String?        @unique
+  paymentRecord   PaymentRecord? @relation(fields: [paymentRecordId], references: [id])
+
+  // Issuance & billing period
+  issuedAt    DateTime @default(now())
+  periodStart DateTime
+  periodEnd   DateTime
+
+  // Amounts (stored in cents/centimes, currency-agnostic)
+  amountHT  Int // Hors Taxes (excl. VAT)
+  tvaRate   Decimal @db.Decimal(5, 2) // 0 or 20 (percent)
+  amountTVA Int // VAT amount
+  amountTTC Int // Toutes Taxes Comprises (incl. VAT)
+  currency  String  @default("EUR")
+
+  // Mention légale on invoice
+  // e.g. "TVA non applicable, art. 293 B du CGI" OR "TVA 20%"
+  legalMention String
+
+  // PDF storage (signed URL generated on-demand)
+  pdfUrl String?
+
+  // Invoice lifecycle
+  status String // DRAFT | ISSUED | PAID | REFUNDED
+
+  @@unique([clinicId, sequenceNumber])
+  @@index([clinicId, issuedAt])
+}
+
+// ─── RGPD Data Export Requests (Art. 15/20) ───
+model DataExportRequest {
+  id       String @id @default(uuid())
+  clinicId String
+  clinic   Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+
+  requestedAt DateTime  @default(now())
+  completedAt DateTime?
+  status      String // PENDING | PROCESSING | READY | EXPIRED | FAILED
+
+  // Signed download URL (expires after 7 days)
+  downloadUrl String?
+  expiresAt   DateTime?
+
+  format     String @default("CSV_ZIP") // CSV_ZIP | JSON
+  fileSizeKb Int?
+
+  @@index([clinicId, requestedAt])
 }

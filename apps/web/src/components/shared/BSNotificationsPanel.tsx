@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuthStore } from '@/stores/authStore';
 import { api } from '@/lib/api';
 import '@/components/receptionist/receptionist.css';
@@ -22,9 +22,21 @@ export default function BSNotificationsPanel({ isOpen, onClose }: BSNotification
   const [quietHoursEnd, setQuietHoursEnd] = useState('07:00');
   const [autoSaveStatus, setAutoSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
 
+  // Preset messages (4 slots) with French defaults
+  const [presetMessages, setPresetMessages] = useState<string[]>(['', '', '', '']);
+  const presetSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   // Push status
   const [pushPermission, setPushPermission] = useState<NotificationPermission | 'unsupported'>('unsupported');
   const [testingSend, setTestingSend] = useState(false);
+
+  // French defaults for preset messages
+  const FRENCH_PRESET_DEFAULTS = [
+    'Le docteur a du retard, merci de patienter',
+    "Le docteur s'absente quelques minutes",
+    "Veuillez vous présenter à l'accueil",
+    '',
+  ];
 
   // Sync from clinic
   useEffect(() => {
@@ -34,8 +46,22 @@ export default function BSNotificationsPanel({ isOpen, onClose }: BSNotification
       setQuietHoursEnabled(clinic.quietHoursStart != null);
       setQuietHoursStart(clinic.quietHoursStart || '20:00');
       setQuietHoursEnd(clinic.quietHoursEnd || '07:00');
+      // Preset messages — fall back to French defaults if no value stored
+      setPresetMessages([
+        clinic.presetMessage1 ?? FRENCH_PRESET_DEFAULTS[0],
+        clinic.presetMessage2 ?? FRENCH_PRESET_DEFAULTS[1],
+        clinic.presetMessage3 ?? FRENCH_PRESET_DEFAULTS[2],
+        clinic.presetMessage4 ?? FRENCH_PRESET_DEFAULTS[3],
+      ]);
     }
   }, [clinic]);
+
+  // Clean up debounce timer on unmount
+  useEffect(() => {
+    return () => {
+      if (presetSaveTimerRef.current) clearTimeout(presetSaveTimerRef.current);
+    };
+  }, []);
 
   // Check push permission
   useEffect(() => {
@@ -109,6 +135,21 @@ export default function BSNotificationsPanel({ isOpen, onClose }: BSNotification
     save({ quietHoursEnd: value });
   }, [save]);
 
+  // Preset message editor with debounced save (500ms)
+  const handlePresetMessageChange = useCallback((index: number, value: string) => {
+    const clamped = value.slice(0, 200);
+    setPresetMessages(prev => {
+      const next = [...prev];
+      next[index] = clamped;
+      return next;
+    });
+    if (presetSaveTimerRef.current) clearTimeout(presetSaveTimerRef.current);
+    presetSaveTimerRef.current = setTimeout(() => {
+      const key = `presetMessage${index + 1}` as 'presetMessage1' | 'presetMessage2' | 'presetMessage3' | 'presetMessage4';
+      save({ [key]: clamped || null });
+    }, 500);
+  }, [save]);
+
   const handleTestPush = useCallback(async () => {
     if (!('Notification' in window) || Notification.permission !== 'granted') return;
     setTestingSend(true);
@@ -131,9 +172,9 @@ export default function BSNotificationsPanel({ isOpen, onClose }: BSNotification
 
   return (
     <>
-      {isOpen && <div className="bs-panel-backdrop" onClick={onClose} />}
+      {isOpen && <div className="bs-panel-backdrop" onClick={onClose} style={{ zIndex: 219 }} />}
 
-      <div className={`bs-right-panel ${isOpen ? 'open' : ''}`} style={{ zIndex: 95 }}>
+      <div className={`bs-right-panel ${isOpen ? 'open' : ''}`} style={{ zIndex: 220, maxWidth: 430, width: '100%' }}>
         {/* Header */}
         <div className="bs-panel-header">
           <button onClick={onClose} className="bs-panel-back">
@@ -513,6 +554,61 @@ export default function BSNotificationsPanel({ isOpen, onClose }: BSNotification
               <span className="material-symbols-rounded" style={{ fontSize: 16 }}>send</span>
               Tester
             </button>
+          </div>
+
+          {/* ── Section: Messages prédéfinis ── */}
+          <div className="bs-settings-label">Messages prédéfinis</div>
+          <div style={{
+            background: '#FFF',
+            border: '1px solid #E8E6DF',
+            borderRadius: 12,
+            padding: 16,
+            marginBottom: 20,
+          }}>
+            <div style={{ fontSize: 12, color: '#6B6960', lineHeight: 1.5, marginBottom: 14 }}>
+              Messages rapides envoyables depuis l'annonce globale. Modifiez-les selon vos besoins.
+            </div>
+            {presetMessages.map((msg, idx) => (
+              <div key={idx} style={{ marginBottom: idx === 3 ? 0 : 12 }}>
+                <label style={{
+                  display: 'block', fontSize: 10, fontWeight: 700,
+                  textTransform: 'uppercase', letterSpacing: '0.6px',
+                  color: '#9E9B90', marginBottom: 4,
+                }}>
+                  Message {idx + 1}
+                </label>
+                <div style={{ position: 'relative' }}>
+                  <textarea
+                    value={msg}
+                    onChange={e => handlePresetMessageChange(idx, e.target.value)}
+                    placeholder={`Saisissez un message (max 200 caractères)`}
+                    maxLength={200}
+                    rows={2}
+                    style={{
+                      width: '100%',
+                      background: '#F6F5F0',
+                      border: '1.5px solid #E8E6DF',
+                      borderRadius: 8,
+                      padding: '8px 10px',
+                      fontFamily: 'inherit',
+                      fontSize: 13,
+                      color: '#1A1A1A',
+                      resize: 'none',
+                      outline: 'none',
+                      boxSizing: 'border-box',
+                    }}
+                    onFocus={e => { e.currentTarget.style.borderColor = '#0F7B6C'; }}
+                    onBlur={e => { e.currentTarget.style.borderColor = '#E8E6DF'; }}
+                  />
+                  <div style={{
+                    position: 'absolute', bottom: 4, right: 8,
+                    fontSize: 10, color: '#9E9B90', pointerEvents: 'none',
+                  }}>
+                    {msg.length}/200
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
 
           {/* ── Auto-save indicator ── */}

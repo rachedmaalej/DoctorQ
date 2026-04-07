@@ -161,6 +161,15 @@ router.get('/me', authMiddleware, async (req: AuthRequest, res: Response) => {
         emailVerified: true,
         onboardingCompleted: true,
         onboardingStep: true,
+        siret: true,
+        tvaIntracomNumber: true,
+        tvaRegime: true,
+        postalCode: true,
+        city: true,
+        presetMessage1: true,
+        presetMessage2: true,
+        presetMessage3: true,
+        presetMessage4: true,
       },
     });
 
@@ -206,7 +215,10 @@ router.get('/me', authMiddleware, async (req: AuthRequest, res: Response) => {
 // POST /api/auth/change-password
 const changePasswordSchema = z.object({
   currentPassword: z.string().min(1),
-  newPassword: z.string().min(8),
+  newPassword: z.string()
+    .min(10, 'Le mot de passe doit contenir au moins 10 caractères')
+    .refine(pw => /[a-zA-Z]/.test(pw), 'Doit contenir au moins 1 lettre')
+    .refine(pw => /\d/.test(pw), 'Doit contenir au moins 1 chiffre'),
 });
 
 router.post('/change-password', authMiddleware, async (req: AuthRequest, res: Response) => {
@@ -215,7 +227,7 @@ router.post('/change-password', authMiddleware, async (req: AuthRequest, res: Re
 
     const clinic = await prisma.clinic.findUnique({
       where: { id: req.clinic!.id },
-      select: { passwordHash: true },
+      select: { passwordHash: true, email: true, name: true, tokenVersion: true },
     });
 
     if (!clinic) {
@@ -238,12 +250,32 @@ router.post('/change-password', authMiddleware, async (req: AuthRequest, res: Re
     }
 
     const passwordHash = await bcrypt.hash(newPassword, 12);
-    await prisma.clinic.update({
+
+    // Increment tokenVersion to invalidate other sessions
+    const updated = await prisma.clinic.update({
       where: { id: req.clinic!.id },
-      data: { passwordHash },
+      data: {
+        passwordHash,
+        tokenVersion: { increment: 1 },
+      },
+      select: { tokenVersion: true },
     });
 
-    res.json({ data: { message: 'Password changed successfully' } });
+    // Issue a fresh JWT for the current session
+    const freshToken = signToken({
+      clinicId: req.clinic!.id,
+      email: clinic.email,
+      name: clinic.name ?? '',
+    });
+
+    logger.info({ clinicId: req.clinic!.id, newTokenVersion: updated.tokenVersion }, 'Password changed, tokenVersion incremented');
+
+    res.json({
+      data: {
+        message: 'Password changed successfully',
+        token: freshToken,
+      },
+    });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({

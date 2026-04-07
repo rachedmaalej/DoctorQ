@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/authStore';
 import { api } from '@/lib/api';
+import { webBrand } from '@/lib/brand';
 import '@/components/receptionist/receptionist.css';
 
 interface BSClinicProfilePanelProps {
@@ -16,7 +17,12 @@ export default function BSClinicProfilePanel({ isOpen, onClose }: BSClinicProfil
   // ── Clinic info ──
   const [clinicForm, setClinicForm] = useState({
     name: '', doctorName: '', doctorGender: '' as 'M' | 'F' | '', phone: '', address: '',
+    // France legal fields
+    siret: '', tvaIntracomNumber: '', postalCode: '', city: '',
+    tvaRegime: 'VAT_EXEMPT_293B' as 'VAT_APPLIED' | 'VAT_EXEMPT_293B',
   });
+
+  const isFrance = webBrand.country === 'FR';
 
   // ── Password ──
   const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
@@ -28,19 +34,28 @@ export default function BSClinicProfilePanel({ isOpen, onClose }: BSClinicProfil
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
 
   // Track last-saved snapshot for dirty detection
-  const savedRef = useRef({ name: '', doctorName: '', doctorGender: '' as string, phone: '', address: '' });
+  const savedRef = useRef({
+    name: '', doctorName: '', doctorGender: '' as string, phone: '', address: '',
+    siret: '', tvaIntracomNumber: '', postalCode: '', city: '', tvaRegime: 'VAT_EXEMPT_293B' as string,
+  });
 
   const getSnapshot = useCallback(() => ({
     name: clinicForm.name, doctorName: clinicForm.doctorName,
     doctorGender: clinicForm.doctorGender, phone: clinicForm.phone,
     address: clinicForm.address,
+    siret: clinicForm.siret, tvaIntracomNumber: clinicForm.tvaIntracomNumber,
+    postalCode: clinicForm.postalCode, city: clinicForm.city,
+    tvaRegime: clinicForm.tvaRegime,
   }), [clinicForm]);
 
   const hasChanges = useCallback(() => {
     const s = savedRef.current;
     const c = getSnapshot();
     return s.name !== c.name || s.doctorName !== c.doctorName || s.doctorGender !== c.doctorGender
-      || s.phone !== c.phone || s.address !== c.address;
+      || s.phone !== c.phone || s.address !== c.address
+      || s.siret !== c.siret || s.tvaIntracomNumber !== c.tvaIntracomNumber
+      || s.postalCode !== c.postalCode || s.city !== c.city
+      || s.tvaRegime !== c.tvaRegime;
   }, [getSnapshot]);
 
   // Auto-save: fire-and-forget when there are dirty changes
@@ -55,6 +70,11 @@ export default function BSClinicProfilePanel({ isOpen, onClose }: BSClinicProfil
         doctorGender: clinicForm.doctorGender || undefined,
         phone: clinicForm.phone || undefined,
         address: clinicForm.address || undefined,
+        siret: clinicForm.siret || null,
+        tvaIntracomNumber: clinicForm.tvaIntracomNumber || null,
+        postalCode: clinicForm.postalCode || null,
+        city: clinicForm.city || null,
+        tvaRegime: clinicForm.tvaRegime,
       });
       savedRef.current = getSnapshot();
       setAutoSaveStatus('saved');
@@ -74,6 +94,11 @@ export default function BSClinicProfilePanel({ isOpen, onClose }: BSClinicProfil
         doctorGender: (clinic.doctorGender as 'M' | 'F') || '',
         phone: (clinic as any).phone || '',
         address: (clinic as any).address || '',
+        siret: (clinic as any).siret || '',
+        tvaIntracomNumber: (clinic as any).tvaIntracomNumber || '',
+        postalCode: (clinic as any).postalCode || '',
+        city: (clinic as any).city || '',
+        tvaRegime: ((clinic as any).tvaRegime as 'VAT_APPLIED' | 'VAT_EXEMPT_293B') || 'VAT_EXEMPT_293B',
       };
       setClinicForm(form);
       savedRef.current = { ...form };
@@ -103,38 +128,46 @@ export default function BSClinicProfilePanel({ isOpen, onClose }: BSClinicProfil
     setExpandedRow(expandedRow === id ? null : id);
   };
 
-  // Extract local 8-digit part from any phone format
+  const cc = webBrand.phone.countryCode;         // "+216" or "+33"
+  const ccDigits = webBrand.phone.countryCodeDigits; // "216" or "33"
+  const maxLocal = webBrand.phone.localDigits;     // 8 or 9
+
+  // Extract local digits from any phone format
   const getLocalDigits = (raw: string): string => {
     if (!raw) return '';
-    // Properly stored with +216 prefix → extract directly
-    if (raw.startsWith('+216')) {
-      return raw.slice(4).replace(/\D/g, '').slice(0, 8);
+    if (raw.startsWith(cc)) {
+      return raw.slice(cc.length).replace(/\D/g, '').slice(0, maxLocal);
     }
     const digits = raw.replace(/\D/g, '');
-    // Starts with 216 and too long to be local only → strip country code
-    if (digits.startsWith('216') && digits.length > 8) {
-      return digits.slice(3).slice(0, 8);
+    if (digits.startsWith(ccDigits) && digits.length > maxLocal) {
+      return digits.slice(ccDigits.length).slice(0, maxLocal);
     }
-    // Otherwise treat all digits as local
-    return digits.slice(0, 8);
+    return digits.slice(0, maxLocal);
   };
 
-  // Format phone for display: +216 XX XXX XXX
+  // Format phone for display
   const formatPhone = (raw: string): string => {
     if (!raw) return '';
     const local = getLocalDigits(raw);
-    if (!local) return '+216 ';
-    if (local.length <= 2) return `+216 ${local}`;
-    if (local.length <= 5) return `+216 ${local.slice(0, 2)} ${local.slice(2)}`;
-    return `+216 ${local.slice(0, 2)} ${local.slice(2, 5)} ${local.slice(5, 8)}`;
+    if (!local) return `${cc} `;
+    if (webBrand.country === 'FR') {
+      // FR: +33 6 12 34 56 78
+      if (local.length <= 1) return `${cc} ${local}`;
+      if (local.length <= 3) return `${cc} ${local.slice(0, 1)} ${local.slice(1)}`;
+      if (local.length <= 5) return `${cc} ${local.slice(0, 1)} ${local.slice(1, 3)} ${local.slice(3)}`;
+      if (local.length <= 7) return `${cc} ${local.slice(0, 1)} ${local.slice(1, 3)} ${local.slice(3, 5)} ${local.slice(5)}`;
+      return `${cc} ${local.slice(0, 1)} ${local.slice(1, 3)} ${local.slice(3, 5)} ${local.slice(5, 7)} ${local.slice(7)}`;
+    }
+    // TN: +216 XX XXX XXX
+    if (local.length <= 2) return `${cc} ${local}`;
+    if (local.length <= 5) return `${cc} ${local.slice(0, 2)} ${local.slice(2)}`;
+    return `${cc} ${local.slice(0, 2)} ${local.slice(2, 5)} ${local.slice(5, 8)}`;
   };
 
   const handlePhoneChange = (input: string) => {
     const digits = input.replace(/\D/g, '');
-    // Strip country code if present (from displayed +216 prefix)
-    const local = digits.startsWith('216') ? digits.slice(3).slice(0, 8) : digits.slice(0, 8);
-    // Always store in +216XXXXXXXX format
-    setClinicForm({ ...clinicForm, phone: local ? `+216${local}` : '' });
+    const local = digits.startsWith(ccDigits) ? digits.slice(ccDigits.length).slice(0, maxLocal) : digits.slice(0, maxLocal);
+    setClinicForm({ ...clinicForm, phone: local ? `${cc}${local}` : '' });
   };
 
 
@@ -163,10 +196,10 @@ export default function BSClinicProfilePanel({ isOpen, onClose }: BSClinicProfil
   return (
     <>
       {/* Backdrop */}
-      {isOpen && <div className="bs-panel-backdrop" onClick={handleClose} />}
+      {isOpen && <div className="bs-panel-backdrop" onClick={handleClose} style={{ zIndex: 219 }} />}
 
       {/* Panel */}
-      <div className={`bs-right-panel ${isOpen ? 'open' : ''}`} style={{ zIndex: 95 }}>
+      <div className={`bs-right-panel ${isOpen ? 'open' : ''}`} style={{ zIndex: 220, maxWidth: 430, width: '100%' }}>
         {/* Header */}
         <div className="bs-panel-header">
           <button onClick={handleClose} className="bs-panel-back">
@@ -252,7 +285,7 @@ export default function BSClinicProfilePanel({ isOpen, onClose }: BSClinicProfil
                 dir="ltr"
                 value={formatPhone(clinicForm.phone)}
                 onChange={e => handlePhoneChange(e.target.value)}
-                placeholder="+216 XX XXX XXX"
+                placeholder={webBrand.phone.placeholder}
               />
             </div>
 
@@ -275,8 +308,119 @@ export default function BSClinicProfilePanel({ isOpen, onClose }: BSClinicProfil
                 onChange={e => setClinicForm({ ...clinicForm, address: e.target.value })}
                 placeholder={t('settingsBs.clinicProfile.addressPlaceholder')}
               />
+              {isFrance && (
+                <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                  <input
+                    className="bs-profile-input"
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={5}
+                    value={clinicForm.postalCode}
+                    onChange={e => setClinicForm({ ...clinicForm, postalCode: e.target.value.replace(/\D/g, '').slice(0, 5) })}
+                    placeholder="Code postal"
+                    style={{ width: 120 }}
+                  />
+                  <input
+                    className="bs-profile-input"
+                    type="text"
+                    value={clinicForm.city}
+                    onChange={e => setClinicForm({ ...clinicForm, city: e.target.value })}
+                    placeholder="Ville"
+                    style={{ flex: 1 }}
+                  />
+                </div>
+              )}
             </div>
           </div>
+
+          {/* ── INFORMATIONS LÉGALES (France only) ── */}
+          {isFrance && (
+            <>
+              <div className="bs-settings-label">Informations légales</div>
+              <div className="bs-settings-group">
+                {/* SIRET */}
+                <button className="bs-settings-item" onClick={() => toggleRow('siret')}>
+                  <div className="bs-settings-ico" style={{ background: '#EDE9FE', color: '#7C3AED' }}>
+                    <span className="material-symbols-rounded" style={{ fontSize: 20 }}>fingerprint</span>
+                  </div>
+                  <div className="bs-settings-txt">
+                    <div className="bs-settings-name">SIRET</div>
+                    <div className="bs-settings-desc">14 chiffres — obligatoire pour les factures</div>
+                  </div>
+                  <span className="material-symbols-rounded bs-settings-chev">chevron_right</span>
+                </button>
+                <div className={`bs-expand ${expandedRow === 'siret' ? 'open' : ''}`}>
+                  <input
+                    className="bs-profile-input"
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={14}
+                    value={clinicForm.siret}
+                    onChange={e => setClinicForm({ ...clinicForm, siret: e.target.value.replace(/\D/g, '').slice(0, 14) })}
+                    placeholder="12345678901234"
+                  />
+                </div>
+
+                {/* TVA Regime */}
+                <button className="bs-settings-item" onClick={() => toggleRow('tvaRegime')}>
+                  <div className="bs-settings-ico" style={{ background: '#FEF7E6', color: '#D4920B' }}>
+                    <span className="material-symbols-rounded" style={{ fontSize: 20 }}>percent</span>
+                  </div>
+                  <div className="bs-settings-txt">
+                    <div className="bs-settings-name">Régime TVA</div>
+                    <div className="bs-settings-desc">
+                      {clinicForm.tvaRegime === 'VAT_APPLIED' ? 'TVA 20% appliquée' : 'Franchise en base (art. 293 B)'}
+                    </div>
+                  </div>
+                  <span className="material-symbols-rounded bs-settings-chev">chevron_right</span>
+                </button>
+                <div className={`bs-expand ${expandedRow === 'tvaRegime' ? 'open' : ''}`}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: '8px 0' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', border: `1.5px solid ${clinicForm.tvaRegime === 'VAT_EXEMPT_293B' ? '#0F7B6C' : '#E8E6DF'}`, borderRadius: 8, cursor: 'pointer' }}>
+                      <input type="radio" name="tvaRegime" checked={clinicForm.tvaRegime === 'VAT_EXEMPT_293B'} onChange={() => setClinicForm({ ...clinicForm, tvaRegime: 'VAT_EXEMPT_293B' })} />
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 600 }}>Franchise en base</div>
+                        <div style={{ fontSize: 11, color: '#6B6960' }}>Micro-entreprise — "TVA non applicable, art. 293 B du CGI"</div>
+                      </div>
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', border: `1.5px solid ${clinicForm.tvaRegime === 'VAT_APPLIED' ? '#0F7B6C' : '#E8E6DF'}`, borderRadius: 8, cursor: 'pointer' }}>
+                      <input type="radio" name="tvaRegime" checked={clinicForm.tvaRegime === 'VAT_APPLIED'} onChange={() => setClinicForm({ ...clinicForm, tvaRegime: 'VAT_APPLIED' })} />
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 600 }}>TVA 20% appliquée</div>
+                        <div style={{ fontSize: 11, color: '#6B6960' }}>Taux normal — factures HT/TTC</div>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+
+                {/* TVA intracom (only if VAT_APPLIED) */}
+                {clinicForm.tvaRegime === 'VAT_APPLIED' && (
+                  <>
+                    <button className="bs-settings-item" onClick={() => toggleRow('tva')}>
+                      <div className="bs-settings-ico" style={{ background: '#FEF7E6', color: '#D4920B' }}>
+                        <span className="material-symbols-rounded" style={{ fontSize: 20 }}>receipt</span>
+                      </div>
+                      <div className="bs-settings-txt">
+                        <div className="bs-settings-name">N° TVA intracommunautaire</div>
+                        <div className="bs-settings-desc">FR + 11 chiffres</div>
+                      </div>
+                      <span className="material-symbols-rounded bs-settings-chev">chevron_right</span>
+                    </button>
+                    <div className={`bs-expand ${expandedRow === 'tva' ? 'open' : ''}`}>
+                      <input
+                        className="bs-profile-input"
+                        type="text"
+                        maxLength={13}
+                        value={clinicForm.tvaIntracomNumber}
+                        onChange={e => setClinicForm({ ...clinicForm, tvaIntracomNumber: e.target.value.toUpperCase().replace(/[^FR0-9]/g, '').slice(0, 13) })}
+                        placeholder="FR12345678901"
+                      />
+                    </div>
+                  </>
+                )}
+              </div>
+            </>
+          )}
 
           {/* ── SÉCURITÉ ── */}
           <div className="bs-settings-label">{t('settingsBs.clinicProfile.security')}</div>

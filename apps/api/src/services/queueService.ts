@@ -59,16 +59,55 @@ export async function addPatient(input: AddPatientInput): Promise<AddPatientResu
 
   const formattedPhone = patientPhone ? formatPhoneNumber(patientPhone) : '';
 
-  // Auto-assign to primary doctor if no doctorId provided (e.g., QR check-in)
+  // Auto-assign to doctor with fewest waiting patients (load-balanced)
+  // In multi-doctor clinics, this spreads patients evenly across available doctors
+  // instead of piling everyone onto the primary doctor.
   let resolvedDoctorId = doctorId;
   if (!resolvedDoctorId) {
-    const primaryDoctor = await prisma.doctor.findFirst({
-      where: { clinicId, isActive: true },
-      orderBy: { createdAt: 'asc' },
+    const activeDoctors = await prisma.doctor.findMany({
+      where: {
+        clinicId,
+        isActive: true,
+        state: { notIn: ['inactive', 'absent_today'] },
+      },
       select: { id: true },
+      orderBy: { createdAt: 'asc' },
     });
-    if (primaryDoctor) {
-      resolvedDoctorId = primaryDoctor.id;
+
+    if (activeDoctors.length === 1) {
+      // Single doctor — assign directly
+      resolvedDoctorId = activeDoctors[0].id;
+    } else if (activeDoctors.length > 1) {
+      // Multi-doctor — pick the one with fewest waiting patients
+      const counts = await prisma.queueEntry.groupBy({
+        by: ['doctorId'],
+        where: {
+          clinicId,
+          doctorId: { in: activeDoctors.map(d => d.id) },
+          status: { in: ['WAITING', 'NOTIFIED', 'IN_CONSULTATION'] },
+        },
+        _count: { id: true },
+      });
+
+      const countMap = new Map(counts.map(c => [c.doctorId, c._count.id]));
+      let minDoc = activeDoctors[0].id;
+      let minCount = countMap.get(activeDoctors[0].id) ?? 0;
+      for (const doc of activeDoctors) {
+        const cnt = countMap.get(doc.id) ?? 0;
+        if (cnt < minCount) {
+          minDoc = doc.id;
+          minCount = cnt;
+        }
+      }
+      resolvedDoctorId = minDoc;
+    } else {
+      // No active doctors — fall back to any active doctor (legacy)
+      const fallback = await prisma.doctor.findFirst({
+        where: { clinicId, isActive: true },
+        orderBy: { createdAt: 'asc' },
+        select: { id: true },
+      });
+      if (fallback) resolvedDoctorId = fallback.id;
     }
   }
 
@@ -676,10 +715,11 @@ export async function getPatientStatus(entryId: string) {
     }
   }
 
-  const { estimatedWaitMins, minWaitMins, maxWaitMins, effectiveAvgMins, confidence, doctorAbsent } = await computeSmartWaitEstimate(
+  const { estimatedWaitMins, minWaitMins, maxWaitMins, effectiveAvgMins, confidence, doctorAbsent, positionInDoctorQueue, patientsAheadForDoctor } = await computeSmartWaitEstimate(
     entry.clinicId,
     entry.position,
-    entry.doctorId
+    entry.doctorId,
+    entry.id,
   );
 
   // Check if there are urgent patients ahead (for emergency explanation)
@@ -713,6 +753,8 @@ export async function getPatientStatus(entryId: string) {
     estimatedWaitMins,
     minWaitMins,
     maxWaitMins,
+    positionInDoctorQueue,
+    patientsAheadForDoctor,
     hasEmergencyAhead,
     updatedAt: new Date().toISOString(),
     avgConsultationMins: effectiveAvgMins,

@@ -42,14 +42,20 @@ export async function getDoctor(clinicId: string, doctorId: string) {
 }
 
 export async function createDoctor(input: CreateDoctorInput) {
-  return prisma.doctor.create({
+  const doctor = await prisma.doctor.create({
     data: {
       clinicId: input.clinicId,
       name: input.name,
       specialty: input.specialty,
       avgConsultationMins: input.avgConsultationMins ?? 15,
+      // Start doctors as 'free' so they're immediately available for patient assignment
+      state: 'free',
+      stateUpdatedAt: new Date(),
     },
   });
+  // Keep clinic presence flag in sync
+  await syncClinicPresence(input.clinicId);
+  return doctor;
 }
 
 export async function updateDoctor(clinicId: string, doctorId: string, input: UpdateDoctorInput) {
@@ -60,10 +66,26 @@ export async function updateDoctor(clinicId: string, doctorId: string, input: Up
 
   if (!doctor) return null;
 
-  return prisma.doctor.update({
+  // Sync state with isActive toggle:
+  // - Deactivating → state becomes 'inactive'
+  // - Activating → state becomes 'free' (available for patient assignment)
+  const data: Record<string, unknown> = { ...input };
+  if (input.isActive !== undefined && input.isActive !== doctor.isActive) {
+    data.state = input.isActive ? 'free' : 'inactive';
+    data.stateUpdatedAt = new Date();
+  }
+
+  const updated = await prisma.doctor.update({
     where: { id: doctorId },
-    data: input,
+    data,
   });
+
+  // Keep clinic presence flag in sync if state changed
+  if (data.state) {
+    await syncClinicPresence(clinicId);
+  }
+
+  return updated;
 }
 
 export async function deleteDoctor(clinicId: string, doctorId: string) {

@@ -30,6 +30,9 @@ export default function ASCallNextSheet({
   const activeDoctors = doctors.filter(d => d.isActive);
   const hasDoctors = activeDoctors.length > 0;
 
+  // Total waiting across all doctors — used to enable free doctors to pull patients
+  const totalWaiting = Array.from(waitingByDoctor.values()).reduce((s, n) => s + n, 0) + unassignedWaiting;
+
   return (
     <>
       {/* Backdrop */}
@@ -95,7 +98,10 @@ export default function ASCallNextSheet({
                 const assigned = waitingByDoctor.get(doctor.id) || 0;
                 const waiting = assigned + unassignedWaiting;
                 const color = getDoctorColor(doctor.id, doctors);
-                const hasPatients = waiting > 0;
+                // Doctor is actionable if they have patients OR if there are patients
+                // anywhere in the clinic and this doctor is available to take one
+                const isFreeDoctor = doctor.state === 'free' || doctor.state === 'consulting';
+                const hasPatients = waiting > 0 || (totalWaiting > 0 && isFreeDoctor);
 
                 return (
                   <button
@@ -141,9 +147,11 @@ export default function ASCallNextSheet({
                         {formatDoctorName(doctor.name)}
                       </div>
                       <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
-                        {hasPatients
+                        {waiting > 0
                           ? `${waiting} en attente`
-                          : 'Aucun patient en attente'}
+                          : hasPatients
+                            ? 'Disponible — prendre un patient'
+                            : 'Aucun patient en attente'}
                       </div>
                     </div>
 

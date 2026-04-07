@@ -557,11 +557,46 @@ class ApiClient {
     welcomeMessage?: string | null;
     showQueuePosition?: boolean;
     showEstimatedWait?: boolean;
+    // France legal identifiers
+    siret?: string | null;
+    tvaIntracomNumber?: string | null;
+    tvaRegime?: 'VAT_APPLIED' | 'VAT_EXEMPT_293B';
+    postalCode?: string | null;
+    city?: string | null;
+    // Preset messages
+    presetMessage1?: string | null;
+    presetMessage2?: string | null;
+    presetMessage3?: string | null;
+    presetMessage4?: string | null;
   }): Promise<Clinic> {
     return this.request('/api/clinic', {
       method: 'PATCH',
       body: JSON.stringify(data),
     });
+  }
+
+  // ─── Closures ───
+
+  async getClosures(): Promise<{ id: string; date: string; reason: string | null }[]> {
+    const res = await this.request<{ data: { id: string; date: string; reason: string | null }[] }>('/api/clinic/closures');
+    return (res as any).data ?? res;
+  }
+
+  async addClosure(date: string, reason?: string): Promise<{ id: string; date: string; reason: string | null }> {
+    const res = await this.request<{ data: { id: string; date: string; reason: string | null } }>('/api/clinic/closures', {
+      method: 'POST',
+      body: JSON.stringify({ date, reason }),
+    });
+    return (res as any).data ?? res;
+  }
+
+  async deleteClosure(id: string): Promise<void> {
+    await this.request(`/api/clinic/closures/${id}`, { method: 'DELETE' });
+  }
+
+  async checkClosureToday(clinicId: string): Promise<{ isClosed: boolean; reason: string | null }> {
+    const res = await this.request<{ data: { isClosed: boolean; reason: string | null } }>(`/api/clinic/closures/today?clinicId=${clinicId}`);
+    return (res as any).data ?? res;
   }
 
   async getPaymentHistory(): Promise<PaymentRecord[]> {

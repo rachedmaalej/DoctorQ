@@ -150,7 +150,7 @@ export default function BSTeamAccessPanel({ isOpen, onClose, zIndex }: BSTeamAcc
     <>
       {isOpen && <div className="bs-panel-backdrop" onClick={onClose} style={zIndex ? { zIndex: zIndex - 1 } : undefined} />}
 
-      <div className={`bs-right-panel ${isOpen ? 'open' : ''}`} style={{ zIndex: zIndex ?? 95 }}>
+      <div className={`bs-right-panel ${isOpen ? 'open' : ''}`} style={{ zIndex: zIndex ?? 95, maxWidth: 430, width: '100%' }}>
         {/* Header */}
         <div className="bs-panel-header">
           <button onClick={onClose} className="bs-panel-back">

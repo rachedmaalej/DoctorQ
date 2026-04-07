@@ -7,7 +7,8 @@ import { usePatientActions } from '@/hooks/usePatientActions';
 import './ausuivant.css';
 
 import ASTopbar from './ASTopbar';
-import ASDoctorStatusBar from './ASDoctorStatusBar';
+import ASTricolorBar from './ASTricolorBar';
+import DoctorChips from '@/components/queue/DoctorChips';
 import ASDoctorActionPanel from './ASDoctorActionPanel';
 import ASWaitingRoom from './ASWaitingRoom';
 import ASQuickActionBar from './ASQuickActionBar';
@@ -175,6 +176,11 @@ export default function AuSuivantDashboard({
     ? allPatients.find(p => p.status === 'WAITING' || p.status === 'NOTIFIED') ?? null
     : null;
 
+  // Next patient across both modes — used by the floating CTA to show the name
+  const nextPatient = allPatients.find(
+    (p) => p.status === 'WAITING' || p.status === 'NOTIFIED',
+  ) ?? null;
+
   // Doctor actions
   const refreshDoctors = onRefreshDoctors || (() => {});
   const doctorActions = useDoctorActions(refreshDoctors);
@@ -195,29 +201,29 @@ export default function AuSuivantDashboard({
 
   return (
     <div className="as-dashboard">
+      {/* French tricolor flag accent — AuSuivant brand differentiator */}
+      <ASTricolorBar />
       {/* Topbar */}
       <ASTopbar
         onOpenSettings={() => setIsSettingsOpen(true)}
         isSessionActive={isDoctorPresent}
       />
 
-      {/* Solo-doctor mode: Stats strip (only when session active) */}
-      {!hasMultiDoctor && effectiveDoctorPresent && (
+      {/* Stats strip — always visible when session active (solo or multi-doctor) */}
+      {effectiveDoctorPresent && (
         <ASStatsStrip stats={stats} waitingCount={waitingCount} avgMins={avgMins} />
       )}
 
-      {/* B3 Per-Doctor Cards with KPIs (multi-doctor only) */}
+      {/* Horizontal doctor chips (multi-doctor only) */}
       {hasMultiDoctor && (
         <div style={{ position: 'relative' }}>
-          <ASDoctorStatusBar
+          <DoctorChips
             doctors={doctors}
-            queue={queue}
             waitingByDoctor={waitingByDoctor}
             onDoctorClick={(id) => setActionPanelDoctorId(id === actionPanelDoctorId ? null : id)}
-            onCallNextForDoctor={onCallNextForDoctor}
           />
 
-          {/* Doctor Action Panel (positioned absolutely below status bar) */}
+          {/* Doctor Action Panel (positioned absolutely below chips) */}
           {actionPanelDoctor && (
             <ASDoctorActionPanel
               doctor={actionPanelDoctor}
@@ -418,6 +424,7 @@ export default function AuSuivantDashboard({
           isCallingNext={isCallingNext}
           disabled={waitingCount === 0 || !effectiveDoctorPresent}
           waitingCount={waitingCount}
+          nextPatientName={nextPatient?.patientName ?? null}
         />
       )}
 

@@ -178,9 +178,9 @@ export default function BSWaitingRoomDisplayPanel({ isOpen, onClose }: BSWaiting
 
   return (
     <>
-      {isOpen && <div className="bs-panel-backdrop" onClick={onClose} />}
+      {isOpen && <div className="bs-panel-backdrop" onClick={onClose} style={{ zIndex: 219 }} />}
 
-      <div className={`bs-right-panel ${isOpen ? 'open' : ''}`} style={{ zIndex: 95 }}>
+      <div className={`bs-right-panel ${isOpen ? 'open' : ''}`} style={{ zIndex: 220, maxWidth: 430, width: '100%' }}>
         {/* Header */}
         <div className="bs-panel-header">
           <button onClick={onClose} className="bs-panel-back">

@@ -113,6 +113,20 @@ export interface Clinic {
   welcomeMessage?: string | null;
   showQueuePosition?: boolean;
   showEstimatedWait?: boolean;
+  // France legal identifiers
+  siret?: string | null;
+  tvaIntracomNumber?: string | null;
+  tvaRegime?: 'VAT_APPLIED' | 'VAT_EXEMPT_293B';
+  postalCode?: string | null;
+  city?: string | null;
+  // Preset announcement messages (4 slots)
+  presetMessage1?: string | null;
+  presetMessage2?: string | null;
+  presetMessage3?: string | null;
+  presetMessage4?: string | null;
+  // Address field (was missing from the type)
+  address?: string | null;
+  phone?: string | null;
 }
 
 export type DoctorState = 'consulting' | 'free' | 'pause' | 'absent_today' | 'home_visit' | 'inactive';
@@ -246,6 +260,10 @@ export interface PatientStatusResponse extends QueueEntry {
   estimatedWaitMins?: number;
   minWaitMins?: number;
   maxWaitMins?: number;
+  /** Per-doctor sub-queue position (1-based). Multi-doctor accuracy. */
+  positionInDoctorQueue?: number;
+  /** Patients ahead in the same doctor's sub-queue. Prefer over (position - 1). */
+  patientsAheadForDoctor?: number;
   hasEmergencyAhead?: boolean;
   updatedAt?: string;
   avgConsultationMins?: number;

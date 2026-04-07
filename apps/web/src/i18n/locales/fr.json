@@ -195,7 +195,22 @@
     "confirm": {
       "remove": "Retirer {{name}} de la file d'attente ?"
     },
-    "empty": "Aucun patient dans la file d'attente"
+    "empty": "Aucun patient dans la file d'attente",
+    "doctors": {
+      "title": "Médecins",
+      "waiting": "att.",
+      "seen": "vus",
+      "avgWait": "moy.",
+      "free": "— libre —",
+      "next": "Suivant",
+      "nextAria": "Appeler le prochain patient pour ce médecin"
+    },
+    "consultation": {
+      "title": "En Consultation",
+      "empty": "Aucune consultation en cours",
+      "minute_unit": "min",
+      "finish_aria": "Terminer la consultation de {{patient}} avec {{doctor}}"
+    }
   },
   "patient": {
     "hello": "Bonjour",
@@ -302,6 +317,8 @@
     "stat_ahead": "Personnes avant vous",
     "stat_minutes": "Minutes estimées",
     "stat_today": "Patients ce matin",
+    "wait_estimate": "attente estimée",
+    "in_consult_label": "En consultation",
     "name_title": "Votre nom",
     "name_placeholder": "Prénom et nom",
     "name_required": "Veuillez entrer votre nom",

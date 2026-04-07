@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useAuthStore } from '@/stores/authStore';
 
 interface AnnouncementModalProps {
   isOpen: boolean;
@@ -11,7 +12,7 @@ interface AnnouncementModalProps {
 
 const MAX_CHARS = 500;
 
-const PRESET_KEYS = [
+const FALLBACK_PRESET_KEYS = [
   'announcement.presetSteppedOut',
   'announcement.presetRunningLate',
   'announcement.presetBackSoon',
@@ -26,9 +27,22 @@ export default function AnnouncementModal({
   isLoading,
 }: AnnouncementModalProps) {
   const { t } = useTranslation();
+  const { clinic } = useAuthStore();
   const modalRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [message, setMessage] = useState('');
+
+  // Resolve preset messages: prefer clinic-configured, fall back to i18n defaults.
+  const customPresets = [
+    clinic?.presetMessage1,
+    clinic?.presetMessage2,
+    clinic?.presetMessage3,
+    clinic?.presetMessage4,
+  ];
+  const presetTexts: string[] = customPresets.map((custom, idx) => {
+    if (custom && custom.trim().length > 0) return custom;
+    return t(FALLBACK_PRESET_KEYS[idx]);
+  }).filter((text) => text && text.trim().length > 0);
 
   // Sync message with current announcement when opening
   useEffect(() => {
@@ -129,20 +143,17 @@ export default function AnnouncementModal({
             {/* Preset chips */}
             <p className="text-xs font-medium text-gray-500 mb-2">{t('announcement.presetsLabel')}</p>
             <div className="flex flex-wrap gap-2 mb-3">
-              {PRESET_KEYS.map((key) => {
-                const presetText = t(key);
-                return (
-                  <button
-                    key={key}
-                    type="button"
-                    onClick={() => setMessage(presetText)}
-                    disabled={isLoading}
-                    className="px-3 py-1.5 rounded-full text-xs font-medium bg-primary-50 text-primary-700 hover:bg-primary-100 transition-colors disabled:opacity-50"
-                  >
-                    {presetText}
-                  </button>
-                );
-              })}
+              {presetTexts.map((presetText, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => setMessage(presetText)}
+                  disabled={isLoading}
+                  className="px-3 py-1.5 rounded-full text-xs font-medium bg-primary-50 text-primary-700 hover:bg-primary-100 transition-colors disabled:opacity-50"
+                >
+                  {presetText}
+                </button>
+              ))}
             </div>
 
             {/* Textarea */}

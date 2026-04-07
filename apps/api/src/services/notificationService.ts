@@ -79,19 +79,24 @@ export function emitPatientUpdate(
   minWaitMins?: number,
   maxWaitMins?: number,
   hasEmergencyAhead?: boolean,
+  positionInDoctorQueue?: number,
+  patientsAheadForDoctor?: number,
 ): void {
   const roomName = `patient:${entryId}`;
   logger.debug({ room: roomName, position, status, estimatedWaitMins, confidence, isSteppedOut }, 'Emitting patient:called');
   emitToRoom(roomName, 'patient:called', {
     position, status, estimatedWaitMins, confidence, isSteppedOut,
     minWaitMins, maxWaitMins, hasEmergencyAhead,
+    positionInDoctorQueue, patientsAheadForDoctor,
     updatedAt: new Date().toISOString(),
   });
+
+  // Compute "people ahead" — prefer per-doctor count when available
+  const peopleAhead = patientsAheadForDoctor ?? Math.max(0, position - 1);
 
   // Send Web Push for critical statuses (non-blocking — fire and forget)
   if (isPushConfigured()) {
     if (status === QueueStatus.NOTIFIED) {
-      const peopleAhead = Math.max(0, position - 1);
       sendPushToEntry(entryId, {
         title: 'Votre tour approche !',
         body: peopleAhead === 1
@@ -107,10 +112,10 @@ export function emitPatientUpdate(
         tag: `queue-${entryId}`,
         url: `/patient/status/${entryId}`,
       }).catch((err) => logger.error({ err, entryId }, 'Push notification failed'));
-    } else if (position <= 3 && status === QueueStatus.WAITING) {
+    } else if (peopleAhead <= 2 && status === QueueStatus.WAITING) {
       sendPushToEntry(entryId, {
         title: 'Vous avancez',
-        body: `Encore ${Math.max(0, position - 1)} personne${position > 2 ? 's' : ''} devant vous.`,
+        body: `Encore ${peopleAhead} personne${peopleAhead > 1 ? 's' : ''} devant vous.`,
         tag: `queue-${entryId}`,
         url: `/patient/status/${entryId}`,
       }).catch((err) => logger.error({ err, entryId }, 'Push notification failed'));
@@ -142,16 +147,18 @@ export async function emitAllPatientUpdates(clinicId: string): Promise<void> {
     .map(p => p.position);
 
   for (const patient of patients) {
-    const { estimatedWaitMins, confidence, minWaitMins, maxWaitMins } = await computeSmartWaitEstimate(
+    const { estimatedWaitMins, confidence, minWaitMins, maxWaitMins, positionInDoctorQueue, patientsAheadForDoctor } = await computeSmartWaitEstimate(
       clinicId,
       patient.position,
       patient.doctorId,
+      patient.id,
     );
     const hasEmergencyAhead = urgentPositions.some(pos => pos < patient.position);
     emitPatientUpdate(
       patient.id, patient.position, patient.status,
       estimatedWaitMins, confidence, patient.isSteppedOut,
       minWaitMins, maxWaitMins, hasEmergencyAhead,
+      positionInDoctorQueue, patientsAheadForDoctor,
     );
   }
 }

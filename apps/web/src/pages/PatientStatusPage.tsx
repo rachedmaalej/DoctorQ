@@ -133,14 +133,15 @@ export default function PatientStatusPage() {
 
   // ─── Socket Handlers ───
 
-  const handlePatientCalled = useCallback((data: { position: number; status: string; estimatedWaitMins?: number; confidence?: 'high' | 'medium' | 'low'; isSteppedOut?: boolean; minWaitMins?: number; maxWaitMins?: number; hasEmergencyAhead?: boolean; updatedAt?: string }) => {
+  const handlePatientCalled = useCallback((data: { position: number; status: string; estimatedWaitMins?: number; confidence?: 'high' | 'medium' | 'low'; isSteppedOut?: boolean; minWaitMins?: number; maxWaitMins?: number; hasEmergencyAhead?: boolean; positionInDoctorQueue?: number; patientsAheadForDoctor?: number; updatedAt?: string }) => {
     logger.log('[PatientStatus] handlePatientCalled received:', data);
 
     const status = data.status as QueueStatus;
     const newPosition = data.position;
     const oldPosition = previousPositionRef.current;
     const oldStatus = prevStatusRef.current;
-    const peopleAhead = Math.max(0, newPosition - 1);
+    // Prefer per-doctor count when available (multi-doctor accuracy)
+    const peopleAhead = data.patientsAheadForDoctor ?? Math.max(0, newPosition - 1);
 
     // Update stepped-out state from socket if provided
     if (data.isSteppedOut !== undefined) {
@@ -206,6 +207,8 @@ export default function PatientStatusPage() {
         ...(data.minWaitMins !== undefined && { minWaitMins: data.minWaitMins }),
         ...(data.maxWaitMins !== undefined && { maxWaitMins: data.maxWaitMins }),
         ...(data.hasEmergencyAhead !== undefined && { hasEmergencyAhead: data.hasEmergencyAhead }),
+        ...(data.positionInDoctorQueue !== undefined && { positionInDoctorQueue: data.positionInDoctorQueue }),
+        ...(data.patientsAheadForDoctor !== undefined && { patientsAheadForDoctor: data.patientsAheadForDoctor }),
       };
     });
   }, [t]);
@@ -428,7 +431,8 @@ export default function PatientStatusPage() {
   }
 
   // ─── Derived State ───
-  const peopleAhead = Math.max(0, entry.position - 1);
+  // Prefer per-doctor count when available (multi-doctor accuracy)
+  const peopleAhead = entry.patientsAheadForDoctor ?? Math.max(0, entry.position - 1);
   const phase: Phase = derivePhase(entry.status, peopleAhead);
   const isCalled = entry.status === QueueStatus.IN_CONSULTATION;
   const isWaiting = phase === 'relax' || phase === 'ready';

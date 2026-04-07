@@ -697,10 +697,11 @@ router.post('/checkin/:clinicId', async (req, res: Response) => {
       });
     }
 
-    const { estimatedWaitMins, minWaitMins, maxWaitMins } = await computeSmartWaitEstimate(
+    const { estimatedWaitMins, minWaitMins, maxWaitMins, positionInDoctorQueue, patientsAheadForDoctor } = await computeSmartWaitEstimate(
       clinic.id,
       result.entry.position,
-      result.entry.doctorId
+      result.entry.doctorId,
+      result.entry.id,
     );
 
     res.status(201).json({
@@ -710,6 +711,8 @@ router.post('/checkin/:clinicId', async (req, res: Response) => {
         estimatedWaitMins,
         minWaitMins,
         maxWaitMins,
+        positionInDoctorQueue,
+        patientsAheadForDoctor,
       },
     });
   } catch (error) {

@@ -3,9 +3,9 @@ import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { io, type Socket } from 'socket.io-client';
 import { useCheckInStore } from '@/stores/checkInStore';
+import { webBrand } from '@/lib/brand';
 import type {
   PublicQueueSnapshot,
-  PublicQueueEntry,
   CheckInPayload,
   CheckInResponse,
 } from '@/types/checkin';
@@ -27,6 +27,15 @@ const API = getApiBase();
 // ─── Phone formatting ───────────────────────────────────
 
 function displayPhone(raw: string): string {
+  // FR: "6 12 34 56 78" (groups of 1+2+2+2+2)
+  if (webBrand.country === 'FR') {
+    if (raw.length <= 1) return raw;
+    if (raw.length <= 3) return `${raw.slice(0, 1)} ${raw.slice(1)}`;
+    if (raw.length <= 5) return `${raw.slice(0, 1)} ${raw.slice(1, 3)} ${raw.slice(3)}`;
+    if (raw.length <= 7) return `${raw.slice(0, 1)} ${raw.slice(1, 3)} ${raw.slice(3, 5)} ${raw.slice(5)}`;
+    return `${raw.slice(0, 1)} ${raw.slice(1, 3)} ${raw.slice(3, 5)} ${raw.slice(5, 7)} ${raw.slice(7)}`;
+  }
+  // TN: "XX XXX XXX" (groups of 2+3+3)
   if (raw.length <= 2) return raw;
   if (raw.length <= 5) return `${raw.slice(0, 2)} ${raw.slice(2)}`;
   return `${raw.slice(0, 2)} ${raw.slice(2, 5)} ${raw.slice(5)}`;
@@ -67,157 +76,92 @@ function TopBar({
   );
 }
 
-// ─── QueueVisual ────────────────────────────────────────
-
-function QueueVisual({
-  entries,
-  waitingCount,
-  avgConsultMinutes,
-  isDoctorPresent,
-}: {
-  entries: PublicQueueEntry[];
-  waitingCount: number;
-  avgConsultMinutes: number;
-  isDoctorPresent: boolean;
-}) {
-  const { t } = useTranslation();
-  const inConsult = entries.find((e) => e.status === 'IN_CONSULTATION');
-  const waiting = entries.filter((e) => e.status !== 'IN_CONSULTATION').slice(0, 3);
-  const youEstimate = Math.max(1, waitingCount * avgConsultMinutes);
-
-  type NodeDef = {
-    type: 'consult' | 'waiting' | 'you';
-    initials: string;
-    label: string;
-  };
-
-  const nodes: NodeDef[] = [];
-
-  // Node 1: in consultation
-  if (inConsult) {
-    nodes.push({
-      type: 'consult',
-      initials: inConsult.initials,
-      label: t('checkin.in_consult'),
-    });
-  } else {
-    nodes.push({
-      type: 'consult',
-      initials: isDoctorPresent ? '?' : '—',
-      label: t('checkin.in_consult'),
-    });
-  }
-
-  // Nodes 2-4: waiting
-  for (const entry of waiting) {
-    nodes.push({
-      type: 'waiting',
-      initials: entry.initials,
-      label: `~${entry.waitMinutes} min`,
-    });
-  }
-
-  // Node 5: YOU
-  nodes.push({
-    type: 'you',
-    initials: '?',
-    label: `~${youEstimate} min`,
-  });
-
-  const avatarClasses = {
-    consult:
-      'w-9 h-9 rounded-full bg-[#356B58] border-[3px] border-white flex items-center justify-center text-[14px] font-semibold text-white shadow-[0_2px_8px_rgba(0,0,0,.1)] z-10 relative',
-    waiting:
-      'w-9 h-9 rounded-full bg-[#EAECE6] border-[1.5px] border-[#356B58]/20 flex items-center justify-center text-[11px] font-bold text-[#356B58] z-10 relative',
-    you: 'w-9 h-9 rounded-full bg-transparent border-[2.5px] border-dashed border-[#356B58] flex items-center justify-center text-[10px] font-bold text-[#356B58] z-10 relative animate-you-pulse',
-  };
-
-  return (
-    <div className="flex items-center relative">
-      {/* Connector line */}
-      <div className="absolute top-[18px] left-5 right-5 h-[2px] bg-gradient-to-r from-[#356B58] to-[#356B58]/10 z-0" />
-      {nodes.map((node, i) => (
-        <div key={i} className="flex flex-col items-center gap-1 flex-1">
-          <div className={avatarClasses[node.type]}>{node.initials}</div>
-          <span
-            className={
-              node.type === 'consult'
-                ? 'text-[9px] font-semibold text-[#356B58]'
-                : node.type === 'you'
-                  ? 'text-[9px] font-semibold text-[#356B58]'
-                  : 'text-[9px] font-medium text-[#aaa] mt-1'
-            }
-          >
-            {node.type === 'you' ? t('checkin.you_label') : node.label}
-          </span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// ─── StatsRow ───────────────────────────────────────────
-
-function StatsRow({
-  waitingCount,
-  avgConsultMinutes,
-  totalToday,
-}: {
-  waitingCount: number;
-  avgConsultMinutes: number;
-  totalToday: number;
-}) {
-  const { t } = useTranslation();
-  const estimatedMinutes = Math.max(1, waitingCount * avgConsultMinutes);
-  const stats = [
-    { value: waitingCount, label: t('checkin.stat_ahead') },
-    { value: `~${estimatedMinutes}`, label: t('checkin.stat_minutes') },
-    { value: totalToday, label: t('checkin.stat_today') },
-  ];
-
-  return (
-    <div className="flex gap-2.5 mt-4">
-      {stats.map((s, i) => (
-        <div key={i} className="flex-1 bg-[#EAECE6] rounded-xl p-3 text-center">
-          <div className="text-[22px] font-semibold text-[#356B58] font-['Sora']">{s.value}</div>
-          <div className="text-[10px] text-[#999] mt-0.5 font-['DM_Sans'] font-normal">
-            {s.label}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// ─── LiveQueueCard ──────────────────────────────────────
+// ─── LiveQueueCard (Compact Banner + Open Door) ────────
 
 function LiveQueueCard({ snapshot }: { snapshot: PublicQueueSnapshot }) {
   const { t } = useTranslation();
+  const ahead = snapshot.waitingCount;
+  const position = ahead + 1;
+  const estMinutes = Math.max(1, ahead * snapshot.avgConsultMinutes);
+  const totalSegments = Math.max(position, 2);
+
   return (
-    <div className="bg-white rounded-[20px] p-[18px] mb-3 shadow-[0_2px_12px_rgba(0,0,0,.05)]">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-[14px]">
-        <span className="text-[13px] font-semibold text-[#1B2D25]">
-          {t('checkin.queue_title')}
-        </span>
-        <span className="flex items-center gap-1.5 text-[11px] font-semibold text-green-400 bg-green-400/10 px-2.5 py-1 rounded-full">
-          <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-          {t('checkin.live_label')}
-        </span>
+    <div className="bg-white rounded-[20px] shadow-[0_2px_12px_rgba(0,0,0,.05)] mb-3">
+      <div className="px-[18px] py-[14px]">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-[13px] font-semibold text-[#1B2D25] font-['Sora']">
+            {t('checkin.queue_title')}
+          </span>
+          <span className="flex items-center gap-1.5 text-[11px] font-semibold text-[#356B58]">
+            <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+            {t('checkin.live_label')}
+          </span>
+        </div>
+
+        {/* Banner: position block + wait time */}
+        <div className="flex items-center gap-3.5 mb-3.5">
+          {/* Position block */}
+          <div className="w-[60px] h-[60px] bg-[#356B58] rounded-[14px] flex flex-col items-center justify-center shrink-0">
+            <span className="text-[10px] font-normal text-white/60 font-['Sora'] leading-none">#</span>
+            <span className="text-[30px] font-semibold text-white font-['Sora'] leading-none tracking-tight">{position}</span>
+          </div>
+          {/* Wait time */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-baseline gap-1">
+              <span className="text-[24px] font-light text-[#1B2D25] font-['Sora'] leading-none tracking-tight">~{estMinutes}</span>
+              <span className="text-[12px] font-medium text-[#888]">min</span>
+            </div>
+            <div className="text-[10px] text-[#aaa] mt-1">{t('checkin.wait_estimate')}</div>
+          </div>
+        </div>
+
+        {/* Progress bar: YOU (left) → waiting → CONSULTING/door (right) */}
+        <div>
+          {/* Direction arrow */}
+          <div className="flex justify-center mb-1">
+            <svg width="40" height="6" viewBox="0 0 40 6" fill="none" className="opacity-40">
+              <path d="M2 3h34M33 1l3 2-3 2" stroke="#aaa" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+          {/* Bar row: avatar → segments → door icon */}
+          <div className="flex items-center gap-1.5">
+            {/* You avatar */}
+            <div className="w-[22px] h-[22px] rounded-full border-[2.5px] border-dashed border-[#356B58] flex items-center justify-center shrink-0 animate-you-pulse">
+              <span className="text-[9px] font-bold text-[#356B58] font-['Sora']">?</span>
+            </div>
+            {/* Segments */}
+            <div className="flex-1 flex items-center gap-[2px]">
+              {Array.from({ length: totalSegments }, (_, i) => {
+                const isYou = i === 0;
+                const isConsult = i === totalSegments - 1;
+                return (
+                  <div
+                    key={i}
+                    className={
+                      isYou
+                        ? 'flex-1 h-[5px] rounded-[3px] bg-[#356B58] shadow-[0_0_0_2px_rgba(53,107,88,0.12)]'
+                        : isConsult
+                          ? 'flex-1 h-[5px] rounded-[3px] bg-[#356B58]'
+                          : 'flex-1 h-[5px] rounded-[3px] bg-[#EAECE6]'
+                    }
+                    style={{ minWidth: isYou ? 6 : undefined }}
+                  />
+                );
+              })}
+            </div>
+            {/* Door icon */}
+            <span className="material-symbols-rounded text-[22px] text-[#356B58] shrink-0" style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 20" }}>
+              meeting_room
+            </span>
+          </div>
+          {/* Labels */}
+          <div className="flex items-center justify-between mt-1.5 px-[1px]">
+            <span className="text-[9px] font-semibold text-[#356B58]">{t('checkin.you_label')}</span>
+            <span className="text-[9px] font-medium text-[#aaa]">{t('checkin.in_consult_label')}</span>
+          </div>
+        </div>
       </div>
-
-      <QueueVisual
-        entries={snapshot.entries}
-        waitingCount={snapshot.waitingCount}
-        avgConsultMinutes={snapshot.avgConsultMinutes}
-        isDoctorPresent={snapshot.isDoctorPresent}
-      />
-
-      <StatsRow
-        waitingCount={snapshot.waitingCount}
-        avgConsultMinutes={snapshot.avgConsultMinutes}
-        totalToday={snapshot.totalToday}
-      />
     </div>
   );
 }
@@ -286,7 +230,7 @@ function PhoneCard({
   const { t } = useTranslation();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const raw = e.target.value.replace(/\D/g, '').slice(0, 8);
+    const raw = e.target.value.replace(/\D/g, '').slice(0, webBrand.phone.localDigits);
     onChange(raw);
   };
 
@@ -301,20 +245,20 @@ function PhoneCard({
       </div>
       <div className="flex items-center border-[1.5px] border-[#356B58]/15 rounded-[14px] bg-[#fafafa] overflow-hidden transition-all duration-200 focus-within:border-[#356B58] focus-within:bg-white focus-within:shadow-[0_0_0_3px_rgba(53,107,88,.08)]">
         <div className="px-3.5 py-3.5 bg-[#356B58]/[.08] text-[15px] font-semibold text-[#356B58] border-r border-[#356B58]/10 shrink-0">
-          +216
+          {webBrand.phone.countryCode}
         </div>
         <input
           type="tel"
           inputMode="numeric"
-          placeholder="XX XXX XXX"
-          maxLength={11}
+          placeholder={webBrand.country === 'FR' ? '6 12 34 56 78' : 'XX XXX XXX'}
+          maxLength={webBrand.phone.localDigits + 4}
           autoComplete="tel-national"
           value={displayPhone(rawPhone)}
           onChange={handleChange}
           className="flex-1 px-3.5 py-3.5 bg-transparent border-none outline-none font-['Sora'] text-[15px] text-[#1B2D25] tracking-[.06em] placeholder:text-[#ccc] placeholder:font-light placeholder:tracking-normal"
         />
         <div className="px-3.5 text-[11px] font-semibold text-[#356B58] bg-[#356B58]/[.08] self-stretch flex items-center border-l border-[#356B58]/10">
-          {digitCount}/8
+          {digitCount}/{webBrand.phone.localDigits}
         </div>
       </div>
       <p className="text-[11px] text-[#bbb] mt-2 font-['DM_Sans']">{t('checkin.phone_hint')}</p>
@@ -518,6 +462,7 @@ export default function CheckInPage() {
   const [nameError, setNameError] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const socketRef = useRef<Socket | null>(null);
+  const [closureReason, setClosureReason] = useState<string | null>(null);
 
   // Reset store on mount/unmount
   useEffect(() => {
@@ -547,7 +492,23 @@ export default function CheckInPage() {
       }
     };
 
+    // Check if today is a closure day (jours fériés / congés)
+    const checkClosure = async () => {
+      try {
+        const res = await fetch(`${API}/api/clinic/closures/today?clinicId=${clinicId}`);
+        if (res.ok) {
+          const { data } = await res.json();
+          if (data?.isClosed) {
+            setClosureReason(data.reason || 'Fermé aujourd\'hui');
+          }
+        }
+      } catch {
+        // Non-critical — don't block check-in if closure check fails
+      }
+    };
+
     fetchSnapshot();
+    checkClosure();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clinicId]);
 
@@ -590,7 +551,7 @@ export default function CheckInPage() {
 
     const payload: CheckInPayload = {
       name: name.trim(),
-      ...(rawPhone.length === 8 && { phone: `+216${rawPhone}` }),
+      ...(rawPhone.length === webBrand.phone.localDigits && { phone: `${webBrand.phone.countryCode}${rawPhone}` }),
     };
 
     try {
@@ -663,6 +624,26 @@ export default function CheckInPage() {
       {(phase === 'ready' || phase === 'submitting') && snapshot && (
         <>
           <div className="h-[calc(100vh-64px)] overflow-y-auto pb-24 px-4 pt-4 scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {/* Closure banner — jours fériés / congés */}
+            {closureReason && (
+              <div
+                className="mb-3 p-4 rounded-[20px] text-center shadow-[0_2px_12px_rgba(0,0,0,.05)]"
+                style={{
+                  background: '#FDF0ED',
+                  border: '1px solid #FEE2E2',
+                }}
+              >
+                <span className="material-symbols-rounded text-[28px] text-[#D94F3B] block mb-1" style={{ fontVariationSettings: "'FILL' 1" }}>
+                  event_busy
+                </span>
+                <div className="text-[14px] font-semibold text-[#D94F3B] font-['Sora']">
+                  Le cabinet est fermé aujourd'hui
+                </div>
+                <div className="text-[12px] text-[#6B6960] mt-1">
+                  {closureReason}
+                </div>
+              </div>
+            )}
             <LiveQueueCard snapshot={snapshot} />
             <NameCard
               value={name}

@@ -5,12 +5,11 @@ import { useAuthStore } from '@/stores/authStore';
 import BSClinicProfilePanel from '@/components/shared/BSClinicProfilePanel';
 import BSTeamAccessPanel from '@/components/shared/BSTeamAccessPanel';
 import BSSubscriptionPanel from '@/components/shared/BSSubscriptionPanel';
-import BSConsultationDurationPanel from '@/components/shared/BSConsultationDurationPanel';
-import BSLanguagePanel from '@/components/shared/BSLanguagePanel';
 import BSClinicHoursPanel from '@/components/shared/BSClinicHoursPanel';
-import BSCheckInMethodsPanel from '@/components/shared/BSCheckInMethodsPanel';
 import BSNotificationsPanel from '@/components/shared/BSNotificationsPanel';
 import BSWaitingRoomDisplayPanel from '@/components/shared/BSWaitingRoomDisplayPanel';
+import BSSecurityPanel from '@/components/shared/BSSecurityPanel';
+import BSHelpSupportPanel from '@/components/shared/BSHelpSupportPanel';
 import { api } from '@/lib/api';
 
 interface ASSettingsPanelProps {
@@ -104,13 +103,14 @@ export default function ASSettingsPanel({ isOpen, onClose, clinic }: ASSettingsP
   const [showClinicProfile, setShowClinicProfile] = useState(false);
   const [showTeamAccess, setShowTeamAccess] = useState(false);
   const [showSubscription, setShowSubscription] = useState(false);
-  const [showConsultationDuration, setShowConsultationDuration] = useState(false);
-  const [showLanguage, setShowLanguage] = useState(false);
   const [showClinicHours, setShowClinicHours] = useState(false);
-  const [showCheckInMethods, setShowCheckInMethods] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showWaitingRoomDisplay, setShowWaitingRoomDisplay] = useState(false);
   const [showQrCode, setShowQrCode] = useState(false);
+  const [showSecurity, setShowSecurity] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
+  // Phase 1 placeholders — real panels land in later phases
+  const [showPlaceholder, setShowPlaceholder] = useState<string | null>(null);
 
   // Reset sub-panels when main panel closes
   useEffect(() => {
@@ -118,13 +118,13 @@ export default function ASSettingsPanel({ isOpen, onClose, clinic }: ASSettingsP
       setShowClinicProfile(false);
       setShowTeamAccess(false);
       setShowSubscription(false);
-      setShowConsultationDuration(false);
-      setShowLanguage(false);
       setShowClinicHours(false);
-      setShowCheckInMethods(false);
       setShowNotifications(false);
       setShowWaitingRoomDisplay(false);
       setShowQrCode(false);
+      setShowSecurity(false);
+      setShowHelp(false);
+      setShowPlaceholder(null);
     }
   }, [isOpen]);
 
@@ -265,64 +265,124 @@ export default function ASSettingsPanel({ isOpen, onClose, clinic }: ASSettingsP
           </div>
         </div>
 
+        {/* ─── PRATICIENS & FILE D'ATTENTE ─── */}
+        <SettingsSection label="PRATICIENS & FILE D'ATTENTE">
+          <SettingsItem
+            icon={<ASIcon name="group" size={18} />}
+            iconColor="blue"
+            title="Praticiens"
+            description="Gérer votre équipe médicale"
+            right={<ValueChevron />}
+            onClick={() => setShowTeamAccess(true)}
+          />
+          <SettingsItem
+            icon={<ASIcon name="notifications" size={18} />}
+            iconColor="green"
+            title="Notifications patients"
+            description="Alertes, messages prédéfinis"
+            right={<ValueChevron />}
+            onClick={() => setShowNotifications(true)}
+          />
+          <SettingsItem
+            icon={<ASIcon name="schedule" size={18} />}
+            iconColor="warm"
+            title="Horaires du cabinet"
+            description="Jours, créneaux, jours fériés"
+            right={<ValueChevron />}
+            onClick={() => setShowClinicHours(true)}
+          />
+          <SettingsItem
+            icon={<ASIcon name="local_hospital" size={18} />}
+            iconColor="green"
+            title="Expérience salle d'attente"
+            description="Ce que vos patients voient"
+            right={<ValueChevron />}
+            onClick={() => setShowWaitingRoomDisplay(true)}
+            isLast
+          />
+        </SettingsSection>
+
         {/* ─── MON CABINET ─── */}
         <SettingsSection label="MON CABINET">
           <SettingsItem
             icon={<ASIcon name="home" size={18} />}
             iconColor="green"
             title="Profil du cabinet"
-            description="Nom, adresse, spécialité"
+            description="Nom, SIRET, adresse, téléphone"
             right={<ValueChevron />}
             onClick={() => setShowClinicProfile(true)}
           />
           <SettingsItem
-            icon={<ASIcon name="group" size={18} />}
-            iconColor="blue"
-            title="Médecins"
-            description="Gérer votre équipe médicale"
-            right={<ValueChevron />}
-            onClick={() => setShowTeamAccess(true)}
-          />
-          <SettingsItem
             icon={<ASIcon name="qr_code_2" size={18} />}
             iconColor="blue"
-            title="Code QR"
-            description="Afficher et partager votre QR code"
+            title="Code QR & affichage"
+            description="Imprimer et partager votre QR code"
             right={<ValueChevron />}
             onClick={() => setShowQrCode(true)}
+            isLast
           />
+        </SettingsSection>
+
+        {/* ─── ABONNEMENT & FACTURATION ─── */}
+        <SettingsSection label="ABONNEMENT & FACTURATION">
           <SettingsItem
             icon={<ASIcon name="credit_card" size={18} />}
             iconColor="green"
-            title="Abonnement"
-            description="Gérer votre abonnement"
+            title="Mon abonnement"
+            description="Gérer votre formule"
             right={<ValueChevron />}
             onClick={() => setShowSubscription(true)}
-            isLast
           />
-        </SettingsSection>
-
-        {/* ─── FILE D'ATTENTE ─── */}
-        <SettingsSection label="FILE D'ATTENTE">
           <SettingsItem
-            icon={<ASIcon name="schedule" size={18} />}
-            iconColor="warm"
-            title="Durée moy. consultation"
-            description="Utilisée pour estimer l'attente"
-            right={<ValueChevron value={`${clinic?.avgConsultationMins || 15} min`} />}
-            onClick={() => setShowConsultationDuration(true)}
+            icon={<ASIcon name="receipt_long" size={18} />}
+            iconColor="blue"
+            title="Factures"
+            description="Historique et téléchargement"
+            right={
+              <>
+                <span style={{ fontSize: 11, color: 'var(--color-text-muted)', fontStyle: 'italic' }}>
+                  Bientôt
+                </span>
+                <ASIcon name="chevron_right" size={16} style={{ color: 'var(--color-border)' }} />
+              </>
+            }
+            onClick={() => setShowPlaceholder('invoices')}
             isLast
           />
         </SettingsSection>
 
-        {/* ─── COMPTE ─── */}
-        <SettingsSection label="COMPTE">
+        {/* ─── COMPTE & CONFIDENTIALITÉ ─── */}
+        <SettingsSection label="COMPTE & CONFIDENTIALITÉ">
+          <SettingsItem
+            icon={<ASIcon name="lock" size={18} />}
+            iconColor="gray"
+            title="Sécurité"
+            description="Mot de passe"
+            right={<ValueChevron />}
+            onClick={() => setShowSecurity(true)}
+          />
+          <SettingsItem
+            icon={<ASIcon name="shield" size={18} />}
+            iconColor="gray"
+            title="Données & RGPD"
+            description="Confidentialité et droits"
+            right={
+              <>
+                <span style={{ fontSize: 11, color: 'var(--color-text-muted)', fontStyle: 'italic' }}>
+                  Bientôt
+                </span>
+                <ASIcon name="chevron_right" size={16} style={{ color: 'var(--color-border)' }} />
+              </>
+            }
+            onClick={() => setShowPlaceholder('privacy')}
+          />
           <SettingsItem
             icon={<ASIcon name="help" size={18} />}
             iconColor="gray"
             title="Aide & support"
             description="FAQ, contact, tutoriels"
             right={<ValueChevron />}
+            onClick={() => setShowHelp(true)}
             isLast
           />
         </SettingsSection>
@@ -366,21 +426,9 @@ export default function ASSettingsPanel({ isOpen, onClose, clinic }: ASSettingsP
         isOpen={showSubscription}
         onClose={() => setShowSubscription(false)}
       />
-      <BSConsultationDurationPanel
-        isOpen={showConsultationDuration}
-        onClose={() => setShowConsultationDuration(false)}
-      />
-      <BSLanguagePanel
-        isOpen={showLanguage}
-        onClose={() => setShowLanguage(false)}
-      />
       <BSClinicHoursPanel
         isOpen={showClinicHours}
         onClose={() => setShowClinicHours(false)}
-      />
-      <BSCheckInMethodsPanel
-        isOpen={showCheckInMethods}
-        onClose={() => setShowCheckInMethods(false)}
       />
       <BSNotificationsPanel
         isOpen={showNotifications}
@@ -390,7 +438,21 @@ export default function ASSettingsPanel({ isOpen, onClose, clinic }: ASSettingsP
         isOpen={showWaitingRoomDisplay}
         onClose={() => setShowWaitingRoomDisplay(false)}
       />
+      <BSSecurityPanel
+        isOpen={showSecurity}
+        onClose={() => setShowSecurity(false)}
+      />
+      <BSHelpSupportPanel
+        isOpen={showHelp}
+        onClose={() => setShowHelp(false)}
+      />
       {showQrCode && <ASQrCodeOverlay onClose={() => setShowQrCode(false)} />}
+      {showPlaceholder && (
+        <PlaceholderPanel
+          id={showPlaceholder}
+          onClose={() => setShowPlaceholder(null)}
+        />
+      )}
     </>
   );
 }
@@ -450,7 +512,7 @@ function ASQrCodeOverlay({ onClose }: { onClose: () => void }) {
           style={{
             position: 'absolute', top: 12, right: 12,
             width: 32, height: 32, borderRadius: '50%',
-            background: 'var(--color-surface-alt, #EDF0F7)', border: 'none',
+            background: 'var(--color-surface-alt, #F0EDE9)', border: 'none',
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
             color: 'var(--color-text-muted)',
           }}
@@ -461,7 +523,7 @@ function ASQrCodeOverlay({ onClose }: { onClose: () => void }) {
         {/* QR code */}
         <div style={{ textAlign: 'center' }}>
           {loading && (
-            <div style={{ width: 180, height: 180, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F2F5FB', borderRadius: 16 }}>
+            <div style={{ width: 180, height: 180, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#EAECE6', borderRadius: 16 }}>
               <div className="animate-spin" style={{ width: 28, height: 28, borderRadius: '50%', borderBottom: '2.5px solid var(--color-primary)' }} />
             </div>
           )}
@@ -545,5 +607,120 @@ function SettingsSection({ label, children }: { label: string; children: React.R
         {children}
       </div>
     </div>
+  );
+}
+
+const PLACEHOLDER_LABELS: Record<string, { title: string; message: string }> = {
+  invoices: {
+    title: 'Factures',
+    message:
+      'La génération de factures conformes (SIRET, TVA, numérotation séquentielle) sera disponible prochainement.',
+  },
+  privacy: {
+    title: 'Données & RGPD',
+    message:
+      "L'export de vos données et la suppression de compte (conformément au RGPD) seront disponibles prochainement.",
+  },
+};
+
+function PlaceholderPanel({ id, onClose }: { id: string; onClose: () => void }) {
+  const content = PLACEHOLDER_LABELS[id] ?? { title: '', message: '' };
+  return (
+    <>
+      {/* Backdrop */}
+      <div
+        className="fixed inset-0"
+        style={{ zIndex: 220, background: 'rgba(44,74,62,0.4)' }}
+        onClick={onClose}
+      />
+      {/* Panel */}
+      <div
+        className="fixed top-0"
+        style={{
+          right: 0,
+          width: '100%',
+          maxWidth: 430,
+          height: '100dvh',
+          background: 'var(--color-bg)',
+          zIndex: 221,
+          overflowY: 'auto',
+        }}
+      >
+        {/* Tricolor bar */}
+        <div className="as-tricolor-bar" />
+        {/* Topbar */}
+        <div
+          className="sticky top-0 flex items-center gap-3"
+          style={{
+            padding: '14px 20px',
+            background: 'var(--color-surface)',
+            borderBottom: '1px solid var(--color-border-subtle)',
+            zIndex: 5,
+          }}
+        >
+          <button
+            onClick={onClose}
+            aria-label="Retour"
+            className="flex items-center justify-center"
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: 'var(--radius-sm)',
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              color: 'var(--color-text-primary)',
+            }}
+          >
+            <ASIcon name="chevron_left" size={20} />
+          </button>
+          <span style={{ fontSize: 17, fontWeight: 700, letterSpacing: '-0.3px' }}>
+            {content.title}
+          </span>
+        </div>
+        {/* Empty state */}
+        <div
+          style={{
+            padding: '60px 24px',
+            textAlign: 'center',
+          }}
+        >
+          <div
+            className="flex items-center justify-center"
+            style={{
+              width: 64,
+              height: 64,
+              borderRadius: '50%',
+              background: 'var(--color-surface-alt)',
+              margin: '0 auto 16px',
+              color: 'var(--color-text-muted)',
+            }}
+          >
+            <ASIcon name="hourglass_empty" size={28} />
+          </div>
+          <div
+            style={{
+              fontSize: 15,
+              fontWeight: 600,
+              color: 'var(--color-text-primary)',
+              marginBottom: 8,
+            }}
+          >
+            Bientôt disponible
+          </div>
+          <div
+            style={{
+              fontSize: 13,
+              color: 'var(--color-text-muted)',
+              lineHeight: 1.5,
+              maxWidth: 300,
+              margin: '0 auto',
+            }}
+          >
+            {content.message}
+          </div>
+        </div>
+      </div>
+    </>
   );
 }

@@ -192,7 +192,22 @@
     "confirm": {
       "remove": "إزالة {{name}} من قائمة الانتظار؟"
     },
-    "empty": "لا يوجد مرضى في قائمة الانتظار"
+    "empty": "لا يوجد مرضى في قائمة الانتظار",
+    "doctors": {
+      "title": "الأطباء",
+      "waiting": "انتظار",
+      "seen": "تمت معاينتهم",
+      "avgWait": "متوسط",
+      "free": "— متاح —",
+      "next": "التالي",
+      "nextAria": "استدعاء المريض التالي لهذا الطبيب"
+    },
+    "consultation": {
+      "title": "في الاستشارة",
+      "empty": "لا توجد استشارات جارية",
+      "minute_unit": "د",
+      "finish_aria": "إنهاء استشارة {{patient}} مع {{doctor}}"
+    }
   },
   "patient": {
     "hello": "مرحباً",
@@ -299,6 +314,8 @@
     "stat_ahead": "أشخاص أمامك",
     "stat_minutes": "دقائق تقديرية",
     "stat_today": "مرضى اليوم",
+    "wait_estimate": "وقت الانتظار المقدر",
+    "in_consult_label": "في الاستشارة",
     "name_title": "اسمك",
     "name_placeholder": "الاسم والنسب",
     "name_required": "يرجى إدخال اسمك",
