@@ -44,13 +44,13 @@ function getApiUrl(): string {
   // In production (Vercel), detect based on hostname
   if (typeof window !== 'undefined') {
     const hostname = window.location.hostname;
+    // AuSuivant production (France) — must check before generic vercel.app
+    if (hostname.includes('ausuivant')) {
+      return 'https://ausuivant-api-production-production.up.railway.app';
+    }
     // BleSaf production (Tunisia)
     if (hostname.includes('vercel.app') || hostname.includes('doctor-q') || hostname.includes('blesaf')) {
       return 'https://doctorqapi-production-ac8b.up.railway.app';
-    }
-    // AuSuivant production (France)
-    if (hostname.includes('ausuivant')) {
-      return 'https://ausuivant-api-production-production.up.railway.app';
     }
   }
 
