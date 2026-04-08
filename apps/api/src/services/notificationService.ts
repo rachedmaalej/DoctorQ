@@ -6,7 +6,7 @@
 import { prisma } from '../lib/prisma.js';
 import { QueueStatus } from '@prisma/client';
 import { emitToRoom, emitPublicQueueUpdate } from '../lib/socket.js';
-import { getQueueStats, computeSmartWaitEstimate } from './statsService.js';
+import { getQueueStats, computeBatchWaitEstimates } from './statsService.js';
 import { sendPushToEntry, isPushConfigured } from '../lib/webpush.js';
 import { logger } from '../lib/logger.js';
 
@@ -146,19 +146,18 @@ export async function emitAllPatientUpdates(clinicId: string): Promise<void> {
     .filter(p => p.priority === 'urgent')
     .map(p => p.position);
 
+  // Batch compute all wait estimates in one pass (pre-fetches shared data once)
+  const estimates = await computeBatchWaitEstimates(clinicId, patients);
+
   for (const patient of patients) {
-    const { estimatedWaitMins, confidence, minWaitMins, maxWaitMins, positionInDoctorQueue, patientsAheadForDoctor } = await computeSmartWaitEstimate(
-      clinicId,
-      patient.position,
-      patient.doctorId,
-      patient.id,
-    );
+    const estimate = estimates.get(patient.id);
+    if (!estimate) continue;
     const hasEmergencyAhead = urgentPositions.some(pos => pos < patient.position);
     emitPatientUpdate(
       patient.id, patient.position, patient.status,
-      estimatedWaitMins, confidence, patient.isSteppedOut,
-      minWaitMins, maxWaitMins, hasEmergencyAhead,
-      positionInDoctorQueue, patientsAheadForDoctor,
+      estimate.estimatedWaitMins, estimate.confidence, patient.isSteppedOut,
+      estimate.minWaitMins, estimate.maxWaitMins, hasEmergencyAhead,
+      estimate.positionInDoctorQueue, estimate.patientsAheadForDoctor,
     );
   }
 }

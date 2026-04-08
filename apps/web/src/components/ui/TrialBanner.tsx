@@ -1,17 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { api } from '../../lib/api';
-
-interface SubscriptionData {
-  status: string;
-  daysRemaining: number | null;
-  canUseApp: boolean;
-}
+import { useSubscriptionStore } from '@/stores/subscriptionStore';
 
 export default function TrialBanner() {
   const { t } = useTranslation();
-  const [sub, setSub] = useState<SubscriptionData | null>(null);
+  const sub = useSubscriptionStore(s => s.data);
+  const fetchSubscription = useSubscriptionStore(s => s.fetch);
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
@@ -24,10 +19,8 @@ export default function TrialBanner() {
       }
     }
 
-    api.getSubscription()
-      .then(data => setSub(data))
-      .catch(() => {});
-  }, []);
+    fetchSubscription();
+  }, [fetchSubscription]);
 
   const handleDismiss = () => {
     localStorage.setItem('trial_banner_dismissed', new Date().toDateString());

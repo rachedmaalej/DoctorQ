@@ -44,6 +44,7 @@ function getSocket(): Socket {
       reconnection: true,
       reconnectionDelay: 1000,
       reconnectionAttempts: 10,
+      transports: ['websocket', 'polling'],
     });
 
     socket.on('connect', () => {

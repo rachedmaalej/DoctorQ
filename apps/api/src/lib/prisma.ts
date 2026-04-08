@@ -26,7 +26,7 @@ function createPrismaClient(): PrismaClient {
   const dbUrl = process.env.DATABASE_URL || '';
   if (dbUrl && !dbUrl.includes('connection_limit')) {
     const separator = dbUrl.includes('?') ? '&' : '?';
-    const limit = isProduction ? 10 : 20;
+    const limit = isProduction ? 15 : 20;
     process.env.DATABASE_URL = `${dbUrl}${separator}connection_limit=${limit}`;
   }
 

@@ -1,29 +1,22 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { api } from '../../lib/api';
-
-interface TierUsageData {
-  tier: string;
-  limits: { dailyPatients: number; maxDoctors: number };
-  usage: { dailyPatientCount: number };
-}
+import { useSubscriptionStore } from '@/stores/subscriptionStore';
 
 export default function TierUsageBanner() {
-  const [data, setData] = useState<TierUsageData | null>(null);
+  const sub = useSubscriptionStore(s => s.data);
+  const fetchSubscription = useSubscriptionStore(s => s.fetch);
 
   useEffect(() => {
-    api.getSubscription()
-      .then((sub) => {
-        setData({
-          tier: sub.tier,
-          limits: sub.limits,
-          usage: sub.usage,
-        });
-      })
-      .catch(() => {});
-  }, []);
+    fetchSubscription();
+  }, [fetchSubscription]);
 
-  if (!data) return null;
+  if (!sub) return null;
+
+  const data = {
+    tier: sub.tier,
+    limits: sub.limits,
+    usage: sub.usage,
+  };
 
   // Don't show for CLINIQUE (unlimited) or if limits are infinite
   if (data.tier === 'CLINIQUE' || data.limits.dailyPatients === Infinity) return null;

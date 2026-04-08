@@ -8,4 +8,4 @@ cmds = ["npm install --include=dev"]
 cmds = ["npx prisma generate", "npm run build"]
 
 [start]
-cmd = "DIRECT_URL=$DATABASE_URL npx prisma db push --accept-data-loss && npm start"
+cmd = "npm start"

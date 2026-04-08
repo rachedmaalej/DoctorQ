@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDashboard } from '@/hooks/useDashboard';
 import { useAuthStore } from '@/stores/authStore';
 import { webBrand } from '@/lib/brand';
-import { api } from '@/lib/api';
+import { useSubscriptionStore } from '@/stores/subscriptionStore';
 import ReceptionistDashboard from '@/components/receptionist/ReceptionistDashboard';
 import AuSuivantDashboard from '@/components/ausuivant/AuSuivantDashboard';
 import ASDesktopLayout from '@/components/ausuivant/ASDesktopLayout';
@@ -37,14 +37,13 @@ export default function DashboardPage() {
     setCloseDrawerTrigger(n => n + 1);
   };
 
-  // Check subscription status
+  // Check subscription status (shared store — single fetch for all consumers)
+  const fetchSubscription = useSubscriptionStore(s => s.fetch);
   useEffect(() => {
-    api.getSubscription()
-      .then(sub => {
-        setSubscriptionExpired(!sub.canUseApp);
-      })
-      .catch(() => {});
-  }, []);
+    fetchSubscription().then(sub => {
+      if (sub) setSubscriptionExpired(!sub.canUseApp);
+    });
+  }, [fetchSubscription]);
 
   const {
     // Store data

@@ -548,3 +548,168 @@ export async function computeSmartWaitEstimate(
     patientsAheadForDoctor,
   };
 }
+
+// ─── Batch Wait Estimates (optimized for emitAllPatientUpdates) ───
+
+interface PatientForEstimate {
+  id: string;
+  position: number;
+  status: string;
+  doctorId: string | null;
+  isSteppedOut: boolean;
+  priority: string | null;
+}
+
+/**
+ * Compute wait estimates for ALL patients in a clinic in a single batch.
+ * Pre-fetches all shared data once (doctors, IN_CONSULTATION, no-show rate, avg)
+ * then computes estimates with pure math — no per-patient DB queries.
+ *
+ * Replaces the O(n * 4-7 queries) loop with O(1) queries + O(n) computation.
+ */
+export async function computeBatchWaitEstimates(
+  clinicId: string,
+  patients: PatientForEstimate[],
+): Promise<Map<string, SmartWaitEstimate>> {
+  const results = new Map<string, SmartWaitEstimate>();
+  if (patients.length === 0) return results;
+
+  // Collect unique doctorIds
+  const doctorIds = [...new Set(patients.map(p => p.doctorId).filter(Boolean))] as string[];
+
+  // Pre-fetch all shared data in parallel (replaces 4-7 queries per patient)
+  const [doctors, inConsultationEntries, noShowRate, clinicAvg] = await Promise.all([
+    // All active doctors for this clinic
+    doctorIds.length > 0
+      ? prisma.doctor.findMany({
+          where: { clinicId, id: { in: doctorIds } },
+          select: { id: true, isActive: true, state: true },
+        })
+      : Promise.resolve([]),
+    // All IN_CONSULTATION entries (to compute elapsed time)
+    prisma.queueEntry.findMany({
+      where: { clinicId, status: QueueStatus.IN_CONSULTATION },
+      select: { doctorId: true, calledAt: true },
+    }),
+    // No-show rate (already cached internally)
+    getNoShowRate(clinicId),
+    // Effective avg (already cached internally, but call once for clinic-wide)
+    getEffectiveConsultationAvgDetailed(clinicId, null),
+  ]);
+
+  // Pre-fetch per-doctor avgs for all unique doctors in parallel
+  const doctorAvgs = new Map<string, EffectiveAvgResult>();
+  if (doctorIds.length > 0) {
+    const avgs = await Promise.all(
+      doctorIds.map(async (dId) => {
+        const avg = await getEffectiveConsultationAvgDetailed(clinicId, dId);
+        return [dId, avg] as const;
+      })
+    );
+    for (const [dId, avg] of avgs) doctorAvgs.set(dId, avg);
+  }
+
+  // Index pre-fetched data for O(1) lookups
+  const doctorMap = new Map(doctors.map(d => [d.id, d]));
+  const inConsultByDoctor = new Map<string | null, { calledAt: Date | null }>();
+  for (const entry of inConsultationEntries) {
+    inConsultByDoctor.set(entry.doctorId, entry);
+  }
+
+  // Build per-doctor sub-queues (ordered by position)
+  const doctorSubQueues = new Map<string, string[]>();
+  for (const p of patients) {
+    if (p.doctorId) {
+      const q = doctorSubQueues.get(p.doctorId) || [];
+      q.push(p.id);
+      doctorSubQueues.set(p.doctorId, q);
+    }
+  }
+
+  // Compute estimates for each patient (pure math, no DB queries)
+  for (const patient of patients) {
+    const scopedDoctorId = patient.doctorId;
+    const avgResult = scopedDoctorId
+      ? (doctorAvgs.get(scopedDoctorId) ?? clinicAvg)
+      : clinicAvg;
+    const effectiveAvgMins = Math.max(1, avgResult.avgMins);
+
+    // Per-doctor sub-queue position
+    let positionInDoctorQueue = patient.position;
+    if (scopedDoctorId) {
+      const subQueue = doctorSubQueues.get(scopedDoctorId);
+      if (subQueue) {
+        const idx = subQueue.indexOf(patient.id);
+        if (idx >= 0) positionInDoctorQueue = idx + 1;
+      }
+    }
+
+    // Doctor presence
+    let doctorAbsent: boolean;
+    if (scopedDoctorId) {
+      const doctor = doctorMap.get(scopedDoctorId);
+      doctorAbsent = !doctor || !doctor.isActive || (doctor.state !== 'consulting' && doctor.state !== 'free');
+    } else {
+      doctorAbsent = false; // clinic-wide fallback
+    }
+
+    const patientsAheadForDoctor = Math.max(0, positionInDoctorQueue - 1);
+
+    if (positionInDoctorQueue <= 0) {
+      results.set(patient.id, {
+        estimatedWaitMins: 0, minWaitMins: 0, maxWaitMins: 0,
+        effectiveAvgMins, confidence: 'high', doctorAbsent,
+        positionInDoctorQueue: Math.max(1, positionInDoctorQueue),
+        patientsAheadForDoctor: 0,
+      });
+      continue;
+    }
+
+    // Current IN_CONSULTATION patient for this doctor
+    const currentPatient = scopedDoctorId
+      ? inConsultByDoctor.get(scopedDoctorId)
+      : inConsultByDoctor.get(null) ?? inConsultationEntries[0]; // clinic-wide fallback
+
+    let estimatedWaitMins: number;
+    if (currentPatient?.calledAt) {
+      const elapsedMins = (Date.now() - currentPatient.calledAt.getTime()) / 60000;
+      const remaining = Math.max(0, effectiveAvgMins - elapsedMins);
+      const fullConsultationsAhead = Math.max(0, positionInDoctorQueue - 2);
+      const discountedAhead = fullConsultationsAhead * (1 - noShowRate);
+      estimatedWaitMins = Math.round(remaining + discountedAhead * effectiveAvgMins);
+    } else {
+      const fullAhead = Math.max(0, positionInDoctorQueue - 1);
+      const discountedAhead = fullAhead * (1 - noShowRate);
+      estimatedWaitMins = Math.round(discountedAhead * effectiveAvgMins);
+    }
+
+    // Confidence
+    let confidence: 'high' | 'medium' | 'low';
+    if (doctorAbsent) {
+      confidence = 'low';
+    } else if (avgResult.source === 'clinic_fallback') {
+      confidence = 'low';
+    } else if (avgResult.source === 'today_weighted' && avgResult.sampleSize >= 3 && positionInDoctorQueue <= 5) {
+      confidence = 'high';
+    } else if (avgResult.source === 'today_weighted' && avgResult.sampleSize >= 3) {
+      confidence = 'medium';
+    } else {
+      confidence = 'medium';
+    }
+
+    const capped = Math.max(0, estimatedWaitMins);
+    const variabilityFactors: Record<string, number> = { high: 0.3, medium: 0.5, low: 0.7 };
+    const vf = variabilityFactors[confidence];
+    const maxMarginCap = 20;
+    const marginMins = Math.min(maxMarginCap, Math.round(effectiveAvgMins * vf * Math.sqrt(patientsAheadForDoctor)));
+    const minWaitMins = Math.max(0, capped - marginMins);
+    const maxWaitMins = capped + marginMins;
+
+    results.set(patient.id, {
+      estimatedWaitMins: capped, minWaitMins, maxWaitMins, effectiveAvgMins,
+      confidence, doctorAbsent, positionInDoctorQueue, patientsAheadForDoctor,
+    });
+  }
+
+  return results;
+}
