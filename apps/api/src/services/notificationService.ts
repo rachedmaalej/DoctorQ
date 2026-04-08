@@ -16,19 +16,19 @@ import { logger } from '../lib/logger.js';
  */
 export async function emitQueueUpdate(clinicId: string): Promise<void> {
   try {
-    // Get updated queue
-    const queue = await prisma.queueEntry.findMany({
-      where: {
-        clinicId,
-        status: {
-          in: [QueueStatus.WAITING, QueueStatus.NOTIFIED, QueueStatus.IN_CONSULTATION],
+    // Parallelize queue fetch and stats — both are independent reads
+    const [queue, stats] = await Promise.all([
+      prisma.queueEntry.findMany({
+        where: {
+          clinicId,
+          status: {
+            in: [QueueStatus.WAITING, QueueStatus.NOTIFIED, QueueStatus.IN_CONSULTATION],
+          },
         },
-      },
-      orderBy: { position: 'asc' },
-    });
-
-    // Get updated stats
-    const stats = await getQueueStats(clinicId);
+        orderBy: { position: 'asc' },
+      }),
+      getQueueStats(clinicId),
+    ]);
 
     // Emit to clinic room
     emitToRoom(`clinic:${clinicId}`, 'queue:updated', { queue, stats });

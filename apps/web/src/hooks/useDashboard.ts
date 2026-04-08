@@ -222,23 +222,49 @@ export function useDashboard() {
     }
   }, [queue, fetchQueue, showToast, t]);
 
-  // Call next patient for a specific doctor
+  // Call next patient for a specific doctor (with optimistic update)
   const handleCallNextForDoctor = useCallback(async (doctorId: string) => {
     if (isCallingNext) return;
     setIsCallingNext(true);
-    try {
-      await callNext(doctorId);
-      const doctor = doctors.find(d => d.id === doctorId);
-      if (doctor) {
-        showToast(`Patient appelé — ${formatDoctorName(doctor.name)}`, 'call');
-      }
-    } catch (error) {
-      logger.error('Failed to call next for doctor:', error);
-      fetchQueue();
-    } finally {
-      setIsCallingNext(false);
+
+    // Optimistic update: move current IN_CONSULTATION → COMPLETED, promote next WAITING → IN_CONSULTATION
+    const currentPatient = queue.find(p => p.status === QueueStatus.IN_CONSULTATION && p.doctorId === doctorId);
+    const nextPatient = queue.find(p =>
+      (p.status === QueueStatus.WAITING || p.status === QueueStatus.NOTIFIED) &&
+      (p.doctorId === doctorId || !p.doctorId)
+    );
+
+    if (currentPatient || nextPatient) {
+      const nowISO = new Date().toISOString();
+      const optimisticQueue = queue
+        .filter(p => p.id !== currentPatient?.id)
+        .map(p => {
+          if (nextPatient && p.id === nextPatient.id) {
+            return { ...p, status: QueueStatus.IN_CONSULTATION, calledAt: nowISO, doctorId };
+          }
+          return p;
+        });
+      const optimisticStats = stats ? {
+        ...stats,
+        seen: currentPatient ? stats.seen + 1 : stats.seen,
+        waiting: nextPatient ? Math.max(0, stats.waiting - 1) : stats.waiting,
+      } : null;
+      useQueueStore.getState().setQueue(optimisticQueue, optimisticStats!);
     }
-  }, [isCallingNext, callNext, doctors, fetchQueue, showToast]);
+
+    const doctor = doctors.find(d => d.id === doctorId);
+    if (doctor) {
+      showToast(`Patient appelé — ${formatDoctorName(doctor.name)}`, 'call');
+    }
+
+    // Fire API call — Socket.io will reconcile with server state
+    callNext(doctorId).catch(err => {
+      logger.error('Failed to call next for doctor:', err);
+      fetchQueue();
+    });
+
+    setIsCallingNext(false);
+  }, [isCallingNext, callNext, doctors, queue, stats, fetchQueue, showToast]);
 
   // Call next patient handler with optimistic updates
   const handleCallNext = useCallback(async () => {

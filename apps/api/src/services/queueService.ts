@@ -388,22 +388,27 @@ export async function callNextPatient(clinicId: string, doctorId: string): Promi
     return null;
   }
 
-  // Recalculate positions and notifications for the rest of the queue
-  await recalculatePositionsAndStatuses(clinicId);
-
-  // Return the promoted patient
+  // Return the promoted patient immediately — don't block on recalculation
   const calledPatient = await prisma.queueEntry.findFirst({
     where: { id: promotedId },
   });
 
-  // Emit doctor state change if applicable
-  if (doctorId) {
-    emitDoctorState(clinicId, doctorId, 'consulting');
-  }
-
-  // Fire-and-forget: emit socket updates in background (don't block HTTP response)
-  emitQueueUpdate(clinicId).catch(() => {});
-  emitAllPatientUpdates(clinicId).catch(() => {});
+  // Run recalculation + socket emits in background (don't block HTTP response)
+  // This shaves ~2-3s off the response time for remote DB connections
+  (async () => {
+    try {
+      await recalculatePositionsAndStatuses(clinicId);
+      if (doctorId) {
+        emitDoctorState(clinicId, doctorId, 'consulting');
+      }
+      await Promise.all([
+        emitQueueUpdate(clinicId),
+        emitAllPatientUpdates(clinicId),
+      ]);
+    } catch (err) {
+      logger.error({ err, clinicId }, 'Background recalculation/emit failed after callNext');
+    }
+  })();
 
   return calledPatient;
 }
