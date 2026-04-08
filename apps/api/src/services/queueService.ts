@@ -207,25 +207,26 @@ export async function addPatient(input: AddPatientInput): Promise<AddPatientResu
     }
   }
 
-  // Recalculate positions and statuses (uses its own transaction)
-  await recalculatePositionsAndStatuses(clinicId);
-
   // Invalidate stats cache so next fetch gets fresh data
   invalidateStatsCache(clinicId);
 
-  // Fetch the updated entry
-  const updatedEntry = await prisma.queueEntry.findUnique({
-    where: { id: result.entry.id },
-  });
-
-  // Fire-and-forget: emit socket updates in background (don't block HTTP response)
-  emitQueueUpdate(clinicId).catch(() => {});
-  emitAllPatientUpdates(clinicId).catch(() => {});
-
-  const finalEntry = updatedEntry || result.entry;
+  // Return immediately — don't block on recalculation or socket emits
+  // The entry already has a correct position from the transaction above.
+  // Background work will reconcile positions and push updates via Socket.io.
+  (async () => {
+    try {
+      await recalculatePositionsAndStatuses(clinicId);
+      await Promise.all([
+        emitQueueUpdate(clinicId),
+        emitAllPatientUpdates(clinicId),
+      ]);
+    } catch (err) {
+      logger.error({ err, clinicId }, 'Background recalculation/emit failed after addPatient');
+    }
+  })();
 
   return {
-    entry: finalEntry,
+    entry: result.entry,
     isAlreadyCheckedIn: false,
   };
 }
@@ -254,15 +255,21 @@ export async function removePatient(clinicId: string, entryId: string): Promise<
     return false;
   }
 
-  // Recalculate positions and statuses (outside transaction for notifications)
-  await recalculatePositionsAndStatuses(clinicId);
-
   // Invalidate stats cache so next fetch gets fresh data
   invalidateStatsCache(clinicId);
 
-  // Fire-and-forget: emit socket updates in background
-  emitQueueUpdate(clinicId).catch(() => {});
-  emitAllPatientUpdates(clinicId).catch(() => {});
+  // Run recalculation + socket emits in background (don't block HTTP response)
+  (async () => {
+    try {
+      await recalculatePositionsAndStatuses(clinicId);
+      await Promise.all([
+        emitQueueUpdate(clinicId),
+        emitAllPatientUpdates(clinicId),
+      ]);
+    } catch (err) {
+      logger.error({ err, clinicId }, 'Background recalculation/emit failed after removePatient');
+    }
+  })();
 
   return true;
 }
@@ -449,18 +456,24 @@ export async function patientLeaveQueue(entryId: string): Promise<{ success: boo
 
   const clinicId = result.clinicId!;
 
-  // Recalculate and notify (outside transaction for notifications)
-  await recalculatePositionsAndStatuses(clinicId);
-
   // Invalidate stats cache so next fetch gets fresh data
   invalidateStatsCache(clinicId);
 
-  // Fire-and-forget: emit socket updates in background
-  emitQueueUpdate(clinicId).catch(() => {});
-  emitAllPatientUpdates(clinicId).catch(() => {});
-
-  // Notify the leaving patient
+  // Notify the leaving patient immediately
   emitPatientUpdate(entryId, 0, QueueStatus.CANCELLED);
+
+  // Run recalculation + socket emits in background
+  (async () => {
+    try {
+      await recalculatePositionsAndStatuses(clinicId);
+      await Promise.all([
+        emitQueueUpdate(clinicId),
+        emitAllPatientUpdates(clinicId),
+      ]);
+    } catch (err) {
+      logger.error({ err, clinicId }, 'Background recalculation/emit failed after patientLeaveQueue');
+    }
+  })();
 
   return { success: true, clinicId };
 }
@@ -834,17 +847,26 @@ export async function updatePatientStatus(
     }
   }
 
-  // Recalculate positions if status changed (outside transaction for notifications)
-  if (status !== QueueStatus.WAITING) {
-    await recalculatePositionsAndStatuses(clinicId);
-  }
-
   // Invalidate stats cache so next fetch gets fresh data
   invalidateStatsCache(clinicId);
 
-  // Fire-and-forget: emit socket updates in background
-  emitQueueUpdate(clinicId).catch(() => {});
-  emitAllPatientUpdates(clinicId).catch(() => {});
+  // Run recalculation + socket emits in background
+  if (status !== QueueStatus.WAITING) {
+    (async () => {
+      try {
+        await recalculatePositionsAndStatuses(clinicId);
+        await Promise.all([
+          emitQueueUpdate(clinicId),
+          emitAllPatientUpdates(clinicId),
+        ]);
+      } catch (err) {
+        logger.error({ err, clinicId }, 'Background recalculation/emit failed after updatePatientStatus');
+      }
+    })();
+  } else {
+    emitQueueUpdate(clinicId).catch(() => {});
+    emitAllPatientUpdates(clinicId).catch(() => {});
+  }
 
   return updated;
 }
