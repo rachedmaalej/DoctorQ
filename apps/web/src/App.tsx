@@ -41,7 +41,7 @@ function LegacyClinicRedirect() {
 
 function App() {
   const { isAuthenticated, isLoading, checkAuth, clinic, isImpersonating } = useAuthStore();
-  const needsOnboarding = isAuthenticated && !clinic?.isAdmin && !isImpersonating && !clinic?.onboardingCompleted;
+  const needsOnboarding = isAuthenticated && !clinic?.isAdmin && !isImpersonating && !clinic?.onboardingCompleted && webBrand.id !== 'france';
 
   useEffect(() => {
     checkAuth();

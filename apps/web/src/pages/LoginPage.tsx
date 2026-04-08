@@ -38,7 +38,7 @@ export default function LoginPage() {
       const { clinic } = useAuthStore.getState();
       if (clinic?.isAdmin) {
         navigate('/admin');
-      } else if (!clinic?.onboardingCompleted) {
+      } else if (!clinic?.onboardingCompleted && webBrand.id !== 'france') {
         navigate('/onboarding');
       } else {
         navigate('/dashboard');

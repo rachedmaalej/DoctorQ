@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase';
 import { api } from '@/lib/api';
 import { useAuthStore } from '@/stores/authStore';
 import { useOnboardingStore } from '@/stores/onboardingStore';
+import { webBrand } from '@/lib/brand';
 
 export default function AuthCallbackPage() {
   const navigate = useNavigate();
@@ -48,7 +49,7 @@ export default function AuthCallbackPage() {
         sessionStorage.removeItem('oauth_source');
 
         // Determine where to go
-        const needsOnboarding = result.isNewUser || (result.clinic && !result.clinic.onboardingCompleted);
+        const needsOnboarding = (result.isNewUser || (result.clinic && !result.clinic.onboardingCompleted)) && webBrand.id !== 'france';
 
         if (needsOnboarding) {
           // New user or existing user who hasn't finished onboarding → skip to QR
